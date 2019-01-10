@@ -1,0 +1,660 @@
+<html><head>
+  <base href="/gateway/hywx/TrainWebClient/">
+  <title>调查追踪</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=9">
+  <meta http-equiv="pragma" content="no-cache">
+  <meta http-equiv="cache-control" content="no-cache">
+  <meta http-equiv="expires" content="0">
+  <meta http-equiv="keywords" content="keyword1,keyword2,keyword3">
+  <meta http-equiv="description" content="This is my page">
+  <meta http-equiv="charset" content="utf-8">
+  <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <link rel="stylesheet" type="text/css" href="./easyui/themes/default/easyui.css">
+  <link rel="stylesheet" type="text/css" href="./easyui/themes/icon.css">
+  <link rel="stylesheet" type="text/css" href="./css/style12306.css">
+<script type="text/javascript" src="./js/jquery-1.4.2.js"></script>
+<script type="text/javascript" src="./easyui/jquery.easyui.min.js"></script>
+<script type="text/javascript">
+
+		var defaultLj="H00";	//H00上海局
+		var currentType="1";	//类型，默认为：“整车货物”
+		var detailList;			//普通行包及高铁行包，临时保存详细信息的容器
+		
+		$.messager.defaults={ok:"确定",cancel:"取消"};
+		$.fn.window.defaults=$.extend({},$.fn.panel.defaults,
+			{zIndex:9000,draggable:true,resizable:true,shadow:false,modal:false,
+			inline:false,title:"New Window",collapsible:true,minimizable:true,maximizable:true,
+			closable:true,closed:false});
+		
+		var successMessageTitle="信息提示";
+		var errorMessageTitle="错误信息";
+		var errorMessage="提交失败。请重试。";
+		//文本框提示信息设置
+		var messageMap={
+			"dcsr":"点此输入",
+			"xz":"TBJU"
+		};
+		function textOnFocus(obj){
+			var textObj=$(obj);
+			if(textObj.val().trim()==messageMap["dcsr"]){
+				textObj.val("");
+				textObj.removeClass("gray15");
+				textObj.addClass("black15");
+			}			
+		}
+		function textOnBlur(obj){
+			var textObj=$(obj);
+			if(textObj.val().trim()==""){
+				textObj.val(messageMap["dcsr"]);
+				textObj.removeClass("black15");
+				textObj.addClass("gray15");
+			}			
+		}
+		
+		//重置表单
+		function doReset(){
+			var textObjMap=[
+				$("#carNo"),$("#hph"),
+				$("#ddh"),$("#fhrsjhm"),
+				$("#ptxbdh"),$("#gtxbdh"),
+				$("#xh")
+			];
+			for(var i in textObjMap){
+				_resetText(textObjMap[i]);
+			}
+			$("#xz").val(messageMap["xz"]);
+			$("#xz").removeClass("gray15");
+			$("#xz").addClass("black15");
+		}
+		function _resetText(obj){
+			obj.val(messageMap["dcsr"]);
+			obj.removeClass("black15");
+			obj.addClass("gray15");
+		}
+		
+		//数据提交
+		function doSubmit(){
+			if(doValidation()){
+				if(currentType=="1"){	//1：整车，2：散货快运，3：普通行包快运，4：高铁行包快运
+					var carNo=$("#carNo").val().trim();		//车号
+					var hph=$("#hph").val().trim()==messageMap["dcsr"]?"":$("#hph").val().trim();			//货票号
+				}else if(currentType=="2"){
+					var ddh=$("#ddh").val().trim();			//需求单号
+					var fhrsjhm=$("#fhrsjhm").val().trim()==messageMap["dcsr"]?"":$("#fhrsjhm").val().trim();			//发货人手机
+				}else if(currentType=="3"){
+					var ptxbdh=$("#ptxbdh").val().trim();		//快运单号
+				}else if(currentType=="4"){
+					var gtxbdh=$("#gtxbdh").val().trim();		//快运单号
+				}else if(currentType=="5"){
+					var xz=$("#xz").val().trim();		//箱主
+					var xh=$("#xh").val().trim();		//箱号
+				}
+				var yzm="63FD155B6A364CB4BC1680C1F74B4B37";		//验证码
+				
+				var url="hwzz_uouii.action";
+				var data="hwzz.yzm="+yzm+"&hwzz.type="+currentType;
+				if(currentType=="1"){
+					data=data+"&hwzz.carNo="+carNo+"&hwzz.hph="+hph;
+				}else if(currentType=="2"){
+					data=data+"&hwzz.ddh="+ddh+"&hwzz.fhrsjhm="+fhrsjhm;
+				}else if(currentType=="3"){
+					data=data+"&hwzz.ptxbdh="+ptxbdh;
+				}else if(currentType=="4"){
+					data=data+"&hwzz.gtxbdh="+gtxbdh;
+				}else if(currentType=="5"){
+					data=data+"&hwzz.xz="+xz;
+					data=data+"&hwzz.xh="+xh;
+				}
+				data=data+"&check_code="+$("#yzm").val().trim();
+				$.ajax({
+					type:"post",
+					url:url,
+					dataType:"json",
+					data:data,
+					jsonp:"callback",
+					success:function(root){
+						$("#yzm").val("").blur();
+						$("#check_code").click();
+					
+						if(root.success==false&&root.msg.indexOf("验证码")!=null){
+							$.messager.alert(errorMessageTitle,root.msg);
+							return;
+						}
+					
+						//console.log(JSON.stringify(root));
+						if(root.type=="4"){	//高铁快运不返回success字段
+							if(!isBlank(root.result)){
+								$("#main").css("display","none");
+								$("#main2").css("display","block");
+								fillResult(root);
+							}else{
+								if(root.msg===undefined){
+									$.messager.alert(errorMessageTitle,errorMessage);
+								}else{
+									$.messager.alert(errorMessageTitle,root.msg);
+								}
+							}
+						}else{
+							var success=root.success;
+							if(success){
+								$("#main").css("display","none");
+								$("#main2").css("display","block");
+								fillResult(root);
+							}else{
+								if(root.message===undefined){
+									$.messager.alert(errorMessageTitle,errorMessage);
+								}else{
+									$.messager.alert(errorMessageTitle,root.message);
+								}
+							}
+						}
+					},
+					error:function(root){
+					}
+				});
+			}
+		}
+		//填充结果
+		function fillResult(root){
+			if(root.type=="1"){	//1：整车，2：散货快运，3：普通行包快运，4：高铁行包快运
+				var evtDate=root.object[0].eventDate;
+				var dst=root.object[0].destStation;
+				var arrDep=root.object[0].arrDepId=="D"?"已过":"在";
+				var ss=root.object[0].eventProvince+root.object[0].eventCity;
+				var dtString=evtDate.substring(0,4)+"年"+evtDate.substring(5,7)+"月"
+						+evtDate.substring(8,10)+"日"+evtDate.substring(11,13)
+						+"时"+evtDate.substring(14,16)+"分";
+				var html="您查询的货物"+arrDep+"："+root.object[0].eventAdm+root.object[0].eventStation+"站";
+				
+				if(!isBlank(ss)){
+					html+="（"+ss+"）";
+				}
+				if(isBlank(dst)){
+					html+="<br/>报告时间为："+dtString+"。"
+				}else{
+					var dzlc=root.object[0].dzlc;
+					if(isBlank(dzlc)){
+						html+="<br/>报告时间为："+dtString+"。"
+					}else{
+						html+="<br/>距终点站"+dst+"站还有约"+dzlc+"公里，报告时间为："+dtString+"。"
+					}
+				}
+				$("#resultDiv").html(html);
+			}else if(root.type=="2"){
+				$("#main3").css("display","block");
+				var result="您查询的货物";
+				if(!isBlank(root.object["CarDynaInfo"])&&(root.object["CarDynaInfo"]=='在'||root.object["CarDynaInfo"]=='已过')){
+					result+=root.object["CarDynaInfo"]+":";
+				}else{
+					result+="在：";
+				}
+				var chc=root.object["TrackCc"];
+				var dtString;
+				if(isBlank(root.object["CarTrackInfo"])){
+					result="暂无您查询货物的位置信息<br/> ";
+				}else{
+					result+=root.object["CarTrackInfo"][0].BGZMC+"站<br/>";
+					chc=root.object["CarTrackInfo"][0].CHC;
+					dtString=root.object["CarTrackInfo"][0].BGSJ;
+				}
+				if(!isBlank(root.object["TrackCh"])){
+					result+="车号："+root.object["TrackCh"];
+				}
+				if(!isBlank(chc)){
+					result+="<br/>车次："+chc;
+				}
+				if(!isBlank(root.object["TrackZcrq"])){
+					result+="<br/>装车日期："+root.object["TrackZcrq"];
+				}
+
+				var dst=root.object["OrderUser"].dzzm;
+           	    var dzlc=root.object["Dzlc"];
+           	    if(!isBlank(dzlc)){
+           			result+="<br/>距终点站"+dst+"站还有约"+dzlc+"公里";
+           			if(!isBlank(dtString)){
+						result+="<br/>报告时间为："+dtString+"。";
+                    }
+           	    }
+           	    
+           	    if(!isBlank(root.object["OrderTracks"])){
+	            	var html="<table class=\"inputtable\" width=\"100%\" border=\"0\" cellspacing=\"0\" cellpadding=\"0\">";
+           	    	$.each(root.object["OrderTracks"],function(i,item){
+						html+="<tr>";
+	                    html+="<td align='center'>"+(i+1)+"</td><td align='center'>"+item.ZTFSSJ
+	                    		+"</td><td style='padding-left:15px;'>"+getLcnr(item)+"</td>";
+	                    html+="</tr>";
+					});
+	                html+="</table>";
+	                $("#detailDiv").append(html);
+					$("#detailDiv tr:even").addClass("even");
+                    $("#detailDiv tr:odd").addClass("odd");
+           	    }
+				$("#resultDiv").html(result);
+			}else if(root.type=="3"){
+				$("#main3").css("display","block");
+				var result="您查询的货物当前最新状态：<br/><br/>";
+				var gjxxList=root.object;
+				if(isBlank(gjxxList)){
+					result="暂无您查询货物的最新状态<br/>";
+				}else{
+					var obj=gjxxList[gjxxList.length-1];
+					result+="作业时间："+getTransDateAndTime(obj.transDate,obj.transTime)+"<br/>作业名称："+obj.operationCode;
+					result+="<br/>作业机构："+obj.operationStation;
+					
+	                var html="<table class=\"inputtable\" width=\"100%\" border=\"0\" cellspacing=\"0\" cellpadding=\"0\">";
+					$.each(gjxxList,function(i,item){
+						html+="<tr>";
+	                    html+="<td align='center'>"+(i+1)+"</td><td align='center'>"
+	                    	+getTransDateAndTime(item.transDate,item.transTime)+"</td><td style='padding-left:15px;'>"
+	                    	+item.operationCode+"</td><td style='padding-left:15px;'>"+item.operationStation+"</td>";
+	                    html+="</tr>";
+					});
+	                html+="</table>";
+	                $("#detailDiv").append(html);
+					$("#detailDiv tr:even").addClass("even");
+                    $("#detailDiv tr:odd").addClass("odd");
+				}
+				$("#resultDiv").html(result);
+			}else if(root.type=="4"){
+				$("#main3").css("display","block");
+				var result="您查询的货物当前最新状态：<br/><br/>";
+				var gjxxList=root.result[0].details;
+				if(isBlank(gjxxList)){
+					result="暂无您查询货物的最新状态<br/> ";
+				}else{
+					var obj=gjxxList[gjxxList.length-1];
+					result+=obj.scantime+" "+obj.desc;
+					
+	                var html="<table class=\"inputtable\" width=\"100%\" border=\"0\" cellspacing=\"0\" cellpadding=\"0\">";
+					$.each(gjxxList,function(i,item){
+						html+="<tr>";
+	                    html+="<td align='center'>"+(i+1)+"</td><td align='center'>"
+	                    	+item.scantime+"</td><td style='padding-left:15px;'>"+item.desc+"</td>";
+	                    html+="</tr>";
+					});
+	                html+="</table>";
+	                $("#detailDiv").append(html);
+					$("#detailDiv tr:even").addClass("even");
+                    $("#detailDiv tr:odd").addClass("odd");
+				}
+				$("#resultDiv").html(result);
+			}else if(root.type=="5"){
+				$("#main3").css("display","block");
+				var result="您查询的集装箱当前最新状态：<br/><br/>";
+				var gjxxList=root.object;
+				if(isBlank(gjxxList)){
+					result="暂无您查询集装箱的最新状态<br/> ";
+				}else{
+					var obj=gjxxList[gjxxList.length-1];
+					result+=" "+obj.xt+"<br/>";
+					result+="报告站："+obj.eventStation+"<br/>报告时间："+obj.eventDate;
+				}
+				$("#resultDiv").html(result);
+			}
+		}
+		//查看详情
+		function detail(){
+			$("#detailDivPapa").css("display","block");
+			$("#main3").css("display","none");
+		}
+		//判断是否为空
+	    function isBlank(object){
+	        return (!object||(typeof(object)=="string"&&$.trim(object)=="")
+	        	||($.isPlainObject(object)&&$.isEmptyObject(object))
+	        	||($.isArray(object)&&object.length==0));
+	    }
+		//格式化日期
+		function getTransDateAndTime(transDate,transTime){
+			var fmtStr=transDate.substring(0,4)+"-"+transDate.substring(4,6)+"-"+transDate.substring(6);
+			if(!isBlank(transTime)){
+				fmtStr+=" "+transTime.substring(0,2)+":"+transTime.substring(2,4)+":"+transTime.substring(4);
+			}
+			return fmtStr;
+		}
+		function getLcnr(orderTrack){
+			var lcnr=orderTrack.ZTQRDW+" "+orderTrack.LCMC;
+			var lczt=(orderTrack.LCZT==1);
+			if(orderTrack.LCBZ=='XQSH'&&!lczt){
+				lcnr='审核未通过';
+			} else if(orderTrack.LCBZ=='XQSH'&&lczt){
+				lcnr='审核通过';
+			} else if(orderTrack.LCBZ=='SHJF'&&!lczt){
+				lcnr='上货计费未通过';
+			} else if(orderTrack.LCBZ=='SHJF'&&lczt){
+				lcnr='上货计费通过';
+			} else if(orderTrack.LCBZ=='HWJF'&&!lczt){
+				lcnr='货物交付未完成';
+			} else if(orderTrack.LCBZ=='HWJF'&&lczt){
+				lcnr='货物交付完成';
+			} else if(orderTrack.LCBZ=='CZZC'||orderTrack.LCBZ=='ZZZC'){
+				lcnr+="，车次： "+orderTrack.CHC+"，车号： "+orderTrack.CH; 
+			} 
+			return lcnr;
+		}
+		
+		
+		//表单验证
+		function doValidation(){
+			var biaodianPattern=/[=']/gi;					//特殊字符
+			var telReg=/^\d{11}$/;							//手机
+			var telReg2=/^(\d{3}-\d{8})|(\d{4}-\d{7})$/;	//固定电话
+			var numberReg=/^[1-9]\d*$/;						//整数
+			var decimalReg=/^([1-9]\d*\.?\d*)|(0.\d+)$/;	//小数
+			var ysfs=$('input[name="ysfs"]:checked').val();	//1：整车，2：散货快运，3：普通行包快运，4：高铁行包快运
+			
+			
+			
+			if(!/^\d{4}$/.test($("#yzm").val())){
+				$.messager.alert("提示信息","请输正确的验证码！");
+				return false;
+			}
+			
+			if(currentType=="1"){
+				//车号
+				var carNo=$("#carNo").val().trim();
+				if (carNo==""||carNo==messageMap["dcsr"]) {
+					$.messager.alert("提示信息","请输入车号！");
+					return false;				
+				}
+				//货票号，但是长度必须大于5
+				var hph=$("#hph").val().trim();
+				if (hph==""||hph==messageMap["dcsr"]) {
+					//可以为空
+				}else{
+					if(!numberReg.test(hph)){
+						$.messager.alert("提示信息","货票号只允许输入数字！");
+						return false;
+					}
+					if(hph.length < 5){
+						$.messager.alert("提示信息","货票号需要输入至少后5位数字！");
+						return false;
+					}
+				}
+			}else if(currentType=="2"){
+				//需求单号
+				var ddh=$("#ddh").val().trim();
+				if (ddh==""||ddh==messageMap["dcsr"]) {
+					$.messager.alert("提示信息","请输入需求单号！");
+					return false;				
+				}
+				//发货人手机
+				var fhrsjhm=$("#fhrsjhm").val().trim();
+				if (fhrsjhm==""||fhrsjhm==messageMap["dcsr"]) {
+					//可以为空
+				}else{
+					if(!telReg.test(fhrsjhm)){
+						$.messager.alert("提示信息","请输入正确格式的手机号码！");
+						return false;
+					}
+				}
+			}else if(currentType=="3"){
+				//快运单号
+				var ptxbdh=$("#ptxbdh").val().trim();
+				if (ptxbdh==""||ptxbdh==messageMap["dcsr"]) {
+					$.messager.alert("提示信息","请输入快运单号！");
+					return false;				
+				}
+			}else if(currentType=="4"){
+				//快运单号
+				var gtxbdh=$("#gtxbdh").val().trim();
+				if (gtxbdh==""||gtxbdh==messageMap["dcsr"]) {
+					$.messager.alert("提示信息","请输入快运单号！");
+					return false;				
+				}
+			}else if(currentType=="5"){
+				//箱主
+				var xz=$("#xz").val().trim();
+				if (xz==""||xz==messageMap["dcsr"]) {
+					$.messager.alert("提示信息","请输入箱主！");
+					return false;				
+				}
+				//箱号
+				var xh=$("#xh").val().trim();
+				if (xh==""||xz==messageMap["dcsr"]) {
+					$.messager.alert("提示信息","请输入箱号！");
+					return false;				
+				}
+			}
+			return true;
+		}
+		
+		//切换五种类型信息可见性
+		function changeType(id,index){
+			var children=$("#tabDiv").find("div");
+			for(var i=0;i<children.length;i++){
+				var tempid=children[i].id;
+				if(tempid==id){
+					$("#"+tempid).removeClass("tabDivUnchosed").addClass("tabDivChosed");
+				}else{
+					$("#"+tempid).removeClass("tabDivChosed").addClass("tabDivUnchosed");
+				}
+			}
+			for(var i=1;i<=5;i++){
+				if(i==index){
+					$("#table"+i).css("display","block");
+				}else{
+					$("#table"+i).css("display","none");
+				}
+			}
+			currentType=""+index;
+		}
+		
+		//切换运算条件和运算结果的可见性
+		function back(){
+			$("#main").css("display","block");
+			$("#main2").css("display","none");
+			$("#main3").css("display","none");
+			$("#resultDiv").html("");
+			$("#detailDiv").html("");
+			$("#detailDivPapa").css("display","none");
+		}
+
+		//=======add by  for hydc begin 20160614 ====
+        function openHydcPage(){
+			window.location.href="http://hyfw.95306.cn/HydcWebClient/WeChatAction/hydcPage.action";
+		}
+       //=======add by  for hydc end 20160614 ====
+
+	
+</script>
+<style type="text/css">
+.tabDivUnchosed{float:left;height:46px;width:49%;margin:0.5%;background:#999;text-align:center;line-height:40px;verticle-align:middle;font-size:18px;color:#fff;}
+.tabDivChosed{float:left;height:46px;width:49%;margin:0.5%;background:#ff6000;text-align:center;line-height:40px;verticle-align:middle;font-size:18px;color:#fff;}
+.topinfoForHydc{height:46px;background:#cb0708;margin-bottom:6px;text-align:center;font-size:21px;color:#d2ff00;line-height:44px;}
+</style>
+</head>
+<body class="bodybg">
+  <div id="main" style="display:block;">
+    <div class="topinfoForHydc" onclick="openHydcPage()">货运服务质量调查（点击参与）</div>
+    <div class="topinfo">货物追踪</div>
+    <div id="tabDiv" style="height:170px;">
+      <div id="zchw" class="tabDivChosed" onclick="changeType(this.id,1)">整车货物</div>
+      <div id="lshw" class="tabDivUnchosed" onclick="changeType(this.id,2)">散货快运</div>
+      <div id="ptxb" class="tabDivUnchosed" onclick="changeType(this.id,3)">普通行包</div>
+      <div id="gtxb" class="tabDivUnchosed" onclick="changeType(this.id,4)">高铁行包</div>
+      <div id="jzx" class="tabDivUnchosed" onclick="changeType(this.id,5)">集装箱</div>
+    </div>
+    <div class="inputarea boxcenter">
+      <table id="table1" class="inputtable" width="100%" border="0" cellspacing="0" cellpadding="0">
+        <tbody><tr>
+          <td width="130" class="orange17" style="border-top:5px solid #999;" colspan="3">
+            <a style="display:block;background:url(&quot;./css/bluebg.png&quot;) 2px -136px no-repeat;text-indent:18px;">请输入要查询货物的车号和货票号</a>
+          </td>
+        </tr>
+        <tr>
+          <td class="black15" width="110">
+            <span style="color:red;">* </span><span>车　　　号：</span>
+          </td>
+          <td style="padding-left:0px;" colspan="3">
+            <input id="carNo" class="gray15 input90" maxlength="20" onfocus="textOnFocus(this)" onblur="textOnBlur(this)" value="点此输入">
+          </td>
+        </tr>
+        <tr>
+          <td class="black15">
+            <span style="color:red;">&nbsp;&nbsp;</span><span>货　票　号：</span>
+          </td>
+          <td style="padding-left:0px;" colspan="3">
+            <input id="hph" class="gray15 input90" onfocus="textOnFocus(this)" onblur="textOnBlur(this)" value="点此输入">
+          </td>
+        </tr>
+      </tbody></table>
+      <table id="table2" style="display:none;" class="inputtable" width="100%" border="0" cellspacing="0" cellpadding="0">
+        <tbody><tr>
+          <td width="130" class="orange17" style="border-top:5px solid #999;" colspan="3">
+            <a style="display:block;background:url(&quot;./css/bluebg.png&quot;) 2px -136px no-repeat;text-indent:18px;">请输入要查询货物的需求单号和手机号</a>
+          </td>
+        </tr>
+        <tr>
+          <td class="black15" width="110">
+            <span style="color:red;">* </span><span>需求单号　：</span>
+          </td>
+          <td style="padding-left:0px;" colspan="3">
+            <input id="ddh" class="gray15 input90" maxlength="20" onfocus="textOnFocus(this)" onblur="textOnBlur(this)" value="点此输入">
+          </td>
+        </tr>
+        <tr>
+          <td class="black15">
+            <span style="color:red;">&nbsp;&nbsp;</span><span>发货人手机：</span>
+          </td>
+          <td style="padding-left:0px;" colspan="3">
+            <input id="fhrsjhm" class="gray15 input90" onfocus="textOnFocus(this)" onblur="textOnBlur(this)" value="点此输入">
+          </td>
+        </tr>
+      </tbody></table>
+      <table id="table3" style="display:none;" class="inputtable" width="100%" border="0" cellspacing="0" cellpadding="0">
+        <tbody><tr>
+          <td width="130" class="orange17" style="border-top:5px solid #999;" colspan="3">
+            <a style="display:block;background:url(&quot;./css/bluebg.png&quot;) 2px -136px no-repeat;text-indent:18px;">请输入要查询货物的快运单号</a>
+          </td>
+        </tr>
+        <tr>
+          <td class="black15" width="110">
+            <span style="color:red;">* </span><span>快运单号　：</span>
+          </td>
+          <td style="padding-left:0px;" colspan="3">
+            <input id="ptxbdh" class="gray15 input90" maxlength="20" onfocus="textOnFocus(this)" onblur="textOnBlur(this)" value="点此输入">
+          </td>
+        </tr>
+      </tbody></table>
+      <table id="table4" style="display:none;" class="inputtable" width="100%" border="0" cellspacing="0" cellpadding="0">
+        <tbody><tr>
+          <td width="130" class="orange17" style="border-top:5px solid #999;" colspan="3">
+            <a style="display:block;background:url(&quot;./css/bluebg.png&quot;) 2px -136px no-repeat;text-indent:18px;">请输入要查询货物的快运单号</a>
+          </td>
+        </tr>
+        <tr>
+          <td class="black15" width="110">
+            <span style="color:red;">* </span><span>快运单号　：</span>
+          </td>
+          <td style="padding-left:0px;" colspan="3">
+            <input id="gtxbdh" class="gray15 input90" maxlength="20" onfocus="textOnFocus(this)" onblur="textOnBlur(this)" value="点此输入">
+          </td>
+        </tr>
+      </tbody></table>
+      <table id="table5" style="display:none;" class="inputtable" width="100%" border="0" cellspacing="0" cellpadding="0">
+        <tbody><tr>
+          <td width="130" class="orange17" style="border-top:5px solid #999;" colspan="3">
+            <a style="display:block;background:url(&quot;./css/bluebg.png&quot;) 2px -136px no-repeat;text-indent:18px;">请输入要查询的集装箱号</a>
+          </td>
+        </tr>
+        <tr>
+          <td class="black15" width="110">
+            <span style="color:red;">* </span><span>箱　　　主：</span>
+          </td>
+          <td style="padding-left:0px;" colspan="3">
+            <input id="xz" class="black15 input90" onfocus="textOnFocus(this)" onblur="textOnBlur(this)" value="TBJU">
+          </td>
+        </tr>
+        <tr>
+          <td class="black15">
+            <span style="color:red;">* </span><span>箱　　　号：</span>
+          </td>
+          <td style="padding-left:0px;" colspan="3">
+            <input id="xh" class="gray15 input90" onfocus="textOnFocus(this)" onblur="textOnBlur(this)" value="点此输入">
+          </td>
+        </tr>
+      </tbody></table>
+      <table id="table6" class="inputtable" width="100%" border="0" cellspacing="0" cellpadding="0">
+        <tbody><tr>
+          <td class="black15" width="110" rowspan="2">
+            <span style="color:red;">* </span><span>验　证　码：</span>
+          </td>
+          <td>
+            <img alt="" src="page/origin/check_code.jsp?_=1491079861433" res_src="page/origin/check_code.jsp" width="100" height="30" id="check_code">
+<script type="text/javascript">
+
+  							
+  							$("#check_code").attr("src",$("#check_code").attr("res_src")+"?_="+new Date().getTime()).click(function(){
+  								$("#check_code").attr("src",$("#check_code").attr("res_src")+"?_="+new Date().getTime());
+  							});
+  						
+</script>
+          </td>
+          <td style="padding-left:0px;" colspan="3">
+            <input id="yzm" class="black15 input90" onfocus="textOnFocus(this)" onblur="textOnBlur(this)" maxlength="4" style="color:#aaa;" value="点此输入">
+          </td>
+        </tr>
+      </tbody></table>
+    </div>
+    <table width="98%" border="0" cellspacing="0" cellpadding="10" style="margin:auto;">
+      <tbody><tr>
+        <td>
+          <input type="button" value="提交" onclick="doSubmit();" class="button100g boxcenter">
+        </td>
+        <td>
+          <input type="button" value="重置" onclick="doReset();" class="button100g boxcenter">
+        </td>
+      </tr>
+    </tbody></table>
+  </div>
+  <div id="main2" style="display:none;">
+    <div class="topinfo">货物追踪</div>
+    <div class="inputarea boxcenter">
+      <table class="inputtable" width="100%" border="0" cellspacing="0" cellpadding="0">
+        <tbody><tr>
+          <td width="130" class="orange17" style="border-top:5px solid #999;" colspan="3">
+            <a style="display:block;background:url(&quot;./css/bluebg.png&quot;) 2px -136px no-repeat;text-indent:18px;">查询结果</a>
+          </td>
+        </tr>
+      </tbody></table>
+      <table class="inputtable" width="100%" border="0" cellspacing="0" cellpadding="0">
+        <tbody><tr>
+          <td style="color:#046dad;font-size:22px;padding-top:15px;padding-bottom:15px;line-height:32px;" width="100">
+            <span id="resultDiv"></span>
+          </td>
+        </tr>
+      </tbody></table>
+    </div>
+    <div style="display:none;" class="inputarea boxcenter" id="detailDivPapa">
+      <table class="inputtable" width="100%" border="0" cellspacing="0" cellpadding="0">
+        <tbody><tr>
+          <td width="130" class="orange17" style="border-top:5px solid #999;" colspan="3">
+            <a style="display:block;background:url(&quot;./css/bluebg.png&quot;) 2px -136px no-repeat;text-indent:18px;">详细信息</a>
+          </td>
+        </tr>
+      </tbody></table>
+      <div id="detailDiv"></div>
+    </div>
+    <div id="main3" style="display:none;">
+      <table width="98%" border="0" cellspacing="0" cellpadding="10" style="margin:auto;">
+        <tbody><tr>
+          <td>
+            <input type="button" value="查看详情" onclick="detail();" class="button100g boxcenter">
+          </td>
+        </tr>
+      </tbody></table>
+    </div>
+    <div>
+      <table width="98%" border="0" cellspacing="0" cellpadding="10" style="margin:auto;">
+        <tbody><tr>
+          <td>
+            <input type="button" value="返回" onclick="back();" class="button100g boxcenter">
+          </td>
+        </tr>
+      </tbody></table>
+    </div>
+  </div>
+
+</body></html>

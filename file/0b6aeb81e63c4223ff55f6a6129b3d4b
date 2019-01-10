@@ -1,0 +1,265 @@
+<!DOCTYPE html PUBLIC>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>网亿_网亿广告_北京网亿广告_媒体推广_北京网亿广告有限公司</title>
+<link href="images/logo.ico" type="images/logo.ico" rel="shortcut icon" />
+<!--搜索介绍 ↓-->
+<meta name="description" content="北京网亿广告有限公司是一家以互联网广告为主的专业广告传媒机构，公司依托网易、搜狐等权威媒体，集品牌策划、广告投放等整体网络营销。公司由销售部、设计部、策划部、媒介部、人力资源部、财务部、行政部组成。公司在短短的几年时间先后为国内外诸多知名企业提供整合网络营销服务，大型活动策划等企业整体形象品牌传播。享有良好口碑，形成卓越品牌。">
+<!--搜索关键词 ↓-->
+<meta name="keywords" content="教育，教育推广，网易广告，网易教育广告，教育推广，网亿，北京网亿广告有限公司">
+<link href="css/style.css" rel="stylesheet" type="text/css">
+<script type="text/javascript">
+document.onselectstart = new Function("return false");
+O    = new Array();
+box  = 0;
+img  = 0;
+txt  = 0;
+tit  = 0;
+W    = 0;
+H    = 0;
+nI   = 0;
+sel  = 0;
+si   = 0;
+ZOOM = 0;
+rImg = 0;
+//////////////////
+speed = .06; // animation speed
+delay = .5; // 1 = no delay
+//////////////////
+
+function dText(){
+	txt.style.textAlign = tit.style.textAlign = (sel<nI/2)?"left":"right";
+	txt.innerHTML = O[sel].tx;
+	tit.innerHTML = O[sel].ti;
+}
+
+function CObj(n, s, x, tx, ti){
+	this.n    = n;
+	this.dim  = s;
+	this.tx   = tx;
+	this.ti   = ti;
+	this.is   = img[n];
+	this.vz   = 0;
+	this.sx   = 0;
+	this.x0   = x;
+	this.x1   = 0;
+	this.zo   = 0;
+	this.over = function() {
+		with(this){
+			if(n!=sel){
+				O[sel].dim = 100;
+				O[n].dim = ZOOM * 100;
+				sel = n;
+				l = 0;
+				for(k=0; k<nI; k++){
+					O[k].x0 = l;
+					l += O[k].dim;
+				}
+				txt.innerHTML = tit.innerHTML = "";
+				setTimeout("dText()", 32);
+			}
+		}
+	}
+	this.anim = function () {
+		with(this){
+			vz  = speed*(vz+(x1-sx)*delay);
+			x1 -= vz;
+			sx  = (n==0)?0:O[n-1].x0+O[n-1].dim;
+			zo -= (zo-dim)*speed;
+			l   = (x1*si)+6*(n+1);
+			w   = zo*si;
+			is.style.left   = Math.round(l)+'px';
+			is.style.top    = Math.round((H-w*rImg)*.5)+'px';
+			is.style.width  = Math.round(w)+'px';
+			is.style.height = Math.round(w*rImg)+'px';
+			if(sel == n){
+				if(sel<nI*.5) {
+					tit.style.left = txt.style.left = Math.round(l+w+6)+'px';
+				} else {
+					tit.style.left = txt.style.left = Math.round(l-(nx*.20)-6)+'px';
+				}
+				txt.style.top = Math.round(-(w*rImg)*.25)+'px';
+				tit.style.top = Math.round((w*rImg)*.33)+'px';
+			}
+		}
+	}
+}
+
+function run(){
+	for(j in O)O[j].anim();
+	setTimeout("run()", 16);
+}
+
+function doResize(){
+	tit.style.width = Math.round(nx*.20)+'px';
+	txt.style.width = Math.round(nx*.20)+'px';
+	tit.style.fontSize = (nx/40)+'px';
+	txt.style.fontSize = (nx/110)+'px';
+	with(box.style){
+		width  = Math.round(W)+'px';
+		height = Math.round(H)+'px';
+		left   = Math.round(nx/2-W/2)+'px';
+		top    = Math.round(ny/2-H/2)+'px';
+	}
+}
+
+function resize(){
+	nx = scr.offsetWidth;
+	ny = scr.offsetHeight;
+	W  =  nx*90/100;
+	si = (W-((nI+1)*6))/((ZOOM*100)+((nI-1)*100));
+	H  = (100*si*rImg)+14;
+	doResize();
+}
+onresize = resize;
+
+onload = function(){
+	scr = document.getElementById("screen");
+	box = document.getElementById("box");
+	tit = document.getElementById("tit");
+	txt = document.getElementById("txt");
+	img = box.getElementsByTagName("img");
+
+	Lnk = document.getElementById("lnk").getElementsByTagName("a");
+	nI  = img.length;
+	ZOOM = nI;
+	rImg = img[0].height/img[0].width;
+	resize();
+	s = ZOOM * 100;
+	x = 0;
+	tit.innerHTML = img[0].title;
+	txt.innerHTML = img[0].alt;
+	for(i=0; i<nI; i++) {
+		var t = img[i].alt;
+		if(Lnk[i].href!="") t+='<br><a href="'+Lnk[i].href+'">'+Lnk[i].innerHTML+'</a>';
+		O[i] = new CObj(i, s, x, t, img[i].title);
+		img[i].alt = "";
+		img[i].title = "";
+		img[i].onmousedown = new Function("return false;");
+		img[i].onmouseover = new Function('O['+i+'].over();');
+		if(Lnk[i].href!=""){
+			/* ==== hyperlink ==== */
+			img[i].onclick = new Function('window.open("'+Lnk[i].href+'","_blank");');
+		}
+		x += s;
+		s = 100;
+	}
+	box.style.visibility = "visible";
+	run();
+}
+</script>
+</head>
+<body>
+<!--TOP-->
+    <div class="top width margin">
+        <a href="index.html" class="logo left"><img src="images/logo.gif"></a>
+        <img src="images/4.png" class="left" style="padding:30px 0 0 60px">
+        <img src="images/Telephone.gif" width="215" height="48" class="tel right">
+    </div>
+<!--导航-->
+    <div class="nav_box">
+        <ul class="margin">
+            <li class="nav1"><div class="nav_bj nav_bj2"></div><a href="http://www.ad-163.com/">首页</a></li>
+            <li class="nav2"><div class="nav_bj2"></div><a href="html/gsjs.html">公司介绍</a></li>
+            <li class="nav3"><div class="nav_bj2"></div><a href="html/mtzy.html">媒体资源</a></li>
+            <li class="nav4"><div class="nav_bj2"></div><a href="html/zxns.html">招贤纳士</a></li>
+            <li class="nav5"><div class="nav_bj2"></div><a href="html/lxwm.html">联系我们</a></li>            
+        </ul>
+    </div>
+<!--TITEL-->
+    <div class="titel margin width"></div>
+<!--banner与资源导航-->  
+    <div class="width margin" style="height:415px">
+        <img src="images/banner.jpg" width="1021" height="178" style="margin-bottom:36px" alt="网易教育，推广频道，关注中国教育">
+        <div class="nav_down">
+            <ul class="left nav_left">
+                <li><a href="html/mtzy.html">网易首页</a></li>
+                <li><a href="html/mtzy_jy.html">教育频道</a></li>
+                <li><a href="html/mtzy_lx.html">留学频道</a></li>
+                <li><a href="html/mtzy_gk.html">高考频道</a></li>
+                <li><a href="html/mtzy_ym.html">移民频道</a></li>
+                <li><a href="html/mtzy_sxy.html">校园频道</a></li>
+                <li><a href="html/mtzy_wz.html">文章页内</a></li>
+                <li><a href="html/mtzy_app.html">移动端资源</a></li>            </ul>
+            <div class="down right"><a href="http://www.ad-163.com/ggmx/kanli2016.zip"></a> </div>
+        </div>
+    </div>
+<!--服务项目+联系我们-->  
+   <div class="content" style="background-image:url(images/zxns_content.jpg)">
+     <div class="content_box margin">
+       <!--左边--> 
+        <div class="zuo left">
+           <div class="zuo_top" style="background-image:url(images/zxns_image_1.jpg)"></div>
+           <div class="logo_simo"></div>
+           <p>网易教育行业广告独家代理品牌推广</p>
+           <p>多媒体，多角度，综合提升品牌效应公关营销</p>
+           <p>全方位整合营销</p>
+       
+        </div>
+        <!--右边--> 
+        <div class="zuo right" style=" width:421px">
+          <div class="zuo_top" style="background-image:url(images/zxns_image_2.jpg); margin-bottom:23px"></div>
+          <ul class="zxns">
+              <li class="zxns_nav"><a href="http://bj.58.com/zpguanggao/24040144246968x.shtml?PGTID=0d000000-0000-04ea-722e-7ab9c6c29fc7&ClickID=1&qq-pf-to=pcqq.c2c"  target=”_blank">广告文案策划</a></li>
+              <li class="time">2016.4</li>
+          </ul>
+          <ul class="zxns">
+              <li class="zxns_nav"><a href="http://bj.58.com/yewu/15692774548874x.shtml?PGTID=0d000000-0000-04ea-722e-7ab9c6c29fc7&ClickID=2"  target=”_blank">广告产品销售</a></li>
+              <li class="time">2016.4</li>
+          </ul>
+          <ul class="zxns">
+              <li class="zxns_nav"><a href="http://jobs.zhaopin.com/388084726250221.htm"  target=”_blank">广告媒介专员</a></li>
+              <li class="time">2016.4</li>
+          </ul>
+          <ul class="zxns">
+              <li class="zxns_nav"><a href="http://jobs.zhaopin.com/388084726250225.htm"  target=”_blank">广告销售总监</a></li>
+              <li class="time">2016.4</li>
+          </ul>
+       </div>  
+      </div>   
+    </div>
+<!--往届活动-->   
+<div class="image_box">
+      <!--titel-->
+      <div class="margin" style="width:1071px;height:135px;background:url(images/titel2.png) no-repeat left 70px"></div>  
+      <!--图集-->
+      <div id="screen">
+	    <div id="box">
+		<img src="images/newborn.jpg"  title="2015金翼奖" alt="作为教育行业内最受关注的年度颁奖盛典之一，以“教育回归本质”为主题的2015年网易金翼奖颁奖典礼将于12月3日在北京举行。此次盛典设置了“2015年度教育突出贡献人物”“2015年度最具综合实力教育集团”“2015年度最受用户信赖教育机构”等十五项大奖，结果将以网络票选的形式产生。" />
+		<img src="images/majesty.jpg" title="2015金翼奖" alt="作为教育行业内最受关注的年度颁奖盛典之一，以“教育回归本质”为主题的2015年网易金翼奖颁奖典礼将于12月3日在北京举行。此次盛典设置了“2015年度教育突出贡献人物”“2015年度最具综合实力教育集团”“2015年度最受用户信赖教育机构”等十五项大奖，结果将以网络票选的形式产生。" />
+		<img src="images/whitemagic.jpg" title="2015金翼奖" alt="作为教育行业内最受关注的年度颁奖盛典之一，以“教育回归本质”为主题的2015年网易金翼奖颁奖典礼将于12月3日在北京举行。此次盛典设置了“2015年度教育突出贡献人物”“2015年度最具综合实力教育集团”“2015年度最受用户信赖教育机构”等十五项大奖，结果将以网络票选的形式产生。" />
+		<img src="images/gazebo2k3.jpg" title="2014金翼奖" alt="2014年12月11日，第六届金翼奖网易教育年度大选在北京海航万豪酒店落下帷幕。在活动现场17项大奖被一一揭晓。300余名教育届人士齐聚一堂，探讨中国教育新发展之路。" />
+		<img src="images/pyre.jpg" title="2014金翼奖" alt="2014年12月11日，第六届金翼奖网易教育年度大选在北京海航万豪酒店落下帷幕。在活动现场17项大奖被一一揭晓。300余名教育届人士齐聚一堂，探讨中国教育新发展之路。" />
+		<img src="images/singularity.jpg" title="2014金翼奖" alt="2014年12月11日，第六届金翼奖网易教育年度大选在北京海航万豪酒店落下帷幕。在活动现场17项大奖被一一揭晓。300余名教育届人士齐聚一堂，探讨中国教育新发展之路。" />
+		<img src="images/spellcraft.jpg" title="2013金翼奖" alt="2013年12月19日，第五届金翼奖网易教育年度大选颁奖典礼在落下帷幕，当天教育界人士共聚一堂，揭晓13个年度重磅榜单，为2013年的教育行业做出完美总结。" />
+		<span id="txt"></span>
+		<span id="tit"></span>
+		<span id="lnk">
+			<a href="javascript:;"></a>
+			<a href="javascript:;"></a>
+			<a href="javascript:;"></a>
+			<a href="javascript:;"></a>
+			<a href="javascript:;"></a>
+			<a href="javascript:;"></a>
+			<a href="javascript:;"></a>
+		</span>
+	</div>
+ </div>
+</div><!--foot-->   
+    <div class="foot" style="height:200px">
+        <p class="foot_nav margin" style="padding-top:60px">
+            <a href="http://www.ad-163.com/">网亿广告</a>
+            <a href="http://www.ad-163.com/ggmx/kanli2016.zip">刊例报价</a>
+            <a href="html/mtzy.html">媒体资源</a>
+            <a href="html/zxns.html">高薪招聘</a>
+            <a href="html/mtzy.html">广告投放</a>
+        </p>
+        <p class="foot_text">北京网亿广告有限公司 Beijing Net Billion Advertising Co.,Ltd.<script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_1258603411'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s4.cnzz.com/z_stat.php%3Fid%3D1258603411%26show%3Dpic' type='text/javascript'%3E%3C/script%3E"));</script></p>  
+    
+    
+    </div>
+
+
+</body>
+</html>

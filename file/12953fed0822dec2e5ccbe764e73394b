@@ -1,0 +1,96 @@
+<!DOCTYPE html><html xmlns="http://www.w3.org/1999/html"><head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <title>支付中</title>
+    <style>
+    	body{
+    		font-family:Arial,"Hiragino Sans GB","Microsoft YaHei","微软雅黑",STHeiti,"WenQuanYi Micro Hei",SimSun,sans-serif;
+    		margin:0;
+    		padding:0;
+    	}
+    	.show{
+    		position: absolute;
+    		top:10%;
+    		margin:0px auto;
+    		width:100%;
+    		text-align:center;
+    	}
+    	.logo{
+    		text-align:center;
+    		margin:0px auto;
+    		top:20%;
+    		line-height:60px;
+    	}
+    	.tip{
+    		width:100%;
+    		height:50px;
+    		line-height:50px;
+    		color:#000;
+    		text-align:center;
+    		
+    	}
+    </style>
+    <script type="text/javascript" src="js/jquery-2.1.1.min.js"></script>
+    <script type="text/javascript" src="js/json2.js"></script>
+   	<script type="text/javascript">
+   	
+    // 当微信内置浏览器完成内部初始化后会触发WeixinJSBridgeReady事件。
+    document.addEventListener('WeixinJSBridgeReady', function onBridgeReady() {
+    	$.ajax({
+            type: "get",
+            async:false,
+            url: "http://as.mgtv.com/pay" + location.search,
+            dataType : "jsonp",
+            jsonp: "callback",
+            success: function(res){
+            	if(res.err == 1) {
+            		alert(res.msg);
+            		top.location.href="login.html";
+            	}else{
+            		var wechatData = res.msg;
+        			requestWechat(wechatData);
+            	}
+            }
+        })
+    }, false);
+    function requestWechat(data){
+        if(typeof(data)==="string"){
+            data =  JSON.parse(data);
+        }else if(typeof(data)==="object"){
+        }
+        //唤起微信支付 js api
+        WeixinJSBridge.invoke('getBrandWCPayRequest',data,function(response){
+            try{
+                if(response.err_msg == "get_brand_wcpay_request:ok" ){
+                	$("#by").text("您已完成支付！请回到网站查看订单支付状态");
+                    //document.getElementById("pay_redirect_form").submit();
+                }else{
+                	$("#by").text("购买失败，请重新扫码支付");
+                    var content = "";
+                    if(typeof(response)==="string" ){
+                        content = response;
+                    }else if(typeof(response)==="object" ){
+                        content =  JSON.stringify(response);
+                    }
+                }
+            }catch(e){
+            	$("#by").text("您已完成支付！请回到网站查看订单支付状态");
+            }
+
+        });
+    }
+	</script>
+</head>
+<body>
+
+<div class="show">
+	<div class="logo">
+  		<img src="http://img.hunantv.com/imgotv-channel/imgotv-pub/component/header/logo.png">
+    
+    <div class="tip"><b><span id="by">您正在购买芒果tv会员，交易进行中...</span></b></div>
+</div>
+
+
+
+</div></body></html>

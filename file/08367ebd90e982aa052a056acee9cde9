@@ -1,0 +1,179 @@
+<!DOCTYPE html><html lang="en"><head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+	<link rel="stylesheet" href="css/bootstrap.css">
+
+<style>
+	body{
+		padding: 0;
+		margin: 0;
+		font-size: 16px;
+		font-family: '仿宋';
+		background: #f2f8f7;
+	}
+
+	#top{
+		font-size: 1.2em;
+		height: 12.5em;
+		width: 100%;
+		background: #005acc;
+	}
+	
+	#top .top_bg{
+		height: 0.438em;
+		width: 100%;
+		background: #333;
+	}
+	#top .tip{
+		color: #fff;
+		padding: 1em 1.5em 1em 1.5em;
+	}
+	.tip p{
+		width: 100%;
+		padding-top: 1.6em;
+		padding-bottom: 1.6em;
+	}
+
+	.myspan{
+		font-size: 0.8em;
+	}
+	#foot{
+		font-size: 1.5em;
+		height: 1.875em;
+		margin-top: 5em;
+
+	}
+	#foot a{
+		float: left;
+		margin-left: 15%;
+		color: #000;
+		padding: 0.208em 0 0.208em 0;
+	}
+	.submit{
+		float: right;
+		margin-right: 15%;
+		padding: 3px 5px;
+		width: 4em;
+	}
+	
+	.res{
+		float: left;
+		margin-left: 15%;
+		padding: 3px 5px;
+		width: 4em;
+	}
+	@media(min-height: 568px){
+		body{
+			font-size:18px;
+		}
+	}
+	@media(min-width: 375px){
+		body{
+			font-size:19px;
+		}
+	}
+	@media(min-width: 414px){
+		body{
+			font-size:22px;
+		}
+	}
+</style>
+</head>
+<body>
+	<div id="top">
+		<div class="top_bg"></div>
+		<div class="tip">
+			<p>为了保证您的电子信函安全,输入证件号末六位可查看电子信函</p>
+			<div class="input-group input-group-lg">
+				<span class="input-group-addon myspan">证件后六位:</span>
+				<input type="text" id="card" class="form-control myspan" placeholder="在此输入">
+			</div>
+		</div>	
+	</div>
+	<div id="foot">
+		<button class="btn btn-default res" id="reset">重置
+		</button><button id="submit" onclick="doSubmit(this)" class="btn btn-default submit">确认</button>
+	</div>
+<script src="js/jquery-1.9.1.min.js"></script>	
+<script>
+	
+	
+
+
+	$("#reset").click(function(){
+		$("#card").val("");
+	});
+
+
+	var maxLoan;
+	var getIdnum;
+	var dyjg;
+	var policy;
+	var ffid;
+	var sessionId;
+	var indexChar;
+	var messageId;
+	var loanInfoList=null;
+	var bean;
+	var tel;
+	var noticWay;
+	var oid712;
+	var idnum = "";
+	(function(){
+		var href = window.location.href.split("&");
+		var indexChar = href[0].substring(href[0].indexOf("=") + 1);
+		$.ajax({
+		    url: "/GPS/DZDY00001.do",
+		    data: {
+		    	messageId:indexChar
+		    },
+		    type: "post",
+		    cache:false,
+		    success: function(jsonStr) {
+		    	if(jsonStr=="9999"){
+		    		alert("操作失败");
+		    		return false;
+		    	}
+		        var jsonObj = $.parseJSON(jsonStr);
+		        noticWay = jsonObj.noticeWay;
+		        ffid = jsonObj.ffid;
+		        idnum = jsonObj.idnum;
+		        sessionId = jsonObj.sessionId;
+		        messageId = jsonObj.messageId;
+		        tel = jsonObj.tel;
+		        oid712 = jsonObj.oid;
+		        
+		        //getIdnum = jsonObj.getIdnum;
+		        	
+		       
+				return;
+		    },
+		    error: function(dom, e) {
+		    	pop.alert("","初始化失败，请重试",function(){
+		            countInterest(loanNum);
+		        });
+	            return false;
+		    }
+		});
+	})();
+
+	
+	function doSubmit(obj){
+		var card = $("#card").val()
+		if(idnum.substr(idnum.length-6)!=card){
+			alert("输入的验证码与身份证最后6位不符");
+			return false;
+		}else{
+			if(noticWay==""||noticWay=="1"||noticWay=="2"){
+				window.location.href="order.html?sessionId="+sessionId+"&messageId="+messageId+"&ffid="+ffid+"&idnum="+idnum+"&tel="+tel+"&oid712="+oid712+"&card="+card;
+			}else{
+				window.location.href="result.html?messageId="+messageId;
+			}
+		}
+		
+			
+	}
+
+</script>
+
+</body></html>

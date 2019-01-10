@@ -1,0 +1,278 @@
+<html><head></head><body><pre style="word-wrap: break-word; white-space: pre-wrap;">var type = 0;
+var searchFocus = false;
+var btmSearchFocus = false;
+
+$(function () {
+    var from = $("#from").val();
+    if (from != '') {
+        var tpyeClass = 'type_0';
+        if (from == 'weili') {
+            tpyeClass = 'type_0'
+        } else if (from == 'ppt') {
+            tpyeClass = 'type_101'
+        } else if (from == 'video') {
+            tpyeClass = 'type_100'
+        } else if (from == 'free') {
+            tpyeClass = 'type_37'
+        } else if (from == 'photo') {
+            tpyeClass = 'type_38'
+        } else if (from == 'taobao') {
+            tpyeClass = 'type_102'
+        }
+        if ($("#kidSelect").length) {
+            $(".kr").attr("checked", false);
+            $("." + tpyeClass).attr("checked", true)
+        }
+        type = tpyeClass.split("_")[1];
+        if ($("#topKidSelect").length) {
+            $("#topKidSelect a").removeClass("btm-search-curr");
+            $("#topKidSelect a[tkr=" + type + "]").addClass("btm-search-curr")
+        }
+    };
+
+    $(document).keydown(function (event) {
+        var visible = $("#login_div").is(":visible");
+        if (visible == true) {
+            if (event.keyCode == 13) {
+                $("#submit").trigger("click")
+            }
+        }
+    });
+
+    // evt.preventDefault();
+});
+ 
+
+
+$("#kw").live("focus", function () {
+    searchFocus = true;
+    btmSearchFocus = false;
+    if ($("#kidSelect").length) $("#kidSelect").show()
+}).live("blur", function () {
+    searchFocus = false;
+    setTimeout('$("#keyup_d").hide()', 500);
+    setTimeout(function () {
+        if (searchFocus == false) {
+            $("#kidSelect").hide()
+        }
+    }, 500)
+}).live("keyup", function (event) {
+    keyup(event)
+}).live("click", function (event) {
+    if ($(this).attr("id") == 'kw') {
+        keyup(event)
+    }
+});
+$("#search_button").live("click", function () {
+    goSearch_sucai(1)
+});
+$("#btm-searchButton").live("click", function () {
+    goSearch_sucai(2)
+});
+
+
+$("a[kr]").live("click", function () {
+    var kr = $(this).attr("kr");
+    $(".kr").attr("checked", false);
+    $("#" + kr).attr("checked", true);
+    var v = parseInt($("#" + kr).val());
+    setNewSearch(v)
+});
+$("a[tkr]").live("click", function () {
+    var tkr = parseInt($(this).attr("tkr"));
+    $("a[tkr]").removeClass("btm-search-curr");
+    $(this).addClass("btm-search-curr");
+    setNewSearch(tkr)
+});
+$(".kr").live("click", function () {
+    var v = parseInt($(this).val());
+    setNewSearch(v)
+});
+$("#kidSelect").live("click", function () {
+    $(this).show();
+    $("#kw").focus()
+});
+ 
+function keyup_close() {
+    $("#keyup_d").hide()
+}
+
+function keyup_over(id) {
+    $("#u_" + id).css("background-color", "#EBEBEB");
+    $("#l_" + id).css("background-color", "#EBEBEB");
+    $("#r_" + id).css("background-color", "#EBEBEB");
+    $("#kw").focus()
+}
+function keyup_out(id) {
+    $("#u_" + id).css("background-color", "#fff");
+    $("#l_" + id).css("background-color", "#fff");
+    $("#r_" + id).css("background-color", "#fff")
+}
+function keyup_click(id) {
+    $("#keyup_d").hide();
+    var kw = $("#l_" + id).html();
+    if (kw == '') {
+        alert("ÇëÊäÈëÒª²éÕÒµÄ¹Ø¼ü´Ê");
+        return false
+    } else {
+        $("#kw").val(kw);
+        goSearch_sucai(1);
+        return
+    }
+}
+function keyup(event) {
+    if (window.event) {
+        var key = window.event.keyCode
+    } else {
+        var key = event.which
+    }
+    var kwObj = $("#kw");
+    var kwHeight = kwObj.parent("li").height();
+    var kwWidth = kwObj.width();
+    if (key != 38 &amp;&amp; key != 40 &amp;&amp; key != 13) {
+        var kw = kwObj.val();
+        var url = "//so.ooopic.com/dealtest.php?kw=" + kw + "&amp;callback=?";
+        $.getJSON(url, function (data) {
+            if (data != '') {
+                $("#keyup_d").html(data).css({
+                    "top": kwHeight - 1 + "px",
+                    "width": kwWidth + 20 + "px"
+                }).show();
+                $("#keyup_d .sokeyup_2").width(kwWidth - 130)
+            } else {
+                $("#keyup_d").hide()
+            }
+        })
+    }
+}
+
+
+var ul_id = 0;
+$(document).keydown(function (event) {
+    if (window.event) {
+        var key = window.event.keyCode
+    } else {
+        var key = event.which
+    } if (key == 13) {
+        if ($("#login_main").is(":visible")) {
+            check_login();
+            return false
+        }
+        if ($("#box_login").is(":visible")) {
+            omain.login_post();
+            return false
+        }
+        if (searchFocus || btmSearchFocus) {
+            goSearch_sucai();
+            return false
+        }
+    }
+    var ulcount = $("#keyup_d ul").size() - 1;
+    if ($("#keyup_d").css("display") == "block") {
+        $("#l_0").html($("#kw").val());
+        if (key == 38) {
+            ul_id--;
+            if (ul_id &lt; 0) {
+                ul_id = ulcount;
+                keyup_over(ul_id)
+            } else {
+                keyup_out(ul_id + 1);
+                keyup_over(ul_id)
+            }
+            $("#kw").val($("#l_" + ul_id).html());
+            return false
+        }
+        if (key == 40) {
+            $("#l_0").html($("#kw").val());
+            ul_id++;
+            if (ul_id &gt; ulcount) {
+                ul_id = 0;
+                keyup_out(ulcount)
+            } else {
+                keyup_out(ul_id - 1);
+                keyup_over(ul_id)
+            }
+            $("#kw").val($("#l_" + ul_id).html());
+            return false
+        }
+    }
+});
+
+
+function goSearch() {
+    var from = arguments[0];
+    var kw, kwID;
+    type = 37;
+    if (searchFocus || from == 1) kwID = "kw";
+    if (btmSearchFocus || from == 2) kwID = "btm-kw";
+    kw = $("#" + kwID).val();
+    if (kw == '') {
+        alert("ÇëÊäÈëÒª²éÕÒµÄ¹Ø¼ü´Ê");
+        $("#" + kwID).focus();
+        return false
+    } else {
+        kw = encodeURI(kw);
+
+            var r = new Date();
+            r = r.getTime();
+            var url = "//so.ooopic.com/dealtest.php?kw=" + kw + "&amp;r=" + r + "&amp;lx=keywordid&amp;callback=?";
+            $.getJSON(url, function (date) {
+                date = parseInt(date);
+                if (date &gt; 0) {
+                    location.href = "//so.ooopic.com/sousuo/" + date + "/"
+                } else {
+                    location.href = "//so.ooopic.com/search-" + kw + "-" + type + "-______oo__.html"
+                }
+            })
+        }
+}
+
+
+function setNewSearch(id) {
+    type = id;
+    searchFocus = true;
+    $("#kw").focus()
+}
+
+if(typeof (vip_sucai)=='undefined') {
+	var vip_sucai = 0;
+}
+       
+    
+
+$("#search_vip_button").live("click", function () {
+    goSearch_sucai(1)
+});
+
+
+function goSearch_sucai() {
+    var from = arguments[0];
+    var kw, kwID;
+    type =37;
+    if (searchFocus || from == 1) kwID = "kw";
+    //if (btmSearchFocus || from == 2) kwID = "btm-kw";
+    kw = $("#" + kwID).val();
+    if (kw == '') {
+        alert("ÇëÊäÈëÒª²éÕÒµÄ¹Ø¼ü´Ê");
+        $("#" + kwID).focus();
+        return false
+    } else {
+        kw = encodeURI(kw);
+        if (type == 37) {
+            location.href = "//so.ooopic.com/search-" + kw + "-0-_____37_oo__.html";
+            return false
+        }else {
+            var r = new Date();
+            r = r.getTime();
+            var url = "//so.ooopic.com/dealtest.php?kw=" + kw + "&amp;r=" + r + "&amp;lx=keywordid&amp;callback=?";
+            $.getJSON(url, function (date) {
+                date = parseInt(date);
+                if (date &gt; 0) {
+                    location.href = "//so.ooopic.com/sousuo/" + date + "/"
+                } else {
+                    location.href = "//so.ooopic.com/search-" + kw + "-" + type + "-______oo__.html"
+                }
+            })
+        }
+    }
+}</pre></body></html>

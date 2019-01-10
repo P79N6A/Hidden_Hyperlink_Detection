@@ -1,0 +1,663 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head>
+	
+
+<link href="/themes/demo/css/style.css" rel="stylesheet" type="text/css">
+<link href="/themes/demo/css/validate.css" rel="stylesheet" type="text/css">
+<link href="/themes/demo/css/jquery-ui.css" rel="stylesheet" type="text/css">
+<link href="/themes/demo/css/ui_100buy.css" rel="stylesheet" type="text/css">
+<script language="JavaScript" src="/scripts/prototype_for_validation.js" type="text/javascript"></script>
+<script language="JavaScript" src="/scripts/effects.js" type="text/javascript"></script>
+<script language="JavaScript" src="/scripts/validation_cn.js" type="text/javascript"></script>
+<script language="JavaScript" src="/scripts/jquery-jquery3.min.js" type="text/javascript"></script>
+<script type="text/javascript" src="/scripts/jquery.ui.js"></script>
+<script language="JavaScript" src="/scripts/jquery.bgiframe.js" type="text/javascript"></script>
+<script type="text/javascript" src="/scripts/jquery.validate.js"></script>
+<script type="text/javascript" src="/scripts/jquery.common.js"></script>
+<script type="text/javascript" src="/scripts/jquery.form.js"></script>
+<script language="JavaScript" src="/scripts/jquery.blockUI.js" type="text/javascript"></script>
+	<meta http-equiv="Content-Type" content="text/html;charset=utf-8;">
+	<title>国网湖北省电力公司2017年高校毕业生第二批次招聘公告</title>
+	<link href="/themes/default/css/style_others.css" rel="stylesheet" type="text/css">
+
+	<link href="/themes/default/css/style_detail.css" rel="stylesheet" type="text/css"> 
+	<link rel="stylesheet" href="/css/base.css">
+	<style type="text/css">
+		<!--
+		.text_button{width:1100px;margin:0px auto; border-bottom:dashed 1px #ccc; padding:10px 0px;}
+		.green,.green a:link,.green a:visited{font-size: 12px;line-height: 24px;font-weight: normal;color:#0a7671; text-decoration: none;}
+		.green a:hover{font-size: 12px;line-height: 24px;font-weight: normal;color: #000; text-decoration: none;}
+		-->
+		.jssearch{ width:100%; overflow:hidden;}
+		.jssearch li{ width:100%; overflow:hidden; margin-bottom:10px;}
+		.search_text{ width:100%;}
+		.search_input{ width:100%; float:left;line-height: 24px;}
+		.fujian{color:#000; text-decoration:none;}
+		.fujian:hover{color:#0033CC; text-decoration:underline; }
+		
+		
+        
+        #locations{  height:26px; color:#fff; line-height:26px;  
+        border-bottom:none; margin:0 auto; background-color:#EEF0F0; repeat-x;
+        border-radius: 5px 5px 0 0;
+        
+        }
+      #locations a{ color:#28D0B7; text-decoration:none; }
+      #locations a:hover{ text-decoration:underline; }
+      #locations .left{float:left; padding-left:20px;}
+      #locations .right{ float:right; padding-right:5px;}
+      
+      
+            #wrap{ width:1200px; height:auto; margin:0 auto; position:relative;}
+      #main_content_02{
+    border: 0;width:1165px; border-bottom: #EEF0F0 15px solid;border-left: #EEF0F0 15px solid; border-right:#EEF0F0 20px solid;
+
+}
+.base-info span:HOVER{
+background-color: #fa7c57;
+}
+        
+	</style>
+	<script type="text/javascript" language="javascript">
+		//初始化申请工作层
+		$(function() {
+			$("#applyJob").dialog("destroy");
+			$("#applyJob").dialog({title:'申请工作',width:506,autoOpen:false,modal:true,resizable:false});
+		});
+		var xhr;
+		function createXHR(){
+			if (window.XMLHttpRequest) {
+				xhr = new XMLHttpRequest();
+			} else if (window.ActiveXObject) {
+				try {
+					xhr = new ActiveXObject("Microsoft.XMLHTTP");
+				} catch(e){
+					try {
+						xhr = new ActiveXObject("Msxml2.XMLHTTP");
+					} catch (e2) {
+						alert("您的浏览器有问题！");
+					}
+				}
+			}
+		}
+		//申请前的准备工作，如加载子属单位
+		function toApply(bulletinId,unitName,objId,zppc){
+			
+			var userId='';
+			if(userId==""){
+				$.alert("请先登录，登录后才能申请工作");
+				return;
+			}
+			var confirmFlag='';
+			if(confirmFlag!="1"){
+				$.alert("简历未确认，确认后方可申请工作");
+				return;
+			}
+			var timeApply=false;
+			if(timeApply!=true){
+				$.alert("您的毕业时间不在本次招聘范围内");
+				return;
+			}
+			var max_intention='';//意向数量
+			for(var j=1;j<=max_intention;j++){
+			$("#yx"+j).empty();
+			}
+			createXHR();
+			var url = "/member/ApplyAction.do?method=beforeApply&bulletinId="+bulletinId+"&objId="+objId+"&zppc="+zppc;
+			url=encodeURI(url);
+			xhr.onreadystatechange = function (){
+			  if(xhr.readyState == 4){
+			     if(xhr.status == 200){
+				     var content = xhr.responseText;
+				     if(content!="success"){
+				     	if(content=="notFitApplyCondition"){
+					     	$.alert("对不起，你的学习经历不符合应聘条件");
+					     }else if(content=="appliedThisUnit"){
+					     	$.alert("你已经申请过发布该公告的单位");
+					     }else if(content=="appliedThis"){
+					     	$.alert("对于该公告你已经申请了工作");
+					     }else{
+					     	$.alert("最多只能报名"+content+"家网省公司");
+					     }
+					     return;
+				     }else{
+						$("#objId").attr("value",objId);
+						$("#bulletinId").attr("value",bulletinId);
+						$("#unitName").attr("value",unitName);
+						$("#showUnitName").attr("innerHTML",unitName);
+						
+						$("#zppc1").attr("value",zppc);
+						
+						createXHR();
+						var url = "/member/BulletinAction.do?method=getIntentions&objId="+objId+"&zppc="+zppc;;
+						url=encodeURI(url);
+						xhr.onreadystatechange = function (){
+						  if(xhr.readyState == 4){
+						     if(xhr.status == 200){
+							    var content = xhr.responseText;
+							    var max_intention='';//意向数量
+							    if(content!=""){
+							    	
+                                  var aaa=content.split("###");
+							    	
+							    	
+							    	
+							    	content=aaa[0];
+							    	var unitArr=content.split(";");
+							    	//填充各意向下拉菜单数据
+							    	for(var j=1;j<=max_intention;j++){
+							    		$("#yx"+j).empty();
+							    		$("#yx"+j).append("<option value=''>请选择</option>");
+							    		for(var i=0;i<unitArr.length;i++){
+								 			var perUnit=unitArr[i].split(",");
+								 			if(perUnit[1]!=null&&perUnit[1]!=""){
+								 				$("#yx"+j).append("<option value='"+perUnit[0]+"'>"+perUnit[1]+"</option>");
+								 			}
+								 		}
+							    	}
+							    }else{
+							    	
+							    	for(var j=1;j<=max_intention;j++){
+							    		$("#yx"+j).empty();
+							    		$("#yx"+j).append("<option value=''>请选择</option>");
+							    		$("#yx"+j).hide();
+							    		$("#itend").hide();
+							    	}
+							    }
+							    // 填充志愿顺序下拉菜单
+						    	var max_unit='';//志愿数量(可申报数量)
+						    	$("#unit_rank").empty();
+						    	$("#unit_rank").append("<option value=''>请选择</option>");
+						    	for(var j=1;j<=max_unit;j++){
+						    		$("#unit_rank").append("<option value='"+j+"'>第 "+j+" 志愿</option>");
+						    	 }
+						    	//session中存储的志愿顺序
+						    	
+						    	
+// 						    	var unitRanks='';
+// 						    	var rank=unitRanks.split(',');
+// 						    	for(var m=0;m<rank.length;m++){
+// 						    		if(rank[m]!=""){
+// 						    			$("#unit_rank option[value='"+rank[m]+"']").remove();
+// 						    		}
+// 						    	}
+						    	//在当前页申请工作后存储的志愿顺序
+						    	 var page_rank=aaa[1];
+						    	//var page_rank=rankeds.split(',');
+						    	for(var n=0;n<page_rank.length;n++){
+						    		if(page_rank[n]!=""){
+						    			$("#unit_rank option[value='"+page_rank[n]+"']").remove();
+						    		}
+						    	}
+						     }
+						  }
+						}
+					   xhr.open("GET",url,true);
+					   xhr.setRequestHeader("If-Modified-Since","0");
+					   xhr.send(null);
+					   $('#applyJob').dialog('open');//打开申请工作层
+					   $("#img_toapply").attr("style","cursor:pointer;display:view;");
+					   $("#img_can_notapply").attr("style","display:none;");
+					 }
+			     }
+			  }
+		   }
+		   xhr.open("GET",url,false);
+		   xhr.setRequestHeader("If-Modified-Since","0");
+		   xhr.send(null);
+		}
+		//申报工作前，给出申报提示
+		function warnForApply(){
+			if(checkInten()){
+				$.alert("所选意向不能重复");
+			}else{
+				var unit_rank=$('#unit_rank').val();
+				if(unit_rank!=""){
+					createXHR();
+					var url = "/member/ApplyAction.do?method=isChooseThisWish&unit_rank="+unit_rank;
+					url=encodeURI(url);
+					xhr.onreadystatechange = function (){
+					  if(xhr.readyState == 4){
+					     if(xhr.status == 200){
+						    var resText = xhr.responseText;
+						    if(resText=="choosed"){
+						    	$.alert("你已经选择过该志愿顺序");
+						    }else{
+						    	$.confirm("确认报名后，对应的志愿、意向单位和志愿顺序不能进行修改，请慎重考虑。如需调整志愿，请咨询已报名招聘单位。是否确认报名？",function(){
+									$("#img_toapply").attr("style","display:none;");
+									$("#img_can_notapply").attr("style","cursor:pointer;display:view;");
+									apply();
+								});
+						    }
+					     }
+					  }
+					}
+				    xhr.open("GET",url,true);
+				    xhr.setRequestHeader("If-Modified-Since","0");
+				    xhr.send(null);
+			   	}else{
+			        $.alert("请选择志愿顺序");
+			   	}
+			}
+		}
+		//判断所选择意向是否重复
+		function checkInten(){
+			var intenRepeat=false;//默认不重复
+			var max_intention='';//意向数量
+			for(var j=1;j<=max_intention;j++){
+				var yx=$('#yx'+j)[0];
+				if(yx.value!=""){
+					for(var j=1;j<=max_intention;j++){
+						var reYx=$('#yx'+j)[0];
+						if(yx.id!=reYx.id){
+							if(yx.value==reYx.value){
+								intenRepeat=true;//所选意向有重复
+							}
+						}
+					}
+				}
+			}
+			return intenRepeat;
+		}
+		var rankeds="";//已申请的志愿顺序
+		//申报工作
+		function apply(){
+			var zppc=$('#zppc1').val();//招聘批次
+			
+			var objId=$('#objId').val();//单位ID
+			var bulletinId=$('#bulletinId').val();//公告ID
+			var unitName=$('#unitName').val();//单位名称
+			var unit_rank=$('#unit_rank').val();//志愿顺序
+			//是否同意网省调剂，单选按钮获取选中的值
+			var itemradio =$("input[name=z00hrsftywstj]");
+		    var adjustFlag = '';
+		    for(i=0;i<itemradio.length;i++){
+		        if(itemradio[i].checked){
+		            adjustFlag = itemradio[i].value;
+		        }
+		    }
+			createXHR();
+			var url = "/member/ApplyAction.do?method=apply&bulletinId="+bulletinId+"&unitName="+
+			unitName+"&objId="+objId+"&adjustFlag="+adjustFlag+"&unit_rank="+unit_rank+"&zppc="+zppc;
+			var max_intention='';//意向数量
+			for(var j=1;j<=max_intention;j++){
+				var yx=$('#yx'+j).val();
+				url=url+"&yx"+j+"="+yx;//传递各意向单位编码
+			}
+			url=encodeURI(url);
+			xhr.onreadystatechange = function (){
+			  if(xhr.readyState == 4){
+			     if(xhr.status == 200){
+				    $('#applyJob').dialog('close');//关闭“我的申请”层
+			     	$("#appliedNum").attr("innerHTML",parseInt('')+1);
+			     	rankeds+=unit_rank+",";
+			     	$.alert("工作申请成功！");
+			     }
+			  }
+			}
+		   xhr.open("GET",url,true);
+		   xhr.setRequestHeader("If-Modified-Since","0");
+		   xhr.send(null);
+		}
+		//查看公司详情
+		function goUnit(unitId){
+			var otype='1';
+			createXHR();
+			var url = "/html/che_subunit/" + unitId;
+			url=encodeURI(url);
+			xhr.onreadystatechange = function (){
+			  if(xhr.readyState == 4){
+			     if(xhr.status == 200){
+				    var content = xhr.responseText;
+				    if(content=="have"){
+				    	otype='1';
+				    }else{
+				    	otype='0';
+				    }
+			     }
+			  }
+			}
+		    xhr.open("GET",url,false);
+		    xhr.setRequestHeader("If-Modified-Since","0");
+		    xhr.send(null);
+		    
+			var url = "/html/unit/"+unitId+"/"+otype;
+			window.open(url,'_blank');
+		}
+	</script>
+	
+</head>
+
+<body class="green_bg">
+<div class="header-wrap">
+		<div class="header-cont clearfix">
+					<a href="/index.jsp" style="margin-top:22px" class="logo-region">
+				<img src="/images/dwlogo2222.png" width="220" alt="">
+<!-- 				<div class="logo-txt"> -->
+<!-- 					<p>人力资源</p> -->
+<!-- 					<p>招聘平台</p> -->
+<!-- 				</div> -->
+			</a>
+
+			<div class="user-info f-info" style="color: #28d0b7; font-size:20px;">
+				<span class="filiale-name">国网湖北省电力公司</span>
+			</div>
+		</div>
+	</div>
+
+<div id="wrap">
+<div class="banner" style="background-repeat: no-repeat;background-image: url('/images/abc-banner2.jpg');width:1200px; height:171px;"></div>
+			<div id="main_content_02">
+   <div id="locations">
+<!-- 					<div class="left"> -->
+
+
+<!-- 						<a href="#">信息内容</a> -->
+<!-- 					</div> -->
+<!-- 					<div class="right"> -->
+<!-- 						<a href="/">返回首页</a> -->
+<!-- 					</div> -->
+				</div>
+	
+   <div class="text_button" style="padding-left:16px;">
+ 	
+  	 	<div style="font-size:12px;float: left;line-height: 34px;">
+  	  	
+	 	
+	 	
+	 		已过报名时间，报名截止时间为：2017-03-12
+	 	
+	 	</div>
+  	
+ 	&nbsp;
+
+  	  <div class="base-info" style="width:100px;">
+  	     <div class="header" style="width:900px;width: 150px; position:relative; margin-left: 160px;">
+  	        <span style="cursor: pointer; font-size: 14px;" onclick="goUnit('00995075');">查看公司详情</span>
+  	    </div>
+  	  </div>
+  	
+  	
+  	<input type="hidden" id="bulletinId" value="02eb23eff2da43959945c78a5ad55f5f">
+  	<input type="hidden" id="unitName" value="国网湖北省电力公司">
+  	<input type="hidden" id="objId" value="00995075">
+   </div>
+   
+   <div class="detail">
+   <h1 style="font-size:18pt">国网湖北省电力公司2017年高校毕业生第二批次招聘公告</h1>
+   <h2>更新日期：2017-02-27&nbsp;&nbsp;&nbsp;&nbsp;</h2>
+   <div style="padding:20px 48px 0px 48px;">
+   <p>
+   	</p><p><span style="DISPLAY: none" id="1487928306737S" _fck_bookmark="true">&nbsp;</span></p>
+<div style="LINE-HEIGHT: 27pt; TEXT-INDENT: 32pt; LAYOUT-GRID-MODE: char"><span style="DISPLAY: none" id="1487928462738S" _fck_bookmark="true">&nbsp;</span></div><span style="FONT-FAMILY: 黑体">
+<div style="LINE-HEIGHT: 27pt; TEXT-INDENT: 32pt; LAYOUT-GRID-MODE: char"><span style="DISPLAY: none" id="1487928412127S" _fck_bookmark="true">&nbsp;</span><span style="DISPLAY: none" id="1487928417664S" _fck_bookmark="true">&nbsp;</span><span style="DISPLAY: none" id="1487928389522S" _fck_bookmark="true">&nbsp;</span><font size="5">一、 公司简介</font></div><span style="DISPLAY: none" id="1487928463094E" _fck_bookmark="true">&nbsp;</span></span> 
+<div style="LINE-HEIGHT: 27pt; TEXT-INDENT: 32pt; LAYOUT-GRID-MODE: char"><span style="FONT-FAMILY: 宋体"><span style="BACKGROUND: white; COLOR: black"><font size="5">国网湖北省电力公司是国家电网公司的全资子公司，是以电网建设、管理和运营为核心业务的特大型国有企业，是省内电力市场的骨干企业和主导力量，直接为地方经济发展和人民生活提供电力保障。</font></span></span></div>
+<div style="LINE-HEIGHT: 27pt; TEXT-INDENT: 32pt; LAYOUT-GRID-MODE: char"><span style="FONT-FAMILY: 宋体"><span style="BACKGROUND: white; COLOR: black"><font size="5">截至2016年底，公司拥有31家直属单位，直供直管县级供电企业82个。营业户数2326万户，其中高压用户20万户、低压用户2306万户。</font></span></span></div>
+<div style="LINE-HEIGHT: 27pt; TEXT-INDENT: 32pt; LAYOUT-GRID-MODE: char"><span style="FONT-FAMILY: 宋体"><span style="BACKGROUND: white; COLOR: black"><font size="5">湖北电网地处华中电网中心、全国电网腹地，承担着三峡及川渝水电外送、华北火电资源与华中水电互济等重要职责。经过多年的发展，湖北电网已经成为全面承接特高压输送电能、以500千伏电网为骨干、以220千伏电网为主体、110千伏及以下电网覆盖全省城乡、供电人口达到6100多万的现代化大电网；是三峡外送的起点、西电东送的通道、南北互供的枢纽、全国联网的中心。</font></span></span></div>
+<div style="LINE-HEIGHT: 27pt; TEXT-INDENT: -36pt; MARGIN: 0cm 0cm 0pt 68pt; LAYOUT-GRID-MODE: char"><span style="FONT-FAMILY: 宋体"><font size="5">二、 招聘安排</font></span><span style="FONT-FAMILY: 黑体"></span></div>
+<div style="LINE-HEIGHT: 27pt; TEXT-INDENT: 32pt; LAYOUT-GRID-MODE: char"><span style="FONT-FAMILY: 宋体"><font size="5"><b>（一）毕业生报名</b></font></span></div>
+<div style="LINE-HEIGHT: 27pt; TEXT-INDENT: 32pt; LAYOUT-GRID-MODE: char"><span style="FONT-FAMILY: 宋体"><font size="5"><span style="BACKGROUND: white; COLOR: black">1.</span><span style="BACKGROUND: white; COLOR: black">应聘毕业生需通过国家电网公司人力资源招聘平台，按照网上申报流程报名。填写的个人信息中，学校及所学专业名称等学历信息请严格按照《教育部学籍在线验证报告》内容填写。</span></font></span></div>
+<div style="LINE-HEIGHT: 27pt; TEXT-INDENT: 32pt; LAYOUT-GRID-MODE: char; BACKGROUND: white"><span style="FONT-FAMILY: 宋体"><font size="5"><span style="BACKGROUND: white; COLOR: black">2.</span><span style="BACKGROUND: white; COLOR: black">应聘毕业生要在国家电网公司人力资源招聘平台上传现学历学籍验证报告，并填写学籍验证码（二者缺一不可），且确保学籍验证码在2017年7月底前有效。</span></font></span></div>
+<div style="LINE-HEIGHT: 27pt; TEXT-INDENT: 32pt; LAYOUT-GRID-MODE: char; BACKGROUND: white"><span style="FONT-FAMILY: 宋体"><font size="5"><span style="BACKGROUND: white; COLOR: black">3.</span><span style="BACKGROUND: white; COLOR: black">按要求上传以下材料彩色扫描件：在校学习成绩单（需加盖学校公章），英语、计算机等级证书，学校就业推荐表（需加盖学校公章），中国高等教育学生信息网《教育部学籍在线验证报告》、各类获奖证书等。</span></font></span></div>
+<div style="LINE-HEIGHT: 27pt; TEXT-INDENT: 32pt; LAYOUT-GRID-MODE: char; BACKGROUND: white"><span style="FONT-FAMILY: 宋体"><font size="5"><span style="BACKGROUND: white; COLOR: black">4.</span><span style="BACKGROUND: white; COLOR: black">申请应聘志愿。</span></font></span></div>
+<div style="LINE-HEIGHT: 27pt; TEXT-INDENT: 32pt; LAYOUT-GRID-MODE: char"><span style="FONT-FAMILY: 宋体"><font size="5"><span style="BACKGROUND: white; COLOR: black">5.</span><span style="BACKGROUND: white; COLOR: black">报名时间：报名截止时间为</span>2017年2月27日至3月12日，<span style="BACKGROUND: white; COLOR: black">过期不予受理。</span></font></span></div>
+<div style="LINE-HEIGHT: 27pt; TEXT-INDENT: 32pt; LAYOUT-GRID-MODE: char; BACKGROUND: white"><span style="FONT-FAMILY: 宋体"><font size="5"><b><span style="BACKGROUND: white; COLOR: black">（二）资格审查</span></b></font></span></div>
+<div style="LINE-HEIGHT: 27pt; LAYOUT-GRID-MODE: char"><span style="FONT-FAMILY: 宋体"><font size="5">&nbsp;&nbsp;&nbsp; <span style="COLOR: black">筛选简历确定</span>笔试人选，<span style="BACKGROUND: white; COLOR: black">接到考试通知并确认参加考试的毕业生，须由本人在考前1-2天携带以下资料的原件和复印件到指定地点进行资格审查：</span></font></span></div>
+<div style="LINE-HEIGHT: 27pt; TEXT-INDENT: 32pt; LAYOUT-GRID-MODE: char; BACKGROUND: white"><span style="FONT-FAMILY: 宋体"><font size="5"><span style="BACKGROUND: white; COLOR: black">1.</span><span style="BACKGROUND: white; COLOR: black">应聘登记表(登录国家电网公司招聘平台，选择应聘志愿后下载打印);</span></font></span></div>
+<div style="LINE-HEIGHT: 27pt; TEXT-INDENT: 32pt; LAYOUT-GRID-MODE: char; BACKGROUND: white"><span style="FONT-FAMILY: 宋体"><font size="5"><span style="BACKGROUND: white; COLOR: black">2.</span><span style="BACKGROUND: white; COLOR: black">学校盖章的就业推荐表;</span></font></span></div>
+<div style="LINE-HEIGHT: 27pt; TEXT-INDENT: 32pt; LAYOUT-GRID-MODE: char; BACKGROUND: white"><span style="FONT-FAMILY: 宋体"><font size="5"><span style="BACKGROUND: white; COLOR: black">3.</span><span style="BACKGROUND: white; COLOR: black">学校盖章的成绩单;</span></font></span></div>
+<div style="LINE-HEIGHT: 27pt; TEXT-INDENT: 32pt; LAYOUT-GRID-MODE: char; BACKGROUND: white"><span style="FONT-FAMILY: 宋体"><font size="5"><span style="BACKGROUND: white; COLOR: black">4.</span><span style="BACKGROUND: white; COLOR: black">学籍验证报告(中国高等教育学生信息网下载打印);</span></font></span></div>
+<div style="LINE-HEIGHT: 27pt; TEXT-INDENT: 32pt; LAYOUT-GRID-MODE: char; BACKGROUND: white"><span style="FONT-FAMILY: 宋体"><font size="5"><span style="BACKGROUND: white; COLOR: black">5.</span><span style="BACKGROUND: white; COLOR: black">身份证。</span></font></span></div>
+<div style="LINE-HEIGHT: 27pt; TEXT-INDENT: 32pt; LAYOUT-GRID-MODE: char; BACKGROUND: white"><span style="FONT-FAMILY: 宋体"><font size="5"><b><span style="BACKGROUND: white; COLOR: black">（三）笔试、面试</span></b></font></span></div>
+<div style="LINE-HEIGHT: 27pt; TEXT-INDENT: 32pt; LAYOUT-GRID-MODE: char"><span style="FONT-FAMILY: 宋体"><font size="5"><b>1.</b><b>时间、地点</b></font></span></div>
+<div style="LINE-HEIGHT: 27pt; TEXT-INDENT: 32pt; LAYOUT-GRID-MODE: char"><span style="FONT-FAMILY: 宋体"><font size="5"><b>笔试时间：</b>初步定为2017年3月26日，如有调整另行通知，具体考试科目的时间安排以发送考试通知信息为准。</font></span></div>
+<div style="LINE-HEIGHT: 27pt; TEXT-INDENT: 32pt; LAYOUT-GRID-MODE: char"><span style="FONT-FAMILY: 宋体"><font size="5"><b>面试时间：</b>预计为笔试后一周内面试，具体安排以面试通知信息为准。</font></span><span style="FONT-FAMILY: 黑体"></span></div>
+<div style="LINE-HEIGHT: 27pt; TEXT-INDENT: 32pt; LAYOUT-GRID-MODE: char"><span style="FONT-FAMILY: 宋体"><font size="5"><b>考试地点：</b>湖北省武汉市武汉电力职业技术学院，详细考点信息以考试通知为准。</font></span><span style="FONT-FAMILY: 黑体"></span></div>
+<div style="LINE-HEIGHT: 27pt; LAYOUT-GRID-MODE: char"><span style="FONT-FAMILY: 宋体"><font size="5"><b>&nbsp;&nbsp;&nbsp; 2.</b><b>考试内容</b></font></span></div>
+<div style="LINE-HEIGHT: 27pt; TEXT-INDENT: 32pt; LAYOUT-GRID-MODE: char"><span style="FONT-FAMILY: 宋体"><font size="5"><b>笔试</b>：笔试内容及考试大纲详见国家电网公司招聘公告。</font></span><span style="FONT-FAMILY: 黑体"></span></div>
+<div style="LINE-HEIGHT: 27pt; TEXT-INDENT: 32pt; LAYOUT-GRID-MODE: char"><span style="FONT-FAMILY: 宋体"><font size="5"><b>面试：</b>采取结构化面试，面试内容包括综合面试题（考查应聘者沟通表达能力、逻辑思维能力、临场应变能力、人岗匹配等）和专业面试题（考查应聘者专业知识、技能及其应用等）。</font></span><span style="FONT-FAMILY: 黑体"></span></div>
+<div style="LINE-HEIGHT: 27pt; TEXT-INDENT: 32pt; LAYOUT-GRID-MODE: char"><span style="FONT-FAMILY: 宋体"><font size="5"><b>3.</b><b>考试通知</b></font></span></div>
+<div style="LINE-HEIGHT: 27pt; TEXT-INDENT: 32pt; LAYOUT-GRID-MODE: char"><span style="FONT-FAMILY: 宋体"><font size="5">考试前7天，公司通过手机或招聘平台短信、招聘平台站内消息、电话等方式，通知入围毕业生参加考试，未入围的不再另行通知。</font></span></div>
+<div style="LINE-HEIGHT: 27pt; TEXT-INDENT: 32pt; LAYOUT-GRID-MODE: char; BACKGROUND: white"><span style="FONT-FAMILY: 宋体"><b><span style="BACKGROUND: white; COLOR: black"><font size="5">（四）确定录取意向</font></span></b></span></div>
+<div style="LINE-HEIGHT: 27pt; TEXT-INDENT: 32pt; LAYOUT-GRID-MODE: char; BACKGROUND: white"><span style="FONT-FAMILY: 宋体"><span style="BACKGROUND: white; COLOR: black"><font size="5">根据笔试、面试成绩，确定预录取名单，发布预录取通知，确定签约意向及岗位，提交就业协议书，并向国家电网公司申报。</font></span></span></div>
+<div style="LINE-HEIGHT: 27pt; TEXT-INDENT: 32pt; LAYOUT-GRID-MODE: char; BACKGROUND: white"><span style="FONT-FAMILY: 宋体"><b><span style="BACKGROUND: white; COLOR: black"><font size="5">（五）公示并体检</font></span></b></span></div>
+<div style="LINE-HEIGHT: 27pt; TEXT-INDENT: 32pt; LAYOUT-GRID-MODE: char; BACKGROUND: white"><span style="FONT-FAMILY: 宋体"><span style="BACKGROUND: white; COLOR: black"><font size="5">国家电网公司批复后，公示预录取毕业生名单，通知毕业生到指定地点（湖北省武汉市）参加统一体检，合格后就业协议书盖章、返还。</font></span></span></div>
+<div style="LINE-HEIGHT: 27pt; MARGIN: 0cm 0cm 0pt 32.15pt; LAYOUT-GRID-MODE: char; BACKGROUND: white"><span style="FONT-FAMILY: 宋体"><b><span style="BACKGROUND: white; COLOR: black"><font size="5">（六）入职报到</font></span></b></span></div>
+<div style="LINE-HEIGHT: 27pt; TEXT-INDENT: 32pt; LAYOUT-GRID-MODE: char; BACKGROUND: white"><span style="FONT-FAMILY: 宋体"><span style="BACKGROUND: white; COLOR: black"><font size="5">毕业生毕业离校后，公司审核其毕业信息（是否正常毕业），合格后办理入职报到手续。</font></span></span></div>
+<div style="LINE-HEIGHT: 27pt; TEXT-INDENT: 32pt; LAYOUT-GRID-MODE: char; BACKGROUND: white"><span style="FONT-FAMILY: 宋体"><font size="5">三、报名条件</font></span><span style="FONT-FAMILY: 黑体"></span></div>
+<div style="LINE-HEIGHT: 27pt; TEXT-INDENT: 32pt; LAYOUT-GRID-MODE: char"><span style="FONT-FAMILY: 宋体"><font size="5">1.招聘对象主要为大学专科及以上专业对口应届毕业生。</font></span><span style="FONT-FAMILY: 黑体"></span></div>
+<div style="LINE-HEIGHT: 27pt; TEXT-INDENT: 32pt; LAYOUT-GRID-MODE: char"><span style="FONT-FAMILY: 宋体"><font size="5">2.成绩合格，取得相应学历、学位，录用毕业生一般应于2017年7月31日之前取得毕业证和学位证。</font></span></div>
+<div style="LINE-HEIGHT: 27pt; TEXT-INDENT: 32pt; LAYOUT-GRID-MODE: char"><span style="FONT-FAMILY: 宋体"><font size="5">3.遵守国家法律法规，具有良好的思想品德，认同公司诚信、责任、创新、奉献的核心价值观。</font></span><span style="FONT-FAMILY: 黑体"></span></div>
+<div style="LINE-HEIGHT: 27pt; TEXT-INDENT: 32pt; LAYOUT-GRID-MODE: char"><span style="FONT-FAMILY: 宋体"><font size="5">4.符合招聘岗位工作要求，身体健康。</font></span><span style="FONT-FAMILY: 黑体"></span></div>
+<div style="LINE-HEIGHT: 27pt; TEXT-INDENT: 32pt; LAYOUT-GRID-MODE: char"><span style="FONT-FAMILY: 宋体"><font size="5">四、需求信息</font></span></div>
+<div align="center">
+<table style="BORDER-COLLAPSE: collapse" border="0" cellspacing="0" cellpadding="0" width="563">
+<tbody>
+<tr style="HEIGHT: 32.55pt">
+<td style="BORDER-BOTTOM: black 1pt solid; BORDER-LEFT: black 1pt solid; PADDING-BOTTOM: 0cm; BACKGROUND-COLOR: transparent; PADDING-LEFT: 5.4pt; WIDTH: 35.4pt; PADDING-RIGHT: 5.4pt; HEIGHT: 32.55pt; BORDER-TOP: black 1pt solid; BORDER-RIGHT: black 1pt solid; PADDING-TOP: 0cm" width="47">
+<div style="TEXT-ALIGN: center; LINE-HEIGHT: 20pt; LAYOUT-GRID-MODE: char" align="center"><span style="FONT-FAMILY: 宋体"><b><span style="FONT-SIZE: 10.5pt">序号</span></b></span><b></b></div></td>
+<td style="BORDER-BOTTOM: black 1pt solid; BORDER-LEFT: #f0f0f0; PADDING-BOTTOM: 0cm; BACKGROUND-COLOR: transparent; PADDING-LEFT: 5.4pt; WIDTH: 91.95pt; PADDING-RIGHT: 5.4pt; HEIGHT: 32.55pt; BORDER-TOP: black 1pt solid; BORDER-RIGHT: black 1pt solid; PADDING-TOP: 0cm" width="123">
+<div style="TEXT-ALIGN: center; LINE-HEIGHT: 20pt; LAYOUT-GRID-MODE: char" align="center"><span style="FONT-FAMILY: 宋体"><b><span style="FONT-SIZE: 10.5pt">招聘岗位</span></b></span><b></b></div></td>
+<td style="BORDER-BOTTOM: black 1pt solid; BORDER-LEFT: #f0f0f0; PADDING-BOTTOM: 0cm; BACKGROUND-COLOR: transparent; PADDING-LEFT: 5.4pt; WIDTH: 70.85pt; PADDING-RIGHT: 5.4pt; HEIGHT: 32.55pt; BORDER-TOP: black 1pt solid; BORDER-RIGHT: black 1pt solid; PADDING-TOP: 0cm" width="94">
+<div style="TEXT-ALIGN: center; LINE-HEIGHT: 20pt; LAYOUT-GRID-MODE: char" align="center"><span style="FONT-FAMILY: 宋体"><b><span style="FONT-SIZE: 10.5pt">招聘人数</span></b></span><b></b></div></td>
+<td style="BORDER-BOTTOM: black 1pt solid; BORDER-LEFT: #f0f0f0; PADDING-BOTTOM: 0cm; BACKGROUND-COLOR: transparent; PADDING-LEFT: 5.4pt; WIDTH: 152.05pt; PADDING-RIGHT: 5.4pt; HEIGHT: 32.55pt; BORDER-TOP: black 1pt solid; BORDER-RIGHT: black 1pt solid; PADDING-TOP: 0cm" width="203">
+<div style="TEXT-ALIGN: center; LINE-HEIGHT: 20pt; LAYOUT-GRID-MODE: char" align="center"><span style="FONT-FAMILY: 宋体"><b><span style="FONT-SIZE: 10.5pt">岗位条件</span></b></span><b></b></div></td>
+<td style="BORDER-BOTTOM: black 1pt solid; BORDER-LEFT: #f0f0f0; PADDING-BOTTOM: 0cm; BACKGROUND-COLOR: transparent; PADDING-LEFT: 5.4pt; WIDTH: 72.15pt; PADDING-RIGHT: 5.4pt; HEIGHT: 32.55pt; BORDER-TOP: black 1pt solid; BORDER-RIGHT: black 1pt solid; PADDING-TOP: 0cm" width="96">
+<div style="TEXT-ALIGN: center; LINE-HEIGHT: 20pt; LAYOUT-GRID-MODE: char" align="center"><span style="FONT-FAMILY: 宋体"><b><span style="FONT-SIZE: 10.5pt">工作所在地</span></b></span><b></b></div></td></tr>
+<tr style="HEIGHT: 28.2pt">
+<td style="BORDER-BOTTOM: black 1pt solid; BORDER-LEFT: black 1pt solid; PADDING-BOTTOM: 0cm; BACKGROUND-COLOR: transparent; PADDING-LEFT: 5.4pt; WIDTH: 35.4pt; PADDING-RIGHT: 5.4pt; HEIGHT: 28.2pt; BORDER-TOP: #f0f0f0; BORDER-RIGHT: black 1pt solid; PADDING-TOP: 0cm" width="47">
+<div style="TEXT-ALIGN: center; LINE-HEIGHT: 20pt" align="center"><span style="FONT-FAMILY: 宋体"><span style="FONT-SIZE: 10.5pt">1</span></span></div></td>
+<td style="BORDER-BOTTOM: black 1pt solid; BORDER-LEFT: #f0f0f0; PADDING-BOTTOM: 0cm; BACKGROUND-COLOR: transparent; PADDING-LEFT: 5.4pt; WIDTH: 91.95pt; PADDING-RIGHT: 5.4pt; HEIGHT: 28.2pt; BORDER-TOP: #f0f0f0; BORDER-RIGHT: black 1pt solid; PADDING-TOP: 0cm" width="123">
+<div align="center"><span style="FONT-FAMILY: 宋体"><span style="COLOR: black; FONT-SIZE: 10.5pt">配电运检</span></span></div></td>
+<td style="BORDER-BOTTOM: black 1pt solid; BORDER-LEFT: #f0f0f0; PADDING-BOTTOM: 0cm; BACKGROUND-COLOR: transparent; PADDING-LEFT: 5.4pt; WIDTH: 70.85pt; PADDING-RIGHT: 5.4pt; HEIGHT: 28.2pt; BORDER-TOP: #f0f0f0; BORDER-RIGHT: black 1pt solid; PADDING-TOP: 0cm" width="94">
+<div align="center"><span style="FONT-FAMILY: 宋体"><span style="COLOR: black; FONT-SIZE: 10.5pt">140</span></span></div></td>
+<td style="BORDER-BOTTOM: black 1pt solid; BORDER-LEFT: #f0f0f0; PADDING-BOTTOM: 0cm; BACKGROUND-COLOR: transparent; PADDING-LEFT: 5.4pt; WIDTH: 152.05pt; PADDING-RIGHT: 5.4pt; HEIGHT: 28.2pt; BORDER-TOP: #f0f0f0; BORDER-RIGHT: black 1pt solid; PADDING-TOP: 0cm" rowspan="5" width="203">
+<div style="LINE-HEIGHT: 20pt; TEXT-INDENT: -18pt; MARGIN: 0cm 0cm 0pt 18pt"><span style="FONT-FAMILY: 宋体"><span style="FONT-SIZE: 10.5pt">1.&nbsp;</span><span style="FONT-SIZE: 10.5pt">电气工程等电工类三本、专升本、专科生；</span></span></div>
+<div style="LINE-HEIGHT: 20pt; TEXT-INDENT: -18pt; MARGIN: 0cm 0cm 0pt 18pt"><span style="FONT-FAMILY: 宋体"><span style="FONT-SIZE: 10.5pt">2.&nbsp;</span><span style="FONT-SIZE: 10.5pt">其他非电专业要求二本及以上学历，专业对口。</span></span></div></td>
+<td style="BORDER-BOTTOM: windowtext 1pt solid; BORDER-LEFT: #f0f0f0; PADDING-BOTTOM: 0cm; BACKGROUND-COLOR: transparent; PADDING-LEFT: 5.4pt; WIDTH: 72.15pt; PADDING-RIGHT: 5.4pt; HEIGHT: 28.2pt; BORDER-TOP: #f0f0f0; BORDER-RIGHT: black 1pt solid; PADDING-TOP: 0cm" rowspan="5" width="96">
+<div style="TEXT-ALIGN: center; LINE-HEIGHT: 20pt" align="center"><span style="FONT-FAMILY: 宋体"><span style="FONT-SIZE: 10.5pt">地级市</span></span></div>
+<div style="TEXT-ALIGN: center; LINE-HEIGHT: 20pt" align="center"><span style="FONT-FAMILY: 宋体"><span style="FONT-SIZE: 10.5pt">县级市</span></span></div></td></tr>
+<tr style="HEIGHT: 1cm">
+<td style="BORDER-BOTTOM: black 1pt solid; BORDER-LEFT: black 1pt solid; PADDING-BOTTOM: 0cm; BACKGROUND-COLOR: transparent; PADDING-LEFT: 5.4pt; WIDTH: 35.4pt; PADDING-RIGHT: 5.4pt; HEIGHT: 1cm; BORDER-TOP: #f0f0f0; BORDER-RIGHT: black 1pt solid; PADDING-TOP: 0cm" width="47">
+<div style="TEXT-ALIGN: center; LINE-HEIGHT: 20pt" align="center"><span style="FONT-FAMILY: 宋体"><span style="FONT-SIZE: 10.5pt">2</span></span></div></td>
+<td style="BORDER-BOTTOM: black 1pt solid; BORDER-LEFT: #f0f0f0; PADDING-BOTTOM: 0cm; BACKGROUND-COLOR: transparent; PADDING-LEFT: 5.4pt; WIDTH: 91.95pt; PADDING-RIGHT: 5.4pt; HEIGHT: 1cm; BORDER-TOP: #f0f0f0; BORDER-RIGHT: black 1pt solid; PADDING-TOP: 0cm" width="123">
+<div align="center"><span style="FONT-FAMILY: 宋体"><span style="COLOR: black; FONT-SIZE: 10.5pt">营销服务</span></span></div></td>
+<td style="BORDER-BOTTOM: black 1pt solid; BORDER-LEFT: #f0f0f0; PADDING-BOTTOM: 0cm; BACKGROUND-COLOR: transparent; PADDING-LEFT: 5.4pt; WIDTH: 70.85pt; PADDING-RIGHT: 5.4pt; HEIGHT: 1cm; BORDER-TOP: #f0f0f0; BORDER-RIGHT: black 1pt solid; PADDING-TOP: 0cm" width="94">
+<div align="center"><span style="FONT-FAMILY: 宋体"><span style="COLOR: black; FONT-SIZE: 10.5pt">110</span></span></div></td></tr>
+<tr style="HEIGHT: 1cm">
+<td style="BORDER-BOTTOM: black 1pt solid; BORDER-LEFT: black 1pt solid; PADDING-BOTTOM: 0cm; BACKGROUND-COLOR: transparent; PADDING-LEFT: 5.4pt; WIDTH: 35.4pt; PADDING-RIGHT: 5.4pt; HEIGHT: 1cm; BORDER-TOP: #f0f0f0; BORDER-RIGHT: black 1pt solid; PADDING-TOP: 0cm" width="47">
+<div style="TEXT-ALIGN: center; LINE-HEIGHT: 20pt" align="center"><span style="FONT-FAMILY: 宋体"><span style="FONT-SIZE: 10.5pt">3</span></span></div></td>
+<td style="BORDER-BOTTOM: black 1pt solid; BORDER-LEFT: #f0f0f0; PADDING-BOTTOM: 0cm; BACKGROUND-COLOR: transparent; PADDING-LEFT: 5.4pt; WIDTH: 91.95pt; PADDING-RIGHT: 5.4pt; HEIGHT: 1cm; BORDER-TOP: #f0f0f0; BORDER-RIGHT: black 1pt solid; PADDING-TOP: 0cm" width="123">
+<div align="center"><span style="FONT-FAMILY: 宋体"><span style="COLOR: black; FONT-SIZE: 10.5pt">调控运行</span></span></div></td>
+<td style="BORDER-BOTTOM: black 1pt solid; BORDER-LEFT: #f0f0f0; PADDING-BOTTOM: 0cm; BACKGROUND-COLOR: transparent; PADDING-LEFT: 5.4pt; WIDTH: 70.85pt; PADDING-RIGHT: 5.4pt; HEIGHT: 1cm; BORDER-TOP: #f0f0f0; BORDER-RIGHT: black 1pt solid; PADDING-TOP: 0cm" width="94">
+<div align="center"><span style="FONT-FAMILY: 宋体"><span style="COLOR: black; FONT-SIZE: 10.5pt">15</span></span></div></td></tr>
+<tr style="HEIGHT: 1cm">
+<td style="BORDER-BOTTOM: black 1pt solid; BORDER-LEFT: black 1pt solid; PADDING-BOTTOM: 0cm; BACKGROUND-COLOR: transparent; PADDING-LEFT: 5.4pt; WIDTH: 35.4pt; PADDING-RIGHT: 5.4pt; HEIGHT: 1cm; BORDER-TOP: #f0f0f0; BORDER-RIGHT: black 1pt solid; PADDING-TOP: 0cm" width="47">
+<div style="TEXT-ALIGN: center; LINE-HEIGHT: 20pt" align="center"><span style="FONT-FAMILY: 宋体"><span style="FONT-SIZE: 10.5pt">4</span></span></div></td>
+<td style="BORDER-BOTTOM: black 1pt solid; BORDER-LEFT: #f0f0f0; PADDING-BOTTOM: 0cm; BACKGROUND-COLOR: transparent; PADDING-LEFT: 5.4pt; WIDTH: 91.95pt; PADDING-RIGHT: 5.4pt; HEIGHT: 1cm; BORDER-TOP: #f0f0f0; BORDER-RIGHT: black 1pt solid; PADDING-TOP: 0cm" width="123">
+<div align="center"><span style="FONT-FAMILY: 宋体"><span style="COLOR: black; FONT-SIZE: 10.5pt">交直流运检</span></span></div></td>
+<td style="BORDER-BOTTOM: black 1pt solid; BORDER-LEFT: #f0f0f0; PADDING-BOTTOM: 0cm; BACKGROUND-COLOR: transparent; PADDING-LEFT: 5.4pt; WIDTH: 70.85pt; PADDING-RIGHT: 5.4pt; HEIGHT: 1cm; BORDER-TOP: #f0f0f0; BORDER-RIGHT: black 1pt solid; PADDING-TOP: 0cm" width="94">
+<div align="center"><span style="FONT-FAMILY: 宋体"><span style="COLOR: black; FONT-SIZE: 10.5pt">10</span></span></div></td></tr>
+<tr style="HEIGHT: 1cm">
+<td style="BORDER-BOTTOM: black 1pt solid; BORDER-LEFT: black 1pt solid; PADDING-BOTTOM: 0cm; BACKGROUND-COLOR: transparent; PADDING-LEFT: 5.4pt; WIDTH: 35.4pt; PADDING-RIGHT: 5.4pt; HEIGHT: 1cm; BORDER-TOP: #f0f0f0; BORDER-RIGHT: black 1pt solid; PADDING-TOP: 0cm" width="47">
+<div style="TEXT-ALIGN: center; LINE-HEIGHT: 20pt" align="center"><span style="FONT-FAMILY: 宋体"><span style="FONT-SIZE: 10.5pt">5</span></span></div></td>
+<td style="BORDER-BOTTOM: black 1pt solid; BORDER-LEFT: #f0f0f0; PADDING-BOTTOM: 0cm; BACKGROUND-COLOR: transparent; PADDING-LEFT: 5.4pt; WIDTH: 91.95pt; PADDING-RIGHT: 5.4pt; HEIGHT: 1cm; BORDER-TOP: #f0f0f0; BORDER-RIGHT: black 1pt solid; PADDING-TOP: 0cm" width="123">
+<div align="center"><span style="FONT-FAMILY: 宋体"><span style="COLOR: black; FONT-SIZE: 10.5pt">送变电施工</span></span></div></td>
+<td style="BORDER-BOTTOM: black 1pt solid; BORDER-LEFT: #f0f0f0; PADDING-BOTTOM: 0cm; BACKGROUND-COLOR: transparent; PADDING-LEFT: 5.4pt; WIDTH: 70.85pt; PADDING-RIGHT: 5.4pt; HEIGHT: 1cm; BORDER-TOP: #f0f0f0; BORDER-RIGHT: black 1pt solid; PADDING-TOP: 0cm" width="94">
+<div align="center"><span style="FONT-FAMILY: 宋体"><span style="COLOR: black; FONT-SIZE: 10.5pt">10</span></span></div></td></tr></tbody></table></div>
+<div style="LINE-HEIGHT: 27pt; TEXT-INDENT: 32.05pt; LAYOUT-GRID-MODE: char; BACKGROUND: white"><span style="FONT-FAMILY: 宋体"><span style="BACKGROUND: white; COLOR: black"><font size="5">五、注意事项</font></span></span><span style="BACKGROUND: white; COLOR: black"></span></div>
+<div style="LINE-HEIGHT: 27pt; TEXT-INDENT: 32.05pt; LAYOUT-GRID-MODE: char; BACKGROUND: white"><span style="FONT-FAMILY: 宋体"><span style="BACKGROUND: white; COLOR: black"><font size="5">（一）应聘者需对个人信息的完整性、真实性和一致性负责，并妥善保管个人信息，防止信息被他人冒用。为保证及时收到考试相关信息、通知，请保持通讯畅通，如应聘者电话、手机号码发生变更，请及时登录招聘平台予以更新。</font></span></span><span style="BACKGROUND: white; COLOR: black"></span></div>
+<div style="LINE-HEIGHT: 27pt; TEXT-INDENT: 32.05pt; LAYOUT-GRID-MODE: char; BACKGROUND: white"><span style="FONT-FAMILY: 宋体"><font size="5"><span style="BACKGROUND: white; COLOR: black">（二）</span><span style="COLOR: black">“国家电网公司人力资源招聘平台”网站为公司发布招聘高校毕业生相关信息的唯一官方网站，未授权其他网站、个人或机构发布任何招聘信息，请应聘毕业生及时在该网站关注有关招聘信息。</span></font></span><font size="5"></font></div>
+<div style="LINE-HEIGHT: 27pt; TEXT-INDENT: 32.05pt; LAYOUT-GRID-MODE: char; BACKGROUND: white"><span style="FONT-FAMILY: 宋体"><span style="COLOR: black"><font size="5">（三）<span style="BACKGROUND: white">公司招聘电话仅接受招聘政策咨询，招聘平台系统操作咨询请拨打</span>400-1095-598<span style="BACKGROUND: white">。</span></font></span></span><span style="COLOR: black"><font size="5"></font></span></div>
+<div style="LINE-HEIGHT: 27pt; TEXT-INDENT: 32.05pt; LAYOUT-GRID-MODE: char; BACKGROUND: white"><span style="FONT-FAMILY: 宋体"><span style="BACKGROUND: white; COLOR: black"><font size="5">（四）我公司不组织任何形式的考前培训班，考生可在招聘平台免费下载招聘笔试考试大纲。任何针对我公司招聘笔试和面试的辅导班、考试教材、复习资料，均与我公司无关。</font></span></span><span style="BACKGROUND: white; COLOR: black"></span></div>
+<div style="LINE-HEIGHT: 27pt; TEXT-INDENT: 32.05pt; LAYOUT-GRID-MODE: char; BACKGROUND: white"><span style="FONT-FAMILY: 宋体"><span style="BACKGROUND: white; COLOR: black"><font size="5">（五）我公司在招聘过程中不收取报名费、中介费、手续费、资料费、培训费等任何费用，也不报销交通费、住宿费等相关费用。请广大应聘者提高警惕，谨防受骗，发现冒用我公司名义发布虚假信息的，可直接向当地公安机关报案。对应聘者因虚假招聘造成的损失，我公司不承担任何责任。对于发布虚假招聘信息的个人或机构，我公司保留追究法律责任的权利。</font></span></span><span style="BACKGROUND: white; COLOR: black"></span></div>
+<div style="LINE-HEIGHT: 27pt; TEXT-INDENT: 32.05pt; LAYOUT-GRID-MODE: char"><span style="FONT-FAMILY: 宋体"><font size="5">六、联系方式</font></span></div>
+<div style="LINE-HEIGHT: 27pt; TEXT-INDENT: 32.05pt; LAYOUT-GRID-MODE: char"><span style="FONT-FAMILY: 宋体"><font size="5">国网湖北省电力公司人力资源部</font></span></div>
+<div style="LINE-HEIGHT: 27pt; TEXT-INDENT: 32.05pt; LAYOUT-GRID-MODE: char"><span style="FONT-FAMILY: 宋体"><font size="5">张老师：027-88566530（只接受应聘者本人来电咨询）</font></span><span></span></div>
+<div style="LINE-HEIGHT: 27pt; TEXT-INDENT: 32.05pt; LAYOUT-GRID-MODE: char"><span style="FONT-FAMILY: 宋体"><font size="5">武老师：027-88566446（只接受应聘者本人来电咨询）</font></span><span></span></div>
+<div style="LINE-HEIGHT: 27pt; TEXT-INDENT: 32.05pt; LAYOUT-GRID-MODE: char"><span style="FONT-FAMILY: 宋体"><font size="5">邮箱：</font></span><font size="5"><a href="mailto:zhangyh50@hb.sgcc.com.cn" _fcksavedurl="mailto:zhangyh50@hb.sgcc.com.cn"><span style="FONT-FAMILY: 宋体"><font color="#0563c1">zhangyh50@hb.sgcc.com.cn</font></span><span><font color="#0563c1"></font></span></a></font></div>
+<div style="LINE-HEIGHT: 27pt; TEXT-INDENT: 32.05pt; LAYOUT-GRID-MODE: char"><span style="FONT-FAMILY: 宋体">&nbsp;</span></div>
+<div style="LINE-HEIGHT: 27pt; TEXT-INDENT: 32.05pt; LAYOUT-GRID-MODE: char"><span style="FONT-FAMILY: 宋体">&nbsp;</span></div>
+<div style="LINE-HEIGHT: 27pt; TEXT-INDENT: 32.05pt; LAYOUT-GRID-MODE: char"><span style="FONT-FAMILY: 宋体"><font size="5">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 国网湖北省电力公司</font></span></div>
+<div style="LINE-HEIGHT: 27pt; TEXT-INDENT: 32.05pt; LAYOUT-GRID-MODE: char"><span style="FONT-FAMILY: 宋体"><font size="5">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 2017年2月27日</font><span style="DISPLAY: none" id="1487928306062E" _fck_bookmark="true">&nbsp;</span><span style="DISPLAY: none" id="1487928389533E" _fck_bookmark="true">&nbsp;</span><span style="DISPLAY: none" id="1487928412310E" _fck_bookmark="true">&nbsp;</span><span style="DISPLAY: none" id="1487928417896E" _fck_bookmark="true">&nbsp;</span></span></div>
+<p></p>
+   <p></p>
+   </div>
+   <div style="margin-top: 30px;padding-left:38px;">
+   
+   </div>
+   
+   <div class="text_button" style="padding-left:16px;">
+ 	
+  	 	<div style="font-size:12px;float: left;line-height: 34px;">
+  	  	
+	 	
+	 	
+	 		已过报名时间，报名截止时间为：2017-03-12
+	 	
+	 	</div>
+  	
+ 	&nbsp;
+
+ <div class="base-info" style="width:100px;">
+  	     <div class="header" style="width:900px;width: 150px; position:relative; margin-left: 160px;">
+  	        <span style="cursor: pointer; font-size: 14px;" onclick="goUnit('00995075');">查看公司详情</span>
+  	    </div>
+  	  </div>
+   </div>
+
+</div>
+</div>
+
+<!--申请工作开始-->
+
+	 </div>
+ <!--申请工作结束-->
+<div class="foot">
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="footer-wrap" align="left">
+&nbsp;
+		&nbsp;&nbsp;<p>
+			<a href="http://www.sasac.gov.cn">国务院国有资产监督管理委员会</a> <span class="st-line">|</span> 
+			<a href="http://www.sgcc.com.cn">国家电网首页</a><span class="st-line">|</span>
+			<a href="/help/index.jsp">联系我们</a><span class="st-line">|</span>
+			<a href="http://weibo.com/sgcc">国家电网官方微博</a><span class="st-line">|</span> 
+
+			<a href="#">收藏本站</a>
+		</p>
+		<p>国家电网公司 www.sgcc.com.cn 版权所有 </p>
+		<p>Copyright © 2011-2016 State Grid Corporation of China (SGCC). All rights reserved</p>
+
+		<div class="right-believ-img"><img src="/image/foot_gjdw.jpg" alt=""></div>
+	</div>
+	
+
+
+
+
+
+
+
+<!-- <div style="width: 500px;"> -->
+<!-- <p> -->
+
+<!-- </p> -->
+<!-- <p>国家电网公司 www.sgcc.com.cn 版权所有</p>  -->
+
+
+<!-- </div> -->
+<!-- </div> -->
+
+</div>
+
+
+
+
+<div id="ui-datepicker-div" class="ui-datepicker ui-widget ui-widget-content ui-helper-clearfix ui-corner-all ui-helper-hidden-accessible"></div><div style="display: none; position: absolute; overflow: hidden; z-index: 1000; outline: 0px; " class="ui-dialog ui-widget ui-widget-content ui-corner-all  ui-draggable" tabindex="-1" role="dialog" aria-labelledby="ui-dialog-title-applyJob"><div class="ui-dialog-titlebar ui-widget-header ui-corner-all ui-helper-clearfix" unselectable="on"><span class="ui-dialog-title" id="ui-dialog-title-applyJob" unselectable="on">申请工作</span><a href="#" class="ui-dialog-titlebar-close ui-corner-all" role="button" unselectable="on"><span class="ui-icon ui-icon-closethick" unselectable="on">close</span></a></div><div id="applyJob" style="" class="ui-dialog-content ui-widget-content">
+	 	<input id="objId" name="objId" type="hidden">
+	 	<input id="bulletinId" name="bulletinId" type="hidden">
+	 	<input id="unitName" name="unitName" type="hidden">
+	    <input id="zppc1" name="zppc1" type="hidden">
+		<div class="gray">
+		  <div style=" padding-left:10px;line-height: 24px;">
+		  	您当前批次已报名  <span id="appliedNum"> </span> 家单位，总共可报名  家。<br>
+		  	报名单位：<span id="showUnitName"></span><br>
+		  	姓&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;名：<br>
+		  	身份证号：
+		  </div>
+		</div>
+		<div class="jssearch">
+		   <ul class="gray30">
+		   		<li id="yx_info" style="display:inline;line-height: 24px;">
+		   		<div style="width:220px; float:left;">
+		    		意向若无选项则可忽略意向的选择
+		    	</div>
+		   		</li><br>
+		   		
+		   	
+		   	 	<li id="yx_sel1">
+			     <div class="search_text">
+			       第 1 意向 ：
+					 <select id="yx1" name="yx1">
+			   		 </select>
+			   		 优先考虑
+				 </div>
+			    </li>
+		   	
+		   	 	<li id="yx_sel2">
+			     <div class="search_text">
+			       第 2 意向 ：
+					 <select id="yx2" name="yx2">
+			   		 </select>
+			   		 
+				 </div>
+			    </li>
+		   	
+		   	 <li>
+			     <div class="search_text">
+			       志愿顺序：
+				 	<select id="unit_rank" name="unit_rank">
+			   		 </select>
+				 </div><br>
+			  </li>
+			  <li>
+			     <div class="search_text">
+			       <div id="u227_rtf">同意选择调剂：
+			     
+				 	<input id="z00hrsftywstj" name="z00hrsftywstj" type="radio" value="X" checked="checked">是&nbsp;&nbsp;&nbsp;&nbsp;
+				 	<input id="z00hrsftywstj" name="z00hrsftywstj" type="radio">否
+				 </div><br>
+			  </div></li>
+			  <li>
+			    <div class="gray">
+			       <div id="u227_rtf">温馨提示：</div>
+			     </div>
+				 <div class="search_input">
+				 	1，最多选择两家意向单位，投报边远山区的学生优先考虑<br>
+          			2，国家电网将以您在报名截止日期前最后一次修改为准<br>
+          			3，报名后，所选意向以及志愿顺序不可修改
+				 </div><br>
+			  </li>
+			  <li>
+			     <div class="search_text">
+			       <div id="u227_rtf">&nbsp;</div>
+			     </div>
+				 <div class="search_input">
+				 	<img id="img_toapply" src="/themes/default/images/me_icon_40.gif" onclick="warnForApply();" style="cursor: hand;">
+				 	<img id="img_can_notapply" src="/themes/default/images/me_icon_40.gif" style="cursor: hand;display:none;">&nbsp;&nbsp;
+				 	<img src="/themes/default/images/me_icon_37.gif" onclick="javascript:$('#applyJob').dialog('close');" style="cursor: hand;">
+				 </div>
+			  </li>
+		   </ul>
+		</div>
+	 </div></div></body></html>

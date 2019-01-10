@@ -1,0 +1,288 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head>
+<title>用户登录-沐风网</title>
+<meta content="text/html;charset=utf-8;" http-equiv="Content-Type">
+<script src="/Public/js/jquery.1.11.3.min.js"></script>
+<link rel="Shortcut Icon" href="http://www.mfcad.com/favicon.ico" type="image/x-icon">
+<script src="/Public/bootcss/js/bootstrap.min.js"></script>
+<link href="/Public/bootcss/css/bootstrap.min.css" rel="stylesheet">
+<link href="/Public/css/main.css" rel="stylesheet">
+<script type="text/javascript">
+    document.onkeydown = function (e) { 
+        var theEvent = window.event || e; 
+        var code = theEvent.keyCode || theEvent.which; 
+        if (code == 13) { 
+        $("#submit").click(); 
+        } 
+    } 
+    $(function() {
+        $("#submit").bind("click", function() {
+              if (valid()) {
+                  $("#submit").attr("disabled","false");
+                  $("#submit").text("登录中…");
+                  //return false;
+                $.ajax({
+                   type: "POST",
+                   url: "/Home/Index/login",
+                   data: $("form#login-form").serialize(),
+                   dataType:'json',
+                   success: function(remsg){
+                       $("#submit").removeAttr("disabled");
+                       $("#submit").html("登&nbsp;&nbsp;录");
+                       if(remsg.status==1){
+                           location.href ="http://my.mfcad.com/home/u/index";
+                       }else{
+                           $(".error-tip").html('错误提示：'+remsg.msg);
+                           
+                       }
+                       
+                   },
+                   error: function (httpRequest, textStatus, errorThrown) {
+                        $("#submit").removeAttr("disabled");
+                        $("#submit").html("登&nbsp;&nbsp;录");
+                        $(".error-tip").html('系统其他错误2222！');
+                    }
+                }); 
+                return false;
+              }
+            });
+            $("#mf_username").blur(function(){
+                if($("#mf_username").val()==''){
+                    $("#mf_username").next().text('请填写帐号！');
+                }else if($("#mf_username").val().length<2){
+                    $("#mf_username").next().text('帐号最少需要2个字符！');
+                }else{
+                    $("#mf_username").next().text('');
+                }
+            });
+            $("#mf_username").focus(function(){
+                $(".error-tip").html('');
+                $("#mf_username").next().text('');
+            });
+            $("#mf_password").blur(function(){
+                if($("#mf_password").val()==''){
+                    $("#mf_password").next().text('请填写密码！');
+                }else{
+                    $("#mf_password").next().text('');
+                }
+            });
+            $("#mf_password").focus(function(){
+                $(".error-tip").html('');
+                $("#mf_password").next().text('');
+            });
+    });
+        
+        //输入信息验证
+        function valid(){
+            if($("#mf_username").val()=='')
+            {
+                $("#mf_username").next().text('请填写帐号！');
+
+                return false;           
+            }
+            if($("#mf_password").val()=='')
+            {
+                $("#mf_password").next().text('请填写密码！');
+                return false;           
+            } 
+            return true;
+        };
+</script>
+</head>
+<body>
+    <script type="text/javascript">
+    $(function(){
+       $("#mf_nav_soft").hover(
+		function(){
+			$("#mf_top_soft").show();
+			$(this).addClass("li01");
+			
+		},
+		function(){
+			$("#mf_top_soft").hide();
+			$(this).removeClass("li01");
+		}
+	);
+
+    });
+    $(document).ready(function() {
+            $("#tuzhi-menu-a").parent().hoverDelay({
+                    hoverEvent : function(that) {
+                            // console.info(111);
+                            // console.info($(this).html("<a>adfsad</a>"));
+                    //	alert(that);
+                            $(that).addClass("open");
+                            $(".tuzhi-menu").show();
+                            //console.log(that);
+                    },
+                    outEvent : function(that) {
+                            $(that).removeClass("open");
+                            $(".tuzhi-menu").hide();
+                    }
+            });
+            $("#user-index-a").parent().hoverDelay({
+                    hoverEvent : function(that) {
+                            // console.info(111);
+                            // console.info($(this).html("<a>adfsad</a>"));
+                    //	alert(that);
+                            $(that).addClass("open");
+                            $(".user-index").show();
+                            //console.log(that);
+                    },
+                    outEvent : function(that) {
+                            $(that).removeClass("open");
+                            $(".user-index").hide();
+                    }
+            });
+//            $("#top-avatar").parent().hoverDelay({
+//                    hoverEvent : function(that) {
+//                            // console.info(111);
+//                            // console.info($(this).html("<a>adfsad</a>"));
+//                    //	alert(that);
+//                            $(that).addClass("open");
+//                            $(".user-menu").show();
+//                            //console.log(that);
+//                    },
+//                    outEvent : function(that) {
+//                            $(that).removeClass("open");
+//                            $(".user-menu").hide();
+//                    }
+//            });
+    });
+    // 鼠标延迟执行方法
+    // 2010-06-30
+    // 2010-09-21 绑定当前对象
+    (function($) {
+            $.fn.hoverDelay = function(options) {
+                    var defaults = {
+                            hoverDuring : 100,
+                            outDuring : 500,
+                            hoverEvent : function() {
+                                    $.noop();
+                            },
+                            outEvent : function() {
+                                    $.noop();
+                            }
+                    };
+                    var sets = $.extend(defaults, options || {});
+                    return $(this).each(function() {
+                            var hoverTimer, outTimer,that;
+                            $(this).hover(function() {
+                                    clearTimeout(outTimer);
+                                    that = this;
+                                    hoverTimer = setTimeout(function() {
+                                            sets.hoverEvent.call(null,that)
+                                    }, sets.hoverDuring);
+                            }, function() {
+                                    clearTimeout(hoverTimer);
+                                    that = this;
+                                    outTimer = setTimeout(function() {
+                                            sets.outEvent.call(null,that)
+                                    }, sets.outDuring);
+                            });
+                    });
+            }
+    })(jQuery);
+</script>
+
+<div class="cad_h_top">
+    <div class="w_1k">
+    	<div class="w_960_po">
+            <ul class="mf_nav" collection="Y">
+                <li class="curent"><a href="http://www.mfcad.com">沐风网</a></li>
+                <li id="mf_nav_soft">
+                <a href="http://www.mfcad.com/">设计软件</a>
+                    <div id="mf_top_soft">
+                            <ul>
+                                <li class="autocad"><i></i><a href="http://www.mfcad.com/cad/">AutoCAD</a></li>
+                                <li class="ug"><i></i><a href="http://www.mfcad.com/ug/">UG</a></li>
+                                <li class="proe"><i></i><a href="http://www.mfcad.com/proe/">ProE</a></li>
+                                <li class="catia"><i></i><a href="http://www.mfcad.com/catia/">CATIA</a></li>
+                                <li class="solidworks"><i></i><a href="http://www.mfcad.com/solidworks/">Solidworks</a></li>
+                                <li class="creo"><i></i><a href="http://www.mfcad.com/creo/">creo</a></li>
+                                <li class="imageware"><i></i><a href="http://www.mfcad.com/imageware/">Imageware</a></li>
+                                <li class="mastercam"><i></i><a href="http://www.mfcad.com/mastercam/">MasterCAM</a></li>
+                                <li class="gstarcad"><i></i><a href="http://www.mfcad.com/gstarcad/" target="_blank">浩辰CAD</a></li>
+                            </ul>                        
+                    </div>
+                </li>
+                <li><a href="http://www.mfcad.com/tuzhi/" target="_blank">沐风图纸</a></li>
+                <li><a href="http://bbs.mfcad.com" target="_blank">论坛</a></li>
+             </ul>
+             
+            
+        </div>
+
+            </div>
+</div>
+<div class="header login-header">
+	<div class="logo"><h2><a href="/"><img src="/Public/images/logo.jpg" alt="沐风图"></a></h2></div>
+      
+</div>
+    <div class="main login-main clearfix">      
+    
+        <div class="login-gg">
+            <img src="/Public/gg/1435168311574.jpg" width="500" height="402">
+        </div>
+        <div class="login-box">
+            <h1>
+                用户登录
+                <span><a href="/Home/Index/register">立即注册</a></span>
+            </h1>
+            <form class="login-form" name="login-form" id="login-form" method="post">
+                <div class="error-tip"></div>
+                <div class="form-group clearfix mgbt0">
+                    <label class="label-control">帐&nbsp;&nbsp;号：</label>
+                    <input class="form-control login-input" type="text" name="mf_username" id="mf_username" placeholder="用户名/Email">
+                    <div class="errors"></div>
+                </div>
+                <div class="form-group clearfix mgbt0">
+                    <label class="label-control">密&nbsp;&nbsp;码：</label>
+                    <input class="form-control login-input" type="password" name="mf_password" id="mf_password" placeholder="密码">
+                    <div class="errors"></div>
+                </div>
+                <div class="form-group clearfix form-group-extra">
+                    <div class="checkbox">
+                        <label>
+                            <input type="checkbox" name="remember" id="remember" value="on" checked="checked">
+                            2周内自动登录
+                        </label>
+
+                        <a href="/Home/Index/lostpw" class="forget-pass">忘记密码？</a>
+                    </div>
+
+                </div>
+                <div class="form-group clearfix">
+                    <button type="button" name="submit" id="submit" class="btn btn-primary submit">登&nbsp;&nbsp;录</button> 
+                </div>
+            </form>
+            <div class="login-three">
+                <h2>第三方帐号登录</h2>
+                <a href="/Home/Thirduser/loginq" class="btn btn-primary login-qq"><i></i><span>QQ登录</span></a>
+                <a href="/Home/Thirduser/loginwechat" class="btn btn-success login-wechat"><i></i><span>微信登录</span></a>
+                <a href="/Home/Thirduser/login" class="btn btn-danger login-weibo"><i></i><span>微博登录</span></a>
+                
+            </div>
+        </div>
+    </div>
+    <div class="footer login-footer">
+    <p class="info">
+     <a href="http://www.mfcad.com/about/22890.html" target="_blank">关于我们</a> -
+            <a href="http://www.mfcad.com/about/22891.html" target="_blank">联系我们</a> -
+            <a href="http://www.mfcad.com/about/22892.html" target="_blank">广告服务</a> -
+            <a href="http://www.mfcad.com/about/22893.html" target="_blank">友情链接</a> -
+            <a href="http://www.mfcad.com/about/22894.html" target="_blank">版权声明</a> -
+            <a href="http://www.mfcad.com/about/22895.html" target="_blank">人才招聘</a> -
+            <a href="http://www.mfcad.com/help/" target="_blank">网站帮助</a> -
+            <a href="http://www.mfcad.com/sitemap/" target="_blank">网站地图</a>
+    <br>
+    Powered by <strong><a href="http://www.mfcad.com" target="_blank">沐风网</a></strong> © 2017 
+    </p>
+</div>
+<div style="display: none;">
+<script type="text/javascript">
+var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3F804b7f5232dd6ffdb9c33e404b5a6533' type='text/javascript'%3E%3C/script%3E"));
+</script><script src=" http://hm.baidu.com/h.js?804b7f5232dd6ffdb9c33e404b5a6533" type="text/javascript"></script>
+</div>
+
+</body></html>

@@ -1,0 +1,784 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//Dtd XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/Dtd/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=gb2312" />
+<title>中国高校网络教育与远程教育学历招生指定报名平台-学习港(网络教育|远程教育|网络学院|网络大学|继续教育|职业培训|培训认证|专科|本科|专升本)</title>
+<meta name="description" content="中国最大网络教育报名网站,全国69所重点大学现代远程教育试点高校指定网络教育预报名平台。全面提供招生政策、招生简章、招生专业、报名点、以及报名咨询、网上预报名等。" />
+<meta name="keywords" content="网络教育,远程教育,网络学院,网络大学生" />
+<base target="_blank" />
+<link href="http://img.xuexigang.com/2011/css.css" rel="stylesheet" type="text/css" />
+<style type="text/css">
+td{text-align:left}
+</style>
+<SCRIPT language=JavaScript src="http://img.xuexigang.com/2011/correctpng.js" type=text/javascript></SCRIPT> 
+<script src="http://img.xuexigang.com/2011/js.js" type="text/javascript"></script>
+<script>
+function g(o){
+return document.getElementById(o);
+}
+function HoverLi(m,n,limited){
+	for(var i=0;i<limited;i++){
+		g("nav-"+m+i).className="";
+		g("tab-panel-"+m+i).style.display="none";
+		}
+	g("nav-"+m+n).className="hoveron";
+	g("tab-panel-"+m+n).style.display="block";
+}
+</script>
+<SCRIPT type=text/javascript>
+var $ = function (id) {
+	return "string" == typeof id ? document.getElementById(id) : id;
+};
+
+var Extend = function(destination, source) {
+	for (var property in source) {
+		destination[property] = source[property];
+	}
+	return destination;
+}
+
+var CurrentStyle = function(element){
+	return element.currentStyle || document.defaultView.getComputedStyle(element, null);
+}
+
+var Bind = function(object, fun) {
+	var args = Array.prototype.slice.call(arguments).slice(2);
+	return function() {
+		return fun.apply(object, args.concat(Array.prototype.slice.call(arguments)));
+	}
+}
+
+var Tween = {
+	Quart: {
+		easeOut: function(t,b,c,d){
+			return -c * ((t=t/d-1)*t*t*t - 1) + b;
+		}
+	},
+	Back: {
+		easeOut: function(t,b,c,d,s){
+			if (s == undefined) s = 1.70158;
+			return c*((t=t/d-1)*t*((s+1)*t + s) + 1) + b;
+		}
+	},
+	Bounce: {
+		easeOut: function(t,b,c,d){
+			if ((t/=d) < (1/2.75)) {
+				return c*(7.5625*t*t) + b;
+			} else if (t < (2/2.75)) {
+				return c*(7.5625*(t-=(1.5/2.75))*t + .75) + b;
+			} else if (t < (2.5/2.75)) {
+				return c*(7.5625*(t-=(2.25/2.75))*t + .9375) + b;
+			} else {
+				return c*(7.5625*(t-=(2.625/2.75))*t + .984375) + b;
+			}
+		}
+	}
+}
+
+
+//容器对象,滑动对象,切换数量
+var SlideTrans = function(container, slider, count, options) {
+	this._slider = $(slider);
+	this._container = $(container);//容器对象
+	this._timer = null;//定时器
+	this._count = Math.abs(count);//切换数量
+	this._target = 0;//目标值
+	this._t = this._b = this._c = 0;//tween参数
+	
+	this.Index = 0;//当前索引
+	
+	this.SetOptions(options);
+	
+	this.Auto = !!this.options.Auto;
+	this.Duration = Math.abs(this.options.Duration);
+	this.Time = Math.abs(this.options.Time);
+	this.Pause = Math.abs(this.options.Pause);
+	this.Tween = this.options.Tween;
+	this.onStart = this.options.onStart;
+	this.onFinish = this.options.onFinish;
+	
+	var bVertical = !!this.options.Vertical;
+	this._css = bVertical ? "top" : "left";//方向
+	
+	//样式设置
+	var p = CurrentStyle(this._container).position;
+	p == "relative" || p == "absolute" || (this._container.style.position = "relative");
+	this._container.style.overflow = "hidden";
+	this._slider.style.position = "absolute";
+	
+	this.Change = this.options.Change ? this.options.Change :
+		this._slider[bVertical ? "offsetHeight" : "offsetWidth"] / this._count;
+};
+SlideTrans.prototype = {
+  //设置默认属性
+  SetOptions: function(options) {
+	this.options = {//默认值
+		Vertical:	true,//是否垂直方向（方向不能改）
+		Auto:		true,//是否自动
+		Change:		0,//改变量
+		Duration:	50,//滑动持续时间
+		Time:		10,//滑动延时
+		Pause:		4000,//停顿时间(Auto为true时有效)
+		onStart:	function(){},//开始转换时执行
+		onFinish:	function(){},//完成转换时执行
+		Tween:		Tween.Quart.easeOut//tween算子
+	};
+	Extend(this.options, options || {});
+  },
+  //开始切换
+  Run: function(index) {
+	//修正index
+	index == undefined && (index = this.Index);
+	index < 0 && (index = this._count - 1) || index >= this._count && (index = 0);
+	//设置参数
+	this._target = -Math.abs(this.Change) * (this.Index = index);
+	this._t = 0;
+	this._b = parseInt(CurrentStyle(this._slider)[this.options.Vertical ? "top" : "left"]);
+	this._c = this._target - this._b;
+	
+	this.onStart();
+	this.Move();
+  },
+  //移动
+  Move: function() {
+	clearTimeout(this._timer);
+	//未到达目标继续移动否则进行下一次滑动
+	if (this._c && this._t < this.Duration) {
+		this.MoveTo(Math.round(this.Tween(this._t++, this._b, this._c, this.Duration)));
+		this._timer = setTimeout(Bind(this, this.Move), this.Time);
+	}else{
+		this.MoveTo(this._target);
+		this.Auto && (this._timer = setTimeout(Bind(this, this.Next), this.Pause));
+	}
+  },
+  //移动到
+  MoveTo: function(i) {
+	this._slider.style[this._css] = i + "px";
+  },
+  //下一个
+  Next: function() {
+	this.Run(++this.Index);
+  },
+  //上一个
+  Previous: function() {
+	this.Run(--this.Index);
+  },
+  //停止
+  Stop: function() {
+	clearTimeout(this._timer); this.MoveTo(this._target);
+  }
+};
+</SCRIPT>
+<script type="text/javascript">
+	function t(o){}
+	function h(o){o.style.behavior='url(#default#homepage)';o.setHomePage('http://www.xuexigang.com');}
+	function f(o){window.external.AddFavorite('http://www.xuexigang.com','学习港网站');}
+	function e(e){return (document.getElementById) ? document.getElementById(e): document.all[e];}
+</script>
+
+
+</head>
+<body style="padding:0">
+<script type="text/javascript" src="http://siteapp.baidu.com/static/webappservice/uaredirect.js"></script>
+<script type="text/javascript">uaredirect("http://m.xuexigang.com");</script>
+<script type="text/javascript" src="http://cbjs.baidu.com/js/s.js"></script>
+
+
+
+<div id="homelogin">
+	<div id="homelogin-w">
+    	<div class="home-sm">教育部在线教育研究中心指导&nbsp;&nbsp;中教新媒旗下网站</div>
+        <div class="home-set"><a href="http://xuexigang.cn">手机学习港</a> | <a href="javascript:t(f)" onclick="f(this)" target="_self">加入收藏</a></div>
+    </div>
+</div>
+<div class="logo-nav" style="width:950px;position:relative;">
+	<div class="logo-nav-bg">
+    	<a href="http://www.xuexigang.com/" class="logo" title="网络教育"><img src="http://img.xuexigang.com/2011/logo01.png" alt="网络教育" /></a>
+        <div class="call"><img src="http://img.xuexigang.com/2011/call.png" alt="" border="0" usemap="#Map" />
+          <map name="Map" id="Map">
+            <area shape="rect" coords="78,22,170,44" href="http://wangyuan.xuexigang.com/baoming" />
+          </map>
+		</div>
+        <div class="nav">
+        	<div class="nav-right-bg">
+            	<div class="nav-text"><a href="http://news.xuexigang.com/">远程教育新闻</a> 
+					| <a href="http://wangyuan.xuexigang.com/">高校网院学历教育</a> | <a href="http://dianda.xuexigang.com/">电大开放教育</a> | <a href="http://wangyuan.xuexigang.com/zhongxin.html">品牌学习中心</a> | <a href="http://tongkao.xuexigang.com/">
+					统考</a> | <a href="http://peixun.xuexigang.com/">职业培训</a> | <a href="http://jingpin.xuexigang.com/">
+					精品课程</a> <!--| <a href="http://eqilai.com/">e起来</a--> | <a href="http://club.xuexigang.com/">论坛</a></div>
+            </div></div>
+            </div>
+        </div>
+  </div>
+</div>
+<div class="clear"></div>
+<div class="content-all">
+<table cellpadding="0" cellspacing="0"><tr>
+<td><script type="text/javascript" src="http://img.xuexigang.com/adflash/1.js"></script></td>
+<td style="width:14px"></td>
+<td><script type="text/javascript" src="http://img.xuexigang.com/adflash/2.js"></script></td>
+</tr></table>
+</div>
+<div class="clear"></div>
+<div class="content-all">
+	<div class="first-left">
+    	<div class="search">
+        	<div class="title"></div>
+            <div id="qh-a">
+                <ul class="qiehuan-a">
+                    <li style=" width:34px; border-left:none;"><a class="hoveron" onmouseover="HoverLi(51,0,4);" id="nav-510"><span>
+					网院</span></a></li>
+                    <li style=" width:34px;display:none"><a onmouseover="HoverLi(51,1,4);" id="nav-511"><span>
+					电大</span></a></li>
+                    <li style=" width:64px;display:none"><a onmouseover="HoverLi(51,2,4);" id="nav-512"><span>
+					职业培训</span></a></li>
+                    <li style=" width:76px; border-right:none; background:#ccc;display:none"><a onmouseover="HoverLi(51,3,4);" id="nav-513"><span>
+					在职研究生</span></a></li>
+                </ul>
+                <div class="tag">
+                    <div id="tab-panel-510" class="search-tj">
+<!--<form action="gb2312.html">-->
+<form action="http://wangyuan.xuexigang.com/baoming/">
+<script type="text/javascript" src="http://wangyuan.xuexigang.com/baoming/citys.js"></script>
+	<div class="select-li"><label>地区：</label><select class="inp1" id="sprov" name="sdq" onchange="setcity();" style="width:75px;"><option value=""></option>
+<option value="154480">安徽</option><option value="154500">北京</option><option value="154519">福建</option><option value="154543">甘肃</option><option value="154562">广东</option><option value="154593">广西</option><option value="154610">贵州</option><option value="154622">海南</option><option value="154630">河北</option><option value="154648">河南</option><option value="154668">黑龙江</option><option value="154690">湖北</option><option value="154709">湖南</option><option value="154727">吉林</option><option value="154739">江苏</option><option value="154772">江西</option><option value="154788">辽宁</option><option value="154808">内蒙古</option><option value="154827">宁夏</option><option value="154832">青海</option><option value="154842">山东</option><option value="154871">山西</option><option value="154888">陕西</option><option value="154903">上海</option><option value="154924">四川</option><option value="154956">天津</option><option value="154976">西藏</option><option value="154984">新疆</option><option value="155009">云南</option><option value="155031">浙江</option><option value="155068">重庆</option>
+</select> <select class="inp1" style="width:75px;margin-left:3px" id="scity" name="scs"><option value=""></option></select></div>
+	
+	<div class="select-li"><label>层次：</label><select class="inp1" name="scc">
+		<option value=""></option>
+<option value="154477">高起专</option><option value="154478">高起本</option><option value="154479">专升本</option>
+	</select></div>
+
+	<div class="select-li"><label>专业：</label><input type="text" name="szz" /></div>
+
+	<div class="select-li"><label>学校：</label><select class="inp1" name="sxx"><option value=""></option>
+<option value="164259">华中师范大学</option><option value="157417">福建师范大学</option><!--option value="156899">北京外国语大学</option--><option value="154235">中国地质大学（北京）</option><option value="153985">北京师范大学</option><option value="153822">四川大学</option><option value="153539">对外经济贸易大学</option><option value="153402">华中科技大学</option><option value="153033">江南大学</option><option value="152677">中国农业大学</option><option value="152608">武汉理工大学</option><option value="152418">中国地质大学（武汉）</option><option value="151933">西南科技大学</option><option value="151780">北京语言大学</option><option value="153098">中国石油大学（华东）</option>
+</select>
+</div>
+
+    <div class="select-li" style="text-align:center; height:24px;">
+    <table><tr><td width="50%"><a href="http://wangyuan.xuexigang.com/baoming/" style="color:#f75612;">高级搜索</a></td><td><input value="" type="submit" class="search-button" /></td></tr></table>
+    </div>
+
+</form>
+</div>
+
+                    <div id="tab-panel-510-" class="search-tj" style="display:none;">
+                    	<div class="select-li"><label>地区：</label><select style="width:76px;"><option>
+							1</option></select><select style=" margin-left:3px; width:76px;"><option>
+							1</option></select></div>
+                        <div class="select-li"><label>层次：</label><select><option>
+							1</option></select></div>
+                        <div class="select-li"><label>专业：</label><select><option>
+							1</option></select></div>
+                        <div class="select-li"><label>学校：</label><select><option>
+							1</option></select></div>
+                        <div class="select-li" style="text-align:center"><input type="button" class="search-button" /></div>
+                    </div>
+                    <div id="tab-panel-511" class="search-tj" style="display:none;">
+                    	<div class="select-li"><label>地区：</label><select><option>
+							2</option></select></div>
+                        <div class="select-li"><label>层次：</label><select><option>
+							2</option></select></div>
+                        <div class="select-li"><label>专业：</label><select><option>
+							2</option></select></div>
+                        <div class="select-li"><label>学校：</label><select><option>
+							2</option></select></div>
+                        <div class="select-li" style="text-align:center"><input type="button" class="search-button" /></div>
+                    </div>
+                    <div id="tab-panel-512" class="search-tj" style="display:none;">
+                    	<div class="select-li"><label>地区：</label><select><option>
+							3</option></select></div>
+                        <div class="select-li"><label>层次：</label><select><option>
+							3</option></select></div>
+                        <div class="select-li"><label>专业：</label><select><option>
+							3</option></select></div>
+                        <div class="select-li"><label>学校：</label><select><option>
+							3</option></select></div>
+                        <div class="select-li" style="text-align:center"><input type="button" class="search-button" /></div>
+                    </div>
+                    <div id="tab-panel-513" class="search-tj" style="display:none;">
+                    	<div class="select-li"><label>地区：</label><select><option>
+							4</option></select></div>
+                        <div class="select-li"><label>层次：</label><select><option>
+							4</option></select></div>
+                        <div class="select-li"><label>专业：</label><select><option>
+							4</option></select></div>
+                        <div class="select-li"><label>学校：</label><select><option>
+							4</option></select></div>
+                        <div class="select-li" style="text-align:center"><input type="button" class="search-button" /></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="free-button"><a href="http://chat.doyoo.net/WebModule/chat/p.do?c=12533"><img src="http://img.xuexigang.com/2011/button05.gif" alt="" /></a></div>
+        <div class="bmlc">
+        	<dl class="bmlc-biao">
+            	<dt><img src="http://img.xuexigang.com/2011/title_02.gif" alt="" /></dt>
+                <dd style="margin-top:6px;">了解网络教育</dd>
+                <dd>选择地区、院校、层次、专业</dd>
+                <dd>网上预报名</dd>
+                <dd>参加入学测试→录取→缴费入学</dd>
+            </dl>
+            <div class="bmxx-all">
+            	<div class="bmxx-tj">最新学员预报名信息<span style="font-family:Arial;" id="bmsum">Loding...</span></div>
+            	<div class="bmxx-left">
+                姓　　名：<br />
+                报读专业：<br />
+                报读院校：<br />
+                学习中心：<br />
+                报名时间：<br />
+                </div>
+                <div class="bmxx-right">
+<script type="text/javascript">
+var schoolid=0;
+</script>
+<script type="text/javascript" src="http://wangyuan.xuexigang.com/baoming/student.js"></script>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="first-middle">
+        <DIV id=idContainer2 class=container>
+            <TABLE id=idSlider2 border=0 cellSpacing=0 cellPadding=0>
+              <TBODY>
+              <TR>
+                
+                <TD class=td_f><A href="http://wangyuan.xuexigang.com/bfsu/"><IMG src="images/index1_beiwai.gif"></A></TD>
+                <TD class=td_f><A href="http://wangyuan.xuexigang.com/blcu/"><IMG src="images/index2_bjyydx.jpg"></A></TD>
+                <TD class=td_f><A href="http://wangyuan.xuexigang.com/ccnu/"><IMG src="images/index3_hzsf.gif"></A></TD>
+                <TD class=td_f><A href="http://wangyuan.xuexigang.com/fjnu/"><IMG src="images/index4_fjsf.jpg"></A></TD>
+                <TD class=td_f><A href="http://wangyuan.xuexigang.com/cugb/"><IMG src="images/index5_zgdzdx-bj.jpg"></A></TD>
+               </TR></TBODY></TABLE>
+            <UL id=idNum class=num></UL>
+        </DIV>
+		<SCRIPT>
+			var forEach = function(array, callback, thisObject){
+				if(array.forEach){
+					array.forEach(callback, thisObject);
+				}else{
+					for (var i = 0, len = array.length; i < len; i++) { callback.call(thisObject, array[i], i, array); }
+				}
+			}
+			
+			var st = new SlideTrans("idContainer2", "idSlider2", 5, { Vertical: false });
+			
+			var nums = [];
+			//插入数字
+			for(var i = 0, n = st._count - 1; i <= n;){
+				(nums[i] = $("idNum").appendChild(document.createElement("li"))).innerHTML = ++i;
+			}
+			
+			forEach(nums, function(o, i){
+				o.onmouseover = function(){ o.className = "on"; st.Auto = false; st.Run(i); }
+				o.onmouseout = function(){ o.className = ""; st.Auto = true; st.Run(); }
+			})
+			
+			//设置按钮样式
+			st.onStart = function(){
+				forEach(nums, function(o, i){ o.className = st.Index == i ? "on" : ""; })
+			}
+			st.Run();
+		</SCRIPT>
+        
+        <div class="middle-border">
+        	<div class="zsjz">
+            	<ul class="zsqh">
+                	<li class="title" style="width:180px">最新网络教育招生简章</li>
+                    <li><a class="hoveron" onmouseover="HoverLi(54,0,4);" id="nav-540"><span>1</span></a></li>
+                    <li><a onmouseover="HoverLi(54,1,4);" id="nav-541"><span>2</span></a></li>
+                    <li style="display:none"><a onmouseover="HoverLi(54,2,4);" id="nav-542"><span>3</span></a></li>
+                    <li style="display:none"><a onmouseover="HoverLi(54,3,4);" id="nav-543"><span>4</span></a></li>
+<li style="width:110px"><a href="http://wangyuan.xuexigang.com/dianping.html" style="color:red;width:110px">网络教育学院点评</a></li>
+                </ul>
+                <div class="tag">
+                    <div id="tab-panel-540">
+                    	<ul>
+                            <li><a href="http://wangyuan.xuexigang.com/ccnu/" title="华中师范大学职业与继续教育学院">华中师范大学职业与继续教育学院</a></li>
+<li><a href="http://wangyuan.xuexigang.com/scude/" title="四川大学网络教育学院">四川大学网络教育学院</a></li>
+<li><a href="http://wangyuan.xuexigang.com/cugnc/" title="中国地质大学（武汉）远教学院">中国地质大学（武汉）远教学院</a></li>
+<li><a href="http://wangyuan.xuexigang.com/whut/" title="武汉理工大学网络教育学院">武汉理工大学网络教育学院</a></li>
+<li><a href="http://wangyuan.xuexigang.com/swust/" title="西南科技大学网络教育学院">西南科技大学网络教育学院</a></li>
+<li><a href="http://wangyuan.xuexigang.com/cmjnu/" title="江南大学网络教育学院">江南大学网络教育学院</a></li>
+<li><a href="http://wangyuan.xuexigang.com/euibe/" title="对外经济贸易大学远程教育学院">对外经济贸易大学远程教育学院</a></li>
+<li><a href="http://wangyuan.xuexigang.com/bnu/" title="北京师范大学网络教育">北京师范大学网络教育</a></li>
+<li><a href="http://wangyuan.xuexigang.com/blcu/" title="北京语言大学网络教育学院">北京语言大学网络教育学院</a></li>
+<li><a href="http://wangyuan.xuexigang.com/hust/" title="华中科技大学远程与继续教育学院">华中科技大学远程与继续教育学院</a></li>
+<li><a href="http://wangyuan.xuexigang.com/cau/" title="中国农业大学网络教育学院">中国农业大学网络教育学院</a></li>
+<li><a href="http://wangyuan.xuexigang.com/cugb/" title="中国地质大学（北京）继续教育学院">中国地质大学（北京）继续教育学院</a></li>
+
+
+
+                        </ul>
+                    </div>
+                    <div id="tab-panel-541" style="display:none;">
+                    	<ul>
+                    	<li><a href="http://wangyuan.xuexigang.com/fjnu/" title="福建师范大学网络教育学院">福建师范大学网络教育学院</a></li>
+<li><a href="http://wangyuan.xuexigang.com/upol/" title="中国石油大学（华东）远程教育学院">中国石油大学（华东）远程教育学院</a></li>
+<!--li><a href="http://wangyuan.xuexigang.com/bfsu/" title="北京外国语大学网络教育学院">北京外国语大学网络教育学院</a></li-->
+                        </ul>
+                    </div>
+                    <div id="tab-panel-542" style="display:none;">
+                    	<ul>
+                           <!-- 
+                            <li><a href="http://dianda.xuexigang.com/xian" title="西安广播电视大学">西安广播电视大学</a></li>
+                            <li><a href="http://dianda.xuexigang.com/yunnan" title="云南广播电视大学">云南广播电视大学</a></li>
+                            <li><a href="http://dianda.xuexigang.com/shenzhen" title="深圳广播电视大学">深圳广播电视大学</a></li>
+                            <li><a href="http://dianda.xuexigang.com/guanghzou" title="广州市广播电视大学">广州市广播电视大学</a></li>
+                            <li><a href="http://dianda.xuexigang.com/guangdong" title="广东广播电视大学">广东广播电视大学</a></li>
+                            <li><a href="http://dianda.xuexigang.com/hunan" title="湖南广播电视大学">湖南广播电视大学</a></li>
+                            <li><a href="http://dianda.xuexigang.com/changchun" title="长春广播电视大学">长春广播电视大学</a></li>
+                            <li><a href="http://dianda.xuexigang.com/tianjin" title="天津广播电视大学">天津广播电视大学</a></li>
+                            <li><a href="http://dianda.xuexigang.com/neimenggu" title="内蒙古广播电视大学">内蒙古广播电视大学</a></li>
+                            <li><a href="http://dianda.xuexigang.com/zhongyang" title="中央广播电视大学">中央广播电视大学</a></li>
+							
+							 <li><a href="http://wangyuan.xuexigang.com/jlu/" title="吉林大学">吉林大学</a></li>
+							<li><a href="http://wangyuan.xuexigang.com/scnu/" title="华南师范大学">华南师范大学</a></li>
+							<li><a href="http://wangyuan.xuexigang.com/xmu/" title="厦门大学">厦门大学</a></li>
+							<li><a href="http://wangyuan.xuexigang.com/remotedu/" title="电子科技大学">电子科技大学</a></li>
+							<li><a href="http://wangyuan.xuexigang.com/njtu/" title="北京交通大学">北京交通大学</a></li>
+							<li><a href="http://wangyuan.xuexigang.com/dufe/" title="东北财经大学">东北财经大学</a></li>
+							<li><a href="http://wangyuan.xuexigang.com/beihang/" title="北京航空航天大学">北京航空航天大学</a></li>
+							<li><a href="http://wangyuan.xuexigang.com/pku/" title="北京大学">北京大学</a></li>
+							<li><a href="http://wangyuan.xuexigang.com/bit/" title="北京理工大学">北京理工大学</a></li>
+							<li><a href="http://wangyuan.xuexigang.com/nenu/" title="东北师范大学">东北师范大学</a></li>
+							<li><a href="http://wangyuan.xuexigang.com/cuc/" title="北京理工大学">中国传媒大学</a></li>-->
+                        </ul>
+                    </div>
+                    <div id="tab-panel-543" style="display:none;">
+                    	<ul>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="hot-qh">
+            	<ul class="hot-qht">
+                    <li style="width:120px"><a class="hoveron" onmouseover="HoverLi(52,0,2);" id="nav-520"><span style="width:120px;display:inline-block">热门网络教育专业</span></a></li>
+                    <li style="width:120px"><a onmouseover="HoverLi(52,1,2);" id="nav-521" style="width:120px;display:inline-block"><span style="width:120px;display:inline-block">热门网络教育学院</span></a></li>
+					
+                </ul>
+                <div class="tag">
+                    <div id="tab-panel-520">
+                    	<ul>
+				<li><a href="http://wangyuan.xuexigang.com/baoming?szy=154455" title="会计学">会计学</a></li><li><a href="http://wangyuan.xuexigang.com/baoming?szy=154456" title="工商管理">工商管理</a></li><li><a href="http://wangyuan.xuexigang.com/baoming?szy=154457" title="英语">英语</a></li><li><a href="http://wangyuan.xuexigang.com/baoming?szy=154458" title="土木工程">土木工程</a></li><li><a href="http://wangyuan.xuexigang.com/baoming?szy=154459" title="护理学">护理学</a></li><li><a href="http://wangyuan.xuexigang.com/baoming?szy=154460" title="法学">法学</a></li><li><a href="http://wangyuan.xuexigang.com/baoming?szy=154461" title="行政管理">行政管理</a></li><li><a href="http://wangyuan.xuexigang.com/baoming?szy=154462" title="汉语言">汉语言</a></li><li><a href="http://wangyuan.xuexigang.com/baoming?szy=154463" title="工程管理">工程管理</a></li><li><a href="http://wangyuan.xuexigang.com/baoming?szy=154464" title="人力资源">人力资源</a></li><li><a href="http://wangyuan.xuexigang.com/baoming?szy=154465" title="电子商务">电子商务</a></li><li><a href="http://wangyuan.xuexigang.com/baoming?szy=154466" title="金融学">金融学</a></li><li><a href="http://wangyuan.xuexigang.com/baoming?szy=154467" title="市场营销">市场营销</a></li><li><a href="http://wangyuan.xuexigang.com/baoming?szy=154468" title="计算机">计算机</a></li><li><a href="http://wangyuan.xuexigang.com/baoming?szy=154469" title="通信工程">通信工程</a></li><li><a href="http://wangyuan.xuexigang.com/baoming?szy=154470" title="经济管理">经济管理</a></li><li><a href="http://wangyuan.xuexigang.com/baoming?szy=154471" title="中医学">中医学</a></li><li><a href="http://wangyuan.xuexigang.com/baoming?szy=154472" title="公共事业">公共事业</a></li><li><a href="http://wangyuan.xuexigang.com/baoming?szy=154473" title="物流">物流</a></li><li><a href="http://wangyuan.xuexigang.com/baoming?szy=154474" title="网络工程">网络工程</a></li><li><a href="http://wangyuan.xuexigang.com/baoming?szy=154475" title="国际贸易">国际贸易</a></li>
+
+                            <li class="other"><a href="http://wangyuan.xuexigang.com/zhuanye.html">更多>></a></li>
+                        </ul>
+                    </div>
+                    <div id="tab-panel-521" style="display:none;">
+                    	<ul>
+                    	                            <li><a href="http://wangyuan.xuexigang.com/ccnu/" title="华中师范大学职业与继续教育学院">华中师范大学职业与继续教育学院</a></li>
+<li><a href="http://wangyuan.xuexigang.com/scude/" title="四川大学网络教育学院">四川大学网络教育学院</a></li>
+<li><a href="http://wangyuan.xuexigang.com/cugnc/" title="中国地质大学（武汉）远教学院">中国地质大学（武汉）远教学院</a></li>
+<li><a href="http://wangyuan.xuexigang.com/whut/" title="武汉理工大学网络教育学院">武汉理工大学网络教育学院</a></li>
+<li><a href="http://wangyuan.xuexigang.com/swust/" title="西南科技大学网络教育学院">西南科技大学网络教育学院</a></li>
+<li><a href="http://wangyuan.xuexigang.com/cmjnu/" title="江南大学网络教育学院">江南大学网络教育学院</a></li>
+<li><a href="http://wangyuan.xuexigang.com/euibe/" title="对外经济贸易大学远程教育学院">对外经济贸易大学远程教育学院</a></li>
+<li><a href="http://wangyuan.xuexigang.com/bnu/" title="北京师范大学网络教育">北京师范大学网络教育</a></li>
+<li><a href="http://wangyuan.xuexigang.com/blcu/" title="北京语言大学网络教育学院">北京语言大学网络教育学院</a></li>
+<li><a href="http://wangyuan.xuexigang.com/hust/" title="华中科技大学远程与继续教育学院">华中科技大学远程与继续教育学院</a></li>
+<li><a href="http://wangyuan.xuexigang.com/cau/" title="中国农业大学网络教育学院">中国农业大学网络教育学院</a></li>
+<li><a href="http://wangyuan.xuexigang.com/cugb/" title="中国地质大学（北京）继续教育学院">中国地质大学（北京）继续教育学院</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="first-right">
+        
+       <dl class="second-rlb"><dt><span>远程教育公告</span></dt>
+			<dd><a href="http://www.xuexigang.com/notice/zhaosheng.html"><b>2017年网络教育秋季招生开始</b></a> </dd>
+			<dd><a href="http://wangyuan.xuexigang.com/baoming/"><span style="color: #ff0000"><b>2017网络教育秋季预报名快速通道</b></span></a></dd>
+			<dd><a href="http://wangyuan.xuexigang.com/bangzhu.html">网络教育常见问题</a> </dd>
+			<dd><a href="http://www.xuexigang.com/notice/baoming.html">网络教育报名流程</a> </dd>
+		</dl>	
+        	
+		<dl class="first-rlb"><dt><span>远程教育新闻</span> <a href="http://news.xuexigang.com">更多&gt;&gt;</a> </dt>
+		<dd><a href="http://news.xuexigang.com/a/20078.html"><span style="color: #ff0000">2016中国国际远程与继续教育大会召开</span></a> </dd>
+        <dd><a href="#">2016中国企业学习领袖大会</a> </dd>
+		<dd><a href="http://www.zhongjiaomedia.com/2016/mooc/"><span style="color: #ff0000"><b>2016（第三届）中国MOOC大会
+</b></span></a></dd>
+		<dd><a href="http://v.qq.com/x/page/k033850jwsv.html"><span style="color: #ff0000">绽放2016 连接教育体制内外</span></a> </dd>
+		
+		<dd><a href="http://www.cedumedia.com/2016/"><span style="color: #ff0000"><b>[大会]中国国际远程与继续教育大会</b></span></a> </dd>
+		<dd><a href="http://news.xuexigang.com/a/20038.html">院长说| 育人，是北外网院最大的使命</a> </dd>
+		<dd><a href="http://news.xuexigang.com/a/19997.html">江南大学继网学院获“2016中国最具社会影响力高校网络教育学院”称号</a></dd>
+		<dd><a href="http://news.xuexigang.com/a/19993.html">北语网院两案例获“中国高校远程与继续教育优秀案例”称号</a> </dd>
+		<dd><a href="http://v.qq.com/page/r/3/s/r0172r7nl3s.html"><b><span style="color: #ff0000">[视频]中国国际远程与继续教育大会</span></b></a> </dd>
+		<dd><a href="http://news.xuexigang.com/a/20027.html">华中师大获“2016中国最具社会影响力高校网络教育学院”</a> </dd>
+		<dd><a href="http://news.xuexigang.com/a/19951.html">地大(武汉)远程与继续教育学院获三项大奖</a></dd>
+		<!--dd><a href="http://news.xuexigang.com/a/11620.html">湖南电大2014年将筹建湖南网上职工大学</a> </dd>
+		<dd><a href="http://www.ourelearning.com/">[E-learning]<b>4个问题帮助你创建完美elearning课程</b></a></dd>
+		<dd><a href="http://www.jiaoyujie.com/">[教育界]异地办学常开不败EMBA掀中国风</a> </dd-->
+		<dd><a href="http://www.zhongjiaomedia.com/"><span style="color: #ff0000">中教新媒：中国远程教育新媒体</span></a> </dd>
+		<dd><a href="http://www.zhongpeimedia.com/"><span style="color: #ff0000">中培新媒:中国培训行业新媒体</span></a></dd>
+		<!--dd><a href="http://news.xuexigang.com/2012/02/14463855695.html">中央电大校长杨志坚莅临我社资讯中心</a> </dd>
+		<dd><a href="http://jingpin.xuexigang.com/yuanxiao/didianwangyuan/kecheng/2011/0526/114.html">西南科大网院课程:土木工程施工</a> </dd>
+		<dd><a href="http://wangyuan.xuexigang.com/bangzhu/154451.html"><span style="color: #ff0000">68所远程教育试点学校</span></a></dd--></dl>
+          
+       	  华南师大携凤凰卫视打造"凤凰微课"
+          11-12"远教优秀校外学习中心"评选揭晓	
+    </div>
+</div>
+<div class="clear"></div>
+<div class="content-all">
+<table cellpadding="0" cellspacing="0"><tr>
+<td><script type="text/javascript" src="http://img.xuexigang.com/adflash/3.js"></script></td>
+<td style="width:14px"></td>
+<td><script type="text/javascript" src="http://img.xuexigang.com/adflash/4.js"></script></td>
+</tr></table>
+</div>
+<div class="clear"></div>
+<div class="content-all">
+	<div class="lanmu-a" style="margin-top:0;">
+    	<div class="h-title"><span style="display:inline-block;width:820px">高校网络学院学历教育</span><a href="http://wangyuan.xuexigang.com/zhongxin.html" style="color:red">校外学习中心</a></div>
+        <div class="lanmu-border">
+        	<dl class="bmtd">
+            	<dt><span>网上预报名通道</span><a href="http://wangyuan.xuexigang.com/">更多>></a></dt>
+                <dd style="overflow:auto;">
+                	<table style="width:650px; overflow:hidden;">
+                    	<tr class="title"><td width="165">学校名称</td><td width="67">
+							招生地区</td><td width="195">招生层次</td><td width="133">
+							招生专业</td><td>报 名</td></tr>
+
+
+<style>
+    .nowrap div{overflow:hidden;white-space:nowrap}.wrap div{overflow:auto;white-space:normal;word-break:break-all}
+</style>
+<!--tr class="nowrap" onmouseover="this.className='wrap';" onmouseout="this.className='nowrap';">
+    <td>
+        <a href="http://wangyuan.xuexigang.com/bfsu/">
+            北京外国语大学
+        </a>
+    </td>
+    <td>
+        <div style="width:120px">
+            安徽,北京,福建,广东,江苏,湖北,内蒙,山东,陕西,上海,浙江,黑龙,江西
+        </div>
+    </td>
+    <td>
+        <div style="width:85px">
+            高起专,高起本,专升本
+        </div>
+    </td>
+    <td>
+        <div style="width:200px">
+            电子商务,工商管理,国际经济与贸易,会计学,金融学,信息管理与信息技术,英语（财经英语方向）,英语（法律英语方向）,英语（空乘英语方向）,英语（?...
+        </div>
+    </td>
+    <td align="center">
+        <a href="http://wangyuan.xuexigang.com/baoming?sxx=156899">
+            预报名
+        </a>
+    </td>
+</tr-->
+<tr class="nowrap" onmouseover="this.className='wrap';" onmouseout="this.className='nowrap';"><td><a href="http://wangyuan.xuexigang.com/ccnu/">华中师范大学</a></td><td><div style="width:120px">湖北,北京,上海,天津,河南,江西,湖南,福建,广东,江苏,浙江,陕西,山东,山东,河北,贵州,安徽,新疆,内蒙,海南,云南</div></td><td><div style="width:85px">专升本,高起专</div></td><td><div style="width:200px">汉语言文学,英语,计算机科学与技术,教育技术学,学前教育,小学教育,教育管理,数学与应用数学,法学,人力资源管理,电子商务,会计学,工商管理,社会工作,市场营销,汉语,应用英语,学前教育,计算机应用技术,现代教育技术,法律事务,电子商务,会计,工商管理,行政管理,社会工作,市场营销...</div></td><td align="center"><a href="http://wangyuan.xuexigang.com/baoming?sxx=164259">预报名</a></td></tr>
+
+<tr class="nowrap" onmouseover="this.className='wrap';" onmouseout="this.className='nowrap';"><td><a href="http://wangyuan.xuexigang.com/blcu/">北京语言大学</a></td><td><div style="width:120px">北京,江苏,江西,辽宁,广东,四川,浙江,福建,河北,安徽,甘肃,广西,河南,内蒙,山东,陕西,新疆,云南</div></td><td><div style="width:85px">专升本,高起专</div></td><td><div style="width:200px">国际经济与贸易,经济管理,对外汉语,法学,工商管理,韩语,汉语言文学,汉语言文学(师范、行政管理),会计学,计算机科学与技术,金融学,日语,英语,英语（师范、商务）...</div></td><td align="center"><a href="http://wangyuan.xuexigang.com/baoming?sxx=151780">预报名</a></td></tr>
+<tr class="nowrap" onmouseover="this.className='wrap';" onmouseout="this.className='nowrap';"><td><a href="http://wangyuan.xuexigang.com/cau/">中国农业大学</a></td><td><div style="width:120px">北京,福建,甘肃,广东,广西,贵州,海南,河北,河南,湖南,江苏,江西,辽宁,内蒙,山东,山西,陕西,上海,四川,天津,新疆,云南,浙江,重庆</div></td><td><div style="width:85px">高起专,高起本,专升本,高起专，专升本</div></td><td><div style="width:200px">电气工程及其自动化,动物科学,动物医学,法学,工商管理,公共管理,会计学,计算机科学与技术,金融学,金融学（农村金融方向）,经济管理,农村区域发展(农业机械应用与管理方向),农村区域发展(农业推广与创新管理方向),农林经济管理,食品质量与安全,水利水电工程,土地资源管理,土木工程(工程管理方向),园林,农学,农业机械化及其自动化,园艺...</div></td><td align="center"><a href="http://wangyuan.xuexigang.com/baoming?sxx=152677">预报名</a></td></tr>
+<tr class="nowrap" onmouseover="this.className='wrap';" onmouseout="this.className='nowrap';"><td><a href="http://wangyuan.xuexigang.com/bnu/">北京师范大学</a></td><td><div style="width:120px">河北,安徽,北京,福建,甘肃,广东,广西,贵州,海南,河南,湖北,湖南,江苏,辽宁,内蒙,宁夏,山西,陕西,四川,重庆,天津,新疆,云南,浙江,山东,上海,江西,西藏</div></td><td><div style="width:85px">专升本,高起专,高起专，专升本,高起本</div></td><td><div style="width:200px">应用心理学,汉语言文学,计算机技术与应用,人力资源管理,行政管理,财务会计,电子商务,法律,工商管理,教育管理,现代教育技术,小学教育,信息管理,学前教育,职业教育管理...</div></td><td align="center"><a href="http://wangyuan.xuexigang.com/baoming?sxx=153985">预报名</a></td></tr>
+
+<tr class="nowrap" onmouseover="this.className='wrap';" onmouseout="this.className='nowrap';"><td><a href="http://wangyuan.xuexigang.com/euibe/">对外经济贸易大学</a></td><td><div style="width:120px">安徽,北京,甘肃,广东,广西,海南,河北,河南,黑龙,湖南,江苏,江西,山东,山西,陕西,四川,新疆,云南,浙江,重庆</div></td><td><div style="width:85px">高起专,专升本</div></td><td><div style="width:200px">保险,电子商务,法学,工商管理,国际贸易,会计学,金融学,商务英语,物流管理,信息管理与信息系统（计算机应用方向）,行政管理,行政管理（海关管理方向）...</div></td><td align="center"><a href="http://wangyuan.xuexigang.com/baoming?sxx=153539">预报名</a></td></tr>
+<tr class="nowrap" onmouseover="this.className='wrap';" onmouseout="this.className='nowrap';"><td><a href="http://wangyuan.xuexigang.com/cugb/">中国地质大学（北京）</a></td><td><div style="width:120px">北京,河北,云南,广西,内蒙,安徽,广东,湖南,江苏,辽宁,山东,山西,陕西,新疆</div></td><td><div style="width:85px">高起专,专升本</div></td><td><div style="width:200px">土木工程,资源勘查工程,工商管理,法学,电气工程及其自动化,宝石商贸与营销,安全工程,会计学,计算机科学与技术,市场营销,土地资源管理,行政管理...</div></td><td align="center"><a href="http://wangyuan.xuexigang.com/baoming?sxx=154235">预报名</a></td></tr>
+
+<tr class="nowrap" onmouseover="this.className='wrap';" onmouseout="this.className='nowrap';"><td><a href="http://wangyuan.xuexigang.com/cmjnu/">江南大学</a></td><td><div style="width:120px">江苏,浙江,江西,福建,安徽,内蒙,上海,广西,四川</div></td><td><div style="width:85px">专升本,高起专</div></td><td><div style="width:200px">汉语言文学(高级文秘方向),汉语言文学(师范方向),食品工艺与检测,初等教育,法律事务,法学,工程管理,工程监理,工程造价,工商管理,国际经济与贸易,汉语言文学(新闻传播方向),会计学,计算机科学与技术,教育管理,教育学,教育学（学前教育方向）,金融学,人力资源管理,社会工作,食品质量与安全,计算机信息管理,小学教育,行政管理,学前教育...</div></td><td align="center"><a href="http://wangyuan.xuexigang.com/baoming?sxx=153033">预报名</a></td></tr>
+<tr class="nowrap" onmouseover="this.className='wrap';" onmouseout="this.className='nowrap';"><td><a href="http://wangyuan.xuexigang.com/upol/">中国石油大学（华东）</a></td><td><div style="width:120px">山东,北京,黑龙,辽宁,吉林,河北,天津,河南,江苏,广东,重庆,四川,新疆,宁夏,甘肃,浙江,云南,江西</div></td><td><div style="width:85px">专升本,高起专</div></td><td><div style="width:200px">化学工程与工艺，油气储运工程，城市燃气工程技术、安全工程，电气工程及其自动化，机械设计制造及其自动化，土木工程、环境工程，工程管理，工商管理，会计学，计算机科学与技术，信息管理与信息系统，法学，材料物理，人力资源管理，石油工程，资源勘查工程...</div></td><td align="center"><a href="http://wangyuan.xuexigang.com/baoming?sxx=153098">预报名</a></td></tr>
+<tr class="nowrap" onmouseover="this.className='wrap';" onmouseout="this.className='nowrap';"><td><a href="http://wangyuan.xuexigang.com/fjnu/">福建师范大学</a></td><td><div style="width:120px">江西,上海,四川,福建,广东,浙江,山东,湖南,安徽,河北,内蒙,甘肃,广西,贵州,湖北,江苏,辽宁,山西,陕西,云南</div></td><td><div style="width:85px">高起专,专升本</div></td><td><div style="width:200px">语文教育,汉语,行政管理,物流管理,艺术设计,旅游管理,农村行政与经济管理（村务管理）,电子信息工程技术,化学（教育）,生物科学（教育）,地理科学（教育）,汉语言文学,英语,历史学,艺术设计（动画方向）,电子信息工程,软件工程,数学与应用数学,物理学,化学,体育学类（体育）,生物科学,地理科学,法律大类（法学）,法学,工商管理类（工商管理）,财务管理,汉语言文学（教育）,会计,计算机应用技术,计算机科学与技术,经济管理,经济学,历史学（教育）,数学与应用数学（教育）,思想政治教育,体育教育,物理学（教育）,初等教育（小学教育）,小学教育,应用心理学,心理学,学前教育,英语（教育）,金融学,工商管理,公共事业管理（教育管理）...</div></td><td align="center"><a href="http://wangyuan.xuexigang.com/baoming?sxx=157417">预报名</a></td></tr>
+
+<tr class="nowrap" onmouseover="this.className='wrap';" onmouseout="this.className='nowrap';"><td><a href="http://wangyuan.xuexigang.com/hust/">华中科技大学</a></td><td><div style="width:120px">安徽,福建,甘肃,广东,河北,河南,湖北,湖南,江西,山西,上海,四川,天津,云南,浙江,山东,江苏,新疆</div></td><td><div style="width:85px">专升本,高起专,高起本</div></td><td><div style="width:200px">电气工程及自动化,法学,工程管理,工商管理,公共事业管理(医学类),国际经济与贸易,护理（医药）,会计学,机电一体化,机械设计制造及自动化,集成电路与集成系统设计,计算机科学与技术,计算机应用技术,建筑工程技术,经济管理,模具设计与制造,通信工程,土木工程,物流管理,行政管理,药学（医药类）,电子商务,道路桥梁工程技术,电子电路设计与工艺,应用化工技术,化学工程与工艺,英语...</div></td><td align="center"><a href="http://wangyuan.xuexigang.com/baoming?sxx=153402">预报名</a></td></tr>
+<tr class="nowrap" onmouseover="this.className='wrap';" onmouseout="this.className='nowrap';"><td><a href="http://wangyuan.xuexigang.com/whut/">武汉理工大学</a></td><td><div style="width:120px">湖南,河北,安徽,北京,福建,广东,广西,贵州,河南,湖北,江苏,江西,辽宁,山东,山西,陕西,天津,云南,浙江</div></td><td><div style="width:85px">高起专,专升本</div></td><td><div style="width:200px">道路桥梁工程技术,道路桥梁与渡河工程,电子商务,法律事务,法学,工程管理,工商管理,工商企业管理,会计,会计学,机械设计与制造,机械设计制造及其自动化,计算机科学与技术,计算机应用技术,建筑工程管理,建筑工程技术,汽车服务工程,汽车运用与维修,土木工程,物流管理,计算机信息管理,市场营销,国际经济与贸易,工程造价,电气自动化技术,电子信息工程技术,无机非金属材料工程技术,电气工程及其自动化,电子信息工程,无机非金属材料工程,机电一体化技术...</div></td><td align="center"><a href="http://wangyuan.xuexigang.com/baoming?sxx=152608">预报名</a></td></tr>
+<tr class="nowrap" onmouseover="this.className='wrap';" onmouseout="this.className='nowrap';"><td><a href="http://wangyuan.xuexigang.com/cugnc/">中国地质大学（武汉）</a></td><td><div style="width:120px">浙江,江苏,广东,河南,内蒙,甘肃,上海,安徽,河北,湖北,湖南,江西,山东,四川,天津,新疆,云南,黑龙,山西</div></td><td><div style="width:85px">专升本,高起专</div></td><td><div style="width:200px">安全工程,安全技术管理,测绘工程,测绘工程技术,电气工程及其自动化,法律事务,法学,工商管理,工商企业管理,公共安全管理,公共安全管理（煤矿安全）,会计,会计学,机电一体化技术,机电一体化技术（矿山机电）,机械设计制造及其自动化,计算机科学与技术,计算机应用技术,建筑工程技术,经济管理,经济学,煤矿开采技术,区域地质调查及矿产普查,人力资源管理,水文与水资源工程,土木工程（建筑工程）,土木工程（岩土工程）,行政管理,岩土工程技术,珠宝鉴定与营销,资源勘查工程,自动化（矿山机电）,国土资源管理,市场营销,物业管理,土地资源管理...</div></td><td align="center"><a href="http://wangyuan.xuexigang.com/baoming?sxx=152418">预报名</a></td></tr>
+
+<tr class="nowrap" onmouseover="this.className='wrap';" onmouseout="this.className='nowrap';"><td><a href="http://wangyuan.xuexigang.com/scude/">四川大学</a></td><td><div style="width:120px">广西,安徽,福建,甘肃,广东,贵州,海南,河北,河南,黑龙,湖北,湖南,江苏,江西,内蒙,青海,山东,山西,四川,天津,新疆,云南,浙江,重庆</div></td><td><div style="width:85px">专升本,高起专</div></td><td><div style="width:200px">安全工程,安全类（安全工程）,电气工程及其自动化,电气自动化技术（电气工程及其自动化）,电子信息工程,法律大类(法学）,法学,工程管理,工程管理类（工程管理）,工程造价,工商管理,工商管理类（工商管理）,公共事业管理,国民经济管理,汉语言文学,护理学,化工技术类（化学工程与工艺）,化学工程与工艺,会计,会计学,计算机科学与技术,计算机应用技术,金融学,经济管理（国民经济管理）,旅游管理,人力资源管理,市场营销,土建大类（土木工程）,土木工程,行政管理,社会工作,食品卫生检验,人力资源管理（社会保障）,英语（旅游方向）,药学,通信工程...</div></td><td align="center"><a href="http://wangyuan.xuexigang.com/baoming?sxx=153822">预报名</a></td></tr>
+<tr class="nowrap" onmouseover="this.className='wrap';" onmouseout="this.className='nowrap';"><td><a href="http://wangyuan.xuexigang.com/swust/">西南科技大学</a></td><td><div style="width:120px">四川,贵州,河北,河南,湖北,湖南,江苏,江西,山东,上海,云南,天津,浙江,广西,广东</div></td><td><div style="width:85px">高起专,专升本</div></td><td><div style="width:200px">经济管理,会计,工商企业管理,建筑工程技术,建筑经济管理,法律事务,行政管理,安全技术管理,机电一体化技术,经济信息管理,计算机信息管理,食品药品监督管理,物流管理,工业工程,法学,工程管理,工商管理,公共事业管理,供用电技术,汉语言文学,会计学,机械设计制造及其自动化,计算机科学与技术,经济学,农学,数学与应用数学,土木工程,信息工程,应用化工技术,英语,政治学与行政学,交通工程,电子信息工程...</div></td><td align="center"><a href="http://wangyuan.xuexigang.com/baoming?sxx=151933">预报名</a></td></tr>
+
+
+
+                    </table>
+                </dd>
+            </dl>
+            <dl class="lanmu-rlb">
+            	<dt style="margin-top:0;"><span>网络教育招生地区</span><a href="http://wangyuan.xuexigang.com/">更多>></a></dt>
+                <dd class="other">
+<a href="http://wangyuan.xuexigang.com/beijing/">北京</a> 
+<a href="http://wangyuan.xuexigang.com/tianjin/">天津</a> 
+<a href="http://wangyuan.xuexigang.com/hebei/">河北</a> 
+<a href="http://wangyuan.xuexigang.com/shanxi1/">山西</a> 
+<a href="http://wangyuan.xuexigang.com/neimenggu/">内蒙</a> 
+<a href="http://wangyuan.xuexigang.com/liaoning/">辽宁</a> 
+<a href="http://wangyuan.xuexigang.com/jilin/">吉林</a> 
+<a href="http://wangyuan.xuexigang.com/heilongjiang/">黑龙江</a>
+<a href="http://wangyuan.xuexigang.com/shanghai/">上海</a> 
+<a href="http://wangyuan.xuexigang.com/jiangsu/">江苏</a> 
+<a href="http://wangyuan.xuexigang.com/zhejiang/">浙江</a> 
+<a href="http://wangyuan.xuexigang.com/anhui/">安徽</a> 
+<a href="http://wangyuan.xuexigang.com/fujian/">福建</a> 
+<a href="http://wangyuan.xuexigang.com/jiangxi/">江西</a>
+<a href="http://wangyuan.xuexigang.com/shandong/">山东</a> 
+<a href="http://wangyuan.xuexigang.com/henan/">河南</a> 
+<a href="http://wangyuan.xuexigang.com/hubei/">湖北</a>
+<a href="http://wangyuan.xuexigang.com/hunan/">湖南</a>
+<a href="http://wangyuan.xuexigang.com/guangdong/">广东</a> 
+<a href="http://wangyuan.xuexigang.com/guangxi/">广西</a> 
+<a href="http://wangyuan.xuexigang.com/hainan/">海南</a>
+<a href="http://wangyuan.xuexigang.com/chongqing/">重庆</a> 
+<a href="http://wangyuan.xuexigang.com/sichuan/">四川</a> 
+<a href="http://wangyuan.xuexigang.com/guizhou/">贵州</a> 
+<a href="http://wangyuan.xuexigang.com/yunnan/">云南</a> 
+<a href="http://wangyuan.xuexigang.com/xizang/">西藏</a> 
+<a href="http://wangyuan.xuexigang.com/shanxi3/">陕西</a> 
+<a href="http://wangyuan.xuexigang.com/gansu/">甘肃</a> 
+<a href="http://wangyuan.xuexigang.com/qinghai/">青海</a> 
+<a href="http://wangyuan.xuexigang.com/ningxia/">宁夏</a> 
+<a href="http://wangyuan.xuexigang.com/xinjiang/">新疆</a> 
+<a href="http://wangyuan.xuexigang.com/xianggang/">香港</a> 
+<a href="http://wangyuan.xuexigang.com/aomen/">澳门</a> 
+<a href="http://wangyuan.xuexigang.com/taiwan/">台湾</a> 
+                </dd> 
+                <dt><span>网络教育政策法规</span><a href="http://news.xuexigang.com/fagui/wljy/">更多>></a></dt>
+                
+                <dd><a href="http://news.xuexigang.com/2011/11/09310654134.html" title="教育部关于国家精品开放课程建设的实施意见">教育部关于国家精品开放课程建设的实施意见</a></dd>
+                <dd><a href="http://news.xuexigang.com/2011/01/18172645812.html" title="高校网络教育公共基础课全国统一考试的实施意见">高校网络教育公共基础课全国统一考试的实施意见</a></dd>
+                <dd><a href="http://news.xuexigang.com/2011/01/18135345811.html" title="加强高校网络教育学历证书和学位证书规范的通知">加强高校网络教育学历证书和学位证书规范的通知</a></dd>
+                <dd><a href="http://news.xuexigang.com/2011/01/18114045810.html" title="〈高等教育学历证书电子注册管理暂行规定〉实施细则">〈高等教育学历证书电子注册管理暂行规定〉实施细则</a></dd>
+                <dd><a href="http://news.xuexigang.com/2011/01/18090445809.html" title="加强高校网络教育学院管理提高教育质量的意见">加强高校网络教育学院管理提高教育质量的意见</a></dd>
+                <dd><a href="http://news.xuexigang.com/2011/01/18070245808.html" title="进一步加强高校网络教育规范管理的通知">进一步加强高校网络教育规范管理的通知</a></dd>
+                <dt><span>网络教育常见问题</span><a href="http://wangyuan.xuexigang.com/bangzhu.html">更多>></a></dt>
+<dd><a href="http://wangyuan.xuexigang.com/bangzhu/154435.html" title="68所现代远程教育试点学校名单">68所现代远程教育试点学校名单</a></dd>
+<dd><a href="http://wangyuan.xuexigang.com/bangzhu/154433.html" title="网络大学选校指导">网络大学选校指导</a></dd>
+<dd><a href="http://wangyuan.xuexigang.com/bangzhu/154436.html" title="什么是网络教育？">什么是网络教育？</a></dd>
+<dd><a href="http://wangyuan.xuexigang.com/bangzhu/154429.html" title="网络教育文凭了解">网络教育文凭了解</a></dd>
+<dd><a href="http://wangyuan.xuexigang.com/bangzhu/154443.html" title="网络教育有什么特色和优势">网络教育有什么特色和优势</a></dd>
+<dd><a href="http://wangyuan.xuexigang.com/bangzhu/161593.html" title="网络教育采取什么样的教学方式？">网络教育采取什么样的教学方式？</a></dd>
+<dd><a href="http://wangyuan.xuexigang.com/bangzhu/154442.html" title="参加网络学历教育的学生需要具备什么样的学历条件和入学资格？">参加网络学历教育的学生需要具备什么样的学历条件和入学资格？</a></dd>
+<dd><a href="http://www.chsi.com.cn/xlcx/" title="查询文凭的网站是什么？">查询文凭的网站是什么？</a></dd>
+<dd><a href="http://wangyuan.xuexigang.com/zixun/156626.html" title="如果当地没有要读的学校校外学习中心，是不是就不可以报名该校的网络教育？">如果当地没有要读的学校校外学习中心，是不是就不可以报名该校的网络教育？</a></dd>
+<dd><a href="http://wangyuan.xuexigang.com/zixun/156625.html" title="学费、学分是怎么算的？考试不及格能否补考？">学费、学分是怎么算的？考试不及格能否补考？</a></dd>
+<dd><a href="http://wangyuan.xuexigang.com/zixun/156629.html" title="学分是什么？什么是学习年限？">学分是什么？什么是学习年限？</a></dd>
+<dd><a href="http://wangyuan.xuexigang.com/zixun/156623.html" title="民办大学的本科文凭可以读你们学校的本科吗？">民办大学的本科文凭可以读你们学校的本科吗？</a></dd>
+
+ <dt><span>热门咨询</span><a href="http://wangyuan.xuexigang.com/bangzhu.html">更多>></a></dt>
+<dd><a href="http://wangyuan.xuexigang.com/zixun/156629.html" title="学分是什么？什么是学习年限？">学分是什么？什么是学习年限？</a></dd>
+<dd><a href="http://wangyuan.xuexigang.com/zixun/156627.html" title="什么是网络教育校外学习中心？">什么是网络教育校外学习中心？</a></dd>
+<dd><a href="http://wangyuan.xuexigang.com/bangzhu/161593.html" title="网络教育采取什么样的教学方式？">网络教育采取什么样的教学方式？</a></dd>
+<dd><a href="http://wangyuan.xuexigang.com/zixun/156622.html" title="以前学的会计学专科，现在想读网络教育别的专业本科学习，可不可以？">以前学的会计学专科，现在想读网络教育别的专业本科学习，可不可以？</a></dd>
+<dd><a href="http://wangyuan.xuexigang.com/zixun/156620.html" title="要不要参加成人高考？录取方式是什么？">要不要参加成人高考？录取方式是什么？</a></dd>
+<dd><a href="http://wangyuan.xuexigang.com/zixun/161587.html" title="网络教育的收费依据是什么？收费项目有哪些？">网络教育的收费依据是什么？收费项目有哪些？</a></dd>
+<dd><a href="http://wangyuan.xuexigang.com/zixun/161597.html" title="网络高等学历教育的学制和修业年限是如何规定的？">网络高等学历教育的学制和修业年限是如何规定的？</a></dd>
+<dd><a href="http://wangyuan.xuexigang.com/zixun/156623.html" title="民办大学的本科文凭可以读你们学校的本科吗？有入学考试考前辅导吗?">民办大学的本科文凭可以读你们学校的本科吗？有入学考试考前辅导吗?</a></dd>
+            </dl>
+        </div>
+        <div class="lanmu-a-botton"></div>
+    </div>
+<div class="clear"></div>
+<div class="content-all">
+<table cellpadding="0" cellspacing="0"><tr>
+<td><script type="text/javascript" src="http://img.xuexigang.com/adflash/5.js"></script></td>
+<td style="width:14px"></td>
+<td><script type="text/javascript" src="http://img.xuexigang.com/adflash/6.js"></script></td>
+</tr></table>
+</div>
+<div class="clear"></div>
+ 
+</div>
+
+<div class="clear"></div>
+<dl class="scool-logo" style="height:auto;padding-bottom:15px">
+	<dt><span>网络教育学院招生院校一览</span></dt>
+	
+<dd><a href="http://wangyuan.xuexigang.com/ccnu/"><img src="http://a1.xuexigang.cn/5d/lydskb.gif" alt="华中师范大学职业与继续教育学院"></a><br>
+<a href="/baoming?sxx=164259&amp;szy=165044" title="汉语言文学">汉语言文学</a> <a href="/baoming?sxx=164259&amp;szy=165045" title="英语">英语</a> <a href="/baoming?sxx=164259&amp;szy=165046" title="计算机科学与技术">计算机科学与技术</a> <a href="/baoming?sxx=164259&amp;szy=165047" title="教育技术学">教育技术学</a> 
+</dd><dd><a href="http://wangyuan.xuexigang.com/fjnu/"><img src="http://a1.xuexigang.cn/9g/jr1a12.gif" alt="福建师范大学网络教育学院"></a><br>
+<a href="/baoming?sxx=157417&amp;szy=157420" title="法律大类（法学）">法律大类（法学）</a> <a href="/baoming?sxx=157417&amp;szy=157421" title="法学">法学</a> <a href="/baoming?sxx=157417&amp;szy=157422" title="工商管理类（工商管理）">工商管理类（工商管理）</a> <a href="/baoming?sxx=157417&amp;szy=157424" title="财务管理">财务管理</a> 
+</dd><!--dd><a href="http://wangyuan.xuexigang.com/bfsu/"><img src="http://a1.xuexigang.cn/bm/n8lcel.gif" alt="北京外国语大学网络教育学院"></a><br>
+<a href="/baoming?sxx=156899&amp;szy=156912" title="会计学">会计学</a> <a href="/baoming?sxx=156899&amp;szy=165212" title="计算机科学与技术">计算机科学与技术</a> <a href="/baoming?sxx=156899&amp;szy=158748" title="英语">英语</a> <a href="/baoming?sxx=156899&amp;szy=156903" title="电子商务">电子商务</a> 
+</dd--><dd><a href="http://wangyuan.xuexigang.com/cugb/"><img src="http://a1.xuexigang.cn/aq/hia0ww.gif" alt="中国地质大学（北京）继续教育学院"></a><br>
+<a href="/baoming?sxx=154235&amp;szy=154237" title="土木工程">土木工程</a> <a href="/baoming?sxx=154235&amp;szy=154238" title="资源勘查工程">资源勘查工程</a> <a href="/baoming?sxx=154235&amp;szy=154239" title="工商管理">工商管理</a> <a href="/baoming?sxx=154235&amp;szy=154240" title="法学">法学</a> 
+</dd><dd><a href="http://wangyuan.xuexigang.com/bnu/"><img src="http://a1.xuexigang.cn/7f/1kzp3o.gif" alt="北京师范大学网络教育"></a><br>
+<a href="/baoming?sxx=153985&amp;szy=153987" title="应用心理学">应用心理学</a> <a href="/baoming?sxx=153985&amp;szy=153988" title="汉语言文学">汉语言文学</a> <a href="/baoming?sxx=153985&amp;szy=153990" title="人力资源管理">人力资源管理</a> <a href="/baoming?sxx=153985&amp;szy=153991" title="行政管理">行政管理</a> 
+</dd><dd><a href="http://wangyuan.xuexigang.com/scude/"><img src="http://a1.xuexigang.cn/5r/bmcj6f.gif" alt="四川大学网络教育学院"></a><br>
+<a href="/baoming?sxx=153822&amp;szy=153824" title="安全工程">安全工程</a> <a href="/baoming?sxx=153822&amp;szy=153825" title="安全类（安全工程）">安全类（安全工程）</a> <a href="/baoming?sxx=153822&amp;szy=153826" title="电气工程及其自动化">电气工程及其自动化</a> <a href="/baoming?sxx=153822&amp;szy=153827" title="电气自动化技术（电气工程及其自动化）">电气自动化技术（电气工程及其自动化）</a> 
+</dd><dd><a href="http://wangyuan.xuexigang.com/euibe/"><img src="http://a1.xuexigang.cn/c9/m36hvn.gif" alt="对外经济贸易大学远程教育学院"></a><br>
+<a href="/baoming?sxx=153539&amp;szy=153541" title="保险">保险</a> <a href="/baoming?sxx=153539&amp;szy=153542" title="电子商务">电子商务</a> <a href="/baoming?sxx=153539&amp;szy=153543" title="法学">法学</a> <a href="/baoming?sxx=153539&amp;szy=153544" title="工商管理">工商管理</a> 
+</dd><dd><a href="http://wangyuan.xuexigang.com/hust/"><img src="http://a1.xuexigang.cn/4c/sf6s9o.gif" alt="华中科技大学远程与继续教育学院"></a><br>
+<a href="/baoming?sxx=153402&amp;szy=153404" title="电气工程及自动化">电气工程及自动化</a> <a href="/baoming?sxx=153402&amp;szy=153405" title="法学">法学</a> <a href="/baoming?sxx=153402&amp;szy=153406" title="工程管理">工程管理</a> <a href="/baoming?sxx=153402&amp;szy=153407" title="工商管理">工商管理</a> 
+</dd><dd><a href="http://wangyuan.xuexigang.com/cmjnu/"><img src="http://a1.xuexigang.cn/60/idtyh1.gif" alt="江南大学网络教育学院"></a><br>
+<a href="/baoming?sxx=153033&amp;szy=153035" title="初等教育">初等教育</a> <a href="/baoming?sxx=153033&amp;szy=153038" title="法律事务">法律事务</a> <a href="/baoming?sxx=153033&amp;szy=153039" title="法学">法学</a> <a href="/baoming?sxx=153033&amp;szy=153040" title="工程管理">工程管理</a> 
+</dd><dd><a href="http://wangyuan.xuexigang.com/cau/"><img src="http://a1.xuexigang.cn/a8/3zb9xz.gif" alt="中国农业大学网络教育学院"></a><br>
+<a href="/baoming?sxx=152677&amp;szy=152679" title="园林">园林</a> <a href="/baoming?sxx=152677&amp;szy=162155" title="动物医学">动物医学</a> <a href="/baoming?sxx=152677&amp;szy=162156" title="动物科学">动物科学</a> <a href="/baoming?sxx=152677&amp;szy=162157" title="食品质量与安全">食品质量与安全</a> 
+</dd><dd><a href="http://wangyuan.xuexigang.com/whut/"><img src="http://a1.xuexigang.cn/4c/sf6uhk.gif" alt="武汉理工大学网络教育学院"></a><br>
+<a href="/baoming?sxx=152608&amp;szy=152610" title="道路桥梁工程技术">道路桥梁工程技术</a> <a href="/baoming?sxx=152608&amp;szy=152611" title="道路桥梁与渡河工程">道路桥梁与渡河工程</a> <a href="/baoming?sxx=152608&amp;szy=152613" title="法律事务">法律事务</a> <a href="/baoming?sxx=152608&amp;szy=152614" title="法学">法学</a> 
+</dd><dd><a href="http://wangyuan.xuexigang.com/cugnc/"><img src="http://a1.xuexigang.cn/1j/q0vc4t.gif" alt="中国地质大学（武汉）远教学院"></a><br>
+<a href="/baoming?sxx=152418&amp;szy=152420" title="安全工程">安全工程</a> <a href="/baoming?sxx=152418&amp;szy=152422" title="测绘工程">测绘工程</a> <a href="/baoming?sxx=152418&amp;szy=152424" title="电气工程及其自动化">电气工程及其自动化</a> <a href="/baoming?sxx=152418&amp;szy=152425" title="法律事务">法律事务</a> 
+</dd><dd><a href="http://wangyuan.xuexigang.com/swust/"><img src="http://a1.xuexigang.cn/ah/aqsozx.gif" alt="西南科技大学网络教育学院"></a><br>
+<a href="/baoming?sxx=151933&amp;szy=151935" title="经济管理">经济管理</a> <a href="/baoming?sxx=151933&amp;szy=151936" title="会计">会计</a> <a href="/baoming?sxx=151933&amp;szy=151937" title="工商企业管理">工商企业管理</a> <a href="/baoming?sxx=151933&amp;szy=151938" title="建筑工程技术">建筑工程技术</a> 
+</dd><dd><a href="http://wangyuan.xuexigang.com/blcu/"><img src="http://a1.xuexigang.cn/9l/52kff8.gif" alt="北京语言大学网络教育学院"></a><br>
+<a href="/baoming?sxx=151780&amp;szy=151782" title="国际经济与贸易">国际经济与贸易</a> <a href="/baoming?sxx=151780&amp;szy=151783" title="经济管理">经济管理</a> <a href="/baoming?sxx=151780&amp;szy=151784" title="对外汉语">对外汉语</a> <a href="/baoming?sxx=151780&amp;szy=151785" title="法学">法学</a> 
+</dd><dd><a href="http://wangyuan.xuexigang.com/upol/"><img src="http://a1.xuexigang.cn/8k/e0o22o.gif" alt="中国石油大学（华东）远程教育学院"></a><br>
+<a href="/baoming?sxx=153098&amp;szy=153111" title="化学工程与工艺">化学工程与工艺</a> <a href="/baoming?sxx=153098&amp;szy=153128" title="油气储运工程">油气储运工程</a> <a href="/baoming?sxx=153098&amp;szy=153103" title="城市燃气工程技术">城市燃气工程技术</a> <a href="/baoming?sxx=153098&amp;szy=153100" title="安全工程">安全工程</a> 
+</dd>
+
+</dl>
+
+<div class="clear"></div>
+
+<div class="clear"></div>
+<div class="f-link">
+	<ul class="f-qh">
+		<li><a class="hoveron" onmouseover="HoverLi(53,0,2);" id="nav-530"><span><img src="http://img.xuexigang.com/2011/title_07.gif" alt="" /></span></a></li>
+		<li><a onmouseover="HoverLi(53,1,2);" id="nav-531"><span><img src="http://img.xuexigang.com/2011/title_08.gif" width=1 height=1 alt="" /></span></a></li>
+	</ul>
+	<div class="tag">
+		<div id="tab-panel-530">
+        <a title="教育部" href="http://www.moe.edu.cn/">教育部</a>　|　<a href="http://www.chinadisedu.com/">中国远程教育网</a>　|　<a href="http://dianda.china.com.cn/">中国网电大频道</a>　|　<a href="http://www.cder.com.cn/">中央电大远程教育研究所</a>　|　<a href="http://edu.qq.com/">腾讯教育</a>　|　<a href="http://edu.sina.com.cn/">新浪教育</a>　|　<a href="http://learning.sohu.com/">搜狐教育</a>　|　<a href="http://edu.people.com.cn">人民网教育</a>　|　<a href="http://www.zhaosheng.com/">中国招生网</a><br/><a href="http://www.edu.cn/">中国教育和科研计算机网</a>　|<a title="中教新媒体" href="http://www.zhongjiaomedia.com/">中教新媒</a>　|<a title="中培新媒" href="http://www.zhongpeimedia.com/">中培新媒</a>　|
+		<div id="tab-panel-531" style="display:none;">
+        <a title="" href=""></a> | 
+        </div>
+	</div>
+</div>
+
+<div class="clear"></div>
+<div class="help" style="border:0px solid #CD3300;padding:4px 10px;height:30px;width:auto;color:#CD3300;font-size:14px;background:#E6F2FF">
+    <strong>学员咨询：</strong>王老师 [<a href="http://chat.doyoo.net/WebModule/chat/p.do?c=12533&n=xxg0288">留言</a>]&nbsp;&nbsp;
+    <strong>电&nbsp;&nbsp;话：</strong>400-683-6556&nbsp;&nbsp;
+    <strong>市场合作：</strong>010-62168803
+	<strong>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</strong>010-53397080
+</div>
+
+<div class="clear"></div>
+<div class="footer" style="background:url(http://img.xuexigang.com/2011/ewm.jpg) no-repeat 30px 0;">
+<h6><a href="http://corp.xuexigang.com/contactus/">关于我们</a> | <a href="http://corp.xuexigang.com/copyright/">网站声明</a> | <a href="http://corp.xuexigang.com/invitejobs/">招聘信息</a> | <a href="http://corp.xuexigang.com/websitemap/">
+网站地图</a> | <a href="http://corp.xuexigang.com/friendlink/">友情链接</a> | <a href="http://corp.xuexigang.com/partner/">合作伙伴</a></h6>
+未经xuexigang.com同意,不得转载本网站之所有学校课程信息<br />
+版权所有 学习港 京ICP备12041720号-15  京公网安备110102004903-11
+<div class="footlogo"><a href="http://www.cedumedia.com" target="_blank"><img src="http://www.zhongjiaomedia.com/images/cedu2.png"></a></div>
+</div>
+<script language='javascript' src='http://js.doyoo.net/j.jsp?c=12533&f=7344'></script>
+
+<script type="text/javascript" src="http://v1.jiathis.com/code/jiathis_r.js?type=left&btn=l3.gif&uid=1516529" charset="utf-8"></script>
+<script type="text/javascript">
+	var wn_hide_eqilai = true;
+</script>
+<!--<script type="text/javascript" src="http://www.zhongjiaomedia.com/js/top/zjright.js" charset="utf-8"></script> -->
+
+<script type="text/javascript">BAIDU_CLB_fillSlot("360042");</script>
+
+<script>
+var _hmt = _hmt || []; (function() { var hm = document.createElement("script"); hm.src = "https://hm.baidu.com/hm.js?20a85b9e1a2558c922978f79693c1f16"; var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(hm, s); })(); </script>
+<script type="text/javascript" charset="utf-8" async src="http://lxbjs.baidu.com/lxb.js?sid=9993461"></script>
+<style>
+#eweima_panel{z-index:8000;margin:0px;padding:0px;overflow:hidden;cursor:default;-webkit-transform:translateZ(0px);}
+</style>
+<div id="eweima_panel" style="position: fixed; top: 300px; right: 0px; width: 154px; height: 189px; display: block; background: url(http://www.xuexigang.com/images/erweima.jpg) no-repeat;"></div>
+
+<div style="display:none">
+<script language="javascript" type="text/javascript" src="http://js.users.51.la/18813712.js"></script>
+<noscript><a href="http://www.51.la/?18813712" target="_blank"><img alt="&#x6211;&#x8981;&#x5566;&#x514D;&#x8D39;&#x7EDF;&#x8BA1;" src="http://img.users.51.la/18813712.asp" style="border:none" /></a></noscript>
+</div>
+</body>
+</html>
+
+

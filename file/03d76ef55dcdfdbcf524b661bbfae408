@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html>
+ <head> 
+  <meta charset="utf-8" /> 
+  <title>财联社电报：7*24小时滚动播报股市资讯</title> 
+  <meta name="baidu-site-verification" content="D7CUICWvin" /> 
+  <meta name="description" content="财联社-机构和私募主力都在使用，专注中国证券市场；全面监控各种财经新闻、股市资讯，7*24小时不间断提供全方位的证券信息服务，包含快讯、题材、深度、早报、行情、自选等频道；快速、专业、精准发布权威的财经信息。" /> 
+  <meta name="keywords" content="财联社,股市,股票,行情,证券,炒股软件,上市公司,金融,财经新闻,炒股,投资理财,炒股论坛" /> 
+  <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0" /> 
+  <meta http-equiv="X-UA-Compatible" content="IE=10" /> 
+  <meta property="wx:link" content="" /> 
+  <meta property="wx:title" content="财联社电报，二十四小时滚动播报独家财经快讯" /> 
+  <meta property="wx:descr" content="财联社电报，二十四小时滚动播报独家财经快讯" /> 
+  <meta property="wx:image" content="http://www.cailianpress.com/images/logo.120.png" /> 
+  <link rel="shortcut icon" href="https://image.cailianpress.com/images/favicon.ico" type="image/x-icon" /> 
+  <link rel="stylesheet" href="https://image.cailianpress.com/css/jquery.ui/default.css" /> 
+  <link rel="stylesheet" href="http://www.cailianpress.com/public/css/index.css" /> 
+  <!--link rel="stylesheet" href="https://image.cailianpress.com/css/index.css"--> 
+  <link rel="stylesheet" href="http://www.cailianpress.com/public/css/scrool.css" /> 
+  <script type="text/javascript">	
+	var ROOT = 'http://www.cailianpress.com/';
+</script> 
+  <script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?fa5455bb5e9f0f260c32a1d45603ba3e";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script> 
+  <script type="text/javascript" src="https://image.cailianpress.com/scripts/jquery.js"></script> 
+  <script type="text/javascript" src="https://image.cailianpress.com/scripts/jquery.ui.js"></script> 
+  <script type="text/javascript" src="http://www.cailianpress.com/public/scripts/index.js"></script> 
+  <script type="text/javascript" src="http://www.cailianpress.com/public/scripts/model.js"></script> 
+  <script type="text/javascript" src="http://www.cailianpress.com/statics/scripts/weixin.js"></script> 
+  <script type="text/javascript" src="http://www.cailianpress.com/public/scripts/jquery.sgallery.js"></script> 
+  <script type="text/javascript">
+
+wx.config({
+	appId:		'wx985aa4a6f9416f9e',
+	timestamp:	'1490558892',
+	nonceStr:	'oicFIsWHqG5bkaMp',
+	signature:	'25d9c4ddf54c5a601d53054c78080cf68ba15b8c',
+	jsApiList:	['onMenuShareTimeline', 'onMenuShareAppMessage']
+});
+if('1490538402' !='') {
+	var firsttime = '1490538402';
+} else {
+	var firsttime = '1490558892';
+}
+
+var F = {
+	last_ctime:'',
+	type:   '-1',
+	max:	eval(firsttime),
+	min:	eval('1490522355'),
+	date:	eval('20170326'),
+	sec:	eval('60')*1000,
+	ids:	[],
+	start: function(){
+		Mod.market();
+		Mod.advert();
+		Mod.recommend();
+		Mod.plateRank( $('.plateRank') );
+		//Mod.article_click(F.ids);
+		if(App.mute==1) $C.find('#sound>a').removeClass('on');
+		App.set('news', App.news = F.max);
+		F.timer = setTimeout('F.listener()', F.sec);
+		$C.find('#sound').click(function(){
+			$(this).find('a').toggleClass('on');
+			App.mute = $(this).find('a').hasClass('on')?0:1;
+			App.set('mute',App.mute);
+		});
+
+		$C.find('div.more>a').click(function(){
+			var $this = $(this);;
+			$this.addClass('loading');
+			$.post(ROOT+'v2/article/h5_get_article',{type:'-1',count:15,staid:F.last_ctime},function(data){
+					$this.removeClass('loading');
+					if(data.errno>0){
+						return false;
+					}
+					F.draw(data.data);
+			},'json');
+		});		
+		$(document).on('click', '.reading', function() {
+			var id = $(this).parent().attr('articleid');
+			var num = parseInt($(this).text().substr(3))+1;
+			$(this).html('已阅 '+num);
+			Mod.article_click(id);
+		})
+		$(document).on('click', '.opening', function() {
+			var deny_comment=$(this).attr("deny_comment");
+			if(deny_comment==1){
+				Mod.deny_comment();
+				return false;
+			}
+			var id = $(this).parent().attr('articleid');
+			$li = $(this).parent().next('li.comment');
+			var loaded = $li.hasClass('loaded');
+			if(!loaded) $.getJSON("http://www.cailianpress.com/index.php/v2/AntiComment/get_comments", { articleid:id,'count':20}, function(ret) {
+				$li.addClass('loaded');
+                        $li.find(".code-img").html(ret.img);
+				    if(ret.errno > 0 || ret.data =="") return false;
+						var html = '';
+						var ips = uss = '';
+						var total  = ret.data.total_number; //总评论数
+						var cursor = ret.data.total_cursor; //显示的评论数
+						$.each(ret.data, function(i,j) {
+							html += '<ul class="fix">';
+							html += '<li class="avatar avatar-'+j.userId+'"><img src="http://img.myhongzuan.com/small.jpg" /></li>';
+							html += '<li class="date">'+ App.timestamp(j.time, 'y-m-d h:i')+'</li>';
+							if(j.name!='') {
+								html += '<li class="name">'+j.name+'</li>';
+								if(j.userId>0) uss += j.userId+',';
+							}
+							else {
+								html += '<li class="name"><span class="ip_'+(j.ipaddress==null?'':j.ipaddress.replace(/\./g,'_'))+'"></span>网友</li>';
+								if(j.ipaddress!=null) ips += j.ipaddress+',';
+							}
+							html += '<li>'+ j.content + '</li>';
+							html += '</ul>';
+						});
+/*						if(cursor < total) {
+							html += '<div id="more_comment " class="more_comment"><a class="" next_cursor="'+ret.data.next_cursor+'" href="javascript:;" onclick="draw_comment('+ret.data.next_cursor+')">加载更多评论</a></div>'
+						}*/
+						$li.find('.list').html(html);
+						if(ips.length>0) {
+							var url = 'http://int.dpool.sina.com.cn/iplookup/iplookup.php?format=js&ip=127.0.0.1,'+ips.substring(0,ips.length-1);
+							$.getScript(url, function(ret){
+								$.each(remote_ip_info, function(i,j) {
+									var $span = $li.find('.ip_'+i.replace(/\./g,'_'));
+									if(j==-1) $span.html(i);
+									else $span.html(j.province);
+								})
+							});
+						}
+						/*if(uss.length>0) {
+							var url = 'http://www.myhongzuan.com/index.php?app=api&mod=User&act=getUserFace&uids='+uss.substring(0,uss.length-1);
+							$.getJSON(url, function(ret) {
+								$.each(ret, function(i,j) { $('.avatar-'+j.uid).html('<img src="'+j.avatar_small+'" />'); });
+							});
+                            }*/	
+
+                    });
+                
+					$li.slideToggle('fast');
+						
+		})
+		$(document).on('click', '.comment .submit', function() {
+			$li = $(this).parent();
+			$li.find('.error').html('');
+			if( $.trim($li.find('.content').val())=='' ) $li.find('.error').html('请说点什么吧');
+			else {
+				var id = $li.attr('articleid');
+				var content = $.trim($li.find('.content').val());
+				if('' == '') {
+					$li.find('.error').html('请先登录');
+					return false;
+				}
+				var post = {
+					id:id, content:content, captcha:$li.find(".code-input").val()
+				} ;
+				$.post("http://www.cailianpress.com/index.php/v2/AntiComment/insert_comment", post, function(j){
+					if(j.errno===0) {
+						var oldpnum = $li.prev().find('i.pnum').html();
+						var oldpnum = $li.prev().find('i.pnum').html(++oldpnum);
+						
+						// $li.prev().find('.opening').html('评论');
+						$li.find('.content').val('');
+						$li.find('.list').prepend('<ul><li class="date">'+ App.timestamp(new Date()*0.001, 'y-m-d h:i')+'</li><li class="name red">我说</li><li>'+j.data.content+'<li></ul>');
+					} else {
+						if(j.errno ==20017) {
+							$li.find('.error').html('有非法内容');
+						} else if(j.errno ==20013) {
+							$li.find('.error').html('重复评论');
+						} else if(j.errno ==10006) {
+							$li.find('.error').html('您无法评论');
+						} else if (j.errno ==20002) {
+							$li.find('.error').html('请先登录');
+                        } else if( j.errno == 10007 ){
+							$li.find('.error').html('验证码有误，请重新输入');
+                            } else {
+                            $li.find('.error').html(j.content);
+                            }
+                    }
+                    $.get("http://www.cailianpress.com/index.php/v2/AntiComment/get_comments?articleid="+id+"&count=1",function(ret){
+                            $li.find(".code-img").html(ret.img);
+                            $li.find(".code-input").val("");
+                    })
+				});
+			}
+			return false;
+		})		
+		$(document).on('click', 'a.weibo', function(){
+			var title = $(this).parent().parent().find('.content').text();
+			var href = 'http://' + location.hostname + $(this).attr('href');
+			var url = 'http://service.weibo.com/share/share.php?title='+encodeURI(title)+'&url='+href+'&searchPic=false';
+			window.open(url);
+			return false;
+		});		
+		$(document).on('click', 'a.space', function(){
+			var title = $(this).parent().parent().find('.content').text();
+			var href = 'http://' + location.hostname + $(this).attr('href');
+			var url = 'http://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?title='+encodeURI(title)+'&url='+href;
+			window.open(url);
+			return false;
+		});
+	},
+	draw: function(ret, prepend) {
+		var prepend = typeof(prepend)!='undefined';
+		var html = '';
+		var clicks = [];
+		$.each(ret, function(i,j) {
+			if(App.timestamp(j.time, 'ymd')!=F.date && !prepend) {
+				html += '<div class="topic">';
+				html += '<span class="date">'+App.timestamp(j.time, 'y-m-d')+'</span><strong>小时即时电报</strong>';
+				html += '</div>';		
+				F.date = App.timestamp(j.time, 'ymd');
+			}
+            //console.log(j);
+            html += '<ul class="fix '+(prepend?'new':'')+'">';
+			html += '<li class="time pconly">'+App.timestamp(j.time, 'h:i')+'</li>';
+			html += '<li class="content '+(j.recommend==1?'recommend':'')+' '+(j.bold==1?'bold':'')+'">'+j.content+'</li>';
+			if(j.relate_article.length>0){
+				html+='<li class="article_relative">';
+				$.each(j.relate_article,function(m){
+					html+='<a class="relative_titile" target="_blank" href="'+j.relate_article[m].redirect_url+'">'+j.relate_article[m].title+'</a>'
+				})
+				html+='</li>';
+			}
+			html += '<li class="share" articleid="'+j.id+'">';
+			html += '<a href="javascript:;" class="c1 opening">评论 <i class="pnum" style="float:right">'+j.pinglun+'</i></a>';
+			html += '<a href="javascript:;" class="c2 reading">已阅 '+j.num+'</a>';
+			html += '<span class="pconly">分享到</span>';
+			html += '<a  href="/single/'+j.id+'.html" class="weibo pconly"></a>';
+			html += '<a  href="/single/'+j.id+'.html" class="space pconly"></a>';
+			html += '</li>';
+			html += '<li class="comment" articleid="'+j.id+'">';
+			html += '<div class="list"></div>';
+			html += '<textarea name="content" class="content"></textarea><div class="error"></div>';
+            html += ' <div class="code-img"></div><input type="text" name="captcha" class="code-input"/>';
+            html += '<button type="submit" class="submit">发布评论</button>';
+			html += '</li>';
+			html += '<li class="mob-time hidden">'+App.timestamp(j.time, 'h:i')+'</li>';			
+			html += '</ul>';
+			if(prepend != 1) {
+				F.last_ctime = j.time;
+			}
+			//clicks.push(j.id);
+		});		
+		if(prepend) {
+			$('#entries').prepend(html);
+		}else {
+			$('#entries').append(html);
+		}
+		//Mod.article_click(clicks);
+	},
+	listener: function() {
+	$.getJSON(ROOT+'v2/article/get_roll',{ type:-1, staid: App.news, count:20 ,flow:1}, function(ret){
+				F.timer = setTimeout('F.listener()', F.sec);
+				if(ret.errno == 0) {
+					if(App.mute==0) document.getElementById('audio').play();
+					F.max = App.news = ret.data[0].time;
+					F.draw(ret.data, 1);
+					App.set('news', App.news);	
+				}	
+			
+		},'json');
+	}
+}
+$(function(){ 
+	F.start(); 
+	$('.ads').click(function() {
+		var id = $(this).attr('id');
+		$.post("http://www.cailianpress.com/v2/advert/click",{'id':id});
+		return true;
+	});
+
+})
+</script> 
+  <style type="text/css">
+.start .topic { position:relative; background:#fff; color:#666; border-bottom:1px solid #eee; height:43px; line-height:43px; text-align:center; padding:0; padding-right:100px; }
+.start .topic span.sound { position:absolute; right:0; }
+.start .topic span.sound a { float:right; background:url(https://image.cailianpress.com/images/ico/sound.off.png) left center no-repeat; padding-left:25px; color:#999; }
+.start .topic span.sound a.on { background-image:url(https://image.cailianpress.com/images/img_big/sound.on_big.png); background-size:20px; color:#c7000a; }
+.start .topic span.date { font-size:16px; font-weight:bold; }
+.start .topic strong { float:left; background:url(https://image.cailianpress.com/images/img_big/24_big.png) left center no-repeat; background-size:32px; padding-left:40px; }
+.start .entries { line-height:150%; }
+.start .entries div.date { margin-top:20px; text-align:center; }
+.start .entries div.date span { display:inline-block; padding:.1em .5em 0 .5em; background:#1D7E0A; color:#fff; font-size:10px; }
+.start .entries>ul { position:relative; border-bottom:1px solid #eee; padding:20px 0 0 80px; }
+.start .entries>ul.new { background:url(https://image.cailianpress.com/images/img_big/new_big.png) no-repeat 0 54px; background-size:16px; }
+.start .entries>ul li.time { position:absolute; left:0; font-weight:bold; font-size:15px; }
+.start .entries>ul li.recommend { color:#f00; }
+.start .entries>ul li.bold { font-weight:bold; }
+.start .entries>ul li.share { padding:12px 0 18px; float:right; }
+.start .entries>ul li.share a, .start .entries ul li.share span { float:left; line-height:20px; margin-left:50px; }
+.start .entries>ul li.share a.c1 { padding-left:22px; background:url(https://image.cailianpress.com/images/img_big/comment_big.png) no-repeat left center; background-size:16px; margin-left:0; }
+.start .entries>ul li.share a.c1 i{ font-style:normal; float:none!important;}
+.start .entries>ul li.share a.weibo { width:20px; height:20px; background:url(https://image.cailianpress.com/images/ico/weibo.png) no-repeat; margin-left:10px; }
+.start .entries>ul li.share a.space { width:20px; height:20px; background:url(https://image.cailianpress.com/images/ico/space.png) no-repeat; margin-left:10px; }
+.start .entries>ul li.comment { display:none; float:right; width:96%; padding:15px 2% 40px;position:relative; /* background:#f0f6fc */ }
+.start .entries>ul li.comment textarea { width:98%; padding:.5em 1%; height:4em; border:1px solid #A9A9A9; border-radius:.4em; box-shadow:inset 0 1px 3px rgba(0,0,0,0.2); }
+.start .entries>ul li.comment .submit { margin-top:0em; width:150px; margin-right:20px; border:1px solid #ddd; padding:.4em 0; box-shadow:0 1px 3px rgba(0,0,0,.15); border-radius:.4em; background:#c7000a; color:#fff;position: absolute;right: 0px;}
+.start .entries>ul li.comment .submit:hover { background:#c7000a; }
+.start .entries>ul li.comment .list ul { border-bottom:1px solid #eee; margin-bottom:1em; padding-bottom:.5em; }
+.start .entries>ul li.comment .list ul .date { float:right; }
+.start .entries>ul li.comment .list ul .name { font-weight:bold; padding-bottom:1em; }
+.start .entries>ul li.comment .list ul .avatar { float:left; width:50px; height:50px; margin-right:12px; background:url(https://image.cailianpress.com/images/avatar.jpg) no-repeat; }
+.start .entries>ul li.comment .list ul .avatar img { width:50px; height:50px; }
+@media (max-width:800px) {
+	.start .topic { text-align:right; padding:0 1em; }
+	.start .entries { padding-left:0; }
+	.start .entries ul { padding-left:0; padding-right:1em; background:none; }	
+	.start .entries ul.new li.content {  color:red; font-weight:bold; }
+	.start .entries ul li.mob-time { display:inline-block; margin-top:12px; font-weight:bold; }	
+	.start .more { padding:0; padding-top:20px; }
+}
+div.more_comment a {background: #f3f6f9 none repeat scroll 0 0;color: #36a;display: inline-block;line-height: 35px;padding: 0 80px;}
+div.more_comment {
+    text-align: center;
+}
+
+.comment .code-img{
+    position:absolute;
+    right:300px;
+    width:150px;
+    height:30px;
+}
+
+.comment .code-input{
+    width:80px;
+    height:30px;
+    position: absolute;
+    right: 188px;
+    margin-right:0px;
+    border-radius:3px;
+    border:solid 1px #a9a9a9;
+}
+.article_relative{
+	margin-top:20px;
+	overflow:hidden;
+}
+.article_relative .relative_titile{
+	display: block;
+    color: #5494cf;
+    text-decoration: none;
+    margin-bottom: 5px;
+    height: 20px;
+    line-height: 20px;
+    font-size: 14px;
+	text-overflow: ellipsis;
+    word-wrap: nowrap;
+    white-space: nowrap;
+	overflow:hidden;
+}
+.article_relative .relative_titile:hover{
+    color: #5494cf;
+    text-decoration:underline;
+}
+</style> 
+ </head> 
+ <body id="index"> 
+  <div class="header">
+   <ul> 
+    <li class="logo"><a href="/"></a></li> 
+    <li class="menu"> <a href="/" class="index on">电报</a> <a href="http://www.cailianpress.com/reference" class="morning ">内参</a> <a href="http://www.cailianpress.com/subject.html" class="subject ">题材</a> <a href="http://www.cailianpress.com/company.html" class="company ">公司</a> <a href="http://www.cailianpress.com/depth.html" class="depth ">深度</a> <a href="http://www.cailianpress.com/finance.html" class="finance ">理财<i></i></a> 
+     <!-- <a href="http://www.cailianpress.com/news.html" class="news ">年会</a> --> 
+     <!--
+    <a href="/event.html" class="event {if $current==event || $current==3}on{/if}">时间轴</a>
+    <a href="/monitor.html" class="monitor {if $current==monitor || $current==-3}on{/if} pconly">监控</a>
+    --> 
+     <!-- <a href="http://www.myhongzuan.com/" target="_blank" class="pconly">社区</a> --> <a href="http://www.cailianpress.com/download.html" class="contact ">客户端</a> <a href="http://www.cailianpress.com/contact.html" class="contact ">我们</a> </li> 
+    <li class="search  pconly"> <i></i> 
+     <form method="get" action="http://www.cailianpress.com/search.html"> 
+      <input id="keyword" name="keyword" class="keywrod" value="" autocomplete="off" /> 
+     </form> </li> 
+    <li class="account pconly" id="account"> <a href="javascript:;" onclick="Mod.register()">新用户注册</a> <a href="javascript:;" onclick="Mod.login()"> <i class="login"></i>用户登录 </a> </li> 
+   </ul> 
+  </div> 
+  <div class="banner AD-1" style="width:1200px;height:150px"> 
+  </div> 
+  <div class="main"> 
+   <div class="start"> 
+    <!-- 滚动 START --> 
+    <div class="topic" style="border-top:1px solid #eee;"> 
+     <span id="sound" class="sound pconly"><a href="javascript:;" class="on">新消息提醒</a></span> 
+     <span class="date">2017-03-26</span>
+     <strong>小时即时电报</strong> 
+    </div> 
+    <div class="entries" id="entries"> 
+     <ul class="fix"> 
+      <li class="time pconly">22:26</li> 
+      <li class="content  "> 【安信策略：A股所处的宏观环境很不错】财联社26日讯，安信策略最新周报指出：1、A股市场目前属于高速扩容阶段，在这个阶段相当多缺乏特色的公司可能会逐渐失去投资者的关注，面临流动性的下降，而投资者则将更进一步集中交易关注度高的公司；2、A股市场中期上行风险要大于下行风险，因为风险偏好不在市场顶部水平，而是存在较大扩张空间；3、在中国目前的企业盈利复苏过程中，利率有所上升实际上是一个健康良好的宏观环境的体现，关注企业资产周转率底部回升。 </li> 
+      <li class="share" articleid="150224"> <a class="c1 opening" deny_comment="0" href="javascript:;">评论 <i class="pnum" style="float:right">2</i></a> <a class="c2 reading" href="javascript:;">已阅 656894</a> <span class="pconly">分享到</span> <a class="weibo pconly" href="/single/150224.html"></a> <a class="space pconly" href="/single/150224.html"></a> </li> 
+      <li class="comment" articleid="150224"> 
+       <div class="list"> 
+       </div> <textarea class="content" name="content"></textarea> 
+       <div class="error"></div> 
+       <div class="code-img"></div> <input type="text" name="captcha" class="code-input" /> <button class="submit" type="submit">发布评论</button> </li> 
+      <li class="mob-time hidden">22:26</li> 
+     </ul> 
+     <script type="text/javascript">
+					 	F.ids.push("150224"); 
+				    </script> 
+     <ul class="fix"> 
+      <li class="time pconly">21:19</li> 
+      <li class="content  "> 【商务部近期将通过出台《汽车销售管理办法》等办法促进汽车消费】财联社26日讯，针对今年前2个月汽车销售回落的态势，商务部近期将通过出台《汽车销售管理办法》等办法，进一步促进汽车消费市场发展。（央广） </li> 
+      <li class="share" articleid="150221"> <a class="c1 opening" deny_comment="0" href="javascript:;">评论 <i class="pnum" style="float:right">6</i></a> <a class="c2 reading" href="javascript:;">已阅 961247</a> <span class="pconly">分享到</span> <a class="weibo pconly" href="/single/150221.html"></a> <a class="space pconly" href="/single/150221.html"></a> </li> 
+      <li class="comment" articleid="150221"> 
+       <div class="list"> 
+       </div> <textarea class="content" name="content"></textarea> 
+       <div class="error"></div> 
+       <div class="code-img"></div> <input type="text" name="captcha" class="code-input" /> <button class="submit" type="submit">发布评论</button> </li> 
+      <li class="mob-time hidden">21:19</li> 
+     </ul> 
+     <script type="text/javascript">
+					 	F.ids.push("150221"); 
+				    </script> 
+     <ul class="fix"> 
+      <li class="time pconly">20:45</li> 
+      <li class="content  "> 【公安部证券犯罪办案基地（辽宁）正式揭牌】财联社26日讯，公安部证券犯罪办案基地、辽宁省公安厅驻辽宁证监局执法协作办公室正式揭牌。小财注：2016年11月28日，公安部在全国确定了包括辽宁省公安厅经侦总队在内的五个证券犯罪办案基地，专门承办特别重大的证券犯罪案件，提升对专业领域经济犯罪活动的集群打击力度。 </li> 
+      <li class="share" articleid="150217"> <a class="c1 opening" deny_comment="0" href="javascript:;">评论 <i class="pnum" style="float:right">10</i></a> <a class="c2 reading" href="javascript:;">已阅 1119341</a> <span class="pconly">分享到</span> <a class="weibo pconly" href="/single/150217.html"></a> <a class="space pconly" href="/single/150217.html"></a> </li> 
+      <li class="comment" articleid="150217"> 
+       <div class="list"> 
+       </div> <textarea class="content" name="content"></textarea> 
+       <div class="error"></div> 
+       <div class="code-img"></div> <input type="text" name="captcha" class="code-input" /> <button class="submit" type="submit">发布评论</button> </li> 
+      <li class="mob-time hidden">20:45</li> 
+     </ul> 
+     <script type="text/javascript">
+					 	F.ids.push("150217"); 
+				    </script> 
+     <ul class="fix"> 
+      <li class="time pconly">20:35</li> 
+      <li class="content  "> 【已购学区房或贬值 北京教委夜推划片新政】财联社26日讯，为抑制学区房价格畸高，北京昨日深夜又开出“猛药”。记者获知，北京市教委25日深夜向包括《北京青年报》在内的部分媒体披露，2017年，北京幼升小将继续扩大多校划片，并将通过“随机摇号”的方式确定具体学校学位。（财新） </li> 
+      <li class="share" articleid="150216"> <a class="c1 opening" deny_comment="0" href="javascript:;">评论 <i class="pnum" style="float:right">31</i></a> <a class="c2 reading" href="javascript:;">已阅 1179281</a> <span class="pconly">分享到</span> <a class="weibo pconly" href="/single/150216.html"></a> <a class="space pconly" href="/single/150216.html"></a> </li> 
+      <li class="comment" articleid="150216"> 
+       <div class="list"> 
+       </div> <textarea class="content" name="content"></textarea> 
+       <div class="error"></div> 
+       <div class="code-img"></div> <input type="text" name="captcha" class="code-input" /> <button class="submit" type="submit">发布评论</button> </li> 
+      <li class="mob-time hidden">20:35</li> 
+     </ul> 
+     <script type="text/javascript">
+					 	F.ids.push("150216"); 
+				    </script> 
+     <ul class="fix"> 
+      <li class="time pconly">20:29</li> 
+      <li class="content  "> 【挖掘机销量创新高 工程机械行业持续复苏】财联社26日讯，据中国工程机械协会近期信息，2017年1-2月，挖掘机分会统计的26家主机制造企业挖掘机销量共计19077台（含出口），同比增长188.9%。其中1月销量4547台，同比增长54%；2月销量14540台，同比增长298%，增速达单月历史最高水平。随着基建、PPP投资的带动的需求增长以及机械更新需求，预计工程机械行业将持续复苏。（证券时报） </li> 
+      <li class="share" articleid="150214"> <a class="c1 opening" deny_comment="0" href="javascript:;">评论 <i class="pnum" style="float:right">1</i></a> <a class="c2 reading" href="javascript:;">已阅 1192696</a> <span class="pconly">分享到</span> <a class="weibo pconly" href="/single/150214.html"></a> <a class="space pconly" href="/single/150214.html"></a> </li> 
+      <li class="comment" articleid="150214"> 
+       <div class="list"> 
+       </div> <textarea class="content" name="content"></textarea> 
+       <div class="error"></div> 
+       <div class="code-img"></div> <input type="text" name="captcha" class="code-input" /> <button class="submit" type="submit">发布评论</button> </li> 
+      <li class="mob-time hidden">20:29</li> 
+     </ul> 
+     <script type="text/javascript">
+					 	F.ids.push("150214"); 
+				    </script> 
+     <ul class="fix"> 
+      <li class="time pconly">20:20</li> 
+      <li class="content  "> 【金固股份：与元征科技战略合作 开拓汽车后市场】财联社26日讯，金固股份晚间公告，公司全资子公司特维轮网络与元征科技（02488.HK）签署战略合作协议书，进一步开拓汽车后市场。协议约定，元征科技作为硬件、方案供应商，提供产品及相应服务；特维轮网络作为后市场互联网平台服务商，打造智慧门店生态系统；双方共同为后市场门店及用户提供完整的经营及用车解决方案。元征科技系国内最早致力于汽车诊断、检测、养护产品研发、生产和销售的高科技企业。 </li> 
+      <li class="share" articleid="150213"> <a class="c1 opening" deny_comment="0" href="javascript:;">评论 <i class="pnum" style="float:right">0</i></a> <a class="c2 reading" href="javascript:;">已阅 1235359</a> <span class="pconly">分享到</span> <a class="weibo pconly" href="/single/150213.html"></a> <a class="space pconly" href="/single/150213.html"></a> </li> 
+      <li class="comment" articleid="150213"> 
+       <div class="list"> 
+       </div> <textarea class="content" name="content"></textarea> 
+       <div class="error"></div> 
+       <div class="code-img"></div> <input type="text" name="captcha" class="code-input" /> <button class="submit" type="submit">发布评论</button> </li> 
+      <li class="mob-time hidden">20:20</li> 
+     </ul> 
+     <script type="text/javascript">
+					 	F.ids.push("150213"); 
+				    </script> 
+     <ul class="fix"> 
+      <li class="time pconly">20:17</li> 
+      <li class="content  "> 【德扑人工智能程序下个月来华人机大战】财联社26日讯，卡耐基梅隆大学开发的德州扑克人工智能程序Libratus将在4月来到中国，与中国德扑玩家进行“人机大战”。这款CMU开发的程序将以“冷扑大师”的译名挑战中国德扑高手，而这场挑战赛的发起者，正是CMU校友、创新工场创始人李开复。 </li> 
+      <li class="share" articleid="150212"> <a class="c1 opening" deny_comment="0" href="javascript:;">评论 <i class="pnum" style="float:right">1</i></a> <a class="c2 reading" href="javascript:;">已阅 1251136</a> <span class="pconly">分享到</span> <a class="weibo pconly" href="/single/150212.html"></a> <a class="space pconly" href="/single/150212.html"></a> </li> 
+      <li class="comment" articleid="150212"> 
+       <div class="list"> 
+       </div> <textarea class="content" name="content"></textarea> 
+       <div class="error"></div> 
+       <div class="code-img"></div> <input type="text" name="captcha" class="code-input" /> <button class="submit" type="submit">发布评论</button> </li> 
+      <li class="mob-time hidden">20:17</li> 
+     </ul> 
+     <script type="text/javascript">
+					 	F.ids.push("150212"); 
+				    </script> 
+     <ul class="fix"> 
+      <li class="time pconly">20:10</li> 
+      <li class="content  "> 【农垦改革推进会：加快推进垦区集团化改革步伐】财联社26日讯，农业部在海口市召开深化农垦改革现场推进会。会议强调，农垦改革的大政方针已定，推进农垦改革，地方要摆在突出位置。会议要求，要加快推进土地确权登记发证；要加快推进垦区集团化改革步伐，积极推进组建专业化、区域化的现代农业企业集团，做强做优做大农垦企业。（新华社） </li> 
+      <li class="share" articleid="150211"> <a class="c1 opening" deny_comment="0" href="javascript:;">评论 <i class="pnum" style="float:right">0</i></a> <a class="c2 reading" href="javascript:;">已阅 1284348</a> <span class="pconly">分享到</span> <a class="weibo pconly" href="/single/150211.html"></a> <a class="space pconly" href="/single/150211.html"></a> </li> 
+      <li class="comment" articleid="150211"> 
+       <div class="list"> 
+       </div> <textarea class="content" name="content"></textarea> 
+       <div class="error"></div> 
+       <div class="code-img"></div> <input type="text" name="captcha" class="code-input" /> <button class="submit" type="submit">发布评论</button> </li> 
+      <li class="mob-time hidden">20:10</li> 
+     </ul> 
+     <script type="text/javascript">
+					 	F.ids.push("150211"); 
+				    </script> 
+     <ul class="fix"> 
+      <li class="time pconly">20:09</li> 
+      <li class="content  "> 【华西股份：超12亿入股联储证券 揽入14.85%股权】财联社26日讯，华西股份3月26日晚间公告，联储证券拟新增注册资本12亿元，公司拟以现金12.54亿元认购联储证券此次增资中的3.8亿元注册资本，其中3.8亿元计入实收资本，8.74亿元计入资本公积金，由此获得此次增资后联储证券14.85%的股权。联储证券是一家综合性券商，目前已成为一家全牌照券商。 </li> 
+      <li class="share" articleid="150210"> <a class="c1 opening" deny_comment="0" href="javascript:;">评论 <i class="pnum" style="float:right">0</i></a> <a class="c2 reading" href="javascript:;">已阅 1290995</a> <span class="pconly">分享到</span> <a class="weibo pconly" href="/single/150210.html"></a> <a class="space pconly" href="/single/150210.html"></a> </li> 
+      <li class="comment" articleid="150210"> 
+       <div class="list"> 
+       </div> <textarea class="content" name="content"></textarea> 
+       <div class="error"></div> 
+       <div class="code-img"></div> <input type="text" name="captcha" class="code-input" /> <button class="submit" type="submit">发布评论</button> </li> 
+      <li class="mob-time hidden">20:09</li> 
+     </ul> 
+     <script type="text/javascript">
+					 	F.ids.push("150210"); 
+				    </script> 
+     <ul class="fix"> 
+      <li class="time pconly">20:04</li> 
+      <li class="content  "> 【指纹识别和图像传感器有望持续增长】财联社26日讯，日前从2017中国半导体市场年会上获悉，虽然手机芯片市场增幅放缓，但指纹识别及触控芯片、图像传感器等产品仍旧保持稳定增长势头。 </li> 
+      <li class="share" articleid="150209"> <a class="c1 opening" deny_comment="0" href="javascript:;">评论 <i class="pnum" style="float:right">0</i></a> <a class="c2 reading" href="javascript:;">已阅 1311102</a> <span class="pconly">分享到</span> <a class="weibo pconly" href="/single/150209.html"></a> <a class="space pconly" href="/single/150209.html"></a> </li> 
+      <li class="comment" articleid="150209"> 
+       <div class="list"> 
+       </div> <textarea class="content" name="content"></textarea> 
+       <div class="error"></div> 
+       <div class="code-img"></div> <input type="text" name="captcha" class="code-input" /> <button class="submit" type="submit">发布评论</button> </li> 
+      <li class="mob-time hidden">20:04</li> 
+     </ul> 
+     <script type="text/javascript">
+					 	F.ids.push("150209"); 
+				    </script> 
+     <ul class="fix"> 
+      <li class="time pconly">19:55</li> 
+      <li class="content  "> 【康达尔：终止收购澳大利亚牛油果种植业务】财联社26日讯，康达尔晚间公告，因与交易对方在核心条款上未能达成一致，公司将终止重大资产重组事项。此次重组公司原拟收购位于西澳大利亚的由境外自然人Delroy家族人士作为实控人通过信托安排实际控制的与鳄梨（又称牛油果）种植业务相关的资产及管理公司，预计交易金额不超过10亿元。 </li> 
+      <li class="share" articleid="150208"> <a class="c1 opening" deny_comment="0" href="javascript:;">评论 <i class="pnum" style="float:right">2</i></a> <a class="c2 reading" href="javascript:;">已阅 1023641</a> <span class="pconly">分享到</span> <a class="weibo pconly" href="/single/150208.html"></a> <a class="space pconly" href="/single/150208.html"></a> </li> 
+      <li class="comment" articleid="150208"> 
+       <div class="list"> 
+       </div> <textarea class="content" name="content"></textarea> 
+       <div class="error"></div> 
+       <div class="code-img"></div> <input type="text" name="captcha" class="code-input" /> <button class="submit" type="submit">发布评论</button> </li> 
+      <li class="mob-time hidden">19:55</li> 
+     </ul> 
+     <script type="text/javascript">
+					 	F.ids.push("150208"); 
+				    </script> 
+     <ul class="fix"> 
+      <li class="time pconly">19:46</li> 
+      <li class="content  "> 【兄弟科技：获实控人增持2000万股】财联社26日讯，兄弟科技晚间公告，公司控股股东、实控人钱志达基于对公司未来发展的坚定信心，于3月24日通过大宗交易增持公司股票2000万股，占公司股份总数的3.69%，且不排除在未来6个月内以自有资金继续增持。 </li> 
+      <li class="share" articleid="150207"> <a class="c1 opening" deny_comment="0" href="javascript:;">评论 <i class="pnum" style="float:right">0</i></a> <a class="c2 reading" href="javascript:;">已阅 886705</a> <span class="pconly">分享到</span> <a class="weibo pconly" href="/single/150207.html"></a> <a class="space pconly" href="/single/150207.html"></a> </li> 
+      <li class="comment" articleid="150207"> 
+       <div class="list"> 
+       </div> <textarea class="content" name="content"></textarea> 
+       <div class="error"></div> 
+       <div class="code-img"></div> <input type="text" name="captcha" class="code-input" /> <button class="submit" type="submit">发布评论</button> </li> 
+      <li class="mob-time hidden">19:46</li> 
+     </ul> 
+     <script type="text/javascript">
+					 	F.ids.push("150207"); 
+				    </script> 
+     <ul class="fix"> 
+      <li class="time pconly">19:31</li> 
+      <li class="content  "> 财联社26日讯，盐湖股份拟10转10，宣亚国际拟10送5派5。 </li> 
+      <li class="share" articleid="150206"> <a class="c1 opening" deny_comment="0" href="javascript:;">评论 <i class="pnum" style="float:right">0</i></a> <a class="c2 reading" href="javascript:;">已阅 878965</a> <span class="pconly">分享到</span> <a class="weibo pconly" href="/single/150206.html"></a> <a class="space pconly" href="/single/150206.html"></a> </li> 
+      <li class="comment" articleid="150206"> 
+       <div class="list"> 
+       </div> <textarea class="content" name="content"></textarea> 
+       <div class="error"></div> 
+       <div class="code-img"></div> <input type="text" name="captcha" class="code-input" /> <button class="submit" type="submit">发布评论</button> </li> 
+      <li class="mob-time hidden">19:31</li> 
+     </ul> 
+     <script type="text/javascript">
+					 	F.ids.push("150206"); 
+				    </script> 
+     <ul class="fix"> 
+      <li class="time pconly">19:30</li> 
+      <li class="content  "> 【3月26日周日《新闻联播》要闻十条】财联社26日讯，1、辽宁：加快推进供给侧改革，振兴实体经济；2、李克强与澳大利亚总理共同观看澳式足球；3、香港特区行政长官选举结束，林郑月娥当选第五任行政长官人选；4、政府25亿买服务，社工让社区更美好；5、农业部：全国农垦改革进展顺利；6、数万民众在伦敦示威游行反对“脱欧”；7、美军承认空袭摩苏尔，有无误炸待查；8、土耳其或公投是否继续入欧盟谈判；9、古巴国家电视台开办首个新闻频道；10、美国俄亥俄州发生枪击事件。 </li> 
+      <li class="share" articleid="150205"> <a class="c1 opening" deny_comment="1" href="javascript:;">评论 <i class="pnum" style="float:right">0</i></a> <a class="c2 reading" href="javascript:;">已阅 889723</a> <span class="pconly">分享到</span> <a class="weibo pconly" href="/single/150205.html"></a> <a class="space pconly" href="/single/150205.html"></a> </li> 
+      <li class="comment" articleid="150205"> 
+       <div class="list"> 
+       </div> <textarea class="content" name="content"></textarea> 
+       <div class="error"></div> 
+       <div class="code-img"></div> <input type="text" name="captcha" class="code-input" /> <button class="submit" type="submit">发布评论</button> </li> 
+      <li class="mob-time hidden">19:30</li> 
+     </ul> 
+     <script type="text/javascript">
+					 	F.ids.push("150205"); 
+				    </script> 
+     <ul class="fix"> 
+      <li class="time pconly">19:20</li> 
+      <li class="content recommend "> 【北京商住限购“商改住”限购 在建在售“商办”不得卖个人】财联社26日讯，北京市3月26日发布《关于进一步加强商业、办公类项目管理的公告》，公告称，开发企业在建（含在售）商办类项目，销售对象应当是合法登记的企事业单位、社会组织。购买商办类项目的企事业单位、社会组织不得将房屋作为居住使用，再次出售时，应当出售给企事业单位、社会组织。（北京卫视） </li> 
+      <li class="share" articleid="150204"> <a class="c1 opening" deny_comment="0" href="javascript:;">评论 <i class="pnum" style="float:right">11</i></a> <a class="c2 reading" href="javascript:;">已阅 937925</a> <span class="pconly">分享到</span> <a class="weibo pconly" href="/single/150204.html"></a> <a class="space pconly" href="/single/150204.html"></a> </li> 
+      <li class="comment" articleid="150204"> 
+       <div class="list"> 
+       </div> <textarea class="content" name="content"></textarea> 
+       <div class="error"></div> 
+       <div class="code-img"></div> <input type="text" name="captcha" class="code-input" /> <button class="submit" type="submit">发布评论</button> </li> 
+      <li class="mob-time hidden">19:20</li> 
+     </ul> 
+     <script type="text/javascript">
+					 	F.ids.push("150204"); 
+				    </script> 
+     <ul class="fix"> 
+      <li class="time pconly">18:19</li> 
+      <li class="content  "> 【万科：对国家调控楼市“感到欣慰” 计提12城楼盘跌价准备】财联社26日讯，万科对国家调控楼市“感到欣慰”，计提12城楼盘跌价准备。2016 年10月，国家对部分热点城市出台针对性的调控政策时，我们有充分的理由感到欣慰，这一次调控是及时的，也是完全必要的。让过热的市场适度降温，对稳健经营、有志于长期发展的企业来说，无疑是一个利好。报告期内，项目存货跌价准备为13.8亿元，较2015年底增长82.3%，原因在于部分城市房价、地价持续调整、公司基于审慎的财务策略，对仍存在风险的项目计提存货跌价准备。 </li> 
+      <li class="share" articleid="150203"> <a class="c1 opening" deny_comment="0" href="javascript:;">评论 <i class="pnum" style="float:right">21</i></a> <a class="c2 reading" href="javascript:;">已阅 1142455</a> <span class="pconly">分享到</span> <a class="weibo pconly" href="/single/150203.html"></a> <a class="space pconly" href="/single/150203.html"></a> </li> 
+      <li class="comment" articleid="150203"> 
+       <div class="list"> 
+       </div> <textarea class="content" name="content"></textarea> 
+       <div class="error"></div> 
+       <div class="code-img"></div> <input type="text" name="captcha" class="code-input" /> <button class="submit" type="submit">发布评论</button> </li> 
+      <li class="mob-time hidden">18:19</li> 
+     </ul> 
+     <script type="text/javascript">
+					 	F.ids.push("150203"); 
+				    </script> 
+     <ul class="fix"> 
+      <li class="time pconly">18:16</li> 
+      <li class="content  "> 【云南锗业：子公司砷化镓项目取得安全生产许可证 可正式投产】财联社26日讯，云南锗业晚间公告，控股子公司云南鑫耀公司近日取得了安全生产许可证。根据相关规定，此次取得安全生产许可证后，鑫耀公司负责实施的“砷化镓单晶材料产业化建设项目”即可投入正式生产。 </li> 
+      <li class="share" articleid="150202"> <a class="c1 opening" deny_comment="0" href="javascript:;">评论 <i class="pnum" style="float:right">0</i></a> <a class="c2 reading" href="javascript:;">已阅 1130421</a> <span class="pconly">分享到</span> <a class="weibo pconly" href="/single/150202.html"></a> <a class="space pconly" href="/single/150202.html"></a> </li> 
+      <li class="comment" articleid="150202"> 
+       <div class="list"> 
+       </div> <textarea class="content" name="content"></textarea> 
+       <div class="error"></div> 
+       <div class="code-img"></div> <input type="text" name="captcha" class="code-input" /> <button class="submit" type="submit">发布评论</button> </li> 
+      <li class="mob-time hidden">18:16</li> 
+     </ul> 
+     <script type="text/javascript">
+					 	F.ids.push("150202"); 
+				    </script> 
+     <ul class="fix"> 
+      <li class="time pconly">18:12</li> 
+      <li class="content  "> 【兑奖了：达安股份中签号出炉 中签号码共38160个】财联社26日讯，达安股份中签号出炉，中签号码共38160个。末“4”位数0111,5111;末“5”位数39630,89630,02356;末“6”位数718444,918444,118444,318444,518444,582051,末“7”位数 0371695;末“8”位数40694344,60694344,80694344,00694344,20694344,78214490;末“9”位数063096414。 </li> 
+      <li class="share" articleid="150201"> <a class="c1 opening" deny_comment="0" href="javascript:;">评论 <i class="pnum" style="float:right">2</i></a> <a class="c2 reading" href="javascript:;">已阅 1137765</a> <span class="pconly">分享到</span> <a class="weibo pconly" href="/single/150201.html"></a> <a class="space pconly" href="/single/150201.html"></a> </li> 
+      <li class="comment" articleid="150201"> 
+       <div class="list"> 
+       </div> <textarea class="content" name="content"></textarea> 
+       <div class="error"></div> 
+       <div class="code-img"></div> <input type="text" name="captcha" class="code-input" /> <button class="submit" type="submit">发布评论</button> </li> 
+      <li class="mob-time hidden">18:12</li> 
+     </ul> 
+     <script type="text/javascript">
+					 	F.ids.push("150201"); 
+				    </script> 
+     <ul class="fix"> 
+      <li class="time pconly">18:04</li> 
+      <li class="content  "> 【万科董事会决议未提换届 称将于明日回应】财联社26日讯，万科的董事会决议公告显示，其在24日会议上并未审议董事会换届选举方案以及2016年度股东大会的议案。不过，其在24日会议上审议并通过《关于延长第十七届董事会第九次会议相关授权事项有效期的议案》。从万科方面获悉，《议案》具体内容并不涉及董事会换届相关内容。万科将于明日(3月27日)举行业绩推介会。万科管理层会对董事会换届相关问题给予回应。（网易） </li> 
+      <li class="share" articleid="150200"> <a class="c1 opening" deny_comment="0" href="javascript:;">评论 <i class="pnum" style="float:right">3</i></a> <a class="c2 reading" href="javascript:;">已阅 1164069</a> <span class="pconly">分享到</span> <a class="weibo pconly" href="/single/150200.html"></a> <a class="space pconly" href="/single/150200.html"></a> </li> 
+      <li class="comment" articleid="150200"> 
+       <div class="list"> 
+       </div> <textarea class="content" name="content"></textarea> 
+       <div class="error"></div> 
+       <div class="code-img"></div> <input type="text" name="captcha" class="code-input" /> <button class="submit" type="submit">发布评论</button> </li> 
+      <li class="mob-time hidden">18:04</li> 
+     </ul> 
+     <script type="text/javascript">
+					 	F.ids.push("150200"); 
+				    </script> 
+     <script type="text/javascript">
+			      		F.last_ctime = '1490522355';
+			      	</script> 
+     <ul class="fix"> 
+      <li class="time pconly">17:59</li> 
+      <li class="content  "> 【海通荀玉根：基本面不断改善 A股坚不可摧】财联社26日讯，海通荀玉根团队今日发布研报，认为A股目前坚不可摧，进入二维投资时代：主题周期（一带一路、国改）+消费升级+价值成长。从上证综指月振幅看，去年12月至今年3月，月振幅分别为6.5%、4.2%、4.2%、2.5%，远低于2010年以来历史均值的9.4%，处于历史最低区间。回顾历史，过去阶段性振幅收窄最终都向上突破。 </li> 
+      <li class="share" articleid="150199"> <a class="c1 opening" deny_comment="0" href="javascript:;">评论 <i class="pnum" style="float:right">2</i></a> <a class="c2 reading" href="javascript:;">已阅 1173193</a> <span class="pconly">分享到</span> <a class="weibo pconly" href="/single/150199.html"></a> <a class="space pconly" href="/single/150199.html"></a> </li> 
+      <li class="comment" articleid="150199"> 
+       <div class="list"> 
+       </div> <textarea class="content" name="content"></textarea> 
+       <div class="error"></div> 
+       <div class="code-img"></div> <input type="text" name="captcha" class="code-input" /> <button class="submit" type="submit">发布评论</button> </li> 
+      <li class="mob-time hidden">17:59</li> 
+     </ul> 
+     <script type="text/javascript">
+					 	F.ids.push("150199"); 
+				    </script> 
+    </div> 
+    <div class="more" id="more"> 
+     <a href="javascript:;">加载更多内容</a> 
+    </div> 
+    <!-- 滚动 END --> 
+   </div> 
+   <div class="gaper"></div> 
+   <div class="sider">
+    <div class="topic">
+     主要指数
+    </div> 
+    <div class="box market" id="market"></div> 
+    <ul class="box mt20" style="border-bottom:none;"> 
+     <li class="subject" model="plateRank">板块排行榜</li>
+     <li class="plateRank content"></li> 
+     <li class="subject" model="stockRank">沪深排行榜</li>
+     <li class="content"></li> 
+     <!-- li class="subject" model="stockDownRank">沪深跌幅榜</li><li class="content"></li --> 
+     <li class="subject" model="stockRank">成交量排行</li>
+     <li class="content"></li> 
+     <li class="subject" model="stockRank">成交额排行</li>
+     <li class="content"></li> 
+    </ul> 
+    <div class="topic mt20">
+     重磅推荐
+    </div> 
+    <div class="box recommend" id="recommend"></div> 
+    <div class="box mt20 ad AD-3"></div> 
+    <div class="box sns"> 
+     <ul class="r1">
+      <li class="c1"><img src="https://image.cailianpress.com/images/sns.weixin.png" /></li>
+      <li class="c2"><a href="http://weibo.com/u/2868676035" target="_blank"><img src="https://image.cailianpress.com/images/sns.weibo.png" /></a></li>
+     </ul> 
+     <ul class="r2">
+      <li class="c1">微信公众号</li>
+      <li class="c2"><a href="http://weibo.com/u/2868676035" target="_blank">关注微博</a></li>
+     </ul> 
+    </div> 
+   </div> 
+  </div> 
+  <div class="footer">
+   <ul class="pconly"> 
+    <li class="friend"> <a href="http://www.cnstock.com/" class="first" target="_blank">中国证券网</a> <a href="http://www.p5w.net/" class="" target="_blank">全景网</a> <a href="http://www.secutimes.com/" class="" target="_blank">证券时报</a> <a href="http://www.nbd.com.cn/" class="" target="_blank">每日经济新闻</a> <a href="http://www.szse.cn/" class="" target="_blank">深圳交易所</a> <a href="http://www.cb.com.cn/" class="" target="_blank">中国经营报</a> <a href="http://www.eeo.com.cn/" class="" target="_blank">经济观察报</a> <a href="http://www.iceo.com.cn/" class="" target="_blank">中国企业家</a> <a href="http://www.chinatimes.cc/" class="" target="_blank">华夏时报</a> <a href="http://www.ce.cn/" class="" target="_blank">中国经济网</a> <a href="http://www.21jingji.com" class="" target="_blank">21经济网</a> <a href="http://www.sse.com.cn/" class="" target="_blank">上海证券交易所</a> <br /> <a href="http://www.yicai.com/" class="first" target="_blank">第一财经网</a> <a href="http://www.jrj.com.cn/" class="" target="_blank">金融界</a> <a href="http://www.siswin.com/" class="" target="_blank">汇智赢家</a> <a href="http://www.cailianpress.com/download.html" class="" target="_blank">财联社APP</a> <a href="http://www.cailianpress.com/pc_download.html" class="" target="_blank">财联社pc客户端</a> <a href="http://www.cailianpress.com/roll.html" class="" target="_blank">财联社快讯</a> <a href="http://7tin.cn/" class="" target="_blank">青亭网</a> <a href="http://www.fx678.com/" class="" target="_blank">汇通网</a> <a href="http://www.pedata.cn/" class="" target="_blank">清科私募通</a> <a href="http://www.ccstock.cn/" class="" target="_blank">证券日报</a> </li> 
+    <li class="helper"><a href="http://www.cailianpress.com/contact">关于我们</a> | <a href="http://www.cailianpress.com/contact">版权声明</a> | <a href="http://www.cailianpress.com/contact">加入我们</a> | <a href="http://www.cailianpress.com/contact">联系方式</a> | <a href="http://www.cailianpress.com/feedback">投诉举报</a></li> 
+    <li class="copyright">财联社 &copy;2016 &nbsp; 上海正见文化传播有限公司 版权所有 <a href="http://www.miitbeian.gov.cn/" target="_blank">沪ICP备13048160号-15</a></li> 
+   </ul> 
+   <audio id="audio" src="https://image.cailianpress.com/images/news.wav"></audio> 
+   <iframe name="iframe" id="iframe" class="iframe" width="0" height="0" frameborder="0" style="display:none;"></iframe> 
+   <div id="floating" class="floating pconly"> 
+    <a href="/" class="new">有 <strong class="red"></strong> 条新电报</a> 
+    <a href="#" class="top"></a> 
+   </div> 
+   <div class="m-header"> 
+    <a href="http://www.cailianpress.com/download" class="download" style="line-height:200%">下载 APP</a> 
+    <a href="javascript:;" class="menu"><i></i></a> 
+    <a href="/" class="logo"><span></span>财联社</a> 
+   </div> 
+   <div class="m-footer">
+    <ul class="pinglun">
+     <li><input class="i" /></li>
+     <li><a href="javascript:;">评论</a></li>
+    </ul>
+   </div> 
+   <div class="m-mask"></div> 
+   <div class="m-menu"> 
+    <a href="http://www.cailianpress.com/" class="index on">电报</a> 
+    <a href="http://www.cailianpress.com/subject.html" class="subject ">题材</a> 
+    <a href="http://www.cailianpress.com/depth.html" class="depth ">深度</a> 
+    <a href="http://www.cailianpress.com/morning.html" class="morning ">早报</a> 
+    <a href="http://www.cailianpress.com/contact.html" class="contact ">我们</a> 
+    <!--
+  <a href="/download.html" class="download {if $current==download}on{/if}">下载</a>
+  --> 
+   </div> 
+  </div>   
+ </body>
+</html>

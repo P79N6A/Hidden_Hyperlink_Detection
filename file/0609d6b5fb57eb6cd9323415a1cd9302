@@ -1,0 +1,820 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="keywords" content="" />
+<title>桂林市第十八中学</title>
+<link href="/images/css.css" rel="stylesheet" type="text/css" />
+</head>
+<script language="javascript" type="text/javascript" src="/js/common.js"></script>
+<SCRIPT language=JavaScript>
+function show(strtype){document.getElementById(strtype).style.display = "block";}
+function hide(strtype){document.getElementById(strtype).style.display = "none";} 
+</SCRIPT>
+<script type="text/javascript">
+	<!-- 
+    function ShowTabs(ID) {
+        for (i = 0; i < 4; i++) {
+            if (i == ID) {
+                
+                document.getElementById("adlmbg" + i).style.display = "";
+            }
+            else {
+                
+                document.getElementById("adlmbg" + i).style.display = "none";
+            }
+        }
+    }
+	//-->
+</script>
+<script language="JavaScript" type="text/javascript" >
+function showCurrentDiv(num)
+{
+    var divNum = document.getElementById('xiala').getElementsByTagName('div');
+	for (var i=0;i<divNum.length ;i++ )
+	{   
+	    divNum[i].style.display = 'none';
+	}
+    divNum[num].style.display = 'block';
+}
+</script>
+
+
+
+<body>
+
+ <div id="top">
+  
+      <div id="LoginFrom" style="display: none" class="Login_ajax" onkeypress="javascript:return DefaultButton(event, 'BtnLogOn')">
+  <script type="text/javascript" language="JavaScript">
+  function RefreshValdisplayDateCodeImage(ValdisplayDateCodeImageControl){
+      ValdisplayDateCodeImageControl.src = ValdisplayDateCodeImageControl.src + '?code=' + RandomNum(10);
+  }
+
+  function RandomNum(n){
+      var rnd = '';
+      for (var i = 0; i < n; i++) 
+          rnd += Math.floor(Math.random() * 10);
+      return rnd;
+  }
+
+  function DefaultButton(event, linkOpenType){
+      if (event.keyCode == 13 && !(event.srcElement && (event.srcElement.tagName.toLowerCase() == "textarea"))) {
+          var defaultButton = $(linkOpenType);
+          if (defaultButton && typeof(defaultButton.click) != "undefined") {
+              defaultButton.click();
+              event.cancelBubble = true;
+              if (event.stopPropagation) 
+                  event.stopPropagation();
+              return false;
+          }
+      }
+      return true;
+  }
+  </script>
+ 
+        用户名：
+     
+        <input name="TxtUserName" type="text" maxlength="20" id="TxtUserName" class="inputtext" style="width: 95px;" />
+    
+        密 码：
+     
+        <input name="TxtPassword" type="password" id="TxtPassword" class="inputtext" style="width: 95px;" />
+     
+  <span id="checkcode" style="display:none">
+        验证码：
+      
+        <input name="TxtValdisplayDateCode" type="text" maxlength="6" value="no" id="TxtValdisplayDateCode" class="inputtext" onfocus="this.select();" style="width: 50px;" /><img id="VcodeLogOn" title="看不清楚，换一个" onclick="RefreshValdisplayDateCodeImage(this);" src="/Controls/ValidateCodeImage.aspx" align="absmiddle" style="border-width: 0px; cursor: hand;" />
+      </span>
+        Cookie：
+     
+        <select name="DropExpiration" id="DropExpiration">
+          <option value="None">不保存</option>
+          <option value="Day">保存一天</option>
+          <option value="Month">保存一月</option>
+          <option value="Year">保存一年</option>
+        </select>
+     
+  <input type="submit" name="BtnLogOn" value="登录" id="BtnLogOn" onclick="Login();" class="inputbutton" />&nbsp;&nbsp; <a href="/User/Register.aspx" linkOpenType="_top">注册</a>
+  
+</div>
+<div id="PnlLogOnStatus" class="Login_ajax">
+</div>
+<script language="javascript" type="text/javascript">
+CheckIsLogin();
+
+function Loginin(LoginString){
+    document.getElementById("LoginFrom").innerHTML = document.getElementById("LoginFrom").innerHTML + LoginString;
+}
+
+function CheckIsLogin(){
+    document.getElementById("PnlLogOnStatus").innerHTML = "<img src=\"/Skin/gl18/images/Images/loading.gif\" alt=\"\"/>";
+    var x = new AjaxRequest('XML', 'status');
+    x.para = [];
+    x.post('logincheck', '/ajax.aspx', function(s){
+        var xml = x.createXmlDom(s);
+        var status = xml.getElementsByTagName("status")[0].firstChild.data;
+        
+        if (status == 'ok') {
+            document.getElementById("PnlLogOnStatus").style.display = "";
+            document.getElementById("LoginFrom").style.display = "none";
+            document.getElementById("PnlLogOnStatus").innerHTML = GetUserInfo(xml);
+        }
+        else {
+            document.getElementById("PnlLogOnStatus").style.display = "none";
+            document.getElementById("LoginFrom").style.display = "";
+            CheckEnableValidCode();
+        }
+    });
+}
+
+function loginout(){
+    var x = new AjaxRequest('XML','');
+    x.post('userlogout', '/ajax.aspx', function(s) {
+    var xml = x.createXmlDom(s);
+        var status = xml.getElementsByTagName("status")[0].firstChild.data;
+        if (status == "ok") {
+                if (xml.getElementsByTagName("API_Enable")[0].firstChild.data == "1") {
+                    var LogOutString = xml.getElementsByTagName("LogOutString")[0].firstChild.data;
+                    Loginin(LogOutString);
+                }
+         }
+        document.getElementById("TxtUserName").value = '';
+        document.getElementById("TxtPassword").value = '';
+        CheckEnableValidCode();
+        var VcodeLogOn = document.getElementById("VcodeLogOn");
+        if(VcodeLogOn  != null)
+        {
+	RefreshValdisplayDateCodeImage(VcodeLogOn);
+        }
+        document.getElementById("DropExpiration").value = 'None';
+        document.getElementById("PnlLogOnStatus").style.display = "none";
+        document.getElementById("LoginFrom").style.display = "";
+    });
+}
+
+function GetUserInfo(xml){
+    var userInfo = "" + xml.getElementsByTagName("username")[0].firstChild.data + "，您好！您";
+    
+    userInfo = userInfo + "登录次数：" + xml.getElementsByTagName("logintimes")[0].firstChild.data + " 次";
+    
+    userInfo = userInfo + "&nbsp;&nbsp;|&nbsp;&nbsp;";
+    userInfo = userInfo + "<a href=\"#\"  onclick=\"loginout()\" linkOpenType=\"_top\">退出登录</a>";
+    userInfo = userInfo + "";
+    return userInfo;
+}
+
+function CheckEnableValidCode(){
+    var x = new AjaxRequest('XML', 'status');
+    x.para = [];
+    x.post('EnableValidCode', '/ajax.aspx', function(s){
+        var xml = x.createXmlDom(s);
+        var status = xml.getElementsByTagName("status")[0].firstChild.data;
+        if (status == "yes") {
+            document.getElementById("checkcode").style.display = '';
+            document.getElementById("TxtValdisplayDateCode").value = '';
+        }
+    });
+}
+
+function Login(){
+    if (document.getElementById("TxtUserName").value == '') {
+        alert("请填写用户名！");
+        document.getElementById("TxtUserName").focus();
+        return;
+    }
+    if (document.getElementById("TxtPassword").value == '') {
+        alert("请填写密码！");
+        document.getElementById("TxtPassword").focus();
+        return;
+    }
+    if(document.getElementById("checkcode").style.display=="")
+    {
+      if (document.getElementById("TxtValdisplayDateCode").value == '') {
+          alert("请填写验证码！");
+          document.getElementById("TxtValdisplayDateCode").focus();
+          return;
+      }
+    }
+    var x = new AjaxRequest('XML', 'status');
+    x.para = ['username=' + document.getElementById("TxtUserName").value, 'password=' + document.getElementById("TxtPassword").value, 'checkcode=' + document.getElementById("TxtValdisplayDateCode").value, 'expiration=' + document.getElementById("DropExpiration").value];
+    x.post('userlogin', '/ajax.aspx', function(s){
+        var xml = x.createXmlDom(s);
+        var status = xml.getElementsByTagName("status")[0].firstChild.data;
+        switch (status) {
+            case "ok":
+                if (xml.getElementsByTagName("API_Enable")[0].firstChild.data == "1") {
+                    var LoginString = xml.getElementsByTagName("LoginString")[0].firstChild.data;
+                    Loginin(LoginString);
+                }
+                CheckIsLogin();
+                break;
+            case "err":
+                var errorMessage = xml.getElementsByTagName("body")[0].firstChild.data;
+                alert(errorMessage);
+                break;
+        }
+        
+    });
+}
+</script>
+    
+</div>
+
+<div id="banner">
+  <object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=7,0,19,0" width="1000" height="271">
+    <param name="movie" value="images/top.swf" />
+    <param name="quality" value="high" />
+    <embed src="images/top.swf" quality="high" pluginspage="http://www.macromedia.com/go/getflashplayer" type="application/x-shockwave-flash" width="1000" height="271"></embed>
+  </object>
+</div>
+<div id="nava">
+  <div class="">
+	  <ul id="nav">
+		  <li><span><a href="/default.aspx" onmouseover="showCurrentDiv(0)">网站首页</a></span></li>
+		  <li><a href="/Category_8/Index.aspx"  onmouseover="showCurrentDiv(1)">校园资讯</a></li>
+		  <li><a href="/Category_25/Index.aspx" onmouseover="showCurrentDiv(2)"> 学校概况</a></li>
+		  <li><a href="/Category_44/Index.aspx" onmouseover="showCurrentDiv(3)"> 师资队伍</a></li>
+		  <li><a href="/Category_59/Index.aspx" onmouseover="showCurrentDiv(4)"> 学生天地</a></li>
+		  <li><a href="/Category_73/Index.aspx" onmouseover="showCurrentDiv(5)"> 教学科研</a></li>
+		  <li><a href="/Category_106/Index.aspx" onmouseover="showCurrentDiv(6)"> 德育教育</a></li>
+		  <li><a href="/Category_112/Index.aspx" onmouseover="showCurrentDiv(7)"> 中考招生</a></li>
+		  <li><a href="/Category_118/Index.aspx" onmouseover="showCurrentDiv(8)"> 高考信息   </a></li>
+		  <li><a href="/Category_126/Index.aspx" onmouseover="showCurrentDiv(9)">弘文学校 </a></li>
+	  </ul>
+  </div>
+  <div class="nright"><a href="/Category_134/Index.aspx">English</a></div>
+</div> 
+<div id="xiala"> 
+				<div></div>
+              <div class="hide" >
+			  　　　　　　　　　　<a href="/Category_9/Index.aspx">学校新闻</a>|
+				<a href="http://www.gledu.cn/Article/jyxx/gljyxx/index.htm">桂林教育</a>|
+				<a href="http://202.103.252.84/Class/btxx/">广西教育</a>|
+				<a href="http://www.moe.gov.cn/edoas/website18/top_xwdt.jsp">国内教育</a>|
+				<a href="/Category_13/Index.aspx">学校通知</a>|
+				<a href="http://www.gledu.cn/Article/jyxx/tzgg/index.htm">教育局通知</a>|
+				<a href="http://www.jks.cn/more.asp?BigClassName=教研通知&SmallClassName=各类通知&SmallClassType=1">教科所通知</a>
+			  </div>
+              <div class="hide">
+			  　　　　　　　　　　　　　　　　　<a href="/Category_26/Index.aspx">学校简介</a>|
+				<a href="/Category_27/Index.aspx">校园环境</a>|
+				<a href="/Category_28/Index.aspx">教学设施</a>|
+				<a href="/Category_29/Index.aspx">学校荣誉</a>|
+				<a href="/Category_30/Index.aspx">领导班子</a>|
+				<a href="/Category_31/Index.aspx">职能部门</a>|
+				<a href="/Category_32/Index.aspx">大事记</a>
+			  </div>
+              <div class="hide">
+			 	　　　　　　　　　　　　　　　　　　　　　　　　　<a href="/Category_45/Index.aspx">师资简介</a>|
+				<a href="/Category_46/Index.aspx">名师风采</a>|
+				<a href="/Category_47/Index.aspx">语文组</a>|
+				  <a href="/Category_48/Index.aspx">数学组</a>|
+				  <a href="/Category_49/Index.aspx">英语组</a>|
+				  <a href="/Category_50/Index.aspx">物理组</a>|
+				  <a href="/Category_51/Index.aspx">化学组</a>|
+				  <a href="/Category_52/Index.aspx">生物组</a>|
+				  <a href="/Category_53/Index.aspx">政治组</a>|
+				  <a href="/Category_54/Index.aspx">历史组</a>|
+				  <a href="/Category_55/Index.aspx">地理组</a>|
+				  <a href="/Category_56/Index.aspx">体育组</a>|
+				  <a href="/Category_58/Index.aspx">艺术组</a>|
+				  <a href="/Category_57/Index.aspx">信息技术组</a>
+			  </div>
+              <div class="hide">
+			  　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　<a href="/Category_60/Index.aspx">学生社团</a>|
+				<a href="/Category_66/Index.aspx">文体活动</a>|
+				<a href="/Category_67/Index.aspx">社团活动</a>|
+				<a href="/Category_68/Index.aspx">佳作欣赏</a>|
+				<a href="/Category_72/Index.aspx">校报社刊</a>
+			  </div>
+			  
+			  <div class="hide">
+			 　　　　　　　　 <a href="/Category_74/Index.aspx">科研园地</a>|
+				<a href="/Category_77/Index.aspx">学科竞赛</a>|
+				<a href="/Category_78/Index.aspx">高一年级组</a>|
+				<a href="/Category_82/Index.aspx">高二年级组</a>|
+				<a href="/Category_86/Index.aspx">高三年级组</a>|
+				<a href="/Category_90/Index.aspx">语文组</a>|
+				<a href="/Category_91/Index.aspx">数学组</a>|
+				<a href="/Category_92/Index.aspx">英语组</a>|
+				<a href="/Category_93/Index.aspx">物理组</a>|
+				<a href="/Category_98/Index.aspx">化学组</a>|
+				<a href="/Category_99/Index.aspx">生物组</a>|
+				<a href="/Category_100/Index.aspx">政治组</a>|
+				<a href="/Category_101/Index.aspx">历史组</a>|
+				<a href="/Category_102/Index.aspx">地理组</a>|
+				<a href="/Category_103/Index.aspx">体育组</a>|
+				<a href="/Category_104/Index.aspx">信息技术组</a>|
+				<a href="/Category_105/Index.aspx">艺术组</a>
+			  </div>
+			  <div class="hide">
+			 　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　 <a href="/Category_107/Index.aspx">渴望星期五</a>|
+				<a href="/Category_108/Index.aspx">德育交流</a>|
+				<a href="/Category_109/Index.aspx">主题教育</a>|
+				<a href="/Category_110/Index.aspx">评优表彰</a>|
+				<a href="/Category_111/Index.aspx">国旗下讲话</a>
+			  </div>
+			  <div class="hide">
+			  　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　<a href="/Category_113/Index.aspx">招生简章</a>|
+				<a href="/Category_114/Index.aspx">历年录取线</a>|
+				<a href="/Category_115/Index.aspx">招生动态</a>|
+				<a href="/Category_116/Index.aspx">录取名单</a>|
+				<a href="/Category_117/Index.aspx">新生须知</a>
+			  </div>
+			  <div class="hide">
+			  　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　<a href="/Category_119/Index.aspx">政策信息</a>|
+				<a href="/Category_120/Index.aspx">考生须知</a>|
+				<a href="/Category_121/Index.aspx">高考成绩</a>|
+				<a href="/Category_125/Index.aspx">高校信息</a>
+			  </div>
+			  <div class="hide">
+			  　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　<a href="/Category_127/Index.aspx">弘文简介</a>|
+				<a href="/Category_128/Index.aspx">高考成绩</a>|
+				<a href="/Category_129/Index.aspx">招生简章</a>|
+				<a href="/Category_130/Index.aspx">历年录取线</a>|
+				<a href="/Category_131/Index.aspx">招生动态</a>|
+				<a href="/Category_132/Index.aspx">录取名单</a>|
+				<a href="/Category_133/Index.aspx">新生须知</a>
+			  </div> 	  
+ </div>
+
+
+<table id="main">
+  <tr>
+    <td valign="top" id="indexleft"><dl id="tongzi">
+      <dt><a href="Category_13/Index.aspx"target="_blank">学校通知 | </a><a href="http://www.gledu.cn/Article/jyxx/tzgg/index.htm
+" target="_blank">市局通知 |  </a>  <a href="http://www.jks.cn/more.asp?BigClassName=教研通知&SmallClassName=各类通知&SmallClassType=1
+" target="_blank">教科所通知</a></dt>
+      <dd>
+        <ul class="list2">
+          
+            <li><a href="/gl18news/bgs/3626.html" target="_blank"><font style="color:#000000;">关于开展2016年度桂林市中小…</font></a>
+                            [16-09-18]
+                        </li><li><a href="/gl18news/bgs/3151.html" target="_blank"><font style="color:#000000;">我校微信公众号正式发布</font></a>
+                            [14-02-25]
+                        </li><li><a href="/gl18news/bgs/3014.html" target="_blank"><font style="color:#000000;">桂林市第十八中学中层干部选…</font></a>
+                            [13-06-19]
+                        </li><li><a href="/gl18news/bgs/2830.html" target="_blank"><font style="color:#000000;">桂林十八中招聘校医启事</font></a>
+                            [12-10-17]
+                        </li><li><a href="/gl18news/sjs/2810.html" target="_blank"><font style="color:#000000;">2012年桂林市十八中民主评议…</font></a>
+                            [12-10-09]
+                        </li><li><a href="/gl18news/jwc/2795.html" target="_blank"><font style="color:#000000;">关于领取高考考生档案文件</font></a>
+                            [12-09-12]
+                        </li><li><a href="/gl18news/bgs/2788.html" target="_blank"><font style="color:#000000;">2012级新生军训总结会操观摩…</font></a>
+                            [12-09-07]
+                        </li><li><a href="/gl18news/xxtz/2773.html" target="_blank"><font style="color:#000000;">高中新课标远程培训视频答疑…</font></a>
+                            [12-07-19]
+                        </li><li><a href="/gl18news/bgs/2768.html" target="_blank"><font style="color:#000000;">特级教师推荐工作的通知</font></a>
+                            [12-07-14]
+                        </li><li><a href="/gl18news/gh/2762.html" target="_blank"><font style="color:#000000;">关于桂林弘文学校2012年招生…</font></a>
+                            [12-07-09]
+                        </li><li><a href="/gl18news/bgs/2369.html" target="_blank"><font style="color:#000000;">关于校庆联络校友的通知</font></a>
+                            [11-07-09]
+                        </li><li><a href="/gl18news/bgs/2368.html" target="_blank"><font style="color:#000000;">关于校庆资料征集的通知</font></a>
+                            [11-07-09]
+                        </li>
+          
+        </ul>
+      </dd>
+    </dl>
+    <dl>
+        <dd >
+          <ul>
+            <li><a href="Category_112/Index.aspx"><img src="images/index_15.jpg" width="121" height="44" alt="" border="0"/></a><a href="Category_118/Index.aspx"><img src="images/index_17.jpg" width="121" height="44" alt="" border="0"/></a></li>
+            <li><a href="Category_46/Index.aspx"><img src="images/index_21.jpg" width="121" height="43" alt="" border="0"/><a href="Category_124/Index.aspx"><img src="images/index_22.jpg" width="121" height="43" alt="" border="0"/></a></li>
+            <li><a href="Category_141/Index.aspx"><img src="images/index_29.jpg" width="121" height="45" alt="" border="0"/></a><a href="Category_143/Index.aspx"><img src="images/index_30.jpg" width="121" height="45" alt="" border="0"/></a></li>
+            <li><a href="Category_107/Index.aspx"><img src="images/index_34.jpg" width="121" height="44" alt="" border="0"/></a><a href="Category_111/Index.aspx"><img src="images/index_35.jpg" width="121" height="44" alt="" border="0"/></a></li>
+           
+          </ul>
+        </dd>
+      </dl>
+      <dl>
+        <dt>文章搜索</dt>
+        <dd >
+         
+            <div class="main_search">
+  站内搜索：
+  <input id="keyword" onfocus="this.value='';" maxlength="100" size="30" value="填写您想搜索的关键词" name="Keyword" />
+  <input id="Submit" style="border: 0px; width: 65px; height: 21px;" type="image" src="/Images/index_48.jpg" name="Submit" onclick="OnSearchCheckAndSubmit();" />
+  <br />
+  热门关键词：<a href="/Tag.aspx?keyword=%E4%B8%AD%E8%80%83%E6%8B%9B%E7%94%9F">中考招生</a>|<a href="/Tag.aspx?keyword=%E5%89%AA%E5%BD%B1">剪影</a>|<a href="/Tag.aspx?keyword=%E6%A0%A1%E8%BF%90%E4%BC%9A">校运会</a>|<a href="/Tag.aspx?keyword=%E6%A0%A1%E5%9B%AD%E5%AE%89%E5%85%A8">校园安全</a>|<a href="/Tag.aspx?keyword=%E5%8A%9E%E5%85%AC%E5%AE%A4%E9%80%9A%E7%9F%A5">办公室通知</a>|<a href="/Tag.aspx?keyword=%E6%A0%A1%E5%BA%86">校庆</a>|<a href="/Tag.aspx?keyword=%E6%88%91%E6%A0%A1">我校</a>|<a href="/Tag.aspx?keyword=%E4%B8%8A%E7%BA%BF">上线</a>|<a href="/Tag.aspx?keyword=%E9%AB%98%E8%80%83%E8%B5%84%E8%AE%AF">高考资讯</a>|<a href="/Tag.aspx?keyword=%E6%8B%9B%E8%81%98%E4%BF%A1%E6%81%AF">招聘信息</a>
+  <script language="javascript" type="text/javascript">
+  function OnSearchCheckAndSubmit(){
+      var keyword = document.getElementById("keyword").value;
+      if (keyword == '' || keyword == null) {
+          alert("请填写您想搜索的关键词");
+          return;
+      }
+      else {
+      
+          window.location = "/search.aspx?searchtype=0&Keyword=" + escape(keyword);
+      }
+  }
+  </script>
+</div>        
+        </dd>
+      </dl>
+      <dl>
+	  <dd class="fengzhu">
+	 	 <ul>
+	  		<li><a href="Category_47/Index.aspx">语文组</a></li>
+		    <li><a href="Category_48/Index.aspx">数学组</a></li>
+	 	    <li><a href="Category_49/Index.aspx">英语组</a></li>
+	 	    <li><a href="Category_50/Index.aspx">物理组</a></li>
+	 	    <li><a href="Category_51/Index.aspx">化学组</a></li>
+	 	    <li><a href="Category_52/Index.aspx">生物组</a></li>
+	 	    <li><a href="Category_53/Index.aspx">政治组</a></li>
+	 	    <li><a href="Category_54/Index.aspx">历史组</a></li>
+	 	    <li><a href="Category_55/Index.aspx">地理组</a></li>
+	 	    <li><a href="Category_56/Index.aspx">体育组</a></li>
+	 	    <li><a href="Category_58/Index.aspx">艺术组</a></li>
+	 	    <li><a href="Category_57/Index.aspx">信息技术组</a></li>
+	 	 </ul>
+	    </dd>
+      </dl>
+      </div></td>
+    <td valign="top" id="indexright"><div >
+      <div id="ad">
+            <script type="text/javascript">
+          var swf_width = 280;
+          var swf_height = 160 + 20;
+          var title_height = 20;
+          var focus_height = swf_height + title_height;
+          var interval_time = 4;
+          var config = '6|0xffffff|0x0099FF|20|0xffffff|0x0099FF|0x000000';//config 设置分别为: 自动播放时间(秒)|文字颜色|文字背景色|文字背景透明度|按键数字色|当前按键色|普通按键色
+          var files = '/UploadFiles/xyzx/2016/11/QQ%e5%9b%be%e7%89%8720161108094408.jpg|/UploadFiles/xyzx/2016/11/IMG_0480.jpg|/UploadFiles/xyzx/2016/11/IMG_0500.jpg|/UploadFiles/2016/11/201611022126080826.jpg|/UploadFiles/xyzx/2016/11/201611021338008547.jpg|/UploadFiles/2016/10/201610311308210888.jpg|/UploadFiles/2016/10/201610281415100604.jpg|/UploadFiles/2016/10/201610281343389528.jpg|/UploadFiles/2016/10/201610191353309709.jpg';
+          var links = '/gl18news/xxxw/3662.html|/gl18news/xxxw/3661.html|/gl18news/xxxw/3660.html|/gl18news/xstd/3659.html|/gl18news/xxxw/3658.html|/gl18news/xstd/3655.html|/gl18news/xstd/3654.html|/gl18news/xstd/3653.html|/gl18news/xstd/3649.html';
+          var texts = '家校配合齐努力，共同备战2017年高考|合浦廉州中学、防城港实验高中、灵山新洲中学领导老…|树立绿色理念,创建绿色学校|“谈博弈论，策人生路”––记我校渴望星期五第61讲|“再上赛场，决战巅峰”——记我校足球赛决赛|“激情四溢 赛出青春”——篮球队“重点杯”采访|10月27日足球赛剪影|10.24足球赛剪影|10月12日足球赛剪影';
+          document.write('<object classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" codebase="http://fpdownload.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=6,0,0,0" width="' + swf_width + '" height="' + focus_height + '">');
+          document.write('<param name="movie" value="/Skin/gl18/images/swf/focus_1.swf">');
+          document.write('<param name="quality" value="high">');
+          document.write('<param name="menu" value="false">');
+          document.write('<param name="wmode" value="opaque">');
+          document.write('<param name="FlashVars" value="borderwidth=' + swf_width + '&amp;borderheight=' + swf_height + '&amp;textheight=' + title_height + '&amp;interval_time=' + interval_time + '&amp;pics=' + files + '&amp;links=' + links + '&amp;texts=' + texts + '">');
+          document.write('<embed src="/Skin/gl18/images/swf/focus_1.swf" wmode="opaque" FlashVars="borderwidth=' + swf_width + '&amp;borderheight=' + swf_height + '&amp;textheight=' + title_height + '&amp;interval_time=' + interval_time + '&amp;pics=' + files + '&amp;links=' + links + '&amp;texts=' + texts + '" menu="false" quality="high" width="' + swf_width + '" height="' + focus_height + '" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer"></embed>');
+          document.write('</object>');
+        </script>
+          </div>
+      <div id="dongtai" class="list">
+	  <div id="adlm"><a href="#" onmouseover="ShowTabs(0)">推荐导读</a> <a href="Category_9/Index.aspx"target="_blank" onmouseover="ShowTabs(1)">学校新闻</a> <a href="Category_138/Index.aspx"target="_blank" onmouseover="ShowTabs(2)">教育资讯</a><a href="Category_139/Index.aspx"target="_blank" onmouseover="ShowTabs(3)">校内资源</a></div>
+	  <div id="adlmbg0">
+        <ul>
+          
+                <li><a href="/gl18news/xxxw/3662.html" target="_blank"><font style="color:#000000;">家校配合齐努力，共同备战2017年高考</font></a>
+                            [16-11-08]
+                        <img src="/images/new.gif" alt="最新内容"></li><li><a href="/gl18news/xxxw/3661.html" target="_blank"><font style="color:#000000;">合浦廉州中学、防城港实验高中、灵山新洲中学领…</font></a>
+                            [16-11-08]
+                        <img src="/images/new.gif" alt="最新内容"></li><li><a href="/gl18news/xstd/3659.html" target="_blank"><font style="color:#000000;">“谈博弈论，策人生路”––记我校"渴望星期五"…</font></a>
+                            [16-11-03]
+                        </li><li><a href="/gl18news/xxxw/3658.html" target="_blank"><font style="color:#000000;">“再上赛场，决战巅峰”——记我校足球赛决赛</font></a>
+                            [16-11-02]
+                        </li><li><a href="/gl18news/xxxw/3656.html" target="_blank"><font style="color:#000000;">桂林十八中“学校创新发展工程”第二批第二次集…</font></a>
+                            [16-10-30]
+                        </li><li><a href="/gl18news/xstd/3655.html" target="_blank"><font style="color:#000000;">“激情四溢 赛出青春”——篮球队“重点杯”采访</font></a>
+                            [16-10-31]
+                        </li><li><a href="/gl18news/xstd/3654.html" target="_blank"><font style="color:#000000;">10月27日足球赛剪影</font></a>
+                            [16-10-28]
+                        </li>
+              
+        </ul>
+		</div>
+		<div id="adlmbg1" style="display: none;">
+        <ul>
+           
+            <li><a href="/gl18news/xxxw/3662.html" target="_blank"><font style="color:#000000;">家校配合齐努力，共同备战2017年高考</font></a>
+                            [16-11-08]
+                        <img src="/images/new.gif" alt="最新内容"></li><li><a href="/gl18news/xxxw/3661.html" target="_blank"><font style="color:#000000;">合浦廉州中学、防城港实验高中、灵山新洲中学领…</font></a>
+                            [16-11-08]
+                        <img src="/images/new.gif" alt="最新内容"></li><li><a href="/gl18news/xxxw/3660.html" target="_blank"><font style="color:#000000;">树立绿色理念,创建绿色学校</font></a>
+                            [16-11-08]
+                        <img src="/images/new.gif" alt="最新内容"></li><li><a href="/gl18news/xxxw/3658.html" target="_blank"><font style="color:#000000;">“再上赛场，决战巅峰”——记我校足球赛决赛</font></a>
+                            [16-11-02]
+                        </li><li><a href="/gl18news/xxxw/3656.html" target="_blank"><font style="color:#000000;">桂林十八中“学校创新发展工程”第二批第二次集…</font></a>
+                            [16-10-30]
+                        </li><li><a href="/gl18news/xxxw/3651.html" target="_blank"><font style="color:#000000;">中山市实验中学一行来校参观交流</font></a>
+                            [16-10-21]
+                        </li><li><a href="/gl18news/xxxw/3648.html" target="_blank"><font style="color:#000000;">我校2016年教职工气排球比赛圆满结束</font></a>
+                            [16-10-19]
+                        </li>
+          
+        </ul>
+		</div>
+		<div id="adlmbg2" style="display: none;">
+        <ul>
+          
+            <li><a href="/gl18news/jyzx/3042.html" target="_blank"><font style="color:#000000;">今年桂林37名考生被清华北大录取 创历史新高</font></a>
+                            [13-07-17]
+                        </li><li><a href="/gl18news/jyzx/2371.html" target="_blank"><font style="color:#000000;">今年广西总录取率或达75% 计划招生近22万</font></a>
+                            [11-07-09]
+                        </li><li><a href="/gl18news/jyzx/2370.html" target="_blank"><font style="color:#000000;">广西教育厅通报违规宣传高考成绩高中 限期整改</font></a>
+                            [11-07-09]
+                        </li><li><a href="/gl18news/jyzx/654.html" target="_blank"><font style="font-weight:normal ;font-style:normal;">教育部部长周济在部直属机关保持共产党员先进性…</font></a>
+                            [05-01-26]
+                        </li><li><a href="/gl18news/jyzx/32.html" target="_blank"><font style="font-weight:normal ;font-style:normal;">教师资格条例</font></a>
+                            [03-12-09]
+                        </li><li><a href="/gl18news/jyzx/31.html" target="_blank"><font style="font-weight:normal ;font-style:normal;">《学生伤害事故处理办法》</font></a>
+                            [03-12-09]
+                        </li><li><a href="/gl18news/jyzx/30.html" target="_blank"><font style="font-weight:normal ;font-style:normal;">国家《中外合作办学条例（草案）》部分条款</font></a>
+                            [03-12-09]
+                        </li>
+          
+        </ul>
+		</div>
+		<div id="adlmbg3" style="display: none;">
+        <ul>
+          
+            <li><a href="/gl18news/xnzy/3382.html" target="_blank"><font style="color:#000000;">我校首届微课比赛作品</font></a>
+                            [15-01-31]
+                        </li><li><a href="/gl18news/xnzy/2308.html" target="_blank"><font style="color:#000000;">校内资源服务器地址</font></a>
+                            [11-10-28]
+                        </li>
+          
+        </ul>
+		</div>
+      </div>
+      <div class="divclear"></div>
+      <div class="divclear">
+        <object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=7,0,19,0" width="748" height="86">
+          <param name="movie" value="images/gl18banner1.swf" />
+          <param name="quality" value="high" />
+          <embed src="images/gl18banner1.swf" quality="high" pluginspage="http://www.macromedia.com/go/getflashplayer" type="application/x-shockwave-flash" width="748" height="86"></embed>
+        </object>
+      </div>
+      <div class="divclear"></div>
+      <div class="lmleft">
+        <h2>高考信息</h2>
+        <div class="rightmr"><a href="Category_118/Index.aspx"><img src="images/more2.jpg" border="0" /></a></div>
+        <div style="height:174px;" class="lmbg" >
+          <ul class="list2">
+                    
+            <li><a href="/gl18news/gkcj/3597.html" target="_blank"><font style="color:#000000;">2016年高考录取金榜</font></a>
+                            [16-09-02]
+                        </li><li><a href="/gl18news/cjjj/3586.html" target="_blank"><font style="color:#e50000;">热烈庆祝我校2016年高考再续辉煌</font></a>
+                            [16-06-28]
+                        </li><li><a href="/gl18news/gxzsxx/3583.html" target="_blank"><font style="color:#000000;">28所军校和普通高校今年在我区招军校生、国防生</font></a>
+                            [16-06-23]
+                        </li><li><a href="/gl18news/gxzsxx/3577.html" target="_blank"><font style="color:#000000;">我校将举行2016年高考招生志愿填报大型咨询活动</font></a>
+                            [16-06-20]
+                        </li><li><a href="/gl18news/gkyxb/3573.html" target="_blank"><font style="color:#000000;">我校近五年考入全国排名前15位大学学生名单</font></a>
+                            [16-06-23]
+                        </li><li><a href="/gl18news/gkcj/3457.html" target="_blank"><font style="color:#e50935;">2015年高考录取金榜</font></a>
+                            [15-08-30]
+                        </li><li><a href="/gl18news/gkyxb/3454.html" target="_blank"><font style="color:#000000;">实验班有多牛，且看2015录取见分晓</font></a>
+                            [15-07-10]
+                        </li>
+           </ul>
+        </div>
+      </div>
+      <div class="lmright">
+        <h2>中考招生</h2>
+        <div class="rightmr"><a href="Category_112/Index.aspx"><img src="images/more2.jpg" border="0" /></a></div>
+        <div style="height:174px;" class="lmbg">
+          <ul class="list2">
+            
+            <li><a href="/gl18news/xsxz/3610.html" target="_blank"><font style="color:#000000;">桂林市第十八中学2016级新生入学须知</font></a>
+                            [16-07-25]
+                        </li><li><a href="/gl18news/zsdt/3606.html" target="_blank"><font style="color:#000000;">2016年高一部分新生实验班选拔测试通知</font></a>
+                            [16-07-21]
+                        </li><li><a href="/gl18news/lqmd/3604.html" target="_blank"><font style="color:#000000;">2016年中考桂林市区录取名单</font></a>
+                            [16-07-20]
+                        </li><li><a href="/gl18news/zsdt/3600.html" target="_blank"><font style="color:#000000;">关于开办初高中衔接短期培训班的公告</font></a>
+                            [16-07-15]
+                        </li><li><a href="/gl18news/lqmd/3598.html" target="_blank"><font style="color:#000000;">2016年中考十二县录取名单</font></a>
+                            [16-07-14]
+                        </li><li><a href="/gl18news/zsdt/3595.html" target="_blank"><font style="color:#000000;">2016年外地生招生考试第二批学生名单</font></a>
+                            [16-07-01]
+                        </li><li><a href="/gl18news/zsdt/3592.html" target="_blank"><font style="color:#000000;">2016年外地生招生考试第一批学生名单</font></a>
+                            [16-06-30]
+                        </li>
+          
+          </ul>
+        </div>
+      </div>
+      <div class="divclear">
+        <object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=7,0,19,0" width="748" height="88">
+          <param name="movie" value="images/gl18banner.swf" />
+          <param name="quality" value="high" />
+          <embed src="images/gl18banner.swf" quality="high" pluginspage="http://www.macromedia.com/go/getflashplayer" type="application/x-shockwave-flash" width="748" height="88"></embed>
+        </object>
+      </div>
+      <div class="lmleft">
+        <h2>学科教研</h2>
+        <div class="rightmr"><a href="Category_73/Index.aspx"><img src="images/more2.jpg" border="0" /></a></div>
+        <div style="height:174px;" class="lmbg" >
+          <ul class="list2">
+           
+            <li><a href="/Item/3506.aspx" target="_blank"><font style="color:#000000;">2015年秋季学期高一心理教学计划-黄新新</font></a>
+                            [15-09-14]
+                        </li><li><a href="/Item/3505.aspx" target="_blank"><font style="color:#000000;">黄新新－2015年春季学期工作总结-黄新新</font></a>
+                            [15-09-14]
+                        </li><li><a href="/Item/3504.aspx" target="_blank"><font style="color:#000000;">2014年秋季学期工作总结-黄新新</font></a>
+                            [15-09-14]
+                        </li><li><a href="/Item/3503.aspx" target="_blank"><font style="color:#000000;">2014-2015上学期教学计划-黄新新</font></a>
+                            [15-09-14]
+                        </li><li><a href="/Item/3502.aspx" target="_blank"><font style="color:#000000;">2015-2016上学期教学计划--李宁</font></a>
+                            [15-09-14]
+                        </li><li><a href="/Item/3501.aspx" target="_blank"><font style="color:#000000;">2014—2015下学期教学总结-李宁</font></a>
+                            [15-09-14]
+                        </li><li><a href="/Item/3500.aspx" target="_blank"><font style="color:#000000;">2014——2015下学期美术教学总结-李宁</font></a>
+                            [15-09-14]
+                        </li>
+          
+          </ul>
+        </div>
+      </div>
+      <div class="lmright">
+        <h2>德育教育</h2>
+        <div class="rightmr"><a href="/Category_106/Index.aspx"><img src="images/more2.jpg" border="0" /></a></div>
+        <div style="height:174px;" class="lmbg">
+          <ul class="list2">
+            
+            <li><a href="/gl18news/dyjy/3642.html" target="_blank"><font style="color:#000000;">“化学政治，备考无忧”——我校开展14级化学、政…</font></a>
+                            [16-10-15]
+                        </li><li><a href="/gl18news/dyjy/3620.html" target="_blank"><font style="color:#000000;">“阳光下的十八中”--军训第四天</font></a>
+                            [16-08-22]
+                        </li><li><a href="/gl18news/dyjy/3619.html" target="_blank"><font style="color:#000000;">“骄阳似火 青春正好”--军训第二天</font></a>
+                            [16-08-20]
+                        </li><li><a href="/gl18news/gqxjh/3581.html" target="_blank"><font style="color:#000000;">国旗下讲话－－珍爱生命，远离毒品</font></a>
+                            [16-06-20]
+                        </li><li><a href="/gl18news/dyjy/3565.html" target="_blank"><font style="color:#000000;">“让梦起航”——记第四届国泰及港龙青少年航空梦…</font></a>
+                            [16-05-20]
+                        </li><li><a href="/gl18news/dyjy/3556.html" target="_blank"><font style="color:#000000;">“渴望星期五”系列讲座之59——如何拥有超强的记…</font></a>
+                            [16-05-05]
+                        </li><li><a href="/gl18news/kwxqw/3555.html" target="_blank"><font style="color:#000000;">渴望星期五系列讲座之59——如何拥有超强的记忆力</font></a>
+                            [16-04-29]
+                        </li>
+          
+          </ul>
+        </div>
+      </div>
+    </div></td>
+  </tr>
+</table>
+<table cellspacing="0" id="main">
+	<tr>
+		<td>
+		  <h2>图说校园	      </h2>
+		   <div id="demo" style="OVERFLOW: hidden; WIDTH: 995px; height:145PX; border-left:solid #E0E0E0 1px;border-right:solid #E0E0E0 1px;border-bottom:solid #E0E0E0 1px; margin-bottom:5px;">
+        <div indemo="indemo" style="width:9000px;">
+        <div id="demo1" >
+		  <ul class="ipro">
+			<li>
+            <li>
+  <div class="pe_u_thumb"><a href="/Item/2622.aspx" target="_blank"><img src="/UploadFiles/2011/12/201112011100072067.jpg" alt="桂林十八中部分荣誉展示" width="166" height="120" border="0"></a></div>
+  <div class="pe_u_thumb_title"><a href="/Item/2622.aspx" target="_blank">桂林十八中部分荣誉展示</a></div>
+</li>
+<li>
+  <div class="pe_u_thumb"><a href="/Item/2593.aspx" target="_blank"><img src="/UploadFiles/2011/10/201110270918080885.jpg" alt="建校30周年庆典晚会剪影" width="166" height="120" border="0"></a></div>
+  <div class="pe_u_thumb_title"><a href="/Item/2593.aspx" target="_blank">建校30周年庆典晚会剪影</a></div>
+</li>
+<li>
+  <div class="pe_u_thumb"><a href="/Item/2367.aspx" target="_blank"><img src="/UploadFiles/2011/7/201107051125571397.jpg" alt="三十周年校庆庆标" width="166" height="120" border="0"></a></div>
+  <div class="pe_u_thumb_title"><a href="/Item/2367.aspx" target="_blank">三十周年校庆庆标</a></div>
+</li>
+<li>
+  <div class="pe_u_thumb"><a href="/Item/2337.aspx" target="_blank"><img src="/UploadFiles/2012/6/201206061721383359.jpg" alt="2012年招生简单宣传册" width="166" height="120" border="0"></a></div>
+  <div class="pe_u_thumb_title"><a href="/Item/2337.aspx" target="_blank">2012年招生简单宣传册</a></div>
+</li>
+<li>
+  <div class="pe_u_thumb"><a href="/Item/2336.aspx" target="_blank"><img src="/UploadFiles/2011/6/201106151705372111.jpg" alt="蓝天下的校园" width="166" height="120" border="0"></a></div>
+  <div class="pe_u_thumb_title"><a href="/Item/2336.aspx" target="_blank">蓝天下的校园</a></div>
+</li>
+          </li>
+			
+	        </li>
+		  </ul>
+		  </div>
+              <div id="demo2"></div>
+        </div>
+	        <script>
+			<!--
+			
+			
+				var speed = 1; //数字越大速度越慢
+				var tab = document.getElementById("demo");
+				var tab1 = document.getElementById("demo1");
+				var tab2 = document.getElementById("demo2");
+				tab2.innerHTML = tab1.innerHTML;
+				function Marquee(){
+					if (tab2.offsetWidth - tab.scrollLeft <= 0) 
+						tab.scrollLeft -= tab1.offsetWidth
+					else {
+						tab.scrollLeft+=speed;
+					}
+				}
+				var MyMar = setInterval(Marquee, 20);
+				tab.onmouseover = function(){
+				clearInterval(MyMar)
+				};
+				tab.onmouseout = function(){
+					MyMar = setInterval(Marquee, 20)
+				};
+			
+			-->
+		  </script>
+        </div>
+		  <div class="divclear"></div>
+				<div class="lmbot">
+				<h2>学科竞赛</h2>
+				<div class="rightmr"><a href="/Category_77/Index.aspx"><img src="images/more2.jpg" border="0" /></a></div>
+				<div class="lmbgbot" >
+				  <ul class="list2">
+					
+            <li><a href="/gl18news/xkjs/2245.html" target="_blank"><font style="color:#000000;">2010年全国高中学生化学竞赛…</font></a>
+                            [11-05-11]
+                        </li><li><a href="/gl18news/xkjs/2101.html" target="_blank"><font style="font-weight:normal ;font-style:normal;">数学竞赛光荣榜</font></a>
+                            [10-01-21]
+                        </li><li><a href="/gl18news/xkjs/2003.html" target="_blank"><font style="font-weight:normal ;font-style:normal;">我校组队参加广西青少年机器…</font></a>
+                            [09-04-22]
+                        </li><li><a href="/gl18news/xkjs/1913.html" target="_blank"><font style="font-weight:normal ;font-style:normal;">全国第19届"希望杯"数学竞赛…</font></a>
+                            [08-07-02]
+                        </li><li><a href="/gl18news/xkjs/1757.html" target="_blank"><font style="font-weight:normal ;font-style:normal;">我校刘家玮同学参加中国西部…</font></a>
+                            [07-11-27]
+                        </li><li><a href="/gl18news/xkjs/1565.html" target="_blank"><font style="font-weight:normal ;font-style:normal;">第十八届“希望杯”全国数学…</font></a>
+                            [07-06-11]
+                        </li><li><a href="/gl18news/xkjs/1373.html" target="_blank"><font style="font-weight:normal ;font-style:normal;">举办2007年桂林市中小学机器…</font></a>
+                            [07-03-22]
+                        </li>
+          
+				  </ul>
+				</div>
+		  </div>
+			  <div class="lmbot">
+				<h2>学生天地</h2>
+				<div class="rightmr"><a href="/Category_59/Index.aspx"><img src="images/more2.jpg" border="0" /></a></div>
+				<div class="lmbgbot" >
+				  <ul class="list2">
+					
+            <li><a href="/gl18news/xws/3643.html" target="_blank"><font style="color:#000000;">“海棠柯南，邀你共赏”——…</font></a>
+                            [16-10-15]
+                        </li><li><a href="/gl18news/wthd/3641.html" target="_blank"><font style="color:#000000;">桂林十八中2016年足球赛第四…</font></a>
+                            [16-10-15]
+                        </li><li><a href="/gl18news/wthd/3640.html" target="_blank"><font style="color:#000000;">桂林十八中2016年足球赛第二…</font></a>
+                            [16-10-14]
+                        </li><li><a href="/gl18news/tw2/3639.html" target="_blank"><font style="color:#000000;">“皓月当空，乡思情浓”——…</font></a>
+                            [16-10-14]
+                        </li><li><a href="/gl18news/wthd/3636.html" target="_blank"><font style="color:#000000;">桂林十八中2016年足球赛第二…</font></a>
+                            [16-10-14]
+                        </li><li><a href="/gl18news/xws/3632.html" target="_blank"><font style="color:#000000;">“体学兼并，方成大器”——…</font></a>
+                            [16-10-14]
+                        </li><li><a href="/gl18news/wxs/3585.html" target="_blank"><font style="color:#000000;">“穿越荆棘”——十八中2015…</font></a>
+                            [16-06-25]
+                        </li>
+          
+				  </ul>
+				</div>
+		  </div>
+			  <div class="lmbot">
+				<h2>佳作欣赏</h2>
+				<div class="rightmr"><a href="/Category_68/Index.aspx"><img src="images/more2.jpg" border="0" /></a></div>
+				<div class="lmbgbot" >
+				  <ul class="list2">
+					
+            <li><a href="/gl18news/wxjz/2352.html" target="_blank"><font style="color:#000000;">将书法训练进行到底</font></a>
+                            [11-06-23]
+                        </li><li><a href="/gl18news/wxjz/2351.html" target="_blank"><font style="color:#000000;">改变命运的一次谈话</font></a>
+                            [11-07-09]
+                        </li><li><a href="/gl18news/wxjz/2350.html" target="_blank"><font style="color:#000000;">未名池的野生塘角鱼</font></a>
+                            [11-06-23]
+                        </li><li><a href="/gl18news/wxjz/2349.html" target="_blank"><font style="color:#000000;">北风那个吹呀···</font></a>
+                            [11-06-23]
+                        </li><li><a href="/gl18news/wxjz/2338.html" target="_blank"><font style="color:#000000;">浪淘沙 普一抒怀</font></a>
+                            [11-06-21]
+                        </li>
+          
+				  </ul>
+				</div>
+		  </div>
+			  <div class="lmrightbot">
+				<h2>校报社刊</h2>
+				<div class="rightmr"><a href="/Category_72/Index.aspx"><img src="images/more2.jpg" border="0" /></a></div>
+				<div class="lmbgbot">
+				  <ul class="list2">
+					
+            <li><a href="/gl18news/xbsk/2191.html" target="_blank"><font style="font-weight:normal ;font-style:normal;">校报第五期出版</font></a>
+                            [10-09-10]
+                        </li><li><a href="/gl18news/xbsk/1956.html" target="_blank"><font style="font-weight:normal ;font-style:normal;">桂林十八中校报“北斗星”第…</font></a>
+                            [08-10-31]
+                        </li><li><a href="/gl18news/xbsk/1415.html" target="_blank"><font style="font-weight:normal ;font-style:normal;">文学社“荆棘鸟”第六期专刊…</font></a>
+                            [07-04-05]
+                        </li><li><a href="/gl18news/xbsk/895.html" target="_blank"><font style="color:#000000;">地高校友录-《81路高地》创…</font></a>
+                            [05-12-30]
+                        </li>
+          
+				  </ul>
+				</div>
+		  
+		  
+		  </div>
+		  </td></tr>
+</table> 
+<div id="foot">
+  <div id="foottop">CopyRight C 2009 Guilin All Rights Reserved.</div>
+  <div id="foot_c">版权所有：桂林市第十八中学    邮箱：GL18ZX@126.COM    <br />
+    地址：桂林市横塘路17号  邮编：541004  联系电话：0773-5864943(校办) 0773-5865365(教务处)  <a class="bottom" target="_blank" href="http://www.miibeian.gov.cn"><font color="#000000">桂ICP备06003705号</font></a><br />
+<script src='/Analytics/CounterLink.aspx?Style=common'></script>  </div>
+</div>
+<div style='text-align:center'><a href='http://www.gx.cyberpolice.cn/guilin/' target='_blank'><img src=http://www.gl18.com/logo.gif border='0' /></a></div>
+</body>
+</html>

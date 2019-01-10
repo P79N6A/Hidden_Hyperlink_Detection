@@ -1,0 +1,85 @@
+<html><head></head><body><pre style="word-wrap: break-word; white-space: pre-wrap;">/****** 倒计时 *****/
+function fun(remainTime) {
+    var dayOfMil = (24 * 60 * 60 * 1000);
+    var hourOfMil = 60 * 60 * 1000;
+    var minOfMil = 60 * 1000;
+    var secOfMil = 1000;
+
+    var hourOffset = remainTime % dayOfMil;
+    var minuteOffset = hourOffset % hourOfMil;
+    var seccondOffset = minuteOffset % minOfMil;
+
+    var h = Math.floor(remainTime / hourOfMil);
+    var m = Math.floor(minuteOffset / minOfMil);
+    var s = Math.floor(seccondOffset / secOfMil);
+    var str = (h &lt; 10 ? '0' + h : h) + "," + (m &lt; 10 ? '0' + m : m) + "," + (s &lt; 10 ? '0' + s : s);
+    return str;
+}
+
+/**
+ *
+ * @param timestamp
+ * @param classId
+ * @param replaceHtml {#hour#}时 {#min#}分 {#sec#}秒
+ * @param currentTime 当前时间
+ * @param callback 回调函数
+ * @constructor
+ */
+var Timer = function (timestamp, classId, replaceHtml, currentTime, callback) {
+    this.timestamp = timestamp * 1000;
+    this.classId = classId;
+    this.replaceHtml = replaceHtml;
+    this.currentTime = currentTime * 1000;
+    if (!callback || callback == "undefined" || callback == "") {
+        this.callback = function () {
+        };
+    } else {
+        this.callback = callback;
+    }
+    this._countDown();
+    return this;
+}
+
+Timer.prototype._countDown = function () {
+    var self = this;
+    var nd = self.currentTime;
+    var endTime = self.timestamp;
+    var callback = self.callback;
+    var remainTime = endTime - nd;
+    if (remainTime &lt;= 0) {
+        return false;
+    }
+    var classId = self.classId;
+    var htmlformat = function () {
+            //调用倒计时函数
+            self.currentTime += 250;
+            remainTime = self.timestamp - self.currentTime;
+
+            if (remainTime &lt;= 500) {
+                remainTime = 0;
+            }
+            // console.log('remainTime：'+remainTime + '   endTime:' + self.timestamp + '   currentTime:' + self.currentTime);
+            // console.log(self);
+
+            var str = fun(remainTime);
+            var numarr = str.split(',');
+            var h1 = numarr[0]=="0-1"?"00":numarr[0];
+            var m1 = numarr[1]=="0-1"?"00":numarr[1];
+            var s1 = numarr[2]=="0-1"?"00":numarr[2];
+            rHtml = self.replaceHtml;
+            rHtml = rHtml.replace(new RegExp("\{#hour#\}", "g"), h1);
+            rHtml = rHtml.replace(new RegExp("\{#min#\}", "g"), m1);
+            rHtml = rHtml.replace(new RegExp("\{#sec#\}", "g"), s1);
+            $("#" + classId).html(rHtml);
+            if (remainTime &lt;= 0) {
+                var coundownState = 1;//1标示倒计时已经结束
+                callback(coundownState);
+                clearInterval(tmpTimeCount);
+            }
+        };
+    htmlformat();
+    var tmpTimeCount = setInterval(htmlformat, 250);
+}
+
+
+//console.log(1);</pre></body></html>

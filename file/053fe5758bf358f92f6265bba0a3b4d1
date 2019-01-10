@@ -1,0 +1,198 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8;">
+    <title>广州市工商行政管理局</title>
+    <link rel="stylesheet" type="text/css" href="http://gsxt.gzaic.gov.cn/aiccips/css/base.css">
+    <script type="text/javascript" src="http://gsxt.gzaic.gov.cn/aiccips/js/jquery-1.10.2.min.js"></script>
+    <script type="text/javascript" src="http://gsxt.gzaic.gov.cn/aiccips/js/loading/loading.s.js"></script>
+    <link rel="stylesheet" type="text/css" href="http://gsxt.gzaic.gov.cn/aiccips/css/style.css">
+    <script type="text/javascript">
+        function checkEnt(){
+            //单击搜一下按钮时表单较验
+            var msg = "";
+            var entName = $("#entName").val();
+            var regNo = $("#regNo").val();
+            var uniSCID = $("#uniSCID").val();
+            var code = $("#code").val();
+            var exactFlagObj = document.getElementById("exactFlag");
+
+            var exactFlag = '0';
+            if(exactFlagObj.checked){
+                exactFlag = '1';
+            }
+
+            //判断输入框是否为空
+            if ($.trim(code) == ""){
+                alert("请输入验证码！");
+                code.focus();
+                return;
+            }
+            if($.trim(entName)==""&&$.trim(regNo)==""&&$.trim(uniSCID)==""){
+                alert("请输入企业名称或注册号！");
+                return;
+            }
+                //异步请求
+                showLoading();
+                var url ="";
+                //var newwindow=window.open('about:blank');
+                $.ajax({
+                    url:'http://gsxt.gzaic.gov.cn/aiccips/GZpublicity/checkCodeGz.html',
+                    data:$("#checkForm").serialize(),
+                    dataType:'json',
+                    success:function(data,status){
+                        if(status == "success"){
+                            if(data.flag == "1"){
+                                url = "http://gsxt.gzaic.gov.cn/aiccips/GZpublicity/showEnt.html";
+        //                                $("#checkForm").serialize();
+        //                                $('#checkForm').attr('action', url);
+        //                                $("#checkForm").submit();
+                                $("#showEntID").load(url,{entName:entName,regNo:regNo,uniSCID:uniSCID,code:code,exactFlag:exactFlag},function(){
+                                    hidenLoading();
+                                    clickSee();
+                                });
+                                document.getElementById('con1Show').style.display="none";
+                                document.getElementById('showEntID').style.display="block";
+                            }else if(data.flag == "3"){
+                                alert(data.tip);
+                                //newwindow.close();
+                                window.location.reload();
+                            }else if(data.flag == "0"){
+                                hidenLoading();
+                                //newwindow.close();
+                                alert(data.tip);
+                                // 主动触发换一张的点击事件
+                                $("#see").trigger("click");
+                                code.focus();
+                            }else{
+                                alert("请重新刷新验证码！")
+                            }
+                        }else{
+                            hidenLoading();
+                            alert("数据加载出错！")
+                        }
+                    },
+                    error:function(){
+                        alert("ssss");
+                    }
+                })
+               /* $.post("http://gsxt.gzaic.gov.cn/aiccips/GZpublicity/checkCodeGz.html",$("#checkForm").serialize(),function(data,status){
+                    if(status == "success"){
+                        if(data.flag == "1"){
+                                url = "http://gsxt.gzaic.gov.cn/aiccips/GZpublicity/showEnt.html";
+//                                $("#checkForm").serialize();
+//                                $('#checkForm').attr('action', url);
+//                                $("#checkForm").submit();
+                               $("#showEntID").load(url,{entName:entName,regNo:regNo,uniSCID:uniSCID,code:code,exactFlag:exactFlag},function(){
+                                   hidenLoading();
+                                   clickSee();
+                               });
+                            document.getElementById('con1Show').style.display="none";
+                            document.getElementById('showEntID').style.display="block";
+                        }else if(data.flag == "3"){
+                            alert(data.tip);
+                            //newwindow.close();
+                            window.location.reload();
+                        }else if(data.flag == "0"){
+                            hidenLoading();
+                            //newwindow.close();
+                            alert(data.tip);
+                            // 主动触发换一张的点击事件
+                            $("#see").trigger("click");
+                            code.focus();
+                        }else{
+                            alert("请重新刷新验证码！")
+                        }
+                    }else{
+                        hidenLoading();
+                        alert("数据加载出错！")
+                    }
+                },"json");*/
+        }
+
+        //为换一张绑定事件
+        function clickSee(){
+            $("#vimg").attr("src", "http://gsxt.gzaic.gov.cn/aiccips/GZpublicity/getCode.html?random=" + Math.random());
+        }
+
+    </script>
+</head>
+
+<body style="">
+  <div class="w" style="height: 1000px">
+      <div class="ctrl_header">
+          <img src="http://gsxt.gzaic.gov.cn/aiccips/img/banner.jpg" width="1000" height="120">
+      </div>
+      <div class="ent">
+          <div class="ent_sear">
+              <h2>企业信息查询</h2>
+          </div>
+      </div>
+      <div class="ctrl_ent clearfix">
+          <input type="hidden" id="aiccipsUrl" value="http://gsxt.gzaic.gov.cn/aiccips/">
+          <form id="checkForm" action="" method="get">
+              <input type="hidden" id="searchFlag" value="">
+              <input type="hidden" id="pageNo" value="">
+              <table class="ent_text" width="990px" style="font-size: 14px;line-height: 40px;float: left">
+                  <tbody><tr>
+                      <td style="width: 15%;text-align: right;">企业名称：</td>
+                      <td colspan="3">
+                          <input type="text" id="entName" name="entName" style="width: 200px" value="">&nbsp;&nbsp;
+                          <input type="checkbox" name="exactFlag" id="exactFlag">精确查询
+                      </td>
+                  </tr>
+                  <tr>
+                      <td style="width: 15%;text-align: right;">注册号：</td>
+                      <td>
+                          <input type="text" id="regNo" name="regNo" style="width: 200px" value="">
+                      </td>
+                      <td style="width: 15%;text-align: right;">统一社会信用代码：</td>
+                      <td>
+                          <input type="text" id="uniSCID" name="text3" style="width: 200px" value="">
+                      </td>
+                  </tr>
+
+                  <tr>
+                      <td style="width: 15%;text-align: right;">验证码：</td>
+                      <td colspan="2" style="width: 50px">
+                          <input class="float-l" type="text" id="code" name="code" style="width: 89px;margin-top: 10px" value="">
+                          <img id="vimg" width="100" height="30" style="margin-top: 10px" src="http://gsxt.gzaic.gov.cn/aiccips/GZpublicity/getCode.html?random=0.44667443353682756">
+                          <a id="see" href="#" onclick="clickSee()">换一张</a>
+                      </td>
+                      <td style="text-align: left">
+                          <input class="but" style="width: 100px;margin-left: 0px;margin-top: -5px;" id="searchId" onclick="checkEnt()" type="button" value="查询">
+                      </td>
+                  </tr>
+
+              </tbody></table>
+          </form>
+      </div>
+      <div class="x_height"></div>
+      <div class="ctrl_con">
+          <div class="con1" id="con1Show">
+              <p class="red">本网站最多只显示符合条件的前二十条记录</p>
+              <p>注意：注册号必须输入完整信息，名称可以模糊匹配。</p>
+              <p>任何单位和个人不得将从本网站获取的信息出售牟利。</p>
+              <p><a href="http://gsxt.gzaic.gov.cn/aiccips/GZpublicity/xuzhiPage.html" target="_blank">企业登记资料查询须知</a></p>
+          </div>
+          <div class="con2" id="showEntID" style="display: none;">
+              <p class="red">本网站最多只显示符合条件的前二十条记录,请尽量根据精确搜索条件查询</p>
+          </div>
+      </div>
+      <div class="x_height"></div>
+      <div class="ctrl_foot_search">
+          <ul class="clearfix">
+              <li><a href="javascript:void(0)">设为首页</a><span>|</span></li>
+              <li><a href="javascript:void(0)">加入收藏</a></li>
+          </ul>
+          <p>主办单位：广州市工商行政管理局 [粤ICP备030863号]</p>
+          <p>任何人任何单位不得以任何方式复制或变相复制本网全部或部分信息</p>
+      </div>
+  </div>
+
+<script type="text/javascript">
+    $(function(){
+        clickSee();
+    });
+</script>
+
+
+</body></html>

@@ -1,0 +1,132 @@
+<!DOCTYPE html><html><head>
+    <meta charset="utf-8">
+    <title>登录_第一财经有看投</title>
+    <meta name="keywords" content="第一财经,有看投,有看投客户端,投顾锦囊">
+    <meta name="description" content="有看投，让投资大有看头">
+    <meta http-equiv="X-UA-Compatible" content="IE=9">
+    <link rel="stylesheet" href="http://youkantou.yicai.com/css/pc/reset.css">
+    <link rel="stylesheet" href="http://youkantou.yicai.com/css/pc/function.css">
+    <link rel="stylesheet" href="http://youkantou.yicai.com/css/bootstrap.min.css">
+    <link rel="stylesheet" href="http://youkantou.yicai.com/css/bootstrapValidator.min.css">
+    <link rel="stylesheet" href="http://youkantou.yicai.com/css/pc/style.css">
+    <script async="" src="https://www.google-analytics.com/analytics.js"></script><script type="text/javascript" async="" src="//analytics.yicai.com/js/analytics.js"></script><script>
+        var isAndroid=navigator.userAgent.match(/android|Linux/ig),isIos=navigator.userAgent.match(/iphone|ipod|ipad/ig),isWechat=navigator.userAgent.match(/MicroMessenger/ig);
+        if(isAndroid || isIos){	//手机访问时跳转对应页面
+            var toUrl = "http://m.youkantou.yicai.com/user/login";
+            window.location.href= toUrl;
+        }
+    </script>
+</head>
+<body>
+<div class="g-bd f-tac">
+    <img src="http://youkantou.yicai.com/images/pcimage/login.jpg" width="466" height="417" class="img30">
+    <div class="f-tac mar">
+        <div id="loginForm" novalidate="novalidate" class="bv-form"><button type="submit" class="bv-hidden-submit" style="display: none; width: 0px; height: 0px; "></button>
+            <div class="f-pr form-group has-feedback">
+                <input type="text" name="mobile" class="u-inp" value="手机" onfocus="if (value =='手机'){value =''}" onblur="if (value ==''){value='手机'}" data-bv-field="mobile"><i style="display: none; " class="form-control-feedback bv-no-label" data-bv-icon-for="mobile"></i>
+            <small style="display: none; " class="help-block" data-bv-validator="notEmpty" data-bv-for="mobile" data-bv-result="NOT_VALIDATED">* 手机号码不能为空</small><small style="display: none; " class="help-block" data-bv-validator="regexp" data-bv-for="mobile" data-bv-result="NOT_VALIDATED">* 手机号不正确</small></div>
+            <div class="f-pr form-group has-feedback">
+                <input type="password" name="password" class="u-inp" value="******" onfocus="if (value =='******'){value =''}" onblur="if (value ==''){value='******'}" data-bv-field="password"><i style="display: none; " class="form-control-feedback bv-no-label" data-bv-icon-for="password"></i>
+            <small style="display: none; " class="help-block" data-bv-validator="notEmpty" data-bv-for="password" data-bv-result="NOT_VALIDATED">* 密码不能为空</small><small style="display: none; " class="help-block" data-bv-validator="stringLength" data-bv-for="password" data-bv-result="NOT_VALIDATED">* 密码长度至少6位</small></div>
+            <button onclick="userLogin()" class="u-btn">登录</button>
+        </div>
+        <div class="f-tac f-cb">
+            <span class="f-fl"><a href="http://www.yicai.com/html/wqvision/" style="color:#333;">有看投下载地址</a></span>
+        </div>
+    </div>
+</div>
+<script src="http://youkantou.yicai.com/js/jquery-1.11.1.min.js"></script>
+<script src="http://youkantou.yicai.com/js/jquery.cookie.js"></script>
+<script src="http://youkantou.yicai.com/js/bootstrap.min.js"></script>
+<script src="http://youkantou.yicai.com/js/bootstrapValidator.min.js"></script>
+<script>
+    var access_token = $.cookie("uam_access_token");
+    if(access_token != 'null' && access_token != undefined) {
+        location.href = "http://youkantou.yicai.com/pc/user/mycourse";
+    }
+    $(function(){
+        ValidLoginForm();
+        $('input').keypress(function(e){
+            if(e.which == 13) {
+                userLogin();
+            }
+        });
+    });
+    function ValidLoginForm(){
+        $('#loginForm').bootstrapValidator({
+            message: 'This value is not valid',
+            feedbackIcons: {
+                valid: 'glyphicon glyphicon-ok',
+                invalid: 'glyphicon glyphicon-remove',
+                validating: 'glyphicon glyphicon-refresh'
+            },
+            fields: {
+                mobile: {
+                    message: '手机号',
+                    validators: {
+                        notEmpty: {
+                            message: '* 手机号码不能为空'
+                        },
+                        regexp: {
+                            regexp: /^1\d{10}$/,
+                            message: '* 手机号不正确'
+                        }
+                    }
+                },
+                password:{
+                    message: '密码',
+                    validators: {
+                        notEmpty: {
+                            message: '* 密码不能为空'
+                        },
+                        stringLength: {
+                            min: 6,
+                            max: 30,
+                            message: '* 密码长度至少6位'
+                        }
+                    }
+                }
+            }
+        });
+    }
+    function userLogin() {
+        if($("#loginForm").data('bootstrapValidator').isValid()){
+            var _userName = $("input[name='mobile']").val();
+            var _password = $("input[name='password']").val();
+            $.get("http://youkantou.yicai.com/api/user/",{op:"login",username:_userName, password: _password},function(data){
+                if(data.status>0) {
+                    alert(data.message);
+                    $("#loginForm").find("input").val("");
+                }
+                else {
+                    setTimeout("location.href='http://youkantou.yicai.com/pc/user/mycourse'",100);
+                }
+            });
+        }
+        else {
+            ValidLoginForm();
+        }
+    }
+</script>
+<script>
+    var _pb = _pb || [];
+    var logid = $.cookie("uam_uid");
+    if(logid != 'null' && logid != undefined) _pb.push(['ruid',logid]);
+        (function() {
+        var a = document.createElement('script');
+        a.type = 'text/javascript';
+        a.async = true;
+        a.src = '//analytics.yicai.com/js/analytics.js';
+        var s = document.getElementsByTagName('script')[0];
+        s.parentNode.insertBefore(a, s);
+    })();//yicai统计
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+    ga('create', 'UA-8382245-3', 'auto');
+    ga('send', 'pageview');//GA
+</script>
+
+
+</body></html>

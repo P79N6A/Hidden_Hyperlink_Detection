@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+ <head> 
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" /> 
+  <link rel="stylesheet" href="/css/bootstrap/css/bootstrap.min.css" /> 
+  <link rel="stylesheet" href="/css/css.css" /> 
+  <script src="/assets/4a705725/jquery.min.js"></script> 
+  <script src="/css/bootstrap/js/bootstrap.min.js"></script> 
+  <title>窥探Swift之协议(Protocol)和委托代理(Delegate)回调的使用 - PHPERZ中文资讯站</title> 
+  <meta name="description" content="本篇内容主要为大家提供的是窥探Swift之协议(Protocol)和委托代理(Delegate)回调的使用。感兴趣的同学可以参考学习下，具体内容如下：" /> 
+  <meta name="keywords" content="窥探Swift之协议(Protocol)和委托代理(Delegate)回调的使用 Swift Swift编程语言" /> 
+  <script>
+        var _hmt = _hmt || [];
+        (function() {
+            var hm = document.createElement("script");
+            hm.src = "//hm.baidu.com/hm.js?4d905f4531680f23044168435712d12b";
+            var s = document.getElementsByTagName("script")[0];
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script> 
+ </head> 
+ <body> 
+  <nav class="navbar navbar-inverse" role="navigation"> 
+   <div class="container"> 
+    <!-- Brand and toggle get grouped for better mobile display --> 
+    <div class="navbar-header"> 
+     <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1"> <span class="sr-only">Toggle navigation</span> <span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span> </button> 
+     <a data-track="top-menu" class="" href="/">PHPERZ</a> 
+    </div> 
+    <!-- Collect the nav links, forms, and other content for toggling --> 
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1"> 
+     <ul class="nav navbar-nav"> 
+      <li class="active"><a data-track="top-menu" href="/">网站首页<span class="sr-only">(current)</span></a></li> 
+      <li class="dropdown"> <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">业内资讯<span class="caret"></span></a> 
+       <ul class="dropdown-menu" role="menu"> 
+        <li><a data-track="top-menu" href="/lists/1.html">热点关注</a></li> 
+        <li><a data-track="top-menu" href="/lists/3.html">移动互联网</a></li> 
+        <li><a data-track="top-menu" href="/lists/2.html">发布与更新</a></li> 
+        <li><a data-track="top-menu" href="/lists/4.html">数字解读</a></li> 
+        <li><a data-track="top-menu" href="/lists/5.html">创业与职场</a></li> 
+       </ul> </li> 
+      <li class="dropdown"> <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">编程技术<span class="caret"></span></a> 
+       <ul class="dropdown-menu" role="menu"> 
+        <li><a data-track="top-menu" href="/topics/1.html">PHP</a></li> 
+        <li><a data-track="top-menu" href="/topics/2.html">Mysql</a></li> 
+        <li><a data-track="top-menu" href="/topics/3.html">Apache</a></li> 
+        <li><a data-track="top-menu" href="/topics/29.html">Nginx</a></li> 
+        <li><a data-track="top-menu" href="/topics/52.html">Python</a></li> 
+        <li><a data-track="top-menu" href="/topics/6.html">Android</a></li> 
+        <li><a data-track="top-menu" href="/topics/7.html">Linux</a></li> 
+        <li><a data-track="top-menu" href="/topics/8.html">jQuery</a></li> 
+        <li><a data-track="top-menu" href="/topics/9.html">Javascript</a></li> 
+        <li><a data-track="top-menu" href="/topics/11.html">Java</a></li> 
+        <li><a data-track="top-menu" href="/topics/74.html">Swift</a></li> 
+        <li><a data-track="top-menu" href="/topics/85.html">YII</a></li> 
+        <li><a data-track="top-menu" href="/topics/81.html">ThinkPHP</a></li> 
+        <li><a data-track="top-menu" href="/topics/164.html">Bootstrap</a></li> 
+       </ul> </li> 
+      <li><a data-track="top-menu" href="/lists/7.html">面试题库</a></li> 
+      <li><a data-track="top-menu" href="/special.html">教程</a></li> 
+      <li><a data-track="top-menu" href="/topics.html">主题</a></li> 
+     </ul> 
+     <form class="navbar-form navbar-right" role="search" action="/search.html" method="get"> 
+      <div class="form-group"> 
+       <input type="text" name="wd" class="form-control col-lg-4" placeholder="Bootstrap" value="" /> 
+      </div> 
+      <button type="submit" data-track="top-search" class="btn btn-default">搜索</button> 
+     </form> 
+    </div>
+    <!-- /.navbar-collapse --> 
+   </div>
+   <!-- /.container-fluid --> 
+  </nav> 
+  <div class="container"> 
+   <script src="http://www.phperz.com/assets/ajs/banner.js"></script> 
+   <div class="row"> 
+    <div class="col-md-8"> 
+     <ol class="breadcrumb"> 
+      <li><a href="/">首页</a></li> 
+      <li class="active">编程与技术</li> 
+     </ol> 
+     <script async="" src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script> 
+     <!-- p自适应，内容顶部 --> 
+     <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-6428468236896100" data-ad-slot="6101732525" data-ad-format="auto"></ins> 
+     <script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script> 
+     <br /> 
+     <div class="panel panel-default"> 
+      <div class="panel-body content"> 
+       <div class="page-header"> 
+        <h1>窥探Swift之协议(Protocol)和委托代理(Delegate)回调的使用</h1> 
+       </div> 
+       <p class="cinfo"> 发布于 2016-01-21 10:25:14 | 41 次阅读 | 评论: 0 | 来源: 分享 </p> 
+       <!--
+		<div class="brief bg-info">
+			<div class="icon"><a data-track="article-topic-icon" href="/topics/74.html" class="icon" target="_blank"><img title="Swift编程语言" src="http://img.phperz.com/data/icon/14066448818763.jpg"></a></div>			<p class="info ">本篇内容主要为大家提供的是窥探Swift之协议(Protocol)和委托代理(Delegate)回调的使用。感兴趣的同学可以参考学习下，具体内容如下：</p>
+		</div>
+--> 
+       <script type="text/javascript">
+    /*内容底部 创建于 2016/12/14*/
+    var cpro_id = "u2845080";
+</script> 
+       <script type="text/javascript" src="http://cpro.baidustatic.com/cpro/ui/c.js"></script> 
+       <p> <b><a data-track="article-special-ad" href="/special/5.html" style="color:red">这里有新鲜出炉的Swift教程，程序狗速度看过来！</a></b><br /> </p> 
+       <p> <a data-track="article-topic-link" href="/topics/74.html" target="_blank"></a></p>
+       <h3><a data-track="article-topic-link" href="/topics/74.html" target="_blank">Swift编程语言</a></h3>SWIFT，苹果于2014年WWDC（苹果开发者大会）发布的新开发语言，可与Objective-C*共同运行于Mac OS和iOS平台，用于搭建基于苹果平台的应用程序。 
+       <p></p> 
+       <hr /> 
+       <div id="cnblogs_post_body"> 
+        <p>协议与委托代理回调在之前的博客中也是经常提到和用到的在《<span><span>Objective-C中的委托(代理)模式</span></span>》和《<span><span>iOS开发之窥探UICollectionViewController(四) –一款功能强大的自定义瀑布流</span></span>》等博客内容中都用到的<span>Delegate</span>回调。说到协议，在<span>Objective-C</span>中也是有协议的，并且<span>Swift</span>中的协议和<span>Objc</span>中的协议使用起来也是大同小异的，在<span>Java</span>等现代面向对象编程语言中有接口（<span>Interface</span>）的概念，其实和<span>Swift</span>中或者<span>Objc</span>中的<span>Protocol</span>（协议）是一个东西。论<span>Interface</span>和<span>Protocol</span>的功能来说，两者也是大同小异的。</p> 
+        <p>今天就结合两个实例来窥探一下Swift中的协议与Delegate回调（委托代理回调）。本篇先给出<span>CocoaTouch</span>中常用控件<span>UITableView</span>的常用回调，并以此来认识一下回调的使用方式。紧接着会给出如何去实现自己的<span>Delegate</span>回调，即在自定义控件中去实现委托代理回调。言归正传，开始今天的博客主题。</p> 
+        <p><span>一.从UITableView中来窥探协议的委托代理回调</span></p> 
+        <p>UITableView这个高级控件在iOS开发中的出镜率是比较高的，今天的重点不是介绍如何使用UITableView, 而是让通过UITableView的工作方式来直观的感受一下协议的使用场景，以及Delegate代理的工作方式。如果你对UITableView控件不熟的话，完全可以跳过这一部分，直接进入第二部分。如果你要更好的理解Delegate委托回调，还是很有必要看这一部分的。</p> 
+        <p>下面就先以UITableView的<span>UITableViewDatasource</span>协议来看一下委托代理的使用方式。为了简化代码呢，下面的TableView的使用就没有实现<span>UITableViewDelegate</span>协议还是那句话，今天的重点是Protocol和Delegate, 而不是如何使用UITableView。下方的截图就是我们要使用<span>UITableView</span>和<span>UITableViewDatasource</span>来做的事情。当然下方的实例无论是代码还是布局方面还是灰常简单的，运行效果如下所示。</p> 
+        <p><img class="img-responsive" src="http://img.phperz.com/data/img/20160121/1453344503_5994.png" /></p> 
+        <p>上面的Cell中就是一个<span>ImageView</span>和一个<span>Label</span>, 布局灰常简单啦，接下来就简单介绍一下在Swift中是如何实现（说白了，和Objc实现起来大同小异）。还是结合着<span>Storyboard</span>来做吧，毕竟使用<span>Storyboard</span>布局更为简单一些。</p> 
+        <p>1. 使用Storyboard来布局控件，控件布局如下：</p> 
+        <p><img class="img-responsive" src="http://img.phperz.com/data/img/20160121/1453344503_7501.png" /></p> 
+        <p>2. 给上述Cell绑定相应的Swift源码，并关联ImageView和Label, 相应Cell(BeautifulGrillCell)的代码如下所示。<span>girlImageView即为做吧的图片，</span></p> 
+        <p><span>girlNameLable为图片右边的文字。</span></p> 
+        <div> 
+         <pre>
+<code>
+import UIKit
+
+class BeautifulGrillCell: UITableViewCell {
+
+    @IBOutlet var girlImageView: UIImageView!
+
+    @IBOutlet var girlNameLable: UILabel!
+
+    override func awakeFromNib() {
+        super.awakeFromNib()
+        // Initialization code
+    }
+
+    override func setSelected(selected: Bool, animated: Bool) {
+        super.setSelected(selected, animated: animated)
+
+        // Configure the view for the selected state
+    }
+
+}</code></pre> 
+        </div> 
+        <p>3.接下来就是要模拟我们在TableView上显示的数据了，在正常开放中这些数据往往来源于网络请求，而在本篇博客中就模拟数据源，来为我们的TableView提供显示的数据。数据源的格式是一个数组，而数组中存放的是多个字典，每个字典有两个键值对，一个键值对存储要显示图片的文件名，另一个键值对则存储美女的名字。为了使该数据的存储结构，请看下方结构图。</p> 
+        <p><img class="img-responsive" src="http://img.phperz.com/data/img/20160121/1453344503_1524.png" /></p> 
+        <p>原理图有了，接下来就要使用代码来创建出上述结构的数据以供TableView的数据源使用，下面的方法就是实现上述结构的函数。</p> 
+        <p>(1) 首先我们要在视图控制器相应的类中添加一个可变数组，用来存放数据，如下所示：</p> 
+        <div> 
+         <pre>
+<code>
+private var dataSource:Array&lt;Dictionary&lt;String, String&gt;&gt;?</code></pre> 
+        </div> 
+        <p>(2) 接着就是往上面这个数组中填充数据了，代码如下：</p> 
+        <div> 
+         <pre>
+<code>
+//-----------创建Table要显示的数据-------------------------
+    func createSourceData() {
+        self.dataSource = Array&lt;Dictionary&lt;String, String&gt;&gt;();
+        for (var i = 0; i&lt;10; i++) {
+            let imageName:String = &quot;00\(i).jpg&quot;
+            let girlName:String = &quot;美女\(i + 1)&quot;
+            self.dataSource?.append([IMAGE_NAME:imageName, GIRL_NAME:girlName])
+        }
+    }</code></pre> 
+        </div> 
+        <p>4. 我们上面<span>Storyboard</span>中的视图控制器使用的是<span>UIViewController</span>而不是<span>UITableViewController</span>。 我们在<span>UIViewController</span>上贴了一层<span>UITableView</span>, 所以我们需要在相应的<span>ViewController</span>对应的Swift源码中进行<span>UITableView</span>的绑定，并实现<span>UITableViewDatasource</span>代理，并为<span>UITableView</span>指定该代理。下方的代码就是关联tableview并指定代理方法。代码如下：</p> 
+        <div> 
+         <pre>
+<code>
+import UIKit
+
+class ViewController: UIViewController, UITableViewDataSource {
+
+    @IBOutlet var myTableView: UITableView!
+    //life cycle
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        self.createSourceData()
+        self.myTableView.dataSource = self
+    }
+}</code></pre> 
+        </div> 
+        <p>4. 对<span>myTableView</span>的<span>dataSource(数据提供者)</span>指定完代理对象后，接下来就是要实现<span>UITableViewDataSource</span>中的相应的方法了，<span>ViewController</span>通过这些协议委托回调的代理方法来为<span>TableView</span>提供数据。下方是<span>UITableViewDataSource</span>委托方法中返回<span>TableView</span>的<span>Section</span>个数的回调方法，如下所示：</p> 
+        <div> 
+         <pre>
+<code>
+/**
+    - parameter tableView: 当前要显示的TableView
+
+    - returns:  TableView中Section的个数
+    */
+    func numberOfSectionsInTableView(tableView: UITableView) -&gt; Int {
+        return 18     }</code></pre> 
+        </div> 
+        <p>5.上面回调方法是返回Section个数的，紧接着下方就是返回每个Section中Cell个数的回调方法。Cell的个数就是数组dataSource中元素的个数。</p> 
+        <div> 
+         <pre>
+<code>
+/**
+     返回每个Section中的Cell个数
+
+     - parameter tableView: 当前显示的TableView
+     - parameter section:   对应的Section
+
+     - returns: 对应Section中cell的个数
+     */
+    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -&gt; Int{
+        return self.dataSource!.count
+    }</code></pre> 
+        </div> 
+        <p>6. 下面这个方法是比较重要的，下方的方法，就是返回每行的Cell的委托回调方法。通过Cell的重用标示符来创建Cell的实例对象，并对Cell上的一些属性赋值，并返回当前是Cell实例对象，代码如下所示。</p> 
+        <div> 
+         <pre>
+<code>
+/**
+     返回要显示的Cell
+
+     - parameter tableView: cell要显示的TableView
+     - parameter indexPath: cell的索引信息
+
+     - returns: 返回要显示的Cell对象
+     */
+    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -&gt; UITableViewCell {
+
+        let cell:BeautifulGrillCell = self.myTableView.dequeueReusableCellWithIdentifier(&quot;BeautifulGrillCell&quot;, forIndexPath: indexPath) as! BeautifulGrillCell
+
+        let tempItem:Dictionary? = self.dataSource![indexPath.row]
+
+        if tempItem != nil {
+            let imageName:String = tempItem![IMAGE_NAME]!
+            cell.girlImageView.image = UIImage(named: imageName)
+
+            let girlName:String = tempItem![GIRL_NAME]!
+            cell.girlNameLable.text = girlName
+        }
+
+        return cell
+    }
+}</code></pre> 
+        </div> 
+        <p>经过上面这些步骤，你就可以去实现博客最上方截图中的效果了，上面主要用到的还是TableView的<span>UITableViewDatasource</span>委托代理, 使用方法如上。上面使用的委托回调主要是使用Swift中的协议（Protocol）来实现的。那么如何使用协议来实现你自己的委托回调呢？这将是下面将要介绍的内容。</p> 
+        <p><span>二. 认识协议，并使用协议实现委托回调</span></p> 
+        <p>接下来的内容就要介绍如何使用协议来定义属于你自己的委托代理回调（Delegate）了。第二部分还是以实例为准，在上面的Demo中加入我们自己定义的委托代理回调。我们需要做的就是，在上面界面中，我们点击任意Cell就可以Push(导航控制器展示视图控制器的一种方式，可以理解为视图控制器压栈的过程)到一个ViewController中，这个ViewController要做的事情就是输入美女的名字，点击返回后通过自己定义的委托回调，把你输入的值回调到上一个页面（TableView）中去，并修改相应Cell上的名字。说白了，就是对美女的名字做一个修改。</p> 
+        <p>如果上面的文字让你迷惑的话，那么接下来看实例好了，该实例还算是简单的。下方是实例的操作步骤，如下所示：</p> 
+        <p><img class="img-responsive" src="http://img.phperz.com/data/img/20160121/1453344504_5800.png" /></p> 
+        <p>上面实例的意思就是把下一个页面的值通过委托代理回调的形式传到上个页面中去，在前面的博客《<a href="http://ios.jobbole.com/83794/" id="cb_post_title_url" title="窥探Swift之函数与闭包的应用实例">窥探Swift之函数与闭包的应用实例</a>》中也做了同样的事情，不过之前我们是使用闭包（Closure）回调来实现的。先在我们要通过Delegate来实现。接下来我们就定义协议，然后再协议的基础上实现委托代理回调。接下来了开始我扩充的部分。</p> 
+        <p>1.实现编辑美女姓名的页面</p> 
+        <p>(1) 在Storyboard上新添加一个视图控制器（UIViewController）, 并命名为EditViewController，给视图控制器就是上方截图中绿色的那个视图控制器，主要用来对美女姓名 修改，并通过委托回调把值传给上个页面。该视图控制器的页面布局比较简单，具体如下所示：</p> 
+        <p><img class="img-responsive" src="http://img.phperz.com/data/img/20160121/1453344504_6258.png" /></p> 
+        <p>(2)UI就如数所示，为<span>EditViewController</span>关联EditViewController.swift源文件后，再对其上面的使用到的控件进行关联即可。紧接着我们要实现一个协议，这个协议我们用来所委托回调使用。这个协议可以定义在EditViewController.swift源文件中。在协议定义之前，先对什么是协议简单的提上一嘴。先简单的理解，协议中的方法只有声明，没有实现，并且使用protocol关键自进行声明，下方的代码就是我们要使用的协议。协议中有一个<span>fetchGirlName(name:String)</span>的方法，用来回调出输入的数值。默认方法是必选的，你可以使用<span>optional</span>关键字使方法可选，在此就不做过多赘述了。</p> 
+        <div> 
+         <pre>
+<code>
+ protocol EditViewControllerDelegate: NSObjectProtocol{
+     func fetchGirlName(name:String)
+ }</code></pre> 
+        </div> 
+        <p>(3) 接着要实现<span>EditViewController</span>类中的东西了，代码如下。</p> 
+        <p>成员变量<span><strong><em><span>var<span> girlOldName:<span>String<span>?</span></span></span></span></em></strong></span>负责接收上个页面传过来的美女的姓名。<span><span><em><strong>weak</strong></em></span><span> <span><span><em><strong>var</strong></em></span><span><span><em><strong> delegate: </strong></em></span><span><span><em><strong>EditViewControllerDelegate</strong></em></span><span><span><em><strong>?</strong> </em></span>这个声明为<span>weak</span>的<span>delegate</span>成员变量则是必须要实现<span>EditViewControllerDelegate</span>协议的<span>委托代理者</span>，使用weak修饰为了避免强引用循环。接着是girlNameTextField就是关联的输入框了，负责接收用户输入，把值交付给委托代理者。</span></span></span></span></span></span></p> 
+        <p><span><span><span><span><span><span>在<span>viewWillDisappear</span>方法中，会将用户输入的值交付给委托代理者的fetchGirlName方法。</span></span></span></span></span></span><span>deinit</span>是析构函数，用来观察是否引起<span>强引用循环</span>，因为我们是使用的weak, 所以不会引起强引用循环，该deinit方法当返回时，是会被释放掉的。</p> 
+        <div> 
+         <pre>
+<code>
+class EditViewController: UIViewController {
+
+    var girlOldName:String?
+    weak var delegate: EditViewControllerDelegate?
+    @IBOutlet var girlNameTextField: UITextField!
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        if self.girlOldName != nil {
+            self.girlNameTextField.text = self.girlOldName!
+        }
+    }
+
+    override func viewWillDisappear(animated: Bool) {
+        let name:String! = self.girlNameTextField.text
+        if  name != &quot;&quot; {
+            if delegate != nil {
+                delegate!.fetchGirlName(name)
+            }
+        }
+    }
+
+    override func didReceiveMemoryWarning() {
+        super.didReceiveMemoryWarning()
+    }
+
+    deinit {
+        print(&quot;释放&quot;)
+    }
+}</code></pre> 
+        </div> 
+        <p>2.上面的代码是实现编辑页面并实现相应的委托协议，下方就是要从之前TableView中进行跳转。也就是点击TableView的每一行，然后跳转到编辑页面对其当前点击的cell进行编辑，编辑后返回通过代理进行值的修改。</p> 
+        <p>(1)首先要解决的就是点击Cell跳转到EditViewController, 要执行这个事件，我们还必须实现TableView的另一个协议，就是UITableViewDelegate, 以为点击Cell的事件获取的方法就在TableViewDelegate中。所以我们要在TableView所在的ViewController中的viewDidLoad()中指定UITableViewDelegate的委托代理者。如下所示。同时该ViewContoller也要实现UITableViewDelegate协议。</p> 
+        <div> 
+         <pre>
+<code>
+ self.myTableView.delegate = self</code></pre> 
+        </div> 
+        <p>(2) 实现UITableViewDelegate协议中点击Cell的方法，方法中的内容如下所示。在该方法中，首先我们要暂存一下点击的是哪个Cell, 也就是记录一下点击Cell的IndexPath, 然后就是获取点击的Cell对象，因为通过该Cell对象，可以获取相应Cell上的数据。具体的不多说了，请看代码中的注释。</p> 
+        <div> 
+         <pre>
+<code>
+//-----------UITableViewDelegate------------------
+    func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+
+        //记录当前点击的IndexPath
+        self.selectIndexPath = indexPath
+
+        //获取当前点击的Cell对象
+        let currentSelectCell:BeautifulGrillCell? = self.myTableView.cellForRowAtIndexPath(indexPath) as? BeautifulGrillCell
+
+        //从storyboard中实例化编辑视图控制器
+        let editViewController:EditViewController = UIStoryboard(name: &quot;Main&quot;, bundle: NSBundle.mainBundle()).instantiateViewControllerWithIdentifier(&quot;EditViewController&quot;) as! EditViewController
+
+        //指定编辑视图控制器委托代理对象
+        editViewController.delegate = self
+
+        //把点击Cell上的值传递给编辑视图控制器
+        if currentSelectCell != nil {
+           editViewController.girlOldName = currentSelectCell!.girlNameLable.text!
+        }
+
+        //push到编辑视图控制器
+        self.navigationController?.pushViewController(editViewController, animated: true)
+    }</code></pre> 
+        </div> 
+        <p>（3）上面是跳转，接下来就是要实现<span>EditViewControllerDelegate中的回调方法，来处理相应的回调参数了。下方就是在表视图中实现的回调方法，具体请看代码中的注释：</span></p> 
+        <div> 
+         <pre>
+<code>
+//-----------EditViewControllerDelegate------------------
+
+    func fetchGirlName(name: String) {
+
+        if selectIndexPath != nil {
+            //获取当前点击Cell的索引
+            let index = (selectIndexPath?.row)!
+
+            //更新数据源中相应的数据
+            self.dataSource![index][GIRL_NAME] = name
+
+            //重载TableView
+            self.myTableView.reloadData()
+        }
+
+    }</code></pre> 
+        </div> 
+        <p>经过上面的步骤，我们就可以去定义属于自己的协议，并在此协议上实现委托回调了。上面的场景在iOS开发中极为常见，使用场景也是比较广泛的。所以协议无论在Swift还是在iOS开发中都是极为重要的概念之一。好今天的博客内容也挺多的了，就到此为止，剩下的东西，会在以后的博客中继续更新。</p> 
+        <p>上面实例GitHub分享地址（基于Xcode7.1）:<a href="https://github.com/lizelu/SwiftDelegateDemo" target="_blank"><span>https://github.com/lizelu/SwiftDelegateDemo</span></a></p> 
+       </div> 
+       <br /> 
+       <p> <script async="" src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script> 
+        <!-- 自适应内容底部 --> <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-6428468236896100" data-ad-slot="3092750527" data-ad-format="auto"></ins> <script>
+			(adsbygoogle = window.adsbygoogle || []).push({});
+			</script> </p> 
+       <br /> 
+       <b> 相关阅读 :</b>
+       <br /> 
+       <a data-track="article-likes" href="/article/16/0121/184679.html" target="_blank">窥探Swift之协议(Protocol)和委托代理(Delegate)回调的使用</a>
+       <br /> 
+       <a data-track="article-likes" href="/article/16/0118/184084.html" target="_blank">窥探Swift之需要注意的基本运算符和高级运算符</a>
+       <br /> 
+       <a data-track="article-likes" href="/article/16/0120/184421.html" target="_blank">窥探Swift之别具一格的Struct和Class</a>
+       <br /> 
+       <a data-track="article-likes" href="/article/16/0117/183733.html" target="_blank">窥探Swift之新添数据类型元组与可选值</a>
+       <br /> 
+       <a data-track="article-likes" href="/article/16/0117/183734.html" target="_blank">窥探Swift之基本数据类型</a>
+       <br /> 
+       <a data-track="article-likes" href="/article/16/0117/183738.html" target="_blank">窥探Swift之字符串（String）</a>
+       <br /> 
+       <a data-track="article-likes" href="/article/16/0117/183739.html" target="_blank">窥探Swift之别样的枚举类型</a>
+       <br /> 
+       <a data-track="article-likes" href="/article/16/0118/184083.html" target="_blank">窥探Swift之函数与闭包的应用实例</a>
+       <br /> 
+       <a data-track="article-likes" href="/article/16/0119/184328.html" target="_blank">窥探Swift之数组与字典</a>
+       <br /> 
+       <a data-track="article-likes" href="/article/16/0122/185216.html" target="_blank">窥探Swift之使用Web浏览器编译Swift代码以及Swift中的泛型</a>
+       <br /> 
+       <a data-track="article-likes" href="/article/16/0301/201540.html" target="_blank">窥探 Swift 之数组安全索引与数组切片</a>
+       <br /> 
+       <a data-track="article-likes" href="/article/14/1024/30918.html" target="_blank">Swift中数组和Objective-C中数组的新增方法对比</a>
+       <br /> 
+      </div> 
+     </div> 
+     <div class="panel panel-default" style="padding:10px"> 
+      <script type="text/javascript">
+	        document.write('<a style="display:none!important" id="tanx-a-mm_10108296_617976_61714699"></a>');
+	        tanx_s = document.createElement("script");
+	        tanx_s.type = "text/javascript";
+	        tanx_s.charset = "gbk";
+	        tanx_s.id = "tanx-s-mm_10108296_617976_61714699";
+	        tanx_s.async = true;
+	        tanx_s.src = "http://p.tanx.com/ex?i=mm_10108296_617976_61714699";
+	        tanx_h = document.getElementsByTagName("head")[0];
+	        if(tanx_h)tanx_h.insertBefore(tanx_s,tanx_h.firstChild);
+	</script> 
+     </div> 
+     <div class="panel panel-default"> 
+      <div class="panel-heading">
+       <strong>最新网友评论</strong>&nbsp;&nbsp;共有(
+       <strong>0</strong>)条评论
+       <span> <a href="#comment">发布评论</a> <a href="#">返回顶部</a></span>
+      </div> 
+      <script>
+		$(function(){
+			$(".up").click(function(){
+				obj		=	$(this);
+				cmid	=	$(this).attr("id");
+				lock	=	$(this).attr("lock");
+                csrf    =   $("input[name=_csrf]").val();
+				if (lock=='true') return ;
+				$.post("/comment/up.html", {'Comment[id]': cmid,'_csrf':csrf},function(data){
+					if (data.success=='1'){
+						obj.attr("lock","true");
+						$(".up"+cmid).html(data.up);
+					}
+				},"json");
+			})
+			$(".down").click(function(){
+				obj		=	$(this);
+				cmid	=	$(this).attr("id");
+				lock	=	$(this).attr("lock");
+                csrf    =   $("input[name=_csrf]").val();
+				if (lock=='true') return ;
+				$.post("/comment/down.html", {'Comment[id]': cmid,'_csrf':csrf},function(data){
+					if (data.success=='1'){
+						obj.attr("lock","true");
+						$(".down"+cmid).html(data.down);
+					}
+				},"json");
+			})
+			$(".sub_comment").click(function(){
+				cmid	=	$(this).attr("id");
+				$("#comment-pid").val(cmid);
+				window.location.href	=	"#comment";
+				$("#reply").html("@对第"+cmid+"条评论进行回复").show();
+				
+			})
+			$.get("/ajax/cc.html");
+		})
+		</script> 
+      <div class="panel-body rbox"> 
+       <div class="comment_list"> 
+       </div> 
+       <div class="comment_form"> 
+        <form id="comment-form" action="/comment/add.html" method="post"> 
+         <input type="hidden" name="_csrf" value="Q1NTVDI1ajEIYX4YZWNcQwQbEWV7ZS59Nj8aN0FqDgM3KgNlC3clYA==" /> 
+         <div class="form-group"> 
+          <div class="form-group field-comment-aid required"> 
+           <input type="hidden" id="comment-aid" name="Comment[aid]" value="184679" 0="1" /> 
+           <div class="help-block"></div> 
+          </div> 
+          <div class="form-group field-comment-pid"> 
+           <input type="hidden" id="comment-pid" name="Comment[pid]" /> 
+           <div class="help-block"></div> 
+          </div> 
+         </div> 
+         <a name="comment" id="comment"></a> 
+         <div class="form-group"> 
+          <div id="reply" style="display:none;margin-bottom:5px;color:#ff0000"></div> 
+          <div class="form-group field-comment-name"> 
+           <input type="text" id="comment-name" class="form-control" name="Comment[name]" size="20" placeholder="您的昵称" /> 
+           <div class="help-block"></div> 
+          </div> 
+         </div> 
+         <div class="form-group has-feedback" id="sss"> 
+          <div class="form-group field-comment-body required"> 
+           <textarea id="comment-body" class="form-control" name="Comment[body]" rows="3" placeholder="喷上一嘴吧…" aria-describedby="Comment_bodyStatus"></textarea> 
+           <div class="help-block"></div> 
+          </div> 
+         </div> 
+         <div class="form-group"> 
+          <button type="submit" class="btn btn-primary">　发 布　</button> 
+         </div> 
+        </form> 
+       </div> 
+      </div> 
+     </div> 
+    </div> 
+    <div class="col-md-4"> 
+     <script type="text/javascript" src="http://www.phperz.com/assets/ajs/left_360_300.js"></script> 
+     <div class="panel panel-default"> 
+      <div class="panel-heading">
+       推荐阅读
+      </div> 
+      <div class="panel-body rbox"> 
+       <li><a data-track="article-right-pick" href="/article/17/0323/326701.html" title="年度大片：Stack Overflow 2017 开发者调查报告发布！">年度大片：Stack Overflow 2017 开发者调查报告发布！</a></li> 
+       <li><a data-track="article-right-pick" href="/article/17/0301/325773.html" title="开发者需要大学学位吗？">开发者需要大学学位吗？</a></li> 
+       <li><a data-track="article-right-pick" href="/article/17/0217/324556.html" title="程序员多大年纪算高龄，届时该何去何从？">程序员多大年纪算高龄，届时该何去何从？</a></li> 
+       <li><a data-track="article-right-pick" href="/article/17/0209/323098.html" title="2017 年高薪编程语言排行榜，你的语言上榜没？">2017 年高薪编程语言排行榜，你的语言上榜没？</a></li> 
+       <li><a data-track="article-right-pick" href="/article/16/1220/313903.html" title="各编程语言开发者最常使用的按键，中了没?">各编程语言开发者最常使用的按键，中了没?</a></li> 
+       <li><a data-track="article-right-pick" href="/article/16/1219/313715.html" title="伤不起的三十岁，干不动的程序员要何去何从？">伤不起的三十岁，干不动的程序员要何去何从？</a></li> 
+       <li><a data-track="article-right-pick" href="/article/16/1206/311366.html" title="2016年中国加班最狠IT公司排行">2016年中国加班最狠IT公司排行</a></li> 
+       <li><a data-track="article-right-pick" href="/article/16/1106/304831.html" title="一句话" 面试"漫画：黑了苹果、谷歌、三星"="">一句话&quot;面试&quot;漫画：黑了苹果、谷歌、三星</a></li> 
+       <li><a data-track="article-right-pick" href="/article/16/1016/300291.html" title="拿代码量算 KPI ……跟程序员们来这套？">拿代码量算 KPI ……跟程序员们来这套？</a></li> 
+       <li><a data-track="article-right-pick" href="/article/16/1015/300183.html" title="程序员遇到 Bug 时的 30 个反应，你是哪一种？">程序员遇到 Bug 时的 30 个反应，你是哪一种？</a></li> 
+       <li><a data-track="article-right-pick" href="/article/16/1011/299270.html" title="2016年收入最高的5个编程语言 Java和C没在前五?">2016年收入最高的5个编程语言 Java和C没在前五?</a></li> 
+       <li><a data-track="article-right-pick" href="/article/16/1008/298720.html" title="为什么很少见人傻钱多的程序员炫富？">为什么很少见人傻钱多的程序员炫富？</a></li> 
+       <li><a data-track="article-right-pick" href="/article/16/0905/292657.html" title="阿里月薪两万是什么体验？">阿里月薪两万是什么体验？</a></li> 
+       <li><a data-track="article-right-pick" href="/article/16/0902/292353.html" title="代码缩进时 程序员更喜欢空格键还是Tab键？">代码缩进时 程序员更喜欢空格键还是Tab键？</a></li> 
+       <li><a data-track="article-right-pick" href="/article/16/0818/247099.html" title="各公司的机密，你的薪水在哪个阶段？">各公司的机密，你的薪水在哪个阶段？</a></li> 
+      </div> 
+     </div> 
+     <!--				
+	<div class="panel panel-default">
+	<script type="text/javascript">
+	var cpro_id="u2240381";
+	(window["cproStyleApi"] = window["cproStyleApi"] || {})[cpro_id]={at:"3",rsi0:"357",rsi1:"550",pat:"6",tn:"baiduCustNativeAD",rss1:"#FFFFFF",conBW:"0",adp:"1",ptt:"0",titFF:"%E5%BE%AE%E8%BD%AF%E9%9B%85%E9%BB%91",titFS:"14",rss2:"#337ab7",titSU:"0",ptbg:"90",piw:"160",pih:"140",ptp:"0"}
+	</script>
+	<script src="http://cpro.baidustatic.com/cpro/ui/c.js" type="text/javascript"></script>
+	</div>	
+--> 
+     <div class="panel panel-default"> 
+      <div class="panel-heading">
+       月排行榜
+      </div> 
+      <div class="panel-body rbox"> 
+       <li><a data-track="article-right-month-top" href="/article/17/0303/325856.html" title="Android Studio 2.3 正式版发布">Android Studio 2.3 正式版发布</a></li> 
+       <li><a data-track="article-right-month-top" href="/article/17/0316/326447.html" title="Fastjson 爆出远程代码执行高危漏洞，更新版本已修复">Fastjson 爆出远程代码执行高危漏洞，更新版本已修复</a></li> 
+       <li><a data-track="article-right-month-top" href="/article/17/0307/325946.html" title="基于 Jakarta plugin 插件的 Struts 远程代码执行漏洞">基于 Jakarta plugin 插件的 Struts 远程代码执行漏洞</a></li> 
+       <li><a data-track="article-right-month-top" href="/article/17/0308/325963.html" title="看看微软发布的 Visual Studio 2017 正式版带来了什么">看看微软发布的 Visual Studio 2017 正式版带来了什么</a></li> 
+       <li><a data-track="article-right-month-top" href="/article/17/0308/325951.html" title="终于等到你，最强 IDE Visual Studio 2017 正式版发布">终于等到你，最强 IDE Visual Studio 2017 正式版发布</a></li> 
+       <li><a data-track="article-right-month-top" href="/article/17/0301/325773.html" title="开发者需要大学学位吗？">开发者需要大学学位吗？</a></li> 
+       <li><a data-track="article-right-month-top" href="/article/17/0302/325820.html" title="Node.js 因 Bug 紧急发布 7.7.1 版本，开发团队致歉">Node.js 因 Bug 紧急发布 7.7.1 版本，开发团队致歉</a></li> 
+       <li><a data-track="article-right-month-top" href="/article/17/0324/326726.html" title="Angular 4.0.0 发布， Web 前端框架">Angular 4.0.0 发布， Web 前端框架</a></li> 
+       <li><a data-track="article-right-month-top" href="/article/17/0302/325832.html" title="Angular 2.4.9 和 4.0.0 rc2 发布， Web 前端框架">Angular 2.4.9 和 4.0.0 rc2 发布， Web 前端框架</a></li> 
+       <li><a data-track="article-right-month-top" href="/article/17/0310/326020.html" title="Visual Studio 2017 正式版各版本比较：企业版最强大">Visual Studio 2017 正式版各版本比较：企业版最强大</a></li> 
+       <li><a data-track="article-right-month-top" href="/article/17/0314/326367.html" title="Angular4 计划3月22日正式发布，Angular5 也要来了！">Angular4 计划3月22日正式发布，Angular5 也要来了！</a></li> 
+       <li><a data-track="article-right-month-top" href="/article/17/0228/268149.html" title="JS如何判断是否为ie浏览器的方法(包括IE10、IE11在内)">JS如何判断是否为ie浏览器的方法(包括IE10、IE11在内)</a></li> 
+       <li><a data-track="article-right-month-top" href="/article/17/0309/325986.html" title="Apache Struts 2.5.10.1 GA 发布，MVC 框架">Apache Struts 2.5.10.1 GA 发布，MVC 框架</a></li> 
+       <li><a data-track="article-right-month-top" href="/article/17/0322/326593.html" title="网易2017秋招面试题开发类">网易2017秋招面试题开发类</a></li> 
+       <li><a data-track="article-right-month-top" href="/article/17/0306/264120.html" title="jQuery layui常用方法介绍">jQuery layui常用方法介绍</a></li> 
+      </div> 
+     </div> 
+     <div class="panel panel-default" style="padding:10px"> 
+      <script type="text/javascript">
+        document.write('<a style="display:none!important" id="tanx-a-mm_10108296_617976_61708746"></a>');
+        tanx_s = document.createElement("script");
+        tanx_s.type = "text/javascript";
+        tanx_s.charset = "gbk";
+        tanx_s.id = "tanx-s-mm_10108296_617976_61708746";
+        tanx_s.async = true;
+        tanx_s.src = "http://p.tanx.com/ex?i=mm_10108296_617976_61708746";
+        tanx_h = document.getElementsByTagName("head")[0];
+        if(tanx_h)tanx_h.insertBefore(tanx_s,tanx_h.firstChild);
+        </script> 
+     </div> 
+     <div class="panel panel-default"> 
+      <div class="panel-heading">
+       最新资讯
+      </div> 
+      <div class="panel-body rbox"> 
+       <li><a data-track="article-right-news" href="/article/17/0328/332462.html" title="麒麟开源堡垒机 V1.41 版本发布">麒麟开源堡垒机 V1.41 版本发布</a></li> 
+       <li><a data-track="article-right-news" href="/article/17/0328/234116.html" title="struts2过滤器和拦截器的区别分析">struts2过滤器和拦截器的区别分析</a></li> 
+       <li><a data-track="article-right-news" href="/article/17/0328/263532.html" title="AngularJS 视图详解及示例代码">AngularJS 视图详解及示例代码</a></li> 
+       <li><a data-track="article-right-news" href="/article/17/0328/263535.html" title="AngularJS包括详解及示例代码">AngularJS包括详解及示例代码</a></li> 
+       <li><a data-track="article-right-news" href="/article/17/0328/264415.html" title="jQuery插件Flexslider实现图片轮播、图文结合滑动切换效果">jQuery插件Flexslider实现图片轮播、图文结合滑动切换效果</a></li> 
+       <li><a data-track="article-right-news" href="/article/17/0328/263544.html" title="AngularJS表达式讲解及示例代码">AngularJS表达式讲解及示例代码</a></li> 
+       <li><a data-track="article-right-news" href="/article/17/0328/263571.html" title="JavaScript实战之带收放动画效果的导航菜单">JavaScript实战之带收放动画效果的导航菜单</a></li> 
+       <li><a data-track="article-right-news" href="/article/17/0328/264498.html" title="JS跨域交互(jQuery+php)之jsonp使用心得">JS跨域交互(jQuery+php)之jsonp使用心得</a></li> 
+       <li><a data-track="article-right-news" href="/article/17/0328/326450.html" title="python 爬虫出现403禁止访问错误详解">python 爬虫出现403禁止访问错误详解</a></li> 
+       <li><a data-track="article-right-news" href="/article/17/0328/240665.html" title="python判断字符串编码的简单实现方法(使用chardet)">python判断字符串编码的简单实现方法(使用chardet)</a></li> 
+       <li><a data-track="article-right-news" href="/article/17/0328/302428.html" title="Android开发中include控件用法分析">Android开发中include控件用法分析</a></li> 
+       <li><a data-track="article-right-news" href="/article/17/0328/264037.html" title="jQuery制作网页版选项卡">jQuery制作网页版选项卡</a></li> 
+       <li><a data-track="article-right-news" href="/article/17/0328/332461.html" title="talent-aio1.6.7 发布，输掉性能 PK 战后再度优化">talent-aio1.6.7 发布，输掉性能 PK 战后再度优化</a></li> 
+       <li><a data-track="article-right-news" href="/article/17/0328/263514.html" title="AngularJS 自定义指令详解及示例代码">AngularJS 自定义指令详解及示例代码</a></li> 
+       <li><a data-track="article-right-news" href="/article/17/0328/302398.html" title="MySQL redo死锁问题排查及解决过程分析">MySQL redo死锁问题排查及解决过程分析</a></li> 
+      </div> 
+     </div> 
+     <script type="text/javascript">
+	    /*360*500 创建于 2016/10/20*/
+	    var cpro_id = "u2794333";
+		(window["cproStyleApi"] = window["cproStyleApi"] || {})[cpro_id] = {xuanting: 1};
+	</script> 
+     <script type="text/javascript" src="http://cpro.baidustatic.com/cpro/ui/c.js"></script> 
+    </div> 
+   </div> 
+  </div> 
+  <script>
+$(function(){
+	$.get("/article/nums.html?id=184679");
+	})
+</script> 
+  <div class="bottom"> 
+   <div class="container"> 
+    <div class="row"> 
+     <div class="col-md-2"> 
+      <h5>后端技术</h5> 
+      <ul> 
+       <li><a data-track="bottom-tag" href="/topics/1.html">PHP</a></li> 
+       <li><a data-track="bottom-tag" href="/topics/52.html">Python</a></li> 
+       <li><a data-track="bottom-tag" href="/topics/55.html">Ruby</a></li> 
+       <li><a data-track="bottom-tag" href="/topics/11.html">Java</a></li> 
+       <li><a data-track="bottom-tag" href="/topics/6.html">Android</a></li> 
+       <li><a data-track="bottom-tag" href="/topics/975.html">Objective-C</a></li> 
+       <li><a data-track="bottom-tag" href="/topics/74.html">Swift</a></li> 
+       <li><a data-track="bottom-tag" href="/topics/43.html">Go</a></li> 
+       <li><a data-track="bottom-tag" href="/topics/53.html">Node.js</a></li> 
+       <li><a data-track="bottom-tag" href="/topics/872.html">Lua</a></li> 
+       <li><a data-track="bottom-tag" href="/topics/345.html">JSP</a></li> 
+       <li><a data-track="bottom-tag" href="/topics/988.html">D语言</a></li> 
+       <li><a data-track="bottom-tag" href="/topics/797.html">R语言</a></li> 
+      </ul> 
+     </div> 
+     <div class="col-md-2"> 
+      <h5>前端技术</h5> 
+      <ul> 
+       <li><a data-track="bottom-tag" href="/topics/8.html">jQuery</a></li> 
+       <li><a data-track="bottom-tag" href="/topics/164.html">Bootstrap</a></li> 
+       <li><a data-track="bottom-tag" href="/special/14.html">React.JS</a></li> 
+       <li><a data-track="bottom-tag" href="/special/92.html">React Native</a></li> 
+       <li><a data-track="bottom-tag" href="/special/19.html">AngularJS</a></li> 
+       <li><a data-track="bottom-tag" href="/topics/9.html">JavaScript</a></li> 
+       <li><a data-track="bottom-tag" href="/special/50.html">Ember.JS</a></li> 
+       <li><a data-track="bottom-tag" href="/special/38.html">Zepto.js</a></li> 
+       <li><a data-track="bottom-tag" href="/topics/986.html">Backbone.js</a></li> 
+       <li><a data-track="bottom-tag" href="/special/120.html">Vue</a></li> 
+       <li><a data-track="bottom-tag" href="/topics/5.html">CSS</a></li> 
+       <li><a data-track="bottom-tag" href="/topics/4.html">HTML5</a></li> 
+      </ul> 
+     </div> 
+     <div class="col-md-2"> 
+      <h5>数据库</h5> 
+      <ul> 
+       <li><a data-track="bottom-tag" href="/topics/2.html">Mysql</a></li> 
+       <li><a data-track="bottom-tag" href="/topics/14.html">SQL Server</a></li> 
+       <li><a data-track="bottom-tag" href="/topics/22.html">PostgreSQL</a></li> 
+       <li><a data-track="bottom-tag" href="/topics/18.html">Oracle</a></li> 
+       <li><a data-track="bottom-tag" href="/special/10.html">DB2</a></li> 
+       <li><a data-track="bottom-tag" href="/special/23.html">SQLite</a></li> 
+       <li><a data-track="bottom-tag" href="/topics/228.html">MongoDB</a></li> 
+       <li><a data-track="bottom-tag" href="/topics/32.html">Redis</a></li> 
+       <li><a data-track="bottom-tag" href="/special/9.html">Memcached</a></li> 
+       <li><a data-track="bottom-tag" href="/topics/865.html">SQL</a></li> 
+      </ul> 
+     </div> 
+     <div class="col-md-2"> 
+      <h5>热门框架</h5> 
+      <ul> 
+       <li><a data-track="bottom-tag" href="/topics/85.html">Yii</a></li> 
+       <li><a data-track="bottom-tag" href="/topics/110.html">Laravel</a></li> 
+       <li><a data-track="bottom-tag" href="/topics/106.html">Symfony2</a></li> 
+       <li><a data-track="bottom-tag" href="/topics/98.html">Zend Framework</a></li> 
+       <li><a data-track="bottom-tag" href="/topics/107.html">CodeIgniter</a></li> 
+       <li><a data-track="bottom-tag" href="/topics/81.html">ThinkPHP</a></li> 
+       <li><a data-track="bottom-tag" href="/topics/105.html">Phalcon</a></li> 
+       <li><a data-track="bottom-tag" href="/topics/839.html">Swoole</a></li> 
+       <li><a data-track="bottom-tag" href="/special/26.html">Hibernate</a></li> 
+       <li><a data-track="bottom-tag" href="/special/95.html">JUnit</a></li> 
+       <li><a data-track="bottom-tag" href="/topics/350.html">Django</a></li> 
+       <li><a data-track="bottom-tag" href="/topics/377.html">Flask</a></li> 
+       <li><a data-track="bottom-tag" href="/special/87.html">Tornado</a></li> 
+       <li><a data-track="bottom-tag" href="/topics/19.html">Smarty</a></li> 
+      </ul> 
+     </div> 
+     <div class="col-md-2"> 
+      <h5>常用IDE</h5> 
+      <ul> 
+       <li><a data-track="bottom-tag" href="/special/31.html">Eclipse</a></li> 
+       <li><a data-track="bottom-tag" href="/topics/208.html">MyEclipse</a></li> 
+       <li><a data-track="bottom-tag" href="/topics/87.html">PhpStorm</a></li> 
+       <li><a data-track="bottom-tag" href="/special/46.html">PyCharm</a></li> 
+       <li><a data-track="bottom-tag" href="/special/68.html">Sublime Text</a></li> 
+       <li><a data-track="bottom-tag" href="/special/80.html">Android Studio</a></li> 
+       <li><a data-track="bottom-tag" href="/topics/196.html">Zend Studio</a></li> 
+       <li><a data-track="bottom-tag" href="/special/83.html">IntelliJ IDEA</a></li> 
+       <li><a data-track="bottom-tag" href="/topics/309.html">Xcode</a></li> 
+       <li><a data-track="bottom-tag" href="/special/86.html">Atom</a></li> 
+       <li><a data-track="bottom-tag" href="/special/119.html">Vim</a></li> 
+      </ul> 
+     </div> 
+     <div class="col-md-2"> 
+      <h5>其他</h5> 
+      <ul> 
+       <li><a data-track="bottom-tag" href="/topics/78.html">Git</a></li> 
+       <li><a data-track="bottom-tag" href="/topics/492.html">SVN</a></li> 
+       <li><a data-track="bottom-tag" href="/special/34.html">Composer</a></li> 
+       <li><a data-track="bottom-tag" href="/special/22.html">Lucene</a></li> 
+       <li><a data-track="bottom-tag" href="/topics/142.html">Docker</a></li> 
+       <li><a data-track="bottom-tag" href="/topics/77.html">Hadoop</a></li> 
+       <li><a data-track="bottom-tag" href="/topics/7.html">Linux</a></li> 
+       <li><a data-track="bottom-tag" href="/topics/29.html">Nginx</a></li> 
+       <li><a data-track="bottom-tag" href="/topics/3.html">Apache</a></li> 
+       <li><a data-track="bottom-tag" href="/topics/992.html">Tengine</a></li> 
+       <li><a data-track="bottom-tag" href="/topics/113.html">Tomcat</a></li> 
+       <li><a data-track="bottom-tag" href="/topics/30.html">Lighttpd</a></li> 
+       <li><a data-track="bottom-tag" href="/topics/336.html">Coreseek</a></li> 
+      </ul> 
+     </div> 
+    </div> 
+   </div> 
+   <hr /> 
+   <div class="container">
+     Copyright &copy; 2007-2017 
+    <a href="http://www.phperz.com" title="PHP程序员站">PHPERZ.COM</a> All Rights Reserved &nbsp;&nbsp;
+    <a href="http://www.miibeian.gov.cn" target="_blank">冀ICP备14009818号</a>&nbsp;&nbsp;
+    <a href="http://www.phperz.com/about/announce.html" target="_blank">版权声明</a>&nbsp;&nbsp;
+    <a href="http://www.phperz.com/about/ads.html" target="_blank">广告服务</a> 
+   </div> 
+  </div> 
+  <script>
+//图+
+var baiduImagePlus = {
+noLogo:true,
+  unionId:'u2338430',
+  formList:[{formId:2}]
+};
+</script> 
+  <script src="http://cpro.baidustatic.com/cpro/ui/i.js"></script> 
+  <script>
+$(function() {
+	$("[data-track]").on("click", function () {
+        var label = $(this).data("track");
+        window._hmt && window._hmt.push(['_trackEvent', label, 'click']);
+	});	
+});
+</script>   
+ </body>
+</html>

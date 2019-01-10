@@ -1,0 +1,684 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8">
+<META NAME="format-detection" CONTENT="telephone=no" />
+<title>菏泽易成房产</title>
+<meta name="keywords" content="易成房产;房产中介;房屋出租;房屋出售;求租;房屋购买"/>
+<meta name="description" content="易成房产;房产中介;房屋出租;房屋出售;求租;房屋购买"/>
+<script type="text/javascript" src="/js/jquery-1.7.2.js"></script>
+<script src="/js/emc2/echarts.js"></script>
+<link href="/css/emc2/type.css" rel="stylesheet" type="text/css" />
+<link href="/css/emc2/style.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="/js/emc2/style.js"></script>
+<script type="text/javascript" src="/js/emc2/index.js"></script>
+<script type="text/javascript" src="/js/emc2/wbuserlogin.js"></script>
+<script type="text/javascript">
+$(function(){
+	$(".lexchange").hover(function(){
+		$(".lcity-sel").show();	
+	},function(){
+		$(".lcity-sel").hide();	
+	})	
+	$(".lnav_f").hover(function(){
+		$(".lsitemap").show();	
+	},function(){
+		$(".lsitemap").hide();	
+	})	
+	
+	$(".ltuij li:last").css("margin","0px");
+	$(".lhot_ul li:first").addClass("lhot_ul_first");
+	$(".lzous_y").live("click",function(){
+		$(".lzous_active").removeClass("lzous_active");
+		$(this).addClass("lzous_active");
+		$(".lzous_img").css("visibility","visible");
+		$(".lzous_img").hide();
+		var divId=$(this).attr("ttype");
+		$("#"+divId).show();
+	})
+	
+	$(".lnav li a").click(function(){
+		var navId=$(this).attr("id");
+		document.cookie="nid="+navId+"; path=/"; 	
+		strCookie=document.cookie; 
+		
+	})	
+	function getCookie(name){
+		var arr,reg=new RegExp("(^| )"+name+"=([^;]*)(;|$)");
+		if(arr=document.cookie.match(reg))
+			return (arr[2]);
+		else
+			return null;
+	}
+	//$(".nav_active").removeClass("nav_active");
+	
+})
+
+$(function(){ 
+	$(window).scroll(function(){
+        if($(window).scrollTop()>=300){
+          	$("#top-fixed").fadeIn("slow");
+        }
+        else{
+          	$("#top-fixed").fadeOut("slow");
+        }
+        if($(window).scrollTop()>=520){
+          	$("#gotop").fadeIn("slow");
+        }
+        else{
+        	$("#gotop").fadeOut("slow");
+		}  
+	})
+	//当点击跳转链接后，回到页面顶部位置
+	$("#gotop").click(function(){
+   		$('body,html').animate({scrollTop:0},500);
+    	return false;
+    }); 
+})
+</script>
+<script type="text/javascript" >
+$(document).ready(function() {
+	//初始化城市
+	getAllCity();
+	//初始化城区
+	getDstrict();
+	//新房推荐
+	//getRecommendEstate('1','rec_1');
+	//二手房推荐
+	getRecommendHouse('1','rec_2');
+	//租房推荐
+	getRecommendHouse('2','rec_3');
+	//新增房源
+	getRecommendHouse('4','rec_1');
+	//小区推荐
+	//getRecommendEstate('2','rec_4');
+	//商铺推荐
+	getRecommendHouseShop('3','rec_5');
+	//中间二手房
+	//getCenterHouse('1','sellHouse');
+	//中间租房
+	//getCenterHouse('2','rentHouse');
+	//小区排行
+	//getEstateRanking('estateRank');
+	//金牌经纪人
+	//getGoldBrokers('goldBrokers');
+	//购房咨询
+	//getNews('news');
+	//参数
+	//getRange("selldw","41ab8b7f-3239-11e3-ae5b-6c3be52754d4","万");
+	//getRange("newhousedw","47dfaa52-3239-11e3-ae5b-6c3be52754d4","元/m²");
+	//getRange("rentdw","4d483f40-3239-11e3-ae5b-6c3be52754d4","元/月");
+	// 价格区间
+	squresell();
+	//获取echarts info
+	getECharts();
+});
+</script>
+<!-- 代码统计 -->
+
+</head>
+<body>
+<div class="top-fixed" id="top-fixed">
+    <div class="top-fixed-bg">
+        <div class="top-fixew-width">
+			<a href="#"><div class="home-banner"  style="background-image:url(http://hzyich.hzlysoft.cn/upload/uploadfile/doc/web/14506766148999128.png)"  ></div></a>
+            <div class="search">
+                <form class="clear" method="post" action="#">
+					<input type="text" class="txt fl ui-autocomplete-input" placeholder="请输入城区、商圈或小区名开始找房..." id="smarttop" value=""/>
+					<input type="submit" class="btn home-ico ico-search fl" value="搜索" onclick="fromSubmit()"/>				
+				</form>
+			</div>
+            <!--<div class="fr">
+                <a href="#"><span class="log">登录</span></a>
+                <a href="#"><span class="reg">注册</span></a>
+				
+			</div>-->
+		</div>
+	</div>
+</div>
+<div class="go_top" id="gotop"></div>
+<div class="lhead">
+	<div class="lhead_public">
+		<div class="lcs">
+			<span class="lcity" id="cityname"></span>
+			<span class="lexchange">
+				[切换]
+				<div class="lcity-sel" id="allcity">
+				</div>
+			</span>
+		</div>
+		<ul class="lnav-lst">
+		<!--<li><a href="#">加入收藏</a></li>
+			<li class="lnav_f">
+				<a href="#">网站导航</a>
+				<div class="lsitemap">	
+					<p>二手房</p>
+					<dd>
+						<a href="#">区域找房</a>
+					</dd>
+					<div class="lnav_area">
+						<a href="#">朝阳</a>
+						<a href="#">朝阳</a>
+						<a href="#">朝阳</a>
+						<a href="#">朝阳</a>
+						<a href="#">朝阳</a>
+					</div>
+					<p>小区</p>
+					<div class="lnav_area">
+						<a href="#">朝阳</a>
+						<a href="#">朝阳</a>
+						<a href="#">朝阳</a>
+						<a href="#">朝阳</a>
+						<a href="#">朝阳</a>
+					</div>
+					<p>租房</p>
+					<div class="lnav_area">
+						<a href="#">朝阳</a>
+						<a href="#">朝阳</a>
+						<a href="#">朝阳</a>
+						<a href="#">朝阳</a>
+						<a href="#">朝阳</a>
+					</div>
+				</div>
+			</li>-->
+			<li class="kefu">客服热线  0530-5120001 </li>
+		</ul>
+		<div class="llogin">
+			<span class="lwelcome">
+				               		您好，欢迎来到 菏泽易成房产！ ！
+					
+												</span>
+		</div>
+	</div>
+</div>
+<div id="heroImage" class="heroImage"  style="background-image: url(/images/emc2/l01.png)" ></div>
+<div class="lheader"> 
+	<div class="public nav-wrap">
+		<a href="#">
+			<div class="home-banner"  style="background-image:url(http://hzyich.hzlysoft.cn/upload/uploadfile/doc/web/14506766148999128.png)"  >
+			</div>
+		</a>
+		<ul class="lnav">
+			<li><a id="nav0" href="/" class="lon">首页</a></li>
+			<!--<li><a  href="/estate2/estatetwo!estateNewFlagTwo.do">新房</a></li>
+			<li><a id="nav1" href="/housesell2/houseselltwo!houseSellTwoList.do">二手房</a></li>
+			<li><a id="nav2" href="/housesell2/houserentaltwo!houseRentalTwoList.do">租房</a></li>
+			<li><a id="nav3" href="/housesell2/houseshopstwo!houseRentalListshangytwo.do">商业</a></li>
+			<li><a id="nav5" href="/estate2/estatetwo!estatetwoList.do">小区</a></li>
+			<li><a id="nav6" href="/broker2/brokertwo!queryBroker.do">经纪人</a></li>
+			<li><a id="nav7" href="/bprocessing2/bprocessingtwo!toBprocessingLogin.do">业务办理查询</a></li>
+			<li><a id="nav8" href="/trust2/trusttwo!addTrust.do">快速委托</a></li>-->
+			
+										<li><a id="nav1" href="/housesell2/houseselltwo!houseSellTwoList.do">二手房</a></li>
+											<li><a id="nav2" href="/housesell2/houserentaltwo!houseRentalTwoList.do">租房</a></li>
+											<li><a id="nav3" href="/housesell2/houseshopstwo!houseRentalListshangytwo.do">商业</a></li>
+											<li><a id="nav4" href="/broker2/brokertwo!queryBroker.do">经纪人</a></li>
+											<li><a id="nav5" href="/bprocessing2/bprocessingtwo!toBprocessingLogin.do">业务办理查询</a></li>
+											<li><a id="nav6" href="/trust2/trusttwo!addTrust.do">快速委托</a></li>
+											<li><a id="nav7" href="/evaluate2/evaluatetwo!toEvaluatePage.do">估价</a></li>
+										
+		</ul>
+	</div>
+</div>
+<div  style="background-image: url(/images/emc2/l01.png)" >
+
+</div>
+<div class="ls_d">
+	<div class="l_sousuo">
+		<input type="text" class="l_sousuo_text" placeholder="请输入城市、商圈或小区名开始找房..." id="smart"/>
+		<input type="button" value="" class="l_sousuo_btn" onclick="fromSubmit()"/>
+		<div class="clear"></div>
+	</div>
+	<ul class="ltj">
+		<input type="hidden" id="minSellPrice" value="" />
+		<input type="hidden" id="maxSellPrice" value="" />
+		<input type="hidden" id="dsid" value="" />
+		<input type="hidden" id="household" value="" />
+		<li>
+			<span class="ltj_title">热门区域</span>
+			<a href="#" onclick="submitDst('')">全部</a>
+			<span id="dstrict"></span>
+		</li>
+		<li>
+			<span class="ltj_title">价格筛选</span>
+			<a href="#" onclick="formatRange('minSellPrice','maxSellPrice','','')">全部</a>
+			<span id="regionalPrice"></span>
+		</li>
+		<li>
+			<span class="ltj_title">户型搜索</span>
+			<a href="javascript:void(0)" onclick="putVal('')">全部</a>
+			<a href="javascript:void(0)" onclick="putVal('1')">一居</a>
+			<a href="javascript:void(0)" onclick="putVal('2')">二居</a>
+			<a href="javascript:void(0)" onclick="putVal('3')">三居</a>
+			<a href="javascript:void(0)" onclick="putVal('4')">四居</a>
+			<a href="javascript:void(0)" onclick="putVal('5')">五居</a>
+			<a href="javascript:void(0)" onclick="putVal('6')">五居以上</a>
+		</li>
+	</ul>
+</div>
+<div class="lbanner">
+	<div class="public ">
+		<ul>
+			<li>
+				<h3>查找租房</h3>
+				<a href="/housesell2/houserentaltwo!houseRentalTwoList.do" class="coner" >
+					<div class="lbanner-ico"  style="background-image: url(/images/emc2/l05.png)" ></div>
+				</a>
+				<p class="lp-1">100%真实房源，每日更新</p>
+				<!--
+				<p class="lp-2">
+					<a href="#" target="_blank">查租房</a>
+				</p>-->
+			</li>
+			<li>
+				<h3>查找商业</h3>
+				<a href="/housesell2/houseshopstwo!houseRentalListshangytwo.do" class="coner">
+					<div class="lbanner-ico lbanner_img2"  style="background-image: url(/images/emc2/l06.png)" ></div>
+				</a>
+				<p class="lp-1">全部人工验证</p>
+			</li>
+			<li>
+				<h3>快速委托</h3>
+				<a href="/trust2/trusttwo!addTrust.do" class="coner">
+					<div class="lbanner-ico lbanner_img3"  style="background-image: url(/images/emc2/l07.png)" ></div>
+				</a>
+				<p class="lp-1">买卖房屋专业服务</p>
+			</li>
+			<div class="clear"></div>
+		</ul>
+	</div>
+</div>
+<div class="lchart">
+	<div class="public">
+		<!-- ECharts单文件引入 -->
+		<div class="lchart_l" id="echarts">
+    		<!-- ECharts 信息 -->
+
+<table class="lzous_tab">
+	<tr>
+		<td width="183">
+			<span class="lzous_y lzous_active" ttype="main"><a href="javascript:void(0)" >市场趋势图</a></span>
+			<span class="lzous_y" ttype="main1"><a href="javascript:void(0)" >房价走势图</a></span>
+		</td>
+		<!--<td width="24"><img src="../images/emc2/l09.png" /></td>
+		<td width="68">新增房源</td>
+		<td width="24"><img src="../images/emc2/l10.png" /></td>
+		<td width="68">新增客户</td>
+		<td width="36"><img src="../images/emc2/l11.png" /></td>
+		<td >新增客房比</td>-->
+	</tr>
+</table>
+<div style="height:240px; overflow: hidden;">
+<!--二手房 图标-->
+<div class="lzous_img" id="main">
+	
+</div>
+<!-- ECharts单文件引入 -->
+<script type="text/javascript">
+// 路径配置
+require.config({
+    paths: {
+        echarts: 'http://echarts.baidu.com/build/dist'
+    }
+});
+    
+// 使用
+require(
+    [
+       'echarts',
+       'echarts/chart/bar', // 使用柱状图就加载bar模块，按需加载
+       'echarts/chart/line' 
+    ],
+    function (ec) {
+        // 基于准备好的dom，初始化echarts图表
+        var myChart = ec.init(document.getElementById('main')); 
+        //	图开始   
+    	var option = {
+            tooltip : {
+                trigger: 'axis'
+            },
+            toolbox: {
+                show : false,
+                feature : {
+                    mark : {show: true},
+                    dataView : {show: true, readOnly: false},
+                    magicType: {show: true, type: ['line', 'bar']},
+                    restore : {show: true},
+                    saveAsImage : {show: true}
+                }
+            },
+            calculable : true,
+            legend: {
+				data:['新增房源','新增客户','新增房客比']
+            },
+            xAxis : [
+                {
+                    type : 'category',
+                    data : [
+						                    						]
+                }
+            ],
+            yAxis : [
+                {
+                    type : 'value',
+                    name : '',
+                    axisLabel : {
+                        formatter: '{value} '
+                    }
+                },
+                {
+                    type : 'value',
+                    name : '',
+                    axisLabel : {
+                        formatter: '{value} '
+                    }
+                }
+            ],
+            series : [
+        
+                {
+                    name:'新增房源',
+                    type:'bar',
+                    data:[
+						    	            						]
+                },
+                {
+                    name:'新增客户',
+                    type:'bar',
+                    data:[
+						    	            						]
+                },
+                {
+                    name:'新增房客比',
+                    type:'line',
+                    yAxisIndex: 1,
+                    data:[
+						    	            						]
+                }
+            ]
+        };
+        // 为echarts对象加载数据 
+        myChart.setOption(option); 
+    }
+);
+</script>
+<!--新房图标-->
+<div class="lzous_img" id="main1" style="visibility:hidden;">
+	
+</div>
+<!-- ECharts单文件引入 -->
+<script type="text/javascript">
+        // 路径配置
+        require.config({
+            paths: {
+                echarts: 'http://echarts.baidu.com/build/dist'
+            }
+        });
+    
+        // 使用
+        require(
+            [
+                'echarts',
+                'echarts/chart/bar', // 使用柱状图就加载bar模块，按需加载
+                'echarts/chart/line' 
+            ],
+            function (ec) {
+                // 基于准备好的dom，初始化echarts图表
+                var myChart = ec.init(document.getElementById('main1')); 
+                
+	      var option = {
+	    tooltip : {
+	        trigger: 'axis'
+	    },
+	    toolbox: {
+	        show : false,
+	        feature : {
+	            mark : {show: true},
+	            dataView : {show: true, readOnly: false},
+	            magicType: {show: true, type: ['line', 'bar']},
+	            restore : {show: true},
+	            saveAsImage : {show: true}
+	        }
+	    },
+	    calculable : true,
+	    legend: {
+	        data:['成交均价','挂牌均价','成交量']
+	    },
+	    xAxis : [
+	        {
+	            type : 'category',
+	            data : 
+	            		[
+		            	 			            			            	]
+	        }
+	    ],
+	    yAxis : [
+	        {
+	            type : 'value',
+	            name : '',
+	            axisLabel : {
+	                formatter: '{value} '
+	            }
+	        },
+	        {
+	            type : 'value',
+	            name : '',
+	            axisLabel : {
+	                formatter: '{value} '
+	            }
+	        }
+	    ],
+	    series : [
+	
+	        {
+	            name:'成交均价',
+	            type:'line',
+	            data:[ 		            	]
+	        },
+	        {
+	            name:'挂牌均价',
+	            type:'line',
+	            data:[ 		            	]
+	        },
+	        {
+	            name:'成交量',
+	            type:'bar',
+	            yAxisIndex: 1,
+	            data:[ 		            	]
+	        }
+	    ]
+	};
+            // 为echarts对象加载数据 
+            myChart.setOption(option); 
+        }
+    );
+</script>
+</div>
+<div class="lzous_text">
+<span class="ljiedu">市场解读</span>
+与10月相比，新增客户略有下降，市场对本月底新利率政策的反应有待下月进一步观察。
+</div>
+     	</div>
+		<div class="lchart_r" id="rec_1">
+			<div class="lnew_title">最近新增房源<span>870</span>套</div>
+			<div class="lchart_r_d">
+				<ul class="lnew_ul" >
+					<li class="lnew_active">
+						<a href="#">
+							<div class="lnew_d1">
+								<span class="lcommon">19小时前</span>
+								<span class="lzone">河畔丽景</span>
+								<span class="lsquare">87m<sup>2</sup></span>
+								<span class="ltype" style="margin-right:0px;">2室2厅</span>
+							</div>
+							<div class="lnew_d2">
+								<div class="lnew_d2_img">
+									<img src="../images/emc2/l13.png" width="75" height="56" />
+								</div>
+								<div class="lnew_d2_text">
+									<div class="lnew_d2_textd1">紧邻华堂 超低价两居 </div>
+									<div class="lnew_d2_textd2">
+										<span style=" width:80px;"><b>458</b>万</span>
+										<span>3室2厅/152平米</span>
+									</div>
+								</div>
+								<div class="clear"></div>
+							</div>
+						</a>
+					</li>
+				</ul>
+			</div>
+		</div>
+		<div class="clear"></div>
+	</div>
+</div>
+<div class="lnavb">
+	<div class="public">
+		<ul class="lnavb_ul">
+			<li style="width:240px;">
+				<div class="lnavb_d1">
+					<div class="lnavb_d1_img">
+						<img src="../images/emc2/l16.png" />
+					</div>
+					<div class="lnavb_d1_text">
+						<p>咨询电话</p>
+						<p style="font-size:14px;">0530-5120001</p>
+					</div>
+				</div>
+			</li>
+			<div class="bacb1"></div>
+			<div class="bacb2"></div>
+			<li style="width:536px;">
+				<div class="lnavb_d2">
+					<div class="lnavb_d2_list">
+						<a href="#" onclick="buyHouseAbility()">
+							<img src="../images/emc2/l17.png" />
+							<p>购房能力评估</p>
+						</a>
+					</div>
+					<div class="lnavb_d2_list">
+						<a href="#" onclick="averageCapital()">
+							<img src="../images/emc2/l18.png"  />
+							<p>等额本金还款法</p>
+						</a>
+					</div>
+					<div class="lnavb_d2_list">
+						<a href="#" onclick="taxCalculation()">
+							<img src="../images/emc2/l19.png" />
+							<p>税费计算器</p>
+						</a>
+					</div>
+				</div>
+			</li>
+			<div class="bacb1"></div>
+			<div class="bacb2"></div>
+			<li style="background:none;">
+				<div class="lnavb_d3">
+    					<div class="lnavb_d1_img" style="width:52px">
+							<a target="_blank" href="http://wpa.qq.com/msgrd?v=3&amp;site=北京美丽家园房地产经纪有限公司&amp;menu=yes&amp;uin=1208947656">
+								<img src="../images/emc2/l20.png" />
+							</a>
+    					</div>
+    					<div class="lnavb_d1_text">
+    						<p>咨询QQ</p>
+    						<p style="font-size:14px;"> 1208947656 </p>
+    					</div>
+					
+				</div>
+			</li>
+		</ul>
+	</div>
+</div>
+<div class="lcntf" style="padding-bottom;35px;">
+	<div class="public">
+		<div class="lcntf_title">推荐房源</div>
+		<ul class="ltuij" id="rec_2">
+		</ul>
+		<div class="lgg">
+							<img src="http://hzyich.hzlysoft.cn/upload/uploadfile/doc/web/14506766246865207.png" />
+					</div>
+		<div class="lhot_title">热门商业</div>
+		<ul class="lhot_ul" id="rec_5">
+		</ul>
+	</div>
+</div>
+<div class="lfuw" style="margin-top:0px;">
+	<div class="public">
+		<img src="../images/emc2/l26.png" />
+	</div>
+</div>
+<div class="ldcnt" style="padding-bottom:35px;">
+	<div class="public">
+		<div class="ltixing_title">特别提醒</div>
+		<ul class="t_tbtishi">
+			<li>
+				<p class="t_tbtishi_p1">购房前</p>
+				<p class="t_tbtishi_p2">
+					在政府网首页的＂公示公告＂板
+					块中，通过预售许可证关键
+					字搜索查询，看楼盘是否取
+					得了预售许可证或产权证。
+					<br /><span>（备注：如果期房有预售证， 如为现房有产权证）</span>
+				</p>
+			</li>
+			<li>
+				<p class="t_tbtishi_p1">签合同前</p>
+				<p class="t_tbtishi_p2">
+					签合同前，在政府网首页的“下载服务”板块中，查询正规的合同样本。
+				</p>
+			</li>
+			<li>
+				<p class="t_tbtishi_p1">交完首付款后</p>
+				<p class="t_tbtishi_p2">
+					交完首付款后，即可与开发商签订购物买卖合同，双方同时签字盖章。
+				</p>
+			</li>
+			<li>
+				<p class="t_tbtishi_p1">签完合同后</p>
+				<p class="t_tbtishi_p2">
+					签完合同后，第二天可查询，进入政府网首页的“个人业务查询”页面，在商品房合同签订查询栏中输入身份证号，预售证号和房号，查询是否已网签成功。
+				</p>
+			</li>
+			<li style="margin-right:0px;">
+				<p class="t_tbtishi_p1">购房后</p>
+				<p class="t_tbtishi_p2">
+					购房后，进入政府网首页“个人业务查询”页面，在商品房合同备案查询栏中输入产权人姓名，备案证件号码，合同编号后，查询房屋是否已到当地城市房地产交易管理所备案。
+				</p>
+			</li>
+			<div class="clear"></div>
+		</ul>
+	</div>
+	
+</div>
+<div class="t_foot" style="margin-top:0px;">
+	
+    <div style="padding-top:10px;">
+    	<p class="n_foot_p1">©2017 菏泽易成房地产信息服务有限公司 <a target="_blank" href="http://www.miitbeian.gov.cn/publish/query/indexFirst.action" style="text-decoration:underline;">鲁ICP备12000155号</a></p>
+        <p class="n_foot_p2">技术支持 <a target="_blank" href="http://www.hzlysoft.com" style="text-decoration:underline;">北京汇智凌云软件技术有限公司</a></p>
+    </div>
+    <!--<div style="padding-top:30px;">
+    	<table style="margin:0px auto;">
+        	<tr>
+            	<td width="150"><a href="#"><img src="../images/emc2/t_img23.png" /></a></td>
+                <td width="150"><a href="#"><img src="../images/emc2/t_img24.png" /></a></td>
+                <td><a href="#"><img src="../images/emc2/t_img25.png" /></a></td>
+            </tr>
+        </table>
+    </div>-->
+</div>
+<!--二维码浮动  zhuyl 2016-10-27 美丽家园-->
+<style>
+
+.lhead,.top-fixed .top-fixed-bg,.lnavb{
+	background:#FF9912 ;
+}
+.lnav li .lon,.t_tbtishi_p1,.lnav li a:hover{
+	color:#FF9912 ;
+}
+.top-fixed .search .txt{
+	border: 1px solid #FF9912 ;
+}
+<!--二维码浮动  zhuyl 2016-10-27 美丽家园-->
+</style>
+</body>
+</html>

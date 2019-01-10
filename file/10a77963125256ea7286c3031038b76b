@@ -1,0 +1,142 @@
+<html><head></head><body><pre style="word-wrap: break-word; white-space: pre-wrap;">function feedback() { 
+   var _WaitingTime = 3;    // 关闭等待时间（秒） 
+   var _RefreshTimeTask = null;   // 定时任务：刷新等待时间 
+   // 初始化
+   this.reset = function () {
+     $(".s_feedbackItem").val("");
+     $(".s_feedbackSubmit").removeAttr("disabled");
+  };
+   this.show = function () {
+      $(".s_feedbackContainer").show();
+      var width = getPageWidth();
+      var height = getMaxHeight();
+      $(".s_feedbackBackground").css({ "width": width, "height": height }).show();
+      $(".s_feedbackSubmit").removeAttr("disabled");
+      $(".s_feedbackSubmit").css("cursor", "pointer").show();
+  };
+  this.hide = function () {
+      $(".s_feedbackContainer").hide();
+      $(".s_feedbackBackground").hide();
+      $(".s_feedbackWaiting").hide();
+       $(".s_feedbackResult").empty();
+   };
+   this.submit = function () {
+       $(".s_feedbackResult").html("");
+       if (!validate())
+          return;
+       $(".s_feedbackSubmit").text("发送中...").css("cursor", "default").attr("disabled", "disabled");
+       jQuery.ajax({
+           type: "POST",
+           url: "http://scholar.cnki.net/webapp/webtool/servlet/dofeedback.ashx",
+           data: {
+               "GuestClient": "CnkiScholar",
+               "GuestUser": $.trim($("#s_feedbackUser").val()),
+               "GuestEmail": $.trim($("#s_feedbackMail").val()),
+               "GuestSubject": $.trim($("#s_feedbackSubject").val()),
+               "GuestContent": $.trim($("#s_feedbackContent").val()),
+               "t": new Date().getTime()
+            },
+            success: function (data, status) {
+                if (data != null){
+                    handleSuccess(data);
+                }else{
+                    handleError(data);
+                    $(".s_feedbackSubmit").removeAttr("disabled");
+                }
+            },
+            error: function (xmlHttprequest, data, status) {
+                handleError(data);
+                $(".s_feedbackSubmit").removeAttr("disabled");
+           }
+       });
+    };
+    var validate = function() {
+    var emailReg = /^([a-zA-Z0-9]+[_|\_|\.]?)*[a-zA-Z0-9]+@([a-zA-Z0-9]+[_|\_|\.]?)*[a-zA-Z0-9]+\.[a-zA-Z]{2,3}$/;
+        var email = $.trim($("#s_feedbackMail").val());
+        if ($.trim($("#s_feedbackUser").val()) == "") {
+             alert("姓名不可为空!");
+            return false;
+        }
+       if(email == "") {
+             alert("电子邮箱不能为空！");
+            return false;
+         }
+       if (!emailReg.test(email)) {
+             alert("电子邮箱格式不正确!");
+            return false;
+         }
+        if ($.trim($("#s_feedbackSubject").val()) == "") {
+            alert("留言主题不可为空!");
+            return false;
+        }
+       if ($.trim($("#s_feedbackContent").val()) == "") {
+           alert("留言内容不可为空!");
+           return false;
+        }
+         return true;
+      }
+     var refreshWaitingTime = function () {
+         var leftTime = parseInt($(".s_feedbackLefttime").text());
+         if (leftTime &lt;= 1) {
+             $(".s_feedbackContainer").hide();
+             $(".s_feedbackBackground").hide();
+             $(".s_feedbackWaiting").hide();
+             $(".s_feedbackResult").empty();
+             $(".s_feedbackSubmit").text("发送");
+            clearInterval(_RefreshTimeTask);
+             $(".s_feedbackItem").val("");
+        }
+         $(".s_feedbackLefttime").text(--leftTime);
+     }
+      var handleSuccess = function(result) {
+         if (result.Success) {
+             $(".s_feedbackSubmit").hide();
+             $(".s_feedbackResult").html("提交成功，感谢您的宝贵建议!").show();
+             $(".s_feedbackLefttime").text(_WaitingTime);
+             $(".s_feedbackWaiting").show();
+            _RefreshTimeTask = setInterval(refreshWaitingTime, 1000);
+         }
+         else {
+              $(".s_feedbackResult").html(result.Message);
+              $(".s_feedbackResult").show();
+             $(".s_feedbackSubmit").text("发送").css("cursor", "pointer");
+             $(".s_feedbackSubmit").removeAttr("disabled");
+          }
+       }
+        var handleError = function(error) {
+          $(".s_feedbackResult").html("服务器忙，请稍候重新发送!").show();
+      }
+      function getPageHeight() {
+           var windowHeight;
+           if (self.innerHeight)
+               windowHeight = self.innerHeight;
+          else if (document.documentElement &amp;&amp; document.documentElement.clientHeight)
+             windowHeight = document.documentElement.clientHeight; // Explorer 6 Strict Mode
+         else if (document.body)
+              windowHeight = document.body.clientHeight; // other Explorers
+          return windowHeight;
+      }
+     function getPageWidth() {
+         var width = $(window).width();
+         return width;
+     }
+     function getMaxHeight() {
+         var documentHeight = $(document).height();
+         var windowHeight = getPageHeight();
+         return windowHeight &gt; documentHeight ? windowHeight : documentHeight;
+      }
+}
+   function loadFeedbackControl() {
+   document.write('&lt;div class="s_feedbackTool"&gt;&lt;a href="javascript:void(0);"  class="s_feedbackBtn"&gt;&lt;img alt="" border="0" src="http://scholar.cnki.net/webapp/images/FeedbackZH.gif" /&gt;&lt;/a&gt;&lt;/div&gt;&lt;div class="s_feedbackBackground"&gt;&lt;/div&gt;&lt;div class="s_feedbackContainer"&gt;&lt;div class="s_feedbackBody"&gt;&lt;div class="s_feedbackClose"&gt;&lt;a class="s_feedbackX" href="javascript:void(0);"&gt;关闭&lt;/a&gt;&lt;/div&gt;&lt;div class="s_feedbackWords"&gt;&lt;p&gt;请您将改善建议和看法留言给我们，我们会认真听取！感谢您的支持！&lt;/p&gt;&lt;/div&gt;&lt;div class="s_feedbackPicture"&gt;&lt;/div&gt;&lt;table class="s_feedbackTable" cellpadding="0" cellspacing="0"&gt;&lt;tr&gt;&lt;td align="right" width="110"&gt;&lt;span class="NoEmpty"&gt;*&lt;/span&gt;您的姓名：&lt;/td&gt;&lt;td&gt;&lt;input id="s_feedbackUser" name="s_feedbackUser" type="text"  class="s_feedbackItem" /&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td align="right"&gt;&lt;span class="NoEmpty"&gt;*&lt;/span&gt;邮箱：&lt;/td&gt;&lt;td&gt;&lt;input id="s_feedbackMail" name="s_feedbackMail" type="text"  class="s_feedbackItem" /&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td align="right"&gt;&lt;span class="NoEmpty"&gt;*&lt;/span&gt;留言主题：&lt;/td&gt; &lt;td&gt;&lt;input id="s_feedbackSubject" name="s_feedbackSubject" type="text"  class="s_feedbackItem" /&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td align="right" valign="top"&gt;&lt;span class="NoEmpty"&gt;*&lt;/span&gt;留言内容：&lt;/td&gt;&lt;td class="pb15" valign="top"&gt;&lt;textarea id="s_feedbackContent" name="s_feedbackContent"  rows="6" cols="12"  class="s_feedbackItem" style="height: 120px;"&gt;&lt;/textarea&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td align="right"&gt; &amp;nbsp;&lt;/td&gt;&lt;td&gt;&lt;a href="javascript:void(0);"  class="s_feedbackSubmit"&gt;发送&lt;/a&gt;&lt;span class="s_feedbackResult"&gt;&lt;/span&gt;&lt;span class="s_feedbackWaiting"&gt;&lt;span class=\"s_feedbackLefttime\"&gt;3&lt;/span&gt; 秒后自动关闭窗口.&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/div&gt;&lt;/div&gt;');
+   }
+   function loadFeedbackCss() {
+   document.write('&lt;style type="text/css"&gt;.s_feedbackTool{position: fixed; right: 0; bottom: 280px; _position: absolute; _left: expression(eval(document.documentElement.scrollLeft+document.documentElement.clientWidth-this.offsetWidth)-(parseInt(this.currentStyle.marginLeft,10)||0)-(parseInt(this.currentStyle.marginRight,10)||0)); _top: expression(eval(document.documentElement.scrollTop+document.documentElement.clientHeight-this.offsetHeight-(parseInt(this.currentStyle.marginTop,10)||0)-(parseInt(this.currentStyle.marginBottom,10)||0))-280); }.s_feedbackBtn{ display:block;width:30px;height:90px;overflow:hidden;text-decoration:none; border:#c7ced5 solid 1px; border-radius:2px; margin-bottom:6px;}.s_feedbackBtn:link,.s_feedbackBtn:visited{ background-color:#f8fafc; color:#000;}.s_feedbackBtn:hover,.s_feedbackBtn:active{ background-color:#ecf1f6; color:#000; text-decoration:none}.s_feedbackBackground{display: none; position: absolute; width: 100%; height: 100%;z-index: 1000; background: black; top: 0; left: 0; opacity: 0.3; filter: alpha(opacity=30);}.s_feedbackContainer{width: 600px; padding:0px;overflow-x: hidden;overflow-y: hidden; height:404px; background: white; position: fixed;_position: absolute; top: 50%;left: 50%;margin: -200px 0 0 -300px;display: none;z-index: 2000;}.s_feedbackBody{width: 598px; height:402px;margin: 0px auto;border: #306397 solid 1px;font-size: 14px;position: relative;background-color: #fafafa;border-radius: 3px;}.s_feedbackClose{height: 35px;overflow: hidden;}.s_feedbackX{display: block;float: right;width: 22px;height: 22px;margin-top: 6px;margin-right: 6px;text-indent: -999999px;}.s_feedbackX:link, .s_feedbackX:visited{background: url("http://scholar.cnki.net/webapp/images/offBtnBg.gif") no-repeat 0px 0px;}.s_feedbackX:hover, .s_feedbackX:active{background: url("http://scholar.cnki.net/webapp/images/offBtnBg.gif") no-repeat 0px -22px;}.s_feedbackWords{height: 46px;background-color: #306397;margin-bottom:5px;}.s_feedbackWords p{color: #fff;padding-left: 133px;padding-top: 12px;line-height: 18px;}.s_feedbackPicture{width: 167px;height: 96px;position: absolute;top: 0;zoom:1;left: 0;background: url("http://scholar.cnki.net/webapp/images/bookPic.gif") no-repeat 0px 0px;}.s_feedbackPictureEn{width: 167px;height: 96px;position: absolute;top: 0;left: 0;background: url("http://scholar.cnki.net/webapp/images/bookPicEn.gif") no-repeat 0px 0px;}.s_feedbackTable{width: 100%;color: #7c7c7c;margin: 10px auto;}.s_feedbackTable .NoEmpty{color: #ff0000;}.s_feedbackTable tr td{padding: 6px;}.s_feedbackTable tr td.pb15{padding-bottom: 15px;}  .s_feedbackItem{height: 24px;line-height: 24px;padding: 0px 3px;width: 400px;border: #b4b4b4 solid 1px;font-size: 14px;font-family:Arial;}.s_feedbackSubmit{display: inline-block;height: 30px;line-height: 30px;font-weight: bold;color: #fff;text-align: center;text-decoration: none;padding: 0px 24px;color:white;text-decoration:none;}.s_feedbackSubmit:link, .s_feedbackSubmit:visited{background-color: #f5a420;border: #d98805 solid 1px;color:white;text-decoration:none;}.s_feedbackSubmit:hover, .s_feedbackSubmit:active{background-color: #e28c00;border: #d98805 solid 1px;color:white;text-decoration:none;}.s_feedbackResult{padding-left:8px ; display:none;}.s_feedbackWaiting{padding-left:10px; display:none;}.s_feedbackLefttime{color:Red;padding-left:2px; padding-right:2px; font-family:微软雅黑; font-style:normal; }&lt;/style&gt;');
+   }
+     loadFeedbackControl();
+     loadFeedbackCss();
+     var instance = new feedback();
+     instance.reset();
+     $(".s_feedbackBtn").click(instance.show);
+     $(".s_feedbackX").click(instance.hide);
+     $(".s_feedbackSubmit").click(instance.submit);
+</pre></body></html>

@@ -1,0 +1,1119 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8;">
+
+<title>|义教生命安全课程支撑平台</title>
+<script type="text/javascript" src="../../common/jquery/jquery-1.4.4.min.js"></script>
+<link href="../css/basic_yanxiu.css" rel="stylesheet" type="text/css">
+<link href="../style/index.css" rel="stylesheet" type="text/css">
+<link href="../style/yj20140515.css" rel="stylesheet" type="text/css">
+<!-- 研修网样式 -->
+<link rel="stylesheet" type="text/css" href="http://teacher.51taoshi.com/fteacher/css/reset.css">
+<link rel="stylesheet" type="text/css" href="http://teacher.51taoshi.com/fteacher/css/basic.css">
+<link rel="stylesheet" type="text/css" href="http://teacher.51taoshi.com/fteacher/css/yxzb.css">
+<script>
+function iFrameHeight(framename){  
+var iframe = document.getElementById(framename); 
+try{ 
+var bHeight = iframe.contentWindow.document.body.scrollHeight; 
+var dHeight = iframe.contentWindow.document.documentElement.scrollHeight; 
+var height = Math.max(bHeight, dHeight); 
+iframe.height = height; 
+}catch (ex){} 
+} 
+
+</script>
+<script>
+$(function(){
+	window.setTimeout("inserttim();",180000);
+	var userflag = jQuery.cookie('uloginsate_51taoshi');
+	var isJoined = '';
+	var is_login = '';
+	var school_id = '';
+	var subject_id = '';
+	//alert(is_login);
+	if(is_login=='1'&&userflag != 'ok'){
+		$("#shadden").css("display","block");
+		setTimeout("showagain();",2000); 
+	}
+	//alert(isJoined);
+	if(userflag != 'ok'){//未登录
+		$("#inlog").css("display","none");
+		$("#unlog").css("display","block");
+	
+	}else{//已登录
+		$("#inlog").css("display","block");
+		$("#unlog").css("display","none");
+		if(school_id==null||school_id==''||subject_id==null||subject_id==''){
+			$("#fillinform").css("display","block");
+			$("#shadden").css("display","block");
+		}
+	}
+	 showcurrent();
+	$("#wrz").click(function(){
+		//alert("b");
+		if($(".rz").is(":hidden")){
+			$(".rz").show();
+			$(".tw").hide();
+			$(".ml").hide();
+			$(".zy").hide();
+		}else{
+			$(".rz").hide();
+		}
+		
+	});
+	$("#wtw").click(function(){
+		//alert("b");
+		if($(".tw").is(":hidden")){
+			$(".tw").show();
+			$(".rz").hide();
+			$(".ml").hide();
+			$(".zy").hide();
+		}else{
+			$(".tw").hide();
+		}
+		
+	});
+	$("#wzy").click(function(){
+		//alert("b");
+		if($(".zy").is(":hidden")){
+			$(".tw").hide();
+			$(".rz").hide();
+			$(".ml").hide();
+			$(".zy").show();
+		}else{
+			$(".zy").hide();
+		}
+		
+	});
+	$("#mml").click(function(){
+		//alert("b");
+		if($(".ml").is(":hidden")){
+			$(".ml").show();
+			$(".tw").hide();
+			$(".rz").hide();
+		}else{
+			$(".ml").hide();
+		}
+		
+	});
+	$('#closezx').click(function(){$('.tw').hide();});
+	$('#closezy').click(function(){$('.zy').hide();});
+	$('#closerz').click(function(){$('.rz').hide();});
+	//加入活动
+		$(".yes").click(function(){
+		if(ifLogin('')){
+			var ispub='';
+			//alert(ispub);
+			//公开活动
+			if(ispub=='0'){
+				//自动加入tgroupteacher表
+					$.ajax({
+					url:"../user/applyjoin.action",
+					cache:false,
+					data: "ispub="+ispub+"&rid=",
+					dataType:"html",
+					type:'POST', 
+					success:function(data){
+						//alert('a');
+						//alert(data);
+						if(data=="yes"){
+							showTs('','加入成功');
+							//隐藏加入提示悬浮层
+							//closewind();
+							window.setTimeout("window.location.reload();",5000); 
+						}else{
+							alert("a");
+							//$("#s"+cid).html("开放");
+						}
+					}
+					});
+
+				
+			}
+		}
+		
+	});
+	//签到
+	$("#qdleft").click(function(){
+		//alert(isJoined);
+		if(ifLogin('')){
+			if(isJoined=='1'){
+				qiandao('','',1);
+			}else{
+					showT_att_lj("您还未加入该活动，请先加入活动!<a href=\"javascript:jointrules();\" class=\"popButton\" >报名参加</a>");
+			}
+		}
+	});
+});
+function jointrules(){
+		if(ifLogin('')){
+			//alert('a');
+			var ispub='';
+			//alert(ispub);
+			//公开活动
+			if(ispub=='0'){
+				//自动加入tgroupteacher表
+					$.ajax({
+					url:"../../fteacher/user/applyjoin.action",
+					cache:false,
+					data: "ispub="+ispub+"&rid=",
+					dataType:"html",
+					type:'POST', 
+					success:function(data){
+						//alert(data);
+						if(data=="yes"){
+							showTs('','加入成功');
+							//隐藏加入提示悬浮层
+							//closewind();
+							window.setTimeout("window.location.reload();",5000); 
+						}else{
+							//alert("a");
+							//$("#s"+cid).html("开放");
+						}
+					}
+					});
+
+				
+			}
+		}
+	}
+//签到
+	function showT_att_lj(mess){
+		hideT();
+		hideT_att();
+		hideT_err();
+		if(mess==null||mess==''||mess=='null'){
+			mess = '';
+		}
+		jQuery('#stsmall_att_mess').html(mess);
+		jQuery('#stsmall_attention').show();
+		setTimeout("hideT_att();",100000); 
+	}
+	function showagain(){
+		showT_att_lj("该课程需要登录后才能观看!<a href=\"javascript:close_att_lj();ifLogin('');hidexxx('xxx');\" class=\"popButton\" >马上登陆</a>");
+	}
+	function close_att_lj(mess){
+		hideT();
+		hideT_att();
+		hideT_err();
+		$("#shadden").css("display","none");
+		jQuery('#stsmall_attention').hide();
+		
+	}
+	function hidexxx(id){
+		$("#"+id).css("display","none");
+	}
+function popularity(uid){
+	$.ajax({
+			url:"addpopularity.action",
+			cache:false,
+			data: "uid="+uid,
+			dataType:"html",
+			type:'POST', 
+			success:function(data){
+				//alert(data);
+				$("#p"+uid).html(data);
+			}
+		});
+}
+	var second;
+    var minute;
+    var hour;
+function changeVideo(source,address,vid,rid){
+	var curvid  = $("[name='curvid']").val();
+	//alert(curvid);
+	var userflag = $.cookie('uloginsate_51taoshi');
+	if(userflag=='ok'&&curvid!=null&&curvid!=''){
+	//记录视频观看时间
+		$.ajax({
+				url:"../../fteacher/user/setlearntime.action",
+				cache:false,
+				data: "tim="+minute+"&vid="+curvid,
+				dataType:"html",
+				type:'POST', 
+				success:function(data){
+					//alert(data);
+					if(data=="yes"){
+					//	alert("1");
+					}else{
+					//	alert("2");
+					}
+				}
+			});
+	}
+	var url = "showVideo.action";
+	document.getElementById("sframe").src = url + "?source="+source+"&address="+address+"&vid="+vid+"&rid="+rid;
+	choosevideo(vid);
+	$("#wks").css("display","none");
+	$("#zbz").css("display","none");
+	$("#lbzlz").css("display","none");
+	$("#lb").css("display","block");
+	second=0;
+    minute=0;
+    hour=0;
+  //  alert(second);
+	window.setTimeout("interval();",1000);
+	
+	$("[name='curvid']").val(vid);
+}
+  function interval()
+    {
+	    second++;
+	    if(second==60)
+	    {
+	    second=0;minute+=1;
+	    }
+	    if(minute==60)
+	    {
+	    minute=0;hour+=1;
+	    }
+	    document.getElementById("t1").value = hour+"时"+minute+"分"+second+"秒";
+	    window.setTimeout("interval();",1000);
+    }
+  function inserttim(){
+  var curvid  = $("[name='curvid']").val();
+  var userflag = $.cookie('uloginsate_51taoshi');	
+    	//记录视频观看时间
+    	if(userflag == 'ok'&&curvid!=null&&curvid!=''){
+    		var curvid  = $("[name='curvid']").val();
+	    	minute = minute+1;
+	    	//alert("恭喜您已经成功观看了"+minute+"分钟。");
+	    	showTs('','恭喜您已经成功观看了'+minute+'分钟。');
+			 $.ajax({
+				url:"../../fteacher/user/setlearntime.action",
+				cache:false,
+				data: "tim="+minute+"&vid="+curvid,
+				dataType:"html",
+				type:'POST', 
+				success:function(data){
+// 					alert(data);
+					if(data=="yes"){
+// 						alert("1");
+					}else{
+// 						alert("2");
+					}
+				}
+			}); 
+			window.setTimeout("inserttim();",180000);
+    	}
+    	
+    }
+ window.onbeforeunload=function(){
+ 	var curvid  = $("[name='curvid']").val();
+	//alert(curvid);
+	var userflag = $.cookie('uloginsate_51taoshi');
+	if(userflag=='ok'&&curvid!=null&&curvid!=''){
+	//记录视频观看时间
+		$.ajax({
+				url:"../../fteacher/user/setlearntime.action",
+				cache:false,
+				data: "tim="+minute+"&vid="+curvid,
+				dataType:"html",
+				type:'POST', 
+				success:function(data){
+					//alert(data);
+					if(data=="yes"){
+					//	alert("1");
+					}else{
+					//	alert("2");
+					}
+				}
+			});
+	}
+ 
+ }
+function showcurrent(){
+	var todat = '';
+	var adate = '';
+	var fdate = '';
+	//alert(fdate+","+todat+","+adate);
+	if(todat<adate){
+		//课程还未开始
+		var count_sfk = parseInt('');
+			if(count_sfk==0){
+				$("#wks").css("display","block");
+				$("#zbz").css("display","none");
+				$("#lbzlz").css("display","none");
+				$("#lb").css("display","none");
+			}else{
+				if(''==null||''==""){
+					changeVideo('','','','');
+					choosevideo('');
+				}else{
+					changeVideo('','','','');
+					choosevideo('');
+				}
+			}
+	}else if (todat>=adate&&fdate>todat){
+			$("#wks").css("display","none");
+			$("#zbz").css("display","block");
+			$("#lbzlz").css("display","none");
+			$("#lb").css("display","none");
+	}else if(fdate<todat){
+		var count_lb = parseInt('');
+		var count_sfk = parseInt('');
+		if(count_lb==0){
+			//录播制作中
+			
+			if(count_sfk==0){
+				$("#wks").css("display","none");
+				$("#zbz").css("display","none");
+				$("#lbzlz").css("display","block");
+				$("#lb").css("display","none");
+			}else{
+				if(''==null||''==""){
+					changeVideo('','','','');
+					choosevideo('');
+				}else{
+					changeVideo('','','','');
+					choosevideo('');
+				}
+			}
+
+		}else{
+			//录播已上传
+			//alert(count_lb);
+			$("#wks").css("display","none");
+			$("#zbz").css("display","none");
+			$("#lbzlz").css("display","none");
+			$("#lb").css("display","block");
+			//alert('');
+			if(''==null||''==""){
+				changeVideo('','','','');
+				choosevideo('');
+			}else{
+				changeVideo('','','','');
+				choosevideo('');
+			}
+
+		}
+	}
+}
+function showzb(){
+var todat = '';
+	var adate = '';
+	var fdate = '';
+	//alert(fdate+","+todat+","+adate);
+	if(todat<adate){
+		//课程还未开始
+			$("#wks").css("display","block");
+			$("#zbz").css("display","none");
+			$("#lbzlz").css("display","none");
+			$("#lb").css("display","none");
+			$("#sframe").attr("src","javascript:void(0);");
+	}else if (todat>=adate&&fdate>todat){
+			$("#wks").css("display","none");
+			$("#zbz").css("display","block");
+			$("#lbzlz").css("display","none");
+			$("#lb").css("display","none");
+			$("#sframe").attr("src","javascript:void(0);");
+	}else if(fdate<todat){
+			//录播制作中
+			$("#wks").css("display","none");
+			$("#zbz").css("display","none");
+			$("#lbzlz").css("display","block");
+			$("#lb").css("display","none");
+			$("#sframe").attr("src","javascript:void(0);");
+	}else{
+			//录播已上传
+			//alert(count_lb);
+			$("#wks").css("display","none");
+			$("#zbz").css("display","none");
+			$("#lbzlz").css("display","none");
+			$("#lb").css("display","block");
+			//alert('');
+	}
+}
+function qiandao(cid,rid,f){
+	//alert(cid);
+	 if(parent.needlogin()){
+		 var isJoined = '';
+		 if(isJoined=='1'){
+		 	$.ajax({
+				url:"../user/doqiandao.action",
+				cache:false,
+				data: "cid="+cid+"&rid="+rid,
+				dataType:"html",
+				type:'POST', 
+				success:function(data){
+					if(data=='1'){
+						//alert("签到成功");
+						if(f==1){
+							window.location.reload();
+						}
+						/*else{
+							//视频播放签到
+							$("#qdright").after(' <a href="javascript:" class="vedio_btn_yqd"><img src="../images/btn_zb_yqd.jpg" title="已签到"/></a>');
+							$("#qdright").remove();
+							
+						}*/
+					}
+					if(data=='2'){
+						showT_att("已签到！");
+					}
+					if(data=='0'){
+						showT_err("活动课程信息错误！");
+					}
+					//$("#p"+uid).html("<span style='color:#ff6600'> 人气"+data+"</span>");
+				}
+			});
+		 }else{
+		 	//openwind();
+		 	showT_att_lj("您还未加入该活动，请先加入活动!<a href=\"javascript:jointrules();\" class=\"popButton\" >报名参加</a>");
+	     }
+ 	
+ 	}
+
+}	
+function postrz(rid){
+	//alert(cid);
+ if(parent.needlogin()){
+ 		 var isJoined = '';
+		 if(isJoined=='1'){
+			 	var memo = $("[name='rzform.memo']").val();
+			 	//alert(memo);
+		 		var cid =  '';
+			 	var rid = '';
+				if(memo.length<=300&&memo.length>=50){
+					$.ajax({
+						url:"../user/postrz.action",
+						cache:false,
+						data: "memo="+memo+"&rid="+rid+"&cid="+cid,
+						dataType:"html",
+						type:'POST', 
+						success:function(data){
+							if(data=='1'){
+								//alert("日志保存成功");
+								showTs('','日志保存成功');
+								$("[name='rzform.memo']").val('');
+							}
+							
+							//$("#p"+uid).html("<span style='color:#ff6600'> 人气"+data+"</span>");
+						}
+					});
+				}else{
+					//alert("日志字数需在50-300字以内");
+					//showT_att("日志字数需在50-300字以内");
+					$("#rztip").html("日志字数需控制在50-300字以内");
+				}		
+		}else{
+			showT_att_lj("您还未加入该活动，请先加入活动!<a href=\"javascript:jointrules();\" class=\"popButton\" >报名参加</a>");
+		}															
+ 	
+ }
+
+}
+function uploadziyuan(){
+	//alert(cid);
+ if(parent.needlogin()){
+ 	window.open('http://ziyuan.51taoshi.com/fore/myzycenter/insZy.action?type=jypt&rid=')
+ }
+
+}	
+function postzxzj(){
+	//alert(cid);
+ if(parent.needlogin()){
+ 	var memo = $("[name='twform.memo']").val();
+ 	//alert(memo);
+ 	var cid = '';
+ 	//alert(cid);
+	if(memo.length>=1){
+		$.ajax({
+			url:"../user/postzxzj.action",
+			cache:false,
+			data: "memo="+memo+"&cid="+cid,
+			dataType:"html",
+			type:'POST', 
+			success:function(data){
+				if(data=='1'){
+					showTs('','问题已提交，您可在课程评论里查看。');
+					
+					window.location.href="?cid=&tip=1";
+				}
+				
+				//$("#p"+uid).html("<span style='color:#ff6600'> 人气"+data+"</span>");
+			}
+		});
+	}
+ 	
+ }
+
+}
+function choosevideo(vid){
+	//alert(vid);
+	//视频选中样式变换
+	$("#li"+vid).find("p").find("a").addClass("current");
+	$("#li"+vid).siblings().find("p").find("a").removeClass("current");
+	$("#menu"+vid).find("div").find("#ingflag").css("display","block");
+	//课程目录样式变换
+	$("#menu"+vid).find("div").find("#seeflag").removeClass().addClass("already").css("display","none");
+	$("#menu"+vid).siblings().find("div").find("#ingflag").css("display","none");
+	$("#menu"+vid).siblings().find("div").find("#seeflag").css("display","block");
+}
+
+function openzyurl(){
+	var isJoined = '';
+ 	if(needlogin()){
+ 		if(isJoined=='1'){
+ 			window.open("http://teacher.51taoshi.com/fteacher/user/doassignment.action?cid=");
+ 		}else{
+ 			showT_att_lj("您还未加入该活动，请先加入活动!<a href=\"javascript:jointrules();\" class=\"popButton\" >报名参加</a>");
+ 		}
+ 	}
+}
+function tipjoin(){
+	if(needlogin()){
+	 			showT_att_lj("您还未加入该活动，请先加入活动!<a href=\"javascript:jointrules();\" class=\"popButton\" >报名参加</a>");
+	 }
+}
+function closewind(){
+	$('#shadden').css('display','none');
+	$('#fillinform').css('display','none');
+}
+ 
+</script>
+</head>
+<body>
+
+
+
+<link rel="Bookmark" type="image/x-icon" href="http://www.51taoshi.com/favicon.ico">  
+<link rel="shortcut icon" type="image/x-icon" href="http://www.51taoshi.com/favicon.ico">
+<meta http-equivmetahttp-equiv="x-ua-compatible" content="IE=7"> 
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8;">
+<title>top</title>
+<link href="../../include/css/top/basic.css" rel="stylesheet" type="text/css">
+<link href="../../include/css/top/Popup.css" rel="stylesheet" type="text/css">
+<link href="../../common/jquery/easyui/themes/default/easyui.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="../../common/jquery/jquery.cookie.js"></script>
+<script type="text/javascript" src="../../common/js/md5.js"></script>
+<script type="text/javascript" src="../../include/js/top.js?ver=1"></script>
+<script type="text/javascript" src="../../common/jquery/easyui/jquery.easyui.min.js"></script>
+<script language="JavaScript"> 
+document.onkeydown=function (ev){
+ var oEvent=ev||event;
+ if(oEvent.keyCode==116){
+  if(!/firefox/i.test(window.navigator.userAgent))oEvent.keyCode=0;
+  oEvent.cancelBubble=true;
+  return false;
+ }
+};
+</script>
+
+
+<div id="top">
+  <div class="top_wz">
+    <div class="tsw_submenu_mn">
+    <a href="http://www.51taoshi.com/">淘师湾首页</a>
+    <a href="http://www.51taoshi.com/ucenter/pub/userZoneIndex.action?uid=001" target="_blank">淘师湾空间</a>
+	<span></span>
+	<div class="mr">												
+	<a href="#" class="kk">网站地图</a>
+	<div class="MAP">
+	<ul>
+	    <li onclick="javascript:window.open('http://teacher.51taoshi.com');" style="cursor: pointer;">
+			研修网
+		</li>
+		<li onclick="javascript:window.open('http://ziyuan.51taoshi.com');" style="cursor: pointer;">
+			资源网
+		</li>
+		<li style="cursor: pointer;" onclick="javascript:window.open('http://shop.51taoshi.com/');">
+			积分商城
+		</li>
+		<li onclick="javascript:window.open('http://dayi.51taoshi.com');" style="cursor: pointer;">
+			答疑网
+		</li>
+		<li onclick="javascript:window.open('http://zuoye.51taoshi.com');" style="cursor: pointer;">
+			作业网
+		</li>
+		<li style="cursor: pointer;" onclick="javascript:window.open('http://bbs.51taoshi.com/');">
+			互动论坛
+		</li>
+		<li onclick="javascript:window.open('http://school.51taoshi.com');" style="cursor: pointer;">
+			淘课程
+		</li>
+		<li style="cursor: pointer;" onclick="javascript:window.open('http://yjaq.51taoshi.com/');">
+			生命安全
+		</li>				
+		<li style="cursor: pointer;" onclick="javascript:window.open('http://xxyy.51taoshi.com/');">
+			小学英语
+		</li>				
+	  </ul></div>
+	</div>
+	<!-- 
+	<a href="../../ucenter/my/index.action" onclick="return ifLogin('');">&nbsp;&nbsp;模拟登录(临时)&nbsp;&nbsp;</a>
+	 -->
+	<div class="top_you">
+      	<div id="ulogin" style="width: 50px;margin: 0 auto;float: right;"></div>
+      	<div id="usermess" style="margin: 0 auto;float: right;width: auto;padding-right: 10px;"></div>
+      	<div id="usercall" style="float: right;padding-right: 10px;"><a href="http://www.51taoshi.com/include/login/login.html?url=http://yjaq.51taoshi.com/fteacher/jsp/courseview.action?cid" title="登录">登录</a><a href="http://www.51taoshi.com/include/register/register.html" title="注册">注册</a></div>
+    </div>
+    </div>
+	</div>
+</div>
+<div class="clear"></div>
+<!-- 登录框 -->
+<div id="alert" style="display: none;">
+	  <div style="position: fixed;z-index: 811213;left: 50%;top: 30%;margin-left: -205px;width: 100%;">
+	<div class="login_wind">
+		<ul class="head_wind">
+        	<li class="title_wind">登录淘师湾</li>
+        	<li class="x_wind" id="xxx">x</li>
+	    </ul>
+	    <div class="box_login1">
+	      <ul>
+	        <li class="user">用户名：</li>
+	        <li class="tpye">
+	        <input type="text" id="login_temp" class="myinp" value="学号/教师编号/邮箱/手机号" style="color: #777777;" onfocus="login_focus();">
+	        <input type="text" id="login_username" class="myinp" style="display: none;" onblur="login_blur();">
+	        </li>
+	      </ul>
+	      <ul>
+	        <li class="user">密码：</li>
+	        <li class="tpye">
+	       <input type="password" id="login_password" class="myinp">
+	        </li>
+	      </ul>
+		<span id="loginmsg"></span>
+	      <ul class="login" id="login_sb" style="text-align: center;">
+	        <input type="button" value="" onclick="login();">
+	      </ul>
+	      <ul class="zhuce">
+	      		<span class="gray"><a href="http://www.51taoshi.com/users/login/findpwd.action">忘记密码？</a><a href="http://www.51taoshi.com/include/register/register.html">注册新账户？</a></span>
+	      </ul>
+	    </div>
+	    <div class="clear"></div>
+	</div>
+</div>
+</div>
+<!-- 正确提示框 -->
+  <div style="position: fixed; display: none; z-index: 811213; left: 34%; top: 40%; " id="stsmall">
+	<div class="Popup Popup510">
+	  <div class="icon72  right72 fl "></div>
+	  <div class="wrongWord fl"><span id="stsmall_h1" style="color: #F60;"></span><span id="stsmall_h2"></span></div>
+	  <div class="clear"></div>
+	</div>
+</div>
+<!-- 错误提示框 -->
+<div style="position: fixed; display: none; z-index: 811213; left: 34%; top: 40%; " id="stsmall_err">
+	<div class="Popup Popup510">
+	  <div class="icon72  wrong72 fl "></div>
+	  <div class="wrongWord fl"><span id="stsmall_err_mess"></span></div>
+	  <div class="clear"></div>
+	</div>
+</div>
+<!-- 提示框 -->
+<div style="position: fixed; display: none; z-index: 811213; left: 34%; top: 40%; " id="stsmall_attention">
+	<div class="Popup Popup510">
+	  <div class="icon72   attention72 fl "></div>
+	  <div class="wrongWord fl"><span id="stsmall_att_mess"></span></div>
+	  <div class="clear"></div>
+	</div>
+</div>
+<!-- <div style="display: block; width: 100%; height: 125%; position: absolute; left: 0px; top: 0px; z-index: 811212;background-color: #FFF;opacity: 0.5;"></div> -->
+
+
+<div id="wp">
+  <div class="wp_l">
+
+
+
+
+
+
+
+
+	<meta http-equiv="Content-Type" content="text/html;charset=utf-8;">
+	<title>义教生命安全课程支撑平台</title>
+	<link rel="stylesheet" type="text/css" href="../../anquan/style/reset.css">
+	<link rel="stylesheet" type="text/css" href="../../anquan/style/index140806.css">
+	<link href="../../anquan/style/foucs.css" rel="stylesheet">
+	<script type="text/javascript" src="../../common/jquery/jquery-1.4.4.min.js"></script>
+	<script type="text/javascript" src="../../common/jquery/jquery.cookie.js"></script>
+	<script src="../../anquan/script/jquery.foucs.js" type="text/javascript"></script>
+	<script type="text/javascript" src="../../anquan/script/jquery.soChange.js"></script>
+	<script type="text/javascript" src="../../anquan/script/jquery.corner.js"></script>
+	<script>
+		$(function() {
+			var url = 'http://yjaq.51taoshi.com/fteacher/jsp/courseview.jsp';
+			$("li.active").attr("class", "");
+			if(url.indexOf("anquan/html/index") != -1){
+				$("a.navHome").parent("li").attr("class", "active");
+			}
+			
+// 			else if(url.indexOf("fteacher") != -1){
+// 				$(".navYx").parent("li").attr("class", "active");				
+// 			}else if(url.indexOf("index_jczy") != -1 || url.indexOf("ziyuan_fore") != -1){
+// 				$(".navZy").parent("li").attr("class", "active");			
+// 			}else if(url.indexOf("course") != -1){
+// 				$(".navKc").parent("li").attr("class", "active");				
+// 			}else if(url.indexOf("trends") != -1){
+// 				$(".navDt").parent("li").attr("class", "active");				
+// 			}else if(url.indexOf("specialsub") != -1){
+// 				$(".navZt").parent("li").attr("class", "active");				
+// 			}else if(url.indexOf("everydayprac") != -1){
+// 				$(".navTtl").parent("li").attr("class", "active");				
+// 			}else if(url.indexOf("classroom_list") != -1){
+// 				$(".navXt").parent("li").attr("class", "active");				
+// 			}else{
+// 				$("a.navHome").parent("li").attr("class", "active");
+// 			}
+		});
+	</script>
+	<script>
+		$(function() {
+			//导航菜单滑过样式控制
+			$("li[id^='menu_nav']").each(function(){
+				$(this).mouseover(function(){
+					$(this).attr("class", "active");
+					
+					if($(this).attr("id") == "menu_navYx"){
+						$("#yx_second").show();
+					}else if($(this).attr("id") == "menu_navZy"){
+						$("#zy_second").show();
+					}
+				});
+				
+// 				if($(this).attr("class") != "active"){
+					$(this).mouseout(function(){
+						$(this).attr("class", "");
+						
+						if($(this).attr("id") == "menu_navYx"){
+							$("#yx_second").hide();
+						}else if($(this).attr("id") == "menu_navZy"){
+							$("#zy_second").hide();
+						}
+					});
+// 				}
+			});		
+			
+		});
+		
+		function checkLogin(){
+			if(jQuery.cookie('uloginsate_51taoshi')=="ok"){
+				window.location.href = "http://teacher.51taoshi.com/fteacher/user/trulesjoined.action";	
+			}else{
+				needlogin();
+			}
+		}
+		
+		function checkLogin2(url){
+			if(jQuery.cookie('uloginsate_51taoshi')=="ok"){
+				window.location.href = '/' + url;	
+			}else{
+				needlogin();
+			}			
+		}
+			
+		function clickTag(){
+			$("#yx_second").hide();
+			$("#zy_second").hide();
+		}
+	</script>
+
+
+
+	<div id="top2">
+    	<div class="showhead center2">
+        	<div class="form">
+        	<div class="logo">
+        	<img src="../../anquan/images/homeLogo.jpg" title="生命安全教育支撑平台">
+            </div>
+            <form action="http://yjaq.51taoshi.com:80/yjaq/index/searchNews.action" method="get">
+	            <div class="topSearch">
+	            	<input type="text" class="text" onfocus="value=''" value="输入关键字" name="search.field01">
+	                <input type="submit" class="btn" value="搜索">
+	            </div>
+            </form>
+            </div>
+        </div>
+    </div>
+    <div>
+    	<div class="mainNav">
+        	<div class="center2">
+            	<ul>
+                	<li class="" id="menu_navHome"><a class="navHome navActive" href="http://yjaq.51taoshi.com:80/yjaq/home/index.action">
+                    	<s></s>
+                        首页
+                       <span></span>
+                       </a>
+                    </li>
+                    <li id="menu_navYx"><a class="navYx" href="http://yjaq.51taoshi.com:80/fteacher/jsp/truleslist.action">
+                    	<s></s>
+                        研修
+                       <span></span>
+                       </a>
+						<ul class="navSecond" id="yx_second" style="display: none;">
+							<li><a href="http://yjaq.51taoshi.com:80/fteacher/jsp/truleslist.action">研修活动</a></li>
+							<li><a href="http://yjaq.51taoshi.com:80/fteacher/jsp/listpro.action">研修专家</a></li>
+							<li><a href="http://yjaq.51taoshi.com:80/fore/zy/zyList.action?type=yx">研修资源</a></li>
+							<li><a href="javascript:void(0);" onclick="checkLogin();">我的研修</a></li>
+						</ul>                       
+                    </li>
+                     <li id="menu_navZy" onclick="clickTag();"><a class="navZy" href="http://yjaq.51taoshi.com:80/fore/zy/index.action">
+                    	<s></s>
+                        资源
+                       <span></span>
+                       </a>
+                       
+						<ul class="navSecond" id="zy_second" style="display: none;">
+							<li><a href="javascript:void(0);" onclick="checkLogin2('fore/zy/insZy.action');">上传资源</a></li>
+							<li><a href="javascript:void(0);" onclick="checkLogin2('fore/zy/zyListMy.action');">我上传的资源</a></li>
+							<li><a href="javascript:void(0);" onclick="checkLogin2('fore/zy/zyListSc.action');">我收藏的资源</a></li>
+							<li><a href="javascript:void(0);" onclick="checkLogin2('fore/zy/zyListDy.action');">我订阅的资源</a></li>
+						</ul>
+					 </li>
+                     <li id="menu_navKc"><a class="navKc" href="http://yjaq.51taoshi.com:80/course/fore/manageCourse.action">
+                    	<s></s>
+                        备课
+                       <span></span>
+                       </a>
+                    </li>
+                     <li id="menu_navDt"><a class="navDt" href="http://yjaq.51taoshi.com:80/trends/forward/listTrends.action">
+                    	<s></s>
+                        动态
+                       <span></span>
+                       </a>
+                    </li>
+                     <li id="menu_navZt"><a class="navZt " href="http://yjaq.51taoshi.com:80/specialsub/forward/listSpecialSub.action">
+                    	<s></s>
+                        专题
+                       <span></span>
+                       </a>
+                    </li>
+                     <li id="menu_navTtl"><a class="navTtl " href="http://yjaq.51taoshi.com:80/everydayprac/fore/listEverydayPrac.action">
+                    	<s></s>
+                        天天练
+                       <span></span>
+                       </a>
+                    </li>
+                     <li id="menu_navXt"><a class="navXt " href="http://yjaq.51taoshi.com:80/taokecheng/list/info.action">
+                    	<s></s>
+                        学堂
+                       <span></span>
+                       </a>
+                    </li>
+                     <li id="menu_navSq"><a class="navSq " href="http://yjaq.51taoshi.com:80/taokecheng/list/youxi.action">
+                    	<s></s>
+                        游戏
+                       <span></span>
+                       </a>
+                    </li>
+                </ul>
+                <div class="clear"></div>
+            </div>
+        </div>
+    </div>
+  
+
+
+
+<div id="main" class="center" style="position:relative;">    
+  <div class="vedio">
+    <div class="vedio_tt">
+      <div class="vedio_tt_l">
+        <h3><a href="trulesview.action?rid="></a></h3>
+        <h1><input type="hidden" id="t1"></h1>
+        
+      </div>
+      <div class="vedio_login_box" id="unlog" style="display: block; ">
+      	<div class="vedio_login"> <a href="#" onclick="return ifLogin('');"></a> </div>
+      	<div id="tipbox" class="py_pop pop_sys_count">
+        	<div class="pop_inner">
+            	<span class="arrow_up"></span>
+                <i class="icon i_pop_close" onclick="javascript:$('#tipbox').css('display','none');"></i>
+            	<div class="pop_bd">
+                	为了记录您的有效学习时间，请登录观看课程。
+                </div>
+            </div>
+        </div>
+      </div>
+        <div class="vedio_login_box" id="inlog" style="display: none; ">
+       <div class="ydl_tips">
+      
+     
+         <div class="bmcj_tips_text">你还未报名参加此活动<a href="javascript:void(0);" class="bmcjyx yes">报名参加</a></div>
+         </div>
+      </div>
+      <div class="clear"></div>
+    </div>
+   
+    <div class="vedio_main" id="wks" style="display:none;">
+      <div class="vedio_player">
+        <div class="tip_yjs">
+        	<p>直播时间<span></span></p>
+        </div>   
+        <div class="vedio_tj">
+        	<h3>推荐视频</h3>
+          <ul class="others_vedios_list mr10">
+        	 	
+        </ul>
+        <div class="clear"></div>
+        </div>     
+      </div>
+    </div>
+     
+    <div class="vedio_main" id="zbz" style="display:none;">
+		<div class="kczbz">
+            	<img src="../images/kczbz.jpg" title="课程直播中">
+	            <div class="btn_qd_box">
+	            	<a href="javascript:;" class="btn_qd" id="qdleft"><img src="../images/btn_qd.jpg"></a>
+	                <span id="yqdrs">已有0人签到</span>
+	            </div>
+        </div> 
+    </div> 
+        
+       
+        
+</div>
+<div class="vedio_main" id="lbzlz" style="display:none;">
+      <div class="vedio_player">
+        <div class="tip_yjs">
+        	<img src="../images/tip_zbz.jpg">
+        </div>   
+        <div class="vedio_tj">
+        	<h3>推荐视频</h3>
+          <ul class="others_vedios_list mr10">
+          	
+        </ul>
+        <div class="clear"></div>
+        </div>     
+      </div>
+    </div>
+    <div class="vedio_main" id="lb" style="display:none;">
+      <div class="vedio_player">
+        <div class="vedio_play fl">
+        <iframe id="sframe" name="sframe" frameborder="no" border="0" width="768" height="432" scrolling="no" src=""></iframe>
+         </div>
+        <div class="vedio_subfuc fl"> <a href="javascript:" id="mml" class="vedio_btn_kcml vedio_btn" title="课程目录"></a>
+<!--        -->
+       <a href="javascript:" id="wzy" class="vedio_btn_zy vedio_btn" title="课程作业"></a> 
+         <a href="javascript:" id="wrz" class="vedio_btn_yxrz vedio_btn" title="研修日志"></a> 
+         <a href="javascript:" id="wtw" class="vedio_btn_zxls vedio_btn" title="咨询老师"></a><a href="javascript:uploadziyuan();" class="vedio_btn_kcfx vedio_btn" title="上传资源"></a> </div>
+        <div class="course_index ml" style="display:none;">
+        <div class="course_js">
+       			
+       		</div>
+          <div class="clear"></div>
+          <span class="course_index_arrow"></span> </div>
+  <div class="kczy_index yxrz_index zy" style="z-index:10000;display:none;">
+        	<h3>作业要求<a href="javascript:void(0)" id="closezy" class="a_close">X</a></h3>
+           	<p>该课程暂未布置作业</p>
+          
+           
+            <span class="course_index_arrow4"></span>
+        		</div>
+		<div class="yxrz_index rz" style="display:none;">
+        	<h3>研修日志<a href="javascript:if(parent.needlogin()){window.location.href='http://www.51taoshi.com/ucenter/my/diaryWrite.action?d_type=3';}" target="_blank">切换到完整模式</a><a href="javascript:void(0)" id="closerz" class="a_close">X</a></h3>
+             
+    
+    <textarea name="rzform.memo" cols="60" rows="4" id="rzform_memo" class="vedio_fuc_textarea"></textarea>
+
+
+
+              <p class="kzzs_tips" id="rztip"></p>
+            <a href="javascript:postrz();" class="btn_saveyxrz">保存并发表日志</a>
+            <span class="course_index_arrow2"></span>
+        		</div>
+         	<div class="yxrz_index zxls_index  tw" style="display:none;">
+        	<h3>咨询老师<a href="javascript:void(0)" id="closezx" class="a_close">X</a></h3>
+             
+    
+    <textarea name="twform.memo" cols="60" rows="4" id="twform_memo" class="vedio_fuc_textarea"></textarea>
+
+
+
+            <a href="javascript:postzxzj();" class="btn_saveyxrz btn_savezxls">提交</a>
+            <span class="course_index_arrow2 course_index_arrow3"></span>
+        </div>
+          
+      </div>
+    </div>
+    	<div class="others_vedios_box">
+    		
+    		<div class="stylesgoleft"></div>
+    		<div class="others_vedios">
+    		 <div class="Cont" id="ISL_Cont">
+            <div class="ScrCont">
+    	<ul class="others_vedios_list" id="List1">
+    	
+                	<input type="hidden" name="curvid" value="" id="curvid">
+    	
+        </ul>
+             </div></div>
+        <div class="clear"></div>
+    </div>
+    		
+    	<div class="stylesgoright"></div>
+    	</div>
+    	
+		<div class="viedo_box_shadow"></div>
+    <div class="vedio_others">
+      <div class="mainleft fl">
+      <iframe id="frame" name="frame" frameborder="no" border="0" width="690" scrolling="no" style="background: #ffffff;" src="../appraise/listappraise2.action?topicsid=" onload="this.height=500;iFrameHeight('frame');" height="500"></iframe>
+      </div>
+      <div class="mainright fl">
+        <div class="yxls">
+          <h3 class="side_tt"> <a href="">研训老师</a> </h3>
+           
+         
+        </div>
+       
+        <div class="zyxz">
+          <h3 class="side_tt"> <a>资源下载</a> <a class="a_more" href="resourcelist.action?rid=">更多资源&gt;&gt;</a> </h3>
+          <div class="zyxz_list">
+            <ul>
+            
+
+            </ul>
+          </div>
+          <p class="zywsc_tips">该课程未上传研训资源</p>
+        </div>
+      </div>
+      <div class="clear"></div>
+    </div>
+  </div>
+</div>
+</div>
+
+
+
+
+
+
+	<div id="bottom">
+	  <div class="bottomCon center2">   
+	    <div class="weChat fl">
+	    	<img src="../../include/images/weChat.jpg" width="124" height="70" title="关注淘师湾">
+	    </div>
+	    <ul class="copyright fr">
+	    	<li>主办单位：武汉出版社   淘师湾网站        <script src="http://s24.cnzz.com/stat.php?id=3709711&amp;web_id=3709711&amp;show=pic" language="JavaScript"></script><script src="http://c.cnzz.com/core.php?web_id=3709711&amp;show=pic&amp;t=z" charset="utf-8" type="text/javascript"></script><a href="http://www.cnzz.com/stat/website.php?web_id=3709711" target="_blank" title="站长统计"><img border="0" hspace="0" vspace="0" src="http://icon.cnzz.com/img/pic.gif"></a></li>
+	        <li>增值电信业务经营许可证：鄂B2-20130066 互联网出版许可证 新出网证:(鄂)字 1号 备案/许可证编号：鄂ICP备11013743号</li>
+	    </ul>
+	    <div class="clear"></div>
+	  </div>
+	</div>
+
+
+
+  <div id="shadden" style="position: fixed; top: 0px; left: 0px; width: 100%; height: 100%; opacity: 0.5; z-index: 99; background-color: #e4e4e4;display: none;"></div>
+<div id="fillinform" class="Popup Popup580" style="display:none;position:absolute;z-index:101;margin-left:-290px;left:50%;top:310px;">
+          <div class="PopupHead">
+            <h1 style="font-size:17px; width:80%">即将开始本年度的学时认定活动，请您尽快完善个人信息</h1>
+            <h2 style="font-size:16px; width:20%"><a href="javascript:closewind();">关闭</a></h2>
+            <div class="clear"></div>
+          </div>
+          <div class="w330">
+         <div class="wNeed">
+         	<p>所在学校</p>
+            <p>授课学科</p>
+         </div>
+          <div class="sureUp"> <a href="http://www.51taoshi.com/ucenter/my/changeMyedit.action" target="_blank" style="color:#fff;">去填写</a>
+          <a href="javascript:closewind();" style="background:none; border:0px none; font-size:14px; color:#686868">下次再说</a>
+          </div>
+          <div class="clear"></div>
+        </div></div>
+
+
+
+</body></html>

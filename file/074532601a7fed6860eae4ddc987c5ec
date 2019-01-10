@@ -1,0 +1,110 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+    <title>
+        Carholme Golf Club
+    </title>
+    <script src="scripts/jquery.min.js" type="text/javascript"></script>
+    <link href="styles/intro.css" rel="stylesheet" type="text/css"/>
+    <script type="text/javascript"></script>
+</head>
+<body onload="startSlide()">
+
+<form method="post" action="Intro.aspx" id="form1">
+<div class="aspNetHidden">
+<input type="hidden" name="__VIEWSTATE" id="__VIEWSTATE" value="/wEPDwUJMTQ4MzQwNDAwZGTCgq5Wlz4pc42F2PKlohHp4/UjDKlFmM4l+LXlSwX5Og==" />
+</div>
+
+
+<script type="text/javascript">
+//<![CDATA[
+var imageSources =  new Array('imagedisplay.aspx?id=5619&m=background','imagedisplay.aspx?id=5620&m=background','imagedisplay.aspx?id=3746&m=background');
+var strapLines =  new Array('Welcome to Carholme Golf Club','Parkland Course on the outskirts of Lincoln','Pay and Play visitors and Societies welcome');
+//]]>
+</script>
+</form>
+<div class="loadingClass ClassFadeIn1 ">
+    <div class="loadingMenu"/>
+</div>
+<div id="content">
+    <h1>
+        Carholme Golf Club
+    </h1>
+    <p id="strapLineParagraph">
+        "Welcome to Carholme Golf Club"
+    </p>
+    <a href="home.aspx?i=no">Skip Intro</a>
+</div>
+<script type="text/javascript">
+    //This is laoded from the server side. It appends to the body so the script can only run after the page finishes loading so it can used the attached arrays
+    //var imageSources
+    var faddingTime = 1000;
+    var fadeToTime = 3000;
+
+    var imageCounter = -1;
+    var debug = false; //displays how long it took to download the next image.
+    var time = new Date();
+
+    var overrideColour = "no";
+    if (overrideColour.indexOf("#") != -1) {
+        $("body").append("<style type=\"text/css\">body, #content {color:no  !important} #content a {color:inherit !important;} </style>  ");
+    }
+
+
+    //Resizes the IMG to the windows size with prportions
+    function fitImage() {
+        if ($(".ClassFadeIn1 img").width() > 0) {
+            var doc_width = $(document).width();
+            var doc_height = $(document).height();
+            var image_width = $(".ClassFadeIn1 img").width();
+            var image_height = $(".ClassFadeIn1 img").height();
+            var image_ratio = image_width / image_height;
+            var new_width = doc_width;
+            var new_height = Math.round(new_width / image_ratio);
+
+            $(".ClassFadeIn1 img").width(new_width);
+            $(".ClassFadeIn1 img").height(new_height);
+            if (new_height < doc_height) {
+                new_height = doc_height;
+                new_width = Math.round(new_height * image_ratio);
+                $(".ClassFadeIn1 img").width(new_width);
+                $(".ClassFadeIn1 img").height(new_height);
+                var width_offset = Math.round((new_width - doc_width) / 2);
+                $(".ClassFadeIn1 img").css("left", "-" + width_offset + "px");
+            }
+        }
+    }
+
+    //Resize when window size is changed.
+    $(window).resize(function() { fitImage() });
+
+    //Main function to handle image caching and fadding
+    function startSlide() {
+        time = new Date();
+        imageCounter += 1;
+        if (imageSources[imageCounter] == undefined) {
+            window.location = "home.aspx?i=no";
+        } else {
+            var img = new Image();
+            $(img).load(function() {
+                    if (debug) {
+                        var t = (new Date().getTime() - time.getTime());
+                        $("#content").append("Img" + imageCounter + " Loaded in " + t + "ms <br/>");
+                    }
+                    $(this).hide();
+                    $('.loadingMenu').hide();
+                    $('.ClassFadeIn1').removeClass('loadingClass').append(this);
+                    fitImage();
+                    $('#strapLineParagraph').html(strapLines[imageCounter]);
+                    $(this).fadeIn(faddingTime);
+                    setTimeout(function() { startSlide() }, fadeToTime);
+                })
+                .attr('src', imageSources[imageCounter]); // Set the src attribute of the new image to our image
+        }
+
+    }
+</script>
+</body>
+</html>

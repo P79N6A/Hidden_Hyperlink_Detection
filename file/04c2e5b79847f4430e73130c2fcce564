@@ -1,0 +1,932 @@
+<!--?xml version="1.0" encoding="UTF-8" ?--><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head>
+	<base href="http://passa.gz.1251010508.clb.myqcloud.com:80/pass_a/">
+	<meta id="viewport" name="viewport" content="user-scalable=no,target-densitydpi=high-dpi,uc-fitscreen=yes,width=device-width, initial-scale=1.0, width=device-width, minimum-scale=1.0, maximum-scale=1.0">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	
+	<meta name="x5-fullscreen" content="true">
+	<meta name="x5-page-mode" content="app">
+	<meta name="tencent-x5-page-direction" content="portrait">
+	<meta name="browsermode" content="application">  
+	<meta name="full-screen" content="yes">
+	<meta name="screen-orientation" content="portrait">
+	<script src="http://pc.h5game.cn/pass_a/js/h5gamecn_new.js"></script><script type="text/javascript" src="http://pc.h5game.cn/pass_a/js/h5gamecn_new.min.js?v=1491041131531"></script>
+	<link rel="stylesheet" type="text/css" href="http://cdn.h5game.cn/passa/css/style.css?v=1">
+	<style type="text/css">
+		html{height:100%;background-color:black;}
+		.qqLogin{background:url(http://opcdn.h5game.cn/nbsg/img/pass/qq3x.png);width:80px;height:80px;background-size:100% 100%;border-radius:40px;}
+		.wxLogin{background:url(http://opcdn.h5game.cn/nbsg/img/pass/weixin3x.png);width:80px;height:80px;background-size:100% 100%;border-radius:40px;}
+		.cgr{color:#5aff00;}
+		.cy{color:#fff000;}
+		.cw{color:white;}
+		.bs1{
+			text-shadow: -1px -1px 1px black, 1px 1px 1px black,1px -1px 1px black,-1px 1px 1px black;
+		}
+		.fs1{font-size:18px;}
+		.fs2{font-size:30px;}
+		.fs3{font-size:20px;}
+		.fl{float:left;}
+		.clearb{clear:both;}
+		.ma{margin:auto;}
+		.bb{-webkit-box-sizing:border-box;}
+		.bd{
+			background:rgba(0,0,0,0.75);
+			border:2px solid rgba(0,0,0,0.75);
+			border-radius:15px;
+			font-size:15px;
+		}
+		.bd:before{
+			content:'';
+			display:block;
+			width:100%;
+			height:100%;
+			border:5px solid #dca53c;
+			position:absolute;
+			pointer-events:none;
+			top:0px;left:0px;
+			border-radius:15px;
+			box-sizing:border-box;
+			-webkit-box-sizing:border-box;
+		}
+		.tc{text-align:center;}
+		.pa{position:absolute;left:0px;top:0px;width:100%;height:100%;z-index:2;}
+		.pr{position:relative;}
+		.text{
+			font-size:20px;
+			font-family:"SourceHanSansCN-Normal";
+			color:white;
+			position:absolute;
+			top:120px;
+			width:200%;
+			left:-50%;
+			text-align:center;
+		}
+		.highLight{
+			-webkit-box-shadow: 0px 0px 50px #2f9aff;
+		}
+		.highLight:after{
+			content: '';
+			background: url(http://opcdn.h5game.cn/nbsg/img/pass/select3x.png);
+			width: 42px;
+			height: 43px;
+			position:absolute;
+			top:60px;
+			left:60px;
+		}
+       
+	</style>
+	<script type="text/javascript">
+		var appid = ''
+		var appsig = '';
+		var appsigData = '';
+		
+		var gameAppId = "2000004";
+		var infos = {"fkjzscp":"{\"passType\":\"FKSER\"}"}
+		var passIds = Object.keys(infos);
+		var passId = passIds[0];
+		var datas = JSON.parse(infos[passId]);
+		var redirectMap = {};
+		appid = datas.browserId;
+		appsig = datas.appSig;
+		appsigData = datas.appSigData;
+		var passType = datas.passType;
+		var appSet = {"bg":"http://bt.h5game.cn/passa/img/loginbg/bg_jzsc.jpg"};
+		var checkcookie;
+		//TODO:正式环境的时候这里需要修改成正式url
+		//var passportUrl = 'http://xiong.h5game.cn:8081/pass2';
+		var userAuth = {};
+		var cookiePath = '';
+		
+		var shouldAdapt = (passType=='BROSER');
+		//window 长宽信息
+		//var frameHeight = window.innerHeight;
+		//var frameWidth = window.innerWidth;  
+		//2016年9月6日12:53:06  修改  有时候爱微游 获取的innerHeight会是0的问题
+		var frameWidth ;//= document.documentElement.clientWidth||window.innerWidth;
+		var frameHeight ;//= document.documentElement.clientHeight||window.innerHeight;
+		var passTypeFuncMap;
+		//新登陆的一些操作
+		function newPassSettings(){
+			//设置背景图片
+			var bg = appSet.bg;
+			if(!bg){
+				console.log('没有设置背景图');
+				return;
+			}
+				
+			//document.body.style.background = "url('"+bg +"') no-repeat";
+			var n = document.createElement('style');
+			var str = "body{background:url("+bg+") no-repeat;margin:0px;padding:0px;-webkit-tap-highlight-color: rgba(0,0,0,0);height:"+frameHeight+"px;background-size:cover;}"
+			n.innerHTML = str;
+			document.head.appendChild(n);
+			//设置追加参数
+		}
+		function closePayWindow(){
+			document.getElementById('items').innerHTML='';
+			document.getElementById('recharge').style.display = 'none';
+		}
+		function getOrientation(){
+			var ua = navigator.userAgent;
+			if(ua.match(/qzone/i))
+				return 'portrait';
+			var orien;
+			switch(window.orientation) {
+		        case 90: case -90:
+		          orien = 'landscape';
+		        break;
+		        default:
+		          orien = 'portrait';
+		      }
+			return orien;
+		}
+		
+		function updateOrientation(){
+			var orien = getOrientation();
+			clear();
+			if(orien == 'portrait'){
+			//	removeHint();
+			}
+			setTimeout(function(){
+				
+				orien = getOrientation();
+				if(orien != 'portrait'){
+				//	showHint();
+				}else{
+				//	removeHint();
+					showPreScreen();
+				}
+			},1000);
+		}
+		
+		function clear(){
+			window.scrollTo(0, 1);
+			var viewportmeta = document.querySelector('meta[name="viewport"]');
+			var ua = navigator.userAgent;
+		    if (viewportmeta) {
+				if(ua.indexOf("iPhone")>-1 || ua.indexOf("iPad")>-1){
+					viewportmeta.content = 'width=device-width, initial-scale=1.0, width=device-width, minimum-scale=1.0, maximum-scale=1.0';
+				}
+		    }
+		}
+		
+		function showHint(){
+			removeHint();
+			
+			var hintHtml = "<div style='margin:15% auto 6% auto;background:url(http://opcdn.h5game.cn/nbsg/img/pass/portraitHint.png);background-size:100% 100%;width:"+(window.innerHeight/640*324)+"px;height:"+window.innerHeight/640*204+"px;'></div>";
+			hintHtml += "<div style='text-align:center;color:#b0b0b0;font-size:20px;'>竖屏体验更佳</div>";
+			
+			var hintDiv = document.createElement("div");
+			hintDiv.id = 'screenHint';
+			hintDiv.style.position = 'absolute';
+			hintDiv.style.left = '0px';
+			hintDiv.style.top = '0px';
+			hintDiv.style.width = window.innerWidth + 'px';
+			hintDiv.style.height = window.innerHeight + 'px';
+			hintDiv.style.zIndex = 999;
+			hintDiv.style.backgroundColor = '#e0e0e0';
+			
+			hintDiv.innerHTML = hintHtml;
+			document.body.appendChild(hintDiv);
+		}
+		
+		function removeHint(){
+			var hint = document.getElementById('screenHint');
+			if(hint)
+				document.body.removeChild(hint);
+		}
+		
+		window.addEventListener('orientationchange', updateOrientation, false);
+		//qq浏览器不再响应resize 防止弹出键盘时 gamediv适配导致gameframe可以滑动  xinlang????
+		if(parent != window||passType=='XLSER'){
+			window.addEventListener('resize',showPreScreen,false);
+		}
+		window.addEventListener('load', function(){
+			//设置背景操作
+			// newPassSettings();
+			//qq页游平台 config操作
+			debugtolog('loaded');
+			window.browser&&browser.x5gameplayer.config && browser.x5gameplayer.config({loginCallBack: loginCallBack});
+			document.getElementById('loader').style.display = 'block';
+			setTimeout(function(){
+				debugtolog('wwww'+document.documentElement.clientWidth+'hhhh'+document.documentElement.clientHeight +"   innerW"+window.innerWidth+"   innerH"+window.innerHeight);
+				updateOrientation();
+				showPreScreen();
+				//登陆操作
+				debugtolog(passType+'调用login');
+				//更新title 2016年11月17日17:21:16
+				if(datas.gameName){
+					document.title = datas.gameName;
+				}
+				switch(passType){
+					case "BROSER":
+						document.getElementById('loader').style.display = 'none';
+						try{
+							checkLoginStatus();
+						}catch(e){alert(e)}
+						
+					break;
+					case "QZONESER":
+						var param = h5gamecn.getParameters();
+						var mqqdatas = window.OPEN_DATA;
+						param['appId'] = gameAppId;
+						param['passId'] = passId;
+						if(mqqdatas){
+							param.openid = mqqdatas.openid;
+							param.openkey = mqqdatas.openkey;
+							param.pf = "wanba_ts";
+							param.qua = mqqdatas.qua.app;
+						}
+						h5gamecn.login(param);
+						if (mqqdatas) {
+							
+							mqq.invoke('ui', 'webviewCanScroll', {"enable" : false});
+							mqq.invoke("ui", "setScrollState",{ enable: false });
+							
+							mqq.invoke('ui', 'setOnAddShortcutHandler', {
+								'callback': mqq.callback(function() {
+									mqq.ui.addShortcut({
+										title: datas.gameName||"决战沙城",//datas.gameName,
+										action: 'web',
+										url: mqqdatas.jumpurl,
+										icon: datas.gameIcon||"http://cdn.7yao.top/m2/loadingRes/chuanqi.jpg",
+										callback: function(args) {
+											console.log(args);
+											if (args.result == 0) {
+												localStorage.setItem("shortcutadded1", "true");
+											}
+										}
+									});
+								}, false, true)
+							});
+							//屏幕常亮
+							mqq.invoke('device', 'setScreenStatus', {status:1},function(data){
+							    console.log(data);
+							});
+							if (!localStorage.getItem("shortcutadded1")) {
+								setTimeout(function() {
+									//只弹出一次提示
+									localStorage.setItem("shortcutadded1", "true");
+									mqq.ui.addShortcut({
+										title: datas.gameName||"决战沙城",//datas.gameName,
+										action: 'web',
+										url: mqqdatas.jumpurl,
+										icon: datas.gameIcon||"http://cdn.7yao.top/m2/loadingRes/chuanqi.jpg",
+										callback: function(args) {
+											console.log(args);
+											if (args.result == 0) {
+												localStorage.setItem("shortcutadded1", "true");
+											}
+										}
+									});
+								}, 300000);
+							}
+						}
+						//去除转屏提示
+					/**	window.onorientationchange = function(){
+							var div = document.getElementById("screenHint");
+					        if (window.orientation == 180 || window.orientation == 0) {
+					            div.style.display = "none";
+					        }
+					        if (window.orientation == 90 || window.orientation == -90) {
+					            div.style.display = "block";
+					        }
+						};**/
+					break;
+					case "ZSBFSDK":
+						checkcookie = appSet.checkcookie;
+				//		document.getElementById('loader').style.display = 'none';
+						var param = h5gamecn.getParameters();
+						param['appId'] = gameAppId;
+						param['passId'] = passId;
+						h5gamecn.login(param);
+						break;
+					case "ZSBFSER":
+						checkcookie = appSet.checkcookie;
+					//	document.getElementById('loader').style.display = 'none';
+						var param = h5gamecn.getParameters();
+						param['appId'] = gameAppId;
+						param['passId'] = passId;
+						debugtolog(JSON.stringify(param))
+						h5gamecn.login(param);
+						break;
+					case "H360SER":
+						loadScript("http://h5game.u.360.cn/js/h5sdk.2.0.js",function(){
+							var param = h5gamecn.getParameters();
+							param['appId'] = gameAppId;
+							param['passId'] = passId;
+							h5gamecn.login(param);
+							H5SDK.setLoginTimeOut(function(){
+						        alert("登陆超时了!");
+						    }, 5000);
+							H5SDK.checkLogin(function(qid, imgSrc, nickname){
+								var param = h5gamecn.getParameters();
+								param['appId'] = gameAppId;
+								param['passId'] = passId;
+								param['qid'] = qid;
+								param['imgSrc'] = imgSrc;
+								param['nickname'] = nickname;
+								console.log(qid,imgSrc,nickname);
+								h5gamecn.login(param);
+							},function(){
+								alert("登陆已取消");
+							});
+						});
+						newPassSettings();
+						break;
+					case "MEITSER":
+						loadScript("http://h5.91wan.com/js/7wanwansdk.js", function(){
+							quwanwansdk.getLoginInfo({
+								game_id: appid,
+								server_id: 0,
+								callFunc: function (response) {
+									var param = h5gamecn.getParameters();
+									param['appId'] = gameAppId;
+									param['passId'] = passId;
+									param['user_name'] = encodeURIComponent(response.user_name);//user_name
+									param['uid'] = response.uid;//平台uid
+									param['img'] = response.img;//平台user_name
+									param['nick_name'] = encodeURIComponent(response.nick_name);//
+									param['sid'] = response.sid;
+									h5gamecn.login(param);
+								}
+							});
+						})
+						break;
+					case "LAYASER":
+						window.openId = datas.openId;
+						window.openKey = datas.openKey;
+						loadScript("https://layamarket.layabox.com/layaboxmarket.v2.js",function(){
+							var interval = setInterval(function(){
+								if(LayaBoxMarket){
+									
+									var layaBox = LayaBoxMarket.getInstance();
+									layaBox.login("",function(result){
+										var data = JSON.parse(result);
+										var loginType = data.loginType;
+										var marketSpId = data.spId;
+										console.log(data)
+										if(data.result == 0) 
+										{	
+											var param = {
+													accessToken:data.data.accessToken||"",
+													avatarUrl:data.data.avatarUrl||"",
+													gameId:data.data.gameId||"",
+													nickName:data.data.nickName||"",
+													sp:data.data.sp||"",
+													userId:data.data.userId||"",
+													appId:gameAppId,
+													passId:passId
+											}
+											h5gamecn.login(param);
+										}else if(_data.result == -1) {	
+											console.log("取消登陆")		
+										}else{
+											console.log("登录失败,请重新尝试,code"+data.desc);
+										}
+									});
+									clearInterval(interval);
+								}
+							}, 200)
+						});
+						break;
+					default:
+					//	document.getElementById('loader').style.display = 'none';
+						var param = h5gamecn.getParameters();
+						param['appId'] = gameAppId;
+						param['passId'] = passId;
+						h5gamecn.login(param);
+						break;
+				}
+				
+			},1);
+			
+			document.body.style.background = ''
+		}, true);
+		
+		function loadScript(url, callback) {
+			var script = document.createElement("script");
+			script.type = "text/javascript";
+
+			script.onload = function() {
+				callback();
+			};
+			script.onerror = function() {
+				script.parentNode.removeChild(script);
+				setTimeout(function() {
+					loadScript(url, callback);
+				}, 1000);
+			};
+			script.src = url;
+			document.getElementsByTagName("head")[0].appendChild(script);
+		}
+		
+		function showPreScreen(){
+			//适配 存储宽高  2016年9月19日17:00:03 改为放到load事件内获取
+			frameWidth = document.documentElement.clientWidth||window.innerWidth;
+			frameHeight = document.documentElement.clientHeight||window.innerHeight;
+			debugtolog('pre  wwww'+document.documentElement.clientWidth+'hhhh'+document.documentElement.clientHeight +"   innerW"+window.innerWidth+"   innerH"+window.innerHeight);
+			window.scrollTo(0, 1);
+			var orien = getOrientation();
+			var w,h;
+			h = frameHeight;
+			w = frameWidth;
+			
+			//简单适配 游戏div和充值div
+			document.getElementById('gameDiv').style.width = (frameWidth>frameHeight?frameHeight*0.6:frameWidth)+'px';
+			document.getElementById('gameDiv').style.height = frameHeight+'px';
+			document.getElementById('recharge').style.height = frameHeight+'px';
+			document.getElementById('recharge').style.width = (frameWidth>frameHeight?frameHeight*0.6:frameWidth)+'px';
+			//适配会在微信下影响游戏的问题 TODO:修改适配方案
+			if(!shouldAdapt){
+				return;
+			}
+			
+			var ratio = h / w;
+			var maxRatio = 1.77917;
+			var minRatio = 1.7;
+			var _uniScale = Math.min(h/800, w/480);
+			var _topY,_leftX;
+			
+			var _scaleY = h / 800;
+			var _scaleX = w / 480;
+			
+			
+			//2016年9月18日18:58:03  不允许变形
+		/*	if(ratio >= minRatio && ratio <= maxRatio){
+				_scaleY = h/800;
+				_scaleX = w/480;
+				_topY = (h - _scaleY * 800) / 2;
+				_leftX = (w - _scaleX * 480) / 2;
+			}else{**/
+				_scaleY = _uniScale;
+				_scaleX = _uniScale;
+				_topY = (h - _uniScale * 800) / 2;
+				_leftX = (w - _uniScale * 480) / 2;
+			//}
+			
+			
+			
+			var style = document.createElement("style");
+			style.type = "text/css";
+			style.innerHTML = '#gbox{left:'+_leftX+'px;top:'+_topY+'px;transform-origin:0px 0px;-ms-transform-origin:0px 0px;-webkit-transform-origin:0px 0px; -moz-transform-origin:0px 0px;-o-transform-origin:0px 0px;-webkit-transform:scale('+_scaleX+','+_scaleY+');-o-transform:scale('+_scaleX+','+_scaleY+');-moz-transform:scale('+_scaleX+','+_scaleY+');}\n';
+			document.getElementsByTagName("head")[0].appendChild(style);
+			
+		//	document.getElementById('gbox').style.width = w+'px';
+		//	document.getElementById('gbox').style.height = h+'px';
+	
+			
+			var gbox = document.getElementById("gbox");
+			if(orien != 'portrait')
+				gbox.style.display = 'none';
+			else
+				gbox.style.display = 'block';
+		}
+		
+		function debugtolog(log){
+			var debug_log = document.getElementById('debug-log');
+			var logs = debug_log.innerHTML;
+			logs += ('<br><br>'+ log+"  "+new Date());
+			debug_log.innerHTML = logs;
+		}
+		function closedebug(){
+			var debug_log = document.getElementById('debug-log');
+			debug_log.style.display = 'none';
+		}
+		function showdebug(){
+			var debug_log = document.getElementById('debug-log');
+			debug_log.style.display = 'block';
+		}
+		
+		function jumpTo(url){
+			/* window.addEventListener('pagehide',function(){
+				document.getElementById('jumping').style.display = 'none';
+			})
+			document.getElementById('jumping').style.display = 'block';
+			setTimeout(function(){
+				window.location.href=url;
+			},0); */
+			
+			window.location.href=url;
+		}
+		
+		// utility function called by getCookie()
+		function getCookieVal(offset) {
+		    var endstr = document.cookie.indexOf(";", offset);
+		    if (endstr == -1) {
+		        endstr = document.cookie.length;
+		    }
+		    return unescape(document.cookie.substring(offset, endstr));
+		}
+		 
+		// primary function to retrieve cookie by name
+		function getCookie(name) {
+		    var arg = name + "=";
+		    var alen = arg.length;
+		    var clen = document.cookie.length;
+		    var i = 0;
+		    while (i < clen) {
+		        var j = i + alen;
+		        if (document.cookie.substring(i, j) == arg) {
+		            return getCookieVal(j);
+		        }
+		        i = document.cookie.indexOf(" ", i) + 1;
+		        if (i == 0) break;
+		    }
+		    return null;
+		}
+ 
+		// store cookie value with optional details as needed
+		function setCookie(name, value, expires, path, domain, secure) {
+		    document.cookie = name + "=" + escape(value) +
+		    ((expires) ? "; expires=" + expires : "") +
+		    ((path) ? "; path=" + path : "") +
+		    ((domain) ? "; domain=" + domain : "") +
+		    ((secure) ? "; secure" : "");
+		}
+		
+		function deleteCookie(name) {
+			var exp=new Date();
+			exp.setTime(exp.getTime()-1);
+			var cval=getCookie(name);
+			
+			setCookie(name,cval,exp.toGMTString(),cookiePath);
+	    }
+		
+		function toPassport(param){
+			var _passUrl = passportUrl+'/callback.html?qbopenid='+param.qbopenid+'&qbopenkey='+param.qbopenkey;
+			if(param.loginType)
+				_passUrl += '&loginType='+(param.loginType)
+			if(param.refreshToken)
+				_passUrl += '&refreshToken='+(param.refreshToken)
+			if(param.nickName)
+				_passUrl += '&nickName='+param.nickName;
+			if(param.appsig)
+				_passUrl += '&appsig='+param.appsig;
+			if(param.avatarUrl)
+				_passUrl += '&avatarUrl='+(param.avatarUrl);
+			if(param.expireTime)
+				_passUrl += '&expireTime='+(param.expireTime);
+			_passUrl += '&sandbox=1&RT=1';
+			jumpTo(_passUrl);
+		}
+		
+		function fastLogin(){
+			if(getCookie('openid') && getCookie('openkey')){
+				//2016年6月8日16:19:34  修改为 h5gamecn.checkLogin(res);
+				var param = {
+					qbopenid : getCookie('openid'),
+					qbopenkey : getCookie('openkey'),
+					loginType : getCookie('loginType'),
+					appsig : getCookie('appsig'),
+					refreshToken : getCookie('refreshToken'),
+					expireTime : getCookie('expireTime'),
+					nickName : getCookie('nickName')
+				}
+				var keys = Object.keys(redirectMap);
+				for(var i = 0;i<keys.length;i++){
+					param[keys[i]] = redirectMap[keys[i]][0];
+				}
+				param['appId'] = gameAppId;
+				param['passId'] = passId;
+				debugtolog('fastlogin'+JSON.stringify(param))
+				if(passIds.length==1){
+					h5gamecn.login(param);
+				}else if(passIds.length>1){
+					
+				}
+				/**toPassport({
+					qbopenid : getCookie('openid'),
+					qbopenkey : getCookie('openkey'),
+					loginType : getCookie('loginType'),
+					appsig : getCookie('appsig'),
+					refreshToken : getCookie('refreshToken'),
+					expireTime : getCookie('expireTime'),
+					nickName : getCookie('nickName')
+				});**/
+			}else{
+				
+			}
+		}
+		
+		//qq浏览器登陆回调
+		function loginCallBack(rsp){
+			debugtolog('登陆回调'+JSON.stringify(rsp));
+			// alert(JSON.stringify(rsp));
+			//登录成功
+			if(rsp.result==0){
+				try{
+			    var exp  = new Date();    //new Date("December 31, 9998");
+			    exp.setTime(exp.getTime() + rsp.expire*1000);
+				var exp2 = new Date();
+				exp2.setTime(exp2.getTime() + 2505600*1000);
+				var expireTime = exp.getTime()-900000;
+				
+				setCookie('openid',encodeURIComponent(rsp.qbopenid),exp2.toGMTString(),cookiePath);
+				setCookie('nickName',rsp.nickName,exp2.toGMTString(),cookiePath);
+				setCookie('openkey',encodeURIComponent(rsp.qbopenkey),exp.toGMTString(),cookiePath);
+				setCookie('refreshToken',encodeURIComponent(rsp.refreshToken),exp2.toGMTString(),cookiePath);
+				setCookie('loginType',loginType,exp2.toGMTString(),cookiePath);
+				setCookie('expireTime',expireTime);
+				
+				userAuth = rsp;
+				
+				//设置可否显示登陆头像信息
+				localStorage.setItem('show'+loginType,true);
+				}catch(e){debugtolog(e);};
+				//alert('【refreshToken】'+getCookie('refreshToken')+'【openid】'+getCookie('openid')+'【openkey】'+getCookie('openkey'));
+			
+				//2016年6月8日16:19:34  修改为 h5gamecn.checkLogin(res);
+				try{
+					var param = {
+							qbopenid : encodeURIComponent(rsp.qbopenid),
+							qbopenkey : encodeURIComponent(rsp.qbopenkey),
+							refreshToken : encodeURIComponent(rsp.refreshToken),
+							nickName : rsp.nickName,
+							avatarUrl : encodeURIComponent(rsp.avatarUrl),
+							loginType : getCookie('loginType'),
+							appsig : encodeURIComponent(appsig),
+							expireTime : expireTime
+						}
+						var keys = Object.keys(redirectMap);
+						for(var i = 0;i<keys.length;i++){
+							param[keys[i]] = redirectMap[keys[i]][0];
+						}
+						param['appId'] = gameAppId;
+						param['passId'] = passId;
+						debugtolog('h5gamecn.login' + JSON.stringify(param));
+						debugtolog('passIds.length' + passIds.length);
+						if(passIds.length==1){
+							debugtolog('h5gamecn.login' + JSON.stringify(param));
+							h5gamecn.login(param,function(){
+								document.getElementById('loading1').style.display = 'none';
+							});
+						}else if(passIds.length>1){
+							
+						}
+						
+				}catch(e){
+					
+					debugtolog(e)
+				}
+				
+				
+			/**	toPassport({
+					qbopenid : encodeURIComponent(rsp.qbopenid),
+					qbopenkey : encodeURIComponent(rsp.qbopenkey),
+					refreshToken : encodeURIComponent(rsp.refreshToken),
+					nickName : rsp.nickName,
+					avatarUrl : encodeURIComponent(rsp.avatarUrl),
+					loginType : getCookie('loginType'),
+					appsig : encodeURIComponent(appsig),
+					expireTime : expireTime
+				});*/
+			}
+			//网络异常
+			else if(rsp.result==-2){
+				alert('登录出错，请重新登录');
+				document.getElementById('loading1').style.display = 'none';
+			}else if(rsp.result==-1){
+				alert('登陆已取消');
+				document.getElementById('loading1').style.display = 'none';
+			}
+			
+		}
+		
+		function doLogin(type){
+			//api没有加载成功
+			if(!browser || !browser.x5gameplayer)
+			{
+				alert('运行库加载失败，将为您重新进入游戏');
+				window.location.href=location.href;
+				return;
+			}
+			document.getElementById('loading1').style.display = 'block';
+			var exp2 = new Date();
+			exp2.setTime(exp2.getTime() + 2505600*1000);
+			setCookie('loginType',type,exp2.toGMTString(),cookiePath);
+			debugtolog('dologin '+appid+'|'+appsig+'|'+appsigData+'|'+type);
+			//执行登录动作
+			browser.x5gameplayer.login({
+				appid : appid,
+				appsig : appsig,
+				appsigData : appsigData,
+				loginType : type
+			},loginCallBack);
+
+		}
+		
+		
+		
+		function checkLoginStatus(){
+			//新版api流程
+			newPassSettings();
+			if(browser.x5gameplayer.getAvailableLoginType){
+				debugtolog(getCookie('openid'));
+				debugtolog(getCookie('refreshToken'));
+				debugtolog('调用getAvailableLoginType');
+				browser.x5gameplayer.getAvailableLoginType({
+					appid : appid
+				}, function(rsp){
+					debugtolog('getAvailableLoginType回调');
+					debugtolog(JSON.stringify(rsp));
+				//	document.getElementById('debug-log').style.display  = 'block';
+					if(rsp && rsp.result == 0){
+						
+						if(rsp.loginTypes && rsp.loginTypes.length){
+							for(var i=0;i<rsp.loginTypes.length;i++){
+								if(rsp.loginTypes[i].loginType){
+									var info = rsp.loginTypes[i];
+									
+									var type = info.loginType;
+									var avatarUrl = info.accInfo&&info.accInfo.avatarUrl;
+									var nickName = info.accInfo&&info.accInfo.nickName;
+									var qid = info.accInfo&&info.accInfo.qbopenid;
+									
+									// alert(type+','+nickName+','+avatarUrl+',==qid=='+qid);
+									
+									var wxEle = document.getElementById('wxLogin');
+									var qqEle = document.getElementById('qqLogin');
+									
+									if(type == 'wx'){
+										wxEle.style.display = 'inline-block';
+										 if(info.accInfo){
+											wxEle.className += ' highLight';
+											wxEle.children[0].textContent = '微信一键登录';
+											wxEle.children[1].src = avatarUrl;
+											wxEle.children[1].style.display = 'block';
+										 }
+										
+									}else if(type == 'qq'){
+										qqEle.style.display = 'inline-block';
+										 if(info.accInfo){
+											qqEle.className += ' highLight';
+											qqEle.children[0].textContent = 'QQ一键登录';
+											qqEle.children[1].src = avatarUrl;
+											qqEle.children[1].style.display = 'block';
+										 }
+										
+									}
+									
+								}
+							}
+
+							// 有且仅有一种登录方式的时候，直接调用login 2016年8月31日11:00:19
+							if(rsp.loginTypes.length === 1){
+								window.showLogout = false;
+								//document.getElementById('wxLogin').style.marginRight = '0';
+								doLogin(rsp.loginTypes[0].loginType);
+							}else{
+								window.showLogout = true;
+							}
+							
+						}
+						//快速登录
+						if(!getCookie('openid') || !getCookie('refreshToken'))
+							return;
+						debugtolog('快速登录'+appid+'   '+decodeURIComponent(getCookie('openid')) +' '+decodeURIComponent(getCookie('refreshToken'))+" appsig:"+appsig);
+						document.getElementById('loading1').style.display = 'block';
+						try{
+						debugtolog('刷新token');
+						browser.x5gameplayer.refreshToken({
+							qbopenid: decodeURIComponent(getCookie('openid')),
+							appid: appid,
+							refreshToken: decodeURIComponent(getCookie('refreshToken')),
+							reqsig: appsig
+						}, function(rsp) {
+							document.getElementById('loading1').style.display = 'none';
+							if (rsp && rsp.result == 0) {
+								var exp = new Date();
+								exp.setTime(exp.getTime() + rsp.expireIn * 1000);
+								setCookie('openkey', encodeURIComponent(rsp.qbopenkey), exp.toGMTString(), cookiePath);
+								setTimeout(fastLogin, 100);
+							}else if(rsp.result == -2){
+								debugtolog('刷新token -2')
+								deleteCookie('openid');
+								deleteCookie('openkey');
+								deleteCookie('refreshToken');
+								deleteCookie('loginType');
+								deleteCookie('appsig');
+								location.href = location.href;
+							}
+							debugtolog('刷新token回调 '+JSON.stringify(rsp));
+						});}catch(e){debugtolog(e)};
+
+					}
+					
+				});
+				
+			}else{
+				if(!getCookie('openid') || !getCookie('refreshToken'))
+					return;
+				
+				//document.getElementById('loading').style.display = 'block';
+				browser.x5gameplayer.refreshToken({
+					qbopenid : decodeURIComponent(getCookie('openid')),
+					appid : appid,
+					refreshToken : decodeURIComponent(getCookie('refreshToken')),
+					reqsig : appsig
+				},function(rsp){
+					console.info(rsp)
+					document.getElementById('loading1').style.display = 'none';
+					
+					if(rsp && rsp.result == 0){
+						var exp  = new Date();
+			    		exp.setTime(exp.getTime() + rsp.expireIn*1000);
+						setCookie('openkey',encodeURIComponent(rsp.qbopenkey),exp.toGMTString(),cookiePath);
+						setTimeout(fastLogin,100);
+					}
+				});
+			}
+			
+		}
+	</script>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8;">
+<title>登录</title>
+</head>
+<body scroll="no" style="">
+	
+	<div id="loader" style="position: absolute; margin: auto; top: 0px; left: 0px; bottom: 0px; right: 0px; display: none; ">
+			 <svg viewBox="0 0 120 120" style="width:50px;height:50px;position:absolute;margin:auto;top:0;left:0;bottom:0;right:0" version="1.1" xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink">
+      <g id="circle" class="g-circles g-circles--v3">
+          <circle id="12" transform="translate(35, 16.698730) rotate(-35) translate(-35, -16.698730) " cx="35" cy="16.6987298" r="10"></circle>
+          <circle id="11" transform="translate(16.698730, 35) rotate(-60) translate(-16.698730, -35) " cx="16.6987298" cy="35" r="10"></circle>
+          <circle id="10" transform="translate(10, 60) rotate(-90) translate(-10, -60) " cx="10" cy="60" r="10"></circle>
+          <circle id="9" transform="translate(16.698730, 85) rotate(-120) translate(-16.698730, -85) " cx="16.6987298" cy="85" r="10"></circle>
+          <circle id="8" transform="translate(35, 103.301270) rotate(-150) translate(-35, -103.301270) " cx="35" cy="103.30127" r="10"></circle>
+          <circle id="7" cx="60" cy="110" r="10"></circle>
+          <circle id="6" transform="translate(85, 103.301270) rotate(-30) translate(-85, -103.301270) " cx="85" cy="103.30127" r="10"></circle>
+          <circle id="5" transform="translate(103.301270, 85) rotate(-60) translate(-103.301270, -85) " cx="103.30127" cy="85" r="10"></circle>
+          <circle id="4" transform="translate(110, 60) rotate(-90) translate(-110, -60) " cx="110" cy="60" r="10"></circle>
+          <circle id="3" transform="translate(103.301270, 35) rotate(-120) translate(-103.301270, -35) " cx="103.30127" cy="35" r="10"></circle>
+          <circle id="2" transform="translate(85, 16.698730) rotate(-150) translate(-85, -16.698730) " cx="85" cy="16.6987298" r="10"></circle>
+          <circle id="1" cx="60" cy="10" r="10"></circle>
+      </g>
+  </svg>
+		  </div>
+	<div id="getValue" style="display:none" value=""></div>
+	<script type="text/javascript">
+
+	if(passType == 'BROSER'){
+		if(location.search.search('logout') != -1){
+			deleteCookie('openid');
+			deleteCookie('openkey');
+			deleteCookie('refreshToken');
+			deleteCookie('loginType');
+			deleteCookie('appsig');
+			localStorage.setItem('showwx',false);
+			localStorage.setItem('showqq',false);
+		}
+	}
+	</script>
+	 
+	  <div style="width:10px;height:10px;position:absolute;top:0px;left:0px;z-index:999" onclick="showdebug()">
+	
+	</div>  
+	<!-- 转屏提示 
+	<div id='screenHint' style='position:absolute;display:none;left:0px;top:0px;width:100%;height:100%;z-index:999;background-color:#e0e0e0;'>
+	    <div style="position:absolute;left:50%;top:50%;-webkit-transform:translate(-50%,-50%);">
+	        <img src="http://cdn.h5game.cn/passa/img/sdkimg/portraitHint.png" style="text-align: center;" >
+	        <div style='text-align:center;color:#b0b0b0;font-size:30px;'>竖屏体验更佳</div>
+	    </div>
+	</div>
+	-->
+	<!-- 游戏界面 -->
+	<div id="gameDiv" style="position: absolute; margin: auto; top: 0px; left: 0px; right: 0px; display: block; background-color: white; width: 0px; height: 0px; ">
+	
+	<div id="entering" style="">
+	
+	</div>
+	<iframe scrolling="no" style="width: 0px; height: 0px; margin: auto; position: absolute; top: 0px; left: 0px; background-color: white; border: none; z-index: 99; " id="gameFrame" src="http://wx.hortor.net/auth/login?gameId=jzsc&amp;frameHeight=0&amp;frameWidth=0"></iframe></div>
+	<!-- log -->
+	<div id="debug-log" onclick="closedebug()" style="display:none;text-align:left;overflow:scroll;opacity: 0.9;z-index:999;width:100%;height:100%;position:absolute;top:0px;left:0px;background-color:black;color:green">
+		
+	<br><br>loaded  Sat Apr 01 2017 18:05:31 GMT+0800 (CST)<br><br>wwww0hhhh0   innerW0   innerH0  Sat Apr 01 2017 18:05:31 GMT+0800 (CST)<br><br>pre  wwww0hhhh0   innerW0   innerH0  Sat Apr 01 2017 18:05:31 GMT+0800 (CST)<br><br>FKSER调用login  Sat Apr 01 2017 18:05:31 GMT+0800 (CST)<br><br>TypeError: Cannot call method 'setItem' of null  Sat Apr 01 2017 18:05:31 GMT+0800 (CST)<br><br>jdk/login/fkjzscp/2000004?appId=2000004&amp;passId=fkjzscp  Sat Apr 01 2017 18:05:31 GMT+0800 (CST)<br><br>background-color: rgb(52, 50, 50); color: rgb(241, 220, 5); display: none; position: absolute; margin: auto; top: 0px; left: 0px; right: 0px; z-index: 999; height: 0px; width: 0px;   Sat Apr 01 2017 18:05:31 GMT+0800 (CST)<br><br>pre  wwww0hhhh0   innerW0   innerH0  Sat Apr 01 2017 18:05:32 GMT+0800 (CST)</div>
+	<!-- 充值界面 -->
+	<div id="recharge" style="background-color: rgb(52, 50, 50); color: rgb(241, 220, 5); display: none; position: absolute; margin: auto; top: 0px; left: 0px; right: 0px; z-index: 999; height: 0px; width: 0px; ">
+		 <div id="title" class="topbg" style="top:0px;"></div>
+   		 <div id="items" style="height:80%;overflow: scroll;position: relative;">
+    	 </div>
+    <div onclick="closePayWindow()" id="" class="titlebg" style="bottom:0px;position:absolute"><span style="position:relative;margin:auto;top:35%">返回</span></div>
+    
+	<div id="loading" style="pointer-events: none;position:absolute;margin:auto;top:0px;left:0px;bottom:0px;right:0px;display:none">
+			 <svg viewBox="0 0 120 120" style="width:50px;height:50px;position:absolute;margin:auto;top:0;left:0;bottom:0;right:0" version="1.1" xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink">
+      <g id="circle" class="g-circles g-circles--v3">
+          <circle id="12" transform="translate(35, 16.698730) rotate(-35) translate(-35, -16.698730) " cx="35" cy="16.6987298" r="10"></circle>
+          <circle id="11" transform="translate(16.698730, 35) rotate(-60) translate(-16.698730, -35) " cx="16.6987298" cy="35" r="10"></circle>
+          <circle id="10" transform="translate(10, 60) rotate(-90) translate(-10, -60) " cx="10" cy="60" r="10"></circle>
+          <circle id="9" transform="translate(16.698730, 85) rotate(-120) translate(-16.698730, -85) " cx="16.6987298" cy="85" r="10"></circle>
+          <circle id="8" transform="translate(35, 103.301270) rotate(-150) translate(-35, -103.301270) " cx="35" cy="103.30127" r="10"></circle>
+          <circle id="7" cx="60" cy="110" r="10"></circle>
+          <circle id="6" transform="translate(85, 103.301270) rotate(-30) translate(-85, -103.301270) " cx="85" cy="103.30127" r="10"></circle>
+          <circle id="5" transform="translate(103.301270, 85) rotate(-60) translate(-103.301270, -85) " cx="103.30127" cy="85" r="10"></circle>
+          <circle id="4" transform="translate(110, 60) rotate(-90) translate(-110, -60) " cx="110" cy="60" r="10"></circle>
+          <circle id="3" transform="translate(103.301270, 35) rotate(-120) translate(-103.301270, -35) " cx="103.30127" cy="35" r="10"></circle>
+          <circle id="2" transform="translate(85, 16.698730) rotate(-150) translate(-85, -16.698730) " cx="85" cy="16.6987298" r="10"></circle>
+          <circle id="1" cx="60" cy="10" r="10"></circle>
+      </g>
+  </svg>
+		  </div>
+	
+	</div>
+
+</body></html>

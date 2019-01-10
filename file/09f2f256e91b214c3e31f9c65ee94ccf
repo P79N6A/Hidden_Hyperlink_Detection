@@ -1,0 +1,282 @@
+<html><head></head><body><pre style="word-wrap: break-word; white-space: pre-wrap;">/*
+该js文件保存工具类的公共方法
+*/
+window.commfunctions = {};
+//设置cookie函数
+commfunctions.setCookie = function (c_name, value, path, expiredays) {
+    var exdate = new Date();
+    exdate.setDate(exdate.getDate() + (expiredays == null ? 0 : expiredays));
+    document.cookie = c_name + "=" + escape(value) + (expiredays == null ? "" : ";expires=" + exdate.toGMTString()) + (path == null ? "" : ";path=" + path);
+};
+//获取cookie
+commfunctions.getCookie = function (name) {
+    var arr = document.cookie.match(new RegExp("(^| )" + name + "=([^;]*)(;|$)"));
+    if (arr != null) return unescape(arr[2]);
+    return null;
+};
+//使cookie过期
+commfunctions.delCookie = function (name) {
+    var exp = new Date();
+    exp.setTime(exp.getTime() - 1);
+    var cval = commfunctions.getCookie(name);
+    if (cval != null) {
+        document.cookie = name + "=" + cval + ";expires=" + exp.toGMTString();
+    }
+};
+//获取单个参数的值
+commfunctions.getQueryString = function (name) {
+    var reg = new RegExp("(^|&amp;)" + name + "=([^&amp;]*)(&amp;|$)", "i");
+    var r = window.location.search.substr(1).match(reg);
+    if (r != null) return (r[2]);
+    return null;
+};
+/**
+* 为当前url添加一个传值
+* @author Malong
+* @param key: 键名
+* @param v: 键值
+* @param url: url被查询的url，默认为当前url
+*/
+commfunctions.setUrlParam = function (key, v, url) {
+    url = url || window.location.href;
+    var re = new RegExp("(\\\?|&amp;)" + key + "=([^&amp;]+)(&amp;|$)", "i");
+    var m = url.match(re);
+    if (m) {
+        return (url.replace(re, function ($0, $1, $2) {
+            return ($0.replace($2, v));
+        }));
+    }
+    else {
+        re = new RegExp("(\\\?|&amp;)" + key + "=", "i");
+        m = url.match(re);
+        if (m) {
+            if (m.length == 2 &amp;&amp; (m[1] == '?' || m[1] == '&amp;')) {
+                return url.replace(m[0], m[1] + key + '=' + v);
+            }
+            else {
+                return url;
+            }
+        }
+        else {
+            if (url.indexOf('?') == -1)
+                return (url + '?' + key + '=' + v);
+            else
+                return (url + '&amp;' + key + '=' + v);
+        }
+    }
+};
+
+/**
+* 获取url中的传值
+* @author Malong
+* @param key: 键名
+* @param url: url被查询的url，默认为当前url
+*/
+commfunctions.getUrlParam = function (param, url) {
+    url = url || window.location.href;
+    var re = new RegExp("(\\\?|&amp;)" + param + "=([^&amp;]+)(&amp;|$)", "i");
+    var m = url.match(re);
+    if (m)
+        return m[2];
+    else
+        return '';
+};
+//获取元素的top位置
+commfunctions.getOffsetTop = function (elm) {
+    var mOffsetTop = elm.offsetTop;
+    var mOffsetParent = elm.offsetParent;
+    while (mOffsetParent) {
+        mOffsetTop += mOffsetParent.offsetTop;
+        mOffsetParent = mOffsetParent.offsetParent;
+    }
+    return mOffsetTop;
+};
+//获取元素的left位置
+commfunctions.getOffsetLeft = function (elm) {
+    var mOffsetLeft = elm.offsetLeft;
+    var mOffsetParent = elm.offsetParent;
+    while (mOffsetParent) {
+        mOffsetLeft += mOffsetParent.offsetLeft;
+        mOffsetParent = mOffsetParent.offsetParent;
+    }
+    return mOffsetLeft;
+};
+//判断对象是否为字符串
+commfunctions.isString = function (obj) {
+    return typeof (obj) == "string";
+};
+//获取随机字符串
+//length：随机字符串的长度
+commfunctions.getRandomString = function (length) {
+    length = length || 10;
+    return Math.random().toString().substr(2, length);
+};
+//规范值的范围，若超过限制，则取限制值
+//val：目标值
+//min,max：限制值
+commfunctions.getBetween = function (val, min, max) {
+    if (val &lt; min) { val = min; }
+    else if (val &gt; max) { val = max; }
+    return val;
+};
+//将字符串进行html编码
+commfunctions.htmlEncode = function (html) {
+    if (html.length == 0) return "";
+    var s = html.replace(/&amp;/g, "&amp;amp;");
+    s = s.replace(/&lt;/g, "&amp;lt;");
+    s = s.replace(/&gt;/g, "&amp;gt;");
+    s = s.replace(/ /g, "&amp;nbsp;");
+    s = s.replace(/\'/g, "&amp;#39;");
+    s = s.replace(/\"/g, "&amp;quot;");
+    return s;
+};
+//将字符串进行html解码
+commfunctions.htmlDecode = function (text) {
+    if (text.length == 0) return "";
+    var s = text.replace(/&amp;nbsp;/g, " ");
+    s = s.replace(/&amp;#39;/g, "\'");
+    s = s.replace(/&amp;quot;/g, "\"");
+    s = s.replace(/&amp;lt;/g, "&lt;");
+    s = s.replace(/&amp;gt;/g, "&gt;");
+    s = s.replace(/&amp;amp;/g, "&amp;");
+    return s;
+};
+//判断字符串是否为正整数
+commfunctions.stringIsPosInt = function (str) {
+    return ehireplus.regs.posint.test(str);
+};
+//判断字符串是否为正数
+commfunctions.stringIsPosNumber = function (str) {
+    var num = parseFloat(str);
+    return num &gt; 0;
+};
+//判断字符串是否为数字
+commfunctions.stringIsNumber = function (str) {
+    var num = parseFloat(str);
+    return !isNaN(num) &amp;&amp; isFinite(num);
+};
+//判断字符串是否为日期格式
+commfunctions.stringIsDate = function (str) {
+    var result = str.match(/^(\d{1,4})(-|\/)(\d{1,2})\2(\d{1,2})$/);
+    if (result == null)
+        return false;
+    var d = new Date(result[1], result[3] - 1, result[4]);
+    return (d.getFullYear() == result[1] &amp;&amp; (d.getMonth() + 1) == result[3] &amp;&amp; d.getDate() == result[4]);
+};
+//将字符串转化为日期格式
+//返回null表示字符串不是合法的日期表达式
+commfunctions.parseDate = function (str) {
+    var obj = Date.parse(str.replace(/-/g, '/'));
+    return isNaN(obj) ? null : new Date(obj);
+};
+//计算两个日期格式的差值，返回{days:0,hours:1,minutes:3,seconds:5}格式的值
+commfunctions.getTimeSpan = function (date1, date2) {
+    var totalseconds = (date2.getTime() - date1.getTime()) / 1000;
+    var days = Math.floor(totalseconds / 86400.0);
+    var hours = Math.floor((totalseconds - 86400 * days) / 3600.0);
+    var totalhours = Math.floor(totalseconds / 3600.0);
+    var minutes = Math.floor((totalseconds - 86400 * days - 3600 * hours) / 60.0);
+    var totalminutes = Math.floor(totalseconds / 60.0);
+    var seconds = (totalseconds - 86400 * days - 3600 * hours - 60 * minutes).toFixed(0);
+    return { days: days, hours: hours, totalhours: totalhours, minutes: minutes, totalminutes: totalminutes, seconds: seconds, totalseconds: totalseconds };
+};
+//类似于C#的格式化字符串，第一个参数是模板，其他的格式化的参数
+commfunctions.formatString = function () {
+    if (arguments.length == 0)
+        return null;
+    var str = arguments[0];
+    for (var i = 1; i &lt; arguments.length; i++) {
+        var re = new RegExp('\\{' + (i - 1) + '\\}', 'gm');
+        str = str.replace(re, arguments[i]);
+    }
+    return str;
+}
+
+
+
+
+
+
+
+/** 通过prototype扩展的方法 **/
+//删除字符串数组中的空格元素，并返回新的数组
+Array.prototype.removeEmpty = function () {
+    var newarr = [];
+    for (var i = 0; i &lt; this.length; i++) {
+        if (this[i]) {
+            newarr.push(this[i]);
+        }
+    }
+    return newarr;
+};
+//判断数组中是否存在某个值
+Array.prototype.contains = function (val) {
+    var contain = false;
+    for (var i = 0; i &lt; this.length; i++) {
+        if (this[i] === val) { contain = true; break; }
+    }
+    return contain;
+};
+//判断数组中包含某元素的次数
+Array.prototype.getcount = function (val) {
+    var count = 0;
+    for (var i = 0; i &lt; this.length; i++) {
+        if (this[i] === val) { count++; }
+    }
+    return count;
+};
+//格式化日期
+Date.prototype.format = function (fmt) {
+    var o =
+    {
+        "M+": this.getMonth() + 1,                   //月份 
+        "d+": this.getDate(),                        //日 
+        "H+": this.getHours(),                       //小时 
+        "h+": this.getHours(),                       //小时 
+        "m+": this.getMinutes(),                     //分 
+        "s+": this.getSeconds(),                     //秒 
+        "q+": Math.floor((this.getMonth() + 3) / 3), //季度 
+        "S": this.getMilliseconds()                  //毫秒 
+    };
+    if (/(y+)/.test(fmt)) {
+        fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
+    }
+    for (var k in o) {
+        if (new RegExp("(" + k + ")").test(fmt)) {
+            fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+        }
+    }
+    return fmt;
+};
+//将指定的天数加到此实例的值上
+Date.prototype.adddays = function (value) {
+    var newdate = new Date(this.getTime());
+    newdate.setDate(newdate.getDate() + value);
+    return newdate;
+};
+//将指定的分钟数加到此实例的值上
+Date.prototype.addminutes = function (value) {
+    var newdate = new Date(this.getTime());
+    newdate.setMinutes(newdate.getMinutes() + value);
+    return newdate;
+};
+//你懂得，字符串的trim
+String.prototype.trim = function () {
+    return this.replace(/(^\s*)|(\s*$)/g, "");
+}
+String.prototype.ltrim = function (chr) {
+    if (chr &amp;&amp; !/^[a-zA-Z0-9]$/.test(chr)) {
+        chr = "\\" + chr;
+    }
+    chr = chr || '\\s';
+    eval("var reg = /(^" + chr + "*)/g;");
+    return this.replace(reg, '');
+}
+String.prototype.rtrim = function (chr) {
+    if (chr &amp;&amp; !/^[a-zA-Z0-9]$/.test(chr)) {
+        chr = "\\" + chr;
+    }
+    chr = chr || '\\s';
+    eval("var reg = /(" + chr + "*$)/g;");
+    return this.replace(reg, '');
+}</pre></body></html>

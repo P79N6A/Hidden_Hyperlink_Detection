@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html>
+ <head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="format-detection" content="telephone=no" />
+  <meta http-equiv="Cache-Control" content="no-transform" />
+  <title>请不用再使用低级别的AOP API - 软件架构设计</title>
+  <meta name="keywords" content="请不要再使用低级别的AOP API" />
+  <meta name="description" content="请不要再使用低级别的AOP API &nbsp; 在iteye上，咨询我Spring问题中最多的一个就是：AOP方面的问题，我之前也写过类似的帖子解答那些疑问： &nbsp; 注入FactoryBean失败分析+解决方案 spring的二次代理原因及如何排查 struts2+spring集成bug——使用AOP时可能遇" />
+  <link href="/r/cms/www/red/css/20150202/co_it.css" rel="stylesheet" type="text/css" />
+  <link rel="shortcut icon" href="/r/cms/www/red/img/favicon.ico" type="image/x-icon" />
+  <link rel="icon" href="/r/cms/www/red/img/favicon.ico" type="image/x-icon" />
+  <script src="/r/cms/20150202/co.js" type="text/javascript"></script>
+ </head>
+ <body>
+  <header>
+   <div class="m_header">
+    <a title="logo" href="http://m.myexception.cn/" class="m_logo m_home_logo"></a>
+    <a title="网站导航" href="http://m.myexception.cn/sitemap.html" class="m_daohan"></a>
+   </div>
+  </header>
+  <div class="daohang">
+   &nbsp;&nbsp;
+   <a href="/">首页</a>&nbsp;&nbsp;&raquo;&nbsp;&nbsp; 
+   <a href="/software-architecture-design/">软件架构设计</a>
+  </div>
+  <div class="container">
+   <div class="heading">
+    <h1>请不用再使用低级别的AOP API</h1>
+    <div class="heading-info">
+     网友分享于：2013-07-12&nbsp;&nbsp;浏览：64次
+    </div>
+   </div>
+  </div>
+  <div class="c_a_b">
+   <script language="javascript"> c_a_b(); </script>
+  </div>
+  <article class="content">
+   <article class="content">
+    请不要再使用低级别的AOP API
+    <br /> 
+    <div class="iteye-blog-content-contain" style="font-size: 14px;"> 
+     <p>&nbsp;</p> 
+     <p>在iteye上，咨询我Spring问题中最多的一个就是：AOP方面的问题，我之前也写过类似的帖子解答那些疑问：</p> 
+     <p>&nbsp;</p> 
+     <ul> 
+      <li>注入FactoryBean失败分析+解决方案</li> 
+      <li>spring的二次代理原因及如何排查</li> 
+      <li>struts2+spring集成bug——使用AOP时可能遇到的问题分析</li> 
+      <li>关于spring的aop拦截的问题 protected方法代理问题</li> 
+      <li>Spring事务不起作用 问题汇总</li> 
+      <li>Shiro+Struts2+Spring3 <a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="3edbb49eda86b47e6c5b4f4b574c5b4d6e5b4c53574d4d5751504d">[email&nbsp;protected]</a><script data-cfhash="f9e31" type="text/javascript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script> <a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="7792e7f93736020318001e05121392d3c691e2ff">[email&nbsp;protected]</a><script data-cfhash="f9e31" type="text/javascript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script></li> 
+      <li>如何为spring代理类设置属性值</li> 
+      <li>在spring中获取代理对象代理的目标对象工具类</li> 
+      <li>Spring事务处理时自我调用的解决方案及一些实现方式的风险</li> 
+     </ul> 
+     <p>&nbsp;</p> 
+     <p>大家有兴趣可以参考我的《java开发常见问题分析》分类。里边收集了许多在开发过程中我遇到的或别人遇到的问题。</p> 
+     <p>&nbsp;</p> 
+     <p>其中最主要的问题一方面是我们使用问题，另一方面是其他原因（比如bug、设计缺陷等）。</p> 
+     <p>&nbsp;</p> 
+     <p><span style="color: #ff0000;"><strong>Spring已经太庞大了，大的连我这个熟手有时候都载了。</strong></span></p> 
+     <p>&nbsp;</p> 
+     <p>所以我想做一件事情：</p> 
+     <p>&nbsp;</p> 
+     <p><span style="color: #ff0000;">很希望大家遇到问题时能反馈给我，我做个收集，方便后来人。点击这前往《&nbsp;</span>那些年我们遇到的各种坑<span style="color: #ff0000;">》</span></p> 
+     <p>&nbsp;</p> 
+     <p>当然spring还是足够好的，只讨论问题，不讨论其他。</p> 
+     <p>===========================================================</p> 
+     <p>在此我再给大家举一个使用低级别AOP API遇到的坑。</p> 
+     <p>&nbsp;</p> 
+     <h2><strong>出问题的配置</strong></h2> 
+     <pre class="java" name="code">    &lt;bean class=&quot;org.springframework.aop.aspectj.autoproxy.AspectJAwareAdvisorAutoProxyCreator&quot;&gt;
+        &lt;property name=&quot;proxyTargetClass&quot; value=&quot;true&quot;/&gt;
+    &lt;/bean&gt;
+    &lt;tx:annotation-driven transaction-manager=&quot;transactionManager&quot;/&gt;&nbsp;</pre> 
+     <p>此配置的目的是想进行cglib类代理。但是实际上当进行直接注入类，而不是接口时会找不到Bean错误。</p> 
+     <p>&nbsp;</p> 
+     <p>但是如果是这样配置：&nbsp;</p> 
+     <pre class="java" name="code">    &lt;aop:aspectj-autoproxy proxy-target-class=&quot;true&quot;/&gt;
+    &lt;tx:annotation-driven transaction-manager=&quot;transactionManager&quot;/&gt;
+</pre> 
+     <p>此配置可以很好的工作，并注入类（不是接口）。&nbsp;</p> 
+     <p>&nbsp;</p> 
+     <h2><strong>分析</strong></h2> 
+     <p><strong>1、&lt;</strong><strong>aop:aspectj-autoproxy proxy-target-class=&quot;true&quot;&gt;</strong>&nbsp;该命名空间会交给org.springframework.aop.config.AopNamespaceHandler处理：&nbsp;</p> 
+     <pre class="java" name="code">registerBeanDefinitionParser(&quot;aspectj-autoproxy&quot;, new AspectJAutoProxyBeanDefinitionParser());</pre> 
+     <p>在AspectJAutoProxyBeanDefinitionParser中，会执行parse方法解析配置：</p> 
+     <pre class="java" name="code">	public BeanDefinition parse(Element element, ParserContext parserContext) {
+		AopNamespaceUtils.registerAspectJAnnotationAutoProxyCreatorIfNecessary(parserContext, element);
+		extendBeanDefinition(element, parserContext);
+		return null;
+	}</pre> 
+     <p>其中AopNamespaceUtils.registerAspectJAnnotationAutoProxyCreatorIfNecessary(parserContext, element);目的是注册AnnotationAwareAspectJAutoProxyCreator：&nbsp;</p> 
+     <pre class="java" name="code">return registerOrEscalateApcAsRequired(AnnotationAwareAspectJAutoProxyCreator.class, registry, source);</pre> 
+     <p>但是注意了：&nbsp;</p> 
+     <pre class="java" name="code">		if (registry.containsBeanDefinition(AUTO_PROXY_CREATOR_BEAN_NAME)) {
+			BeanDefinition apcDefinition = registry.getBeanDefinition(AUTO_PROXY_CREATOR_BEAN_NAME);
+			if (!cls.getName().equals(apcDefinition.getBeanClassName())) {
+				int currentPriority = findPriorityForClass(apcDefinition.getBeanClassName());
+				int requiredPriority = findPriorityForClass(cls);
+				if (currentPriority &lt; requiredPriority) {
+					apcDefinition.setBeanClassName(cls.getName());
+				}
+			}
+			return null;
+		}</pre> 
+     <p>大家可以看到一句话：&nbsp;</p> 
+     <ul> 
+      <li>if (registry.containsBeanDefinition(AUTO_PROXY_CREATOR_BEAN_NAME))&nbsp;</li> 
+      <li>AUTO_PROXY_CREATOR_BEAN_NAME=“org.springframework.aop.config.internalAutoProxyCreator”，</li> 
+      <li>即首先判断当前容器中是否包含名字为AUTO_PROXY_CREATOR_BEAN_NAME的Bean，&nbsp;如果包含：然后判断优先级，谁优先级高谁获胜，即最后那个获胜的是实际的AutoProxyCreator</li> 
+     </ul> 
+     <p>到此我们可以看到跟&quot;&lt;bean class=&quot;org.springframework.aop.aspectj.autoproxy.AspectJAwareAdvisorAutoProxyCreator&quot;&gt;&quot;配置没什么区别，除了没有名字外。</p> 
+     <p>&nbsp;</p> 
+     <p><strong>2、接下来看一下&lt;tx:annotation-driven&gt;：</strong></p> 
+     <p>该命名空间交给org.springframework.transaction.config.TxNamespaceHandler处理：&nbsp;</p> 
+     <pre class="java" name="code">registerBeanDefinitionParser(&quot;annotation-driven&quot;, new AnnotationDrivenBeanDefinitionParser());</pre> 
+     <p>其中&lt;annotation-driven&gt; 会交给AnnotationDrivenBeanDefinitionParser进行解析：&nbsp;</p> 
+     <pre class="java" name="code">	public BeanDefinition parse(Element element, ParserContext parserContext) {
+		String mode = element.getAttribute(&quot;mode&quot;);
+		if (&quot;aspectj&quot;.equals(mode)) {
+			// mode=&quot;aspectj&quot;
+			registerTransactionAspect(element, parserContext);
+		}
+		else {
+			// mode=&quot;proxy&quot;
+			AopAutoProxyConfigurer.configureAutoProxyCreator(element, parserContext);
+		}
+		return null;
+	}</pre> 
+     <p>默认mode=&quot;proxy&quot;，所以走AopAutoProxyConfigurer.configureAutoProxyCreator，其代码中第一句话是：&nbsp;</p> 
+     <pre class="java" name="code">AopNamespaceUtils.registerAutoProxyCreatorIfNecessary(parserContext, element);</pre> 
+     <pre class="java" name="code">public static void registerAutoProxyCreatorIfNecessary(
+			ParserContext parserContext, Element sourceElement) {
+
+		BeanDefinition beanDefinition = AopConfigUtils.registerAutoProxyCreatorIfNecessary(
+				parserContext.getRegistry(), parserContext.extractSource(sourceElement));
+		useClassProxyingIfNecessary(parserContext.getRegistry(), sourceElement);
+		registerComponentIfNecessary(beanDefinition, parserContext);
+	}</pre> 
+     <p>AopConfigUtils.registerAutoProxyCreatorIfNecessary是：&nbsp;</p> 
+     <pre class="java" name="code">registerOrEscalateApcAsRequired(InfrastructureAdvisorAutoProxyCreator.class, registry, source);</pre> 
+     <pre class="java" name="code">private static BeanDefinition registerOrEscalateApcAsRequired(Class cls, BeanDefinitionRegistry registry, Object source) {
+		Assert.notNull(registry, &quot;BeanDefinitionRegistry must not be null&quot;);
+		if (registry.containsBeanDefinition(AUTO_PROXY_CREATOR_BEAN_NAME)) {
+			BeanDefinition apcDefinition = registry.getBeanDefinition(AUTO_PROXY_CREATOR_BEAN_NAME);
+			if (!cls.getName().equals(apcDefinition.getBeanClassName())) {
+				int currentPriority = findPriorityForClass(apcDefinition.getBeanClassName());
+				int requiredPriority = findPriorityForClass(cls);
+				if (currentPriority &lt; requiredPriority) {
+					apcDefinition.setBeanClassName(cls.getName());
+				}
+			}
+			return null;
+		}
+//省略</pre> 
+     <p>此处我们又看到了registry.containsBeanDefinition(AUTO_PROXY_CREATOR_BEAN_NAME)，如果是：</p> 
+     <ul> 
+      <li> <strong style="line-height: 1.5;">配置1</strong>，那么实际是两个AutoProxyCreator；</li> 
+      <li> <strong style="line-height: 1.5;">配置2</strong>，那么实际是共用一个AutoProxyCreator；</li> 
+     </ul> 
+     <p>而且如果配置1时，因为我们没有指定&lt;tx:annotation-driven transaction-manager=&quot;transactionManager&quot;&nbsp;<strong>proxy-target-class=&quot;true&quot;</strong>/&gt; 所以是JDK动态代理，因此不管怎么样，都无法注入类的。</p> 
+     <p>&nbsp;</p> 
+     <p>问题找到了，<strong>原因是注册了两个AutoProxyCreator，造成了二次代理引发的问题，这个和之前的《spring的二次代理原因及如何排查》一样。</strong></p> 
+     <p>&nbsp;</p> 
+     <h2><strong>如果解决</strong></h2> 
+     <ul> 
+      <li>给配置1起名字为”org.springframework.aop.config.internalAutoProxyCreator“；</li> 
+      <li>或者使用配置2&nbsp;</li> 
+     </ul> 
+     <h2><strong>建议</strong></h2> 
+     <p>1、没有必要永远不自己使用低级别API，如之上自己去创建AutoProxyCreator</p> 
+     <p>2、首先选择使用如：</p> 
+     <p>&lt;aop:config&gt;</p> 
+     <p>&lt;org.springframework.aop.config.internalAutoProxyCreator&gt;</p> 
+     <p>&nbsp;</p> 
+     <p>如上配置已经非常好了，根本没必要使用低级别API。</p> 
+     <p>&nbsp;</p> 
+     <p>如&lt;tx:annotation-driven&gt;使用的AutoProxyCreator都是和上边是一样的。这样还能防止二次代理。</p> 
+     <p>&nbsp;</p> 
+     <p><span style="color: #ff0000;"><strong><a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="e4014754027c6a01586bcba4a59794818790ae0d476a024458037e60a5abb40d67590d797a015c5c014159005e62">[email&nbsp;protected]</a><script data-cfhash="f9e31" type="text/javascript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>，完全没必要使用低级别API，请不要再使用低级别API了。</strong></span></p> 
+     <p>&nbsp;</p> 
+     <p>&nbsp;</p> 
+     <p>如果用过shiro的朋友都应该知道如下配置：</p> 
+     <pre class="java" name="code">&lt;!-- Enable Shiro Annotations for Spring-configured beans.  Only run after --&gt;
+&lt;!-- the lifecycleBeanProcessor has run: --&gt;
+&lt;bean class=&quot;org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator&quot; depends-on=&quot;lifecycleBeanPostProcessor&quot;/&gt;
+&lt;bean class=&quot;org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor&quot;&gt;
+    &lt;property name=&quot;securityManager&quot; ref=&quot;securityManager&quot;/&gt;
+&lt;/bean&gt;</pre> 
+     <p>&nbsp;</p> 
+     <p>其实我们可以这样：</p> 
+     <pre class="java" name="code">    &lt;aop:config proxy-target-class=&quot;true&quot;/&gt;
+    &lt;bean class=&quot;org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor&quot;&gt;
+        &lt;property name=&quot;securityManager&quot; ref=&quot;securityManager&quot;/&gt;
+    &lt;/bean&gt;
+</pre> 
+     <p>或者使用&lt;aop:aspectj-autoproxy&gt;也行，这样也不会存在二次代理的问题。&nbsp;&nbsp;</p> 
+     <p>&nbsp;</p> 
+     <p>可以参考我的配置spring-mvc-shiro.xml。</p> 
+     <p>&nbsp;</p> 
+     <p>&nbsp;</p> 
+    </div> 
+   </article>
+   <div class="c_a_a">
+    <script language="javascript"> c_a_a(); </script>
+   </div> 
+   <div class="info-list">
+    <section class="info-list-heading">
+     <h2>相关解决方案</h2>
+    </section>
+    <ul class="info-list-body"> 
+     <li><a href="/software-architecture-design/433430.html" '=""><font color="red">不用</font>在<font color="red">API</font>中<font color="red">使用</font>magic number</a></li>
+     <li><a href="/mobile/615334.html" '="">ItemizedOverlay的<font color="red">低级</font><font color="red">使用</font></a></li>
+     <li><a href="/database/1455643.html" '=""><font color="red">低级</font><font color="red">使用</font>方法</a></li>
+     <li><a href="/mobile/1808824.html" '="">CardView<font color="red">低级</font><font color="red">使用</font></a></li>
+     <li><a href="/operating-system/1808831.html" '="">ios block<font color="red">低级</font><font color="red">使用</font></a></li>
+     <li><a href="/internet/1712659.html" '="">git的<font color="red">低级</font><font color="red">使用</font></a></li>
+     <li><a href="/software-architecture-design/734734.html" '="">hibernate的formula的<font color="red">低级</font><font color="red">使用</font></a></li>
+     <li><a href="/javascript/1625443.html" '=""><font color="red">使用</font>JSoup开展新浪微博抓取(<font color="red">不用</font>新浪的<font color="red">API</font>)</a></li>
+     <li><a href="/software-architecture-design/1477531.html" '="">spring <font color="red">aop</font> 常例<font color="red">使用</font></a></li>
+     <li><a href="/software-architecture-design/1477540.html" '=""><font color="red">AOP</font><font color="red">使用</font>跟配置</a></li> 
+    </ul>
+   </div>
+   <div class="info-list">
+    <section class="info-list-heading">
+     <h2>最新解决方案</h2>
+    </section>
+    <ul class="info-list-body"> 
+     <li><a href="/software-architecture-design/1900543.html" '="">软考说——Pk适配器模式</a></li>
+     <li><a href="/software-architecture-design/1900544.html" '="">机房复建——UML图最终版本</a></li>
+     <li><a href="/software-architecture-design/1900563.html" '="">连接器与器皿的桥梁——CoyoteAdapter</a></li>
+     <li><a href="/software-architecture-design/1900565.html" '="">Spring框架分成哪七大模块</a></li>
+     <li><a href="/software-architecture-design/1900568.html" '="">volley 框架剖解(三） Request类精解</a></li>
+     <li><a href="/software-architecture-design/1900570.html" '="">怎么在SharePoint 2013 创建Power pivot 库（How to create a PowerPivot Gallery ）及异常解决办法</a></li>
+     <li><a href="/software-architecture-design/1900572.html" '="">高效能软件工程师的修炼札记：创建和管理社区</a></li>
+     <li><a href="/software-architecture-design/1901091.html" '="">ICE应用实例(01)</a></li>
+     <li><a href="/software-architecture-design/1901099.html" '="">Spring Boot不允许加载iframe有关问题解决</a></li>
+     <li><a href="/software-architecture-design/1901114.html" '="">转载：Spring和Hibernate的调整</a></li> 
+    </ul>
+   </div>
+   <footer>
+    <div class="footer-menu">
+     <a href="/web-develop/">Web开发</a>
+     <a href="/jquery/">jQuery</a>
+     <a href="/html5/">HTML5</a>
+     <a href="/android/">Android</a>
+     <a href="/iphone/">Iphone</a>
+     <a href="/php">PHP</a>
+     <a href="/j2ee/">J2EE</a>
+     <a href="/j2se/">J2SE</a>
+     <a href="/c-sharp/">C#</a>
+     <a href="/cpp/">C++</a>
+     <a href="/ajax/">Ajax</a>
+     <a href="/iis/">IIS</a>
+     <a href="/apache/">Apache</a>
+     <a href="/mysql/">MySql</a>
+     <a href="/nosql/">NoSQL</a>
+     <div class="clearfix"></div>
+    </div>
+    <div class="footer-info">
+     <div class="link">
+      <a href="http://www.myexception.cn/software-architecture-design/1306684.html">电脑版</a>
+     </div>
+     <div class="copyright">
+      &copy;MyException 手机我的异常网
+     </div>
+    </div>
+   </footer>
+   <script src="/r/cms/jquery.js" type="text/javascript"></script>
+   <script src="/r/cms/20150202/co_f.js" type="text/javascript"></script>
+   <script type="text/javascript">$(function() { Cms.viewCount("", "1306684"); });</script> 
+  </article>
+ </body>
+</html>

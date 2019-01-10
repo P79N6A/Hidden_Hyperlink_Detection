@@ -1,0 +1,427 @@
+<!DOCTYPE html><html lang="en"><head>
+    <meta name="applicable-device" content="mobile">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black">
+	<meta name="format-detection" content="telephone=no">
+	<meta name="format-detection" content="email=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+            <link rel="canonical" href="http://m.youzu.com/mobile/login">
+            <title>游族用户中心</title>
+	<meta name="keywords" content="游族账号登录">
+	<meta name="description" content="游族用户中心_账号登录">
+    <link rel="stylesheet" href="http://pic.youzu.com/m/web/mobile/css/base.css?0228011">
+    <link rel="stylesheet" href="http://pic.youzu.com/m/web/mobile/css/swiper.min.css?0228011">
+    <script src="http://push.zhanzhang.baidu.com/push.js"></script><script src="//hm.baidu.com/hm.js?f61970e1ce8b3758b866572e28e07fba"></script><script src="http://pic.youzu.com/m/web/mobile/js/swiper.min.js?0228011"></script>
+    <script src="http://pic.youzu.com/m/web/mobile/js/jquery-1.7.min.js?0228011"></script>
+    <script src="http://pic.youzu.com/m/web/mobile/js/jQuery.md5.js?0228011"></script>
+<script>
+	// 百度统计
+	var _hmt = _hmt || [];
+	(function() {
+		var hm = document.createElement("script");
+		hm.src = "//hm.baidu.com/hm.js?f61970e1ce8b3758b866572e28e07fba";
+		var s = document.getElementsByTagName("script")[0]; 
+		s.parentNode.insertBefore(hm, s);
+	})();
+	var regBox = {
+	        regEmail : /^([a-z0-9_\.-]+)@([\da-z\.-]+)\.([a-z\.]{2,6})$/,//邮箱
+	        regName : /^[a-z0-9_-]{3,16}$/,//用户名
+	        regMobile : /^0?1[3|4|5|7|8][0-9]\d{8}$/,//手机
+	        regTel : /^0[\d]{2,3}-[\d]{7,8}$/, 
+	        reCard : /^[1-9]{1}[0-9]{14}$|^[1-9]{1}[0-9]{16}([0-9]|[xX])$/ ,//身份证号
+	        rePassword : /[0-9 | A-Z | a-z]{6,16}/  //密码
+	    }
+
+
+</script></head>
+
+<body>
+    <!--loading-->
+    <div class="loadingBox loaded">
+        <div class="fl spinner">
+            <div class="cube1"></div>
+            <div class="cube2"></div>
+        </div>
+    </div>
+    
+    <div id="container">
+        <div class="header page-header"><a href="/mobile" class="icon home"></a>账户登录<a href="/mobile/login" class="icon personal"></a></div>
+<div class="box">
+	 <h1 class="logoTitle"><img src="http://pic.youzu.com/m/web/mobile/images/logoTitle.png?0228011" alt=""></h1>
+	 <div class="user-text">
+	 	  <div class="txt-box">
+	 	  	  <input type="text" class="txt" id="account" placeholder="请输入账号">
+	 	  	  <i class="icon user"></i>
+	 	  </div>
+	 	 <div class="txt-box code" id="showCaptchaImage" style="display:none;">
+                <div class="ofh">
+                    <input type="text" id="imgcaptcha" class="txt" placeholder="请输入验证码">
+                    <a href="javascript:"><img id="yanzm" src="http://auth.youzu.com/code/getCaptchaImage?appId=m.youzu.com" onclick="this.src = 'http://auth.youzu.com/code/getCaptchaImage?appId=m.youzu.com&amp;' + Date.parse(new Date());" alt=""></a>
+                </div>
+                <p class="red-txt" id="imgcaptchaError"></p>
+            </div>
+	 	  <div class="txt-box">
+	 	  	  <input type="password" class="txt" id="password" placeholder="请输入密码">
+	 	  	  <i class="icon password"></i>
+	 	  </div>
+	 	  <div class="signInBox">
+	 	  		<a href="/mobile/findPassword">忘记密码？</a>
+	 	  	    <input type="checkbox" id="keep_login"><span>下次自动登录</span>
+	 	  </div>
+	 </div>
+	 <div class="btn orange-btn" id="loginAccount" onclick="loginAccount()">登录</div>
+	 <div class="btn orange-btn error-prompt" style="display:none;" id="accountError"></div>
+</div>
+<a href="/mobile/register" class="register">没有账号？请注册</a>
+<script>
+var lock = true;
+function loginAccount(){
+	promitError();
+	var param = new Object();
+	param.username = $("#account").val();
+	param.password = $("#password").val();
+	param.remember = $("#keep_login").is(":checked") ? 1 : 0;
+	if(!param.username){
+		promitError('账户名错误，请重新输入');
+	    return false;
+	}
+	if(!param.password){
+		promitError('密码错误，请重新输入');
+	    return false;
+	}
+	var captcha = '';
+	if(!$("#showCaptchaImage").is(":hidden")){
+		captcha = $("#imgcaptcha").val();
+		if(!captcha){
+			promitError('请输入验证码');
+		    return false;
+		}
+	}
+	if(lock){
+		lock = false;
+		param.password = $.md5(param.password);
+		if(captcha){
+			jsonP(apiUrl+"user/checkCaptcha",{captcha:captcha} ,function(data){
+			   if(data.retCode == "000"){
+				   param.captchaToken = data.captchaToken;
+				   userLoginFun(param);
+			   }else{
+				   promitError(data.retMsg);
+			    }
+			})
+		}else{
+			  userLoginFun(param);
+		}
+	}
+}
+
+/**
+ * 验证验证码是否正确
+ */
+function userLoginFun(param){
+	jsonP(apiUrl+"user/login",param ,function(data){
+		if(data.verify == 1){  //需要输入验证码
+			$("#showCaptchaImage").show();
+		}else{
+			$("#showCaptchaImage").hide();
+		}
+	   if(data.retCode == "000"){
+		   window.location.href = "/user/userinfo";
+	   }else{
+		   $("#yanzm").click();
+		   promitError(data.retMsg);
+	    }
+	})
+}
+
+$(function(){
+	$(".txt").focus(function(){
+		$("#accountError").hide();
+		$("#loginAccount").show();
+	});
+})
+
+function promitError(val){
+	if(val){
+		val = "<span class=\"error\"></span>"+val;
+    	$("#accountError").html(val);
+    	$("#loginAccount").hide();
+    	$("#accountError").show();
+    	lock = false;
+	}else{
+		$("#accountError").hide();
+		$("#loginAccount").show();
+		lock = true;
+	}
+}
+
+</script>        <div class="footer">
+            <div class="footer-nav "><a href="/mobile/consult"><i class="icon"></i>资讯</a></div>
+            <div class="giftBox footer-nav "><a href="javascript:;"><i class="icon"></i>游戏</a>
+                <dl class="gift">
+                                <dt><a href="/mobile/casualGames"><i class="icon"></i><span>轻游</span></a></dt>
+	  	     		<dt><a href="/mobile/mobileGames"><i class="icon"></i><span>手游</span></a></dt>
+	  	     		<dt><a href="/mobile/webGames"><i class="icon"></i><span>页游</span></a></dt>
+	  	     	</dl>
+            </div>
+            <div class="footer-nav"><a href="http://pay.youzu.com/mobile"><i class="icon"></i>充值</a></div>
+            <div class="footer-nav "><a href="http://vip.youzu.com/m"><i class="icon"></i>VIP</a></div>
+            <div class="footer-nav"><a href="http://m.bbs.youzu.com/"><i class="icon"></i>论坛</a></div>
+        </div>
+    </div>
+    
+    
+    <!--小游温馨提示-->
+	<div class="overlay" id="popup_3" style="display:none;">
+		<a class="close" href="javascript:;">×</a>
+		<div class="overlayCon">
+			  <h3 class="agreement-title">小游温馨提示</h3>
+			  <div class="popup-box">
+			  	    <h3 class="orange size-36 pop-title">正在开通，敬请期待！</h3>
+			  	    <div class="prompt-message clearfix">
+			  	    	<a href="javascript:$('#popup_3').hide();" class="btn orange-btn left">关闭</a>
+			  	    </div>
+			  </div>
+	    </div>
+	</div>
+	
+    
+    <div class="prompt" style="display:none;">
+    	<img src="http://pic.youzu.com/m/web/mobile/images/prompt.png">
+    </div>
+    <div class="bg" style="display:none;"></div>
+    <div class="mask">切换至竖屏观看</div>
+    <div class="maskBg"></div>
+    <script src="http://pic.youzu.com/m/web/mobile/js/global.js?0228011"></script>
+    <script src="http://pic.youzu.com/m/web/mobile/js/public.js?0228011"></script>
+    <script>
+
+var apiUrl = "http://auth.youzu.com/";
+function jsonP(url ,data,callback){
+	if(!data['appId']){
+		data.appId = 'm.youzu.com';
+	}
+	$.ajax({ 
+        async: false, 
+        url: url, 
+        type: "GET", 
+        dataType: 'jsonp', 
+        //jsonp的值自定义,如果使用jsoncallback,那么服务器端,要返回一个jsoncallback的值对应的对象. 
+        jsonp: 'callback', 
+        //要传递的参数,没有传参时，也一定要写上 
+          data: data, 
+        timeout: 5000, 
+        //返回Json类型 
+          contentType: "application/json;utf-8", 
+        //服务器段返回的对象包含name,data属性. 
+        success: function (result) { 
+            if(typeof callback == "function"){
+            	callback(result);
+                } 
+        }, 
+        error: function (jqXHR, textStatus, errorThrown) { 
+            alert(textStatus); 
+        } 
+    });
+}
+    
+        $('.prompt,.bg').click(function(){
+        	$('.prompt,.bg').hide();
+        })
+        var clickNum = 2;
+        /* 获取更多数据 */
+        function moreDatas()
+        {
+            $.getJSON('/mobile/moreDatas',{'page':clickNum, 'kind':$("#dataMore").data("kind"), 'cate':$("#dataMore").data("cate")},function(data){
+                if(!data) {return alert('数据请求错误！');}
+                if(data.status == 0){alert(data.message);$("#dataMore").hide();}
+                var aHtml = '';
+                if(data.status == 1){
+                    if ('article' == $("#dataMore").data("kind")){
+                        var type = 'news';
+                        if($("#dataMore").data("cate") == 'yzzx_company'){
+                            type = 'detail';
+                        }
+                        for(var i in data.data){
+                            aHtml += '<li><a href="/'+type+'/'+ data.data[i]['id'] +'"><h3>'+ data.data[i]['title'] +'</h3><p>'+ data.data[i]['date'] +'</p></a></li>';
+                        }
+                        $("#newsList").append(aHtml);
+                        clickNum += 1;
+                    }
+                    if ('image' == $("#dataMore").data("kind")){
+                        for(var i in data.data){
+                            aHtml += '<li class="wallpaperli">\
+                                        <img class="showPic" data-src="'+ data.data[i]["origin"] +'" src="'+ data.data[i]["abbrev"] +'" alt="'+ data.data[i]["title"] +'" />\
+                                    </li>'
+                        }
+                        $("#dataMore").before(aHtml);
+                        clickNum += 1;
+                    }
+                }
+            });
+        }
+         $.extend({
+        isWeiXin : function(){
+            var ua = window.navigator.userAgent.toLowerCase();
+            return ua.match(/MicroMessenger/i) == 'micromessenger' ? true : false;
+        },
+        Android : function() {
+            return navigator.userAgent.match(/Android/i) ? true : false;
+        },
+        iOS : function() {
+            return navigator.userAgent.match(/iPhone|iPad|iPod/i) ? true : false;
+        }
+    });
+     var callback = function(e){
+         if($.isWeiXin()){
+                $(".bg").show();
+                $(".prompt").show();
+         }else{
+             var href = "";
+             var gameId = $(e).data("gameid");
+             if($.iOS()){
+                 href = $(e).data("ios");
+                 if(!href){
+                    alert("暂未开通下载");
+                    return false; 
+                 }
+                 _hmt.push(['_trackEvent', 'game', 'download', 'm_ios_download_'+gameId]);
+                 window.location.href = href;
+             }else if(1){ //包含安卓端和pc 端
+                 href = $(e).data("android");
+                 if(!href){
+                    alert("暂未开通下载");
+                    return false; 
+                 }
+                 _hmt.push(['_trackEvent', 'game', 'download', 'm_android_download_'+gameId]);
+                 window.location.href = href;
+             }
+         }
+     };
+        //返回顶部
+        function click_scroll() {
+            var scroll_offset = $("#all-games").offset().top;
+            $("body,html").animate({
+                scrollTop: scroll_offset
+            }, 1000);
+        }
+        $('.jump').click(function () {
+            click_scroll();
+        })
+        $(window).scroll(function () {
+            if (($(this).height() - $(this).scrollTop()) <= ($(this).height() * 0.8)) {
+                $(".jump").hide();
+            }
+            else {
+                $(".jump").show();
+            }
+        });
+
+        (function(){
+    	    var bp = document.createElement('script');
+    	    var curProtocol = window.location.protocol.split(':')[0];
+    	    if (curProtocol === 'https') {
+    	        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+    	    }
+    	    else {
+    	        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    	    }
+    	    var s = document.getElementsByTagName("script")[0];
+    	    s.parentNode.insertBefore(bp, s);
+    	})();
+        
+    </script>
+<!-- 自定义微信分享 -->
+<script src="http://res.wx.qq.com/open/js/jweixin-1.0.0.js"></script>
+<script type="text/javascript">
+	// 通过config接口注入权限验证配置
+	wx.config({
+        debug: false,	// 本地开发为true，上线后改为false
+        appId: 'wx8acae44b4dbda242',
+        timestamp:'1491091422',
+        nonceStr: "UTNuKmSwVu077lSr",
+        signature: "31030eb5396d43a80b39360739b98d5fb0360471",
+        jsApiList: [
+            'checkJsApi',
+            'onMenuShareTimeline',
+            'onMenuShareAppMessage',
+            'onMenuShareQQ',
+            'onMenuShareWeibo',
+            'hideMenuItems',
+            'showMenuItems',
+            'hideAllNonBaseMenuItem',
+            'showAllNonBaseMenuItem',
+            'translateVoice',
+            'startRecord',
+            'stopRecord',
+            'onRecordEnd',
+            'playVoice',
+            'pauseVoice',
+            'stopVoice',
+            'uploadVoice',
+            'downloadVoice',
+            'chooseImage',
+            'previewImage',
+            'uploadImage',
+            'downloadImage',
+            'getNetworkType',
+            'openLocation',
+            'getLocation',
+            'hideOptionMenu',
+            'showOptionMenu',
+            'closeWindow',
+            'scanQRCode',
+            'chooseWXPay',
+            'openProductSpecificView',
+            'addCard',
+            'chooseCard',
+            'openCard'
+        ]
+    });
+
+	// 通过ready接口处理成功验证
+	wx.ready(function(){
+
+    	// 分享给朋友
+		wx.onMenuShareAppMessage({
+	        title: '游族移动官网——分享简单的快乐',	// 分享标题
+	        desc: '游族官方移动平台，多款游戏等你来玩！',	// 分享描述
+	        link: "http://m.youzu.com/", // 分享链接
+	        imgUrl: 'http://pic.youzu.com/m/web/mobile/images/tub.jpg',	// 分享图标
+	        success: function () {
+					            // 用户确认分享后执行的回调函数
+	            //alert("喵喵感谢你！");
+				
+	        },
+	        cancel: function () {
+					        	//alert("2");
+	            // 用户取消分享后执行的回调函数
+				
+	        }
+	    });
+
+	    // 分享到朋友圈
+		wx.onMenuShareTimeline({
+			title: '游族移动官网——分享简单的快乐',	// 分享标题
+	        link: "http://m.youzu.com/", // 分享链接
+	        imgUrl: 'http://pic.youzu.com/m/web/mobile/images/tub.jpg',	// 分享图标
+		    success: function () {
+						        // 用户确认分享后执行的回调函数
+		        // alert("喵喵感谢你！");
+				
+		    },
+		    cancel: function () {
+						        // 用户取消分享后执行的回调函数
+				
+		    }
+		});
+
+	});
+
+	// 通过error接口处理失败验证
+	wx.error(function(res){
+		// config信息验证失败会执行error函数，如签名过期导致验证失败，具体错误信息可以打开config的debug模式查看，也可以在返回的res参数中查看，对于SPA可以在这里更新签名。
+	});
+</script><!-- 自定义微信分享 end -->
+
+</body></html>

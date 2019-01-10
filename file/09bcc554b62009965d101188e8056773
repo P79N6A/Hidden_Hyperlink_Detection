@@ -1,0 +1,917 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8;">
+<title>策略海-策略速配</title>
+<meta name="keywords" content="有问有答,炒股策略,操作策略,交易策略">
+<link href="css/new_main20130801.css" rel="stylesheet" type="text/css">
+<link rel="stylesheet" href="css/common2013.css">
+    <link rel="stylesheet" href="css/head2013.css">
+<script async="" src="//www.google-analytics.com/analytics.js"></script><script src="js/newJs/jquery.js" type="text/javascript"></script>
+ <script type="text/javascript" src="/js/chk_frm.js"></script>
+ <script type="text/javascript" src="/js/Ajax.js"></script> 
+<script src="js/newJs/JsHelper.js" type="text/javascript"></script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-42164619-1', 'hexun.com');
+  ga('send', 'pageview');
+
+</script>
+<script type="text/javascript" language="javascript">
+        $().ready(
+        function () {
+//            BindArrayToSelect(ShowEnumStrategistType,'ddlStrategistType'); 
+//            BindArrayToSelect(ShowEnumOrderDirection,'ddlOrderDirection'); 
+//            BindArrayToSelect(ShowEnumDealPeriod,'ddlDealPeriod');             
+//            $('#ddlStrategistType').val(4);            
+//            $('#ddlDealPeriod').val(1);
+            Search('');
+        });
+
+        function Search(UserID) {
+            txtStockCode = $.trim($('#ajaxinput').val());                
+//            txtUserName = $.trim($('#txtUserName').val());     
+//            txtStrategyName = $.trim($('#txtStrategyName').val());
+//            ddlStrategistType = $('#ddlStrategistType').val();                       
+//            ddlOrderDirection = $('#ddlOrderDirection').val();  
+//            ddlDealPeriod = $('#ddlDealPeriod').val();     
+            var ResultContentlength=0;                    
+            var ResultContent1length=0;    
+ 
+            $('#peiguleftResultContent1').hide();                        
+            $('#peiguleftResultContent').show();  
+            $('#ResultContent').html("正在加载数据。。。");
+            $('#ResultContent1').html("正在加载数据。。。");            
+            $.get
+            (
+                '/DataProvider/MatchingHistory.aspx',
+                { 'StockCode':txtStockCode,
+                  //'UserName':txtUserName,
+                  //'StrategyName':txtStrategyName,
+                  //'StrategistType':ddlStrategistType,
+                  //'OrderDirection':ddlOrderDirection,
+                  //'DealPeriod':ddlDealPeriod,
+                  'random': Math.random() },
+                    function (data) {
+                        $('#ResultContent').html(data);
+                        ResultContentlength=$('#ResultContent').html().length;
+                        //alert(ResultContentlength+ResultContent1length);
+                        if(((ResultContentlength+ResultContent1length)==3526)||((ResultContentlength+ResultContent1length)==2526)||((ResultContentlength+ResultContent1length)==3528))  
+                        {
+                            $('#peiguleftResultContent').hide();                        
+                            $('#peiguleftResultContent1').show();                                      
+                           // $('#peiguleftResultContent1').html('1');
+                        }
+                    }
+             )
+             
+            $.get
+            (
+                '/DataProvider/MatchingOptional.aspx',
+                { 'StockCode':txtStockCode,
+                  //'UserName':txtUserName,
+                  //'StrategyName':txtStrategyName,
+                  //'StrategistType':ddlStrategistType,
+                  //'OrderDirection':ddlOrderDirection,
+                  //'DealPeriod':ddlDealPeriod,
+                  'random': Math.random() },
+                    function (data) {
+                        $('#ResultContent1').html(data);
+                        ResultContent1length=$('#ResultContent1').html().length;     
+                        //alert(ResultContentlength+ResultContent1length);                                                                   
+                        if(((ResultContentlength+ResultContent1length)==3526)||((ResultContentlength+ResultContent1length)==2526)||((ResultContentlength+ResultContent1length)==3528))  
+                        {
+                            $('#peiguleftResultContent').hide();                        
+                            $('#peiguleftResultContent1').show();                                      
+                           // $('#peiguleftResultContent1').html('2');
+                        }
+                        //alert($('#ResultContent1').html().length);                        
+                    }
+             )    
+             getStockQuote_Name('ajaxinput','');   
+             //alert(ResultContentlength+ResultContent1length);
+
+        }         
+        
+//获得股票名称
+ function getStockQuote_Name(StockCode_InputName,actionPrice_InputName)
+ {
+     document.getElementById("MatchingHistoryStockName").innerHTML='';
+     document.getElementById("MatchingOptionalStockName").innerHTML='';
+     document.getElementById("MatchingHistoryStockCode").innerHTML='';
+     document.getElementById("MatchingOptionalStockCode").innerHTML='';
+     var _ajaxinput = document.getElementById(StockCode_InputName);
+     if(!myfrm_isStockCode(_ajaxinput)) 
+     return;
+     var prefix = _ajaxinput.value.substring(0,2)
+     if(prefix != '60' && prefix != '00' && prefix != '30')
+     {
+        alert('请输入A股代码')
+        return
+     }
+     var parameter="StockCode="+_ajaxinput.value+"&action=getStockName";
+    var ajax = new Ajax("../ajax_StockUserDelegate.aspx",parameter,false,false,null,"GetStockQuote_Price_onCallback");
+    GetStockQuote_Price_onCallback = function(res)
+    {
+        if(res != null && res != "")
+        {       
+            var html=unescape(res);
+            document.getElementById("MatchingHistoryStockName").innerHTML='在'+html;
+            document.getElementById("MatchingOptionalStockName").innerHTML=''+html;
+            document.getElementById("MatchingHistoryStockCode").innerHTML='（'+_ajaxinput.value+'）';
+            document.getElementById("MatchingOptionalStockCode").innerHTML='（'+_ajaxinput.value+'）';
+
+
+
+            
+//            var html_1,html_2;
+//            if(html.indexOf('||||||')>-1)
+//            {
+//                document.getElementById(actionPrice_InputName+"_1").innerHTML="";
+//                document.getElementById(actionPrice_InputName+"_2").innerHTML="";
+//            
+//                html_1=html.substring(0,html.indexOf('||||||'));
+//                
+//                var stockName = LTrim(html_1.substring(1,html_1.indexOf('】')))
+//                var market = getMarket(_ajaxinput.value)
+//                var fullCode = convert6to8HexunVer(_ajaxinput.value)
+//                
+//                //document.domain = "hexun.com"
+//                if(parent.document.getElementById('ifrm') != null)
+//                {
+//                    parent.document.getElementById('ifrm').src = 'http://flashquote.stock.hexun.com/flash/100ff/dhqt2011.html?c=' + _ajaxinput.value + '&m=' + market +'&p=' + fullCode +'&n=' + EncodeUtf8(stockName)
+//                }
+//                
+//                document.getElementById("stockName_info").innerHTML="&nbsp;"+html_1;
+//                
+//                html_2=html.substring(html.indexOf('||||||')+6,html.length);
+//                document.getElementById(actionPrice_InputName+"_2").innerHTML="&nbsp;"+html_2;
+//            }
+            return;
+        }
+        res = null;
+        GetStockQuote_Price_onCallback = null;
+    }
+    ajax.send();
+    ajax = null;
+ }
+        
+        
+              
+//     //分页操作
+//    function ShowDataByPost1(pody) {
+//        $('#ResultContent').load('/AjaxServers/MatchingStock/MatchingHistory.aspx', pody);   
+//    }                
+    </script>  
+<script type="text/javascript" src="../DataProvider/stratChangeCount.aspx" id="StratChangeTotalCountJsRequest"></script></head>
+<body>
+<!-- 头部  -->
+<script type="text/javascript" src="../js/newJs/JsHelper.js"></script>
+
+<script type="text/javascript" src="../js/newJs/headerlogincountJs.js"></script>
+
+<div class="header">
+    <div class="top ma">
+        <div class="logo fl">
+            <a href="http://www.hexun.com/">&nbsp;</a> <a href="http://c.hexun.com/">&nbsp;</a>
+        </div>
+        <div class="nav fl">
+            <ul>
+                <li id="sy" class=""><a href="http://c.hexun.com/">首页</a></li>
+                <li id="jp" class=""><a href="http://c.hexun.com/stratSearch.aspx">策略池</a></li>
+                <li id="zx" class=""><a href="http://c.hexun.com/CardIndex.aspx">策略跟踪卡</a></li>
+                <li id="hxt" class=""><a href="http://c.hexun.com/h_hxt.aspx">红学堂</a></li>
+                <li id="ph" class=""><a href="http://c.hexun.com/celuebaogao/BGIndex.aspx">策略报告</a></li>
+                <li id="dy" class=""><a href="http://c.hexun.com/Sampler/MyStrats2014.aspx">我的订阅</a></li>
+            </ul>
+        </div>
+        <div class="login fr">
+            <p id="loginStr">策略海平台欢迎您！ <a href="javascript:void(0)" onclick="Login()">登录</a> /  <a href="javascript:void(0)" onclick="Reg()">注册</a></p>
+            <p>
+                <a href="http://admin.c.hexun.com/login.aspx?gourl=http%3a%2f%2fadmin.c.hexun.com%2fstrategist_account.aspx">
+                    策略师入口</a> | <a href="http://c.hexun.com/helpeCenter.aspx">使用指南</a> | <a href="http://c.hexun.com/download.aspx">
+                        下载中心</a></p>
+        </div>
+    </div>
+
+    <script>
+function GetTagCssData(TgList){
+
+    var TagCssData = eval(TgList);
+	
+	var pthName = window.location.pathname;
+	
+	pthName = pthName.replace("/","").toLowerCase();//转换小写.	 
+    for(var i = 0; i<= TagCssData.length; i++)
+    {         
+         if(TagCssData[i]&&TagCssData[i].value!="no")
+         {            
+            document.getElementById(TagCssData[i].value).className = ""; 
+         }         
+    }   	
+	if(pthName =='/' || pthName ==''){
+	    document.getElementById("sy").className = "hover";return;
+	}else{   	    
+	    if(pthName.indexOf("h_list")!=-1){
+	        document.getElementById("zx").className = "hover";return;
+	    }
+	    if(pthName.indexOf("news")!=-1){
+	        document.getElementById("ph").className = "hover";return;
+	    }
+	    if(pthName.indexOf("h_hxt")!=-1){
+	        document.getElementById("hxt").className = "hover";return;
+	    }	     
+	    if(pthName.indexOf("stratsearch")!=-1){	    
+	        
+	        document.getElementById("jp").className = "hover";return;
+	    }
+	    if(pthName.indexOf("mystrats")!=-1){	    
+	        
+	        document.getElementById("dy").className = "hover";return;
+	    }
+	    
+	}
+}
+    </script>
+
+    <script language="javascript" src="../js/newJs/JsArray.js"></script>
+
+    <script type="text/javascript">
+    
+    
+    //alert(window.location.pathname.replace("/",""));
+    function Login()
+    {
+        var url = window.location.href;
+        window.location.href = "http://c.hexun.com/Login.aspx?gourl=" + encodeURIComponent(url);
+    }
+    
+    function Reg()
+    {
+        var url = window.location.href;        
+        window.location.href = "http://c.hexun.com/reguser.aspx?gourl="+encodeURIComponent(url); // url             
+    }
+    
+    function Quit()
+	{
+	    var url = window.location.href;
+		window.location.href = 'http://c.hexun.com/Quit.aspx?gourl=' +encodeURIComponent(url);		
+	}
+	
+	function GoToProfile()
+	{
+	    window.location.href = "../profile.aspx";
+	}
+    </script>
+
+</div>
+
+<script type="text/javascript">
+//加载交易更新记录
+StratChangeTotalCountJsRequest.url = "../DataProvider/stratChangeCount.aspx";
+StratChangeTotalCountJsRequest.Request();
+
+window.setInterval(function up(){
+StratChangeTotalCountJsRequest.url = "../DataProvider/stratChangeCount.aspx";
+StratChangeTotalCountJsRequest.Request();
+},30000);
+</script>
+
+
+<!-- 头部  -->
+<div class="mdiv">
+   <div class="main" style="padding-top:0px;">
+        <div class="tancan"><!--持仓速配开始-->
+                      <div class="stu fl"><img src="images/peigu_03.jpg"></div>
+                      <div class="celpg fl">
+                         <p class="f14 fb">策略</p>
+                         <p class=" f16 fb">股票速配</p>
+                      
+                      </div>
+                      <div class="sou_cltc fl">
+                         <p class="mtop10"><span>五秒为您匹配最佳策略</span></p>
+                         <p><input type="text" class="input_tc search" name="ajaxinput" id="ajaxinput" value="代码/名称/拼音" autocomplete="off" onkeydown="Suggest.init('ajaxinput','buyajaxdiv','STOCKA');Suggest.keyDown(event);myfrm_isStockCode(this);" onfocus="Suggest.init('ajaxinput','buyajaxdiv','STOCKA');Suggest.focusObj();" onblur="Suggest.init('ajaxinput','buyajaxdiv','STOCKA');Suggest.blurObj();myfrm_isStockCode(this);getStockQuote_Price('ajaxinput','buyprice');getStockQuote_Info('ajaxinput','buyajax_stockinfo');" style="border-color: red; "><input type="image" src="images/peigu_08.jpg" onclick="Search('');"></p>
+                         <p></p><div id="buyajaxdiv" style="position: absolute; z-index:99999; cursor:pointer"></div>热股速配：<a href="/MatchingStock.aspx?SearchStockCode=002663">普邦园林</a> <a href="/MatchingStock.aspx?SearchStockCode=600732">上海新梅</a> <a href="/MatchingStock.aspx?SearchStockCode=600031">三一重工</a> <p></p>
+                     </div>
+                 </div><!--持仓速配结束-->
+                    <script charset="gb2312" src="/js/stocksearch_invest.js" language="javascript" type="text/javascript"></script>                      
+    	<div id="peiguleftResultContent1" class="wugup" style="display: none; ">
+    	
+    	
+        <p>您搜索的股票还未有策略师操作或关注。     </p>   
+        <p>如有策略师操作或关注此股票，策略海平台将发送邮件通知您，请留下您的邮箱地址。     </p>
+        <p><a href="/profile.aspx" target="_blank"><img src="/images/wubut_03.jpg" width="242" height="52"></a></p>
+        <p>如果您对此股票有足够深的<strong class="red f14">见解和分析</strong>，欢迎您加入策略海平台，成为我们的策略师！</p>
+        <p><a href="/apply.aspx" target="_blank"><img src="/images/wubut_06.jpg" width="242" height="52"></a></p>
+    	</div>                                    
+      <div class="peigu" id="peiguleftResultContent" style="">
+    	<div class="left fl" style="width:730px;margin-left:0px;">
+        
+           <div class="pg_zq">
+            <div class="pg_title">
+                	<ul class="fl">
+                    	<li><span id="MatchingHistoryStockName"></span><span id="MatchingHistoryStockCode"></span>赚钱的策略</li>
+                    </ul>
+                    <span class="fr"><img src="images/wenzi_060601.jpg"></span>
+                </div>
+                
+             <!--   <div class="gzq">
+                 <table width="100%" border="1">
+                      <tr>
+                        <th scope="col">策略名称</th>
+                        <th scope="col">个股收益（元）</th>
+                        <th scope="col">本月收益</th>
+                        <th scope="col">策略价格/月</th>
+                        <th colspan="3" scope="col">操作</th>
+                        </tr>
+                      <tr>
+                        <td>汇富一期</td>
+                        <td><span class="red">189995</span></td>
+                        <td><span class="red">10%</span></td>
+                        <td>700 元</td>
+                        <td><a href="#" class="lan">有问题问Ta</a></td>
+                        <td><a href="#">查看统计数据</a></td>
+                        <td><a href="#">分析Ta的交易记录</a></td>
+                      </tr>
+                       <tr>
+                        <td>汇富一期</td>
+                        <td><span class="red">189995</span></td>
+                        <td><span class="red">10%</span></td>
+                        <td>700 元</td>
+                        <td><a href="#" class="lan">有问题问Ta</a></td>
+                        <td><a href="#">查看统计数据</a></td>
+                        <td><a href="#">分析Ta的交易记录</a></td>
+                      </tr>
+                       <tr>
+                        <td>汇富一期</td>
+                        <td><span class="red">189995</span></td>
+                        <td><span class="red">10%</span></td>
+                        <td>700 元</td>
+                        <td><a href="#" class="lan">有问题问Ta</a></td>
+                        <td><a href="#">查看统计数据</a></td>
+                        <td><a href="#">分析Ta的交易记录</a></td>
+                      </tr>
+                       <tr>
+                        <td>汇富一期</td>
+                        <td><span class="red">189995</span></td>
+                        <td><span class="red">10%</span></td>
+                        <td>700 元</td>
+                        <td><a href="#" class="lan">有问题问Ta</a></td>
+                        <td><a href="#">查看统计数据</a></td>
+                        <td><a href="#">分析Ta的交易记录</a></td>
+                      </tr>
+                       <tr>
+                        <td>汇富一期</td>
+                        <td><span class="red">189995</span></td>
+                        <td><span class="red">10%</span></td>
+                        <td>700 元</td>
+                        <td><a href="#" class="lan">有问题问Ta</a></td>
+                        <td><a href="#">查看统计数据</a></td>
+                        <td><a href="#">分析Ta的交易记录</a></td>
+                      </tr>
+                       <tr>
+                        <td>汇富一期</td>
+                        <td><span class="red">189995</span></td>
+                        <td><span class="red">10%</span></td>
+                        <td>700 元</td>
+                        <td><a href="#" class="lan">有问题问Ta</a></td>
+                        <td><a href="#">查看统计数据</a></td>
+                        <td><a href="#">分析Ta的交易记录</a></td>
+                      </tr>
+                       <tr>
+                        <td>汇富一期</td>
+                        <td><span class="red">189995</span></td>
+                        <td><span class="red">10%</span></td>
+                        <td>700 元</td>
+                        <td><a href="#" class="lan">有问题问Ta</a></td>
+                        <td><a href="#">查看统计数据</a></td>
+                        <td><a href="#">分析Ta的交易记录</a></td>
+                      </tr>
+                       <tr>
+                        <td>汇富一期</td>
+                        <td><span class="red">189995</span></td>
+                        <td><span class="red">10%</span></td>
+                        <td>700 元</td>
+                        <td><a href="#" class="lan">有问题问Ta</a></td>
+                        <td><a href="#">查看统计数据</a></td>
+                        <td><a href="#">分析Ta的交易记录</a></td>
+                      </tr>
+                       <tr>
+                        <td>汇富一期</td>
+                        <td><span class="red">189995</span></td>
+                        <td><span class="red">10%</span></td>
+                        <td>700 元</td>
+                        <td><a href="#" class="lan">有问题问Ta</a></td>
+                        <td><a href="#">查看统计数据</a></td>
+                        <td><a href="#">分析Ta的交易记录</a></td>
+                      </tr>
+                       <tr>
+                        <td>汇富一期</td>
+                        <td><span class="red">189995</span></td>
+                        <td><span class="red">10%</span></td>
+                        <td>700 元</td>
+                        <td><a href="#" class="lan">有问题问Ta</a></td>
+                        <td><a href="#">查看统计数据</a></td>
+                        <td><a href="#">分析Ta的交易记录</a></td>
+                      </tr>
+                       <tr>
+                        <td>汇富一期</td>
+                        <td><span class="red">189995</span></td>
+                        <td><span class="red">10%</span></td>
+                        <td>700 元</td>
+                        <td><a href="#" class="lan">有问题问Ta</a></td>
+                        <td><a href="#">查看统计数据</a></td>
+                        <td><a href="#">分析Ta的交易记录</a></td>
+                      </tr>
+                       <tr>
+                        <td>汇富一期</td>
+                        <td><span class="red">189995</span></td>
+                        <td><span class="red">10%</span></td>
+                        <td>700 元</td>
+                        <td><a href="#" class="lan">有问题问Ta</a></td>
+                        <td><a href="#">查看统计数据</a></td>
+                        <td><a href="#">分析Ta的交易记录</a></td>
+                      </tr>
+                      
+                    </table>
+                </div>
+                 
+                <div class="clh-page2" style="height:auto; overflow:hidden;">
+                        	<div class="clh_page">
+                                <ul>
+                                    <li class="pbtn">上一页</li>
+                                    <li><a href="#">1</a></li>
+                                    <li class="on">2</li>
+                                    <li><a href="#">3</a></li>
+                                    <li><a href="#">4</a></li>
+                                    <li><a href="#">5</a></li>
+                                    <li class="pmore">…</li>
+                                    <li><a href="#">20</a></li>
+                                    <li class="pbtn">下一页</li>
+                                </ul>
+                            </div>
+                         </div> 
+                -->
+            <div class="cont_cxjg" id="ResultContent">
+ 
+
+                    <p style="text-align: right">搜索结果：共有 <span class="redcolor"><strong>
+                        6149
+                    </strong></span>个策略符合条件
+                    
+                </p>
+
+               <div class="gzq">
+                 <table width="100%" border="1">
+                      <tbody><tr>
+                        <th scope="col">策略名称</th>
+                        <th scope="col">个股收益（元）</th>
+                        <th scope="col">总收益</th>
+                        <th scope="col">策略价格/月</th>
+                        <th colspan="3" scope="col">操作</th>
+                        </tr>
+                                        
+                      <tr>
+                        <td><a href="/stratdetail_tag.aspx?sid=26442">云水禅心</a></td>
+                        <td><font color="red">8063411.41</font></td>
+                        <td><font color="red">552.93</font>%</td>
+                        <td>2200 元</td>
+                        <td><a href="/stratdetail_tag.aspx?sid=26442#yhzx" class="lan">有问题问Ta</a></td>
+                        <td><a href="/stratdetail_tag.aspx?sid=26442">查看统计数据</a></td>
+                        <td><a href="/historypay.aspx?sid=26442">分析Ta的交易记录</a></td>
+                      </tr>
+                                            
+                      <tr>
+                        <td><a href="/stratdetail_tag.aspx?sid=26442">云水禅心</a></td>
+                        <td><font color="red">4634052.95</font></td>
+                        <td><font color="red">552.93</font>%</td>
+                        <td>2200 元</td>
+                        <td><a href="/stratdetail_tag.aspx?sid=26442#yhzx" class="lan">有问题问Ta</a></td>
+                        <td><a href="/stratdetail_tag.aspx?sid=26442">查看统计数据</a></td>
+                        <td><a href="/historypay.aspx?sid=26442">分析Ta的交易记录</a></td>
+                      </tr>
+                                            
+                      <tr>
+                        <td><a href="/stratdetail_tag.aspx?sid=26894">家乐</a></td>
+                        <td><font color="red">2708920.46</font></td>
+                        <td><font color="red">362.67</font>%</td>
+                        <td>1500 元</td>
+                        <td><a href="/stratdetail_tag.aspx?sid=26894#yhzx" class="lan">有问题问Ta</a></td>
+                        <td><a href="/stratdetail_tag.aspx?sid=26894">查看统计数据</a></td>
+                        <td><a href="/historypay.aspx?sid=26894">分析Ta的交易记录</a></td>
+                      </tr>
+                                            
+                      <tr>
+                        <td><a href="/stratdetail_tag.aspx?sid=26578">潜龙在渊</a></td>
+                        <td><font color="red">2364927.75</font></td>
+                        <td><font color="red">734.39</font>%</td>
+                        <td>1500 元</td>
+                        <td><a href="/stratdetail_tag.aspx?sid=26578#yhzx" class="lan">有问题问Ta</a></td>
+                        <td><a href="/stratdetail_tag.aspx?sid=26578">查看统计数据</a></td>
+                        <td><a href="/historypay.aspx?sid=26578">分析Ta的交易记录</a></td>
+                      </tr>
+                                            
+                      <tr>
+                        <td><a href="/stratdetail_tag.aspx?sid=26578">潜龙在渊</a></td>
+                        <td><font color="red">1885214.57</font></td>
+                        <td><font color="red">734.39</font>%</td>
+                        <td>1500 元</td>
+                        <td><a href="/stratdetail_tag.aspx?sid=26578#yhzx" class="lan">有问题问Ta</a></td>
+                        <td><a href="/stratdetail_tag.aspx?sid=26578">查看统计数据</a></td>
+                        <td><a href="/historypay.aspx?sid=26578">分析Ta的交易记录</a></td>
+                      </tr>
+                                            
+                      <tr>
+                        <td><a href="/stratdetail_tag.aspx?sid=26915">股市龙香</a></td>
+                        <td><font color="red">1797429.3</font></td>
+                        <td><font color="red">374.41</font>%</td>
+                        <td>1500 元</td>
+                        <td><a href="/stratdetail_tag.aspx?sid=26915#yhzx" class="lan">有问题问Ta</a></td>
+                        <td><a href="/stratdetail_tag.aspx?sid=26915">查看统计数据</a></td>
+                        <td><a href="/historypay.aspx?sid=26915">分析Ta的交易记录</a></td>
+                      </tr>
+                                            
+                      <tr>
+                        <td><a href="/stratdetail_tag.aspx?sid=26894">家乐</a></td>
+                        <td><font color="red">1276463.13</font></td>
+                        <td><font color="red">362.67</font>%</td>
+                        <td>1500 元</td>
+                        <td><a href="/stratdetail_tag.aspx?sid=26894#yhzx" class="lan">有问题问Ta</a></td>
+                        <td><a href="/stratdetail_tag.aspx?sid=26894">查看统计数据</a></td>
+                        <td><a href="/historypay.aspx?sid=26894">分析Ta的交易记录</a></td>
+                      </tr>
+                                            
+                      <tr>
+                        <td><a href="/stratdetail_tag.aspx?sid=26915">股市龙香</a></td>
+                        <td><font color="red">1269251.64</font></td>
+                        <td><font color="red">374.41</font>%</td>
+                        <td>1500 元</td>
+                        <td><a href="/stratdetail_tag.aspx?sid=26915#yhzx" class="lan">有问题问Ta</a></td>
+                        <td><a href="/stratdetail_tag.aspx?sid=26915">查看统计数据</a></td>
+                        <td><a href="/historypay.aspx?sid=26915">分析Ta的交易记录</a></td>
+                      </tr>
+                                            
+                      <tr>
+                        <td><a href="/stratdetail_tag.aspx?sid=26442">云水禅心</a></td>
+                        <td><font color="red">1265670.26</font></td>
+                        <td><font color="red">552.93</font>%</td>
+                        <td>2200 元</td>
+                        <td><a href="/stratdetail_tag.aspx?sid=26442#yhzx" class="lan">有问题问Ta</a></td>
+                        <td><a href="/stratdetail_tag.aspx?sid=26442">查看统计数据</a></td>
+                        <td><a href="/historypay.aspx?sid=26442">分析Ta的交易记录</a></td>
+                      </tr>
+                                            
+                      <tr>
+                        <td><a href="/stratdetail_tag.aspx?sid=26452">赤升稳健</a></td>
+                        <td><font color="red">1185808.42</font></td>
+                        <td><font color="red">367.78</font>%</td>
+                        <td>900 元</td>
+                        <td><a href="/stratdetail_tag.aspx?sid=26452#yhzx" class="lan">有问题问Ta</a></td>
+                        <td><a href="/stratdetail_tag.aspx?sid=26452">查看统计数据</a></td>
+                        <td><a href="/historypay.aspx?sid=26452">分析Ta的交易记录</a></td>
+                      </tr>
+                                            
+                      <tr>
+                        <td><a href="/stratdetail_tag.aspx?sid=27038">海秀博弈1号</a></td>
+                        <td><font color="red">1102273.91</font></td>
+                        <td><font color="red">114.50</font>%</td>
+                        <td>400 元</td>
+                        <td><a href="/stratdetail_tag.aspx?sid=27038#yhzx" class="lan">有问题问Ta</a></td>
+                        <td><a href="/stratdetail_tag.aspx?sid=27038">查看统计数据</a></td>
+                        <td><a href="/historypay.aspx?sid=27038">分析Ta的交易记录</a></td>
+                      </tr>
+                                            
+                      <tr>
+                        <td><a href="/stratdetail_tag.aspx?sid=26915">股市龙香</a></td>
+                        <td><font color="red">1097056.41</font></td>
+                        <td><font color="red">374.41</font>%</td>
+                        <td>1500 元</td>
+                        <td><a href="/stratdetail_tag.aspx?sid=26915#yhzx" class="lan">有问题问Ta</a></td>
+                        <td><a href="/stratdetail_tag.aspx?sid=26915">查看统计数据</a></td>
+                        <td><a href="/historypay.aspx?sid=26915">分析Ta的交易记录</a></td>
+                      </tr>
+                                                              
+                    </tbody></table>
+                </div>
+                 
+				<div class="clh-page2" style="height:auto; overflow:hidden;">
+					<div id="" class="clh_page">					
+					<li class="pbtn1"><a disabled="disabled">上一页</a></li><li class="on"><span>1</span></li><li><a href='javascript:ShowDataByPost2("stockcode=%u6d60%uff47%u721c%u002f%u935a%u5d87%u041e%u002f%u93b7%u5978%u7176&random=%u0030%u002e%u0035%u0030%u0031%u0038%u0039%u0032%u0035%u0034%u0039%u0032%u0031%u0038%u0036%u0030%u0039%u0039&page=2");' title="第2页">2</a></li><li><a href='javascript:ShowDataByPost2("stockcode=%u6d60%uff47%u721c%u002f%u935a%u5d87%u041e%u002f%u93b7%u5978%u7176&random=%u0030%u002e%u0035%u0030%u0031%u0038%u0039%u0032%u0035%u0034%u0039%u0032%u0031%u0038%u0036%u0030%u0039%u0039&page=3");' title="第3页">3</a></li><li><a href='javascript:ShowDataByPost2("stockcode=%u6d60%uff47%u721c%u002f%u935a%u5d87%u041e%u002f%u93b7%u5978%u7176&random=%u0030%u002e%u0035%u0030%u0031%u0038%u0039%u0032%u0035%u0034%u0039%u0032%u0031%u0038%u0036%u0030%u0039%u0039&page=4");' title="第4页">4</a></li><li><a href='javascript:ShowDataByPost2("stockcode=%u6d60%uff47%u721c%u002f%u935a%u5d87%u041e%u002f%u93b7%u5978%u7176&random=%u0030%u002e%u0035%u0030%u0031%u0038%u0039%u0032%u0035%u0034%u0039%u0032%u0031%u0038%u0036%u0030%u0039%u0039&page=5");' title="第5页">5</a></li><li><a href='javascript:ShowDataByPost2("stockcode=%u6d60%uff47%u721c%u002f%u935a%u5d87%u041e%u002f%u93b7%u5978%u7176&random=%u0030%u002e%u0035%u0030%u0031%u0038%u0039%u0032%u0035%u0034%u0039%u0032%u0031%u0038%u0036%u0030%u0039%u0039&page=6");' title="第6页">6</a></li><li><a href='javascript:ShowDataByPost2("stockcode=%u6d60%uff47%u721c%u002f%u935a%u5d87%u041e%u002f%u93b7%u5978%u7176&random=%u0030%u002e%u0035%u0030%u0031%u0038%u0039%u0032%u0035%u0034%u0039%u0032%u0031%u0038%u0036%u0030%u0039%u0039&page=7");' title="第7页">7</a></li><li><a href='javascript:ShowDataByPost2("stockcode=%u6d60%uff47%u721c%u002f%u935a%u5d87%u041e%u002f%u93b7%u5978%u7176&random=%u0030%u002e%u0035%u0030%u0031%u0038%u0039%u0032%u0035%u0034%u0039%u0032%u0031%u0038%u0036%u0030%u0039%u0039&page=8");' title="第8页">8</a></li><li><a href='javascript:ShowDataByPost2("stockcode=%u6d60%uff47%u721c%u002f%u935a%u5d87%u041e%u002f%u93b7%u5978%u7176&random=%u0030%u002e%u0035%u0030%u0031%u0038%u0039%u0032%u0035%u0034%u0039%u0032%u0031%u0038%u0036%u0030%u0039%u0039&page=9");' title="第9页">9</a></li><li><a href='javascript:ShowDataByPost2("stockcode=%u6d60%uff47%u721c%u002f%u935a%u5d87%u041e%u002f%u93b7%u5978%u7176&random=%u0030%u002e%u0035%u0030%u0031%u0038%u0039%u0032%u0035%u0034%u0039%u0032%u0031%u0038%u0036%u0030%u0039%u0039&page=10");' title="第10页">10</a></li><li class="pbtn"><a href='javascript:ShowDataByPost2("stockcode=%u6d60%uff47%u721c%u002f%u935a%u5d87%u041e%u002f%u93b7%u5978%u7176&random=%u0030%u002e%u0035%u0030%u0031%u0038%u0039%u0032%u0035%u0034%u0039%u0032%u0031%u0038%u0036%u0030%u0039%u0039&page=2");' title="下一页">下一页</a></li>                       
+				</div>                 
+				</div>				
+      <!--           <div class="clh-page2" style="height:auto; overflow:hidden;">
+                        	<div class="clh_page">
+                                <ul>
+                                    <li class="pbtn">上一页</li>
+                                    <li><a href="#">1</a></li>
+                                    <li class="on">2</li>
+                                    <li><a href="#">3</a></li>
+                                    <li><a href="#">4</a></li>
+                                    <li><a href="#">5</a></li>
+                                    <li class="pmore">…</li>
+                                    <li><a href="#">20</a></li>
+                                    <li class="pbtn">下一页</li>
+                                </ul>
+                            </div>
+                         </div>--></div>           
+           
+              </div>  
+                        
+                        
+                <div class="pg_zq" style="margin-top:53px;">
+                   <div class="pg_title">
+                	<ul class="fl">
+                    	<li>关注<span id="MatchingOptionalStockName"></span><span id="MatchingOptionalStockCode"></span>的策略</li>
+                    </ul>
+                    <span class="fr"><img src="images/wenzi_060602.jpg"></span>
+                </div>
+                
+               <!-- <div class="gzq">
+                 <table width="100%" border="1">
+                      <tr>
+                        <th scope="col">策略名称</th>
+                        <th scope="col">关注时间</th>
+                        <th scope="col">本月收益</th>
+                        <th scope="col">策略价格/月</th>
+                        <th colspan="3" scope="col">操作</th>
+                        </tr>
+                      <tr>
+                        <td>汇富一期</td>
+                        <td>5小时之前</td>
+                        <td><span class="red">10%</span></td>
+                        <td>700 元</td>
+                        <td><a href="#" class="lan">有问题问Ta</a></td>
+                        <td><a href="#">查看统计数据</a></td>
+                        <td><a href="#">分析Ta的交易记录</a></td>
+                      </tr>
+                       <tr>
+                        <td>汇富一期</td>
+                        <td>8小时之前</td>
+                        <td><span class="red">10%</span></td>
+                        <td>700 元</td>
+                        <td><a href="#" class="lan">有问题问Ta</a></td>
+                        <td><a href="#">查看统计数据</a></td>
+                        <td><a href="#">分析Ta的交易记录</a></td>
+                      </tr>
+                       <tr>
+                        <td>汇富一期</td>
+                        <td>1天之前</td>
+                        <td><span class="red">10%</span></td>
+                        <td>700 元</td>
+                        <td><a href="#" class="lan">有问题问Ta</a></td>
+                        <td><a href="#">查看统计数据</a></td>
+                        <td><a href="#">分析Ta的交易记录</a></td>
+                      </tr>
+                       <tr>
+                        <td>汇富一期</td>
+                        <td>3天之前</td>
+                        <td><span class="red">10%</span></td>
+                        <td>700 元</td>
+                        <td><a href="#" class="lan">有问题问Ta</a></td>
+                        <td><a href="#">查看统计数据</a></td>
+                        <td><a href="#">分析Ta的交易记录</a></td>
+                      </tr>
+                       <tr>
+                        <td>汇富一期</td>
+                        <td>15天之前</td>
+                        <td><span class="red">10%</span></td>
+                        <td>700 元</td>
+                        <td><a href="#" class="lan">有问题问Ta</a></td>
+                        <td><a href="#">查看统计数据</a></td>
+                        <td><a href="#">分析Ta的交易记录</a></td>
+                      </tr>
+                       <tr>
+                        <td>汇富一期</td>
+                        <td>15天之前</td>
+                        <td><span class="red">10%</span></td>
+                        <td>700 元</td>
+                        <td><a href="#" class="lan">有问题问Ta</a></td>
+                        <td><a href="#">查看统计数据</a></td>
+                        <td><a href="#">分析Ta的交易记录</a></td>
+                      </tr>
+                       <tr>
+                        <td>汇富一期</td>
+                        <td>15天之前</td>
+                        <td><span class="red">10%</span></td>
+                        <td>700 元</td>
+                        <td><a href="#" class="lan">有问题问Ta</a></td>
+                        <td><a href="#">查看统计数据</a></td>
+                        <td><a href="#">分析Ta的交易记录</a></td>
+                      </tr>
+                       <tr>
+                        <td>汇富一期</td>
+                        <td>15天之前</td>
+                        <td><span class="red">10%</span></td>
+                        <td>700 元</td>
+                        <td><a href="#" class="lan">有问题问Ta</a></td>
+                        <td><a href="#">查看统计数据</a></td>
+                        <td><a href="#">分析Ta的交易记录</a></td>
+                      </tr>
+                       <tr>
+                        <td>汇富一期</td>
+                        <td>1个月之前</td>
+                        <td><span class="red">10%</span></td>
+                        <td>700 元</td>
+                        <td><a href="#" class="lan">有问题问Ta</a></td>
+                        <td><a href="#">查看统计数据</a></td>
+                        <td><a href="#">分析Ta的交易记录</a></td>
+                      </tr>
+                       <tr>
+                        <td>汇富一期</td>
+                        <td>3个月之前</td>
+                        <td><span class="red">10%</span></td>
+                        <td>700 元</td>
+                        <td><a href="#" class="lan">有问题问Ta</a></td>
+                        <td><a href="#">查看统计数据</a></td>
+                        <td><a href="#">分析Ta的交易记录</a></td>
+                      </tr>
+                       <tr>
+                        <td>汇富一期</td>
+                        <td>3个月之前</td>
+                        <td><span class="red">10%</span></td>
+                        <td>700 元</td>
+                        <td><a href="#" class="lan">有问题问Ta</a></td>
+                        <td><a href="#">查看统计数据</a></td>
+                        <td><a href="#">分析Ta的交易记录</a></td>
+                      </tr>
+                       <tr>
+                        <td>汇富一期</td>
+                        <td>4个月之前</td>
+                        <td><span class="red">10%</span></td>
+                        <td>700 元</td>
+                        <td><a href="#" class="lan">有问题问Ta</a></td>
+                        <td><a href="#">查看统计数据</a></td>
+                        <td><a href="#">分析Ta的交易记录</a></td>
+                      </tr>
+                      
+                    </table>
+                </div>
+                 
+               <div class="clh-page2" style="height:auto; overflow:hidden;">
+                        	<div class="clh_page">
+                                <ul>
+                                    <li class="pbtn">上一页</li>
+                                    <li><a href="#">1</a></li>
+                                    <li class="on">2</li>
+                                    <li><a href="#">3</a></li>
+                                    <li><a href="#">4</a></li>
+                                    <li><a href="#">5</a></li>
+                                    <li class="pmore">…</li>
+                                    <li><a href="#">20</a></li>
+                                    <li class="pbtn">下一页</li>
+                                </ul>
+                            </div>
+                         </div>-->
+                 <div class="cont_cxjg" id="ResultContent1">
+    
+
+
+                    <p style="text-align: right">搜索结果：共有 <span class="redcolor"><strong>
+                        0
+                    </strong></span>个策略符合条件
+                    
+                </p>
+               <div class="gzq">
+                 <table width="100%" border="1">
+                      <tbody><tr>
+                        <th scope="col">策略名称</th>
+                        <th scope="col">关注时间</th>
+                        <th scope="col">总收益</th>
+                        <th scope="col">策略价格/月</th>
+                        <th colspan="3" scope="col">操作</th>
+                        </tr>
+                                                          
+                    </tbody></table>
+                </div>
+                 
+				<div class="clh-page2" style="height:auto; overflow:hidden;">
+					<div id="" class="clh_page">					
+					                       
+				</div>                 
+				</div>				
+      <!--           <div class="clh-page2" style="height:auto; overflow:hidden;">
+                        	<div class="clh_page">
+                                <ul>
+                                    <li class="pbtn">上一页</li>
+                                    <li><a href="#">1</a></li>
+                                    <li class="on">2</li>
+                                    <li><a href="#">3</a></li>
+                                    <li><a href="#">4</a></li>
+                                    <li><a href="#">5</a></li>
+                                    <li class="pmore">…</li>
+                                    <li><a href="#">20</a></li>
+                                    <li class="pbtn">下一页</li>
+                                </ul>
+                            </div>
+                         </div>--></div>   
+              </div>  
+           </div>
+   
+           <div class="right fr" style="padding-left:0px; width:260px; margin-left:10px;">
+        	<div class="clright">
+            	<div class="tmod-2">
+                	<div class="red-icon">什么叫赚钱的策略？</div>
+                </div>
+                <div class="msjsearch" style="padding:10px;">
+                     <p class="f14" style="line-height:25px;">赚钱的策略就是指您所查询的个股，在策略海中有如下策略曾经或现在持有，且收益为正的策略。</p> 
+                </div>
+                <div class="tmod-2">
+                <div class="red-icon">推荐策略</div>
+                </div>
+                <div class="ggcl">
+                   <a href="/stratdetail_tag.aspx?sid=26408" target="_blank"><img src="images/bwgx.jpg" width="242" height="102"></a>
+                   <a href="/stratdetail_tag.aspx?sid=25872" target="_blank"><img src="images/dxcy.jpg" width="242" height="102"></a>
+                   <a href="/stratdetail_tag.aspx?sid=25807" target="_blank"><img src="images/fyyq.jpg" width="242" height="102"></a>
+                   
+                </div>
+            </div>
+             <div class="clright mt20">
+            	<div class="tmod-2">
+                	<div class="red-icon">什么叫关注的策略？</div>
+                </div>
+                <div class="msjsearch" style="padding:10px;">
+                     <p class="f14" style="line-height:25px;">关注的策略就是指您所查询的个股，在如下策略的精选股票池中出现，且目前仍在关注中的策略。</p> 
+                </div>
+                <div class="tmod-2">
+                <div class="red-icon">推荐策略</div>
+                </div>
+                <div class="ggcl">
+                   <a href="/stratdetail_tag.aspx?sid=26206" target="_blank"><img src="images/gjljz.jpg" width="242" height="102"></a>
+                   <a href="/stratdetail_tag.aspx?sid=25803" target="_blank"><img src="images/jzj.jpg" width="242" height="102"></a>
+                   <a href="/stratdetail_tag.aspx?sid=25827" target="_blank"><img src="images/hfyq.jpg" width="242" height="102"></a>
+                   
+                </div>
+           </div>
+       </div>
+  </div>
+  </div>
+      <!--风险提示-->
+      <div class="tmod-1 mtop10">
+          	<p>风险提示</p>
+  </div>
+        <div class="clmod5">
+        	<p>在此页面及此网站的其他页面，您将会看到有关交易系统及其执行情况的介绍。</p>
+<p>这些结果是基于模拟或理论执行的结果，其必然存在一些内在的局限性和实际的执行记录显示的结果不同。这些结果并不代表实际的交易，同时因为这些交易并没有在现实中得以执行，这些结果，或许对任何可能的因素过度反应或反应不充分。总体来说，模拟的或理论的交易过程也受以下事实的影响及他们是依据事件发生之后产生的结论和影响进行设计的。对于所有的账户是否将会或是否有可能将会盈利或者损失其联系与我们正在展示的模型并不存在任何关系。</p>
+<p>在您订阅策略前，您必须同意对以下两点：</p>
+<p>1、您已经阅读并获悉这份警示内容，此警告内容适用于本网站的任何页面；<br>
+2、通过订阅策略，意味着您已认同过并且充分了解此警示内容。</p>
+        </div>
+</div>
+<!--footer-->
+<!--   底部    -->
+    
+<div class="footer mtop10"><!--  footer  begin-->
+      <div class="bottom ma">
+           <p class="wzlj"><a href="http://match.vip.hexun.com/Registration.aspx">报名参赛</a> - <a href="http://c.hexun.com/helpeCenter.aspx?aid=77">联系我们</a> - <a href="http://c.hexun.com/helpeCenter.aspx?aid=79">加入策略海</a> - <a href="http://c.hexun.com/helpeCenter.aspx?aid=76">关于我们</a></p>
+           <p class="hxfx">本站郑重声明：和讯公司系政府批准的证券投资咨询机构[ZX0005]。所载文章、数据仅供参考，使用前请核实，风险自负。</p>
+           <p class="mtop10">Copyright? 和讯网 和讯信息科技有限公司 ALL Rights Reserved 版本所有 复制必究</p>
+      
+      </div>
+</div>
+
+<script type="text/javascript">
+var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3F119f2e7b7e9592c4b75523650e9069f4' type='text/javascript'%3E%3C/script%3E"));
+</script><script src=" http://hm.baidu.com/h.js?119f2e7b7e9592c4b75523650e9069f4" type="text/javascript"></script>
+
+ <script type="text/javascript" src="http://utrack.hexun.com/track/track.js"></script><iframe src="http://utrack.hexun.com/ftrack.htm?calc_l=http%3A//c.hexun.com/MatchingStock.aspx%3Ffrom&amp;time=1491048785614&amp;calc_r=&amp;isiframed=2&amp;sflag=2" height="0" frameborder="0" width="0"></iframe>
+<!--量子统计代码：
+<script type="text/javascript" src="http://js.tongji.linezing.com/2869132/tongji.js"></script><noscript><a href="http://www.linezing.com"><img src="http://img.tongji.linezing.com/2869132/tongji.gif"/></a></noscript>
+-->
+<script type="text/javascript" src="../js/invitecode.js"></script>
+
+<!--   底部 end   -->
+
+
+
+<script type="text/javascript">
+//搜索框隐藏与显示提示文字
+	jQuery(".search").focus(function(){
+			  $(this).css("color","#333333");
+			  if($(this).val() ==this.defaultValue){  
+                  $(this).val("");           
+			  } 
+		}).blur(function(){
+			 if ($(this).val() == '') {
+				$(this).css("color","#e7e7e7");
+                $(this).val(this.defaultValue);
+				
+             }
+		});
+		
+
+</script>
+
+
+
+
+
+
+
+
+
+
+
+</body></html>

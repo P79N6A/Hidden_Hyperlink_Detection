@@ -1,0 +1,884 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head>
+                <title>Coremail专业邮件系统托管</title>
+                    <base href="http://c1.icoremail.net/coremail/cmcu_var/index_CorpEase.jsp">
+                
+                
+                
+                <link href="index_CorpEase/login.css" rel="stylesheet" type="text/css" charset="iso-8859-1">
+                <link href="index_CorpEase/secondAuth.css" rel="stylesheet" type="text/css" charset="iso-8859-1">
+                <script async="" src="//www.google-analytics.com/analytics.js"></script><script type="text/javascript" src="guideframe/js/jquery-1.8.2.min.js"></script>
+                <script type="text/javascript" src="index_CorpEase/login.js" charset="iso-8859-1"></script>
+                <script type="text/javascript" src="../common/assets/login/custom.js" charset="iso-8859-1"></script>
+                <script type="text/javascript" src="../common/assets/89628/js/pollstore.js" charset="iso-8859-1"></script>
+                <script type="text/javascript" src="../common/assets/89628/js/wsstore.js" charset="iso-8859-1"></script>
+                <script type="text/javascript" src="../common/assets/89628/js/socket.io.js" charset="iso-8859-1"></script>
+                <script type="text/javascript" src="../common/assets/89628/js/jquery.json.js" charset="iso-8859-1"></script>
+                <script type="text/javascript" src="../common/assets/89628/js/detector.js" charset="iso-8859-1"></script>
+                <script type="text/javascript" src="../common/assets/89628/js/sha1.js" charset="iso-8859-1"></script>
+                <script type="text/javascript" src="../common/assets/login/twofactorverify.js" charset="iso-8859-1"></script>
+
+                <script type="text/javascript" src="index_CorpEase/googleAnalytics.js" charset="iso-8859-1"></script>
+                <script type="text/javascript">
+                    var ma = new MA("UA-65835546-1", {});
+                    ma.sendPageView(window.location.host);
+                    function analytics() {
+                        ma.sendEvent(window.location.host, 'login', 'click', 1, 'index_CorpEase.jsp');
+                        var now = new Date();
+                        document.cookie = 'analytics_login_time=' + now.getTime() + ";path=/";
+                    }
+
+
+                    var msg_lookup_load_failed = "域名信息加载失败";
+                    var msg_unknown_email = "邮件帐号不存在";
+                    var msg_incomplete_email = "请输入完整的邮箱地址";
+                    var msg_empty_password = "请输入密码";
+
+                    var jQ = jQuery.noConflict();
+                    var languages = {
+'zh_CN':'简体中文',
+'zh_TW':'繁體中文',
+'en_US':'English',
+'ja':'日本語'};
+                    var ajc_locale = "zh_CN";
+
+                    if (!Function.prototype.bind) {
+                        Function.prototype.bind = function(oThis) {
+                            if (typeof this !== 'function') {
+                                // closest thing possible to the ECMAScript 5
+                                // internal IsCallable function
+                                throw new TypeError('Function.prototype.bind - what is trying to be bound is not callable');
+                            }
+
+                            var aArgs   = Array.prototype.slice.call(arguments, 1),
+                                fToBind = this,
+                                fNOP    = function() {},
+                                fBound  = function() {
+                                    return fToBind.apply(this instanceof fNOP
+                                                    ? this
+                                                    : oThis,
+                                            aArgs.concat(Array.prototype.slice.call(arguments)));
+                                };
+
+                            fNOP.prototype = this.prototype;
+                            fBound.prototype = new fNOP();
+
+                            return fBound;
+                        };
+                    }
+
+
+                    function initInput(){
+                        ipt_arr= ["uid", "domain", "password","verifyCode"];
+                        var input;
+                        for (var i= 0; i < ipt_arr.length; i++) {
+                            input = document.getElementById(ipt_arr[i]) || document.getElementsByName(ipt_arr[i])[0];
+                            if (input == null) {
+                                continue;
+                            }
+                            if(!("placeholder" in document.createElement("input"))){ //??????????placeholder????????
+                                input.focus();
+                            }
+                        }
+                    }
+
+                    var isLowerThanIE8andCompatible = function(){
+                        var ua = navigator.userAgent;
+                        var regular = "MSIE ";
+                        var rIndex = ua.indexOf(regular);
+                        var IEIndex = rIndex>-1?(rIndex+regular.length):0;
+                        var IEVersion = IEIndex?parseFloat(navigator.userAgent.slice(IEIndex, IEIndex+3)):0;
+                        return IEVersion >= 8.0?false:(ua.indexOf("compatible")>-1);
+                    };
+
+                    function switchLoginForm(isAdmin) {
+                        this.className = '';
+                        var userLoginTab = document.getElementById('userLoginTab');
+                        var adminLoginTab = document.getElementById('adminLoginTab');
+                        var form = jQ("#loginForm");
+                        if (form.hasClass('inTwoFactorVerify')) {
+                            return false;
+                        }
+                        if (isAdmin) {
+                            userLoginTab.className = 'inactiveUser';
+                            adminLoginTab.className = 'active';
+                            document.forms[0].action = "http://c1.icoremail.mt:9900/webadmin/login.jsp";
+                            document.getElementById('webmailIndexUrl').value = location.href;
+                            if(!jQ.trim(jQ(".Error").text())){
+                                jQ('.Error').text(decodeURIComponent(''));
+                            }
+                        } else {
+                            userLoginTab.className = 'active';
+                            adminLoginTab.className = 'inactiveAdmin';
+                            document.forms[0].action = "/coremail/index.jsp";
+                        }
+                        jQ(".Error").text("");
+                    }
+                    var doResize = function(){
+                        var HeadHeight = jQ(".Head").height();
+                        var MainHeight = jQ("#main").height();
+                        var footerHeight = jQ('.footer').height();
+                        var wHeight = window.innerHeight;
+                        var bHeight = document.body.clientHeight;
+                        var sHeight = document.body.scrollHeight;
+                        var mainHeight = Math.max(wHeight || 0, bHeight || 0, sHeight || 0);
+
+                        if(HeadHeight + MainHeight + footerHeight + 10 < mainHeight){
+                            jQ(".contact").css("margin-bottom", (50+mainHeight-HeadHeight-MainHeight-footerHeight)+"px");
+                            if(isLowerThanIE8andCompatible()){
+                                document.body.style.overflowY = "hidden";
+                            }
+                        }
+                        else {
+                            document.body.height = HeadHeight + MainHeight + footerHeight + 10;
+                        }
+                    };
+
+                    var showDel = function(){
+                        var delEle = jQ(this).next();
+                        if(jQ.trim(jQ(this).val())){
+                            if(isLowerThanIE8andCompatible()){
+                                delEle.css({
+                                    display: "block",
+                                    top: "-34px"
+                                })
+                            }
+                            else delEle.css("display", "block");
+                        }
+                        else {
+                            delEle.css("display", "none");
+                        }
+                    };
+
+                    window.onload = function(){
+                        doResize();
+                        if(ajc_locale == 'ja'){
+                            jQ("#logArea .options").css("width","228px");
+                        }
+                        var cookieValue = getCookie("locale");
+                        if (cookieValue) {
+                            if (cookieValue.indexOf("en_") == -1
+                                        && cookieValue.indexOf("zh_") == -1
+                                    && cookieValue.indexOf("ja") == -1) {
+                                changeLocale("zh_CN");
+                            }
+                        }
+
+                        initInput();
+                        showDel.call(document.getElementById('uid'));
+                        showDel.call(document.getElementById('password'));
+
+                        if(isLowerThanIE8andCompatible()){
+                            jQ(".footer .versionPanel .content .version .word").removeClass("word").addClass("wordForIE");
+                            jQ(".download").each(function(){
+                                var top =  parseInt(jQ(this).css("top"));
+                                jQ(this).css("top", top+24);
+                            })
+                        }
+                        if(jQ.trim(document.getElementById("uid").value)){
+                            jQ("#password").focus();
+                        }
+                        else {
+                            jQ("#uid").focus();
+                        }
+
+                        document.getElementById("savePwd").children[0].className = "rememberPwd " + (document.getElementById("saveUsername").checked?"checked":"unChecked");
+                        if(document.getElementById("SSL")) {
+                            document.getElementById("SSL").children[1].className = "SSL " + (document.getElementsByName("useSSL")[0].checked?"checked":"unChecked");
+                        }
+                        for(var lang in languages){
+                            if(lang == document.getElementById("locale").value){
+                                jQ("#languageName").text(languages[lang]);
+                                break;
+                            }
+                        }
+
+                        (document.getElementById("vcImage") || {}).onclick = function() {
+                            this.src = this.src.replace(/&rand=[\w\-\.]+/, '&rand=' + Math.random());
+                        };
+                        (document.getElementById("vcHint") || {}).href = "javascript:document.getElementById('vcImage').onclick();";
+
+                        if(jQ("#logArea").height() < jQ("#loginForm").height()){
+
+                            jQ(".MainFooter").addClass("hidden");
+
+                        }
+
+                        
+                    };
+
+                    window.onresize = doResize;
+
+                    document.onkeydown = function(e){
+                        e = e || window.event;
+                        if(e.keyCode == 13){
+                            jQ("#loginForm").submit();
+                        }
+                    }
+                    function indexLocaleSelect(){
+                        var html = "<div class=\"arrow\"></div><div class=\"items\">";
+                        
+                        
+                        
+                        
+                        
+                        html = html +
+                               "<div class=\"item\" onmousedown=\"changeLocale('zh_CN', '简体中文'); return false;\">简体中文</div>";
+                        
+                        
+                        
+                        html = html +
+                               "<div class=\"item\" onmousedown=\"changeLocale('zh_TW', '繁體中文'); return false;\">繁體中文</div>";
+                        
+                        
+                        
+                        html = html +
+                               "<div class=\"item\" onmousedown=\"changeLocale('en_US', 'English'); return false;\">English</div>";
+                        
+                        
+                        
+                        html = html +
+                               "<div class=\"item\" onmousedown=\"changeLocale('ja', '日本語'); return false;\">日本語</div>";
+                        
+
+                        html = html + "</div>";
+                        return html;
+                    }
+                    var markme_msg = "请按 Ctrl+D 收藏本页";
+                    var secondAuthPage = '<div class="auth-body j-auth-body">\r\n  <div class="otp-verify-wrap j-otp-verify"></div>\r\n</div>\r\n<div class="verify-code-wrap j-verify-code f-dn"></div>\r\n<div class="auth-footer j-auth-footer">\r\n  <div class="Btns">\r\n    <button class="cancel j-back">\r\n      {fmt_back}\r\n    </button>\r\n    <button class="confirm j-confirm">\r\n      {fmt_confirm}\r\n    </button>\r\n  </div>\r\n</div>\r\n\r\n<script type="text/x-xto-template" id="verifyCodeTpl">\r\n  <div class="pageCode">\r\n    <div class="code">\r\n      <input class="u-input j-vc-verify-code" type="text" maxlength="{validCodeLength}" autocomplete="off"/>\r\n    </div>\r\n    <div class="vcImageTR">\r\n      <img src="{vcImageSrc}" title="{fmt_vcHint}"/>\r\n    </div>\r\n    <a href="javascript:void(0);" class="vcHint">{fmt_vcHint}</a>\r\n  </div>\r\n<'+'/script>\r\n\r\n<script type="text/x-xto-template" id="otpPushVerifyTpl">\r\n  <div class="title">\r\n    {fmt_twoFactorAuth_dynamic2_push_verify_desc}\r\n  </div>\r\n  <div class="content-txt">\r\n    {fmt_twoFactorAuth_dynamic2_push_verify_desc_sub}\r\n  </div>\r\n  <a class="verify-toggle j-toggle" href="javascript:void(0)">{fmt_twoFactorAuth_dynamic2_verify_tocode}</a>\r\n  <!--<p class="error j-error f-dn">{fmt_twoFactorAuth_dynamic2_push_verify_error}</p>-->\r\n<'+'/script>\r\n\r\n<script type="text/x-xto-template" id="otpCodeVerifyTpl">\r\n  <div class="title">\r\n    {fmt_twoFactorAuth_dynamic2_code_verify_desc}\r\n  </div>\r\n  <div class="codeInput">\r\n    <input type="text" maxlength="6" class="j-code" />\r\n  </div>\r\n  <a class="verify-toggle j-toggle" href="javascript:void(0)">{fmt_twoFactorAuth_dynamic2_verify_topush}</a>\r\n  <!--<p class="error j-error f-dn">{error_other}</p>-->\r\n<'+'/script>\r\n'.replace(/.*\<!-- BEGIN_LOGIN_PAGE --\>/, "");
+                    var forget_url = "";
+                    CUS.setDaliySentence("");
+                    CUS.setUSBKeyLogin(true);
+                    CUS.setDomainList(eval([]), "");
+                    CUS.setEnableSSL(true, false);
+                    CUS.setEnableVerifyCode(false);
+                    CUS.setEnableVerifyCell();
+                    
+                    
+                    
+                    
+                    CUS.setEnablePwdReset(false);
+                    
+                    
+                    CUS.setEnableRegistUser(false);
+                    CUS.setNeedDynamicPwd();
+                    CUS.setLocale("zh_CN");
+                    CUS.setLocaleLanName("简体中文");
+                    CUS.setErrorInfo("", "");
+                    var pageTips = {
+                        fmt_webadmin : "管理员入口",
+                        fmt_homepage : "设为首页",
+                        fmt_bookmark : "收藏本页",
+                        fmt_helpIndex: "帮助",
+                        fmt_logoAlt: "Coremail 电子邮件系统",
+                        fmt_loginTitle: "企业邮箱登录",
+                        fmt_adminLoginTitle: "管理员登录",
+                        fmt_corpease: "企业官网",
+                        fmt_loginLanguage: "Language",
+                        fmt_vcHint: "换一张",
+                        fmt_sendVcCell: "获取动态密码",
+                        fmt_saveuidLocally: "记住用户名",
+                        fmt_useSsl: "SSL 安全登录",
+                        fmt_loginBT: "登录",
+                        fmt_forgottenPWD: "忘记密码？",
+                        fmt_regist: "马上注册",
+                        fmt_dynamicPWD: "忘记密码?",
+                        fmt_adIphone: "移动办公",
+                        fmt_adTemplate: "全新风格",
+                        fmt_adMultiSecurity: "多重密保",
+                        fmt_adCalendar: "会议与日程",
+                        fmt_copyright: "Coremail. &copy; Copyright 2000 - 2016 Mailtech.",
+                        fmt_localeName: "简体中文",
+                        fmt_uid: "用户名",
+                        fmt_password: "密   码",
+                        fmt_dynamicPwd: "动态口令",
+                        fmt_verifyCode: "验证码",
+                        fmt_loginSendVcCell: "获取动态密码",
+                        fmt_dynamicPasswordLogin: "忘记密码?",
+                        fmt_download:"下载中心",
+                        lunkr_pc:"PC",
+                        fmt_plug:"通讯录插件",
+                        fmt_android:"Android下载",
+                        fmt_ios:"iOS下载",
+                        fmt_flashMail:"闪电邮下载",
+                        fmt_flashMail_tip:"日程与会议/企业通讯录",
+                        fmt_window:"Windows版本下载",
+                        lunkr_ios:"iOS",
+                        lunkr_android:"Android",
+                        fmt_contact:"适用于 Outlook、Foxmail",
+                        fmt_contactTip:"同步企业通讯录/日程同步",
+                        coremail_lunkr:"Coremail论客",
+                        coremail_flashMail:"Cormail闪电邮",
+                        coremail_help:"Coremail安全助手",
+                        fmt_list:"插件下载",
+                        fmt_back:"返回",
+                        fmt_confirm:"确定",
+
+                        fmt_twoFactorAuth_dynamic2_push_verify_desc:"授权信息已发至验证App，请查看确定！",
+                        fmt_twoFactorAuth_dynamic2_push_verify_desc_sub:"未收到推送信息，可能是网络延迟，请检查手机网络环境，或者选择验证码授权，如果验证失败，请联系管理员。",
+                        fmt_twoFactorAuth_dynamic2_verify_tocode:"验证码授权",
+                        fmt_twoFactorAuth_dynamic2_push_verify_error:"授权信息确认失败",
+                        fmt_twoFactorAuth_dynamic2_code_verify_desc:"请输入从验证App 获取的6位数验证码：",
+                        fmt_twoFactorAuth_dynamic2_verify_topush:"授权信息推送",
+
+
+                        helpIndexURL : "http://www.icoremail.cn/service.html",
+                        actionURL : "/coremail/index.jsp?cus=1",
+                        passwordResetURL: forget_url,
+                        registerURL: "",
+                        dynamicPasswordLoginUrl: forget_url,
+                        vcImageSrc: "",
+
+                        param_pwd : "",
+                        param_dynamicPwd : "",
+                        param_uid : "",
+                        param_locale: "zh_CN",
+                        param_nodetect: "false",
+
+                        dynamicPwd_reset: "0",
+                        localeSelectHtml: indexLocaleSelect,
+                        domainSelectHtml: CUS.buildDomain,
+                        errorInfoHtml : CUS.showError,
+
+                        validCodeLength: "4",
+                        error_other: ""
+                    };
+
+
+                    jQ.each( pageTips, function(i, n){
+                        secondAuthPage=secondAuthPage.replace(new RegExp("\\{" + i + "\\}", "g"), n);
+                    });
+
+                </script>
+                
+                
+                <script type="text/javascript">
+                    var SYS_CONST = {
+                        primaryDomain: "corpease.net",
+                        wsConfig: {
+                            enable: true,
+                            host: "http://c1.icoremail.net"
+                        },
+                        empty_error: null,
+                        error_other: null,
+                        twoFactorAuthMeta: {
+                            empty_error: null,
+                            error_other: null,
+                            needVerifyCode: false,
+                            emptyVerifyCodeMsg: "请输入验证码",
+                            
+                            sms: false,
+                            dynamic1: false,
+                            dynamic2: false
+                        }
+                    };
+                 </script>
+            </head>
+            <body style=" overflow: auto">
+                <div class="Head">
+                    <div class="Logo" onclick="location.href='http://www.coremail.cn/index.aspx';"></div>
+                    <div class="Links">
+                        <a target="_blank" href="http://www.coremail.cn/rmwt2/list_109.aspx">
+                            帮助中心</a>
+                        <span>
+                            <a href="http://www.coremail.cn/index.aspx" target="_blank">
+                                企业官网</a>
+                        </span>
+                    </div>
+                </div>
+
+                <div id="main">
+                    <div class="Main">
+                        <div class="MainContent">
+                            <a class="bgclick" href="http://www.coremail.cn/lunkr/info_138.aspx?itemid=1605" target="_blank"></a>
+                            <div class="MainR">
+                                <div class="Header">
+                                    <div class="active" onclick="switchLoginForm()" id="userLoginTab">
+                                        企业邮箱登录</div>
+                                    <div class="inactiveAdmin" onclick="switchLoginForm(true)" id="adminLoginTab">
+                                        管理员登录</div>
+                                </div>
+                                <div id="logArea" class="styleC1-C7">
+                                    <div class="user-twofactor-verify-wrap j-twofactor-verify-wrap f-dn"></div>
+                                    <form id="loginForm" method="post" action="http://c1.icoremail.net/coremail/index.jsp" onsubmit="return loginSubmit(this, event);">
+                                        <input type="hidden" id="webmailIndexUrl" name="webmailIndexUrl">
+                                        <input type="hidden" name="supportLoginDevice" value="true">
+                                        <input type="hidden" name="accessToken" class="j-access-token" value="">
+                                        <input type="hidden" name="timestamp" class="j-timestamp" value="">
+                                        <input type="hidden" name="signature" class="j-signature" value="">
+                                        <input type="hidden" name="nonce" class="j-nonce" value="">
+                                        <input type="hidden" name="device" class="j-device" value="">
+                                        <input type="hidden" name="supportDynamicPwd" value="true">
+                                        <div class="languagePanel">
+                                            <div class="language">
+                                                <s>                   </s>
+                                                <div id="languageOptions" class="languageOptions" tabindex="0">
+                                                    <div id="languageLabel">
+                                                        Language:</div>
+                                                    <div id="languageName">简体中文</div>
+                                                    <div id="arrow">
+                                                        <img src="index_CorpEase/arrow.png">
+                                                    </div>
+                                                </div>
+                                                <div class="languages">
+                                                    <div class="arrow"></div>
+                                                    <div class="items">
+                                                        
+                                                            <div class="item" id="zh_CN">简体中文</div>
+                                                        
+                                                            <div class="item" id="zh_TW">繁體中文</div>
+                                                        
+                                                            <div class="item" id="en_US">English</div>
+                                                        
+                                                            <div class="item" id="ja">日本語</div>
+                                                        
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="inptr">
+                                            <div class="blank" style="border: 1px solid rgb(100, 171, 219); ">
+                                                <div class="img">
+                                                    <img src="index_CorpEase/user.png">
+                                                </div>
+                                                <input type="text" id="uid" name="uid" value="" placeholder="用户名" autocomplete="off">
+                                                <div class="delete" style="display: none; "></div>
+                                                <input type="hidden" name="nodetect">
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="inptr" id="inpDomain">
+                                            <div class="blank">
+                                                <div class="img">
+                                                    <img src="index_CorpEase/domain.png">
+                                                </div>
+                                                <div class="inpDomain inpDomainExt">
+                                                    <input type="text" placeholder="域　名" id="domain" name="domain" style="float: left; display: inline;" value="">
+                                                    
+                                                        <div class="delete"></div>
+                                                    
+                                                </div>
+                                                
+                                            </div>
+                                            
+                                        </div>
+
+                                        <div class="inptr">
+                                            <div class="blank" style="position: relative;">
+                                                <div class="img">
+                                                    <img src="index_CorpEase/password.png">
+                                                </div>
+                                                <input type="password" id="password" name="password" placeholder="密   码" autocomplete="off" value="">
+                                                <div class="delete" style="display: none; "></div>
+                                            </div>
+                                        </div>
+
+                                        
+
+                                        
+
+                                        
+
+                                        <div class="options">
+                                            <div id="savePwd">
+                                                <div class="rememberPwd unChecked"></div>
+                                                <div class="rememberPwd">
+                                                    &nbsp;记住用户名</div>
+                                            </div>
+                                            
+                                                <div id="SSL">
+                                                    <div class="SSL">
+                                                        &nbsp;SSL 安全登录</div>
+                                                    <div class="SSL unChecked"></div>
+                                                </div>
+                                                <input name="useSSL" type="checkbox" style="display: none">
+                                                <input type="hidden" id="defaultSSLHost" value="c1.icoremail.net">
+                                            
+                                            <input id="saveUsername" name="saveUsername" type="checkbox" style="display: none">
+                                        </div>
+
+                                        <input type="hidden" name="verifycookie" value="1">
+                                        <input type="hidden" name="forceCookieCheck" value="1">
+                                        <input type="hidden" name="webprefix" value="@login">
+                                        <input type="hidden" id="locale" name="locale" value="zh_CN">
+
+                                        <div class="inptr">
+                                            <div class="button" tabindex="0" onclick="analytics();">
+                                                登录</div>
+                                            <input type="hidden" name="action:login">
+                                        </div>
+
+                                        
+
+                                        <div class="inptr" style="height: auto; overflow: hidden">
+                                            <div class="Error">
+                                                
+                                                    
+                                                    
+                                                
+                                            </div>
+                                        </div>
+
+                                    </form>
+                                </div>
+                                <div class="MainFooter">
+                                    <div class="content">
+                                        <div class="block">
+                                            <img src="index_CorpEase/authentication03.png" onclick="window.open('http://www.coremail.cn/ryzz/index_67.aspx');">
+                                        </div>
+                                        <div class="block">
+                                            <img src="index_CorpEase/authentication02.png" onclick="window.open('http://www.coremail.cn/ryzz/index_67.aspx');">
+                                        </div>
+                                        <div class="block">
+                                            <img src="index_CorpEase/authentication01.png" onclick="window.open('http://www.coremail.cn/ryzz/index_67.aspx');">
+                                        </div>
+                                        <div class="block">
+                                            国家级<br>安全认证
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="footer">
+                    <div class="versionPanel">
+                        <div class="content">
+                            <div id="ios" class="version">
+                                <div class="affected">
+                                    <div class="avatar"></div>
+                                    <div class="word">iPhone</div>
+                                    <div class="download" id="iosPanel">
+                                        <div class="main">
+                                            <div class="pic">
+                                                <img src="index_CorpEase/lunkr_qr.png">
+                                            </div>
+                                            <div class="link" style="margin: 10px 20px 20px 20px;">
+                                                <a href="http://www.lunkr.cn/download.html?p=ios" target="_blank" style="display: block">
+                                                <div class="icon"></div>
+                                                <div class="msg">
+                                                    <span>iOS下载</span>
+                                                </div>
+                                                </a>
+                                            </div>
+                                        </div>
+                                        <div class="arrow"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="android" class="version">
+                                <div class="affected">
+                                    <div class="avatar"></div>
+                                    <div class="word">Android</div>
+                                    <div class="download" id="androidPanel">
+                                        <div class="main">
+                                            <div class="pic">
+                                                <img src="index_CorpEase/lunkr_qr.png">
+                                            </div>
+                                            <div class="link" style="margin: 10px 20px 20px 20px;">
+                                                <a href="http://www.lunkr.cn/download.html?p=android" target="_blank" style="display: block">
+                                                <div class="icon">
+                                                </div>
+                                                <div class="msg">
+                                                    <span>Android下载</span>
+                                                </div>
+                                                </a>
+                                            </div>
+                                        </div>
+                                        <div class="arrow"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="windows" class="version">
+                                <div class="affected">
+                                    <div class="avatar"></div>
+                                    <div class="word">Windows</div>
+                                    <div class="download" id="windowsPanel">
+                                        <div class="main">
+                                            <div class="link" style="margin: 20px 20px 5px 20px;">
+                                                <a href="http://www.lunkr.cn/download.html?p=pc" target="_blank" style="display: block">
+                                                <div class="icon first">
+                                                </div>
+                                                <div class="msg">
+                                                    <span>IM下载</span>
+                                                </div>
+                                                </a>
+                                            </div>
+                                            <div class="link" style="margin: 5px 20px 20px 20px;">
+                                                <a href="http://software.icoremail.net/flashmail/download.html" target="_blank" style="display: block">
+                                                <div class="icon second">
+                                                </div>
+                                                <div class="msg">
+                                                    <span>Mail下载</span>
+                                                </div>
+                                                </a>
+                                            </div>
+                                        </div>
+                                        <div class="arrow"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="more" class="version">
+                                <div class="affected">
+                                    <div class="avatar"></div>
+                                    <div class="word">插件</div>
+                                    <div class="download" id="morePanel">
+                                        <div class="main" style="padding-bottom: 20px;">
+                                            <div class="link" style="margin: 20px 20px 5px 20px;">
+                                                <a href="http://software.icoremail.net/coremail-plugin/download.html" target="_blank" style="display: block">
+                                                <div class="icon">
+                                                </div>
+                                                <div class="msg">
+                                                    <span>通讯录插件下载</span>
+                                                </div>
+                                                </a>
+                                            </div>
+                                            <br>
+                                            <span style="font-size: 12px;color: #4c4c4c">适用于Outlook、Foxmail</span>
+                                        </div>
+                                        <div class="arrow"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="contact">
+                        <div class="content">
+                            <div class="wechat">
+                                <div class="icon">
+                                    <img src="index_CorpEase/QRCode01.png">
+                                </div>
+                                <div class="word">微信客服</div>
+                            </div>
+                            <div class="separater"></div>
+                            <div class="phoneIcon">
+                                <img src="index_CorpEase/Telephone.png">
+                            </div>
+                            <div class="phone">购买咨询：400-000-1631</div>
+                        </div>
+                    </div>
+                    <div class="copyright">
+                        <a href="http://www.coremail.cn" target="_blank">  Coremail 版权所有© 2002-2016</a>
+                        <a href="http://www.miitbeian.gov.cn/" target="_blank">  | 粤ICP备10201174号</a>
+                    </div>
+                </div>
+
+                <script type="text/javascript">
+                    (function () {
+                        var inputArray = ["uid", "domain", "locale", "useSSL", "saveUsername"];
+
+                        (function () {
+                            for (var i = 0; i < inputArray.length; i++) {
+                                var input = getElement(inputArray[i]);
+                                if (input == null) {
+                                    continue;
+                                }
+
+                                if ((input.type != "text") || (getValue(input) == "")) {
+                                    var cookieValue = getCookie(input.name);
+                                    if (cookieValue) {
+                                        setValue(input, cookieValue);
+                                    }
+                                }
+
+                            }
+
+                        })();
+
+                        function getElement(name) {
+                            return document.getElementsByName(name)[0];
+                        }
+
+                        function getValue(input) {
+                            if (input.type == "checkbox") {
+                                return input.checked ? "1" : "0";
+                            } else {
+                                return input.value;
+                            }
+                        }
+
+                        function setValue(input, value) {
+                            if (input.type == "checkbox") {
+                                input.checked = (value == "1");
+                            } else {
+                                input.value = value;
+                            }
+                        }
+
+                    })();
+
+
+                    var showLanguages = function(show) {
+                        var e = jQ(".languages");
+                        if (e.css("display") == 'none' && show) {
+                            e.css("display", "block");
+                        }
+                        else {
+                            e.css("display", "none");
+                        }
+                    };
+                    jQ(".languageOptions").hover(function(){
+                        var arrowSrc = jQ("#arrow img").attr("src");
+                        jQ("#arrow img").attr("src", arrowSrc.replace(".png", "_hover.png"));
+                    }, function(){
+                        var arrowSrc = jQ("#arrow img").attr("src");
+                        jQ("#arrow img").attr("src", arrowSrc.replace("_hover.png", ".png"));
+                    }).click(showLanguages.bind({}, true)).blur(showLanguages.bind({}, false));
+
+                    jQ.fn.allTimeChange = function(callback){
+                        callback.call(this);
+                        setTimeout(arguments.callee.bind(this, callback), 100);
+                        return this;
+                    };
+                    var isPlaceholderSupported = "placeholder" in document.createElement("input");
+                    jQ(".inptr .blank input").focus(function(){
+                        if(this.id != "domain"){
+                            this.parentNode.style.border="1px solid #64abdb";
+                        }
+
+                        if(!isPlaceholderSupported && (jQ.trim(this.value) == jQ.trim(jQ(this).attr("placeholder")) || !jQ.trim(this.value)) ) {
+                            this.value = "";
+                            this.style.color = "#000";
+                            if(this.type=="password"){
+                                var pwdPlaceholder = document.getElementById("pwdPlaceholder");
+                                if(!pwdPlaceholder){
+                                    var _this = jQ(this);
+                                    pwdPlaceholder = document.createElement("div");
+                                    pwdPlaceholder.id = "pwdPlaceholder";
+                                    pwdPlaceholder.appendChild(document.createTextNode(_this.attr("placeholder")));
+                                    pwdPlaceholder.style.top = "0";
+                                    pwdPlaceholder.style.left = parseInt(_this.position().left) + "px"; //ie9????position().left??????????????????px
+                                    pwdPlaceholder.style.color = "#999";
+                                    pwdPlaceholder.style.backgroundColor = "#FFFFFF";
+                                    pwdPlaceholder.style.position = "absolute";
+                                    pwdPlaceholder.style.height = _this.height() + "px";
+                                    pwdPlaceholder.style.lineHeight = _this.height() + "px";
+                                    pwdPlaceholder.style.fontSize = _this.css("font-size");
+                                    pwdPlaceholder.style.fontWeight = _this.css("font-weight");
+                                    pwdPlaceholder.onclick = function(){
+                                        _this.focus();
+                                    }
+                                    this.style.backgroundColor = "transparent";
+                                    _this.before(pwdPlaceholder);
+                                }
+                                pwdPlaceholder.style.display = "none";
+                            }
+                        }
+                        showDel.bind(this)();
+                    }).blur(function(){
+                        this.parentNode.style.border='1px solid #ffffff';
+                        if(!isPlaceholderSupported && !jQ.trim(this.value)) {
+                            if(this.type=="password"){
+                                var pwdPlaceholder = document.getElementById("pwdPlaceholder");
+                                if(pwdPlaceholder){
+                                    pwdPlaceholder.style.display = "block";
+                                }
+                            }
+                            else {
+                                this.value = jQ.trim(jQ(this).attr("placeholder"));
+                                this.style.color = "#999";
+                            }
+                        }
+                    }).keydown(showDel).next().click(function(){
+                        jQ(this).prev().focus().val('');
+                        showDel.bind(jQ(this).prev()[0])();
+
+                    });
+
+
+                    jQ("#logArea .options #savePwd,#SSL").click(function(){
+                        var e = jQ(this).children(".unChecked, .checked");
+                        if(e.hasClass('checked')) {
+                            e.removeClass("checked").addClass("unChecked");
+                            if(e.hasClass('rememberPwd')) {
+                                document.getElementById("saveUsername").checked = false;
+                                setCookie("saveUsername", 0);
+                            }
+                            else {
+                                document.getElementsByName("useSSL")[0].checked = false;
+                                setCookie("useSSL", 0);
+                            }
+                        }
+                        else {
+                            e.removeClass("unChecked").addClass("checked");
+                            if(e.hasClass('rememberPwd')) {
+                                document.getElementById("saveUsername").checked = true;
+                                setCookie("saveUsername", 1);
+                            }
+                            else {
+                                document.getElementsByName("useSSL")[0].checked = true;
+                                setCookie("useSSL", 1);
+                            }
+                        }
+                    });
+
+                    jQ(".button").click(function(){
+                        jQ(this).parents('form').submit();
+                    });
+
+                    jQ(".affected").hover(function(){
+                        this._to = setTimeout((function() {
+                            var ele = jQ(this);
+                            var img = ele.children("img");
+                            ele.children(".word, .wordForIE").css("color", "#3598db");
+                            ele.children(".download").css("display", "block");
+                            if (document.documentMode > 8) {
+                                ele.css("display", "block");
+                                var download = ele.children(".download");
+                                var downloadWidth = download.width();
+                                download.css("left", (250 - downloadWidth) / 2);
+                            }
+                        }).bind(this), 100);
+                    }, function(){
+                        clearTimeout(this._to);
+                        var ele = jQ(this);
+                        var img = ele.children("img");
+                        ele.children(".word, .wordForIE").css("color", "#698a9b");
+                        ele.children(".download").css("display", "none");
+                    });
+
+
+                    jQ(".languages .items .item").mousedown(function(){
+                        var lang = this.id;
+                        jQ("#languageName").text(languages[lang]);
+                        document.getElementById("locale").value = lang;
+                        if(languages[lang] !== undefined){
+                            changeLocale(lang);
+                        }
+                    });
+
+                    jQ("#uid").change(function(){
+                        if(document.getElementById('userLoginTab').className == "active"){
+                            window.uid = this.value;
+                        }
+                        else {
+                            window.adminid = this.value;
+                        }
+                    });
+
+                    jQ(document.body).click(function () {
+                        fadeOutElement(jQ(".domainPanel").get(0));
+                    });
+
+                    if (!jQ(".below_submit.options").children().length) {
+                        jQ(".below_submit.options").remove();
+                    }
+
+                    if (SYS_CONST.twoFactorAuthMeta.dynamic2) {
+                        jQ(".j-twofactor-verify-wrap").html(secondAuthPage);
+                        twoFactorVerify.initVerify({
+                            authData: SYS_CONST.twoFactorAuthMeta,
+                            $authWrap: jQ('.j-twofactor-verify-wrap'),
+                            $loginForm: jQ('#loginForm'),
+                            $userLoginTab: jQ('#userLoginTab'),
+                            $adminLoginTab: jQ('#adminLoginTab')
+                        });
+                    }
+                </script>
+
+            
+        
+    
+
+</body></html>

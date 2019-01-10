@@ -1,0 +1,384 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+ <head> 
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+  <title>用户评论：2014LG将加速普及OLED电视</title> 
+  <link href="/templets/default/style/dedecms.css" rel="stylesheet" media="screen" type="text/css" /> 
+  <script language="javascript" type="text/javascript" src="/include/dedeajax2.js"></script> 
+  <script language="javascript">
+function postBadGood(ftype,fid)
+{
+	var taget_obj = document.getElementById(ftype+fid);
+	var saveid = GetCookie('badgoodid');
+	if(saveid != null)
+	{
+		 var saveids = saveid.split(',');
+		 var hasid = false;
+		 saveid = '';
+		 j = 1;
+		 for(i=saveids.length-1;i>=0;i--)
+		 {
+		 	  if(saveids[i]==fid && hasid) continue;
+		 	  else {
+		 	  	if(saveids[i]==fid && !hasid) hasid = true;
+		 	  	saveid += (saveid=='' ? saveids[i] : ','+saveids[i]);
+		 	  	j++;
+		 	  	if(j==10 && hasid) break;
+		 	  	if(j==9 && !hasid) break;
+		 	  }
+		 }
+     if(hasid) { alert('您刚才已表决过了喔！'); return false; }
+     else saveid += ','+fid;
+		 SetCookie('badgoodid',saveid,1);
+	}
+	else
+	{
+		SetCookie('badgoodid',fid,1);
+	}
+	//document.write("feedback.php?action="+ftype+"&fid="+fid);
+	//return;
+  myajax = new DedeAjax(taget_obj,false,false,'','','');
+  myajax.SendGet2("feedback.php?aid=1444&action="+ftype+"&fid="+fid);
+  DedeXHTTP = null;
+}
+
+function ajaxFeedback(aid, fid, type)
+{
+	
+	var taget_obj = $DE('ajaxfeedback_'+fid);
+	if(taget_obj.innerHTML == '')
+	{
+		var myajax = new DedeAjax(taget_obj, true, true, '', 'x');
+		myajax.SendGet2("/plus/feedback.php?aid="+aid+"&fid="+fid+"&action=quote&type=ajax");
+		eval('var result = typeof CKEDITOR.instances.msg_'+fid);
+		if(result != 'undefined')
+		{
+			// 删除实例
+			eval('var edit = CKEDITOR.instances.msg_'+fid);
+			CKEDITOR.remove(edit);
+		}
+		CKEDITOR.replace(document.getElementById('msg_'+fid) , CKEDITOR.instances.msg.config);
+		scroll(0, taget_obj.offsetTop - 120);
+		var formname = 'f = document.ajaxfeedback_'+fid;
+		eval(formname);
+		if(f.validate)
+		{
+			if($DE('vdimg_'+fid)) $DE('vdimg_'+fid).src = "/include/vdimgck.php?"+f.validate.value;
+			f.validate.value = '';
+		}
+		
+		DedeXHTTP = null;
+	}
+}
+
+function ajaxQuotePost(fid)
+{
+	var formname = 'f = document.ajaxfeedback_'+fid;
+	eval(formname);
+	//var f = document.formname;
+	//var f = f[0];
+	var nvalidate = '';
+	var nnotuser = '';
+	var nusername = '';
+	var npwd = '';
+	var taget_obj = $DE('commetcontentNew');
+	var waithtml = "<div style='line-height:30px'><img src='/images/loadinglit.gif' />正在发送中...</div>";
+	eval('var msg = CKEDITOR.instances.msg_'+fid+'.getData()');
+
+	if(f.validate)
+	{
+		if(f.validate.value=='') {
+			alert("请填写验证码！");
+			return;
+		}
+		else {
+			nvalidate = f.validate.value;
+		}
+	}
+	var myajax = new DedeAjax(taget_obj, false, true, '', '', waithtml);
+	
+	if(f.notuser.checked) nnotuser = '1';
+	if(f.username) nusername = f.username.value;
+	if(f.pwd) npwd = f.pwd.value;
+	
+	myajax.sendlang = 'utf-8';
+	myajax.AddKeyN('dopost', 'send');
+	myajax.AddKeyN('aid', '1444');
+	myajax.AddKeyN('fid', f.fid.value);
+	myajax.AddKeyN('type', 'ajax');
+	myajax.AddKeyN('comtype', f.comtype.value);
+	myajax.AddKeyN('isconfirm','yes');
+	
+	myajax.AddKeyN('typeid', f.typeid.value);
+	myajax.AddKeyN('quotemsg', f.quotemsg.value);
+	myajax.AddKeyN('validate', nvalidate);
+	myajax.AddKeyN('notuser', nnotuser);
+	myajax.AddKeyN('username', nusername);
+	myajax.AddKeyN('pwd', npwd);
+	myajax.AddKeyN('msg', msg);
+	myajax.SendPost2('/plus/feedback_ajax.php');
+	//alert(f.quotemsg.value);
+	if($DE('ajaxfeedback_'+fid).innerHTML != null)
+	{
+		$DE('ajaxfeedback_'+fid).innerHTML = '';
+	}
+	scroll(0, taget_obj.offsetTop);
+	taget_obj.removeAttribute('id');
+
+}
+</script> 
+ </head>
+ <body class="commentpage"> 
+  <div class="header"> 
+   <div class="top w960 center"> 
+    <div class="title"> 
+     <h1><a href="http://szeiia.com" title="深圳市电子信息产业联合会"><img src="/templets/default/images/logo.gif" height="54" width="216" alt="深圳市电子信息产业联合会" /></a> </h1> 
+    </div> 
+    <!-- /title --> 
+    <div class="welcome">
+      您好,欢迎来到本网站,您还没有登陆,请先
+     <a href="/member/index.php">登陆</a>或者
+     <a href="/member/index_do.php?fmdo=user&amp;dopost=regnew">注册</a>. 
+    </div> 
+    <!-- /banner --> 
+   </div> 
+   <!-- /top --> 
+  </div> 
+  <!-- /nav -->  
+  <!-- /header --> 
+  <div class="w960 clear center mt1 cmt-box"> 
+   <div class="sp-title"> 
+    <h2>评论:<a href="/a/cn/industry_news/news/1444.html">2014LG将加速普及OLED电视</a></h2> 
+   </div> 
+   <div> 
+    <dl class="tbox"> 
+     <dt> 
+      <strong>评论列表（网友评论仅供网友表达个人看法，并不表明本站同意其观点或证实其描述）</strong> 
+      <span class="label"> <a href="feedback.php?aid=1444&amp;ftype=good">只看好评</a> <a href="feedback.php?aid=1444&amp;ftype=bad">只看差评</a> <a href="feedback.php?aid=1444&amp;ftype=feedback">只看中立</a> <a href="feedback.php?aid=1444" class="thisclass">全部评论</a> </span> 
+     </dt> 
+     <dd> 
+      <div class="dede_comment"> 
+       <div class="decmt-box1"> 
+        <ul> 
+         <li id="commetcontentNew"></li> 
+         <li> <a href="#" class="plpic"><img src="/member/templets/images/dfboy.png" height="40" width="40" /></a> <span class="title"> 匿名<img src="/templets/default/images/cmt-neu.gif" /></span> 
+          <div class="comment_act">
+           <span class="fr"> <span id="goodfb23101"><a href="#" onclick="postBadGood('goodfb',23101)">支持</a>[0]</span> <span id="badfb23101"><a href="#" onclick="postBadGood('badfb',23101)">反对</a>[0]</span> <span class="quote"><a href="javascript:ajaxFeedback(23101,23101,'quote');">引用</a></span></span> 05-15 02:14发表
+          </div> <p> youadsite. The coatings can also filter UV radiation to prevent fading of curtains carpets and furniture. It does not insulate well though <a href="http://www.airmaxtheauksale.com/nike-air-max-thea-green/air-max-thea-green-womens.html" target="_blank"> nike air max thea womens mint green</a> unless it contains fo</p> </li> 
+         <div id="ajaxfeedback_23101"></div> 
+         <li> <a href="#" class="plpic"><img src="/member/templets/images/dfboy.png" height="40" width="40" /></a> <span class="title"> 匿名<img src="/templets/default/images/cmt-neu.gif" /></span> 
+          <div class="comment_act">
+           <span class="fr"> <span id="goodfb23080"><a href="#" onclick="postBadGood('goodfb',23080)">支持</a>[0]</span> <span id="badfb23080"><a href="#" onclick="postBadGood('badfb',23080)">反对</a>[0]</span> <span class="quote"><a href="javascript:ajaxFeedback(23080,23080,'quote');">引用</a></span></span> 05-14 21:49发表
+          </div> <p> Kids could be playing many other sports<a href="http://www.authenticjetsonline.com/mark-gastineau-jets-jersey/" target="_blank">Mark Gastineau Jets Jersey</a> and in fact participation in basketball and soccer is growing fast in the US.After that expertise he didn\‘t desire to continue being a household landlord. Co</p> </li> 
+         <div id="ajaxfeedback_23080"></div> 
+         <li> <a href="#" class="plpic"><img src="/member/templets/images/dfboy.png" height="40" width="40" /></a> <span class="title"> 匿名<img src="/templets/default/images/cmt-neu.gif" /></span> 
+          <div class="comment_act">
+           <span class="fr"> <span id="goodfb23070"><a href="#" onclick="postBadGood('goodfb',23070)">支持</a>[0]</span> <span id="badfb23070"><a href="#" onclick="postBadGood('badfb',23070)">反对</a>[0]</span> <span class="quote"><a href="javascript:ajaxFeedback(23070,23070,'quote');">引用</a></span></span> 05-14 20:13发表
+          </div> <p> “When you have what （European competitors） do not have … for example the interests in the NFL NBA and world coverage that we have – Olympics soccer tennis<a href="http://www.officialthedolphinsonline.com/AUTHENTIC-WALT-AIKENS-DOLPHINS-JERSEY/" target="_blank">Walt Aikens Jersey</a> golf Formula One boxing and</p> </li> 
+         <div id="ajaxfeedback_23070"></div> 
+         <li> <a href="#" class="plpic"><img src="/member/templets/images/dfboy.png" height="40" width="40" /></a> <span class="title"> 匿名<img src="/templets/default/images/cmt-neu.gif" /></span> 
+          <div class="comment_act">
+           <span class="fr"> <span id="goodfb23061"><a href="#" onclick="postBadGood('goodfb',23061)">支持</a>[0]</span> <span id="badfb23061"><a href="#" onclick="postBadGood('badfb',23061)">反对</a>[0]</span> <span class="quote"><a href="javascript:ajaxFeedback(23061,23061,'quote');">引用</a></span></span> 05-14 18:49发表
+          </div> <p> Also<a href="http://www.footballtitansonline.com/justin-hunter-titans-jersey/" target="_blank">Justin Hunter Titans Jersey</a> lots of people can alter tasks by leaving their prior associated with. Nonetheless<a href="http://www.footballtitansonline.com/perrish-cox-titans-jersey/" target="_blank">Perrish Cox Womens Jersey</a> a sign</p> </li> 
+         <div id="ajaxfeedback_23061"></div> 
+         <li> <a href="#" class="plpic"><img src="/member/templets/images/dfboy.png" height="40" width="40" /></a> <span class="title"> 匿名<img src="/templets/default/images/cmt-neu.gif" /></span> 
+          <div class="comment_act">
+           <span class="fr"> <span id="goodfb23030"><a href="#" onclick="postBadGood('goodfb',23030)">支持</a>[0]</span> <span id="badfb23030"><a href="#" onclick="postBadGood('badfb',23030)">反对</a>[0]</span> <span class="quote"><a href="javascript:ajaxFeedback(23030,23030,'quote');">引用</a></span></span> 05-14 12:37发表
+          </div> <p> Plus it is obviously light material which makes it much easier to work with and install. A pla
+           <x>
+            yer\‘s height and 
+            <a href="http://www.nfljerseyschinawholesaler.com/" target="_blank">Cheap NFL Jerseys</a> basic ability will of course partly determine his or her jumping ability but this can also be improved with practice.
+           </x></p> </li> 
+         <div id="ajaxfeedback_23030"></div> 
+         <li> <a href="#" class="plpic"><img src="/member/templets/images/dfboy.png" height="40" width="40" /></a> <span class="title"> 匿名<img src="/templets/default/images/cmt-neu.gif" /></span> 
+          <div class="comment_act">
+           <span class="fr"> <span id="goodfb23018"><a href="#" onclick="postBadGood('goodfb',23018)">支持</a>[0]</span> <span id="badfb23018"><a href="#" onclick="postBadGood('badfb',23018)">反对</a>[0]</span> <span class="quote"><a href="javascript:ajaxFeedback(23018,23018,'quote');">引用</a></span></span> 05-14 10:50发表
+          </div> <p> You see<a href="http://www.shoptheofficialbears.com/Elite-Jim-Mcmahon-Bears-Jersey/" target="_blank">Jim McMahon Jersey</a> launching your internet site on an international platform will need a great deal of study on your target market hence the need for more advanced tools and additional resources will arise. \&quot;so w</p> </li> 
+         <div id="ajaxfeedback_23018"></div> 
+         <li> <a href="#" class="plpic"><img src="/member/templets/images/dfboy.png" height="40" width="40" /></a> <span class="title"> 匿名<img src="/templets/default/images/cmt-neu.gif" /></span> 
+          <div class="comment_act">
+           <span class="fr"> <span id="goodfb23011"><a href="#" onclick="postBadGood('goodfb',23011)">支持</a>[0]</span> <span id="badfb23011"><a href="#" onclick="postBadGood('badfb',23011)">反对</a>[0]</span> <span class="quote"><a href="javascript:ajaxFeedback(23011,23011,'quote');">引用</a></span></span> 05-14 09:24发表
+          </div> <p> As soon As you\‘re signed on the tual web sites for are generally additional great Kibble and Bits promotions you will take good ftor about as wellIt is soon going to be summer and we all know what we can look forward to! <a href="http://www.cheapchinajerseysnflshop.us.com/" target="_blank">Cheap MLB Jerseys China</a></p> </li> 
+         <div id="ajaxfeedback_23011"></div> 
+         <li> <a href="#" class="plpic"><img src="/member/templets/images/dfboy.png" height="40" width="40" /></a> <span class="title"> 匿名<img src="/templets/default/images/cmt-neu.gif" /></span> 
+          <div class="comment_act">
+           <span class="fr"> <span id="goodfb23002"><a href="#" onclick="postBadGood('goodfb',23002)">支持</a>[0]</span> <span id="badfb23002"><a href="#" onclick="postBadGood('badfb',23002)">反对</a>[0]</span> <span class="quote"><a href="javascript:ajaxFeedback(23002,23002,'quote');">引用</a></span></span> 05-14 08:06发表
+          </div> <p> It is highly remended to set a time interval in beeen every Muscle mass Creating program of 24 to 48 several hours this will permit your muscular tissues to recover and expand. Grace Kelly was a award-winning actress who then married Monaco?#8482;s Prince Rainier III in 1956. Squirrel repellent wil</p> </li> 
+         <div id="ajaxfeedback_23002"></div> 
+         <li> <a href="#" class="plpic"><img src="/member/templets/images/dfboy.png" height="40" width="40" /></a> <span class="title"> 匿名<img src="/templets/default/images/cmt-neu.gif" /></span> 
+          <div class="comment_act">
+           <span class="fr"> <span id="goodfb22993"><a href="#" onclick="postBadGood('goodfb',22993)">支持</a>[0]</span> <span id="badfb22993"><a href="#" onclick="postBadGood('badfb',22993)">反对</a>[0]</span> <span class="quote"><a href="javascript:ajaxFeedback(22993,22993,'quote');">引用</a></span></span> 05-14 06:38发表
+          </div> <p> Has one win over a ranked team Florida State. His legs will be fre and hes entering this season with a year of less pounding on his aging joints and muscles. Remains unbeaten and the Horned Frogs can finally say they have beaten at least one ranked team the Baylor Bears （6-2） who are now ranked</p> </li> 
+         <div id="ajaxfeedback_22993"></div> 
+         <li> <a href="#" class="plpic"><img src="/member/templets/images/dfboy.png" height="40" width="40" /></a> <span class="title"> 匿名<img src="/templets/default/images/cmt-neu.gif" /></span> 
+          <div class="comment_act">
+           <span class="fr"> <span id="goodfb22982"><a href="#" onclick="postBadGood('goodfb',22982)">支持</a>[0]</span> <span id="badfb22982"><a href="#" onclick="postBadGood('badfb',22982)">反对</a>[0]</span> <span class="quote"><a href="javascript:ajaxFeedback(22982,22982,'quote');">引用</a></span></span> 05-14 05:09发表
+          </div> <p> The Talking Dead is definitely an afterow hosted by Chris Hardwick who discusses episodes with weekly guests. Etrevo glass display cases lots <a href="http://www.thecoltsshoponline.com/Youth-Djoun-Smith-Colts-Jersey/" target="_blank">Colts D\‘Joun Smith Jersey</a> of different gift items all under $50 saving money thos</p> </li> 
+         <div id="ajaxfeedback_22982"></div> 
+         <li> <a href="#" class="plpic"><img src="/member/templets/images/dfboy.png" height="40" width="40" /></a> <span class="title"> 匿名<img src="/templets/default/images/cmt-neu.gif" /></span> 
+          <div class="comment_act">
+           <span class="fr"> <span id="goodfb22966"><a href="#" onclick="postBadGood('goodfb',22966)">支持</a>[0]</span> <span id="badfb22966"><a href="#" onclick="postBadGood('badfb',22966)">反对</a>[0]</span> <span class="quote"><a href="javascript:ajaxFeedback(22966,22966,'quote');">引用</a></span></span> 05-14 02:24发表
+          </div> <p> It\‘s almost ical because though it were on purpose to jab at the viewer for creating assumptions. <a href="http://www.jordansneakers.it/nike-air-jordan-spizike.html" target="_blank"> air jordan spizike italia</a> . Alongside the two of these . All these and much more put the high-end stores always above the normal j</p> </li> 
+         <div id="ajaxfeedback_22966"></div> 
+         <li> <a href="#" class="plpic"><img src="/member/templets/images/dfboy.png" height="40" width="40" /></a> <span class="title"> 匿名<img src="/templets/default/images/cmt-neu.gif" /></span> 
+          <div class="comment_act">
+           <span class="fr"> <span id="goodfb22962"><a href="#" onclick="postBadGood('goodfb',22962)">支持</a>[0]</span> <span id="badfb22962"><a href="#" onclick="postBadGood('badfb',22962)">反对</a>[0]</span> <span class="quote"><a href="javascript:ajaxFeedback(22962,22962,'quote');">引用</a></span></span> 05-14 01:58发表
+          </div> <p> However it is best to begin the study of dicine in the Dhanistha.2. This guide will receive we from the hard piece and grow a knowledge thus you can create a superior choice with regards for you to get a hidden spy cara. Simultaneously Algarve Portugal has great tourist resorts with golfing adven</p> </li> 
+         <div id="ajaxfeedback_22962"></div> 
+         <li> <a href="#" class="plpic"><img src="/member/templets/images/dfboy.png" height="40" width="40" /></a> <span class="title"> 匿名<img src="/templets/default/images/cmt-neu.gif" /></span> 
+          <div class="comment_act">
+           <span class="fr"> <span id="goodfb22939"><a href="#" onclick="postBadGood('goodfb',22939)">支持</a>[0]</span> <span id="badfb22939"><a href="#" onclick="postBadGood('badfb',22939)">反对</a>[0]</span> <span class="quote"><a href="javascript:ajaxFeedback(22939,22939,'quote');">引用</a></span></span> 05-13 22:41发表
+          </div> <p> We offer only real human Twitter followers that will ow tivity on your aount therefore helping you increasing the search ranking. Well exhibit the desire display <a href="http://www.cheapjerseysshopnfl.us.com/" target="_blank">Wholesale Jerseys</a> utilities-reducing product water innovation but red protect water</p> </li> 
+         <div id="ajaxfeedback_22939"></div> 
+         <li> <a href="#" class="plpic"><img src="/member/templets/images/dfboy.png" height="40" width="40" /></a> <span class="title"> 匿名<img src="/templets/default/images/cmt-neu.gif" /></span> 
+          <div class="comment_act">
+           <span class="fr"> <span id="goodfb22934"><a href="#" onclick="postBadGood('goodfb',22934)">支持</a>[0]</span> <span id="badfb22934"><a href="#" onclick="postBadGood('badfb',22934)">反对</a>[0]</span> <span class="quote"><a href="javascript:ajaxFeedback(22934,22934,'quote');">引用</a></span></span> 05-13 19:50发表
+          </div> <p> You might be disappointed to discover that this oral implantprocess consists of experiencing multiple operations. It will take 6 to 12 months for your jawbone to heal and grow round the implant anchoring it in to the jaw. The greatest [url=http://www.cheapnfljerseyssupply.us.com/]Cheap MLB Jerseys[</p> </li> 
+         <div id="ajaxfeedback_22934"></div> 
+         <li> <a href="#" class="plpic"><img src="/member/templets/images/dfboy.png" height="40" width="40" /></a> <span class="title"> 匿名<img src="/templets/default/images/cmt-neu.gif" /></span> 
+          <div class="comment_act">
+           <span class="fr"> <span id="goodfb22932"><a href="#" onclick="postBadGood('goodfb',22932)">支持</a>[0]</span> <span id="badfb22932"><a href="#" onclick="postBadGood('badfb',22932)">反对</a>[0]</span> <span class="quote"><a href="javascript:ajaxFeedback(22932,22932,'quote');">引用</a></span></span> 05-13 19:43发表
+          </div> <p> As the families of modest ans adopted this tradition the contents of the favours have also changed. The delivery company is 1 these types of office which contains discovered ideal sales simply because its institution involving many others. Several Have confidence in Businesses in addition to Credit</p> </li> 
+         <div id="ajaxfeedback_22932"></div> 
+         <li> <a href="#" class="plpic"><img src="/member/templets/images/dfboy.png" height="40" width="40" /></a> <span class="title"> 匿名<img src="/templets/default/images/cmt-neu.gif" /></span> 
+          <div class="comment_act">
+           <span class="fr"> <span id="goodfb22925"><a href="#" onclick="postBadGood('goodfb',22925)">支持</a>[0]</span> <span id="badfb22925"><a href="#" onclick="postBadGood('badfb',22925)">反对</a>[0]</span> <span class="quote"><a href="javascript:ajaxFeedback(22925,22925,'quote');">引用</a></span></span> 05-13 17:57发表
+          </div> <p> 下载： https://raw.githubusercontent.com/freenethub/freenethub/master/FreeNetHub.exe 。迄今为止最好的<a href="https://raw.githubusercontent.com/freenethub/freenethub/master/FreeNetHub.exe">翻墙软件</a>，让你在任意时间、任意地点，访问任意网站！！随时、随地可以正常使用谷歌、Gmail、Twitter、FaceBook？使用它，从此互联网对你就是自由的、无拘无束！！！下载地址： [url=https://raw.githubuserc</p> </li> 
+         <div id="ajaxfeedback_22925"></div> 
+         <li> <a href="#" class="plpic"><img src="/member/templets/images/dfboy.png" height="40" width="40" /></a> <span class="title"> 匿名<img src="/templets/default/images/cmt-neu.gif" /></span> 
+          <div class="comment_act">
+           <span class="fr"> <span id="goodfb22918"><a href="#" onclick="postBadGood('goodfb',22918)">支持</a>[0]</span> <span id="badfb22918"><a href="#" onclick="postBadGood('badfb',22918)">反对</a>[0]</span> <span class="quote"><a href="javascript:ajaxFeedback(22918,22918,'quote');">引用</a></span></span> 05-13 16:50发表
+          </div> <p> They can be very pleased with our goods and services and offer&nbsp;&nbsp;great reviews. The D &amp; G DD 1128B designer eyeglasses will be the best choice for people who wish to get a truly funky st
+           <x>
+            yle and make other people\‘s heads turn. The general rule is that you have just 5-10 seconds to capture the attenti
+           </x></p> </li> 
+         <div id="ajaxfeedback_22918"></div> 
+         <li> <a href="#" class="plpic"><img src="/member/templets/images/dfboy.png" height="40" width="40" /></a> <span class="title"> 匿名<img src="/templets/default/images/cmt-neu.gif" /></span> 
+          <div class="comment_act">
+           <span class="fr"> <span id="goodfb22910"><a href="#" onclick="postBadGood('goodfb',22910)">支持</a>[0]</span> <span id="badfb22910"><a href="#" onclick="postBadGood('badfb',22910)">反对</a>[0]</span> <span class="quote"><a href="javascript:ajaxFeedback(22910,22910,'quote');">引用</a></span></span> 05-13 15:34发表
+          </div> <p> An herb that has been put to use for hundreds of years by the historical Indian medicinal technique of Ayurvedic and is a different healthy diabetes remedy is fenugreek. Do not quit. Topics reviewed within the exhibit include rationing[url=http://www.shoptheindians.com/authentic-asdrubal-cabrera-in</p> </li> 
+         <div id="ajaxfeedback_22910"></div> 
+         <li> <a href="#" class="plpic"><img src="/member/templets/images/dfboy.png" height="40" width="40" /></a> <span class="title"> 匿名<img src="/templets/default/images/cmt-neu.gif" /></span> 
+          <div class="comment_act">
+           <span class="fr"> <span id="goodfb22900"><a href="#" onclick="postBadGood('goodfb',22900)">支持</a>[0]</span> <span id="badfb22900"><a href="#" onclick="postBadGood('badfb',22900)">反对</a>[0]</span> <span class="quote"><a href="javascript:ajaxFeedback(22900,22900,'quote');">引用</a></span></span> 05-13 14:04发表
+          </div> <p> Though children are often more than obliging when it comes <a href="http://www.authenticredskinsshoponline.com/colt-mccoy-redskins-jersey/" target="_blank">Colt McCoy Jersey</a> to providing rather extensive lists of toys and goodies they would ideally like to receive on their birthday finding items on this list that</p> </li> 
+         <div id="ajaxfeedback_22900"></div> 
+         <li> <a href="#" class="plpic"><img src="/member/templets/images/dfboy.png" height="40" width="40" /></a> <span class="title"> 匿名<img src="/templets/default/images/cmt-neu.gif" /></span> 
+          <div class="comment_act">
+           <span class="fr"> <span id="goodfb22898"><a href="#" onclick="postBadGood('goodfb',22898)">支持</a>[0]</span> <span id="badfb22898"><a href="#" onclick="postBadGood('badfb',22898)">反对</a>[0]</span> <span class="quote"><a href="javascript:ajaxFeedback(22898,22898,'quote');">引用</a></span></span> 05-13 13:50发表
+          </div> <p> Take the ti to develop questions that allow for answers full of product suggestions.A clean <a href="http://www.airmaxschweizoutlet-ch.com/nike-air-max-1-ultra-moire.html" target="_blank"> nike air max 1 ultra moire mint g&uuml;nstig</a> easy format makes it easier for li
+           <x>
+            nks to be seen. Where else can you go and buy a t
+           </x></p> </li> 
+         <div id="ajaxfeedback_22898"></div> 
+         <div class="pagelistbox"> 
+          <span>共 801 页/16009条记录 </span>
+          <a class="indexPage" href="/plus/feedback.php?aid=1444&amp;action=show&amp;totalresult=16009&amp;pageno=1">首页</a> 
+          <a class="prePage" href="/plus/feedback.php?aid=1444&amp;action=show&amp;totalresult=16009&amp;pageno=29">上页</a> 
+          <a href="/plus/feedback.php?aid=1444&amp;action=show&amp;totalresult=16009&amp;pageno=25">25</a> 
+          <a href="/plus/feedback.php?aid=1444&amp;action=show&amp;totalresult=16009&amp;pageno=26">26</a> 
+          <a href="/plus/feedback.php?aid=1444&amp;action=show&amp;totalresult=16009&amp;pageno=27">27</a> 
+          <a href="/plus/feedback.php?aid=1444&amp;action=show&amp;totalresult=16009&amp;pageno=28">28</a> 
+          <a href="/plus/feedback.php?aid=1444&amp;action=show&amp;totalresult=16009&amp;pageno=29">29</a> 
+          <strong>30</strong> 
+          <a href="/plus/feedback.php?aid=1444&amp;action=show&amp;totalresult=16009&amp;pageno=31">31</a> 
+          <a href="/plus/feedback.php?aid=1444&amp;action=show&amp;totalresult=16009&amp;pageno=32">32</a> 
+          <a href="/plus/feedback.php?aid=1444&amp;action=show&amp;totalresult=16009&amp;pageno=33">33</a> 
+          <a href="/plus/feedback.php?aid=1444&amp;action=show&amp;totalresult=16009&amp;pageno=34">34</a> 
+          <a href="/plus/feedback.php?aid=1444&amp;action=show&amp;totalresult=16009&amp;pageno=35">35</a> 
+          <a class="nextPage" href="/plus/feedback.php?aid=1444&amp;action=show&amp;totalresult=16009&amp;pageno=31">下页</a> 
+          <a class="endPage" href="/plus/feedback.php?aid=1444&amp;action=show&amp;totalresult=16009&amp;pageno=801">末页</a> 
+         </div> 
+        </ul> 
+       </div> 
+      </div> 
+      <!-- /dede_comment --> 
+     </dd> 
+    </dl> 
+   </div> 
+   <div class="mt1"> 
+    <dl class="tbox"> 
+     <dt> 
+      <strong>发表评论</strong> 
+     </dt> 
+     <dd> 
+      <div class="dede_comment_post"> 
+       <form action="feedback.php" method="post" name="feedback"> 
+        <input type="hidden" name="action" value="send" /> 
+        <input type="hidden" name="comtype" value="comments" /> 
+        <input type="hidden" name="aid" value="1444" /> 
+        <input type="hidden" name="isconfirm" value="yes" /> 
+        <div class="dcmp-title"> 
+         <small>请自觉遵守互联网相关的政策法规，严禁发布色情、暴力、反动的言论。</small> 
+        </div> 
+        <!-- /dcmp-title --> 
+        <div class="dcmp-stand"> 
+         <strong>评价:</strong> 
+         <input type="radio" name="feedbacktype" checked="1" value="feedback" id="dcmp-stand-neu" /> 
+         <label for="dcmp-stand-neu"><img src="/templets/default/images/cmt-neu.gif" />中立</label> 
+         <input type="radio" name="feedbacktype" value="good" id="dcmp-stand-good" /> 
+         <label for="dcmp-stand-good"><img src="/templets/default/images/cmt-good.gif" />好评</label> 
+         <input type="radio" name="feedbacktype" value="bad" id="dcmp-stand-bad" /> 
+         <label for="dcmp-stand-bad"><img src="/templets/default/images/cmt-bad.gif" />差评</label> 
+        </div> 
+        <!-- /dcmp-stand --> 
+        <div class="clr"></div> 
+        <!-- /dcmp-mood --> 
+        <div class="dcmp-content1"> 
+         <script type="text/javascript">
+					//<![CDATA[
+					window.CKEDITOR_BASEPATH='/include/ckeditor/';
+					//]]>
+                    </script> 
+         <script type="text/javascript" src="/include/ckeditor/ckeditor.js?t=B8DJ5M3"></script> 
+         <script type="text/javascript">//<![CDATA[
+CKEDITOR.config.ubb_smiley = {"高兴":"{s:1}","撇嘴":"{s:2}","抓狂":"{s:3}","汗":"{s:4}","惊恐":"{s:5}","奋斗":"{s:6}","疑问":"{s:7}","晕":"{s:8}","偷笑":"{s:9}","可爱":"{s:10}","疑惑":"{s:11}","酷":"{s:12}","暴汗":"{s:13}","呕吐":"{s:14}","大笑":"{s:15}","色":"{s:16}"}
+//]]></script> 
+         <textarea name="msg" rows="8" cols="60"></textarea> 
+         <script type="text/javascript">//<![CDATA[
+CKEDITOR.replace('msg', {"extraPlugins":"dedepage,multipic,addon,bbcode","fontSize_sizes":"30\/30%;50\/50%;100\/100%;120\/120%;150\/150%;200\/200%;300\/300%","disableObjectResizing":"true","smiley_path":"\/images\/smiley\/","smiley_images":["1.gif","2.gif","3.gif","4.gif","5.gif","6.gif","7.gif","8.gif","9.gif","10.gif","11.gif","12.gif","13.gif","14.gif","15.gif","16.gif"],"smiley_descriptions":["高兴","撇嘴","抓狂","汗","惊恐","奋斗","疑问","晕","偷笑","可爱","疑惑","酷","暴汗","呕吐","大笑","色"],"toolbar":[["Source","-","Bold","Italic","Underline","-"],["FontSize","TextColor"],["Link","Unlink","Smiley"]],"height":100,"skin":"kama"});
+//]]></script> 
+        </div> 
+        <!-- /dcmp-content --> 
+        <div class="dcmp-post"> 
+         <!--未登陆--> 
+         <div class="dcmp-userinfo">
+           用户名： 
+          <input name="username" type="text" id="username" size="10" class="nb" /> （
+          <a href="../member/index_do.php?fmdo=user&amp;dopost=regnew" target="_blank"><u>注册新用户</u></a>） 
+          <input name="notuser" type="checkbox" id="notuser" value="1" /> 匿名评论 验证码： 
+          <input name="validate" type="text" id="validate" size="10" style="height:18px;width:60px;margin-right:6px;text-transform:uppercase;" class="nb" /> 
+          <img src="../include/vdimgck.php" width="60" height="24" style="cursor:pointer" onclick="this.src=this.src+'?'" title="点击我更换图片" alt="点击我更换图片" /> 
+          <button type="submit" class="btn-2">发表评论</button> 
+         </div> 
+         <!-- /dcmp-submit --> 
+        </div> 
+        <!-- /dcmp-post --> 
+       </form> 
+      </div> 
+      <!-- /dede_comment_post --> 
+     </dd> 
+    </dl> 
+   </div> 
+  </div> 
+  <!-- //底部模板 --> 
+  <div class="footer w960 center mt1 clear"> 
+   <!-- 
+		为了支持织梦团队的发展,请您保留织梦内容管理系统的链接信息.
+		我们对支持织梦团队发展的朋友表示真心的感谢!织梦因您更精彩!
+	--> 
+   <div class="footer_left"></div> 
+   <div class="footer_body"> 
+    <p class="powered"> Powered by <a href="http://www.dedecms.com" title="织梦内容管理系统(DedeCms)--国内最专业的PHP网站管理系统，轻松建站的首选利器。" target="_blank"><strong>DedeCMS_V57_UTF8_SP1</strong></a> &copy; 2004-2011 <a href="http://www.desdev.cn/" target="_blank">DesDev</a> Inc.<br /></p>
+    <div class="copyright">
+     Copyright &copy; 深圳市电子信息产业联合会 
+     <a href="http://www.dedecms.com" target="_blank">Power by DedeCms</a>&nbsp;&nbsp;
+    </div>
+    <p></p> 
+    <!-- /powered --> 
+   </div> 
+   <div class="footer_right"></div> 
+  </div>
+  <!-- /footer -->  
+ </body>
+</html>

@@ -1,0 +1,1842 @@
+<html><head></head><body><pre style="word-wrap: break-word; white-space: pre-wrap;">/**
+ * 主要处理登陆相关逻辑
+ */
+;
+
+function gotoresetpwd() {
+	gotoUrl(localInfo.findPwd + localInfo.urlQurey);
+}
+
+// 解决 在华为p9 内置浏览器依次输入账号密码，到验证码输入法框会遮盖出验证码，页面无法下拉 ---UP兼容性问题
+$(function() {
+
+})
+
+$(function() {
+
+	var userName = $("#username");
+	var randomCode = $("#randomCode");
+	var password = $("#password");
+	userName.focus();
+	$(".eye").click(function() {
+		var type = document.getElementById("password").type;
+		if (type == "password") {
+			document.getElementById("password").type = "text";
+			$(".eye").attr("src", localInfo.openEyePng);
+		} else {
+			document.getElementById("password").type = "password";
+			$(".eye").attr("src", localInfo.eyePng);
+		}
+
+	});
+
+	if (currentSiteID == "9") {
+		$("#username").attr("placeholder", rss.hwaccount_America);
+	}
+
+	// 读取session,看是否之前有过记住账号的操作
+	// var rememberAccountCookie=getCookie('rememberAccount');
+	var rememberAccountCookie = localInfo.rememberAccount;
+	if (rememberAccountCookie) {
+		rememberAccountCookie = rememberAccountCookie.replace(/\"/g, "");
+		$("#username").val(rememberAccountCookie);
+		$("#remember_name").attr("src", localInfo.tickOnPng);
+		$("#remember_name").attr("checked", true);
+	}
+
+	userName.validator("bind", {
+		type : [ "require", "length" ],
+		trim : false,
+		validOnChange : false,
+		min : 5,
+		max : 50,
+		errorFunction : function(obj, options) {
+			$("#usernameDiv").addClass("input-error-EMUI5");
+			$("#randomCode_msg").removeClass("addbtmpad-msg-top2p");
+			switch (options.type) {
+			case "require":
+				$("#user_msg").html(rss.login_js_inputaccount);
+				//showError($("#user_msg"), rss.login_js_inputaccount);
+				break;
+			case "length":
+				$("#user_msg").html(rss.login_js_accountlength);
+				//showError($("#user_msg"), rss.login_js_accountlength);
+				break;
+			}
+		},
+		successFunction : function(obj, options) {
+			// showSuccess($("#user_msg"), "Validator success!");
+			$("#usernameDiv").removeClass("input-error-EMUI5");
+		},
+		reInputFunction:function(){
+			//$("#usernameDiv").removeClass("input-error-EMUI5");
+			//$("#user_msg").html("");
+			$("#randomCode_msg").html("");
+			$("#randomCode_msg").removeClass("addbtmpad-msg-top2p");
+			$("#randomCodeDiv").removeClass("input-error-EMUI5");
+			$("#passwd_msg").html("");
+			$("#passwd_msg").removeClass("addbtmpad-msg-top2p");
+			$("#passwordDiv").removeClass("input-error-EMUI5");
+		}
+	});
+
+	password.validator("bind", {
+		type : [ "require" ],
+		trim : false,
+		validOnChange : false,
+		errorFunction : function(obj, options) {
+			$("#passwordDiv").addClass("input-error-EMUI5");
+			switch (options.type) {
+			case "require":
+				$("#pwd_msg").html(rss.common_pwd_require);
+				//showError($("#pwd_msg"), rss.common_pwd_require);
+				break;
+			}
+		},
+		successFunction : function(obj, options) {
+			// $("#pwd_msg").text("Validator success!");
+			$("#randomCodeDiv").removeClass("input-error-EMUI5");
+		},
+		reInputFunction: function(){
+			$("#passwordDiv").removeClass("input-error-EMUI5");
+			$("#pwd_msg").html("");
+			$("#randomCode_msg").html("");
+			$("#randomCode_msg").removeClass("addbtmpad-msg-top2p");
+			$("#passwd_msg").html("");
+			$("#passwd_msg").removeClass("addbtmpad-msg-top2p");
+			
+		}
+	});
+
+	randomCode.validator("bind", {
+		type : [ "require", "length" ],
+		trim : true,
+		validOnChange : false,
+		max : 4,
+		min : 4,
+		errorFunction : function(obj, options) {
+			
+			switch (options.type) {
+			case "require":
+				//showError($("#randomCode_msg"), rss.common_js_inputcode);
+				//$("#randomCode_msg").text(rss.common_js_inputcode);
+				$("#randomCodeDiv").addClass("input-error-EMUI5");
+				$("#randomCode_msg").html(rss.common_js_inputcode);
+				$("#randomCode_msg").addClass("addbtmpad-msg-top2p");
+				break;
+			case "length":
+				//showError($("#randomCode_msg"), rss.login_js_codeerror);
+				//$("#randomCode_msg").text(rss.login_js_codeerror);
+				$("#randomCodeDiv").addClass("input-error-EMUI5");
+				$("#randomCode_msg").html(rss.login_js_codeerror);
+				$("#randomCode_msg").addClass("addbtmpad-msg-top2p");
+				break;
+			}
+		},
+		successFunction : function(obj, options) {
+			// $("#randomCode_msg").text("Validator success!");
+			$("#randomCodeDiv").removeClass("input-error-EMUI5");
+			$("#randomCode_msg").removeClass("addbtmpad-msg-top2p");
+			$("#randomCode_msg").html("");
+		},
+		reInputFunction:function(){
+			//$("#randomCode_msg").html("");
+			//$("#randomCode_msg").removeClass("addbtmpad-msg-top2p");
+			//$("#randomCodeDiv").removeClass("input-error-EMUI5");
+			//$("#authCodeRight").removeClass("poptips-yes");
+		}
+	});
+
+	$("#randomCode").bind("keyup", function(evt) {
+
+		// 确保只弹出一个框 二次认证框
+		if (evt.which == 13 &amp;&amp; $("div[role='cancel']").length == 0) {
+			$("#btnLogin").click();
+			return;
+		}
+		// checkImgAuthCode();
+
+	});
+	var str = '';
+	var now = '';
+
+	var filter_staff_from_exist = function() {
+		// now = $.trim($("#randomCode").val());
+		now = $("#randomCode").val();
+		if (now != '' &amp;&amp; now != str) {
+			checkImgAuthCode();
+		}
+		
+		var isFocus=$("#randomCode").is(":focus");
+		
+		if(isFocus &amp;&amp; now != null &amp;&amp; now.length&gt;=1 &amp;&amp; now.length&lt;=3)
+		{
+			$("#randomCode_msg").html("");
+			$("#randomCode_msg").removeClass("addbtmpad-msg-top2p")
+			$("#randomCodeDiv").removeClass("input-error-EMUI5");
+		}
+		
+		str = now;
+		checkLoginInput();
+	}
+	var filter_time = function() {
+		var time = setInterval(filter_staff_from_exist, 100);
+		$(this).bind('blur', function() {
+			clearInterval(time);
+		});
+	};
+
+	$("#randomCode").bind("focus", function() {
+
+		filter_time();
+
+	})
+
+	// 检查图片验证码
+	function checkImgAuthCode() {
+		var randomCode = $("#randomCode");
+		var randomCodeImg = $('#randomCodeImg');
+		var randomCodeError = $("#randomCode_msg");
+		if (typeof (randomCode[0]) != "undefined"
+				&amp;&amp; randomCode.val().length &gt;= 4) {
+			var thisValue = randomCode.val();
+			var dataParms = {
+				randomCode : thisValue,
+				session_code_key : "login_session_ramdom_code_key",
+				//pageToken : localInfo.pageToken
+			};
+
+			ajaxHandler("authCodeValidate", dataParms, function(data) {
+				if ("1" == data.isSuccess) {
+					//showSuccess(randomCodeError, rss.autoCodeSuccess);
+					$("#authCodeRight").addClass("poptips-yes");
+					// randomCodeError.text(rss.autoCodeSuccess);
+					$("#btnLogin").focus();
+				} else {
+					chgRandomCode(randomCodeImg[0],
+							localInfo.webssoLoginSessionCode);
+					randomCode[0].value = "";
+					// randomCode.focus();
+					// randomCode.focus();
+					$("#randomCodeDiv").addClass("input-error-EMUI5");
+					
+					switch (data.errorCode) {
+					case '10000201': {
+						randomCodeError.html(rss.common_js_wrongcode);
+						$("#randomCode_msg").addClass("addbtmpad-msg-top2p");
+						//showError(randomCodeError, rss.common_js_wrongcode);
+						break;
+					}
+					case '10000001': {
+						randomCodeError.html(rss.error_10000001);
+						$("#randomCode_msg").addClass("addbtmpad-msg-top2p");
+						//showError(randomCodeError, rss.error_10000001);
+						break;
+					}
+					case '10000004': {
+						randomCodeError.html(rss.error_10000004);
+						$("#randomCode_msg").addClass("addbtmpad-msg-top2p");
+						//showError(randomCodeError, rss.error_10000004);
+						break;
+					}
+					default: {
+						randomCodeError.html(rss.error_10000002);
+						$("#randomCode_msg").addClass("addbtmpad-msg-top2p");
+						//showError(randomCodeError, rss.error_10000002);
+						break;
+					}
+					}
+				}
+
+			}, function(data) {
+
+			}, true, "JSON");
+
+		} else if (typeof (randomCode[0]) != "undefined"
+				&amp;&amp; randomCode.val().length != 4) {
+			// randomCodeError.removeClass("icon-error");
+			// randomCodeError.removeClass("icon-ok");
+		}
+	}
+
+	$("#btnLogin").bind("click", function() {
+		if($("#btnLogin").hasClass("disabled"))
+		{
+			return false;
+		}
+        var form = $('.content-EMUI5')[0];
+		if (!validator(form, true)) {
+			return false;
+		}
+		login();
+	});
+
+	// 如果存在跨站点问题，是否已同意
+	var agreeOrNot = false;
+
+	function login(paramObj, callbackFn) {
+
+		var dataParms = {
+			submit : localInfo.submit,
+			loginUrl : localInfo.loginUrl,
+			service : localInfo.service,
+			loginChannel : localInfo.loginChannel,
+			reqClientType : localInfo.reqClientType,
+			adUrl : localInfo.adUrl,
+			lang : localInfo.lang,
+			inviterUserID : localInfo.inviterUserID,
+			inviter : localInfo.inviter,
+			userAccount : convPlusOfPhoneAccount(userName.val().trim()),
+			password : password.val(),
+			authcode : randomCode.val(),
+			//pageToken : localInfo.pageToken,
+			quickAuth : localInfo.quickAuth,
+			newsign : localInfo.newsign
+		};
+
+		if ($("#remember_name").length &gt; 0) {
+			if ($("#remember_name").attr("src").indexOf("on.png") &gt; -1) {
+				dataParms.remember_name = "on";
+			} else {
+				dataParms.remember_name = "off";
+			}
+		} else {
+			if (localInfo.rememberAccount) {
+				dataParms.remember_name = "on";
+			} else {
+				dataParms.remember_name = "off";
+			}
+		}
+
+		var regx = /\s+/g;
+		if (regx.test(dataParms.userAccount)) {
+			//showError($("#msg_login"), rss.login_wrong);
+			showError($("#msg_login"), rss.login_wrong);
+			return false;
+		}
+
+		var errorFlag = false;
+
+		var needRedirect = false;
+		if (!dataParms.siteID &amp;&amp; userName.val().trim()) {
+			querySiteInfo(convPlusOfPhoneAccount(userName.val().trim()),
+					function(siteInfoObjArr, data) {
+						if (siteInfoObjArr.length == 1) {
+							/*
+							 * if (currentSiteID != siteInfoObjArr[0].siteID) {
+							 * openGotoOwnSiteDialog(); errorFlag = true;
+							 * return; }
+							 */
+							var crossSiteModel = data.crossSiteModel;
+
+							// 此处保存 账号 的跨站点信息,
+							// 无论是否跨站点，都要在这里保存，防止跨站点账号登陆后，非跨站点账号无法登陆。
+							localInfo.accountSiteID = siteInfoObjArr[0].siteID;
+
+							// 优先处置跨站点的场景
+							// 2的话，需要根据 redrectSiteUrl 进行跳转
+							if (crossSiteModel != undefined
+									&amp;&amp; crossSiteModel == 2) {
+								var redirectSiteUrl = data.redirectSiteUrl;
+
+								if (redirectSiteUrl.indexOf("oauth2") &gt; 0) {
+									redirectSiteUrl = redirectSiteUrl
+											+ localInfo.queryString;
+								} else {
+									redirectSiteUrl = redirectSiteUrl
+											+ localInfo.requestURIQuery;
+								}
+								
+								if(data.extInfo)
+								{
+									if(redirectSiteUrl.indexOf("?")&gt;0)
+									{
+										redirectSiteUrl=redirectSiteUrl + "&amp;extInfo=" + data.extInfo;
+									}
+									else
+									{
+										redirectSiteUrl=redirectSiteUrl + "?extInfo=" + data.extInfo;
+									}
+								}
+								
+								openGlobalCrossSiteDialog(redirectSiteUrl);
+								needRedirect = true;
+								return;
+							}
+
+							// 如果为方式1的话，这个位置就不需要进行提示了
+							if (crossSiteModel != undefined
+									&amp;&amp; crossSiteModel == 1
+									&amp;&amp; agreeOrNot != true) {
+								dataParms.siteID = siteInfoObjArr[0].siteID;
+								allowGlobalCrossLogin(paramObj, dataParms,
+										callbackFn);
+								needRedirect = true;
+								return;
+							}
+							dataParms.siteID = siteInfoObjArr[0].siteID;
+						} else if (siteInfoObjArr.length == 0) {
+							if (data.existAccountFlag == "0") {
+								errorFlag = false;
+							} else {
+								errorFlag = true;
+								var errorCode = data.errorCode;
+								if (errorCode == "10000507") {
+									openGotoOwnSiteDialog();
+								}
+							}
+
+						}
+
+					}, false);
+
+		}
+
+		if (needRedirect &amp;&amp; !agreeOrNot) {
+			return;
+		}
+
+		if (errorFlag) {
+			return;
+		}
+		if (paramObj &amp;&amp; paramObj.remember_client_flag) {
+			dataParms.remember_client_flag = paramObj.remember_client_flag;
+		}
+		if (paramObj &amp;&amp; paramObj.agrIDs) {
+			dataParms.agrIDs = paramObj.agrIDs;
+		}
+		if (paramObj &amp;&amp; paramObj.guardianUserID) {
+			dataParms.guardianUserID = paramObj.guardianUserID;
+		}
+		if (paramObj &amp;&amp; paramObj.guardianPwd) {
+			dataParms.guardianPassword = paramObj.guardianPwd;
+		}
+		if (paramObj &amp;&amp; paramObj.newPassword) {
+			dataParms.newPassword = paramObj.newPassword; // 修改完成之后以新密码进行登录
+		}
+		if (paramObj &amp;&amp; paramObj.opType) {
+			dataParms.opType = paramObj.opType;
+		}
+		if (paramObj &amp;&amp; paramObj.newAuthCode) {
+			dataParms.newAuthCode = paramObj.newAuthCode;
+		}
+		if ($("#authenDialog").length &gt; 0 || $("#authAndUpdatediv").length &gt; 0) { // 有身份认证的地方
+			var txtTwoStepVerifyCode = $("#oldAuthCode").val();
+			if (dataParms.opType == 5 || dataParms.opType == 6
+					|| dataParms.opType == 7) {
+				var typeAndAccount = $.parseJSON($("#accountDiv1 input").val());
+				dataParms.authAccountType = typeAndAccount.type;
+				dataParms.authAccount = typeAndAccount.account;
+				dataParms.authcode = txtTwoStepVerifyCode;
+			} else if (dataParms.opType == 8) {
+				var typeAndAccount = $.parseJSON($("#accountDiv input").val());
+				dataParms.authAccountType = typeAndAccount.type;
+				dataParms.authAccount = typeAndAccount.account;
+				dataParms.authcode = txtTwoStepVerifyCode;
+			} else if (txtTwoStepVerifyCode) {
+				var typeAndAccount = $.parseJSON($("#accountDiv input").val());
+				dataParms.twoStepVerifyCode = txtTwoStepVerifyCode;
+				dataParms.verifyAccountType = typeAndAccount.type;
+				dataParms.verifyUserAccount = typeAndAccount.account;
+			}
+
+		}
+
+		ajaxHandler("remoteLogin", dataParms, function(data) {
+			if ("1" == data.isSuccess) {
+				if ($.isFunction(callbackFn)) {
+					callbackFn();
+				}
+				$(".loginmask").show();
+				if (localInfo.rQcodeLoginSuccessUrl) {
+					gotoUrl(localInfo.rQcodeLoginSuccessUrl);
+				} else {
+					gotoUrl(data.callbackURL);
+				}
+				// window.top.location.href = data.callbackURL;
+				return false;
+			} else {
+				showErrorCode(data, dataParms, callbackFn)
+			}
+
+		}, function(data) {
+
+		}, false, "JSON");
+	}
+
+	/**
+	 * 登录接口错误码统一展示
+	 */
+	function showErrorCode(data, dataParms, callbackFn) {
+
+		
+		
+		var opType = dataParms.opType;
+		if (!opType || opType == "0" || opType == "1") {
+			if ("10000201" == data.errorCode) {
+				if ((localInfo.thirdLoginFlag)
+						&amp;&amp; (localInfo.thirdLoginFlag == true)) {
+					window.location.href = localInfo.loginUrl;
+				}
+				if ($.isFunction(callbackFn)) {
+					callbackFn();
+				}
+				// 验证码错误
+				showError($("#msg_randowCode"), rss.randomCodeIsInvalid);
+				chgRandomCodeForLogin();
+				$("#randomCode").focus();
+			} else if ("10000508" == data.errorCode) {
+				openNoAllowCrossSiteDialog();
+			} else if ("10000400" == data.errorCode) {
+				//showError($("#msg_login"), rss.login_wrong);
+				$("#randomCode_msg").html(rss.login_wrong);
+				$("#randomCode_msg").addClass("addbtmpad-msg-top2p");
+
+			} else if ("70002071" == data.errorCode) {
+
+				// 之间采用这个函数，真的不清楚这是怎么回事儿，函数名是对不上的，2016.6.13进行调整。
+				// showSuccessTipDialog("", rss.unverified_email_addr,
+				// rss.emialHasSendTo.format($("#username").val().trim()),
+				// localInfo.emailPng, rss.resend, rss.exit,
+				// rss.verified);
+				// 
+				// showSuccessTipDialog(convPlusOfPhoneAccount($("#username").val().trim()));
+				// showError($(".errortip"),"您的帐号尚未激活，请先激活帐号");
+
+				showVerifyAccountDialog(convPlusOfPhoneAccount($("#username")
+						.val().trim()));
+
+			} else if ("10000402" == data.errorCode) {
+				// 错误次数过多
+				//showError($("#msg_login"), rss.error_10000402);
+				$("#randomCode_msg").html(rss.error_10000402);
+			} else if ("70002076" == data.errorCode) {
+				//showError($("#msg_login"), rss.error_70002076);
+				$("#randomCode_msg").html(rss.error_70002076);
+			} else if ("70002072" == data.errorCode) {
+				// 需要二次登录
+				var param = {
+					desc : rss.common_second_protect,
+					lBtnTxt : rss.cancel,
+					rBtnTxt : rss.iKnowBtn,
+					queryCond : convPlusOfPhoneAccount($("#username").val()
+							.trim()),
+					optType : "secondAuth",
+					callbackFn : login,
+					siteID : localInfo.accountSiteID
+				};
+				openAuthenDialog(param);
+			} else if ("10008001" == data.errorCode) {
+				if ($.isFunction(callbackFn)) {
+					callbackFn();
+				}
+				// 公有云IP黑名单,验证身份加修改密码
+				var param = {
+					desc : rss.account_protect_tip,
+					queryCond : convPlusOfPhoneAccount($("#username").val()
+							.trim()),
+					callbackFn : login,
+					opType : "5",
+					siteID : localInfo.accountSiteID
+				};
+				loginAuthAndUpdatePwd(param);
+			} else if ("10008002" == data.errorCode) {
+				if ($.isFunction(callbackFn)) {
+					callbackFn();
+				}
+				// 高度疑,验证身份加修改密码
+				var param = {
+					desc : rss.account_protect_tip,
+					queryCond : convPlusOfPhoneAccount($("#username").val()
+							.trim()),
+					callbackFn : login,
+					opType : "6",
+					siteID : localInfo.accountSiteID
+				};
+				
+				//updatePassword(param);
+				loginAuthAndUpdatePwd(param);
+			} else if ("10008003" == data.errorCode) {
+				if ($.isFunction(callbackFn)) {
+					callbackFn();
+				}
+				// 普通疑似且简单密码,验证身份加修改密码
+				var param = {
+					desc : rss.account_protect_tip,
+					queryCond : convPlusOfPhoneAccount($("#username").val()
+							.trim()),
+					callbackFn : login,
+					opType : "7",
+					siteID : localInfo.accountSiteID
+				};
+				loginAuthAndUpdatePwd(param);
+			} else if ("10008004" == data.errorCode) {
+				if ($.isFunction(callbackFn)) {
+					callbackFn();
+				}
+				// 普通疑似非简单密码,验证身份
+				var param = {
+					desc : rss.risk_auth,
+					lBtnTxt : rss.cancel,
+					rBtnTxt : rss.next_step,
+					queryCond : convPlusOfPhoneAccount($("#username").val()
+							.trim()),
+					optType : "identifyVerify",
+					callbackFn : login,
+					opType : "8",
+					siteID : localInfo.accountSiteID
+				};
+				openAuthenDialog(param);
+
+			} else if ("10008005" == data.errorCode) {
+				if ($.isFunction(callbackFn)) {
+					callbackFn();
+				}
+				// 简单密码的需要强制修改密码提醒，修改密码
+				var param = {
+					opType : "9",
+					newPassword : dataParms.newPassword,
+					siteID : localInfo.accountSiteID,
+					callbackFn : login
+				};
+				updatePassword(param);
+			} else if ("70002039" == data.errorCode) {
+				if (opType == "1") { // 二次认证登录
+					//showError($("#oldAuthCode_error_info"), rss.error_70002039);
+					$("#msg_error_secAuth").html(rss.error_70002039);
+				} else {
+					//showError($("#msg_login"), rss.error_70002039);
+					$("#randomCode_msg").html(rss.error_70002039);
+					$("#randomCode_msg").addClass("addbtmpad-msg-top2p")
+					$("#randomCodeDiv").addClass("input-error-EMUI5");
+				}
+			} else if ("70002057" == data.errorCode) {
+				if (opType == "1") { // 二次认证登录
+					//showError($("#oldAuthCode_error_info"),
+					//		rss.error_70002057_1);
+					$("#msg_error_secAuth").html(rss.error_70002057_1);
+				} else {
+					//showError($("#msg_login"), rss.error_70002057_2);
+					$("#passwd_msg").html(rss.error_70002057_2);
+					$("#passwd_msg").addClass("addbtmpad-msg-top2p")
+					$("#passwordDiv").addClass("input-error-EMUI5");
+				}
+			} else if ("70002058" == data.errorCode) {
+				if (opType == "1") { // 二次认证登录
+					//showError($("#oldAuthCode_error_info"), rss.error_70002058);
+					$("#msg_error_secAuth").html(rss.error_70002058);
+				} else {
+					//showError($("#msg_login"), rss.error_70002058_1);
+					$("#passwd_msg").html(rss.error_70002058_1);
+					$("#passwd_msg").addClass("addbtmpad-msg-top2p")
+					$("#passwordDiv").addClass("input-error-EMUI5");
+				}
+			} else if ("70005004" == data.errorCode) { // 第三方
+				if (opType == "1") { // 二次认证登录
+					//showError($(".errortip"), rss.error_70005004);
+					$("#msg_error_secAuth").html(uc_error_70005004);
+				} else {
+					//showError($("#msg_login"), rss.error_70005004);
+					$("#passwd_msg").html(uc_error_70005004);
+					$("#passwd_msg").addClass("addbtmpad-msg-top2p")
+					
+				}
+
+			} else if ("10000505" == data.errorCode) { // 第三方
+				if (opType == "1") { // 二次认证登录
+					//showError($(".errortip"), rss.error_10000505);
+					$("#msg_error_secAuth").html(uc_error_10000505);
+				} else {
+					//showError($("#msg_login"), rss.error_10000505);
+					$("#passwd_msg").html(uc_error_10000505);
+					$("#passwd_msg").addClass("addbtmpad-msg-top2p")
+				}
+			} else {
+				//showError($("#msg_login"), rss.login_wrong);
+				$("#msg_error_secAuth").html(rss.login_wrong);
+				$("#passwd_msg").html(rss.login_wrong);
+				$("#passwd_msg").addClass("addbtmpad-msg-top2p")
+			}
+		} else if (opType == "2" || opType == "4") { // 更新协议
+			showError($(".errortip"), rss.error_10000001);
+		} else if (opType == "5" || opType == "6" || opType == "7") {
+			switch (data.errorCode) {
+			case "70008001": {
+				//showError($(".errortip"), rss.error_70008001);
+				$("#msg_error_highIP").html(rss.error_70008001);
+				msg_login
+				break;
+			}
+			case "70002070": {
+				//showError($(".errortip"), rss.error_70002070);
+				$("#msg_error_highIP").html(rss.error_70002070);
+				break;
+			}
+			case "70002020": {
+				//showError($(".errortip"), rss.error_70002020);
+				$("#msg_error_highIP").html(rss.error_70002020);
+				break;
+			}
+			case "70002058": {
+				//showError($(".errortip"), rss.error_70002058);
+				$("#msg_error_highIPAuthCode").html(rss.error_70002020)
+				break;
+			}
+			case "70002039": {
+				//showError($(".errortip"), rss.error_70002039);
+				$("#msg_error_highIPAuthCode").html(rss.error_70002039);
+				$("#authCodeDiv").addClass("input-error-EMUI5");
+				break;
+			}
+			case "70002057": {
+				//showError($(".errortip"), rss.error_70002057_1);
+				$("#msg_error_highIPAuthCode").html(rss.error_70002057_1);
+				$("#authCodeDiv").addClass("input-error-EMUI5");
+				break;
+			}
+			default: {
+				showError($(".errortip"), rss.error_10000001);
+				break;
+			}
+			}
+		} else if (opType == "8") {
+			var errorCode = data.errorCode;
+			if (errorCode == "70002039") {
+				//showError($("#oldAuthCode_error_info"), rss.error_70002039);
+				$("#msg_error_secAuth").html(rss.error_70002039);
+			} else if (errorCode == "70002057") {
+				//showError($("#oldAuthCode_error_info"), rss.error_70002057_1);
+				$("#msg_error_secAuth").html(rss.error_70002057_1);
+			} else if (errorCode == "70002058") {
+				//showError($("#oldAuthCode_error_info"), rss.error_70002058);
+				$("#msg_error_secAuth").html(rss.error_70002058);
+			} else {
+			//	showError($("#oldAuthCode_error_info"), rss.error_10000001);
+				$("#msg_error_secAuth").html(rss.error_10000001);
+			}
+		} else { // 简单密码
+			switch (data.errorCode) {
+			case "70008001": {
+				//showError($(".errortip"), rss.error_70008001);
+				$("#msg_error_highIP").html(rss.error_70008001);
+				break;
+			}
+			case "70002070": {
+				//showError($(".errortip"), rss.error_70002070);
+				$("#msg_error_highIP").html(rss.error_70002070);
+				break;
+			}
+			case "70002020": {
+				//showError($(".errortip"), rss.error_70002020);
+				$("#msg_error_highIP").html(rss.error_70002020);
+				break;
+			}
+			case "70002058": {
+				//showError($(".errortip"), rss.error_70002058);
+				$("#msg_error_highIPAuthCode").html(rss.error_70002058);
+				$("#authCodeDiv").addClass("input-error-EMUI5");
+				break;
+			}
+			case "70002057": {
+				//showError($(".errortip"), rss.error_70002057_1);
+				$("#msg_error_highIPAuthCode").html(rss.error_70002057_1);
+				$("#authCodeDiv").addClass("input-error-EMUI5");
+				break;
+			}
+			default: {
+				showError($(".errortip"), rss.error_10000001);
+				break;
+			}
+			}
+		}
+	}
+
+	var funChkPwd = function(userID, pwd, callback) {
+		var strParms = "verifyPassword";
+		var dataParms = "";
+		dataParms = {
+			"password" : pwd,
+			"userID" : userID,
+			"reqClientType" : localInfo.reqClientType,
+			//"pageToken" : localInfo.pageToken,
+			"operType" : "2"
+		};
+		ajaxHandler(strParms, dataParms, function(data) {
+			var strResult = data.isSuccess;
+			if (strResult == "1") {
+				callback(userID, pwd);
+			} else {
+				var errorCode = data.errorCode;
+				if (errorCode == '70002003' || errorCode == '10002073') {
+					showError($("#error_info"), rss.error_10000001_2);
+				} else if (errorCode == '70002057') {
+					showError($("#error_info"), rss.error_70002057_2);
+				} else if (errorCode == '70002058') {
+					showError($("#error_info"), rss.error_70002058_1);
+				} else {
+					showError($("#error_info"), rss.error_70002003);
+				}
+			}
+		}, function() {
+		}, true, "json");
+	};
+
+	// 儿童帐号登录时需要更新协议时调用
+	function verifyGuardianPwd(userID, accountInfoArr, agrContentArr) {
+		var userAccount = accountInfoArr[0].userAccount;
+		userAccount = convPlusOfPhoneAccount(userAccount);
+		$("&lt;div&gt;")
+				.Dialog(
+						{
+							title : rss.guardian_pwd,
+							btnRight : {
+								text : rss.verify,
+								fn : function() {
+									var self = this;
+									var password = $("#passwordPar").val();
+									funChkPwd(userID, password, function() {
+										// 成功后的回调方法
+										self.hide();
+										openUserAgrsDialog(agrContentArr,
+												login, userID, password);
+									});
+								}
+							},
+							btnLeft : {
+								text : rss.exit,
+								fn : function() {
+								}
+							},
+							html : '&lt;span&gt;'
+									+ rss.guardian_agree_notice
+											.format(userAccount)
+									+ '&lt;/span&gt;&lt;div class="dinput"&gt;&lt;span&gt;&lt;input id="passwordPar" type="password" placeholder="'
+									+ rss.inputLingPwd
+									+ '"/&gt;&lt;/span&gt;&lt;/div&gt;&lt;p id="error_info"&gt;&lt;/p&gt;'
+						}).Dialog('show');
+	}
+
+	function allowGlobalCrossLogin(paramObj, dataParms, callbackFn) {
+		var htmlStr = rss.global_cross_site_login;
+		htmlStr += '&lt;div style="width:100%;height:16px;"&gt;&lt;/div&gt;';
+		$("&lt;div&gt;").Dialog({
+			title : rss.user_privacy_agreement_title,
+			btnLeft : {
+				text : rss.cancel_btn,
+				fn : function() {
+					this.hide();
+				}
+			},
+			btnRight : {
+				text : rss.uc_common_agree,
+				fn : function() {
+					agreeOrNot = true;
+					globalCrossSiteLogin(paramObj, dataParms, callbackFn);
+					this.hide();
+				}
+			},
+			html : htmlStr,
+			dialogStyle : localInfo.msgDialogStyle,
+			beforeAction : function() {
+
+			}
+		}).Dialog("show");
+		setTimeout(function() {
+			$("#globalCrossPrivacyPolicy").attr('href',
+					localInfo.globalCrossPrivacyPolicy);
+		}, 300);
+	}
+
+	function globalCrossSiteLogin(paramObj, dataParms, callbackFn) {
+		if (paramObj &amp;&amp; paramObj.remember_client_flag) {
+			dataParms.remember_client_flag = paramObj.remember_client_flag;
+		}
+		if (paramObj &amp;&amp; paramObj.agrIDs) {
+			dataParms.agrIDs = paramObj.agrIDs;
+		}
+		if (paramObj &amp;&amp; paramObj.guardianUserID) {
+			dataParms.guardianUserID = paramObj.guardianUserID;
+		}
+		if (paramObj &amp;&amp; paramObj.guardianPwd) {
+			dataParms.guardianPassword = paramObj.guardianPwd;
+		}
+		if (paramObj &amp;&amp; paramObj.newPassword) {
+			dataParms.newPassword = paramObj.newPassword; // 修改完成之后以新密码进行登录
+		}
+		if (paramObj &amp;&amp; paramObj.opType) {
+			dataParms.opType = paramObj.opType;
+		}
+		if (paramObj &amp;&amp; paramObj.newAuthCode) {
+			dataParms.newAuthCode = paramObj.newAuthCode;
+		}
+		if ($("#authenDialog").length &gt; 0 || $("#authAndUpdatediv").length &gt; 0) { // 有身份认证的地方
+			var txtTwoStepVerifyCode = $("#oldAuthCode").val();
+			if (dataParms.opType == 5 || dataParms.opType == 6
+					|| dataParms.opType == 7) {
+				var typeAndAccount = $.parseJSON($("#accountDiv1 input").val());
+				dataParms.authAccountType = typeAndAccount.type;
+				dataParms.authAccount = typeAndAccount.account;
+				dataParms.authcode = txtTwoStepVerifyCode;
+			} else if (dataParms.opType == 8) {
+				var typeAndAccount = $.parseJSON($("#accountDiv input").val());
+				dataParms.authAccountType = typeAndAccount.type;
+				dataParms.authAccount = typeAndAccount.account;
+				dataParms.authcode = txtTwoStepVerifyCode;
+			} else if (txtTwoStepVerifyCode) {
+				var typeAndAccount = $.parseJSON($("#accountDiv input").val());
+				dataParms.twoStepVerifyCode = txtTwoStepVerifyCode;
+				dataParms.verifyAccountType = typeAndAccount.type;
+				dataParms.verifyUserAccount = typeAndAccount.account;
+			}
+		}
+
+		ajaxHandler("remoteLogin", dataParms, function(data) {
+			if ("1" == data.isSuccess) {
+				if ($.isFunction(callbackFn)) {
+					callbackFn();
+				}
+				$(".loginmask").show();
+
+				if (localInfo.rQcodeLoginSuccessUrl) {
+					gotoUrl(localInfo.rQcodeLoginSuccessUrl);
+				} else {
+					gotoUrl(data.callbackURL);
+				}
+
+				return false;
+			} else {
+				showErrorCode(data, dataParms, callbackFn)
+			}
+
+		}, function(data) {
+
+		}, false, "JSON");
+	}
+
+	function openGlobalCrossSiteDialog(globalCrossSiteUrl) {
+		var htmlStr = rss.global_cross_page_redirect;
+		htmlStr +='&lt;div style="width:100%;height:16px;"&gt;&lt;/div&gt;';
+		$("&lt;div&gt;").Dialog({
+			title : rss.prompt,
+			btnLeft : {
+				text : rss.cancel_btn,
+				fn : function() {
+					this.hide();
+				}
+			},
+			btnRight : {
+				text : rss.iKnowBtn,
+				fn : function() {
+					gotoUrl(globalCrossSiteUrl);
+				}
+			},
+			html : htmlStr,
+			dialogStyle : localInfo.msgDialogStyle,
+			beforeAction : function() {
+
+			}
+		}).Dialog("show");
+	}
+
+	$("#username")
+			.bind(
+					"focusout",
+					function() {
+
+						var loginUserName = convPlusOfPhoneAccount($(
+								"#username").val().trim());
+						if (loginUserName) {
+							querySiteInfo(
+									loginUserName,
+									function(siteInfoObjArr, data) {
+										if (siteInfoObjArr.length &gt; 1) {
+											openCountryCodeDialog(siteInfoObjArr);
+										} else if (siteInfoObjArr.length == 0) {
+											// 如果错误码为 10000507，那么进行提示
+											var errorCode = data.errorCode;
+											if (errorCode == "10000507") {
+												openGotoOwnSiteDialog();
+											}
+										} else if (siteInfoObjArr.length == 1) {
+											var crossSiteModel = data.crossSiteModel;
+											if (crossSiteModel == 2) {
+												var redirectSiteUrl = data.redirectSiteUrl;
+
+												if (redirectSiteUrl
+														.indexOf("oauth2") &gt; 0) {
+													redirectSiteUrl = redirectSiteUrl
+															+ localInfo.queryString;
+												} else {
+													redirectSiteUrl = redirectSiteUrl
+															+ localInfo.requestURIQuery;
+												}
+												
+												if(data.extInfo)
+												{
+													if(redirectSiteUrl.indexOf("?")&gt;0)
+													{
+														redirectSiteUrl=redirectSiteUrl + "&amp;extInfo=" + data.extInfo;
+													}
+													else
+													{
+														redirectSiteUrl=redirectSiteUrl + "?extInfo=" + data.extInfo;
+													}
+												}
+												
+												openGlobalCrossSiteDialog(redirectSiteUrl);
+											}
+										}
+									}, true);
+						}
+
+					});
+
+	$(".tick").on(
+			"click",
+			function() {
+				$(this).data("value") == true ? $(this).trigger("turnoff") : $(
+						this).trigger("turnon");
+			}).on("turnon", function() {
+		$(this).attr("src", localInfo.tickOnPng);
+		$(this).data("value", true);
+		$(this).trigger("change", [ true ]);
+		// 根据产品最新的要求，这一部分不展示。
+		//showWarning($("#remeberTip"), rss.remeber_account_tip);
+
+		// showWarning($("#rememberIDTips"), rss.rememberIDTips);
+	}).on("turnoff", function() {
+		$(this).attr("src", localInfo.tickOffPng);
+		$(this).data("value", false);
+		$(this).trigger("change", [ false ]);
+	});
+
+	// 登录时,激活状态为-1的手机/email账号
+	function showVerifyAccountDialog(userAccount, tip1, tip2, tip3, imgPath,
+			btn1, btnLeft, btnRight) {
+
+		if (userAccount == null) {
+			return;
+		}
+		userAccount = userAccount.trim();
+
+		var strReg = /^(\d{4,20})$/;
+		var result = strReg.test(userAccount);
+
+		if (result) {
+			// 手机账号
+			showVerifyPhoneAccountDialog(userAccount, tip1, tip2, tip3,
+					imgPath, btn1, btnLeft, btnRight);
+		} else {
+			// 邮箱账号
+			showSuccessTipDialog(userAccount);
+		}
+	}
+	// 登录时,激活状态为-1的邮箱账号
+	function showSuccessTipDialog(userAccount) {
+		var htmlStr = '&lt;div class="ver-email removeTopPad"&gt;';
+
+		htmlStr += '&lt;div class="font-details font-details-new"&gt;'
+				+ rss.common_verify_email_show.format(userAccount) + '&lt;/div&gt;';
+		htmlStr += '&lt;div class="btn2 resendBtn btn2-noback" act="action" intervaltime="60" id="getActive" &gt;&lt;span&gt;'
+				+ rss.common_Resend
+				+ '&lt;/span&gt;&lt;/div&gt;'
+				//&lt;p id="get_authcode_error_info" class="resend"&gt;&lt;/p&gt;'
+				+ '&lt;div id="msg_error_active" class="msg_error font_size12"&gt;&lt;/div&gt;';
+		htmlStr += '&lt;/div&gt;';
+		htmlStr += '&lt;div style="margin-bottom:16px;"&gt;';
+		htmlStr += '&lt;div class="btn2 r changeborder" act="next" &gt;'
+				+ rss.common_verified
+				+ '&lt;/div&gt;&lt;span id="nextError" class="r" &gt;&lt;/span&gt;';
+		htmlStr += '&lt;div class="btn2 changeborder" act="exit"&gt;'
+			    + rss.common_leave
+				+ '&lt;/div&gt;';
+		htmlStr += '&lt;/div&gt;'
+	
+		var option = {
+			title : rss.uc_varify_huaweiID,
+			uc : true,
+			btnRight : false,
+			btnLeft : false,
+			html : htmlStr,
+			dialogStyle : localInfo.msgDialogStyle,
+			
+			actions : {
+				'action' : function() {
+					if ($("#getActive").attr("disabled")) {
+						return false;
+					}
+					if (isActiveAccount(userAccount)) {
+						$("#msg_error_active").html(rss.error_70002019);
+						//showError($("#get_authcode_error_info"),
+						//		rss.error_70002019);
+						return false;
+					}
+					getActivateEMailURL(userAccount, localInfo.reqClientType,
+							$("#getActive"));
+				},
+			
+				'next' : function() {
+					if (isActiveAccount(userAccount)) {
+						// window.location.href=localInfo.loginUrl;
+						this.hide();
+						login();
+					} else {
+						$("#msg_error_active").html(rss.common_verified_unfinished);
+						//showError($("#nextError"),
+						//		rss.common_verified_unfinished, "left", -48, 10);
+					}
+				},
+				'exit' : function() {
+					this.hide();
+				}
+			}
+		};
+		$("&lt;div&gt;").Dialog(option).Dialog('show');
+		getActivateEMailURL(userAccount, localInfo.reqClientType,$("#getActive"));
+				
+	}
+	// 登录时,激活状态为-1的手机账号
+	function showVerifyPhoneAccountDialog(userAccount, tip1, tip2, tip3,
+			imgPath, btn1, btnLeft, btnRight) {
+		var phoneVal = userAccount;
+
+		var htmlStr = "";
+		htmlStr = htmlStr + '&lt;p class="inptips2"&gt;'
+				+ rss.uc_verify_phone_tip.format(getExpressPhone(phoneVal))
+				+ '&lt;/p&gt;';
+		htmlStr = htmlStr + '&lt;div id="unactived_phone"&gt;&lt;/div&gt;';
+		htmlStr = htmlStr
+		//验证输入框（整体）
+				+ '&lt;div class="dinput-UI5 addbotmpad" id="authCodeDiv" intervaltime="60"&gt;'
+		//短信验证码（输入框左边）
+				+ '&lt;div class="dinput inptcodebox"&gt;'
+				+ '&lt;input id="security_account_verify_code" maxlength="8" minlength="4" type="text" placeholder="'
+				+ rss.smsAuthCode + '"&gt;&lt;/div&gt;'
+		//获取验证码（输入框右边）
+				+ '&lt;div class="dbtn2 r sbtn getcodebox" act="getVerificationCode" intervaltime="60" id="getAuthCodeBtn"&gt;&lt;span&gt;'
+				+ rss.getAuthCode
+				+ '&lt;/span&gt;&lt;p id="get_authcode_error_info"&gt;&lt;/p&gt;&lt;/div&gt;'
+				+ '&lt;/div&gt;'
+				+ '&lt;p id="auth_code_error_info"&gt;&lt;/p&gt;'
+				+ '&lt;div id="msg_error_active" class=" font_size12 error-tips-EMUI5 addbtmpad-msg addbtmpad-msg-top2pbtom14"&gt;&lt;/div&gt;'
+				
+		htmlStr = htmlStr
+				
+
+		var option = {
+
+			title : rss.uc_verify_phone,
+			uc : true,
+			btnRight : {
+				text : rss.verify,
+				fn : function() {
+					// 激活手机账号
+
+					var self = this;
+
+					if (!validator($("#security_account_verify_code"), true)) {
+						return;
+					}
+
+					// 验证码初步合规之后，调用后台
+					var smsAuthCode = $("#security_account_verify_code").val();
+					activatePhoneAccount(userAccount, smsAuthCode, function() {
+
+						/*
+						 * showTipDialog(rss.setSuccess, rss.close_btn,
+						 * rss.uc_common_phone_use_tip,function() {
+						 * //window.location.reload(); var form =
+						 * $('.login-form-marginTop')[0]; if (!validator(form,
+						 * true)) { return false; } $("#btnLogin").blur();
+						 * login(); });
+						 */
+						var form = $('.login-form-marginTop')[0];
+						if(form)
+						{
+							if (!validator(form, true)) {
+								return false;
+							}
+						}						
+
+						$("#btnLogin").blur();
+
+						setTimeout(function() {
+							self.hide();
+							login();
+						}, 1000);
+					});
+				}
+			},
+			btnLeft : {
+				text : rss.cancel_btn,
+				fn : function() {
+
+				}
+			},
+			actions : {
+				getVerificationCode : function() {
+				
+					var self = this;
+
+					if (checkAuthCodeBtnState(this.$dialog)) {
+
+						getAuthCodeForUnSMS(2, userAccount, 0, function(ret) {
+							if (ret) {
+								authCodeCountDown(self.$dialog, rss.resend);
+							}
+						});
+
+					}
+				}
+			},
+			html : htmlStr,
+			beforeAction : function() {
+				//checkAuthCodeInput($("#security_account_verify_code"),
+				//		"#auth_code_error_info");
+				//去掉气泡，更改错误提示信息
+				//checkAuthCodeInput($("#authCodeDiv"), "#msg_error_active");
+		    		var phoneActiveCode = $("#security_account_verify_code");
+		    		phoneActiveCode.validator("bind", {
+		    			type: ["require", "length","int"],
+		    			trim: true,
+		    			validOnChange: true,
+		    			min: 4,
+		    			max: 8,
+		    			errorFunction : function(obj, options) {
+		    					$("#authCodeDiv").addClass("input-error-EMUI5");
+		    		            switch(options.type) {
+		    			            case "require":
+		    			            	$("#msg_error_active").html(rss.common_js_inputcode);
+		    			            	//showError($("#msg_phone"), rss.common_emptyphone);
+		    			                break;
+		    			            case "length":
+		    			            	$("#msg_error_active").html(rss.common_wrong_authcode);
+		    			            	//showError($("#msg_phone"), rss.common_phone_format_error);
+		    			                break;
+		    			            case "int":
+		    			            	$("#msg_error_active").html(rss.common_wrong_authcode);
+		    			            	//showError($("#msg_phone"), rss.common_phone_format_error);
+		    			                break;
+		    		            }
+		    	        },
+		    			successFunction: function(obj, options) {
+		    				
+		    				$("#authCodeDiv").removeClass("input-error-EMUI5");
+		    			},
+		    			reInputFunction:function(){
+		    				$("#msg_error_active").html("");
+		    				$("#authCodeDiv").removeClass("input-error-EMUI5");
+		    			}
+		    		  });
+		    		  
+		    }	
+			//更改提示信息结束
+
+		};
+
+		$("&lt;div&gt;").Dialog(option).Dialog("show");
+		// verifyPhone($("#emailVal").text());
+	}
+
+	// 检查输入的校验码
+	function checkAuthCodeBtnState(ele, text) {
+		var authEle = ele.find("[act='getVerificationCode']");
+		var disabled = authEle.attr("disabled");
+		if (disabled) {
+			return false;
+		}
+		return true;
+	}
+
+	/* 获取验证码,此处添加此函数仅仅为了支撑未激活手机号码 */
+	function getAuthCodeForUnSMS(accountType, account, type, callback,
+			mobilePhone) {
+		if (!mobilePhone) {
+			mobilePhone = account;
+		}
+		var params = {};
+		var method = "";
+		var infoElement = $("#msg_error_active");
+		if (accountType == 1 || accountType == 5) {
+			method = "getEMailAuthCode";
+			params = {
+				email : account,
+				emailReqType : type,
+				accountType : accountType,
+				reqClientType : localInfo.reqClientType,
+				//pageToken : localInfo.pageToken,
+				languageCode : localInfo.lang
+			};
+		} else if (accountType == 2 || accountType == 6) {
+			method = "getSMSAuthCode";
+			params = {
+				accountType : accountType,
+				userAccount : account,
+				reqClientType : localInfo.reqClientType,
+				mobilePhone : mobilePhone,
+				operType : "5",
+				smsReqType : type,
+				//pageToken : localInfo.pageToken,
+				languageCode : localInfo.lang
+			};
+		}
+
+		ajaxHandler(method, params,function(data) {
+					if (data &amp;&amp; data.isSuccess == 1) {
+						if (method == "getSMSAuthCode") {
+							//showSuccess(infoElement, rss.phoneMegHasSendTo
+							//		.format(getExpressPhone(account)));
+						} else if (method == "getEMailAuthCode") {
+							//showSuccess(infoElement, rss.emialHasSendTo
+								//	.format(account));
+							$(".userAccount").html(account);
+						}
+					} else {
+						switch (data.errorCode) {
+						case "10000001":
+						case "10000002":
+						case "10000003":
+						case "70001201": {
+							//系统繁忙，请稍后再试！
+							//showError(infoElement, rss.error_10000001);
+							$("#msg_error_active").html(rss.error_10000001);
+							break;
+						}
+						case "70001401": {
+							//系统内部错误
+							// showError(infoElement, rss.error_70001401);
+							$("#msg_error_active").html(rss.error_70001401);
+							break;
+						}
+						case "70002002": {
+							//手机号存在多个帐号，需要加上国家码
+							//showError(infoElement, rss.error_needcountrycode);
+							$("#msg_error_active").html(rss.error_needcountrycode);
+							break;
+						}
+						case "70002001": {
+							//用户不存在
+							//showError(infoElement, rss.error_70002001);
+							$("#msg_error_active").html(rss.error_70002001);
+							break;
+						}
+						case "70002028": {
+							//用户没有传入的手机号
+							//showError(infoElement, rss.error_70002028);
+							$("#msg_error_active").html(rss.error_70002028);
+							break;
+						}
+						case "70002046": {
+							//手机号已经激活
+							//showError(infoElement, rss.error_70002046);
+							$("#msg_error_active").html(rss.error_70002046);
+							break;
+						}
+						case "70002030": {
+							//短信验证码发送失败
+							//showError(infoElement, rss.error_70002030);
+							$("#msg_error_active").html(rss.error_70002030);
+							break;
+						}
+						case "70001102": {
+							if (method == "getEMailAuthCode") {
+								//获取验证码邮件次数较为频繁，请检查收件箱或垃圾箱是否收到验证邮件，1小时后可重试。
+								//showError(infoElement, rss.error_70001102_0);
+								$("#msg_error_active").html(rss.error_70001102_0);
+							} else if (method == "getSMSAuthCode") {
+								//获取验证码短信次数较为频繁，1小时后可重试。
+								//showError(infoElement, rss.error_70001102_1);
+								$("#msg_error_active").html(rss.error_70001102_1);
+							}
+							break;
+						}
+						case "70001104": {
+							if (method == "getEMailAuthCode") {
+								$("#msg_error_active").html(rss.error_70001104_0);
+								//showError(infoElement, rss.error_70001104_0,
+								//		"left");
+							} else if (method == "getSMSAuthCode") {
+								$("#msg_error_active").html(rss.error_70001104_1);
+								// showError(infoElement, rss.error_70001104_1,
+								//		"left");
+							}
+							break;
+						}
+						case "10000004": {
+							//非法操作!
+							//showError(infoElement, rss.error_10000004);
+							$("#msg_error_active").html(rss.error_10000004);
+							break;
+						}
+						case "10000002": {
+							//不提供服务!
+							//showError(infoElement, rss.error_10000002);
+							$("#msg_error_active").html(rss.error_10000002);
+							break;
+						}
+						default: {
+							//获取验证码错误
+							//showError(infoElement, rss.get_authcode_error);
+							$("#msg_error_active").html(rss.get_authcode_error);
+							break;
+						}
+						}
+					}
+
+					if (callback) {
+						callback(data.isSuccess == 1 ? true : false);
+					}
+				}, function() {
+				}, true, "json");
+	}
+
+	function authCodeCountDown(ele, text) {
+		var authEle = ele.find("[act='getVerificationCode']");
+		var disabled = authEle.attr("disabled");
+		if (disabled) {
+			return false;
+		}
+		authEle.addClass("auth_code_grey");
+		jsInnerTimeout(authEle, text);
+		return true;
+	}
+
+	// 激活手机账号
+	function activatePhoneAccount(userAccount, authCode, callback) {
+		var params = {
+			mobilePhone : userAccount,// 激活手机，需要传入明文手机账号
+			reqClientType : localInfo.reqClientType,
+			smsAuthCode : authCode,
+			//pageToken : localInfo.pageToken
+		};
+
+		ajaxHandler("activateMsisdn", params, function(data) {
+			if (data &amp;&amp; data.isSuccess == 1) {
+				if (typeof callback == "function") {
+					callback();
+				}
+			} else {
+
+				switch (data.errorCode) {
+				case '10000001':
+				case '70001101':
+				case '70001201': {
+					//系统繁忙，请稍后再试！
+					//showError($(".errortip"), rss.error_10000001);
+					$("#msg_error_active").html(rss.error_10000001)
+					break;
+				}
+				case '70002039': {
+					//验证码不存在或已过期
+					//showError($(".errortip"), rss.error_70002039);
+					$("#msg_error_active").html(rss.error_70002039)
+					break;
+				}
+				case '70001401': {
+					//系统内部错误
+					//showError($(".errortip"), rss.error_70001401);
+					$("#msg_error_active").html(rss.error_70001401)
+					break;
+				}
+				case '70002001': {
+					//用户不存在
+					//showError($(".errortip"), rss.error_70002001);
+					$("#msg_error_active").html(rss.error_70002001)
+					break;
+				}
+				default: {
+					//系统繁忙，请稍后再试！
+					//showError($(".errortip"), rss.error_10000001);
+					$("#msg_error_active").html(rss.error_10000001)
+					break;
+				}
+				}
+			}
+
+		}, function() {
+		}, true, "json");
+	}
+
+	// 激活手机账号成功后,显示提示对话框
+	function showTipDialog(title, btnText, content, callback) {
+		$("&lt;div&gt;").Dialog(
+				{
+					title : title,
+					btnRight : {
+						text : btnText,
+						fn : function() {
+							this.hide();
+							if (typeof callback == "function") {
+								callback();
+							}
+						}
+					},
+					btnLeft : false,
+					html : '&lt;div class="center"&gt;' + '&lt;img class="dimg" src="'
+							+ localInfo.successImgPath + '"&gt;'
+							+ '&lt;p class="inptips2"&gt;' + content + '&lt;/p&gt;'
+							+ '&lt;/div&gt;'
+				}).Dialog("show");
+	}
+
+});
+
+function openGotoOwnSiteDialog() {
+	var htmlStr = rss.noSupportService;
+	htmlStr += '&lt;div style="width:100%;height:16px;"&gt;&lt;/div&gt;';
+	$("&lt;div/&gt;").Dialog({
+		title : rss.prompt,
+		btnLeft : false,
+		btnRight : {
+			text : rss.iKnowBtn,
+			fn : function() {
+				this.hide();
+			}
+		},
+		html : htmlStr,
+		dialogStyle : localInfo.msgDialogStyle,
+		beforeAction : function() {
+
+		}
+
+	}).Dialog("show");
+
+}
+
+// 弹出框
+
+function isActiveAccount(userAccount) {
+	var isExist = false;
+
+	getAccountInfo(userAccount, 0, function(data) {
+		if (data) {
+
+			for (var i = 0; i &lt; data.length; i++) {
+				var account = data[i];
+				if ((account.accountType == 1 || account.accountType == 2)
+						&amp;&amp; account.accountState == 1) {
+					isExist = true;
+					break;
+				}
+			}
+		}
+	});
+	return isExist;
+}
+
+/**
+ * 仅是调用getActivateEMailURL接口
+ */
+function getActivateEMailURL(userAccount, reqClientType, $btn) {
+	var param = {
+		accountType : 1,
+		userAccount : userAccount,
+		reqClientType : reqClientType,
+		email : userAccount,
+		//pageToken : localInfo.pageToken,
+		languageCode:localInfo.lang
+	};
+	ajaxHandler("getActivateEMailURL", param, function(data) {
+		if (data.isSuccess == '1') {
+
+			if ($btn != null) {
+				$btn.attr("IntervalTime", 60);
+				$btn.addClass("auth_code_grey");
+				jsInnerTimeout($btn, rss.common_Resend);
+				$btn.attr("disabled");
+				$("#msg_error_active").html("");
+			}
+		} else {
+
+			if ($btn != null) {
+				$btn.removeAttr("disabled");
+			}
+			if (data.errorCode == "10000001" || data.errorCode == "70001201") {
+				//showError($("#get_authcode_error_info"), rss.error_10000001);
+				$("#msg_error_active").html(rss.error_10000001);
+			} else if (data.errorCode == "10000002") {
+				//showError($("#get_authcode_error_info"), rss.error_10000002);
+				$("#msg_error_active").html(rss.error_10000002);
+			} else if (data.errorCode == "10000004") {
+				//showError($("#get_authcode_error_info"), rss.error_10000004);
+				$("#msg_error_active").html(rss.error_10000004);
+			} else if (data.errorCode == "70002001") {
+				//showError($("#get_authcode_error_info"), rss.error_70002001);
+				$("#msg_error_active").html(rss.error_70002001);
+			} else if (data.errorCode == "70001401") {
+				//showError($("#get_authcode_error_info"), rss.error_70001401);
+				$("#msg_error_active").html(rss.error_70001401);
+			} else if (data.errorCode == "70002008") {
+				//showError($("#get_authcode_error_info"), rss.error_70002008);
+				$("#msg_error_active").html(rss.error_70002008);
+			} else if (data.errorCode == "70001102") {
+				//showError($("#get_authcode_error_info"), rss.error_70001102_2);
+				$("#msg_error_active").html(rss.error_70001102_2);
+			} else if (data.errorCode == "70001104") {
+				showError($("#get_authcode_error_info"), rss.error_70001104_3,
+						"right", -20, 20);
+			} else if (data.errorCode == "70002019") {
+				//showError($("#get_authcode_error_info"), rss.error_70002019);
+				$("#msg_error_active").html(rss.error_70002019);
+			} else if (data.errorCode == "70002009") {
+				//showError($("#get_authcode_error_info"), rss.error_70002009);
+				$("#msg_error_active").html(rss.error_70002009);
+			} else {
+				$("#msg_error_active").html(rss.uc_common_get_auth_email_error);
+				//showError($("#get_authcode_error_info"),
+				//		rss.uc_common_get_auth_email_error);
+			}
+		}
+	}, function() {
+	}, true, "json");
+
+}
+
+function chgRandomCodeForLogin() {
+	var randomCode = $("#randomCode");
+	var randomCodeImg = $('#randomCodeImg');
+	chgRandomCode(randomCodeImg[0], localInfo.webssoLoginSessionCode);
+	randomCode.val("");
+}
+
+function querySiteInfo(userAccount, callbackFn, asynOrNot) {
+	// 账号为空，不需要访问后台
+	if (!userAccount) {
+		return;
+	}
+
+	var dataParms = {
+		"userAccount" : convPlusOfPhoneAccount(userAccount),
+		"reqClientType" : localInfo.reqClientType,
+		//"pageToken" : localInfo.pageToken
+	};
+	ajaxHandler("isExsitUser", dataParms, function(data) {
+		var isSuccess = data.isSuccess;
+		if (isSuccess == 1) {
+			var siteInfoObjArr = [];
+			if (data.existAccountFlag == 1 || data.existAccountFlag == 2) {
+				var siteInfoList = data.siteInfoList;
+				if (siteInfoList) {
+					for (var i = 0; i &lt; siteInfoList.length; i++) {
+						var siteInfo = siteInfoList[i];
+						var siteInfoObj = {};
+						siteInfoObj.siteID = siteInfo.siteID;
+						siteInfoObj.countryCode = siteInfo.cy;
+						siteInfoObj.loginUrl = siteInfo.loginUrl;
+						siteInfoObjArr.push(siteInfoObj);
+					}
+				}
+			}
+			callbackFn(siteInfoObjArr, data);
+		} else {
+			callbackFn([], data);
+		}
+
+	}, function() {
+	}, asynOrNot, "json");
+}
+
+function openCountryCodeDialog(siteInfoObjArr) {
+	var htmlStr = '&lt;div class="mask"&gt;&lt;/div&gt;';
+	htmlStr += '&lt;div class="dialog"&gt;';
+	htmlStr += '&lt;div class="dcent"&gt;';
+	$
+			.each(
+					siteInfoObjArr,
+					function(index, value) {
+						var siteInfoObj = value;
+						htmlStr += '&lt;div class="code-node line mkcl"&gt;';
+						htmlStr += '&lt;b data-value="false" class="ccr radio roff r" style="display:block;margin-top:10px"&gt;&lt;/b&gt;';
+						htmlStr += '&lt;p class="item" style="height:42px;line-height:42px"&gt;';
+						var countryCodeDisplay = "+" + siteInfoObj.countryCode;
+						htmlStr += '&lt;span class="split cc"&gt;'
+								+ countryCodeDisplay
+								+ '&lt;/span&gt;&lt;span class="split"&gt;'
+								+ $("#username").val().trim()
+								+ '&lt;/span&gt;&lt;input type="hidden" value="'
+								+ siteInfoObj.siteID + '"&gt;';
+						htmlStr += '&lt;/p&gt;';
+						htmlStr += '&lt;/div&gt;';
+
+					});
+	htmlStr += '&lt;/div&gt;';
+	htmlStr += '&lt;/div&gt;';
+	$("#selectCountryCodeDiv").html(htmlStr);
+	$(".code-node:last").removeClass("line");
+	$(".dialog").css({
+		"width" : $(".dinput").outerWidth() + "px",
+		// "top":($(window).height()/2-$(".dialog").height()/2)+"px",
+		"position" : "absolute",
+		"top" : $("#username").offset().top + 44 + "px",
+		"left" : $("#username").offset().left - 14 + "px",
+		"margin" : "0px"
+	});
+
+	$(".radio").on(
+			"click",
+			function(e) {
+				$(this).removeClass('roff');
+				$(this).addClass('ron');
+				var self = $(this);
+				setTimeout(function() {
+					var countrycode = self.parent().find(".cc").text().trim()
+							.replace("+", "00");
+					var newLoginName = countrycode
+							+ $("#username").val().trim();
+					$("#selectCountryCodeDiv").html("");
+					$("#username").val(newLoginName);
+					localInfo.siteID = self.parent().find("input").val();
+					/*
+					 * if (localInfo.currentSiteID != localInfo.siteID) {
+					 * openGotoOwnSiteDialog(siteInfoObjArr[0].loginUrl); }
+					 */
+				}, 200);
+
+			});
+}
+
+function getAgreementContent(agrIDs, agrContentArr, countryCode) {
+	var dataParms = {
+		"agrIDs" : JSON.stringify(agrIDs),
+		"reqClientType" : localInfo.reqClientType,
+		"lang" : localInfo.lang,
+		"countryCode" : countryCode,
+		"siteID" : localInfo.accountSiteID,
+		"bizIfmUrl" : localInfo.bizIfmUrl,
+		//"pageToken" : localInfo.pageToken
+	};
+	ajaxHandler("getAgreementContent", dataParms, function(data) {
+		var isSuccess = data.isSuccess;
+		if (isSuccess == '1') {
+			if (data.agreementContents) {
+				$.each(data.agreementContents, function(index, agreement) {
+					agrContentArr.push(agreement);
+				});
+			}
+		}
+	}, function() {
+	}, false, "json");
+}
+
+function openUserAgrsDialog(agrContentArr, callbackFn, guardianUserID,
+		guardianPwd) {
+	var myDate = new Date();
+	var thisYear = myDate.getFullYear();
+	var thisMonth = myDate.getMonth() + 1;
+	var thisDay = myDate.getDate();
+	var thisTime = thisYear + "-" + thisMonth + "-" + thisDay;
+	var agrIDsStr = "";
+	htmlStr = '';
+	if ($.isArray(agrContentArr)) {
+		for (var i = 0; i &lt; agrContentArr.length; i++) {
+			var agreement = agrContentArr[i];
+			agrIDsStr += agreement.agrID + "|";
+			htmlStr += '&lt;div class="docnode"&gt;';
+			htmlStr += '&lt;div class="docname"&gt;';
+			if (localInfo.accountSiteID == '9' &amp;&amp; agreement.agrID != '11') {
+				htmlStr += '&lt;a class="node-title" target="_blank" href="'
+						+ agreement.agrHref + '"&gt;' + agreement.agrTitle
+						+ '&lt;/a&gt;'
+			} else if (localInfo.accountSiteID != '9'
+					|| agreement.agrID == '11') {
+				htmlStr += agreement.agrTitle;
+			}
+			htmlStr += '&lt;/div&gt;';
+			htmlStr += '&lt;div class="doccont"&gt;';
+			if (currentSiteID != "9") {
+				htmlStr += agreement.agrBrief;
+			}
+			htmlStr += '&lt;/div&gt;';
+			// htmlStr += '&lt;div
+			// class="docdate"&gt;'+rss.agree_date+'：'+thisTime+'&lt;/div&gt;';
+			htmlStr += '&lt;/div&gt;';
+		}
+	}
+
+	$("&lt;div&gt;").Dialog({
+		title : rss.uc_useragreement_update,
+		btnLeft : {
+			text : rss.uc_common_no_agree,
+			fn : function() {
+			}
+		},
+		btnRight : {
+			text : rss.uc_common_agree,
+			fn : function() {
+				var self = this;
+				var paramObj = {
+					guardianUserID : guardianUserID,
+					guardianPwd : guardianPwd,
+					opType : "2",
+					agrIDs : agrIDsStr.substring(0, agrIDsStr.length - 1)
+				};
+				if (guardianUserID) {
+					paramObj.opType = "4";
+				}
+				callbackFn(paramObj, function() {
+					self.hide();
+				});
+			}
+		},
+		html : htmlStr,
+		dialogStyle : localInfo.msgDialogStyle,
+		beforeAction : function() {
+			// 页面渲染完了之后，进行相关处理。
+			$(".docname").css("margin-bottom", "18px");
+			$(".docname").css("margin-top", "8px");
+
+			$(".docdate").css("margin-bottom", "8px");
+			$(".docdate").css("margin-top", "10px");
+
+			$(".docnode").css("padding-top", "8px");
+			$(".docnode").css("padding-bottom", "8px");
+			$(".docnode").css("width", "96%");
+			$(".docnode").css("margin-left", "auto");
+			$(".docnode").css("margin-right", "auto");
+
+			for (var i = 0; i &lt; agrContentArr.length - 1; i++) {
+				$(".docnode").css("border-bottom", "1px solid #e5e5e5");
+			}
+
+			$(".global_dialog_confirm_title").css("margin-top", "8px");
+			$(".global_dialog_confirm_ft").css("margin-bottom", "8px");
+			$(".global_dialog_confirm_nor").css("width", "45%");
+
+			$(".docnode:last").css("border-bottom", "0px");
+
+			$(".global_dialog_confirm_ft").css("padding-top", "20px");
+			// //$(".global_dialog_confirm_nor").css("width","90%");
+		}
+	}).Dialog("show");
+
+}
+
+// 转换电话号码前的加号
+function convPlusOfPhoneAccount(account) {
+	// The telephone number plus conversion
+	if (account) {
+		var temp = account.replace(/^\s+|\s+$/g, ''); // 去掉头尾空白字符
+
+		var ch = temp.charAt(0);
+
+		if (ch == '+') {
+			return "00" + temp.substring(1);
+		}
+
+		return temp;
+	}
+
+	return account;
+}
+
+function checkLoginInput()
+{
+	    
+		if ($("#username").val()&amp;&amp;$("#password").val()&amp;&amp;$("#randomCode").val()) {
+			$("#btnLogin").removeClass("disabled");
+		}
+		else
+		{
+			$("#btnLogin").addClass("disabled");
+		}	
+}</pre></body></html>

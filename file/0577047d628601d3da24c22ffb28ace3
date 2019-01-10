@@ -1,0 +1,167 @@
+<!DOCTYPE html><html lang="en"><head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"> 
+    <title>河北省人事考试网上报名服务平台</title>
+    <link href="/Content/index.css" rel="stylesheet">
+    <!-- basic styles -->
+    <link href="http://apps.bdimg.com/libs/bootstrap/3.3.0/css/bootstrap.min.css" rel="Stylesheet">
+    <link href="/Content/css/font-awesome.min.css" rel="stylesheet">
+
+    <!--[if lte IE 6]>
+    <link rel="stylesheet" type="text/css" href="/Content/css/bootstrap-ie6.css">
+    <link rel="stylesheet" type="text/css" href="/Content/css/ie.css">
+    <![endif]-->
+    <script src="//hm.baidu.com/hm.js?fc6f72c454f2938bcd3aecf4e8af4aff"></script><script src="http://apps.bdimg.com/libs/jquery/2.0.3/jquery.min.js"></script>
+    <script type="text/javascript">
+        function MM_showHideLayers() { //v9.0
+            var i, p, v, obj, args = MM_showHideLayers.arguments;
+            for (i = 0; i < (args.length - 2) ; i += 3)
+                with (document) if (getElementById && ((obj = getElementById(args[i])) != null)) {
+                    v = args[i + 2];
+                    if (obj.style) { obj = obj.style; v = (v == 'show') ? 'visible' : (v == 'hide') ? 'hidden' : v; }
+                    obj.visibility = v;
+                }
+        }
+        var sysid = "G17";
+        $(function () {
+            //验证码
+            $("#yz").click(function () {
+                var d = new Date();
+                $("#yz").attr("src", "/Account/yanzheng?" + d.getTime());
+            });
+
+            $("#re_btn").show();
+            $("#login-main").show();
+            $("#login-main1").show();
+            $("#login-tip").html("");
+        });
+        function wxLogin() {
+            $.post("http://wx.hebpta.com.cn/api/WxLogin/", { "": sysid }, function (result) {
+                $("#smdl").attr("src", "http://wx.hebpta.com.cn/api/WxQrCode/?id=" + result);
+                $("#smdl2").hide(200);
+                $("#wxBtn").hide(200);
+                $("#wxBtn2").show(200);
+                $("#smdl").show(200);
+                $("#wxText").text("微信扫描登录");
+                (function pollServerForNewMail() {
+                    $.ajax({
+                        url: "/Account/WxLogin",
+                        headers: { "Authorization": "Qrcode " + result },
+                        type: "GET",
+                        success: function (data) {
+                            if (data == 'true') {
+                                $("#smdll").html("验证成功，页面正在跳转，请等待。");
+                                location.href = "/Home/Index";
+                            }
+                            setTimeout(pollServerForNewMail, 3000);
+                        },
+                        error: function (error, textStatus, errorThrown) {
+                            //alert(error + textStatus + errorThrown);
+                        }
+                    });
+                }());
+            });
+        }
+        function wxLogin2() {
+            $("#smdl2").show(200);
+            $("#wxBtn").show(200);
+            $("#wxBtn2").hide(200);
+            $("#smdl").hide(200);
+            $("#wxText").text("扫码关注河北省人事考试局微信");
+        }
+        function checkParent() {
+
+            if (window.parent.length > 0) {
+                window.parent.location = "/Account/login";
+            }
+        }
+    </script>
+    <script>
+        var _hmt = _hmt || [];
+        (function () {
+            var hm = document.createElement("script");
+            hm.src = "//hm.baidu.com/hm.js?fc6f72c454f2938bcd3aecf4e8af4aff";
+            var s = document.getElementsByTagName("script")[0];
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+</head>
+<body style="background-color: rgb(246, 246, 246); margin-top: 35px; " onload="checkParent();">
+    <div id="photo"><img src="/image/qs.png"></div>
+    <div class="top">河北省2017年度<br>招录公务员省市县乡四级联考、<br>选调生选拔工作、大学生村官选聘网上报名</div>
+    <div id="login-tip" style=" width:400px; margin:0 auto;text-align:center;"></div>
+    <div id="login-main" style="">
+        <div class="left">
+            <div class="left1" id="wxText">扫码关注河北省人事考试局微信</div>
+            <div class="left2">
+                <img id="smdl" src="" height="165" style="border:#000 solid 1px;display:none;">
+                <img id="smdl2" src="/Content/images/hebptawx.jpg" height="165" style="border:#000 solid 1px; margin-right:75px;">
+            </div>
+            <div class="left3" id="smdll">
+                <a id="wxBtn" href="#" style="margin-right:76px;" onclick="wxLogin()">点击这里开启微信登录</a>
+                <a id="wxBtn2" href="#" style="margin-right:70px;display:none;" onclick="wxLogin2()">返回</a>
+            </div>
+        </div> 
+    </div>
+    <div class="middle">
+    </div>
+    <div id="login-main1" style="" class="right">
+        账号密码登录
+        <div class="textbox">
+<form action="/Account/login" class="form-signin" method="post">                <fieldset>
+                    <div id="form-content">
+                        <div>
+                            <label class="block clearfix">
+                                <span class="block input-icon input-icon-right">
+                                    <input type="text" class="form-control" placeholder="用户名" id="username" name="username" width="200"><i class="icon-user"></i>
+                                </span>
+                            </label>
+                        </div>
+                        <div>
+                            <label class="block clearfix">
+                                <span class="block input-icon input-icon-right">
+                                    <input type="password" value="" class="form-control" placeholder="密码" id="password" name="password" width="200"><i class="icon-lock"></i>
+                                </span>
+                            </label>
+                        </div>
+                        <div>
+                            <label class="block clearfix" style="float:left;">
+                                <span class="block input-icon input-icon-right">
+                                    <input type="text" value="" class="form-control col-xs-6" placeholder="验证码" id="validateCode" name="validateCode" style="width:140px;">
+                                </span>
+                            </label>
+                            <div style=" float:left; padding:5px;">
+                                <img id="yz" src="/Account/yanzheng" style="border:#000 solid 1px;">
+                            </div>
+                            <div style="clear:both;"></div>
+                        </div>
+                        <div class="space"></div>
+                        <div class="clearfix">
+                            <button type="submit" class="btn btn-success"> &nbsp;&nbsp;&nbsp;登&nbsp;&nbsp;录&nbsp;&nbsp; &nbsp;</button>
+                            <span style="font-size:10pt;">
+                                &nbsp;&nbsp;&nbsp;&nbsp;
+                                <a href="/account/findpwd">找回登录信息？</a>
+                            </span>
+                        </div>
+                        <div class="space-4"> </div>
+                    </div>
+                </fieldset>
+</form>        </div>
+        <h4 class="tip">
+            
+        </h4>
+    </div>
+    <div class="footer">
+<a id="re_btn" class="btn btn-small btn-info" href="#" style="font-weight: bold; "> &nbsp;&nbsp;停&nbsp;止&nbsp;注&nbsp;册&nbsp;&nbsp;</a>
+    
+    </div>
+
+
+
+<div class="qs">考试考务咨询电话：0311-83808508、83817978<br>考试技术咨询电话：0311-83811313</div>    
+<div class="qs"> <br></div>
+<div class="qs"><a href="#" onmouseover="MM_showHideLayers('photo','','show')" onmouseout="MM_showHideLayers('photo','','hide')">浏览器兼容问题</a> </div>
+    <div class="copyright">Copyright 2016 © 河北省人事考试局 All Right Reserved. <a href="/Account/Adlogin">OA</a></div>
+
+
+</body></html>

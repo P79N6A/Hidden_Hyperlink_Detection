@@ -1,0 +1,268 @@
+<html><head></head><body><pre style="word-wrap: break-word; white-space: pre-wrap;">var needShowAddFav = false;
+window.onbeforeunload = onbeforeunload_handler;
+window.onunload = onunload_handler;
+
+function getQS(key)
+{
+	var queryString;
+	var ref = document.referrer;
+
+	var search = window.location.search;
+	if (search !=null &amp;&amp; search.length &gt; 0)
+	{
+		queryString = search.substring(1);
+	}
+
+	if(queryString == null){
+		return null;
+	}
+	var kvItems = queryString.split("&amp;");
+	var kv;
+	for (i=0; i &lt; kvItems.length; i++) 
+	{
+		kv =  kvItems[i].split("=");
+		if (kv[0] == key)
+	   {
+			return kv.length == 1 ? "" : kv[1];
+		}
+	}
+}
+
+function getU()
+{
+	return getQS("u");	    
+}
+
+function getCode()
+{
+	return getQS("code");
+}
+
+function isReg()
+{
+	return getQS("reg") !=  null;
+}
+
+function getRef() {
+	var ref = document.referrer;	
+	return (ref == null || ref == "") ? getFrom() : ref;
+}
+
+function getFrom() {
+	var from = getQS("site");
+	return from == null ? "" : from;
+}
+
+    function addFav(key) {
+        try
+        {
+            window.external.addFavorite("http://lds.100bt.com/?fav=" + key  ,"龙斗士");
+        }
+        catch (e)
+        {
+            try{
+                window.external.addToFavoritesBar("http://lds.100bt.com/?fav=" + key  ,"龙斗士", "slice");    
+            }
+            catch(e)
+            {
+                try
+                {
+                    window.sidebar.addPanel("龙斗士","http://lds.100bt.com/?fav=" + key  , "");
+                }
+                catch (e)
+                {
+                    alert("非常抱歉，你的浏览器目前还不支持此功能！请在浏览器的收藏夹或书签菜单里进行手动添加。");
+                }
+            }
+        }
+        
+        return "callsuccess";
+    }
+
+	
+function setHomePage() {
+    if (document.all) {
+        document.body.style.behavior='url(#default#homepage)';
+        document.body.setHomePage('http://lds.100bt.com'); 
+    }
+}
+	
+function navToHelp() {
+    window.location.href = "http://www.9aola.com/help/quickstart.html";
+}
+
+function onbeforeunload_handler(){
+	if(needShowAddFav){
+		addFav("");
+	}
+	var flash = thisObj("myFlash");
+	var closeTips = flash.closeGame("关闭游戏");
+	if (closeTips != ""){
+	 event.returnValue = closeTips;
+	}
+}
+
+function onunload_handler(){
+	var flash = thisObj("myFlash");
+	if(flash &amp;&amp; flash.closeSocket){
+		flash.closeSocket("关闭Socket");
+	}
+}
+
+function thisObj(movieName) {
+    if (navigator.appName.indexOf("Microsoft") != -1) {
+		return window[movieName];
+	}else{
+        return document[movieName];
+    }
+}
+
+function setNeedAddFav(){
+	needShowAddFav = true;
+}
+
+function refreshWeb(){
+    window.location.reload();
+}
+
+
+//在游戏div上面盖一个面板
+function showPanel(url){
+	if(url == null){
+		return;
+	}
+	removeDiv();
+	
+	var layerW = 960;
+	var layerH = 560;
+	var panelDiv = document.createElement("div");
+	panelDiv.setAttribute("id", "panelDiv"); 
+	panelDiv.setAttribute("name", "panelDiv"); 
+	panelDiv.setAttribute("align", "center");
+	panelDiv.style.position = "absolute";
+	
+	var posLeft = (getBody().scrollWidth - layerW) / 2;
+	panelDiv.style.left = posLeft + "px";
+	panelDiv.style.top = "0px";		
+	
+	panelDiv.style.width = layerW + "px"; 
+	panelDiv.style.height = layerH + "px"; 
+	panelDiv.style.zIndex = "10001";
+	panelDiv.innerHTML = '&lt;iframe id="panelIframe" src="' + url + '" width="100%" height="100%" frameborder="0" scrolling="yes"&gt;&lt;/iframe&gt;' + 
+		'&lt;a href="javascript:closePanel();" class="gameVdoCloseBtn"&gt;&lt;/a&gt;';
+	getBody().appendChild(panelDiv);
+}
+
+function showPanelWithoutCloseBtn(url) {
+    if (url == null) {
+        return;
+    }
+    removeDiv();
+
+    var layerW = 960;
+    var layerH = 560;
+    var panelDiv = document.createElement("div");
+    panelDiv.setAttribute("id", "panelDiv");
+    panelDiv.setAttribute("name", "panelDiv");
+    panelDiv.setAttribute("align", "center");
+    panelDiv.style.position = "absolute";
+
+    var posLeft = (getBody().scrollWidth - layerW) / 2;
+    panelDiv.style.left = posLeft + "px";
+    panelDiv.style.top = "0px";
+
+    panelDiv.style.width = layerW + "px";
+    panelDiv.style.height = layerH + "px";
+    panelDiv.style.zIndex = "10001";
+    panelDiv.innerHTML = '&lt;iframe id="panelIframe" src="' + url + '" width="100%" height="100%" frameborder="0" scrolling="yes"&gt;&lt;/iframe&gt;';
+    getBody().appendChild(panelDiv);
+}
+
+function closePanel(){
+	removeDiv();
+	var myFlash = thisObj("myFlash");
+	myFlash.focus();
+	myFlash.closeVolPanel();
+}
+
+function getBody(){
+	return document.getElementsByTagName("body")[0];
+}
+
+function removeDiv(){
+	var isIE = document.all ? true : false;
+	var panel_Div = document.getElementById("panelDiv")
+
+	if(panel_Div != null)	{
+		if(isIE) panel_Div.removeNode(true);
+		else panel_Div.parentNode.removeChild(panel_Div);
+	}
+}
+
+function isFromDesktop(){
+	var url = location.href;
+	return url.indexOf("link=DesktopShortcut") &gt; 0;
+}
+
+function showUrlInGame(url) {
+    showUrlByInnerHtml(url, false);
+}
+
+function showUrlInGameWithCloseBtn(url) {
+    showUrlByInnerHtml(url, true);
+}
+
+function showUrlByInnerHtml(url, isNeedClosButton) {
+    var vBoxW = 960;
+    var vBoxH = 560;
+    clearVideoPlayer();
+    var innerHtml = isNeedClosButton ? createInnerHtmlWithCloseButton(url, vBoxW, vBoxH) : createInnerHtmlWithOutCloseButton(url, vBoxW, vBoxH);
+    var oDiv = createODiv(vBoxW, vBoxH, innerHtml);
+    document.body.appendChild(oDiv);
+}
+
+function createODiv(vBoxW, vBoxH, innerHtml) {
+    var oDiv = document.createElement("div");
+    oDiv.setAttribute("id", "vDiv");
+    oDiv.setAttribute("align", "center");
+    oDiv.style.position = "absolute";
+    oDiv.style.left = "0px";
+    oDiv.style.top = "0px";
+    oDiv.style.width = "100%";
+    oDiv.style.height = "100%";
+    oDiv.style.zIndex = "10001";
+    oDiv.style.overflow = "hidden";
+    oDiv.innerHTML = innerHtml;
+    return oDiv;
+}
+
+function createInnerHtmlWithCloseButton(url, vBoxW, vBoxH) {
+ return	'&lt;div class="gameVdoCloseBtnDiv"&gt;&lt;a class="gameVdoCloseBtn" href="#" onclick="clearVideoPlayer();"&gt;&lt;/a&gt;&lt;/div&gt;'+
+ '&lt;iframe id="vIframe" src="'+url+'" width="100%" height="100%" frameborder="0" scrolling="yes" overflow="hidden"&gt;&lt;/iframe&gt;';
+}
+function createInnerHtmlWithOutCloseButton(url, vBoxW, vBoxH){
+return '&lt;iframe id="vIframe" src="'+url+'" width="100%" height="100%" frameborder="0" scrolling="yes" overflow="hidden"&gt;&lt;/iframe&gt;';
+}
+
+function clearVideoPlayer(){
+	var vDiv = document.getElementById('vDiv');
+	var vIframe = document.getElementById('vIframe');
+	if(vIframe) {
+		vIframe.src = "";
+	}
+	if(vDiv){
+		if(document.all) vDiv.removeNode(true);
+		else vDiv.parentNode.removeChild(vDiv);
+	}
+}
+
+function bindRdHandler(isSuccess) {
+         if(isSuccess){
+             thisObj("myFlash").openWeiBoSharePanel("打开微博分享页面");
+         }
+}
+function getLocalUrl() {
+    return window.location.href;
+}
+
+</pre></body></html>

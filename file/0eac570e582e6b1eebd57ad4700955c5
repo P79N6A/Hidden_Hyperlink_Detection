@@ -1,0 +1,657 @@
+
+<!doctype html>
+<html lang="zh-tw">
+<head>
+<meta charset="utf-8" />
+<meta name="author" content="馬路科技 | 台北 |  台南 | 網頁設計 | 網站設計 | 網頁製作 | Patty" />
+<meta name="copyright" content="台北 | 台南 | 馬路網頁設計公司 (C)1996-2013" />
+<title>麥克兒童外文書店</title>
+<script type="text/javascript" language="javascript" src="include/jscode/jquery.js"></script>
+<script type="text/javascript" language="javascript" src="include/jscode/fun.js"></script>
+<script type="text/javascript" language="javascript" src="include/jscode/Carousel01.js"></script>
+<link rel="stylesheet" type="text/css" href="include/jscode/Carousel01.css" media="screen" />
+<script type="text/javascript" language="javascript" src="include/jscode/datepicker.js"></script>
+<script type="text/javascript" language="javascript" src="include/jscode/myError.js"></script>
+<script type="text/javascript" language="javascript" src="include/jscode/twzipcode.js"></script>
+<script type="text/javascript" language="javascript" src="include/jscode/pic.js"></script>
+<script type="text/javascript" language="javascript" src="include/jscode/fancybox/jquery.fancybox.js"></script>
+<link rel="stylesheet" type="text/css" href="include/jscode/fancybox/jquery.fancybox.css" media="screen" />
+<script type="text/javascript" src="include/jscode/jquery-ui/jquery-ui.js"></script>
+<script type="text/javascript" src="include/jscode/jquery-ui/datepicker_tw.js"></script>
+<link rel="stylesheet" type="text/css" href="include/jscode/jquery-ui/jquery-ui.css" />
+<link href="css/index.css" rel="stylesheet" type="text/css" />
+<link href="css/reset.css" rel="stylesheet" type="text/css" />
+<link href="css/un-reset.css" rel="stylesheet" type="text/css" />
+<link href="include/jscode/lightBoxMessage/jquery-lightbox-Message.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="include/jscode/lightBoxMessage/jquery-lightbox.js"></script>
+
+<script type="text/javascript" language="javascript">
+var Amount="0";
+$(function(){
+	$(".cars").click(function(){
+		if(Amount <=0){
+			alert("購物清單無任何商品");
+			return false;
+		}	
+	});
+	$(document).on("click",".Add_Car",function(){
+		$AddPrd="";
+		if($(".AddPrd_Cs:checked").length>0){
+			$(".AddPrd_Cs:checked").each(function(){
+				$AddPrd+=","+$(this).val();
+			});		
+		}
+		url="ajax/car.php";
+		$id=$(this).attr("name");
+		var options = {
+			opp : "Car_Add",
+			PrdId : $id,
+			AddPrd:	$AddPrd,
+			PrdNum : 1
+		}
+		$.post(url,options,function(data){
+			data = $.parseJSON(data);
+			if(data.Err !=""){
+				alert(data.Err);
+			}else{
+				alert("加入成功");
+				$("#CarAmount").html("("+data.Amount+")");
+			}
+		});		
+		return false;
+	})
+	$("#Search").click(function(){		
+		$("#SeachForm").submit();
+		return false;
+	})
+	
+	$( ".datepicker" ).datepicker({
+		changeMonth: true
+	});
+})
+</script>
+</head>
+<body>
+<div id="wrapper">
+	<div class="wrapper">
+		<div id="header">
+			<div class="logo">
+								<a>麥克兒童外文書店</a>
+							</div><!--END LOGO-->
+			<div class="nav_top">
+				<ul>
+					<li><a href="index.php?action=news_list&ntype=2">活動訊息</a></li>
+					<li><a href="index.php?action=member_login">會員專區</a></li>
+					<li><a href="index.php?action=shopping">如何購物</a></li>
+					<li><a href="index.php?action=contact">客服中心</a></li>
+										<li class="lanA"><a href="#" onclick="setLanguage(1)" style="color:red" >繁體中文</a></li>
+										<li class="lanB"><a href="#" onclick="setLanguage(2)" >简体中文</a></li>
+				</ul>
+			</div><!--END NAVTOP-->
+			<div class="nav_box">
+				<ul>
+					<li><a href='index.php?action=product_category&G0=35'>幼兒館</a></li><li><a href='index.php?action=product_category&G0=36'>繪本館</a></li><li><a href='index.php?action=product_category&G0=34'>影音館</a></li><li><a href='index.php?action=product_category&G0=37'>讀本館</a></li><li><a href='index.php?action=product_category&G0=38'>小說館</a></li><li><a href='index.php?action=product_category&G0=39'>資源館</a></li><li><a href='index.php?action=product_category&G0=40'>教材館</a></li>					<li><a href='index.php?action=art_list'>插畫作家</a></li>
+				</ul>
+			</div><!--END NAV_BOX-->
+			<div class="icon_box">
+				<ul>
+                    <li class="fb"><a href="https://www.facebook.com/Mackidsfans" target="_blank">facebook</a></li>
+                    <li class="youtube"><a href="https://www.youtube.com/user/Mackidsbookstore" target="_blank">youtube</a></li>
+											<li class="car"><a href="index.php?action=shopping_list"><span id="CarAmount">(0)</span></a></li>
+									</ul>
+			</div><!--END NAV_BOX-->
+			<div id="clear"></div>
+		</div><!--END HEADER-->
+		<div id="search">	
+			<ul> 
+			<form id="SeachForm" name="SeachForm" method="post" action="index.php?action=product_search">
+				<li><img src="images/zoom.png">書籍查詢</li>
+				<li>
+					<select name="Search_G0" id="Search_G0">						
+						<option value="">不分類</option>
+						<option value="35">幼兒館</option><option value="36">繪本館</option><option value="34">影音館</option><option value="37">讀本館</option><option value="38">小說館</option><option value="39">資源館</option><option value="40">教材館</option>						
+					</select>
+				</li>	
+				<!--li>					
+					<select name="Search_Age" id="Search_Age">
+						<option value="">適讀年齡</option>
+						<option value="1">0~2歲</option><option value="2">3~6歲</option><option value="3">7~12歲</option><option value="4">12以上</option>		
+					</select>
+				</li-->	
+				<li><input name="Search_Text" id="Search_Text" type="text" style='color:#333' placeholder=' 可用書名、ISBN 或書號查詢'></li>
+				<li><a id="Search" href="#" >搜尋</a></li>				
+			</form>
+				<li><a href="index.php?action=advanced_search">進階搜尋</a></li>
+			</ul>
+		</div><!--END SEARCH--><div id="content">
+	<div class="content_left">
+		<!--LEFT__會員 -->
+		<script type="text/javascript">
+var lang="1"
+$(function(){
+	$("#btnSubmit").click(function(){
+		$("#form1").submit();
+		return false;
+	});
+	$("#btnReset").click(function(){
+		$("#form1").get(0).reset();
+	});
+	$("#form1").submit(function(){
+		if(lang=="2"){
+			var sError = new MyErrorCn();
+		}else{
+			var sError = new MyErrorCh();
+		}
+		sError.checkID("帳號",$("#account").val(),true);
+		sError.checkNull("密碼",$("#password").val());
+		return sError.pass();
+	});
+});
+</script>
+<div class="member">
+	<ul>
+		<form id="form1" name="form1" action="" target="MyIframe" method="POST">
+		<li><img src="images/member.png">會員登入</li>
+		<li>帳號&nbsp;&nbsp;<input id="account" name="account" type="Member_Text" ></li>
+		<li>
+			密碼&nbsp;&nbsp;<input id="password" name="password" type="password" style="width:80px">
+			<input id="btnSubmit" type="button" value="登入" class="search02">
+		</li>
+		<li>
+			<a href="index.php?action=member_sign">●加入會員</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			<a href="index.php?action=member_forget">●忘記密碼</a>
+		</li>
+		</form>
+	</ul>
+</div>
+		<!---------------LEFT__最新消息--------------->
+		<div class="block_y">
+	<ul>
+		<li class="top">
+			<img src="images/icon_news.png" width="16" height="13">
+			最新消息		</li>
+		<li class="center">
+			<ul class="news">
+								<li><p><a href="index.php?action=news_list&ntype=1&cid=33">● 麥克書店門市 營業時間</a></p></li>
+								<li><p><a href="index.php?action=news_list&ntype=1&cid=33">● 7~9月麥兒悅讀享堂</a></p></li>
+								<li style="text-align:right"><p><a href="index.php?action=news_list&ntype=1&cid=33">more...</a></p></li>
+			</ul>
+		</li>
+		<li class="bottom01"></li>
+	</ul>
+</div><!--END BLOCK_Y-->		
+		<!-- LEFT__產品分類 -->
+		<script type="text/javascript">
+$(function(){
+	// $(".show_left_prd").hover(function(){		
+		// $id=$(this).attr("id");	
+		// if($("."+$id+"_left_prd").is(':visible')){
+			// $("."+$id+"_left_prd2").hide();
+		// }
+		// $("."+$id+"_left_prd").toggle();
+		// return false;
+	// })
+});
+</script>
+<div class="block_y">
+	<ul>
+		<li class="top">
+			<img src="images/icon_book.png" width="14" height="16">
+			產品分類		</li>
+		<li class="center">
+			<ul class="product">
+								<li class="stage1" onmouseover="$('.35_left_prd').css('display','block');">
+					<a href="index.php?action=product_category&G0=35" id="35" class="show_left_prd">幼兒館<span class="snav"><b>&or;</b></span></a>
+					<ul>
+								
+				<li style="display:none" id="244" class="35_left_prd    stage2">
+					<a href="index.php?action=product_list&G0=35&cid1=244&num=1">操作書</a>
+				</li>
+								
+				<li style="display:none" id="243" class="35_left_prd    stage2">
+					<a href="index.php?action=product_list&G0=35&cid1=243&num=1">硬頁書</a>
+				</li>
+								
+				<li style="display:none" id="246" class="35_left_prd    stage2">
+					<a href="index.php?action=product_list&G0=35&cid1=246&num=1">觸摸書</a>
+				</li>
+								
+				<li style="display:none" id="245" class="35_left_prd    stage2">
+					<a href="index.php?action=product_list&G0=35&cid1=245&num=1">洗澡書</a>
+				</li>
+								
+				<li style="display:none" id="250" class="35_left_prd    stage2">
+					<a href="index.php?action=product_list&G0=35&cid1=250&num=1">聲音書</a>
+				</li>
+								
+				<li style="display:none" id="330" class="35_left_prd    stage2">
+					<a href="index.php?action=product_list&G0=35&cid1=330&num=1">磁鐵書</a>
+				</li>
+								
+				<li style="display:none" id="341" class="35_left_prd    stage2">
+					<a href="index.php?action=product_list&G0=35&cid1=341&num=1">拼圖書</a>
+				</li>
+								
+				<li style="display:none" id="406" class="35_left_prd    stage2">
+					<a href="index.php?action=product_list&G0=35&cid1=406&num=1">人物專區</a>
+				</li>
+								
+				<li style="display:none" id="426" class="35_left_prd    stage2">
+					<a href="index.php?action=product_list&G0=35&cid1=426&num=1">貼紙書</a>
+				</li>
+								
+				<li style="display:none" id="404" class="35_left_prd    stage2">
+					<a href="index.php?action=product_list&G0=35&cid1=404&num=1">手偶書</a>
+				</li>
+								
+				<li style="display:none" id="249" class="35_left_prd    stage2">
+					<a href="index.php?action=product_list&G0=35&cid1=249&num=1">圖卡</a>
+				</li>
+								
+				<li style="display:none" id="247" class="35_left_prd    stage2">
+					<a href="index.php?action=product_list&G0=35&cid1=247&num=1">布書</a>
+				</li>
+								
+				<li style="display:none" id="430" class="35_left_prd    stage2">
+					<a href="index.php?action=product_list&G0=35&cid1=430&num=1">盒裝書</a>
+				</li>
+								
+				<li style="display:none" id="437" class="35_left_prd    stage2">
+					<a href="index.php?action=product_list&G0=35&cid1=437&num=1">Ks Kids</a>
+				</li>
+									</ul>
+				</li>		
+								<li class="stage1" onmouseover="$('.36_left_prd').css('display','block');">
+					<a href="index.php?action=product_category&G0=36" id="36" class="show_left_prd">繪本館<span class="snav"><b>&or;</b></span></a>
+					<ul>
+								
+				<li style="display:none" id="438" class="36_left_prd    stage2">
+					<a href="index.php?action=product_list&G0=36&cid1=438&num=1">節慶繪本</a>
+				</li>
+								
+				<li style="display:none" id="254" class="36_left_prd    stage2">
+					<a href="index.php?action=product_list&G0=36&cid1=254&num=1">主題繪本</a>
+				</li>
+								
+				<li style="display:none" id="314" class="36_left_prd    stage2">
+					<a href="index.php?action=product_list&G0=36&cid1=314&num=1">系列繪本</a>
+				</li>
+								
+				<li style="display:none" id="252" class="36_left_prd    stage2">
+					<a href="index.php?action=product_list&G0=36&cid1=252&num=1">得獎繪本</a>
+				</li>
+								
+				<li style="display:none" id="259" class="36_left_prd    stage2">
+					<a href="index.php?action=product_list&G0=36&cid1=259&num=1">創意遊戲書</a>
+				</li>
+								
+				<li style="display:none" id="257" class="36_left_prd    stage2">
+					<a href="index.php?action=product_list&G0=36&cid1=257&num=1">精裝繪本</a>
+				</li>
+								
+				<li style="display:none" id="315" class="36_left_prd    stage2">
+					<a href="index.php?action=product_list&G0=36&cid1=315&num=1">合輯</a>
+				</li>
+								
+				<li style="display:none" id="256" class="36_left_prd    stage2">
+					<a href="index.php?action=product_list&G0=36&cid1=256&num=1">立體操作書</a>
+				</li>
+									</ul>
+				</li>		
+								<li class="stage1" onmouseover="$('.34_left_prd').css('display','block');">
+					<a href="index.php?action=product_category&G0=34" id="34" class="show_left_prd">影音館<span class="snav"><b>&or;</b></span></a>
+					<ul>
+								
+				<li style="display:none" id="439" class="34_left_prd    stage2">
+					<a href="index.php?action=product_list&G0=34&cid1=439&num=1">主題繪本+CD</a>
+				</li>
+								
+				<li style="display:none" id="440" class="34_left_prd    stage2">
+					<a href="index.php?action=product_list&G0=34&cid1=440&num=1">系列繪本+CD</a>
+				</li>
+								
+				<li style="display:none" id="238" class="34_left_prd    stage2">
+					<a href="index.php?action=product_list&G0=34&cid1=238&num=1">讀本+CD</a>
+				</li>
+								
+				<li style="display:none" id="241" class="34_left_prd    stage2">
+					<a href="index.php?action=product_list&G0=34&cid1=241&num=1">單CD</a>
+				</li>
+								
+				<li style="display:none" id="443" class="34_left_prd    stage2">
+					<a href="index.php?action=product_list&G0=34&cid1=443&num=1">DVD</a>
+				</li>
+									</ul>
+				</li>		
+								<li class="stage1" onmouseover="$('.37_left_prd').css('display','block');">
+					<a href="index.php?action=product_category&G0=37" id="37" class="show_left_prd">讀本館<span class="snav"><b>&or;</b></span></a>
+					<ul>
+								
+				<li style="display:none" id="271" class="37_left_prd    stage2">
+					<a href="index.php?action=product_list&G0=37&cid1=271&num=1">An I Can Read</a>
+				</li>
+								
+				<li style="display:none" id="433" class="37_left_prd    stage2">
+					<a href="index.php?action=product_list&G0=37&cid1=433&num=1">Geronimo Stilton (老鼠記者)</a>
+				</li>
+								
+				<li style="display:none" id="265" class="37_left_prd    stage2">
+					<a href="index.php?action=product_list&G0=37&cid1=265&num=1">Magic Tree House (神奇樹屋)</a>
+				</li>
+								
+				<li style="display:none" id="435" class="37_left_prd    stage2">
+					<a href="index.php?action=product_list&G0=37&cid1=435&num=1">Nate the Great (大偵探奈特)</a>
+				</li>
+								
+				<li style="display:none" id="273" class="37_left_prd    stage2">
+					<a href="index.php?action=product_list&G0=37&cid1=273&num=1">Picture Reader</a>
+				</li>
+								
+				<li style="display:none" id="277" class="37_left_prd    stage2">
+					<a href="index.php?action=product_list&G0=37&cid1=277&num=1">Ready-to-Read Series</a>
+				</li>
+								
+				<li style="display:none" id="319" class="37_left_prd    stage2">
+					<a href="index.php?action=product_list&G0=37&cid1=319&num=1">Step Into Reading</a>
+				</li>
+								
+				<li style="display:none" id="434" class="37_left_prd    stage2">
+					<a href="index.php?action=product_list&G0=37&cid1=434&num=1">Usborne Young Reading</a>
+				</li>
+								
+				<li style="display:none" id="275" class="37_left_prd    stage2">
+					<a href="index.php?action=product_list&G0=37&cid1=275&num=1">Who was Series</a>
+				</li>
+								
+				<li style="display:none" id="431" class="37_left_prd    stage2">
+					<a href="index.php?action=product_list&G0=37&cid1=431&num=1">分級讀本</a>
+				</li>
+								
+				<li style="display:none" id="268" class="37_left_prd    stage2">
+					<a href="index.php?action=product_list&G0=37&cid1=268&num=1">系列讀本</a>
+				</li>
+								
+				<li style="display:none" id="436" class="37_left_prd    stage2">
+					<a href="index.php?action=product_list&G0=37&cid1=436&num=1">史地類傳記讀本</a>
+				</li>
+								
+				<li style="display:none" id="400" class="37_left_prd    stage2">
+					<a href="index.php?action=product_list&G0=37&cid1=400&num=1">合集</a>
+				</li>
+									</ul>
+				</li>		
+								<li class="stage1" onmouseover="$('.38_left_prd').css('display','block');">
+					<a href="index.php?action=product_category&G0=38" id="38" class="show_left_prd">小說館<span class="snav"><b>&or;</b></span></a>
+					<ul>
+								
+				<li style="display:none" id="432" class="38_left_prd    stage2">
+					<a href="index.php?action=product_list&G0=38&cid1=432&num=1">成人小說</a>
+				</li>
+								
+				<li style="display:none" id="283" class="38_left_prd    stage2">
+					<a href="index.php?action=product_list&G0=38&cid1=283&num=1">世界文學</a>
+				</li>
+								
+				<li style="display:none" id="282" class="38_left_prd    stage2">
+					<a href="index.php?action=product_list&G0=38&cid1=282&num=1">作家精選</a>
+				</li>
+								
+				<li style="display:none" id="281" class="38_left_prd    stage2">
+					<a href="index.php?action=product_list&G0=38&cid1=281&num=1">電影小說</a>
+				</li>
+								
+				<li style="display:none" id="280" class="38_left_prd    stage2">
+					<a href="index.php?action=product_list&G0=38&cid1=280&num=1">系列小說</a>
+				</li>
+								
+				<li style="display:none" id="279" class="38_left_prd    stage2">
+					<a href="index.php?action=product_list&G0=38&cid1=279&num=1">青少年小說</a>
+				</li>
+								
+				<li style="display:none" id="278" class="38_left_prd    stage2">
+					<a href="index.php?action=product_list&G0=38&cid1=278&num=1">得獎小說</a>
+				</li>
+									</ul>
+				</li>		
+								<li class="stage1" onmouseover="$('.39_left_prd').css('display','block');">
+					<a href="index.php?action=product_category&G0=39" id="39" class="show_left_prd">資源館<span class="snav"><b>&or;</b></span></a>
+					<ul>
+								
+				<li style="display:none" id="447" class="39_left_prd    stage2">
+					<a href="index.php?action=product_list&G0=39&cid1=447&num=1">禮品</a>
+				</li>
+								
+				<li style="display:none" id="444" class="39_left_prd    stage2">
+					<a href="index.php?action=product_list&G0=39&cid1=444&num=1">桌遊</a>
+				</li>
+								
+				<li style="display:none" id="428" class="39_left_prd    stage2">
+					<a href="index.php?action=product_list&G0=39&cid1=428&num=1">Big Book (大書)</a>
+				</li>
+								
+				<li style="display:none" id="339" class="39_left_prd    stage2">
+					<a href="index.php?action=product_list&G0=39&cid1=339&num=1">參考工具書</a>
+				</li>
+									</ul>
+				</li>		
+								<li class="stage1" onmouseover="$('.40_left_prd').css('display','block');">
+					<a href="index.php?action=product_category&G0=40" id="40" class="show_left_prd">教材館<span class="snav"><b>&or;</b></span></a>
+					<ul>
+								
+				<li style="display:none" id="301" class="40_left_prd    stage2">
+					<a href="index.php?action=product_list&G0=40&cid1=301&num=1">Phonics(自然發音)</a>
+				</li>
+								
+				<li style="display:none" id="296" class="40_left_prd    stage2">
+					<a href="index.php?action=product_list&G0=40&cid1=296&num=1">Sunshine Alphabet World</a>
+				</li>
+								
+				<li style="display:none" id="489" class="40_left_prd    stage2">
+					<a href="index.php?action=product_list&G0=40&cid1=489&num=1">Reader Collections</a>
+				</li>
+								
+				<li style="display:none" id="491" class="40_left_prd    stage2">
+					<a href="index.php?action=product_list&G0=40&cid1=491&num=1">Activities(作業本)</a>
+				</li>
+								
+				<li style="display:none" id="300" class="40_left_prd    stage2">
+					<a href="index.php?action=product_list&G0=40&cid1=300&num=1">Time to Discover Series</a>
+				</li>
+									</ul>
+				</li>		
+							</ul>
+		</li>
+		<li class="bottom02"></li>
+	</ul>
+</div><!--END BLOCK_Y-->		
+	</div><!--END CONTENT_LEFT-->
+	<div class="content_center">
+		<!--CENTER__BANNER-->
+		<script type="text/javascript">
+var lang="1"
+$(function(){
+	$("#BannerDiv").Carousel01({
+		"PicNames":new Array("upload/silder/slider/20160820165321.jpg","upload/silder/slider/20160824120827.jpg","upload/silder/slider/20160824122445.jpg"),
+		"LinkUrl":new Array("http://www.mackids.com.tw/WebAdmin/index.php?do=show&type=D&Sn=89&action=preview","http://www.mackids.com.tw/WebAdmin/index.php?do=show&type=C&Sn=91&action=preview","http://www.mackids.com.tw/WebAdmin/index.php?do=show&type=A&Sn=92&action=preview"),
+		"Target":new Array("_blank","_blank","_blank"),
+		"PicRoot":"",
+		"ItemView":true,
+		"FocusPIC":"images/dot-on.png",
+		"UnFocusPIC":"images/dot-in.png"
+	});	
+});
+</script>
+<div class="banner">
+	<div id="BannerDiv" style="width:590px;height:350px"></div>
+</div><!--END BANNER-->		<!--首頁新品上架-->
+		<script type="text/javascript">
+var lang="1";
+
+$(window).load(function(){
+	$(".Prd_Leader").click(function(){
+		$(".Prd_Leader").parent().removeClass('active');
+		$(this).parent().addClass('active');
+		return false;	
+	});
+	$(".Prd_Leader").click(function(){
+		$G0=$(this).attr("id");
+		$("#Leader_Div").load("block/Product/Leader_Div.php?G0="+$G0);	
+	}).eq(0).click();
+	$(document).on("click",".pagelink",function(){
+		$id=$(this).attr("id");
+		$("#"+$id).load($(this).attr("href"));	
+		return false;
+	})
+	$(document).on("change",".sel_link",function(){
+		var id=$(this).attr("load_div");
+		$("#"+id).load($(this).val());
+		return false;
+	})
+});
+</script>
+<div class="pdcon">
+	<div class="btn-nav">
+		<ul class="tabs">
+			<li><a href="#" id="35" class="Prd_Leader"><p>幼兒</p></a></li><li><a href="#" id="36" class="Prd_Leader"><p>繪本</p></a></li><li><a href="#" id="34" class="Prd_Leader"><p>影音</p></a></li><li><a href="#" id="37" class="Prd_Leader"><p>讀本</p></a></li><li><a href="#" id="38" class="Prd_Leader"><p>小說</p></a></li><li><a href="#" id="39" class="Prd_Leader"><p>資源</p></a></li><li><a href="#" id="40" class="Prd_Leader"><p>教材</p></a></li>	
+		</ul>
+	</div>
+	<div class="tab_container" id="Leader_Div">
+		
+	</div>
+</div><!--pdcon End-->
+		
+		<!--CENTER__廣告區域-->
+		<div class="ad_big">
+	<ul>
+		<li class="a1">
+			<a  href="http://www.mackids.com.tw/show.php?type=A&Sn=95&action=preview" target="_self"><img src="upload/silder/center/20160825182816.jpg"></a>&nbsp;<a  href="http://www.mackids.com.tw/show.php?type=A&Sn=93&action=preview" target="_self"><img src="upload/silder/center/20160825182844.jpg"></a>		</li>
+		
+		<li class="a2">
+			<a  href="http://www.mackids.com.tw/index.php?action=news_list&ntype=2" target="_self"><img src="upload/silder/center/20160825182914.jpg"></a><a  href="http://www.mackids.com.tw/WebAdmin/index.php?do=show&type=G&Sn=90&action=preview" target="_self"><img src="upload/silder/center/20160825182934.jpg"></a>		</li>
+	</ul>
+</div><!--END AD_BIG-->			
+		<!--CENTER__主題書展-->
+		<div class="block_b">
+	<ul>
+		<li class="top">
+			<img src="images/icon_light.png" width="14" height="16">
+			主題書展		</li>
+		<li class="center">
+			<ul class="book">
+				<li>●<a  href="http://www.mackids.com.tw/show.php?type=E&Sn=45&action=preview" target="_blank">☆ Bookstart 閱讀起步走-英文書單</a></li><li>●<a  href="http://www.mackids.com.tw/show.php?type=A&Sn=96&action=preview" target="_blank">培養孩子的英文耳朵:汪培珽書單</a></li><li>●<a  href="http://www.mackids.com.tw/show.php?type=A&Sn=92&action=preview" target="_blank">非讀不可!亞馬遜年度好書大賞~推薦書單</a></li><li>●<a  href="http://www.mackids.com.tw/show.php?type=A&Sn=47&action=preview" target="_blank">精選主題繪本目錄</a></li><li>●<a  href="http://www.mackids.com.tw/show.php?type=E&Sn=48&action=preview" target="_blank">英語桌遊拼學趣.一起Fun樂</a></li><li>●<a  href="http://www.mackids.com.tw/show.php?type=A&Sn=87&action=preview" target="_blank">Step Into Reading →單CD+單書 </a></li><li>●<a  href="http://www.mackids.com.tw/show.php?type=B&Sn=50&action=preview" target="_blank">迪士尼Q版絨毛玩偶特展</a></li><li>●<a  href="http://www.mackids.com.tw/show.php?type=A&Sn=93&action=preview" target="_blank">吳敏蘭老師書單</a></li>			</ul>
+		</li>
+		<li class="bottom"></li>
+	</ul>
+</div><!--END BLOCK_B-->			
+	</div><!--END CONTENT_CENTER-->
+	<div class="content_right">
+		<!--RIGHT__超質首選-->
+		<div class="block_r">
+<ul >
+<li class="top_sale">超值首選</li>
+<li class="center">
+<ul class="sale">
+<li class="title"><img src="upload/product_worth/AFHH010-in.jpg" style="width:180px;height:60px;border:0px"></li>
+<li><a href="index.php?action=product_detail&G0=36&cid1=254&cid2=547&cid3=49&Sn=22959" style="color:black" target="_blank">深海裡.出現了一隻大魚..</a></li>
+<li><a href="index.php?action=product_detail&G0=36&cid1=254&cid2=547&cid3=49&Sn=22959" target="_blank"><img src="upload/product_list/AFTP0303-in0.jpg"></a></li>
+<li><a href="index.php?action=product_detail&G0=36&cid1=254&cid2=547&cid3=49&Sn=22959" style="color:black" target="_blank">ONE LONELY FISH/精裝</a></li>
+<li class="price">定價：$384元</li>
+<li class="price">
+售價：$300元</li>
+	<li class="purchase"><a name="22959" class="Add_Car" href="#">放入購物車</a></li>
+	</ul>
+</li>
+<li class="bottom01"></li>
+</ul>
+</div><!--END BLOCK_R-->			
+		<!--RIGHT__暢銷排行榜-->
+		<script type="text/javascript">
+$(function(){
+
+});
+</script>
+<div class="block_r" >
+	<ul >
+		<li class="top"><img src="images/icon_top.png" width="16" height="16">暢銷排行榜</li>
+		<li class="center" style="min-height:300px">
+			<ol class="top">
+								<li style="margin-top:5px;"><a href="index.php?action=product_detail&G0=35&Sn=12831">WHERE'S SPOT? (小波在哪裡?) /硬頁書</a></li>
+							</ol>
+		</li>
+		<li class="bottom01"></li>
+	</ul>
+</div><!--END BLOCK_R-->	
+		<!--書店精選-->
+		
+<div class="block_r">
+	<ul>
+		<li class="top"><img src="images/icon_focus.png" width="15" height="16">書店精選</li>
+		<li class="center">
+			<div class="AutoPlayMain2" id="Nice_Div">
+						<div class="AutoPlayDiv2">
+				<ul class="focus">
+					<li><a href="index.php?action=product_detail&G0=34&cid1=439&cid2=1373&Sn=3863" target="_blank"><img src="upload/product_list/AFDM003-in0.jpg" border="0" onerror="this.src='images/noimage2.jpg'"></a></li>
+					<li class="title"><a href="index.php?action=product_detail&G0=34&cid1=439&cid2=1373&Sn=3863" target="_blank">HOORAY FOR<br>FISH/書+CD</a></li>
+				</ul>
+			</div>
+						<div class="AutoPlayDiv2">
+				<ul class="focus">
+					<li><a href="index.php?action=product_detail&G0=34&cid1=439&cid2=1381&Sn=3859" target="_blank"><img src="upload/product_list/AFDM0001-in0.jpg" border="0" onerror="this.src='images/noimage2.jpg'"></a></li>
+					<li class="title"><a href="index.php?action=product_detail&G0=34&cid1=439&cid2=1381&Sn=3859" target="_blank">THIS IS NOT<br>MY HAT<br>(這不是我的帽子)/書+CD</a></li>
+				</ul>
+			</div>
+						<div class="AutoPlayDiv2">
+				<ul class="focus">
+					<li><a href="index.php?action=product_detail&G0=35&cid1=244&cid2=1473&Sn=3381" target="_blank"><img src="upload/product_list/AFAC0280-in0.jpg" border="0" onerror="this.src='images/noimage2.jpg'"></a></li>
+					<li class="title"><a href="index.php?action=product_detail&G0=35&cid1=244&cid2=1473&Sn=3381" target="_blank">LITTLE<br>SNAPPERS<br>SPLISH...</a></li>
+				</ul>
+			</div>
+						<div class="AutoPlayDiv2">
+				<ul class="focus">
+					<li><a href="index.php?action=product_detail&G0=36&cid1=254&cid2=547&cid3=51&Sn=3289" target="_blank"><img src="upload/product_list/AFCP0382-in0.jpg" border="0" onerror="this.src='images/noimage2.jpg'"></a></li>
+					<li class="title"><a href="index.php?action=product_detail&G0=36&cid1=254&cid2=547&cid3=51&Sn=3289" target="_blank">CAT'S COLOURS</a></li>
+				</ul>
+			</div>
+						<div class="AutoPlayDiv2">
+				<ul class="focus">
+					<li><a href="index.php?action=product_detail&G0=36&cid1=254&cid2=542&Sn=3191" target="_blank"><img src="upload/product_list/AFGP0027-in0.jpg" border="0" onerror="this.src='images/noimage2.jpg'"></a></li>
+					<li class="title"><a href="index.php?action=product_detail&G0=36&cid1=254&cid2=542&Sn=3191" target="_blank">LINE UP<br>PLEASE</a></li>
+				</ul>
+			</div>
+						</div>
+		</li>
+		<li class="bottom01"></li>
+	</ul>
+</div><!--END BLOCK_R-->	
+		<!--RIGHT__廣告區域-->
+		<div class="ad_small">
+	<a  href="http://www.google.com.tw" target="_blank"><img src="upload/silder/right/20160713122750.jpg" style="width:190px;height:120px"></a><a  href="http://mackids.pixnet.net/blog" target="_blank"><img src="upload/silder/right/20160713152028.jpg" style="width:190px;height:120px"></a></div><!--END AD_SMALL-->				
+	</div><!--END CONTENT_RIGHT-->
+	<div id="clear"></div>
+</div><!--END CONTENT-->
+					<div id="footer">
+			<p>&nbsp;</p>
+			<p>
+				<a href="index.php">回首頁</a>&nbsp;&nbsp;|&nbsp;&nbsp;
+				<a href="index.php?action=about">關於麥克兒童</a>&nbsp;&nbsp;|&nbsp;&nbsp;
+				<a href="index.php?action=map">網站地圖</a>&nbsp;&nbsp;|&nbsp;&nbsp;
+				<a href="index.php?action=shopping">如何購物</a>&nbsp;&nbsp;|&nbsp;&nbsp;
+				<a href="index.php?action=member">會員專區</a>&nbsp;&nbsp;|&nbsp;&nbsp;
+				<a href="index.php?action=qanda">常見問題</a>&nbsp;&nbsp;|&nbsp;&nbsp;
+				<a href="index.php?action=contact">聯絡我們</a>
+			</p>
+						<p>台北門市 : (11492)台北市內湖區瑞光路513巷31號6樓 電話: 02-87511766 傳真: 02-87511769    </p>
+            <p>台中門市 : (40360)台中市西區台灣大道二段309號15樓之2 電話: 04-23285575 傳真:04-23285675</p>
+			<p>北京門市 : 北京市朝陽區亮馬橋路32號高斕大廈911室  電話: 010-8454-2767 / 010-5222-4198 傳真: 010-8454-5997</p>
+			<p>Copyright 2016@Taiwan Mac Educational Co.,Ltd All Right Reserved 版權所有.禁止轉載&nbsp;&nbsp;&nbsp;<span>Designed by: iware<a href="http://www.iware.com.tw/" target="_blank" title='網頁設計公司:馬路科技'><b>網頁設計</b></a></p>
+					</div><!--END FOOTER-->
+	</div><!--END WRAPPER-->
+</div><!--END WRAPPER-->
+<div>		
+		<iframe id="MyIframe" name="MyIframe" style="width:0px; height:0px; border-width:0px;"frameborder="0"></iframe>
+			
+</div>
+</body>
+</html>
+
+

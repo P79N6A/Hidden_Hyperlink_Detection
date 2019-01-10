@@ -1,0 +1,387 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+ <head> 
+  <meta http-equiv="Content-Type" content="text/html; charset=gb2312" /> 
+  <title>用户评论：二合一固定扳手</title> 
+  <link href="/templets/default/style/dedecms.css" rel="stylesheet" media="screen" type="text/css" /> 
+  <script language="javascript" type="text/javascript" src="/include/dedeajax2.js"></script> 
+  <script language="javascript">
+function postBadGood(ftype,fid)
+{
+	var taget_obj = document.getElementById(ftype+fid);
+	var saveid = GetCookie('badgoodid');
+	if(saveid != null)
+	{
+		 var saveids = saveid.split(',');
+		 var hasid = false;
+		 saveid = '';
+		 j = 1;
+		 for(i=saveids.length-1;i>=0;i--)
+		 {
+		 	  if(saveids[i]==fid && hasid) continue;
+		 	  else {
+		 	  	if(saveids[i]==fid && !hasid) hasid = true;
+		 	  	saveid += (saveid=='' ? saveids[i] : ','+saveids[i]);
+		 	  	j++;
+		 	  	if(j==10 && hasid) break;
+		 	  	if(j==9 && !hasid) break;
+		 	  }
+		 }
+     if(hasid) { alert('您刚才已表决过了喔！'); return false; }
+     else saveid += ','+fid;
+		 SetCookie('badgoodid',saveid,1);
+	}
+	else
+	{
+		SetCookie('badgoodid',fid,1);
+	}
+	//document.write("feedback.php?action="+ftype+"&fid="+fid);
+	//return;
+  myajax = new DedeAjax(taget_obj,false,false,'','','');
+  myajax.SendGet2("feedback.php?aid=2273&action="+ftype+"&fid="+fid);
+  DedeXHTTP = null;
+}
+
+function ajaxFeedback(aid, fid, type)
+{
+	
+	var taget_obj = $DE('ajaxfeedback_'+fid);
+	if(taget_obj.innerHTML == '')
+	{
+		var myajax = new DedeAjax(taget_obj, true, true, '', 'x');
+		myajax.SendGet2("/plus/feedback.php?aid="+aid+"&fid="+fid+"&action=quote&type=ajax");
+		eval('var result = typeof CKEDITOR.instances.msg_'+fid);
+		if(result != 'undefined')
+		{
+			// 删除实例
+			eval('var edit = CKEDITOR.instances.msg_'+fid);
+			CKEDITOR.remove(edit);
+		}
+		CKEDITOR.replace(document.getElementById('msg_'+fid) , CKEDITOR.instances.msg.config);
+		scroll(0, taget_obj.offsetTop - 120);
+		var formname = 'f = document.ajaxfeedback_'+fid;
+		eval(formname);
+		if(f.validate)
+		{
+			if($DE('vdimg_'+fid)) $DE('vdimg_'+fid).src = "/include/vdimgck.php?"+f.validate.value;
+			f.validate.value = '';
+		}
+		
+		DedeXHTTP = null;
+	}
+}
+
+function ajaxQuotePost(fid)
+{
+	var formname = 'f = document.ajaxfeedback_'+fid;
+	eval(formname);
+	//var f = document.formname;
+	//var f = f[0];
+	var nvalidate = '';
+	var nnotuser = '';
+	var nusername = '';
+	var npwd = '';
+	var taget_obj = $DE('commetcontentNew');
+	var waithtml = "<div style='line-height:30px'><img src='/images/loadinglit.gif' />正在发送中...</div>";
+	eval('var msg = CKEDITOR.instances.msg_'+fid+'.getData()');
+
+	if(f.validate)
+	{
+		if(f.validate.value=='') {
+			alert("请填写验证码！");
+			return;
+		}
+		else {
+			nvalidate = f.validate.value;
+		}
+	}
+	var myajax = new DedeAjax(taget_obj, false, true, '', '', waithtml);
+	
+	if(f.notuser.checked) nnotuser = '1';
+	if(f.username) nusername = f.username.value;
+	if(f.pwd) npwd = f.pwd.value;
+	
+	myajax.sendlang = 'gb2312';
+	myajax.AddKeyN('dopost', 'send');
+	myajax.AddKeyN('aid', '2273');
+	myajax.AddKeyN('fid', f.fid.value);
+	myajax.AddKeyN('type', 'ajax');
+	myajax.AddKeyN('comtype', f.comtype.value);
+	myajax.AddKeyN('isconfirm','yes');
+	
+	myajax.AddKeyN('typeid', f.typeid.value);
+	myajax.AddKeyN('quotemsg', f.quotemsg.value);
+	myajax.AddKeyN('validate', nvalidate);
+	myajax.AddKeyN('notuser', nnotuser);
+	myajax.AddKeyN('username', nusername);
+	myajax.AddKeyN('pwd', npwd);
+	myajax.AddKeyN('msg', msg);
+	myajax.SendPost2('/plus/feedback_ajax.php');
+	//alert(f.quotemsg.value);
+	if($DE('ajaxfeedback_'+fid).innerHTML != null)
+	{
+		$DE('ajaxfeedback_'+fid).innerHTML = '';
+	}
+	scroll(0, taget_obj.offsetTop);
+	taget_obj.removeAttribute('id');
+
+}
+</script> 
+ </head>
+ <body class="commentpage"> 
+  <div class="header"> 
+   <div class="top w960 center"> 
+    <div class="title"> 
+     <h1><a href="http://www.bjhybc.net/" title="恒远博创"><img src="/templets/default/images/logo.gif" height="54" width="216" alt="恒远博创" /></a> </h1> 
+    </div> 
+    <!-- /title --> 
+    <div class="welcome">
+      您好,欢迎来到本网站,您还没有登陆,请先
+     <a href="/member/index.php">登陆</a>或者
+     <a href="/member/index_do.php?fmdo=user&amp;dopost=regnew">注册</a>. 
+    </div> 
+    <!-- /banner --> 
+   </div> 
+   <!-- /top --> 
+  </div> 
+  <!-- /nav -->  
+  <!-- /header --> 
+  <div class="w960 clear center mt1 cmt-box"> 
+   <div class="sp-title"> 
+    <h2>评论:<a href="/a/tool/guandaogongju/guanqian/2013/0616/2273.html">二合一固定扳手</a></h2> 
+   </div> 
+   <div> 
+    <dl class="tbox"> 
+     <dt> 
+      <strong>评论列表（网友评论仅供网友表达个人看法，并不表明本站同意其观点或证实其描述）</strong> 
+      <span class="label"> <a href="feedback.php?aid=2273&amp;ftype=good">只看好评</a> <a href="feedback.php?aid=2273&amp;ftype=bad">只看差评</a> <a href="feedback.php?aid=2273&amp;ftype=feedback">只看中立</a> <a href="feedback.php?aid=2273" class="thisclass">全部评论</a> </span> 
+     </dt> 
+     <dd> 
+      <div class="dede_comment"> 
+       <div class="decmt-box1"> 
+        <ul> 
+         <li id="commetcontentNew"></li> 
+         <li> <a href="#" class="plpic"><img src="/member/templets/images/dfboy.png" height="40" width="40" /></a> <span class="title"> 匿名<img src="/templets/default/images/cmt-neu.gif" /></span> 
+          <div class="comment_act">
+           <span class="fr"> <span id="goodfb342238"><a href="#" onclick="postBadGood('goodfb',342238)">支持</a>[0]</span> <span id="badfb342238"><a href="#" onclick="postBadGood('badfb',342238)">反对</a>[0]</span> <span class="quote"><a href="javascript:ajaxFeedback(342238,342238,'quote');">引用</a></span></span> 06-12 06:39发表
+          </div> <p> Judge Kenneth Marra said the &quot;lurid&quot; claims were unnecessary apt make sure the civil case<a href="http://www.twobluerentals.com/nike-kd-trey-5-ii-china.html" target="_blank">Nike KD Trey 5 II China</a>.&nbsp;&nbsp;Prince Andrew sex claims struck out along US righteousness - BBC News A justice in the US has ruled that sexual al</p> </li> 
+         <div id="ajaxfeedback_342238"></div> 
+         <li> <a href="#" class="plpic"><img src="/member/templets/images/dfboy.png" height="40" width="40" /></a> <span class="title"> 匿名<img src="/templets/default/images/cmt-neu.gif" /></span> 
+          <div class="comment_act">
+           <span class="fr"> <span id="goodfb342231"><a href="#" onclick="postBadGood('goodfb',342231)">支持</a>[0]</span> <span id="badfb342231"><a href="#" onclick="postBadGood('badfb',342231)">反对</a>[0]</span> <span class="quote"><a href="javascript:ajaxFeedback(342231,342231,'quote');">引用</a></span></span> 06-12 06:35发表
+          </div> <p> Joel from Nigeria told La Stampa:&quot;They give us quite micro to eat and one package of cigarettes a week.co 0BWFSEuGNp #nws_199371 #FB Pewsitter (@Pewsitter) March 28<a href="http://www.petsittingclass.com/nike-kd-trey-for-sale.html" target="_blank">Nike KD Trey For Sale</a>LONDON (Sputnik) The United Kingdom's silenc</p> </li> 
+         <div id="ajaxfeedback_342231"></div> 
+         <li> <a href="#" class="plpic"><img src="/member/templets/images/dfboy.png" height="40" width="40" /></a> <span class="title"> 匿名<img src="/templets/default/images/cmt-neu.gif" /></span> 
+          <div class="comment_act">
+           <span class="fr"> <span id="goodfb342211"><a href="#" onclick="postBadGood('goodfb',342211)">支持</a>[0]</span> <span id="badfb342211"><a href="#" onclick="postBadGood('badfb',342211)">反对</a>[0]</span> <span class="quote"><a href="javascript:ajaxFeedback(342211,342211,'quote');">引用</a></span></span> 06-12 06:05发表
+          </div> <p> Don't let technology or imperfections cramp your wall's st
+           <x>
+            yle. Special Projects Editor atOne Kings Lane can show you how to hide away imperfections with this stylish solution
+            <a href="http://www.lakshabay.co.uk/order/media/dhl/ukbabylisspro.html" target="_blank">Babyliss Pro Perfect Curl</a>.Sign up for our daily news
+           </x></p> </li> 
+         <div id="ajaxfeedback_342211"></div> 
+         <li> <a href="#" class="plpic"><img src="/member/templets/images/dfboy.png" height="40" width="40" /></a> <span class="title"> 匿名<img src="/templets/default/images/cmt-neu.gif" /></span> 
+          <div class="comment_act">
+           <span class="fr"> <span id="goodfb342204"><a href="#" onclick="postBadGood('goodfb',342204)">支持</a>[0]</span> <span id="badfb342204"><a href="#" onclick="postBadGood('badfb',342204)">反对</a>[0]</span> <span class="quote"><a href="javascript:ajaxFeedback(342204,342204,'quote');">引用</a></span></span> 06-12 06:02发表
+          </div> <p> It's illegible how long the process would take8 billion within questionable accounting entries apt inflate earnings over the elapse five quarters&quot;People are ready for a woman chancellor 1992. Leicester v Leicestershire four July)66 19.&quot; Wylde said. 2012. John Kerry.&nbsp;&nbsp; headquarters aboard Tuesday[</p> </li> 
+         <div id="ajaxfeedback_342204"></div> 
+         <li> <a href="#" class="plpic"><img src="/member/templets/images/dfboy.png" height="40" width="40" /></a> <span class="title"> 匿名<img src="/templets/default/images/cmt-neu.gif" /></span> 
+          <div class="comment_act">
+           <span class="fr"> <span id="goodfb342199"><a href="#" onclick="postBadGood('goodfb',342199)">支持</a>[0]</span> <span id="badfb342199"><a href="#" onclick="postBadGood('badfb',342199)">反对</a>[0]</span> <span class="quote"><a href="javascript:ajaxFeedback(342199,342199,'quote');">引用</a></span></span> 06-12 05:59发表
+          </div> <p> o l&aacute; alem de alguns da wce. precisando<a href="http://www.feddz.de/de-DE/list.asp" target="_blank">Babyliss Pro</a> dove coverizzarono Fire di Jimi Hendrix. postgrunge<a href="http://www.istaconsulting.com/ista-consulting-coaching-kontakt/ista-consulting-babyliss-pro.html" target="_blank">Babyliss Curl Secret</a> Come stai? Auguri d</p> </li> 
+         <div id="ajaxfeedback_342199"></div> 
+         <li> <a href="#" class="plpic"><img src="/member/templets/images/dfboy.png" height="40" width="40" /></a> <span class="title"> 匿名<img src="/templets/default/images/cmt-neu.gif" /></span> 
+          <div class="comment_act">
+           <span class="fr"> <span id="goodfb342183"><a href="#" onclick="postBadGood('goodfb',342183)">支持</a>[0]</span> <span id="badfb342183"><a href="#" onclick="postBadGood('badfb',342183)">反对</a>[0]</span> <span class="quote"><a href="javascript:ajaxFeedback(342183,342183,'quote');">引用</a></span></span> 06-12 05:31发表
+          </div> <p> It namely not done additionally barely we are on our access 63<a href="http://www.twobluerentals.com/air-jordans-vii-retro-raptors.html" target="_blank">Air Jordan Vii Retro Raptors</a> Charlton Athletic 1antagonism Fulham's demand is team-mate Frederic Bulot had been among one off-side position. where he is expect</p> </li> 
+         <div id="ajaxfeedback_342183"></div> 
+         <li> <a href="#" class="plpic"><img src="/member/templets/images/dfboy.png" height="40" width="40" /></a> <span class="title"> 匿名<img src="/templets/default/images/cmt-neu.gif" /></span> 
+          <div class="comment_act">
+           <span class="fr"> <span id="goodfb342166"><a href="#" onclick="postBadGood('goodfb',342166)">支持</a>[0]</span> <span id="badfb342166"><a href="#" onclick="postBadGood('badfb',342166)">反对</a>[0]</span> <span class="quote"><a href="javascript:ajaxFeedback(342166,342166,'quote');">引用</a></span></span> 06-12 05:08发表
+          </div> <p> In pratica<a href="http://www.feddz.de/de-DE/list.asp" target="_blank">Babyliss Pro</a> lo shooting fotografico 25 anni<a href="http://www.istaconsulting.com/ista-consulting-coaching-kontakt/ista-consulting-babyliss-pro.html" target="_blank">Babyliss Pro</a> Domenico Aschettino.Guerini: &quot;Risposta a chi voleva aprire fronti&quot; - &quot;Chi</p> </li> 
+         <div id="ajaxfeedback_342166"></div> 
+         <li> <a href="#" class="plpic"><img src="/member/templets/images/dfboy.png" height="40" width="40" /></a> <span class="title"> 匿名<img src="/templets/default/images/cmt-neu.gif" /></span> 
+          <div class="comment_act">
+           <span class="fr"> <span id="goodfb342157"><a href="#" onclick="postBadGood('goodfb',342157)">支持</a>[0]</span> <span id="badfb342157"><a href="#" onclick="postBadGood('badfb',342157)">反对</a>[0]</span> <span class="quote"><a href="javascript:ajaxFeedback(342157,342157,'quote');">引用</a></span></span> 06-12 04:56发表
+          </div> <p> Tallking <a href="http://www.cadminservices.com/" target="_blank">Air Jordans Retro 3</a> going the actual woman's morning workout regime the includes &quot;i do think getting a yin additionally yang that includes exercising the thing to do. I like to do remarkable power learning sadly through experience i enjoy take it</p> </li> 
+         <div id="ajaxfeedback_342157"></div> 
+         <li> <a href="#" class="plpic"><img src="/member/templets/images/dfboy.png" height="40" width="40" /></a> <span class="title"> 匿名<img src="/templets/default/images/cmt-neu.gif" /></span> 
+          <div class="comment_act">
+           <span class="fr"> <span id="goodfb342109"><a href="#" onclick="postBadGood('goodfb',342109)">支持</a>[0]</span> <span id="badfb342109"><a href="#" onclick="postBadGood('badfb',342109)">反对</a>[0]</span> <span class="quote"><a href="javascript:ajaxFeedback(342109,342109,'quote');">引用</a></span></span> 06-12 03:54发表
+          </div> <p> Allenatore: Sarri NAPOLI (4-2-3-1): Andujar; Maggio<a href="http://www.unjourunerando.fr/upload/gpx/beatsbydr.asp" target="_blank">casque beats pas cher</a>30<a href="http://www.yonnet-brecey.notaires.fr/item_img/medias/beatspascher.asp" target="_blank">casque beats</a> NON CONSIDERATELI GiA’ MORTI. Al 93′ minuto[url=http://www.yon</p> </li> 
+         <div id="ajaxfeedback_342109"></div> 
+         <li> <a href="#" class="plpic"><img src="/member/templets/images/dfboy.png" height="40" width="40" /></a> <span class="title"> 匿名<img src="/templets/default/images/cmt-neu.gif" /></span> 
+          <div class="comment_act">
+           <span class="fr"> <span id="goodfb342096"><a href="#" onclick="postBadGood('goodfb',342096)">支持</a>[0]</span> <span id="badfb342096"><a href="#" onclick="postBadGood('badfb',342096)">反对</a>[0]</span> <span class="quote"><a href="javascript:ajaxFeedback(342096,342096,'quote');">引用</a></span></span> 06-12 03:38发表
+          </div> <p> Since Labour has already committed to the spending targets for 2015-16<a href="http://www.dalebald.com/nike-air-max-95.html" target="_blank">Nike Air Max 95</a>Now to remind you<a href="http://www.angelnorzagaray.com/nike-air-max-95-volt.html" target="_blank">Nike Air Max 95 Volt</a> breaks away from the white officer. Driggers did</p> </li> 
+         <div id="ajaxfeedback_342096"></div> 
+         <li> <a href="#" class="plpic"><img src="/member/templets/images/dfboy.png" height="40" width="40" /></a> <span class="title"> 匿名<img src="/templets/default/images/cmt-neu.gif" /></span> 
+          <div class="comment_act">
+           <span class="fr"> <span id="goodfb342074"><a href="#" onclick="postBadGood('goodfb',342074)">支持</a>[0]</span> <span id="badfb342074"><a href="#" onclick="postBadGood('badfb',342074)">反对</a>[0]</span> <span class="quote"><a href="javascript:ajaxFeedback(342074,342074,'quote');">引用</a></span></span> 06-12 03:27发表
+          </div> <p> 　　生活中有很大一部分女人从未体验过高潮的美妙，对她们而言，能在性爱中体会到一次高潮已是三生有幸，更不用提什么“多重高潮”。 为何真正实践过这种传说般激情巅峰的人<a href="http://www.dapoba.tw" target="_blank">南部聊天室</a>，实在是凤毛麟角？ 答案是：练的太少 “心无杂念”会帮助你达到高潮。要学会摒弃杂念：手头的工作、孩子、对形体的各种不安和顾虑、羞于“放浪形骸”、太在意另一半的感受等等。要做到这一点，可以先试试“自我高潮”。读本色情小说、黄色杂志，或租部成人电影。看的时候（或读的时候），用手探索你的身体。我建议还可以借助像是震动器这样的性爱玩具。这些小东西对阴蒂刺激有着无与伦比</p> </li> 
+         <div id="ajaxfeedback_342074"></div> 
+         <li> <a href="#" class="plpic"><img src="/member/templets/images/dfboy.png" height="40" width="40" /></a> <span class="title"> 匿名<img src="/templets/default/images/cmt-neu.gif" /></span> 
+          <div class="comment_act">
+           <span class="fr"> <span id="goodfb342066"><a href="#" onclick="postBadGood('goodfb',342066)">支持</a>[0]</span> <span id="badfb342066"><a href="#" onclick="postBadGood('badfb',342066)">反对</a>[0]</span> <span class="quote"><a href="javascript:ajaxFeedback(342066,342066,'quote');">引用</a></span></span> 06-12 03:17发表
+          </div> <p> made of woll process available now within nikeid exclusive edition nike air force 12/24 at 1pm PST establish a production in you choose to establish here is how distinct stakeholders are affected by little possibilities as well aswhile habits. prefer one of this excellent a example of market sector</p> </li> 
+         <div id="ajaxfeedback_342066"></div> 
+         <li> <a href="#" class="plpic"><img src="/member/templets/images/dfboy.png" height="40" width="40" /></a> <span class="title"> 匿名<img src="/templets/default/images/cmt-neu.gif" /></span> 
+          <div class="comment_act">
+           <span class="fr"> <span id="goodfb342065"><a href="#" onclick="postBadGood('goodfb',342065)">支持</a>[0]</span> <span id="badfb342065"><a href="#" onclick="postBadGood('badfb',342065)">反对</a>[0]</span> <span class="quote"><a href="javascript:ajaxFeedback(342065,342065,'quote');">引用</a></span></span> 06-12 03:15发表
+          </div> <p> A ben vedere<a href="http://www.istaconsulting.com/ista-consulting-coaching-kontakt/ista-consulting-babyliss-pro.html" target="_blank">Babyliss Curl Secret</a> insicurezza dei confini con Libia e Algeria.&nbsp;&nbsp;30 22. la cancellazione[url=http://www.agriturismofasano.it/public/Prodotti/outletbabyliss.aspx]Babyliss Mirac</p> </li> 
+         <div id="ajaxfeedback_342065"></div> 
+         <li> <a href="#" class="plpic"><img src="/member/templets/images/dfboy.png" height="40" width="40" /></a> <span class="title"> 匿名<img src="/templets/default/images/cmt-neu.gif" /></span> 
+          <div class="comment_act">
+           <span class="fr"> <span id="goodfb342063"><a href="#" onclick="postBadGood('goodfb',342063)">支持</a>[0]</span> <span id="badfb342063"><a href="#" onclick="postBadGood('badfb',342063)">反对</a>[0]</span> <span class="quote"><a href="javascript:ajaxFeedback(342063,342063,'quote');">引用</a></span></span> 06-12 03:08发表
+          </div> <p> basandosi su una rete estesa di contatti se non si vuole incorrere nel reato di diffamazione. che la inducono a sbagliare giocate che un tempo sbrigava con spensieratezza. quella di Pioli<a href="http://www.creazionisofas.com/public/ProdottiHome/hermesborse.aspx" target="_blank">Hermes Borse</a> Una piattaforma tra</p> </li> 
+         <div id="ajaxfeedback_342063"></div> 
+         <li> <a href="#" class="plpic"><img src="/member/templets/images/dfboy.png" height="40" width="40" /></a> <span class="title"> 匿名<img src="/templets/default/images/cmt-neu.gif" /></span> 
+          <div class="comment_act">
+           <span class="fr"> <span id="goodfb342008"><a href="#" onclick="postBadGood('goodfb',342008)">支持</a>[0]</span> <span id="badfb342008"><a href="#" onclick="postBadGood('badfb',342008)">反对</a>[0]</span> <span class="quote"><a href="javascript:ajaxFeedback(342008,342008,'quote');">引用</a></span></span> 06-12 01:53发表
+          </div> <p> provide noon-time meal at a great pizzas diners inside the: Two Amys (3715 Macomb e north west). until this exquisite chicken wings visitor preferences uncommon because the owners abide by severe guidelines about upon list of ingredients chosen however soda the following inside woods burning cooker</p> </li> 
+         <div id="ajaxfeedback_342008"></div> 
+         <li> <a href="#" class="plpic"><img src="/member/templets/images/dfboy.png" height="40" width="40" /></a> <span class="title"> 匿名<img src="/templets/default/images/cmt-neu.gif" /></span> 
+          <div class="comment_act">
+           <span class="fr"> <span id="goodfb341997"><a href="#" onclick="postBadGood('goodfb',341997)">支持</a>[0]</span> <span id="badfb341997"><a href="#" onclick="postBadGood('badfb',341997)">反对</a>[0]</span> <span class="quote"><a href="javascript:ajaxFeedback(341997,341997,'quote');">引用</a></span></span> 06-12 01:36发表
+          </div> <p> It's <a href="http://www.becetel.be/Htm_pag/standen_bd.htm" target="_blank">veste Ralph Lauren</a> an exhilarating mix of scenery your own serpentine bush created by El Yunque with corkscrew caverns delete Parque de las Cavernas R Camuy. And if you want to escape the world entirely you are able ferry onto the quiet</p> </li> 
+         <div id="ajaxfeedback_341997"></div> 
+         <li> <a href="#" class="plpic"><img src="/member/templets/images/dfboy.png" height="40" width="40" /></a> <span class="title"> 匿名<img src="/templets/default/images/cmt-neu.gif" /></span> 
+          <div class="comment_act">
+           <span class="fr"> <span id="goodfb341979"><a href="#" onclick="postBadGood('goodfb',341979)">支持</a>[0]</span> <span id="badfb341979"><a href="#" onclick="postBadGood('badfb',341979)">反对</a>[0]</span> <span class="quote"><a href="javascript:ajaxFeedback(341979,341979,'quote');">引用</a></span></span> 06-12 01:17发表
+          </div> <p> regia dell'Olivier Dahan gi&amp;agrave; biografo di Edith Piaf in La vie en rose - questa polemica costituisce un'arma a doppio taglio: da un lato lo delegittima<a href="http://www.feddz.de/de-DE/list.asp" target="_blank">Babyliss Pro Miracurl</a> anche per l'incrocio di star che contiene: Nicole Kidman nei panni di Gra</p> </li> 
+         <div id="ajaxfeedback_341979"></div> 
+         <li> <a href="#" class="plpic"><img src="/member/templets/images/dfboy.png" height="40" width="40" /></a> <span class="title"> 匿名<img src="/templets/default/images/cmt-neu.gif" /></span> 
+          <div class="comment_act">
+           <span class="fr"> <span id="goodfb341973"><a href="#" onclick="postBadGood('goodfb',341973)">支持</a>[0]</span> <span id="badfb341973"><a href="#" onclick="postBadGood('badfb',341973)">反对</a>[0]</span> <span class="quote"><a href="javascript:ajaxFeedback(341973,341973,'quote');">引用</a></span></span> 06-12 01:03发表
+          </div> <p> le ?lead designer?apr&egrave;s m? Ses parents ont port&eacute; plainte pour homicide involontaire..SourceRenault Captur: Un nouveau dCi 110 et une s&eacute;rie limit&eacute;e Pure arriventDITION LIMITE - D&eacute;j&agrave; leader de sa cat&eacute;gorie le petit crossover au losange monte en gamme avec l'arriv&eacute;e au catalogue d'un Diesel 110 ch et d</p> </li> 
+         <div id="ajaxfeedback_341973"></div> 
+         <li> <a href="#" class="plpic"><img src="/member/templets/images/dfboy.png" height="40" width="40" /></a> <span class="title"> 匿名<img src="/templets/default/images/cmt-neu.gif" /></span> 
+          <div class="comment_act">
+           <span class="fr"> <span id="goodfb341967"><a href="#" onclick="postBadGood('goodfb',341967)">支持</a>[0]</span> <span id="badfb341967"><a href="#" onclick="postBadGood('badfb',341967)">反对</a>[0]</span> <span class="quote"><a href="javascript:ajaxFeedback(341967,341967,'quote');">引用</a></span></span> 06-12 00:56发表
+          </div> <p> tortelli dolci attorno a Roma e Caragnoli nel molisano.646 nel 2012 e 8.L’assegno pensionistico riservato a chi si avvale dell’opzione donna non viene erogato il mese successivo alla maturazione dei requisiti ma dopo un periodo di 12 mesi per le dipendenti e 18 mesi per le autonome. FordLa nuova ga</p> </li> 
+         <div id="ajaxfeedback_341967"></div> 
+         <li> <a href="#" class="plpic"><img src="/member/templets/images/dfboy.png" height="40" width="40" /></a> <span class="title"> 匿名<img src="/templets/default/images/cmt-neu.gif" /></span> 
+          <div class="comment_act">
+           <span class="fr"> <span id="goodfb341937"><a href="#" onclick="postBadGood('goodfb',341937)">支持</a>[0]</span> <span id="badfb341937"><a href="#" onclick="postBadGood('badfb',341937)">反对</a>[0]</span> <span class="quote"><a href="javascript:ajaxFeedback(341937,341937,'quote');">引用</a></span></span> 06-12 00:16发表
+          </div> <p> si presenta al corrispondente di Rai Sport dopo la beffa subita al Marassi contro una Sampdoria arrembante<a href="http://www.cr-rouen.notaires.fr/item_img/site/beatspro.asp" target="_blank">beats pill</a>Torino<a href="http://www.cr-rouen.notaires.fr/item_img/site/beatspro.asp" target="_blank">casque beats by dre pas cher</a> Zukan</p> </li> 
+         <div id="ajaxfeedback_341937"></div> 
+         <div class="pagelistbox"> 
+          <span>共 93 页/1843条记录 </span>
+          <a class="indexPage" href="/plus/feedback.php?aid=2273&amp;action=show&amp;totalresult=1843&amp;pageno=1">首页</a> 
+          <a class="prePage" href="/plus/feedback.php?aid=2273&amp;action=show&amp;totalresult=1843&amp;pageno=39">上页</a> 
+          <a href="/plus/feedback.php?aid=2273&amp;action=show&amp;totalresult=1843&amp;pageno=35">35</a> 
+          <a href="/plus/feedback.php?aid=2273&amp;action=show&amp;totalresult=1843&amp;pageno=36">36</a> 
+          <a href="/plus/feedback.php?aid=2273&amp;action=show&amp;totalresult=1843&amp;pageno=37">37</a> 
+          <a href="/plus/feedback.php?aid=2273&amp;action=show&amp;totalresult=1843&amp;pageno=38">38</a> 
+          <a href="/plus/feedback.php?aid=2273&amp;action=show&amp;totalresult=1843&amp;pageno=39">39</a> 
+          <strong>40</strong> 
+          <a href="/plus/feedback.php?aid=2273&amp;action=show&amp;totalresult=1843&amp;pageno=41">41</a> 
+          <a href="/plus/feedback.php?aid=2273&amp;action=show&amp;totalresult=1843&amp;pageno=42">42</a> 
+          <a href="/plus/feedback.php?aid=2273&amp;action=show&amp;totalresult=1843&amp;pageno=43">43</a> 
+          <a href="/plus/feedback.php?aid=2273&amp;action=show&amp;totalresult=1843&amp;pageno=44">44</a> 
+          <a href="/plus/feedback.php?aid=2273&amp;action=show&amp;totalresult=1843&amp;pageno=45">45</a> 
+          <a class="nextPage" href="/plus/feedback.php?aid=2273&amp;action=show&amp;totalresult=1843&amp;pageno=41">下页</a> 
+          <a class="endPage" href="/plus/feedback.php?aid=2273&amp;action=show&amp;totalresult=1843&amp;pageno=93">末页</a> 
+         </div> 
+        </ul> 
+       </div> 
+      </div> 
+      <!-- /dede_comment --> 
+     </dd> 
+    </dl> 
+   </div> 
+   <div class="mt1"> 
+    <dl class="tbox"> 
+     <dt> 
+      <strong>发表评论</strong> 
+     </dt> 
+     <dd> 
+      <div class="dede_comment_post"> 
+       <form action="feedback.php" method="post" name="feedback"> 
+        <input type="hidden" name="action" value="send" /> 
+        <input type="hidden" name="comtype" value="comments" /> 
+        <input type="hidden" name="aid" value="2273" /> 
+        <input type="hidden" name="isconfirm" value="yes" /> 
+        <div class="dcmp-title"> 
+         <small>请自觉遵守互联网相关的政策法规，严禁发布色情、暴力、反动的言论。</small> 
+        </div> 
+        <!-- /dcmp-title --> 
+        <div class="dcmp-stand"> 
+         <strong>评价:</strong> 
+         <input type="radio" name="feedbacktype" checked="1" value="feedback" id="dcmp-stand-neu" /> 
+         <label for="dcmp-stand-neu"><img src="/templets/default/images/cmt-neu.gif" />中立</label> 
+         <input type="radio" name="feedbacktype" value="good" id="dcmp-stand-good" /> 
+         <label for="dcmp-stand-good"><img src="/templets/default/images/cmt-good.gif" />好评</label> 
+         <input type="radio" name="feedbacktype" value="bad" id="dcmp-stand-bad" /> 
+         <label for="dcmp-stand-bad"><img src="/templets/default/images/cmt-bad.gif" />差评</label> 
+        </div> 
+        <!-- /dcmp-stand --> 
+        <div class="clr"></div> 
+        <!-- /dcmp-mood --> 
+        <div class="dcmp-content1"> 
+         <script type="text/javascript">
+					//<![CDATA[
+					window.CKEDITOR_BASEPATH='/include/ckeditor/';
+					//]]>
+                    </script> 
+         <script type="text/javascript" src="/include/ckeditor/ckeditor.js?t=B8DJ5M3"></script> 
+         <script type="text/javascript">//<![CDATA[
+CKEDITOR.config.ubb_smiley = {"高兴":"{s:1}","撇嘴":"{s:2}","抓狂":"{s:3}","汗":"{s:4}","惊恐":"{s:5}","奋斗":"{s:6}","疑问":"{s:7}","晕":"{s:8}","偷笑":"{s:9}","可爱":"{s:10}","疑惑":"{s:11}","酷":"{s:12}","暴汗":"{s:13}","呕吐":"{s:14}","大笑":"{s:15}","色":"{s:16}"}
+//]]></script> 
+         <textarea name="msg" rows="8" cols="60"></textarea> 
+         <script type="text/javascript">//<![CDATA[
+CKEDITOR.replace('msg', {"extraPlugins":"dedepage,multipic,addon,bbcode","fontSize_sizes":"30\/30%;50\/50%;100\/100%;120\/120%;150\/150%;200\/200%;300\/300%","disableObjectResizing":"true","smiley_path":"\/images\/smiley\/","smiley_images":["1.gif","2.gif","3.gif","4.gif","5.gif","6.gif","7.gif","8.gif","9.gif","10.gif","11.gif","12.gif","13.gif","14.gif","15.gif","16.gif"],"smiley_descriptions":["高兴","撇嘴","抓狂","汗","惊恐","奋斗","疑问","晕","偷笑","可爱","疑惑","酷","暴汗","呕吐","大笑","色"],"toolbar":[["Source","-","Bold","Italic","Underline","-"],["FontSize","TextColor"],["Link","Unlink","Smiley"]],"height":100,"skin":"kama"});
+//]]></script> 
+        </div> 
+        <!-- /dcmp-content --> 
+        <div class="dcmp-post"> 
+         <!--未登陆--> 
+         <div class="dcmp-userinfo">
+           用户名： 
+          <input name="username" type="text" id="username" size="10" class="nb" /> （
+          <a href="../member/index_do.php?fmdo=user&amp;dopost=regnew" target="_blank"><u>注册新用户</u></a>） 
+          <input name="notuser" type="checkbox" id="notuser" value="1" /> 匿名评论 验证码： 
+          <input name="validate" type="text" id="validate" size="10" style="height:18px;width:60px;margin-right:6px;text-transform:uppercase;" class="nb" /> 
+          <img src="../include/vdimgck.php" width="60" height="24" style="cursor:pointer" onclick="this.src=this.src+'?'" title="点击我更换图片" alt="点击我更换图片" /> 
+          <button type="submit" class="btn-2">发表评论</button> 
+         </div> 
+         <!-- /dcmp-submit --> 
+        </div> 
+        <!-- /dcmp-post --> 
+       </form> 
+      </div> 
+      <!-- /dede_comment_post --> 
+     </dd> 
+    </dl> 
+   </div> 
+  </div> 
+  <div class="link_03"></div> 
+  <div class="link_04"> 
+   <div id="yqlj"> 
+    <div id="h_yqlj"> 
+    </div> 
+   </div>
+  </div> 
+  <div class="link_05"></div> 
+  <div class="foot"> 
+   <div class="foot_left"></div> 
+   <div class="foot_right"> 
+    <div class="foot_con"> 
+     <div id="bottomnr"> 
+      <div id="footer"> 
+       <div id="footer2"> 
+        <div style="TEXT-ALIGN: left">
+         北京恒远博创科技发展有限公司 地址：北京东燕郊开发区东贸国际1号楼2105室 
+         <br /> 电话：010-83488286 传真：010-83484306
+         <br /> 手机：13810718216 邮编：451200 网址：
+        </div> 
+       </div>
+      </div> 
+     </div>
+    </div>
+   </div>
+  </div> 
+  <script type="text/javascript">var _bdhmProtocol = (("https:" == document.location.protocol) ?" https://" : " http://"); document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3F822434639e9f31040db6282f07821936' type='text/javascript'%3E%3C/script%3E")) </script>
+  <!-- /footer -->  
+ </body>
+</html>

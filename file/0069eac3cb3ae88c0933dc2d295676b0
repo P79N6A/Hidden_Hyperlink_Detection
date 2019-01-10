@@ -1,0 +1,479 @@
+<HTML>
+	<HEAD>
+		<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8">
+		<META HTTP-EQUIV="Cache-Control" CONTENT="no-cache">
+
+<LINK rel="stylesheet" media="screen" href="main.css" type="text/css"><LINK rel="stylesheet" media="print" href="print.css" type="text/css">
+		<LINK rel="stylesheet" href="css/multiple-select.css" type="text/css">
+		<TITLE>Система учета данных Федерации лыжных гонок России</TITLE>
+		<SCRIPT type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></SCRIPT>
+
+		<SCRIPT type="text/javascript" src="functions.js"></SCRIPT>
+
+        <SCRIPT type="text/javascript" src="default.js"></SCRIPT>
+
+        <SCRIPT type="text/javascript" src="jquery.ulslide.js"></SCRIPT>
+
+		<SCRIPT type="text/javascript">
+			function SubmitByEnter(Form)
+			{
+				$("INPUT, SELECT", Form).keypress(function (e) {
+					if (e.which == 13)
+						Form.submit()
+				});
+			}
+
+
+			function BuildRect(Sender)
+			{
+				$(".rect", (Sender != undefined ? Sender : document)).each(function () {
+					ExtAttr = "margin-top:" + $(this).css("margin-top") + ";" +
+							"margin-right:" + $(this).css("margin-right") + ";" +
+							"margin-bottom:" + $(this).css("margin-bottom") + ";" +
+							"margin-left:" + $(this).css("margin-left");
+					if ($(this).css("width") != undefined)
+						ExtAttr += ";width:" + $(this).css("width");
+					if ($(this).css("height") != undefined)
+						ExtAttr += ";height:" + $(this).css("height");
+
+					$(this).css("margin", "");
+					$(this).removeClass("rect");
+
+					if ($(this).is(".cw"))
+					{
+						img = "cw";
+						ExtAttr += ";" + "background:transparent";
+					}
+					else
+					{
+						img = "wc";
+						ExtAttr += ";" + "background:" + ($(this).css("background") || "#F9F9F9");
+					}
+
+					$(this).wrap("<TABLE class='rect' style='" + ExtAttr + "'>" +
+							"<TR valign='top' style='height:100%'>" +
+//							"<TR>" +
+							"<TD style='text-align:" + $(this).css("text-align") +
+							($(this).is(".cw") ? "; background:#FFFFFF" : "") +
+							"'></TD>" +
+							"</TR>" +
+							"</TABLE>");
+
+					$(this).parent().before("<TD style='background:" + ($(this).is(".cw") ? "#FFFFFF " : "") +
+							"url(images/menu_pixel.gif) repeat-y; width:6px'></TD>");
+					$(this).parent().after("<TD style='background:" + ($(this).is(".cw") ? "#FFFFFF " : "") +
+							"url(images/menu_pixel.gif) right repeat-y; width:6px'></TD>");
+					$(this).parent().parent().before("<TR>" +
+							"<TD><IMG src='images/" + img + "tl.gif' style='width:6px; height:6px'></TD>" +
+							"<TD style='background:" + ($(this).is(".cw") ? "#FFFFFF " : "") +
+							"url(images/menu_pixel.gif) repeat-x'></TD>" +
+							"<TD><IMG style='width:6px; height:6px' src='images/" + img + "tr.gif'></TD>" +
+							"</TR>");
+					$(this).parent().parent().after("<TR>" +
+							"<TD><IMG src='images/" + img + "bl.gif' style='width:6px; height:6px'></TD>" +
+							"<TD style='background:" + ($(this).is(".cw") ? "#FFFFFF " : "") +
+							"url(images/menu_pixel.gif) bottom repeat-x'></TD>" +
+							"<TD><IMG src='images/" + img + "br.gif' style='width:6px; height:6px'></TD>" +
+							"</TR>");
+				});
+			}
+
+
+			$.ajaxSetup({
+				url: "ajaxserver.php",
+				global: false,
+				type: "POST",
+				error: function (XMLHttpRequest, textStatus, errorThrown) {/*alert("ajaxError: " + textStatus)*/
+				}
+			});
+
+
+
+			$(document).ready(function ()
+			{
+				PreloadImages(['menu_pixel.gif',
+					'wcbl.gif', 'wcbr.gif', 'wctl.gif', 'wctr.gif',
+					'cwbl.gif', 'cwbr.gif', 'cwtl.gif', 'cwtr.gif',
+					'b_pressed_bg.gif', 'b_pressed_left.gif', 'b_pressed_right.gif',
+					'b_bg.gif', 'b_left.gif', 'b_right.gif',
+					'list_l.gif', 'list_r.gif', 'bg_list.gif', 'list.png',
+					'ajax-loader2.gif']);
+
+				BuildRect();
+
+				$("A.abutton, A.abuttonpressed").each(function () {
+					ExtAttr = "background:" + ($(this).parent().css("background") || "#F9F9F9") + ";" +
+							"margin-top:" + $(this).css("margin-top") + ";" +
+							"margin-right:" + $(this).css("margin-right") + ";" +
+							"margin-bottom:" + $(this).css("margin-bottom") + ";" +
+							"margin-left:" + $(this).css("margin-left");
+					$(this).css("margin", "0");
+
+					if ($(this).is(".abuttonpressed"))
+						b = 'b_pressed'
+					else
+						b = 'b';
+
+					$(this).wrap("<TABLE class='button' style='" + ExtAttr + "'>" +
+							"<TR>" +
+							"<TD style='background:url(images/" + b + "_bg.gif) repeat-x; padding:0 5px' nowrap></TD>" +
+							"</TR>" +
+							"</TABLE>");
+					$(this).parent().before("<TD><IMG src='images/" + b + "_left.gif' style='width:3; height:22'></TD>");
+					$(this).parent().after("<TD><IMG src='images/" + b + "_right.gif' style='width:3; height:22'></TD>");
+				});
+
+
+				$(".grid TR:not(.tablepages)").mouseover(function () {
+					$(this).addClass('mouseover')
+				});
+				$(".grid TR:not(.tablepages)").mouseout(function () {
+					$(this).removeClass('mouseover')
+				});
+
+			});
+		</SCRIPT>
+
+	</HEAD>
+
+				<BODY style='background:#ECF1F7 url('images/background.gif') repeat-x;'>
+	<table width=1200 align=center cellpadding=0 cellspacing=0 border=0>
+		<tr  class='nopr' bgcolor=#ffffff><td width=50><img src=images/blank.gif width=50 height=1></td><td valign=top height=146><br>
+				<table cellpadding=0 cellspacing=0 width=100% align=center border=0>
+					<tr>
+						<td width=100><a href="http://flgr.ru" target=_blank><img src=images/logo_flgr.gif width=370 height=58 style='margin-right:29px'></a></td>
+						<td valign=middle nowrap><nobr></nobr></td>
+			<td><img src=images/blank.gif width=150 height=1></td>
+			<td width=30>
+<form action="" name="TopSearchForm"><table border=0 cellpadding=0 cellspacing=0><tr><td valign=top><img src=images/blank.gif height=2 width=1><br><input style="width: 200px; height: 26px; background-color: #f9f9f9; border: solid 1px #cccccc" size="200" name="SEARCH_STRING" value=""></td><td valign=top width=6><img src=images/blank.gif height=26 width=6></td><td valign=top width=100><input src=images/search.gif class="nobord" border=0 height=26 type=image width=73></td></tr></table></form>
+			</td></tr>
+	</table>
+
+	<table cellpadding=0 cellspacing=0 border=0 width=100%>
+		<tr><td colspan=6 height=10><img src=images/blank.gif height=10 width=1></td></tr>
+		<tr><td colspan=6 height=1 style='background-position: left top; background-repeat: repeat-x; background-image: url(images/pip_g.gif);'><img src=images/blank.gif height=1 width=1></td></tr>
+		<tr><td colspan=6 height=10><img src=images/blank.gif height=10 width=1></td></tr>
+		<tr><td>
+
+
+
+		<table cellpadding=0 cellspacing=0 border=0>
+		<TR>
+		<td width=120>
+			<table border=0 cellpadding=0 cellspacing=0 width=140><tr>
+			<td width=4><img src=images/butt_blue_left.gif width=4 height=31></td>
+			<td background=images/butt_blue_center.gif align=center><div style="margin: 7px"><a class=menu href="./">Главная</a></div></td>
+			<td width=4><img src=images/butt_blue_right.gif width=4 height=31></td>
+			</table>
+		</td><td><img src=images/blank.gif height=1 width=10></td>
+		<td width=120>
+			<table border=0 cellpadding=0 cellspacing=0 width=140><tr>
+			<td width=4><img src=images/butt_black_left.gif width=4 height=31></td>
+			<td background=images/butt_black_center.gif align=center><div style="margin: 7px"><a title ="Календарь" class=menu href="?ActivePage=Calendar">Календарь</a></div></td>
+			<td width=4><img src=images/butt_black_right.gif width=4 height=31></td>
+			</table>
+		</td><td><img src=images/blank.gif height=1 width=10></td>
+		<td width=120>
+			<table border=0 cellpadding=0 cellspacing=0 width=140><tr>
+			<td width=4><img src=images/butt_black_left.gif width=4 height=31></td>
+			<td background=images/butt_black_center.gif align=center><div style="margin: 7px"><a title ="Результаты" class=menu href="?ActivePage=Result">Результаты</a></div></td>
+			<td width=4><img src=images/butt_black_right.gif width=4 height=31></td>
+			</table>
+		</td><td><img src=images/blank.gif height=1 width=10></td>
+		<td width=120>
+			<table border=0 cellpadding=0 cellspacing=0 width=140><tr>
+			<td width=4><img src=images/butt_black_left.gif width=4 height=31></td>
+			<td background=images/butt_black_center.gif align=center><div style="margin: 7px"><a title ="База данных спортсменов" class=menu href="?ActivePage=People">Спортсмены</a></div></td>
+			<td width=4><img src=images/butt_black_right.gif width=4 height=31></td>
+			</table>
+		</td><td><img src=images/blank.gif height=1 width=10></td>
+		<td width=120>
+			<table border=0 cellpadding=0 cellspacing=0 width=140><tr>
+			<td width=4><img src=images/butt_black_left.gif width=4 height=31></td>
+			<td background=images/butt_black_center.gif align=center><div style="margin: 7px"><a title ="РУС лист" class=menu href="?ActivePage=RusLists">РУС лист</a></div></td>
+			<td width=4><img src=images/butt_black_right.gif width=4 height=31></td>
+			</table>
+		</td><td><img src=images/blank.gif height=1 width=10></td>
+		<td width=120>
+			<table border=0 cellpadding=0 cellspacing=0 width=140><tr>
+			<td width=4><img src=images/butt_black_left.gif width=4 height=31></td>
+			<td background=images/butt_black_center.gif align=center><div style="margin: 7px"><a title ="Рейтинг" class=menu href="?ActivePage=Rating">Рейтинг</a></div></td>
+			<td width=4><img src=images/butt_black_right.gif width=4 height=31></td>
+			</table>
+		</td>
+		</td><td><img src=images/blank.gif height=1 width=10></td>
+		<td width=120>
+			<table border=0 cellpadding=0 cellspacing=0 width=140><tr>
+			<td width=4><img src=images/butt_black_left.gif width=4 height=31></td>
+			<td background=images/butt_black_center.gif align=center><div style="margin: 7px"><a title ="Правила" class=menu href="?ActivePage=Rules">Правила</a></div></td>
+			<td width=4><img src=images/butt_black_right.gif width=4 height=31></td>
+			</table>
+		</td>
+		</TR>
+	</TABLE>
+	</td>
+	<td></td>
+	</tr>
+	</table>
+	</td>
+	<td width=20 valign=top><a href=#><img src=images/map.gif height=13 width=13 style="margin-left: 10px; margin-top: 40px"></a></td>
+	<td width=20 valign=top><a href=#><img src=images/mail.gif height=13 width=13 style="margin-left: 7px; margin-right: 10px; margin-top: 40px"></a></td>
+	</tr>
+
+	
+<tr class='nopr' bgcolor=#000000>
+   <td width=50><img src=images/blank.gif width=50 height=1></td>
+   <td valign=top height=4><img src=images/blank.gif width=1 height=4></td>
+   <td colspan=2><img src=images/blank.gif width=1 height=1></td>
+</tr>
+
+<tr bgcolor=#f5f5f5>
+   <td width=50 class='bg nopr'><img src=images/blank.gif width=50 height=1></td>
+   <td valign=top class='bg'>
+   <br>
+
+   <br>
+<table cellpadding=0 cellspacing=0 border=0><tr>
+		<td valign=top>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr>
+					<td width=5><img src=images/corn_white_top_left.gif width=5 height=5></td>
+					<td background=images/corn_white_top.gif><img src=images/blank.gif width=1 height=5></td>
+					<td width=5><img src=images/corn_white_top_right.gif width=5 height=5></td>
+				</tr>
+				<tr>
+					<td width=5 background=images/corn_white_left.gif><img src=images/blank.gif width=5 height=180></td>
+					<td bgcolor=#ffffff valign=top>
+						<div style="margin: 10px">
+							<font class=anonstitle>Следующие соревнования</font><br><img src=images/blank.gif width=1 height=10><br>
+														<TABLE width=250px><TR><TD>29.10.16</TD><TD NOWRAP style='text-align:left'></TD><TD><a href=?ActivePage=Competition&CompetitionID=813>Алдан</a></TD><TD></TD></TR><TR><TD>20.11.16</TD><TD NOWRAP style='text-align:left'></TD><TD><a href=?ActivePage=Competition&CompetitionID=815>Вершина Тёи</a></TD><TD></TD></TR><TR><TD>21.11.16</TD><TD NOWRAP style='text-align:left'></TD><TD><a href=?ActivePage=Competition&CompetitionID=814>Кировск</a></TD><TD></TD></TR><TR><TD>27.11.16</TD><TD NOWRAP style='text-align:left'></TD><TD><a href=?ActivePage=Competition&CompetitionID=816>Сыктывкар</a></TD><TD></TD></TR><TR><TD>03.12.16</TD><TD NOWRAP style='text-align:left'></TD><TD><a href=?ActivePage=Competition&CompetitionID=817>Вершина Тёи</a></TD><TD></TD></TR></TABLE>							<BR><a href=?ActivePage=Calendar>Все соревнования</a>
+						</div>
+
+					</td><td width=5 background=images/corn_white_right.gif><img src=images/blank.gif width=5 height=1></td>
+				</tr>
+				<tr>
+					<td width=5><img src=images/corn_white_bottom_left.gif width=5 height=5></td>
+					<td background=images/corn_white_bottom.gif><img src=images/blank.gif width=1 height=5></td>
+					<td width=5><img src=images/corn_white_bottom_right.gif width=5 height=5></td>
+				</tr>
+			</table>
+		</td><td width=15><img src=images/blank.gif width=15 height=1></td>
+
+
+		<td valign=top align=center>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr><td width=5><img src=images/corn_white_top_left.gif width=5 height=5></td><td background=images/corn_white_top.gif><img src=images/blank.gif width=1 height=5></td><td width=5><img src=images/corn_white_top_right.gif width=5 height=5></td></tr>
+				<tr><td width=5 background=images/corn_white_left.gif><img src=images/blank.gif width=5 height=180></td><td bgcolor=#ffffff valign=top>
+						<div style="margin: 10px">
+							<font class=anonstitle>Гонки сегодня, мужчины</font><br><img src=images/blank.gif width=1 height=10><br>
+							<TABLE width=300px></TABLE>
+						</div>
+					</td><td width=5 background=images/corn_white_right.gif><img src=images/blank.gif width=5 height=1></td></tr>
+				<tr><td width=5><img src=images/corn_white_bottom_left.gif width=5 height=5></td><td background=images/corn_white_bottom.gif><img src=images/blank.gif width=1 height=5></td><td width=5><img src=images/corn_white_bottom_right.gif width=5 height=5></td></tr>
+			</table>
+		</td><td width=15><img src=images/blank.gif width=15 height=1></td>
+
+		<td valign=top align=center>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr><td width=5><img src=images/corn_white_top_left.gif width=5 height=5></td><td background=images/corn_white_top.gif><img src=images/blank.gif width=1 height=5></td><td width=5><img src=images/corn_white_top_right.gif width=5 height=5></td></tr>
+				<tr><td width=5 background=images/corn_white_left.gif><img src=images/blank.gif width=5 height=180></td><td bgcolor=#ffffff valign=top>
+						<div style="margin: 10px">
+							<font class=anonstitle>Гонки сегодня, женщины</font><br><img src=images/blank.gif width=1 height=10><br>
+							<TABLE width=300px></TABLE>						</div>
+					</td><td width=5 background=images/corn_white_right.gif><img src=images/blank.gif width=5 height=1></td></tr>
+				<tr><td width=5><img src=images/corn_white_bottom_left.gif width=5 height=5></td><td background=images/corn_white_bottom.gif><img src=images/blank.gif width=1 height=5></td><td width=5><img src=images/corn_white_bottom_right.gif width=5 height=5></td></tr>
+			</table>
+		</td><td width=15><img src=images/blank.gif width=15 height=1></td>
+
+		<td valign=top align=right>
+			<table border=0 cellpadding=0 cellspacing=0>
+				<tr><td width=5><img src=images/corn_white_top_left.gif width=5 height=5></td><td background=images/corn_white_top.gif><img src=images/blank.gif width=1 height=5></td><td width=5><img src=images/corn_white_top_right.gif width=5 height=5></td></tr>
+				<tr><td width=5 background=images/corn_white_left.gif><img src=images/blank.gif width=5 height=180></td><td bgcolor=#ffffff valign=top>
+						<div style="margin: 10px">
+							<TABLE width=250px><TR><TD><font class=anonstitle>Информация</font><br><br>
+<table>
+
+
+</table></TD></TR></TABLE>						</div>
+					</td><td width=5 background=images/corn_white_right.gif><img src=images/blank.gif width=5 height=1></td></tr>
+				<tr><td width=5><img src=images/corn_white_bottom_left.gif width=5 height=5></td><td background=images/corn_white_bottom.gif><img src=images/blank.gif width=1 height=5></td><td width=5><img src=images/corn_white_bottom_right.gif width=5 height=5></td></tr>
+			</table>
+	</tr>
+</table>
+
+<table cellpadding=0 cellspacing=0 border=0><tr>
+
+	<tr><td colspan=5><hr noshade size=2 color=#cccccc style='margin-top: 20px; margin-bottom: 20px;'></td></tr>
+	<tr><td colspan=5>
+
+			<table cellpadding=0 cellspacing=0>
+				<tr>
+					<td valign=top width=240 class=mini>
+						<font class=anonstitle>Онлайн трансляция</font><br><br>
+<table>
+
+</table>						<!--
+						<a href=# class=newstitle>Заголовок новости</a><br>В соответствии с Гражданским кодексом РФ доверенностью признается письменное уполномочие.<br><br>
+						<a href=# class=newstitle>Заголовок новости</a><br>В соответствии с Гражданским кодексом РФ доверенностью признается письменное уполномочие.<br><br>
+						<a href=# class=newstitle>Заголовок новости</a><br>В соответствии с Гражданским кодексом РФ доверенностью признается письменное уполномочие.<br><br>
+						-->
+					</td>
+					<td valign=top width=20><img src=images/blank.gif width=40 height=1></td>
+					<td valign=top width=1 style='background-position: left top; background-repeat: repeat-y; background-image: url(images/pip_v.gif);'><img src=images/blank.gif width=1 height=1></td>
+					<td valign=top width=20><img src=images/blank.gif width=40 height=1></td>
+					<td valign=top width=520 class=mini>
+						<font class=anonstitle>Последние результаты</font><br><br>
+
+
+					</td>
+					<td valign=top width=20><img src=images/blank.gif width=40 height=1></td>
+					<td valign=top width=1 style='background-position: left top; background-repeat: repeat-y; background-image: url(images/pip_v.gif);'><img src=images/blank.gif width=1 height=1></td>
+					<td valign=top width=20><img src=images/blank.gif width=40 height=1></td>
+					<td valign=top width=240 class=mini>
+											</td>
+
+
+				</tr>
+			</table>
+		</td></tr></table>
+   <br>
+
+</td>
+
+<td class='bg nopr' colspan=2><img src=images/blank.gif width=1 height=1></td></tr>
+<tr  class='nopr' bgcolor=#282828><td width=50><img src=images/blank.gif width=50 height=1></td><td valign=top height=166>
+	<table cellpadding=0 cellspacing=0 width=100%>
+	<tr>
+		<br><br>
+		<td valign='top' width=25><img src=images/snow.gif width=25 height=22 style="margin-right: 10px"></td>
+		<td valign=top class=mini width=275><font color=#a9a9a9>
+			Система учета результатов лыжных гонок<br><br>
+			&copy; 2010 Федерация лыжных гонок России<br><img src=images/blank.gif width=1 height=7><br>
+			Россия 119992, Москва, Лужнецкая набережная, д. 8<br>
+			Телефоны: (495) 637-08-10, 637-01-75, 637-02-65<br>
+			Телефон/факс: (495) 637-06-15<br>
+			Электронная почта: <a href=mailto:info@flgr-results.ru>admin@flgr-results.ru</a>
+			</font>
+		</td>
+		<td valign=top width=20><img src=images/blank.gif width=20 height=1></td>
+		<td valign=top width=1 style='background-position: left top; background-repeat: repeat-y; background-image: url(images/pip_v.gif);'><img src=images/blank.gif width=1 height=1></td>
+		<td valign=top width=20><img src=images/blank.gif width=40 height=1></td>
+		<td valign=top width=150>
+			<table>
+				<tr><td><img src=images/dot.gif width=7 height=7 style="margin-right: 5px"></td><td><a class='silver mini' href='?ActivePage=Calendar'>Календарь</a></td></tr>
+				<tr><td><img src=images/dot.gif width=7 height=7 style="margin-right: 5px"></td><td><a class='silver mini' href='?ActivePage=Result'>Результаты</a></td></tr>
+				<tr><td><img src=images/dot.gif width=7 height=7 style="margin-right: 5px"></td><td><a class='silver mini' href='?ActivePage=People'>Спортсмены</a></td></tr>
+				<tr><td><img src=images/dot.gif width=7 height=7 style="margin-right: 5px"></td><td><a class='silver mini' href='?ActivePage=RusLists'>РУС лист</a></td></tr>
+				<tr><td><img src=images/dot.gif width=7 height=7 style="margin-right: 5px"></td><td><a class='silver mini' href='?ActivePage=Rating'>Рейтинг</a></td></tr>
+				<tr><td><img src=images/dot.gif width=7 height=7 style="margin-right: 5px"></td><td><a class='silver mini' href='?ActivePage=Rules'>Правила</a></td></tr>
+			</table><br>
+		</td>
+
+		<td valign=top width=20><img src=images/blank.gif width=20 height=1></td>
+		<td valign=top width=1 style='background-position: left top; background-repeat: repeat-y; background-image: url(images/pip_v.gif);'><img src=images/blank.gif width=1 height=1></td>
+		<td valign=top width=20><img src=images/blank.gif width=40 height=1></td>
+
+		<td valign=top class=mini width=225>
+
+				<TABLE cellpadding='10' cellspacing='1' width='100%'>
+					<TR><TD>
+														<CENTER></CENTER>							<FORM id='fLogin' name='fLogin' method='POST' style='text-align:right'>
+								<TABLE class='grid cw' align='right'>
+									<TR><TD nowrap align='right'><font color=#a9a9a9>Логин</font>&nbsp;&nbsp;&nbsp;<INPUT class='inputfield' style='font-size:13px' type='TEXT' name='Login' value=''></TD></TR>
+									<TR><TD nowrap align='right'><font color=#a9a9a9>Пароль</font>&nbsp;&nbsp;&nbsp;<INPUT class='inputfield' style='font-size:13px' type='PASSWORD' name='Password' value=''></TD></TR>
+									<tr><td align=right><INPUT name='TryLogin' type='SUBMIT' value=' Войти '></TD></TR>
+								</TABLE>
+							</FORM>
+					</TD></TR>
+				</TABLE>
+
+
+		</td>
+
+		<td valign=top width=20><img src=images/blank.gif width=20 height=1></td>
+		<td valign=top width=1 style='background-position: left top; background-repeat: repeat-y; background-image: url(images/pip_v.gif);'><img src=images/blank.gif width=1 height=1></td>
+		<td valign=top width=10><img src=images/blank.gif width=10 height=1></td>
+		
+		<td valign=top align=left class=mini>
+		<font color=#a9a9a9>Спонсоры и партнеры<br><br></font>
+           <ul class="clients_animation_slide">
+				<li><a href="http://www.scania.ru/" target="_blank"><img src="http://flgr-results.ru/files/22.jpg" alt="Scania" title="Scania" style="margin-left: 30px" /></a></li>
+				<li><a href="http://www.adidas.com/home/ru" target="_blank"><img src="http://flgr-results.ru/files/4.jpg" alt="Adidas" title="Adidas" style="margin-left: 30px" /></a></li>
+				<li><a href="http://glatte.ru/" target="_blank"><img src="http://flgr-results.ru/files/31.jpg" alt="Glatte" title="Glatte" style="margin-left: 30px" /></a></li>
+				<li><a href="http://www.fischersports.com/" target="_blank"><img src="http://flgr-results.ru/files/7.jpg" alt="Fisher" title="Fisher" style="margin-left: 30px" /></a></li>
+				<li><a href="http://www.swixsport.com/eway/default.aspx?pid=278" target="_blank"><img src="http://flgr-results.ru/files/3.jpg" alt="Swix" title="Swix" style="margin-left: 30px" /></a></li>
+				<li><a href="http://www.alpinasports.com/" target="_blank"><img src="http://flgr-results.ru/files/20.jpg" alt="ALPINA" title="ALPINA" style="margin-left: 30px" /></a></li>
+				<li><a href="http://www.craft-russia.ru/" target="_blank"><img src="http://flgr-results.ru/files/6.jpg" alt="Craft" title="Craft" style="margin-left: 30px" /></a></li>
+				<li><a href="http://www.atomicsnow.com/" target="_blank"><img src="http://flgr-results.ru/files/2.jpg" alt="Atomic" title="Atomic" style="margin-left: 30px" /></a></li>
+				<li><a href="http://www.salomon.com/ru/" target="_blank"><img src="http://flgr-results.ru/files/14.jpg" alt="SALOMON" title="SALOMON" style="margin-left: 30px" /></a></li>
+				<li><a href="http://madshus.com/" target="_blank"><img src="http://flgr-results.ru/files/1.jpg" alt="Madshus" title="Madshus" style="margin-left: 30px" /></a></li>
+				<li><a href="http://www.startskiwax.com/fi/suksivoiteet/" target="_blank"><img src="http://flgr-results.ru/files/12.jpg" alt="START" title="START" style="margin-left: 30px" /></a></li>
+				<li><a href="http://www.briko-maplus.ru/maplus_ru/index.asp" target="_blank"><img src="http://flgr-results.ru/files/13.jpg" alt="BRIKO" title="BRIKO" style="margin-left: 30px" /></a></li>
+				<li><a href="http://www.rossignol.com/" target="_blank"><img src="http://flgr-results.ru/files/9.jpg" alt="Rossignol" title="Rossignol" style="margin-left: 30px" /></a></li>
+				<li><a href="http://www.rottefella.no/" target="_blank"><img src="http://flgr-results.ru/files/17.jpg" alt="Rottefella" title="Rottefella" style="margin-left: 30px" /></a></li>
+				<li><a href="http://www.forward-sport.ru/" target="_blank"><img src="http://flgr-results.ru/files/19.jpg" alt="FORWARD" title="FORWARD" style="margin-left: 30px" /></a></li>
+				<li><a href="http://www.kolagmk.ru/" target="_blank"><img src="http://flgr-results.ru/files/5.jpg" alt="Kola Gmk" title="Kola Gmk" style="margin-left: 30px" /></a></li>
+				<li><a href="http://www.aeroflot.ru/cms/" target="_blank"><img src="http://flgr-results.ru/files/21.jpg" alt="Аэрофлот" title="Аэрофлот" style="margin-left: 30px" /></a></li>
+				<li><a href="http://www.starwax.com/en/" target="_blank"><img src="http://flgr-results.ru/files/27.jpg" alt="Star" title="Star" style="margin-left: 30px" /></a></li>
+				<li><a href="http://www.holmenkol.com/" target="_blank"><img src="http://flgr-results.ru/files/28.jpg" alt="Holmenkol" title="Holmenkol" style="margin-left: 30px" /></a></li>
+				<li><a href="http://www.optiwax.fi/" target="_blank"><img src="http://flgr-results.ru/files/29.jpg" alt="Optiwax" title="Optiwax" style="margin-left: 30px" /></a></li>
+				<li><a href="http://www.breens-jaktutstyr.no/index.php?main_page=index&amp;language=en" target="_blank"><img src="http://flgr-results.ru/files/30.jpg" alt="Brecom" title="Brecom" style="margin-left: 30px" /></a></li>
+				<li><img src="http://flgr-results.ru/files/33.jpg" alt="&quot;СХЕМА&quot;" title="&quot;СХЕМА&quot;" style="margin-left: 30px" /></li>
+				<li><a href="http://www.ikorniydom.ru/" target="_blank"><img src="http://flgr-results.ru/files/32.jpg" alt="Сахалинский икорный дом" title="Сахалинский икорный дом" style="margin-left: 30px" /></a></li>
+			</ul>
+		</td>
+
+        <!-- Yandex.Metrika counter -->
+        <div style="display:none;"><script type="text/javascript">
+        (function(w, c) {
+            (w[c] = w[c] || []).push(function() {
+                try {
+                    w.yaCounter11898376 = new Ya.Metrika({id:11898376, enableAll: true});
+                }
+                catch(e) { }
+            });
+        })(window, "yandex_metrika_callbacks");
+        </script></div>
+        <script src="//mc.yandex.ru/metrika/watch.js" type="text/javascript" defer="defer"></script>
+        <noscript><div><img src="//mc.yandex.ru/watch/11898376" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+        <!-- /Yandex.Metrika counter -->
+	</tr>
+</table>
+
+
+</td><td colspan=2><img src=images/blank.gif width=1 height=1></td></tr>
+</table>
+
+				</BODY>
+
+				<!-- Yandex.Metrika counter --><script type="text/javascript">(function (d, w, c) {
+		(w[c] = w[c] || []).push(function () {
+			try {
+				w.yaCounter13335028 = new Ya.Metrika({id: 13335028, enableAll: true});
+			} catch (e) {
+			}
+		});
+		var n = d.getElementsByTagName("script")[0], s = d.createElement("script"), f = function () {
+			n.parentNode.insertBefore(s, n);
+		};
+		s.type = "text/javascript";
+		s.async = true;
+		s.src = (d.location.protocol == "https:" ? "https:" : "http:") + "//mc.yandex.ru/metrika/watch.js";
+		if (w.opera == "[object Opera]") {
+			d.addEventListener("DOMContentLoaded", f);
+		} else {
+			f();
+		}
+	})(document, window, "yandex_metrika_callbacks");</script><noscript><div><img src="//mc.yandex.ru/watch/13335028" style="position:absolute; left:-9999px;" alt="" /></div></noscript><!-- /Yandex.Metrika counter -->
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-9000279-13', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</HTML>

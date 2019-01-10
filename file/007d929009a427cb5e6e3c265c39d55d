@@ -1,0 +1,291 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link href="http://mwres3.59iedu.com:8011/Scripts/lhgdialog/skins/chrome.css" rel="stylesheet" id="lhgdialoglink">
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8;">
+    <title>学员中心 - 学员登录</title>
+    <link href="http://mwres3.59iedu.com:8011/Domain/2/Default/study.css" rel="stylesheet" type="text/css">
+    <script src="http://mwres3.59iedu.com:8011/Scripts/jquery-1.4.4.min.js" type="text/javascript"></script>
+    <script src="http://mwres3.59iedu.com:8011/Scripts/jquery.unobtrusive-ajax.min.js" type="text/javascript"></script>
+    <script src="http://mwres3.59iedu.com:8011/Scripts/jquery.validate.min.js" type="text/javascript"></script>
+    <script src="http://mwres3.59iedu.com:8011/Scripts/jquery.validate.unobtrusive.min.js" type="text/javascript"></script>
+    <link href="http://mwres3.59iedu.com:8011/Domain/2/Default/home.css" rel="stylesheet" type="text/css">
+    <link href="http://mwres3.59iedu.com:8011/Domain/2/Default/style.css" rel="stylesheet" type="text/css">
+    <script src="http://mwres3.59iedu.com:8011/Scripts/lhgdialog/lhgdialog.mini.js?skin=chrome" type="text/javascript"></script>
+    <script src="http://mwres3.59iedu.com:8011/Scripts/myScript.js?var=20140626" type="text/javascript"></script>
+    <script src="http://mwres3.59iedu.com:8011/Scripts/region.js" type="text/javascript"></script>
+    <script type="text/javascript">
+
+
+        //是否选择系统
+        var isOk = false;
+
+        //是否完善信息
+        var isBin = false;
+
+        $(function ()
+        {
+            $("#img_LoginPassword").hide();
+            $("#img_LoginAccount").hide();
+        });
+
+        //验证
+        function onVerify()
+        {
+            var verify = true;
+            $("#img_LoginPassword").show();
+            $("#img_LoginAccount").show();
+            if ($("#LoginPassword").val() + "a" == "a")
+            {
+                $("#img_LoginPassword").attr("src","http://mwres3.59iedu.com:8011/Domain/2/Default/sm_cha.gif");
+                verify = false;
+            } 
+            else
+            {
+                $("#img_LoginPassword").attr("src","http://mwres3.59iedu.com:8011/Domain/2/Default/sm_gou.gif"); 
+            }
+
+            if ($("#LoginAccount").val() + "a" == "a"||$("#LoginAccount").val()== "请输入您的用户名")
+            {
+                $("#img_LoginAccount").attr("src","http://mwres3.59iedu.com:8011/Domain/2/Default/sm_cha.gif");  
+                verify = false;
+            } 
+            else
+            {
+                $("#img_LoginAccount").attr("src","http://mwres3.59iedu.com:8011/Domain/2/Default/sm_gou.gif");
+            }
+            return verify;
+        }
+
+        function onSubmit()
+        {
+            try
+            {
+           
+                //验证
+                if (onVerify() == false)
+                {
+                    return false;
+                }
+
+                 //获取系统
+                if (isOk == false)
+                {
+                    var parm = { LoginAccount: $("#LoginAccount").val(), d: new Date().toString() };
+                         
+                    //获取sysId
+                    CallServer("/Home/Home/GetSysList", parm, function (obj)
+                    {
+                        if (obj.length == 0)
+                        {
+                            $.alert("请求的用户不存在,请重新输入登录账号!");
+                        }
+                        else if (obj.length == 1)
+                        {
+                            if(obj[0].Id == "1")
+                            {
+                               $.alert("系统用户不允许在学员中心登录!");
+                               return false;
+                            }
+
+                            $("#SysId").val(obj[0].Id);
+                            isOk = true;
+                            onSubmit();
+                        }
+                        else
+                        {
+                            var html = "<div style='height:120px'><ul>";
+                            var select = 0;
+                            for (var i = 0; i < obj.length; i++)
+                            {
+                                  if(obj[i].Id !="1")
+                                  {
+                                     html += "<li style='width:220px;line-height:25px' ><a href='#' onclick='return selectSysId(" + obj[i].Id + ")'>" + obj[i].Name + "</a></li>";
+                                 
+                                     if(obj.length == 2 && (obj[0].Id == "1" || obj[1].Id == "1") )
+                                     {
+                                          //如果只有两个系统 并且其中一个是1这个系统，那么直接选择不是1的系统
+                                          var id = obj[0].Id == "1" ? obj[1].Id : obj[0].Id;
+                                          $("#SysId").val(id);
+                                          isOk = true;
+                                          onSubmit();
+                                     }
+                                  }
+                            }
+                       
+                            html += "</ul></div>";
+                            $.dialog({ content: html, title: "请选择需要登录的系统!" });
+                        }
+                    });
+
+                    return false;
+                }
+
+                //完善消息
+                if(isBin == false)
+                {              
+                    var sysId = $("#SysId").val();
+                    if (isNull(sysId))
+                    {
+                        $.alert("请选择登录的系统!");
+                        return false;
+                    }
+                    var account = $("#LoginAccount").val();
+                    if (isNull(account))
+                    {
+                        $.alert("请输入用户名!");
+                        return false;
+                    }
+
+                    var parm1 = {"loginAccount":account, "sysId":sysId, "tmp":new Date().toString()};
+                    var url = "/Home/Home/Infomation";
+                    CallServer(url, parm1, function(html)
+                    {
+                        if (html.State == 0)
+                        {
+                            $.alert(html.Error);
+                            return false;
+                        }
+                        else if (html.State == 1)
+                        { 
+//                            $.dialog({ content: html.Value, title: "填写完整用户信息" });
+//                            //重新绑定验证
+//                            $.validator.unobtrusive.parse(document);
+//                            $('#LoginType').val("-1");
+                            var link= "/Home/Home/ActivateInfo";
+                            CallServer(link, parm1, function(a)
+                            {
+                                if(a.State==1)
+                                {
+                                     $.dialog(
+                                    {
+                                        content: html.Value,
+                                        title: "填写完整用户信息", height: 550, zIndex: 900  ,
+                                        close: function () {
+                                                window.location = window.location;
+                                        }
+                                    });
+                                }
+                                else if(a.State==2 ){
+                                    $.dialog(
+                                    {
+                                        content: a.Value,
+                                        title: "填写完整用户信息", height: 550, zIndex: 900  ,
+                                        close: function () {
+                                                window.location = window.location;
+                                        }
+                                    });
+                                }
+                                else{
+                                     $.alert(a.Error);
+                                }
+                          });
+//                             $.dialog(
+//                            {
+//                                content: html.Value,
+//                                title: "填写完整用户信息", height: 550, zIndex: 900  ,
+//                                close: function () {
+//                                        window.location = window.location;
+//                                }
+//                            });
+                        }
+                        else
+                        {          
+                            isBin = true;
+                            $("#Loginform").submit();
+                        }                    
+                    });
+
+                    return false;
+                }
+                else
+                {
+                    if($('#LoginType').val()=="-1")
+                    { 
+                    alert("为确保帐号信息的完整，请在完善信息后再次登录系统才能正常使用。");
+                    }
+                    //重新刷新当前页
+                    window.location = window.location;
+                    //$("#Loginform").submit();
+                }
+            }
+            catch (ex)
+            {
+                alert(ex);
+            }
+
+            return isOk;
+        }
+
+        //选择系统
+        function selectSysId(index)
+        {
+            $("#SysId").val(index);
+            isOk = true;
+            onSubmit();
+            return false;
+        }
+
+        //重置
+        function onReset()
+        {
+            $("#img_LoginPassword").hide();
+            $("#img_LoginAccount").hide();
+            $("#LoginPassword").val("");
+            $("#LoginAccount").val("");
+        }
+    </script>
+</head>
+<body class="sysbody">
+    <div class="systop">
+        <div class="systopwrap">
+            <!--顶部右边菜单-->
+            <div class="systip">
+                <ul>
+                    <li><a href="javascript:;" onclick="window.external.AddFavorite(window.location.href,document.title)">
+                        加入收藏</a></li>
+                </ul>
+            </div>
+            <!--end 顶部右边菜单-->
+        </div>
+    </div>
+    <div class="wrap">
+        <!--顶部广告栏-->
+        <div class="banner">
+            <img src="http://mwres3.59iedu.com:8011/Domain/2/Default/logo1.jpg" alt=""></div>
+        <!--end 顶部广告栏-->
+        <!--登录-->
+        <div class="newtab">
+            <h3>
+                学员登陆<p class="cluicon">
+                    <img src="http://mwres3.59iedu.com:8011/Domain/2/Default/columbh2p001.gif" alt=""></p>
+            </h3>
+            <div class="syslogn">
+<form id="Loginform" action="/Home/Home/DoLogin" method="post">                    <div class="loginwrap">
+                        <ul>
+                            <li><span>用户名</span>
+                                <input class="logininput" id="LoginAccount" name="LoginAccount" onfocus="if (value =='请输入您的用户名'){value =''}" onchange="isOk=false;isBin=false;" type="text" value="">
+                                <span>
+                                    <img id="img_LoginAccount" src="http://mwres3.59iedu.com:8011/Domain/2/Default/sm_gou.gif" alt="" style="display: none; "></span></li>
+                            <li><span>密&nbsp;&nbsp;码</span>
+                                <input class="logininput" data-val="true" data-val-required=" 不能为空" id="LoginPassword" name="LoginPassword" type="password">
+                                <span>
+                                    <img id="img_LoginPassword" src="http://mwres3.59iedu.com:8011/Domain/2/Default/sm_cha.gif" alt="" style="display: none; "></span> </li>
+                            <li style="padding-left: 55px;">
+                                <input name="提交" type="submit" class="inputbutton" onclick="return onSubmit()" value="登　录">
+                                <span style="margin-left: 20px;"><a style="color: #666; font-size: 12px; font-weight: normal;" onclick="return onReset()" href="javascript:;">重新填写</a></span></li>
+                        </ul>
+                    </div>
+<input id="ReturnUrl" name="ReturnUrl" type="hidden" value=""><input data-val="true" data-val-number="字段 SysId 必须是一个数字。" data-val-required=" 不能为空" id="SysId" name="SysId" type="hidden" value=""><input id="LoginType" name="LoginType" type="hidden" value="0"></form>            </div>
+        </div>
+        -1
+        <!--登录结束-->
+        <!--底部footer-->
+        <div class="footer">
+            <ul>
+                <p>
+                    © 版权所有all rights reserved 2012闽ICP备08103886号</p>
+            </ul>
+        </div>
+        <!--end 底部footer-->
+    </div>
+
+
+<div id="ldg_dragmask" style="display: none; position: fixed; left: 0px; top: 0px; width: 100%; height: 100%; cursor: move; opacity: 0; background-color: rgb(255, 255, 255); pointer-events: none; background-position: initial initial; background-repeat: initial initial; "></div></body></html>

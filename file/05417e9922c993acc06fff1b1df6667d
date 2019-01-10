@@ -1,0 +1,67 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html><head><script>
+	var CONTEXT_PATH='/MobileGate';
+    var BASE_PATH = 'https://u.ysepay.com:8388/MobileGate';
+</script>
+
+
+
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8;">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no">
+
+<title>持卡人交易查询</title>
+<script src="/MobileGate/js/jquery-1.8.0.js" type="text/javascript"></script>
+<link href="/MobileGate/css/psc.css" rel="stylesheet" type="text/css">   
+<script language="javascript">
+		function confirm() {
+			var cardLast4 = document.getElementById("inputCardLast").value;
+			//http+"//"+host+"/MobileGate/posSalesSlip.do",
+			if(cardLast4 != null){
+				$.ajax({
+					type:'GET',
+					url:BASE_PATH+"/posSalesSlip.do",
+					contentType: "text/html;charset=UTF-8",
+					data: "&cardLast4="+cardLast4+"&refNoDate="+$("#refNoDate").val(),
+					dataType:'html',
+					success:function(html){
+						if(html=="0001"){
+							alert("非常抱歉，签购单查询次数只限三次，您已超过次数限制!");
+						}else if(html=="0002"){
+							alert("银行卡号验证未通过!");
+						}else{
+							$("#title").html("签购单");
+							$("#content").html(html);
+						}
+
+					},
+					error:function(html){
+						alert(html);
+					}
+					//error1:function(){
+						//
+					//}
+				 });
+			}else{
+				alert("您未输入银行卡号后四位!");
+				return;
+			}
+		}
+</script>
+</head>
+<body>
+	<div class="header">
+		<center><h1 style="padding-bottom:15px;padding-top:15px;font-size: 18px;color: white;" id="title">签购单查询验证</h1></center>
+	</div>
+	<div>
+		<center><img class="img_ad" src="/MobileGate/img/psc_ad_img.jpg" height="140px"></center>
+	</div>
+	<div id="content" class="content">
+		<div>
+			<center><input placeholder="请输入该交易的银行卡后四位" class="input_edit" id="inputCardLast" onkeyup="value=value.replace(/[^\d]/g,'')" onbeforepaste="clipboardData.setData('text',clipboardData.getData('text').replace(/[^\d]/g,''))"></center>
+			<input id="refNoDate" name="refNoDate" type="hidden" value="140305010340/20141207">
+		</div>
+	<div>
+		<center><button class="btn" type="button" onclick="confirm();">下一步</button></center>
+	</div>
+	</div>
+
+</body></html>

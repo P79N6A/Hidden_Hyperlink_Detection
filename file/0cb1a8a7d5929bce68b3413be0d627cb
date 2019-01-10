@@ -1,0 +1,1201 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+ <head id="Head1">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta name="keywords" content="教程,基础教程,菜鸟教程,编程,入门,手册,在线工具,数据库,微信,html,css,php,asp.net,c#,java,python,sql,IT新闻,业界资讯,乐呵,笑话,dongcoder,懂客" />
+  <meta name="description" content="Kubernetes 1.5.1 部署,&gt; kubernetes 1.5.0 , 配置文档 # 1 初始化环境 ## 1.1 环境： | 节 点 | I P || | ||node-1|10.6.0.140||node-2|10.6.0.187||node-3|10.6.0.188| ## 1.2 设置hostname | I P | h ..." />
+  <title>
+	Kubernetes 1.5.1 部署-懂客-dongcoder.com
+</title>
+  <link href="/css/style.css" type="text/css" rel="stylesheet" /> 
+  <script src="/js/jquery-1.8.3.min.js" type="text/javascript" charset="utf-8"></script>
+  <link rel="stylesheet" type="text/css" href="/js/kindeditor/plugins/code/prettify.css" /> 
+  <script type="text/javascript" charset="utf-8" src="/js/kindeditor/plugins/code/prettify.js"></script> 
+ </head> 
+ <body> 
+  <div class="dctop"> 
+   <div> 
+    <div class="eleft"> 
+     <a href="/" class="colorhei">[首页]</a>
+     <a href="/jiaocheng/" class="colorhei">[教程]</a>
+     <a href="/info.html" class="colorhei">[文章]</a>
+     <a href="/news/" class="colorhei">[新闻]</a>
+     <a href="/lehe/" class="colorhei">[乐呵]</a> 
+    </div> 
+    <div class="eright" id="logindescription">
+      &nbsp; 
+    </div> 
+   </div> 
+  </div> 
+  <div class="dcinfomenu"> 
+   <ul> 
+    <li class="dcinfomenuleft"><a href="/" title="首页"> <img src="/img/logo.png" alt="" width="120" height="58" border="0" /></a> </li> 
+    <li class="dcinfomenuright"><a id="info_menu_i" href="/info.html" title="文章首页">文章首页</a><a id="info_menu_2" href="/list-2-1.html" title="Web开发"> Web编程</a><a id="info_menu_3" href="/list-3-1.html" title="Windows开发">Windows编程</a><a id="info_menu_4" href="/list-4-1.html" title="编程语言">编程语言</a><a id="info_menu_5" href="/list-5-1.html" title="数据库技术">数据库</a><a id="info_menu_6" href="/list-6-1.html" title="移动平台">移动平台</a><a id="info_menu_8" href="/list-8-1.html" title="系统服务">系统服务</a><a id="info_menu_9" href="/list-9-1.html" title="微信开发">微信平台</a><a id="info_menu_11" href="/list-11-1.html" title="其他">其他</a> </li> 
+   </ul> 
+  </div> 
+  <div class="dcmain"> 
+   <div class="guide"> 
+    <h2> <a href="/" title="懂客首页">首页</a> &gt; <a href="/list-2-1.html" id="atitle1" title="Web编程列表">Web编程</a>&gt; <a href="/detail-367485.html" id="atitle2" title="Kubernetes 1.5.1 部署">Kubernetes 1.5.1 部署</a> </h2> 
+   </div> 
+   <ul> 
+    <li class="dcmainleft"> 
+     <div class="listdetail margintop10"> 
+      <div class="marginbottom20"> 
+       <script async="" src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script> 
+       <!-- dc-auto --> 
+       <ins class="adsbygoogle" style="display: block" data-ad-client="ca-pub-8616102841876629" data-ad-slot="2332712282" data-ad-format="auto"></ins> 
+       <script>
+        (adsbygoogle = window.adsbygoogle || []).push({});
+    </script> 
+      </div> 
+      <div class="detailtitle"> 
+       <h1 id="article_title" class="colorlan">Kubernetes 1.5.1 部署</h1> 
+      </div> 
+      <div class="detailaaa">
+        时间：
+       <span id="article_time" class="colorhong">2017-02-02 22:55:31</span> &nbsp;&nbsp;&nbsp;&nbsp; 阅读：
+       <span id="article_N" class="colorhong">36</span> &nbsp;&nbsp;&nbsp;&nbsp; 评论：
+       <span id="article_comment" class="colorhong">0</span> &nbsp;&nbsp;&nbsp;&nbsp; 收藏：
+       <span id="article_favorite" class="colorhong">0</span> &nbsp;&nbsp;&nbsp;&nbsp; 
+       <a id="articlefavorite" class="cursorpointer">[点我收藏+]</a> 
+       <span id="spanoldurl"> <br /> 原文：<span id="article_oldurl">http://www.cnblogs.com/txk1452/p/6361800.html</span></span> 
+      </div> 
+      <div id="article_content" class="detailtext">
+       <p>&gt; kubernetes 1.5.0 , 配置文档</p> 
+       <p><br /># 1 初始化环境</p> 
+       <p><br />## 1.1 环境：</p> 
+       <p>&nbsp;</p> 
+       <p>| 节 点 &nbsp;| &nbsp; &nbsp; &nbsp;I P &nbsp; &nbsp; &nbsp;|<br />|--------|-------------|<br />|node-1|10.6.0.140|<br />|node-2|10.6.0.187|<br />|node-3|10.6.0.188|</p> 
+       <p><br />## 1.2 设置hostname</p> 
+       <div class="cnblogs_code"> 
+        <pre>hostnamectl --static set-hostname hostname</pre> 
+       </div> 
+       <p>&nbsp;</p> 
+       <p>| &nbsp; &nbsp; &nbsp; I P &nbsp; &nbsp; | hostname |<br />|-------------|-------------|<br />|10.6.0.140|k8s-node-1|<br />|10.6.0.187|k8s-node-2|<br />|10.6.0.188|k8s-node-3|</p> 
+       <p>&nbsp;</p> 
+       <p><br />## 1.3 配置 hosts</p> 
+       <p>```<br />vi /etc/hosts<br />```</p> 
+       <p>| &nbsp; &nbsp; I P &nbsp; &nbsp; &nbsp; | hostname |<br />|-------------|-------------|<br />|10.6.0.140|k8s-node-1|<br />|10.6.0.187|k8s-node-2|<br />|10.6.0.188|k8s-node-3|</p> 
+       <p>&nbsp;</p> 
+       <p># 2.0 部署 kubernetes master</p> 
+       <p>&nbsp;</p> 
+       <p>## 2.1 添加yum</p> 
+       <p>&nbsp;</p> 
+       <div class="cnblogs_code"> 
+        <div class="cnblogs_code_toolbar">
+         <span class="cnblogs_code_copy"><a title="复制代码"><img alt="复制代码" src="http://common.cnblogs.com/images/copycode.gif" /></a></span>
+        </div> 
+        <pre># 使用我朋友的 yum 源，嘿嘿
+
+cat &lt;&lt;EOF&gt; /etc/yum.repos.d/kubernetes.repo
+[mritdrepo]
+name=Mritd Repository
+baseurl=https://yum.mritd.me/centos/7/x86_64
+enabled=1
+gpgcheck=1
+gpgkey=https://cdn.mritd.me/keys/rpm.public.key
+EOF
+
+
+
+yum makecache
+
+yum install -y socat kubelet kubeadm kubectl kubernetes-cni</pre> 
+        <div class="cnblogs_code_toolbar">
+         <span class="cnblogs_code_copy"><a title="复制代码"><img alt="复制代码" src="http://common.cnblogs.com/images/copycode.gif" /></a></span>
+        </div> 
+       </div> 
+       <p>&nbsp;</p> 
+       <p><br />## 2.2 安装docker</p> 
+       <p>&nbsp;</p> 
+       <div class="cnblogs_code"> 
+        <pre>wget -qO- https://get.docker.com/ | sh
+
+
+systemctl enable docker
+systemctl start docker</pre> 
+       </div> 
+       <p>&nbsp;</p> 
+       <p><br />## 2.3 安装 etcd 集群</p> 
+       <div class="cnblogs_code"> 
+        <div class="cnblogs_code_toolbar">
+         <span class="cnblogs_code_copy"><a title="复制代码"><img alt="复制代码" src="http://common.cnblogs.com/images/copycode.gif" /></a></span>
+        </div> 
+        <pre>yum -y install etcd
+
+# 创建etcd data 目录
+
+mkdir -p /opt/etcd/data
+
+chown -R etcd:etcd /opt/etcd/
+
+
+# 修改配置文件，/etc/etcd/etcd.conf 需要修改如下参数：
+
+
+ETCD_NAME=etcd1
+ETCD_DATA_DIR=&quot;/opt/etcd/data/etcd1.etcd&quot;
+ETCD_LISTEN_PEER_URLS=&quot;http://10.6.0.140:2380&quot;
+ETCD_LISTEN_CLIENT_URLS=&quot;http://10.6.0.140:2379,http://127.0.0.1:2379&quot;
+ETCD_INITIAL_ADVERTISE_PEER_URLS=&quot;http://10.6.0.140:2380&quot;
+ETCD_INITIAL_CLUSTER=&quot;etcd1=http://10.6.0.140:2380,etcd2=http://10.6.0.187:2380,etcd3=http://10.6.0.188:2380&quot;
+ETCD_INITIAL_CLUSTER_STATE=&quot;new&quot;
+ETCD_INITIAL_CLUSTER_TOKEN=&quot;k8s-etcd-cluster&quot;
+ETCD_ADVERTISE_CLIENT_URLS=&quot;http://10.6.0.140:2379&quot;</pre> 
+        <div class="cnblogs_code_toolbar">
+         <span class="cnblogs_code_copy"><a title="复制代码"><img alt="复制代码" src="http://common.cnblogs.com/images/copycode.gif" /></a></span>
+        </div> 
+       </div> 
+       <p>&nbsp;</p> 
+       <p>&nbsp;</p> 
+       <div class="cnblogs_code"> 
+        <pre># 修改 etcd 启动文件
+
+sed -i ‘s/\\\&quot;${ETCD_LISTEN_CLIENT_URLS}\\\&quot;/\\\&quot;${ETCD_LISTEN_CLIENT_URLS}\\\&quot; --listen-client-urls=\\\&quot;${ETCD_LISTEN_CLIENT_URLS}\\\&quot; --advertise-client-urls=\\\&quot;${ETCD_ADVERTISE_CLIENT_URLS}\\\&quot; --initial-cluster-token=\\\&quot;${ETCD_INITIAL_CLUSTER_TOKEN}\\\&quot; --initial-cluster=\\\&quot;${ETCD_INITIAL_CLUSTER}\\\&quot; --initial-cluster-state=\\\&quot;${ETCD_INITIAL_CLUSTER_STATE}\\\&quot;/g‘ /usr/lib/systemd/system/etcd.service</pre> 
+       </div> 
+       <p>&nbsp;</p> 
+       <p><br />&nbsp;</p> 
+       <div class="cnblogs_code"> 
+        <div class="cnblogs_code_toolbar">
+         <span class="cnblogs_code_copy"><a title="复制代码"><img alt="复制代码" src="http://common.cnblogs.com/images/copycode.gif" /></a></span>
+        </div> 
+        <pre># 启动 etcd
+
+systemctl enable etcd
+
+systemctl start etcd
+
+systemctl status etcd
+
+
+# 查看集群状态
+
+etcdctl cluster-health</pre> 
+        <div class="cnblogs_code_toolbar">
+         <span class="cnblogs_code_copy"><a title="复制代码"><img alt="复制代码" src="http://common.cnblogs.com/images/copycode.gif" /></a></span>
+        </div> 
+       </div> 
+       <p>&nbsp;</p> 
+       <p>&nbsp;</p> 
+       <p>## 2.4 下载镜像</p> 
+       <p>&nbsp;</p> 
+       <div class="cnblogs_code"> 
+        <div class="cnblogs_code_toolbar">
+         <span class="cnblogs_code_copy"><a title="复制代码"><img alt="复制代码" src="http://common.cnblogs.com/images/copycode.gif" /></a></span>
+        </div> 
+        <pre>images=(kube-proxy-amd64:v1.5.1 kube-discovery-amd64:1.0 kubedns-amd64:1.9 kube-scheduler-amd64:v1.5.1 kube-controller-manager-amd64:v1.5.1 kube-apiserver-amd64:v1.5.1 etcd-amd64:3.0.14-kubeadm kube-dnsmasq-amd64:1.4 exechealthz-amd64:1.2 pause-amd64:3.0 kubernetes-dashboard-amd64:v1.5.0 dnsmasq-metrics-amd64:1.0)
+for imageName in ${images[@]} ; do
+  docker pull jicki/$imageName
+  docker tag jicki/$imageName gcr.io/google_containers/$imageName
+  docker rmi jicki/$imageName
+done
+
+```
+
+```
+# 如果速度很慢，可配置一下加速
+
+docker 启动文件 增加 --registry-mirror=&quot;http://b438f72b.m.daocloud.io&quot;
+
+```</pre> 
+        <div class="cnblogs_code_toolbar">
+         <span class="cnblogs_code_copy"><a title="复制代码"><img alt="复制代码" src="http://common.cnblogs.com/images/copycode.gif" /></a></span>
+        </div> 
+       </div> 
+       <p>&nbsp;</p> 
+       <p>&nbsp;</p> 
+       <p>&nbsp;</p> 
+       <p><br />## 2.4 启动 kubernetes</p> 
+       <p>&nbsp;</p> 
+       <div class="cnblogs_code"> 
+        <pre>```
+systemctl enable kubelet
+systemctl start kubelet
+```</pre> 
+       </div> 
+       <p>&nbsp;</p> 
+       <p>&nbsp;</p> 
+       <p>## 2.5 创建集群</p> 
+       <p>&nbsp;</p> 
+       <div class="cnblogs_code"> 
+        <div class="cnblogs_code_toolbar">
+         <span class="cnblogs_code_copy"><a title="复制代码"><img alt="复制代码" src="http://common.cnblogs.com/images/copycode.gif" /></a></span>
+        </div> 
+        <pre>```
+kubeadm init --api-advertise-addresses=10.6.0.140 --external-etcd-endpoints=http://10.6.0.140:2379,http://10.6.0.187:2379,http://10.6.0.188:2379 --use-kubernetes-version v1.5.1 --pod-network-cidr 10.244.0.0/16
+
+```
+
+```
+Flag --external-etcd-endpoints has been deprecated, this flag will be removed when componentconfig exists
+[kubeadm] WARNING: kubeadm is in alpha, please do not use it for production clusters.
+[preflight] Running pre-flight checks
+[preflight] Starting the kubelet service
+[init] Using Kubernetes version: v1.5.1
+[tokens] Generated token: &quot;c53ef2.d257d49589d634f0&quot;
+[certificates] Generated Certificate Authority key and certificate.
+[certificates] Generated API Server key and certificate
+[certificates] Generated Service Account signing keys
+[certificates] Created keys and certificates in &quot;/etc/kubernetes/pki&quot;
+[kubeconfig] Wrote KubeConfig file to disk: &quot;/etc/kubernetes/kubelet.conf&quot;
+[kubeconfig] Wrote KubeConfig file to disk: &quot;/etc/kubernetes/admin.conf&quot;
+[apiclient] Created API client, waiting for the control plane to become ready
+[apiclient] All control plane components are healthy after 15.299235 seconds
+[apiclient] Waiting for at least one node to register and become ready
+[apiclient] First node is ready after 1.002937 seconds
+[apiclient] Creating a test deployment
+[apiclient] Test deployment succeeded
+[token-discovery] Created the kube-discovery deployment, waiting for it to become ready
+[token-discovery] kube-discovery is ready after 2.502881 seconds
+[addons] Created essential addon: kube-proxy
+[addons] Created essential addon: kube-dns
+
+Your Kubernetes master has initialized successfully!
+
+You should now deploy a pod network to the cluster.
+Run &quot;kubectl apply -f [podnetwork].yaml&quot; with one of the options listed at:
+    http://kubernetes.io/docs/admin/addons/
+
+You can now join any number of machines by running the following on each node:
+
+kubeadm join --token=c53ef2.d257d49589d634f0 10.6.0.140
+
+
+```</pre> 
+        <div class="cnblogs_code_toolbar">
+         <span class="cnblogs_code_copy"><a title="复制代码"><img alt="复制代码" src="http://common.cnblogs.com/images/copycode.gif" /></a></span>
+        </div> 
+       </div> 
+       <p>&nbsp;</p> 
+       <p>&nbsp;</p> 
+       <p>## 2.6 记录 token<br />&nbsp;</p> 
+       <div class="cnblogs_code"> 
+        <pre>You can now join any number of machines by running the following on each node:
+
+kubeadm join --token=c53ef2.d257d49589d634f0 10.6.0.140</pre> 
+       </div> 
+       <p>&nbsp;</p> 
+       <p>&nbsp;</p> 
+       <p>## 2.7 配置网络</p> 
+       <p>&nbsp;</p> 
+       <p>&nbsp;</p> 
+       <div class="cnblogs_code"> 
+        <div class="cnblogs_code_toolbar">
+         <span class="cnblogs_code_copy"><a title="复制代码"><img alt="复制代码" src="http://common.cnblogs.com/images/copycode.gif" /></a></span>
+        </div> 
+        <pre>```
+# 建议先下载镜像，否则容易下载不到
+
+docker pull quay.io/coreos/flannel-git:v0.6.1-28-g5dde68d-amd64
+
+# 或者这样
+
+docker pull jicki/flannel-git:v0.6.1-28-g5dde68d-amd64
+docker tag jicki/flannel-git:v0.6.1-28-g5dde68d-amd64 quay.io/coreos/flannel-git:v0.6.1-28-g5dde68d-amd64
+docker rmi jicki/flannel-git:v0.6.1-28-g5dde68d-amd64
+
+
+```
+
+
+```
+# http://kubernetes.io/docs/admin/addons/  这里有多种网络模式，选择一种
+
+# 这里选择 Flannel  选择 Flannel  init 时必须配置 --pod-network-cidr
+
+kubectl create -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
+
+```</pre> 
+        <div class="cnblogs_code_toolbar">
+         <span class="cnblogs_code_copy"><a title="复制代码"><img alt="复制代码" src="http://common.cnblogs.com/images/copycode.gif" /></a></span>
+        </div> 
+       </div> 
+       <p>&nbsp;</p> 
+       <p>&nbsp;</p> 
+       <p>## 2.8 检查 kubelet 状态</p> 
+       <p>&nbsp;</p> 
+       <div class="cnblogs_code"> 
+        <pre>systemctl status kubelet</pre> 
+       </div> 
+       <p>&nbsp;</p> 
+       <p>&nbsp;</p> 
+       <p>&nbsp;</p> 
+       <p><br /># 3.0 部署 kubernetes node</p> 
+       <p><br />## 3.1 安装docker</p> 
+       <p>&nbsp;</p> 
+       <div class="cnblogs_code"> 
+        <div class="cnblogs_code_toolbar">
+         <span class="cnblogs_code_copy"><a title="复制代码"><img alt="复制代码" src="http://common.cnblogs.com/images/copycode.gif" /></a></span>
+        </div> 
+        <pre>```
+wget -qO- https://get.docker.com/ | sh
+
+
+systemctl enable docker
+systemctl start docker
+```</pre> 
+        <div class="cnblogs_code_toolbar">
+         <span class="cnblogs_code_copy"><a title="复制代码"><img alt="复制代码" src="http://common.cnblogs.com/images/copycode.gif" /></a></span>
+        </div> 
+       </div> 
+       <p>&nbsp;</p> 
+       <p>&nbsp;</p> 
+       <p>## 3.2 下载镜像</p> 
+       <div class="cnblogs_code"> 
+        <div class="cnblogs_code_toolbar">
+         <span class="cnblogs_code_copy"><a title="复制代码"><img alt="复制代码" src="http://common.cnblogs.com/images/copycode.gif" /></a></span>
+        </div> 
+        <pre>```
+images=(kube-proxy-amd64:v1.5.1 kube-discovery-amd64:1.0 kubedns-amd64:1.9 kube-scheduler-amd64:v1.5.1 kube-controller-manager-amd64:v1.5.1 kube-apiserver-amd64:v1.5.1 etcd-amd64:3.0.14-kubeadm kube-dnsmasq-amd64:1.4 exechealthz-amd64:1.2 pause-amd64:3.0 kubernetes-dashboard-amd64:v1.5.0 dnsmasq-metrics-amd64:1.0)
+for imageName in ${images[@]} ; do
+  docker pull jicki/$imageName
+  docker tag jicki/$imageName gcr.io/google_containers/$imageName
+  docker rmi jicki/$imageName
+done
+
+```</pre> 
+        <div class="cnblogs_code_toolbar">
+         <span class="cnblogs_code_copy"><a title="复制代码"><img alt="复制代码" src="http://common.cnblogs.com/images/copycode.gif" /></a></span>
+        </div> 
+       </div> 
+       <p>&nbsp;</p> 
+       <p><br />## 3.3 启动 kubernetes</p> 
+       <p>&nbsp;</p> 
+       <div class="cnblogs_code"> 
+        <pre>systemctl enable kubelet
+systemctl start kubelet</pre> 
+       </div> 
+       <p>&nbsp;</p> 
+       <p><br />## 3.4 加入集群</p> 
+       <p>&nbsp;</p> 
+       <div class="cnblogs_code"> 
+        <pre>kubeadm join --token=c53ef2.d257d49589d634f0 10.6.0.140</pre> 
+       </div> 
+       <p>&nbsp;</p> 
+       <div class="cnblogs_code"> 
+        <pre>Node join complete:
+* Certificate signing request sent to master and response
+  received.
+* Kubelet informed of new secure connection details.
+
+Run ‘kubectl get nodes‘ on the master to see this machine join.</pre> 
+       </div> 
+       <p>&nbsp;</p> 
+       <p>&nbsp;</p> 
+       <p>## 3.5 查看集群状态</p> 
+       <p>&nbsp;</p> 
+       <div class="cnblogs_code"> 
+        <pre>[<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="15677a7a61557e2d66387b7a71703824">[email&nbsp;protected]</a><script data-cfhash="f9e31" type="text/javascript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script> ~]#kubectl get node
+NAME         STATUS         AGE
+k8s-node-1   Ready,master   27m
+k8s-node-2   Ready          6s
+k8s-node-3   Ready          9s</pre> 
+       </div> 
+       <p>&nbsp;</p> 
+       <p><br />## 3.6 查看服务状态</p> 
+       <p>&nbsp;</p> 
+       <div class="cnblogs_code"> 
+        <div class="cnblogs_code_toolbar">
+         <span class="cnblogs_code_copy"><a title="复制代码"><img alt="复制代码" src="http://common.cnblogs.com/images/copycode.gif" /></a></span>
+        </div> 
+        <pre>[<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="0674696972466d3e752b686962632b37">[email&nbsp;protected]</a><script data-cfhash="f9e31" type="text/javascript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script> ~]#kubectl get pods --all-namespaces
+NAMESPACE     NAME                                 READY     STATUS    RESTARTS   AGE
+kube-system   dummy-2088944543-qrp68               1/1       Running   1          1h
+kube-system   kube-apiserver-k8s-node-1            1/1       Running   2          1h
+kube-system   kube-controller-manager-k8s-node-1   1/1       Running   2          1h
+kube-system   kube-discovery-1769846148-g2lpc      1/1       Running   1          1h
+kube-system   kube-dns-2924299975-xbhv4            4/4       Running   3          1h
+kube-system   kube-flannel-ds-39g5n                2/2       Running   2          1h
+kube-system   kube-flannel-ds-dwc82                2/2       Running   2          1h
+kube-system   kube-flannel-ds-qpkm0                2/2       Running   2          1h
+kube-system   kube-proxy-16c50                     1/1       Running   2          1h
+kube-system   kube-proxy-5rkc8                     1/1       Running   2          1h
+kube-system   kube-proxy-xwrq0                     1/1       Running   2          1h
+kube-system   kube-scheduler-k8s-node-1            1/1       Running   2          1h</pre> 
+        <div class="cnblogs_code_toolbar">
+         <span class="cnblogs_code_copy"><a title="复制代码"><img alt="复制代码" src="http://common.cnblogs.com/images/copycode.gif" /></a></span>
+        </div> 
+       </div> 
+       <p>&nbsp;</p> 
+       <p>&nbsp;</p> 
+       <p>&nbsp;</p> 
+       <p><br /># 4.0 设置 kubernetes</p> 
+       <p>## 4.1 其他主机控制集群</p> 
+       <p>&nbsp;</p> 
+       <div class="cnblogs_code"> 
+        <div class="cnblogs_code_toolbar">
+         <span class="cnblogs_code_copy"><a title="复制代码"><img alt="复制代码" src="http://common.cnblogs.com/images/copycode.gif" /></a></span>
+        </div> 
+        <pre>```
+# 备份master节点的 配置文件
+
+/etc/kubernetes/admin.conf
+
+# 保存至 其他电脑, 通过执行配置文件控制集群
+
+kubectl --kubeconfig ./admin.conf get nodes
+
+```</pre> 
+        <div class="cnblogs_code_toolbar">
+         <span class="cnblogs_code_copy"><a title="复制代码"><img alt="复制代码" src="http://common.cnblogs.com/images/copycode.gif" /></a></span>
+        </div> 
+       </div> 
+       <p>&nbsp;</p> 
+       <p><br />## 4.2 配置dashboard</p> 
+       <p>&nbsp;</p> 
+       <div class="cnblogs_code"> 
+        <div class="cnblogs_code_toolbar">
+         <span class="cnblogs_code_copy"><a title="复制代码"><img alt="复制代码" src="http://common.cnblogs.com/images/copycode.gif" /></a></span>
+        </div> 
+        <pre>```
+#下载 yaml 文件, 直接导入会去官方拉取images
+
+curl -O https://rawgit.com/kubernetes/dashboard/master/src/deploy/kubernetes-dashboard.yaml
+
+
+#编辑 yaml 文件
+
+vi kubernetes-dashboard.yaml
+
+image: gcr.io/google_containers/kubernetes-dashboard-amd64:v1.4.0
+
+修改为
+
+image: gcr.io/google_containers/kubernetes-dashboard-amd64:v1.5.0
+
+
+imagePullPolicy: Always
+
+修改为
+
+imagePullPolicy: IfNotPresent
+
+```
+
+
+```
+kubectl create -f ./kubernetes-dashboard.yaml
+
+deployment &quot;kubernetes-dashboard&quot; created
+service &quot;kubernetes-dashboard&quot; created
+```
+
+
+```
+# 查看 NodePort ，既外网访问端口
+
+kubectl describe svc kubernetes-dashboard --namespace=kube-system
+
+NodePort:               &lt;unset&gt; 31736/TCP
+
+```
+
+
+```
+# 访问 dashboard
+
+http://10.6.0.140:31736
+
+```</pre> 
+        <div class="cnblogs_code_toolbar">
+         <span class="cnblogs_code_copy"><a title="复制代码"><img alt="复制代码" src="http://common.cnblogs.com/images/copycode.gif" /></a></span>
+        </div> 
+       </div> 
+       <p>&nbsp;</p> 
+       <p>&nbsp;</p> 
+       <p>&nbsp;</p> 
+       <p>&nbsp;</p> 
+       <p><br /># 5.0 kubernetes 应用部署</p> 
+       <p><br />## 5.1 部署一个 nginx rc</p> 
+       <p><br />&gt; 编写 一个 nginx yaml</p> 
+       <p>&nbsp;</p> 
+       <div class="cnblogs_code"> 
+        <div class="cnblogs_code_toolbar">
+         <span class="cnblogs_code_copy"><a title="复制代码"><img alt="复制代码" src="http://common.cnblogs.com/images/copycode.gif" /></a></span>
+        </div> 
+        <pre>```
+apiVersion: v1 
+kind: ReplicationController 
+metadata: 
+  name: nginx-rc 
+spec: 
+  replicas: 2 
+  selector: 
+    name: nginx 
+  template: 
+    metadata: 
+      labels: 
+        name: nginx 
+    spec: 
+      containers: 
+        - name: nginx 
+          image: nginx:alpine
+          imagePullPolicy: IfNotPresent
+          ports: 
+            - containerPort: 80
+```
+
+```
+[<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="d5a7babaa195beeda6f8bbbab1b0f8e4">[email&nbsp;protected]</a><script data-cfhash="f9e31" type="text/javascript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script> ~]#kubectl get rc
+NAME       DESIRED   CURRENT   READY     AGE
+nginx-rc   2         2         2         2m
+
+
+[<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="8ffde0e0fbcfe4b7fca2e1e0ebeaa2be">[email&nbsp;protected]</a><script data-cfhash="f9e31" type="text/javascript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script> ~]#kubectl get pod -o wide
+NAME             READY     STATUS    RESTARTS   AGE       IP          NODE
+nginx-rc-2s8k9   1/1       Running   0          10m       10.32.0.3   k8s-node-1
+nginx-rc-s16cm   1/1       Running   0          10m       10.40.0.1   k8s-node-2</pre> 
+        <div class="cnblogs_code_toolbar">
+         <span class="cnblogs_code_copy"><a title="复制代码"><img alt="复制代码" src="http://common.cnblogs.com/images/copycode.gif" /></a></span>
+        </div> 
+       </div> 
+       <p>&nbsp;</p> 
+       <p>&nbsp;</p> 
+       <p>&gt; 编写一个 nginx service 让集群内部容器可以访问 (ClusterIp)</p> 
+       <p>&nbsp;</p> 
+       <div class="cnblogs_code"> 
+        <div class="cnblogs_code_toolbar">
+         <span class="cnblogs_code_copy"><a title="复制代码"><img alt="复制代码" src="http://common.cnblogs.com/images/copycode.gif" /></a></span>
+        </div> 
+        <pre>```
+apiVersion: v1 
+kind: Service 
+metadata: 
+  name: nginx-svc 
+spec: 
+  ports: 
+    - port: 80
+      targetPort: 80
+      protocol: TCP 
+  selector: 
+    name: nginx
+```
+
+
+```
+[<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="9deff2f2e9ddf6a5eeb0f3f2f9f8b0ac">[email&nbsp;protected]</a><script data-cfhash="f9e31" type="text/javascript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script> ~]#kubectl create -f nginx-svc.yaml 
+service &quot;nginx-svc&quot; created
+
+
+[<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="25574a4a51654e1d56084b4a41400814">[email&nbsp;protected]</a><script data-cfhash="f9e31" type="text/javascript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script> ~]#kubectl get svc -o wide
+NAME         CLUSTER-IP    EXTERNAL-IP   PORT(S)   AGE       SELECTOR
+kubernetes   10.0.0.1      &lt;none&gt;        443/TCP   2d        &lt;none&gt;
+nginx-svc    10.6.164.79   &lt;none&gt;        80/TCP    29s       name=nginx
+
+```
+
+
+
+&gt; 编写一个 curl 的pods
+
+```
+apiVersion: v1
+kind: Pod
+metadata:
+  name: curl
+spec:
+  containers:
+  - name: curl
+    image: radial/busyboxplus:curl
+    command:
+    - sh
+    - -c
+    - while true; do sleep 1; done
+```
+
+
+```
+# 测试pods 内部通信
+[<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="ef9d80809baf84d79cc281808b8ac2de">[email&nbsp;protected]</a><script data-cfhash="f9e31" type="text/javascript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script> ~]#kubectl exec curl curl nginx
+```
+
+
+
+```
+# 在任何node节点中，可使用ip访问
+
+[<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="bcced3d3c8fcd784cf91d2d3d8d9918e">[email&nbsp;protected]</a><script data-cfhash="f9e31" type="text/javascript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script> ~]# curl 10.6.164.79
+[<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="e4968b8b90a48fdc97c98a8b8081c9d7">[email&nbsp;protected]</a><script data-cfhash="f9e31" type="text/javascript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script> ~]# curl 10.6.164.79
+
+```</pre> 
+        <div class="cnblogs_code_toolbar">
+         <span class="cnblogs_code_copy"><a title="复制代码"><img alt="复制代码" src="http://common.cnblogs.com/images/copycode.gif" /></a></span>
+        </div> 
+       </div> 
+       <p>&nbsp;</p> 
+       <p>&nbsp;</p> 
+       <p>&gt; 编写一个 nginx service 让外部可以访问 (NodePort)</p> 
+       <p>&nbsp;</p> 
+       <div class="cnblogs_code"> 
+        <div class="cnblogs_code_toolbar">
+         <span class="cnblogs_code_copy"><a title="复制代码"><img alt="复制代码" src="http://common.cnblogs.com/images/copycode.gif" /></a></span>
+        </div> 
+        <pre>```
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-svc-node
+spec:
+  ports:
+    - port: 80
+      targetPort: 80
+      protocol: TCP
+  type: NodePort
+  selector:
+    name: nginx
+```
+
+
+```
+[<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="40322f2f34002b78336d2e2f24256d71">[email&nbsp;protected]</a><script data-cfhash="f9e31" type="text/javascript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script> ~]#kubectl get svc -o wide
+NAME             CLUSTER-IP     EXTERNAL-IP   PORT(S)   AGE       SELECTOR
+kubernetes       10.0.0.1       &lt;none&gt;        443/TCP   2d        &lt;none&gt;
+nginx-svc        10.6.164.79    &lt;none&gt;        80/TCP    29m       name=nginx
+nginx-svc-node   10.12.95.227   &lt;nodes&gt;       80/TCP    17s       name=nginx
+
+
+[<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="3d4f5252497d56054e1053525958100c">[email&nbsp;protected]</a><script data-cfhash="f9e31" type="text/javascript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script> ~]#kubectl describe svc nginx-svc-node |grep NodePort
+Type:                   NodePort
+NodePort:               &lt;unset&gt; 32669/TCP
+```
+
+
+
+```
+# 使用 ALL node节点物理IP + 端口访问
+
+http://10.6.0.140:32669
+
+http://10.6.0.187:32669
+
+http://10.6.0.188:32669
+```</pre> 
+        <div class="cnblogs_code_toolbar">
+         <span class="cnblogs_code_copy"><a title="复制代码"><img alt="复制代码" src="http://common.cnblogs.com/images/copycode.gif" /></a></span>
+        </div> 
+       </div> 
+       <p>&nbsp;</p> 
+       <p>&nbsp;</p> 
+       <p>&nbsp;</p> 
+       <p><br />## 5.2 部署一个 zookeeper 集群</p> 
+       <p><br />&gt; 编写 一个 zookeeper-cluster.yaml</p> 
+       <p>&nbsp;</p> 
+       <div class="cnblogs_code"> 
+        <div class="cnblogs_code_toolbar">
+         <span class="cnblogs_code_copy"><a title="复制代码"><img alt="复制代码" src="http://common.cnblogs.com/images/copycode.gif" /></a></span>
+        </div> 
+        <pre>```
+apiVersion: extensions/v1beta1
+kind: Deployment 
+metadata: 
+  name: zookeeper-1
+spec: 
+  replicas: 1
+  template: 
+    metadata: 
+      labels: 
+        name: zookeeper-1 
+    spec: 
+      containers: 
+        - name: zookeeper-1
+          image: zk:alpine 
+          imagePullPolicy: IfNotPresent
+          env:
+          - name: NODE_ID
+            value: &quot;1&quot;
+          - name: NODES
+            value: &quot;0.0.0.0,zookeeper-2,zookeeper-3&quot;
+          ports:
+          - containerPort: 2181
+
+---
+
+apiVersion: extensions/v1beta1 
+kind: Deployment
+metadata:
+  name: zookeeper-2
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        name: zookeeper-2
+    spec:
+      containers:
+        - name: zookeeper-2
+          image: zk:alpine
+          imagePullPolicy: IfNotPresent
+          env:
+          - name: NODE_ID
+            value: &quot;2&quot;
+          - name: NODES
+            value: &quot;zookeeper-1,0.0.0.0,zookeeper-3&quot;
+          ports:
+          - containerPort: 2181
+
+---
+
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: zookeeper-3
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        name: zookeeper-3
+    spec:
+      containers:
+        - name: zookeeper-3
+          image: zk:alpine
+          imagePullPolicy: IfNotPresent
+          env:
+          - name: NODE_ID
+            value: &quot;3&quot;
+          - name: NODES
+            value: &quot;zookeeper-1,zookeeper-2,0.0.0.0&quot;
+          ports:
+          - containerPort: 2181
+---
+
+apiVersion: v1 
+kind: Service 
+metadata: 
+  name: zookeeper-1 
+  labels:
+    name: zookeeper-1
+spec: 
+  ports: 
+    - name: client
+      port: 2181
+      protocol: TCP
+    - name: followers
+      port: 2888
+      protocol: TCP
+    - name: election
+      port: 3888
+      protocol: TCP
+  selector: 
+    name: zookeeper-1
+
+---
+
+apiVersion: v1 
+kind: Service 
+metadata: 
+  name: zookeeper-2
+  labels:
+    name: zookeeper-2
+spec: 
+  ports: 
+    - name: client
+      port: 2181
+      protocol: TCP
+    - name: followers
+      port: 2888
+      protocol: TCP
+    - name: election
+      port: 3888
+      protocol: TCP
+  selector: 
+    name: zookeeper-2
+
+---
+
+apiVersion: v1 
+kind: Service 
+metadata: 
+  name: zookeeper-3
+  labels:
+    name: zookeeper-3
+spec: 
+  ports: 
+    - name: client
+      port: 2181
+      protocol: TCP
+    - name: followers
+      port: 2888
+      protocol: TCP
+    - name: election
+      port: 3888
+      protocol: TCP
+  selector: 
+    name: zookeeper-3
+    
+```
+
+
+```
+[<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="51233e3e25113a69227c3f3e35347c60">[email&nbsp;protected]</a><script data-cfhash="f9e31" type="text/javascript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script> ~]#kubectl create -f zookeeper-cluster.yaml --record
+
+
+
+[<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="50223f3f24103b68237d3e3f34357d61">[email&nbsp;protected]</a><script data-cfhash="f9e31" type="text/javascript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script> ~]#kubectl get pods -o wide
+NAME                           READY     STATUS    RESTARTS   AGE       IP          NODE
+zookeeper-1-2149121414-cfyt4   1/1       Running   0          51m       10.32.0.3   k8s-node-2
+zookeeper-2-2653289864-0bxee   1/1       Running   0          51m       10.40.0.1   k8s-node-3
+zookeeper-3-3158769034-5csqy   1/1       Running   0          51m       10.40.0.2   k8s-node-3
+
+
+[<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="52203d3d2612396a217f3c3d36377f63">[email&nbsp;protected]</a><script data-cfhash="f9e31" type="text/javascript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script> ~]#kubectl get deployment -o wide    
+NAME          DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
+zookeeper-1   1         1         1            1           51m
+zookeeper-2   1         1         1            1           51m
+zookeeper-3   1         1         1            1           51m
+
+
+[<a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="5725383823173c6f247a393833327a66">[email&nbsp;protected]</a><script data-cfhash="f9e31" type="text/javascript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script> ~]#kubectl get svc -o wide
+NAME          CLUSTER-IP     EXTERNAL-IP   PORT(S)                      AGE       SELECTOR
+zookeeper-1   10.8.111.19    &lt;none&gt;        2181/TCP,2888/TCP,3888/TCP   51m       name=zookeeper-1
+zookeeper-2   10.6.10.124    &lt;none&gt;        2181/TCP,2888/TCP,3888/TCP   51m       name=zookeeper-2
+zookeeper-3   10.0.146.143   &lt;none&gt;        2181/TCP,2888/TCP,3888/TCP   51m       name=zookeeper-3</pre> 
+        <div class="cnblogs_code_toolbar">
+         <span class="cnblogs_code_copy"><a title="复制代码"><img alt="复制代码" src="http://common.cnblogs.com/images/copycode.gif" /></a></span>
+        </div> 
+       </div> 
+       <p>&nbsp;</p> 
+       <p>&nbsp;</p> 
+       <p>## 5.3 部署一个 kafka 集群</p> 
+       <p><br />&gt; 编写 一个 kafka-cluster.yaml</p> 
+       <p>&nbsp;</p> 
+       <div class="cnblogs_code"> 
+        <div class="cnblogs_code_toolbar">
+         <span class="cnblogs_code_copy"><a title="复制代码"><img alt="复制代码" src="http://common.cnblogs.com/images/copycode.gif" /></a></span>
+        </div> 
+        <pre>```
+
+apiVersion: extensions/v1beta1
+kind: Deployment 
+metadata: 
+  name: kafka-deployment-1
+spec: 
+  replicas: 1
+  template: 
+    metadata: 
+      labels: 
+        name: kafka-1 
+    spec: 
+      containers: 
+        - name: kafka-1
+          image: kafka:alpine 
+          imagePullPolicy: IfNotPresent
+          env:
+          - name: NODE_ID
+            value: &quot;1&quot;
+          - name: ZK_NODES
+            value: &quot;zookeeper-1,zookeeper-2,zookeeper-3&quot;
+          ports:
+          - containerPort: 9092
+
+---
+
+apiVersion: extensions/v1beta1 
+kind: Deployment
+metadata:
+  name: kafka-deployment-2
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        name: kafka-2  
+    spec:
+      containers:
+        - name: kafka-2
+          image: kafka:alpine
+          imagePullPolicy: IfNotPresent
+          env:
+          - name: NODE_ID
+            value: &quot;2&quot;
+          - name: ZK_NODES
+            value: &quot;zookeeper-1,zookeeper-2,zookeeper-3&quot;
+          ports:
+          - containerPort: 9092
+
+---
+
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: kafka-deployment-3
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        name: kafka-3  
+    spec:
+      containers:
+        - name: kafka-3
+          image: kafka:alpine
+          imagePullPolicy: IfNotPresent
+          env:
+          - name: NODE_ID
+            value: &quot;3&quot;
+          - name: ZK_NODES
+            value: &quot;zookeeper-1,zookeeper-2,zookeeper-3&quot;
+          ports:
+          - containerPort: 9092
+
+---
+
+apiVersion: v1 
+kind: Service 
+metadata: 
+  name: kafka-1 
+  labels:
+    name: kafka-1
+spec: 
+  ports: 
+    - name: client
+      port: 9092
+      protocol: TCP
+  selector: 
+    name: kafka-1
+
+---
+
+apiVersion: v1 
+kind: Service 
+metadata: 
+  name: kafka-2
+  labels:
+    name: kafka-2
+spec: 
+  ports: 
+    - name: client
+      port: 9092
+      protocol: TCP
+  selector: 
+    name: kafka-2
+
+---
+
+apiVersion: v1 
+kind: Service 
+metadata: 
+  name: kafka-3
+  labels:
+    name: kafka-3
+spec: 
+  ports: 
+    - name: client
+      port: 9092
+      protocol: TCP
+  selector: 
+    name: kafka-3
+
+```</pre> 
+        <div class="cnblogs_code_toolbar">
+         <span class="cnblogs_code_copy"><a title="复制代码"><img alt="复制代码" src="http://common.cnblogs.com/images/copycode.gif" /></a></span>
+        </div> 
+       </div> 
+       <p>&nbsp;</p> 
+       <p>&nbsp;</p> 
+       <p>&nbsp;</p> 
+       <p>&nbsp;</p> 
+       <p>&nbsp;</p> 
+       <p><br /># FAQ:</p> 
+       <p><br />## kube-discovery error</p> 
+       <p>&nbsp;</p> 
+       <div class="cnblogs_code"> 
+        <pre>    failed to create &quot;kube-discovery&quot; deployment [deployments.extensions &quot;kube-discovery&quot; already exists]
+    
+
+kubeadm reset
+
+kubeadm init</pre> 
+       </div> 
+       <p>原文链接：&nbsp;</p> 
+       <p><a href="http://www.xf80.com/2016/12/13/kubernetes-1.5.0/" target="_blank">http://www.xf80.com/2016/12/13/kubernetes-1.5.0</a></p> 
+       <p>&nbsp;</p>
+       <p>标签：<a href="http://www.dongcoder.com/s/1/server" title="标签：server" target="_blank">server</a>&nbsp;&nbsp;&nbsp;<a href="http://www.dongcoder.com/s/1/metadata" title="标签：metadata" target="_blank">metadata</a>&nbsp;&nbsp;&nbsp;<a href="http://www.dongcoder.com/s/1/%e4%b8%bb%e6%9c%ba" title="标签：主机" target="_blank">主机</a>&nbsp;&nbsp;&nbsp;<a href="http://www.dongcoder.com/s/1/data" title="标签：data" target="_blank">data</a>&nbsp;&nbsp;&nbsp;<a href="http://www.dongcoder.com/s/1/ash" title="标签：ash" target="_blank">ash</a>&nbsp;&nbsp;&nbsp;<a href="http://www.dongcoder.com/s/1/protocol" title="标签：protocol" target="_blank">protocol</a>&nbsp;&nbsp;&nbsp;<a href="http://www.dongcoder.com/s/1/systemctl" title="标签：systemctl" target="_blank">systemctl</a>&nbsp;&nbsp;&nbsp;<a href="http://www.dongcoder.com/s/1/%e4%bf%ae%e6%94%b9%e9%85%8d%e7%bd%ae%e6%96%87%e4%bb%b6" title="标签：修改配置文件" target="_blank">修改配置文件</a>&nbsp;&nbsp;&nbsp;<a href="http://www.dongcoder.com/s/1/2.4" title="标签：2.4" target="_blank">2.4</a>&nbsp;&nbsp;&nbsp;</p>
+      </div> 
+      <div class="detailzan"> 
+       <span id="article_yes_content" class="colorhong"></span>
+       <span class="cursorpointer"> <img id="articleyes" src="/img/up.gif" width="24" height="24" alt="赞" />（<span id="article_yes" class="colorhong">0</span>）</span> 
+      </div> 
+      <div class="margintop20 marginbottom20 divoverflowauto"> 
+       <div class="divfloatleft"> 
+        <script async="" src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script> 
+        <!-- dc-detail-content-middle-left-300x250 --> 
+        <ins class="adsbygoogle" style="display: inline-block; width: 300px; height: 250px" data-ad-client="ca-pub-8616102841876629" data-ad-slot="7881658689"></ins> 
+        <script>
+            (adsbygoogle = window.adsbygoogle || []).push({});
+        </script> 
+       </div> 
+       <div class="divfloatright marginleft8"> 
+        <script async="" src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script> 
+        <!-- dc-detail-content-middle-right-300x250 --> 
+        <ins class="adsbygoogle" style="display: inline-block; width: 300px; height: 250px" data-ad-client="ca-pub-8616102841876629" data-ad-slot="9358391884"></ins> 
+        <script>
+            (adsbygoogle = window.adsbygoogle || []).push({});
+        </script> 
+       </div> 
+      </div> 
+      <div id="comment" class="dcdetailpinglun"> 
+       <ul class="title"> 
+        <li class="titleleft">评论</li> 
+        <li class="titleright">一句话评论（<span id="article_comment1" class="colorhong">0</span>）</li> 
+       </ul> 
+       <div class="dcdetailpingluncontent"> 
+        <div id="infocommentno" class="textaligncenter">
+          暂无评论！
+        </div> 
+       </div> 
+       <div class="dcdetailpinglunadd"> 
+        <form method="post" action="/ajaxjs/info_detail_commentadd.aspx"> 
+         <div> 
+          <div id="commenthf"> 
+          </div> 
+          <div> 
+           <textarea name="tbcommentcontent" id="tbcommentcontent" class="tb"></textarea> 
+          </div> 
+         </div> 
+         <div class="dcdetailpinglunaddop"> 
+          <span id="addCommentTishi" class="colorhong">登录后才能评论！</span> 
+          <span id="loginno"><input type="button" class="btn" value="登录" onclick="location.href='http://member.dongcoder.com/login.aspx?returnUrl='+document.URL.replace(new RegExp('&amp;', 'g'), '(_)')" /></span> 
+         </div> 
+        </form> 
+       </div> 
+      </div> 
+     </div> </li> 
+    <li class="dcmainright"> 
+     <div class="marginbottom20"> 
+      <script type="text/javascript">        (function () { document.write(unescape('%3Cdiv id="bdcs"%3E%3C/div%3E')); var bdcs = document.createElement('script'); bdcs.type = 'text/javascript'; bdcs.async = true; bdcs.src = 'http://znsv.baidu.com/customer_search/api/js?sid=6953432671112556687' + '&plate_url=' + encodeURIComponent(window.location.href) + '&t=' + Math.ceil(new Date() / 3600000); var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(bdcs, s); })();</script> 
+     </div> 
+     <div class="margintop20 marginbottom20"> 
+      <script async="" src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script> 
+      <!-- dc-right-top-336x280 --> 
+      <ins class="adsbygoogle" style="display: inline-block; width: 336px; height: 280px" data-ad-client="ca-pub-8616102841876629" data-ad-slot="5344643887"></ins> 
+      <script>
+        (adsbygoogle = window.adsbygoogle || []).push({});
+    </script> 
+     </div> 
+     <div class="section"> 
+      <ul class="titlesmall"> 
+       <li id="infotop1_info_title" class="titlesmallleft">文章昨日排行</li> 
+       <li class="titlesmallright"><a href="/list-top-2-1-1.html" id="infotop1_amore" title="文章昨日排行更多">更多&gt;</a></li> 
+      </ul> 
+      <ul class="listsmall"> 
+       <li class="listsmalltitle"><a href="/detail-1408.html" title="[李景山php]每天laravel-20160901|Dispatcher-1" _self=""> [李景山php]每天laravel-20160901|Dispatcher-1</a> &nbsp;<span>2016-06-16</span> </li> 
+       <li class="listsmalltitle"><a href="/detail-105479.html" title="apache ab压力测试工具需要用户登录才能测得时候怎么办？" _self=""> apache ab压力测试工具需要用户登录才能测得时候怎么办？</a> &nbsp;<span>2016-08-18</span> </li> 
+       <li class="listsmalltitle"><a href="/detail-273340.html" title="ASP.MVC时间类型json数据处理" _self=""> ASP.MVC时间类型json数据处理</a> &nbsp;<span>2016-11-29</span> </li> 
+       <li class="listsmalltitle"><a href="/detail-275373.html" title="必学的几种提高网站收录量的办法" _self=""> 必学的几种提高网站收录量的办法</a> &nbsp;<span>2016-11-30</span> </li> 
+       <li class="listsmalltitle"><a href="/detail-286472.html" title="Mac Aria2 使用Privoxy将socks代理转化为http代理" _self=""> Mac Aria2 使用Privoxy将socks代理转化为http代理</a> &nbsp;<span>2016-12-07</span> </li> 
+       <li class="listsmalltitle"><a href="/detail-338872.html" title="Css3新特性应用之过渡与动画" _self=""> Css3新特性应用之过渡与动画</a> &nbsp;<span>2017-01-09</span> </li> 
+       <li class="listsmalltitle"><a href="/detail-348674.html" title="谷歌和谷歌学术镜像网站" _self=""> 谷歌和谷歌学术镜像网站</a> &nbsp;<span>2017-01-15</span> </li> 
+       <li class="listsmalltitle"><a href="/detail-357565.html" title="js设计模式" _self=""> js设计模式</a> &nbsp;<span>2017-01-21</span> </li> 
+       <li class="listsmalltitle"><a href="/detail-379127.html" title="网站文章若何优化的顶级办法" _self=""> 网站文章若何优化的顶级办法</a> &nbsp;<span>2017-02-10</span> </li> 
+       <li class="listsmalltitle"><a href="/detail-399371.html" title="nginx实现http/2.0实战" _self=""> nginx实现http/2.0实战</a> &nbsp;<span>2017-02-24</span> </li> 
+      </ul> 
+     </div> 
+     <div class="section"> 
+      <ul class="titlesmall"> 
+       <li id="jctop1_info_title" class="titlesmallleft">教程昨日排行</li> 
+       <li class="titlesmallright"></li> 
+      </ul> 
+      <ul class="listsmall"> 
+       <li class="listsmalltitle"><a href="/jiaocheng/detail-5975.html" title="tabsize" _self=""> tabsize</a> &nbsp;<span>2016-09-25</span> </li> 
+       <li class="listsmalltitle"><a href="/jiaocheng/detail-28.html" title="HTML 表格" _self=""> HTML 表格</a> &nbsp;<span>2016-10-11</span> </li> 
+       <li class="listsmalltitle"><a href="/jiaocheng/detail-722.html" title="C++ 函数" _self=""> C++ 函数</a> &nbsp;<span>2016-09-29</span> </li> 
+       <li class="listsmalltitle"><a href="/jiaocheng/detail-2168.html" title="column-gap" _self=""> column-gap</a> &nbsp;<span>2016-10-28</span> </li> 
+       <li class="listsmalltitle"><a href="/jiaocheng/detail-2213.html" title="list-style-type" _self=""> list-style-type</a> &nbsp;<span>2016-09-29</span> </li> 
+       <li class="listsmalltitle"><a href="/jiaocheng/detail-2242.html" title="padding-right" _self=""> padding-right</a> &nbsp;<span>2016-09-30</span> </li> 
+       <li class="listsmalltitle"><a href="/jiaocheng/detail-4194.html" title="HTML DOM 事件对象" _self=""> HTML DOM 事件对象</a> &nbsp;<span>2016-09-26</span> </li> 
+       <li class="listsmalltitle"><a href="/jiaocheng/detail-253.html" title="jQuery AJAX 方法" _self=""> jQuery AJAX 方法</a> &nbsp;<span>2016-10-14</span> </li> 
+       <li class="listsmalltitle"><a href="/jiaocheng/detail-275.html" title="AngularJS                                                            输入验证" _self=""> AngularJS 输入验证</a> &nbsp;<span>2016-09-29</span> </li> 
+       <li class="listsmalltitle"><a href="/jiaocheng/detail-682.html" title="C 输入 &amp; 输出" _self=""> C 输入 &amp; 输出</a> &nbsp;<span>2016-10-17</span> </li> 
+      </ul> 
+     </div> 
+     <div class="section"> 
+      <ul class="titlesmall"> 
+       <li id="newsnew1_news_title" class="titlesmallleft">最新新闻</li> 
+       <li class="titlesmallright"><a href="/news/list-0-1.html" id="newsnew1_amore" title="最新新闻更多">更多&gt;</a></li> 
+      </ul> 
+      <ul class="listsmall"> 
+       <li class="listsmalltitle"><a href="/news/detail-41932.html" title="迪拜警方豪车阵容又添新丁 号称“世界上最快警车”" target="_blank"> 迪拜警方豪车阵容又添新丁 号称“世界上最快警车”</a> &nbsp;<span>2017-03-28</span> </li> 
+       <li class="listsmalltitle"><a href="/news/detail-41982.html" title="Uber在伦敦部署100部电动汽车，使用专线充电网络" target="_blank"> Uber在伦敦部署100部电动汽车，使用专线充电网络</a> &nbsp;<span>2017-03-29</span> </li> 
+       <li class="listsmalltitle"><a href="/news/detail-41963.html" title="苹果赢得超声波生物识别感测技术专利 屏幕下Touch ID有戏" target="_blank"> 苹果赢得超声波生物识别感测技术专利 屏幕下Touch ID有戏</a> &nbsp;<span>2017-03-28</span> </li> 
+       <li class="listsmalltitle"><a href="/news/detail-41977.html" title="研究显示未来数年超过八成企业将安装Windows 10" target="_blank"> 研究显示未来数年超过八成企业将安装Windows 10</a> &nbsp;<span>2017-03-29</span> </li> 
+       <li class="listsmalltitle"><a href="/news/detail-41960.html" title="从Visual Studio 2017谈起，解析微软技术生态进化之道" target="_blank"> 从Visual Studio 2017谈起，解析微软技术生态进化之道</a> &nbsp;<span>2017-03-28</span> </li> 
+       <li class="listsmalltitle"><a href="/news/detail-41973.html" title="WWDC之前 苹果发布Swift 3.1和Xcode 8.3" target="_blank"> WWDC之前 苹果发布Swift 3.1和Xcode 8.3</a> &nbsp;<span>2017-03-29</span> </li> 
+       <li class="listsmalltitle"><a href="/news/detail-41946.html" title="腾讯收购特斯拉5%股份 成第五大股东" target="_blank"> 腾讯收购特斯拉5%股份 成第五大股东</a> &nbsp;<span>2017-03-28</span> </li> 
+       <li class="listsmalltitle"><a href="/news/detail-41928.html" title="科学家将菠菜变成人类心脏细胞培育农场" target="_blank"> 科学家将菠菜变成人类心脏细胞培育农场</a> &nbsp;<span>2017-03-28</span> </li> 
+       <li class="listsmalltitle"><a href="/news/detail-41966.html" title="Uber将撤出丹麦：新出租车法规要求安装计价器" target="_blank"> Uber将撤出丹麦：新出租车法规要求安装计价器</a> &nbsp;<span>2017-03-28</span> </li> 
+       <li class="listsmalltitle"><a href="/news/detail-41955.html" title="摩根大通：苹果正研发一款5.1吋iPhone 或明年发布" target="_blank"> 摩根大通：苹果正研发一款5.1吋iPhone 或明年发布</a> &nbsp;<span>2017-03-28</span> </li> 
+      </ul> 
+     </div> 
+     <div class="section"> 
+      <ul class="titlesmall"> 
+       <li id="infonew1_info_title" class="titlesmallleft">最新文章</li> 
+       <li class="titlesmallright"><a href="/new-1.html" id="infonew1_amore" title="最新文章更多">更多&gt;</a></li> 
+      </ul> 
+      <ul class="listsmall"> 
+       <li class="listsmalltitle"><a href="/detail-445897.html" title="记录自己使用到的git命令行代码与git使用流程" target="_blank"> 记录自己使用到的git命令行代码与git使用流程</a> &nbsp;<span>2017-03-29</span> </li> 
+       <li class="listsmalltitle"><a href="/detail-445870.html" title="第五章 征服数据库" target="_blank"> 第五章 征服数据库</a> &nbsp;<span>2017-03-29</span> </li> 
+       <li class="listsmalltitle"><a href="/detail-445925.html" title="JS-DOM ～ 03.  子节点的操作、style.样式和属性、dom元素的创建方法及操作、14个例题、主要是利用js直接控制html属性" target="_blank"> JS-DOM ～ 03. 子节点的操作、style.样式和属性、dom元素的创建方法及操作、14个例题、主要是利用js直接控制html属性</a> &nbsp;<span>2017-03-29</span> </li> 
+       <li class="listsmalltitle"><a href="/detail-445930.html" title="长路漫漫，唯剑作伴--Core Animation" target="_blank"> 长路漫漫，唯剑作伴--Core Animation</a> &nbsp;<span>2017-03-29</span> </li> 
+       <li class="listsmalltitle"><a href="/detail-445923.html" title="Tcl与Design Compiler （九）——综合后的形式验证" target="_blank"> Tcl与Design Compiler （九）——综合后的形式验证</a> &nbsp;<span>2017-03-29</span> </li> 
+       <li class="listsmalltitle"><a href="/detail-445864.html" title="求N!的长度【数学】 51nod 1058" target="_blank"> 求N!的长度【数学】 51nod 1058</a> &nbsp;<span>2017-03-29</span> </li> 
+       <li class="listsmalltitle"><a href="/detail-445900.html" title="和小伙伴的结伴编程" target="_blank"> 和小伙伴的结伴编程</a> &nbsp;<span>2017-03-29</span> </li> 
+       <li class="listsmalltitle"><a href="/detail-445934.html" title="【后缀自动机】【拓扑排序】【动态规划】hihocoder1457 后缀自动机四&middot;重复旋律7" target="_blank"> 【后缀自动机】【拓扑排序】【动态规划】hihocoder1457 后缀自动机四&middot;重复旋律7</a> &nbsp;<span>2017-03-29</span> </li> 
+       <li class="listsmalltitle"><a href="/detail-445936.html" title="冒泡与捕获的理解" target="_blank"> 冒泡与捕获的理解</a> &nbsp;<span>2017-03-29</span> </li> 
+       <li class="listsmalltitle"><a href="/detail-445922.html" title="标明Java类之间关系的一些标志（其实，是箭头）" target="_blank"> 标明Java类之间关系的一些标志（其实，是箭头）</a> &nbsp;<span>2017-03-29</span> </li> 
+      </ul> 
+     </div> 
+     <div id="xt" class="width336" style="margin:20px 0 0 18px;"> 
+      <script async="" src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script> 
+      <!-- dc-right-300x600 --> 
+      <ins class="adsbygoogle" style="display: inline-block; width: 300px; height: 600px" data-ad-client="ca-pub-8616102841876629" data-ad-slot="9862983488"></ins> 
+      <script>
+        (adsbygoogle = window.adsbygoogle || []).push({});
+    </script> 
+     </div> </li> 
+   </ul> 
+  </div> 
+  <div class="dcmain dcfriendlink"> 
+   <div class="dcfriendlinktitle">
+     友情链接
+   </div> 
+   <div class="dcfriendlinkcontent"> 
+    <a href="http://www.baidu.com/" target="_blank">百度</a>&nbsp;&nbsp; 
+    <a href="http://www.cnzz.com/" target="_blank">站长统计</a>&nbsp;&nbsp; 
+    <a href="http://www.aliyun.com/" target="_blank"> 阿里云</a> 
+   </div> 
+  </div> 
+  <ul class="dcmain dcbottom"> 
+   <li class="list"> 
+    <div> 
+     <a href="/contactus.html" title="dongcoder.com联系我们">联系我们</a> - 
+     <a href="/guest.html" title="dongcoder.com留言反馈">留言反馈</a> 
+    </div> 
+    <div>
+      &copy; 2016 
+     <a href="http://www.dongcoder.com" title="dongcoder.com懂客">dongcoder.com</a> 版权所有 鲁ICP备09046678号-6 
+    </div> 
+    <div> 
+     <script type="text/javascript">                var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://"); document.write(unescape("%3Cspan id='cnzz_stat_icon_1259569311'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s11.cnzz.com/z_stat.php%3Fid%3D1259569311%26show%3Dpic' type='text/javascript'%3E%3C/script%3E"));</script> 
+     <script>
+                var _hmt = _hmt || [];
+                (function () {
+                    var hm = document.createElement("script");
+                    hm.src = "//hm.baidu.com/hm.js?aae6e990f509fada642c1419322837fa";
+                    var s = document.getElementsByTagName("script")[0];
+                    s.parentNode.insertBefore(hm, s);
+                })();
+            </script> 
+    </div> 
+    <div class="textaligncenter margintop20 marginbottom10"> 
+     <a class="btn font18" href="http://www.dongcoder.com">电脑端</a> &nbsp;&nbsp;
+     <a class="btn font18" href="http://m.dongcoder.com">移动端</a> 
+    </div> </li> 
+  </ul> 
+  <script type="text/javascript">        var info_menu_i = "2"; var mid = ''; var id = '367485'; var idm = '19342f'; var commentitemcount = ''; var memberhost = 'http://member.dongcoder.com/'; prettyPrint();
+    </script> 
+  <script src="/js/infodetail.js" type="text/javascript" charset="utf-8"></script> 
+  <script src="/js/member.js" type="text/javascript" charset="utf-8"></script> 
+  <script type="text/javascript" src="/js/dongcoder.js"></script>   
+ </body>
+</html>

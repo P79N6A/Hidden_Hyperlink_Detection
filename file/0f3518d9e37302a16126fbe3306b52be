@@ -1,0 +1,255 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html><head>
+
+
+<!-- /cabin/CACabinLogin.jsp -->
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8;">
+<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7">
+<meta content="国航,中国国际航空股份有限公司,AIR CHINA,网上准备,乘务员,乘务员网上准备系统,乘务网上准备系统" name="Keywords">
+<meta name="description" content="欢迎使用国航乘务员网上准备系统，祝您旅途愉快。">
+<title>中国国际航空公司-乘务网上准备系统</title>
+<link rel="stylesheet" href="/cabin/includes/css/commonStyle.css">
+<script type="text/javascript" src="/cabin/includes/js/jquery.js"></script>
+<script type="text/javascript" src="/cabin/includes/js/function.js"></script>
+<script>
+if(typeof GlobalVariable == 'undefined')
+{
+	GlobalVariable = {};
+}
+GlobalVariable.ENV_CONTEXT_ROOT = '/cabin';
+GlobalVariable.ALLOWENCLOSURE = '*.doc|*.docx|*.xls|*.xlsx|*.jpg|*.jpeg|*.gif|*.png|*.bmp|*.mp3|*.mp4|*.flv|*.pdf|*.txt|*.ppt|*.pptx|*.ftl|*.rar|*.zip';
+GlobalVariable.ENV_MAXPOSTSIZE = '50';
+GlobalVariable.ENV_MAXPOSTSIZE_B = ''
+GlobalVariable.SEPARATOR_CHAR ="ш";
+GlobalVariable.SEPARATOR_ROW ="Ю";
+
+</script>
+<!-- popWindow -->
+
+<script type="text/javascript" src="/cabin/includes/lhgdialog/lhgdialog.min.js"></script><link href="http://kccabin.airchina.com.cn/cabin/includes/lhgdialog/skins/default.css" rel="stylesheet" type="text/css">
+
+<!-- ztree树 -->
+
+<!-- 校验框架 easy_validator-->
+
+<!-- 校验框架 easy_validator-->
+
+<!-- 文件上传组件 -->
+
+<!--富文本编辑器3.5.6 -->
+
+<!-- 日期控件 -->
+
+<!-- 图片显示插件 -->
+
+<!-- 音视频播放 -->
+
+<!-- 弹出层-->
+
+
+
+<script type="text/javascript">
+if(typeof $ == 'undefined')
+{
+	window.onload=function(){window.location.reload();}
+}
+</script>
+<style>
+	html{
+		background:white;
+	}
+	body{
+		text-align:left;
+		background:#007CAF;
+		padding:0;
+		margin:0;
+	}
+	.loginTable{
+		font-size:14px;
+	}
+	.loginTable tr{
+		height:30px;
+		line-height:30px;
+	}
+	.loginTable .inputText{
+		width:160px;
+	}
+	a:link {
+	 color: black; /*连接默认的颜色变化*/
+	 text-decoration:underline;
+	}
+	a:visited {
+	 color: black; /*连接访问的颜色变化*/
+	 text-decoration:underline;
+	}
+	a:hover {
+	 color: #FFDD16; /*鼠标经过的颜色变化*/
+	 text-decoration:underline;
+	}
+	a:active { 
+	 color: #FFDD16; /*鼠标按下的颜色变化*/
+	 text-decoration:underline;
+	}
+	.errorMsgClass{
+		margin-top:10px;
+		margin-left:10px;
+		margin-right:5px;
+		padding-left:10px;
+	    line-height:20px;
+	    padding-top:5px;
+	    padding-bottom:5px;
+		background:#FFFDDF;
+		color:#FF0000;
+		border:1px solid #ED8714;
+	}
+</style>
+<script> 
+if (window != top){ 
+	top.location.href = location.href; 
+}
+
+$(function(){
+	var $inp = $('#verifyCode,#password');
+	$inp.bind('keyup', function (event){
+		if (event.keyCode== 13) {
+			var loginType=$('input:radio[name=loginType]:checked').val();
+			if(loginType=="0"){
+				if($(this).attr("id")=="password"){
+					$("#startLoginImg").click();
+				}
+			}else{
+				if($(this).attr("id")=="verifyCode"){
+					$("#startLoginImg").click();
+				}
+			}
+		}
+	});
+	iniNextAction();
+	//光标移入效果
+	iniAutoFocus();
+	$("#userid").focus();
+});
+
+//开始登录
+function startLogin(){
+	if(!checkUserName()){
+	  return false;
+	 }
+	document.loginForm.submit();
+}
+
+//验证用户名密码必填
+function checkUserName(){
+	if($("#userid").val()==""){
+		alert("请输入登录账户！");
+		return false;
+	}
+	if($("#password").val()==""){
+		alert("请输入密码！");
+		return false;
+	}
+	if($("#verifyCode").val()==""){
+		alert("请输入验证码！");
+		return false;
+	}
+	return true;
+}
+
+//用于在登录失败后，根据后台传过来的代码，决定下一步是何操作
+function iniNextAction(){
+	if('null'=='setPassword'){
+		//密码过期，需要弹出重置密码界面
+		updatePassword('setPassword','');
+	}else if('null'=='firstEnter'){
+		//初次登录，需要设置新密码
+		updatePassword('firstEnter','');
+	}
+}
+
+//重新生成验证码
+function reloadVerifyCode(){
+    var now = new Date().getTime();                   
+    $("#verifyCodeIMG").attr("src","/cabin/servlet/ImageServlet?d="+now);
+ }
+ 
+//打开密码重置页面
+function resetPassword(){
+	var dlg = new $.dialog({id:"resetPassword",title:"用户重置密码",width:540,height:360,cover:true,maxBtn:false,btnBar:false,page:"/cabin/servlet/SignOn?method=toRestPassword"});
+ 	dlg.ShowDialog();
+}
+
+//更新密码
+function updatePassword(type,userid){
+	var dlg = new $.dialog({id: 'updatePassword',title:"设置新密码",width:800,height:400,cover:true,btnBar:false,maxBtn:false,page:"/cabin/servlet/SignOn?method=updatePassword&type="+type+"&userid="+userid});
+ 	dlg.ShowDialog();
+}
+
+//Flash插件检查
+function checkFlash(){
+	var dlg = new $.dialog({id: 'checkFlash',title:"Flash插件下载",width:600,height:260,cover:true,btnBar:false,maxBtn:false,page:"/cabin/includes/FileUpload/flashCheck.html"});
+ 	dlg.ShowDialog();
+}
+
+</script>
+</head>
+<body>
+<div style="position: absolute;right:40px;top:20px;font-size:12px;">
+	<span style="cursor: pointer;" onclick="checkFlash();"><img src="/cabin/includes/images/functionLink.gif">&nbsp;Flash插件下载</span>
+</div>
+<div style="width:100%;height:100%;background:white url('/cabin/includes/images/loginBg.jpg') repeat-x;">
+	<table border="0" cellpadding="0" cellspacing="0" style="width:1000px;height:613px;margin:auto;">
+		<tbody><tr>
+			<td colspan="4" width="1000" height="57"></td>
+		</tr>
+		<tr>
+			<td colspan="4" width="1000" height="71" style="text-align:center;">
+				<img src="/cabin/includes/images/newLogin_03.jpg" width="702" height="71" style="margin:auto;"></td>
+		</tr>
+		<tr>
+			<td rowspan="3" width="147" height="485"></td>
+			<td colspan="2">
+				<img src="/cabin/includes/images/newLogin_06.jpg" alt="" width="702" height="118"></td>
+			<td rowspan="3" width="151" height="485"></td>
+		</tr>
+		<tr>
+			<td>
+				<img src="/cabin/includes/images/newLogin_08.jpg" alt="" width="376" height="192"></td>
+			<td width="326" height="192" style="background:url('/cabin/includes/images/newLogin_09.jpg') no-repeat;" valign="top">
+				<form name="loginForm" id="loginForm" method="post" class="formClass" action="/cabin/servlet/SignOn?method=signOn">
+					<table cellpadding="0" cellspacing="0" border="0" class="loginTable" style="margin-top:15px;">
+						<tbody><tr>
+							<td class="leftInputTip">账号</td><td><input id="userid" name="userid" type="text" class="inputText autoFocus" value=""></td>
+						</tr>
+						<tr>
+							<td class="leftInputTip">密码</td><td><input id="password" name="password" type="password" class="inputText autoFocus" value=""></td>
+						</tr>
+						<tr>
+							<td class="leftInputTip">验证码</td>
+							<td>
+								<table cellpadding="0" cellspacing="0" border="0">
+									<tbody><tr>
+										<td><input type="text" name="verifyCode" id="verifyCode" class="inputText autoFocus" style="width:78px;height:22px;"></td>
+										<td><img id="verifyCodeIMG" src="/cabin/servlet/ImageServlet?date=1491053763433" style="border:1px solid #7f9db9;cursor: pointer;" onclick="reloadVerifyCode();" title="看不清，点击重新生成验证码">	</td>
+									</tr>
+								</tbody></table>
+							</td>
+						</tr>
+						<tr>
+							<td class="leftInputTip"></td>
+							<td>
+								<img id="startLoginImg" src="/cabin/includes/images/loginButton.gif" style="margin-top:3px;cursor: pointer;vertical-align: middle;" onclick="startLogin();">
+								<a href="#2012" onclick="resetPassword();" style="font-size:12px;">忘记密码</a>
+							</td>
+						</tr>																									
+					</tbody></table>
+				</form>
+			</td>
+		</tr>
+		<tr>
+			<td colspan="2" width="702" height="175" valign="top" style="font-size:12px;">
+				
+			</td>
+		</tr>
+	</tbody></table>
+</div>
+
+</body></html>

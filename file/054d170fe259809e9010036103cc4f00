@@ -1,0 +1,1520 @@
+<!--<!----><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+ <head> 
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+  <meta http-equiv="x-ua-compatible" content="ie=7" /> 
+  <title>迈普路由器的IPsec VPN_51CTO下载中心_IT技术资料免费下载</title> 
+  <meta name="description" content="迈普路由器的VPN也比较成熟，配置比CISCO的简单" /> 
+  <meta name="keywords" content="迈普路由器,IPSEC,VPN" /> 
+  <link href="http://down.51cto.com/css/newcss/layout.css" rel="stylesheet" type="text/css" /> 
+  <link href="http://down.51cto.com/css/newcss/module.css" rel="stylesheet" type="text/css" /> 
+  <!----> 
+  <script src="http://down.51cto.com/js/jquery.min.js"></script> 
+  <link href="http://images.51cto.com/images/art/css/art_master_top.css?v=1002" rel="stylesheet" type="text/css" /> 
+  <style>
+#home_top .top_nav {
+    font-size: 12px;
+    height: 35px;
+    margin: auto;
+    width: 1178px;
+}
+</style> 
+  <script src="http://images.51cto.com/images/homepage/index_1_down.js?v=1001"></script> 
+  <script type="text/javascript">
+var token = "";
+var homeLogUrl = "http://home.51cto.com?reback=http%253A%252F%252Fdown.51cto.com%252Fdata%252F247886";
+
+var count=10;
+function jump() {
+	if(count === 1 ){
+		location.href=homeLogUrl;
+		return ;
+	}
+	count--;
+	$(".jsAlertContainer #jsUrlBack").html(count);
+	window.setTimeout(function(){
+		jump();
+	}, 1000);
+}
+
+function close_e(value){
+	$.alert.close(-1);
+	$("#dateil").hide();
+	 $(this).html("");
+	 $("#"+value+"").parent().hide();
+	 //$("#"+value+"").hide();
+	 $("#hiddenhtml").removeClass();	
+	//$("#pop").find(".pop").html('');
+}
+//显示公共样式
+function deteil(){
+	$("#dateil").show();	
+}
+jQuery(document).ready(function() {
+	jQuery(".select_box input").click(function() {
+		var thisinput = jQuery(this);
+		var thisul = jQuery(this).parent().find("div");					
+			 thisul.find("a").click(function() {
+				thisinput.val(jQuery(this).text());				
+				jQuery('#f_type').attr('disabled', true);
+				switch (jQuery.trim(jQuery(this).text()))
+				　　 {　　
+				case '标签':
+					　　jQuery(this).closest("form").attr("action", '/search.php');　　
+					break
+					　　
+				case '专题':
+					jQuery(this).closest("form").attr("action", '/special.php');　　
+					break
+				case '用户名':
+					jQuery(this).closest("form").attr("action", '/search.php');
+					jQuery('#f_type').attr('disabled', false).val('username');　
+					break
+					　　
+				default:
+					　jQuery(this).closest("form").attr("action", '/search.php');　　
+				}
+			}).hover(function() {
+				jQuery(this).addClass("hover");
+			},
+			function() {
+				jQuery(this).removeClass("hover");
+			});
+		
+	})
+});
+	function chkForm(obj){if (obj.q.value=='' || obj.q.value=='请输入搜索关键词') {obj.q.value='请输入搜索关键词';return false;}}
+</script> 
+ </head> 
+ <body> 
+  <div class="Nfloat" style="display:none;width:127px; height:197px;position: fixed;right: 2%;top: 35%;z-index: 801;" id="fullYearfloatPic"> 
+   <img width="127" border="0" src="http://img1.51cto.com/edu/images/floatpic.png" usemap="#Map" /> 
+   <map name="Map" id="Map"> <area shape="rect" coords="11,83,120,117" target="_blank" href="http://edu.51cto.com/course/courseList/id-all-field-toll-isLecturer-0-difficulty-all.html" onfocus="isfox ? void(0) : blur(this);"></area> <area shape="rect" coords="6,120,119,144" target="_blank" href="http://edu.51cto.com/member/index.html" onfocus="isfox ? void(0) : blur(this);"></area> <area shape="rect" coords="9,149,117,178" target="_blank" href="http://bbs.51cto.com/viewthread.php?tid=1113099&amp;page=1&amp;extra=#pid5675432" onfocus="isfox ? void(0) : blur(this);"></area> <area shape="circle" coords="118,25,9" href="javascript:void(0);" onclick="document.getElementById('fullYearfloatPic').style.display='none';" onfocus="isfox ? void(0) : blur(this);"></area> </map> 
+  </div> 
+  <div id="append_parent"></div> 
+  <div id="home_top">
+   <div class="top_nav">
+    <div class="left" style="width:490px;">
+     <a target="_blank" href="http://www.51cto.com">51CTO首页</a>
+     <img height="25" align="absmiddle" width="16" style="padding-top: 2px;" src="http://home.51cto.com/public/themes/blue/images/top_bg_xian.gif" />
+     <a target="_blank" href="http://www.51cto.com/col/35/" onmouseout="popupClose();" onmouseover="show(1,this);">技术频道<img align="absmiddle" style="padding-left: 4px;" src="http://images.51cto.com/images/art/top_images/nav_ico1.gif" /></a>
+     <img height="25" align="absmiddle" width="16" src="http://home.51cto.com/public/themes/blue/images/top_bg_xian.gif" />
+     <a target="_blank" href="http://www.51cto.com" onmouseout="popupClose();" onmouseover="show(2,this);">51CTO旗下网站<img align="absmiddle" style="padding-left: 4px;" src="http://images.51cto.com/images/art/top_images/nav_ico1.gif" /></a>
+     <img height="25" align="absmiddle" width="16" src="http://home.51cto.com/public/themes/blue/images/top_bg_xian.gif" />
+     <a target="_blank" href="http://edu.51cto.com?jydh" onmouseout="popupClose();" onmouseover="show(4,this);" style="color:red">51CTO学院<img align="absmiddle" style="padding-left: 4px;" src="http://images.51cto.com/images/art/top_images/nav_ico1.gif" /></a>
+     <img height="25" align="absmiddle" width="16" src="http://home.51cto.com/public/themes/blue/images/top_bg_xian.gif" />
+     <a target="_blank" href="#" onmouseout="popupClose();" onmouseover="show(5,this);">线下学习<img align="absmiddle" style="padding-left: 4px;" src="http://images.51cto.com/images/art/top_images/nav_ico1.gif" /></a>
+     <img height="25" align="absmiddle" width="16" src="http://home.51cto.com/public/themes/blue/images/top_bg_xian.gif" /> 
+     <a target="_blank" href="http://www.51cto.com/about/map.htm">地图</a> 
+    </div> 
+    <div class="right"> 
+     <div class="more">
+      <a href="javascript:viod(0);" onmouseout="popupClose()" onmouseover="show(3,this)"><img height="16" align="absmiddle" width="27" src="http://home.51cto.com/public/themes/blue/images/top_shequ.gif" />社区<img align="absmiddle" style="padding-left: 4px;" src="http://images.51cto.com/images/art/top_images/nav_ico1.gif" /></a>
+     </div>
+     <span id="login_status">
+      <div class="login" id="login_status"></div></span>
+    </div>
+   </div>
+  </div> 
+  <div class="subMenu1" id="s1" onmouseover="popupNoClose();" onmouseout="popupClose();"> 
+   <ul> 
+    <li><a href="http://network.51cto.com" target="_blank">组网</a></li> 
+    <li><a href="http://netsecurity.51cto.com" target="_blank">安全</a></li> 
+    <li><a href="http://developer.51cto.com" target="_blank">开发</a></li> 
+    <li><a href="http://database.51cto.com" target="_blank">数据库</a></li> 
+    <li><a href="http://server.51cto.com" target="_blank">服务器</a></li> 
+    <li><a href="http://os.51cto.com" target="_blank">系统</a></li> 
+    <li><a href="http://virtual.51cto.com" target="_blank">虚拟化</a></li> 
+    <li><a href="http://cloud.51cto.com" target="_blank">云计算</a></li> 
+    <li><a href="http://developer.51cto.com/embed/" target="_blank">嵌入式</a></li> 
+   </ul> 
+  </div> 
+  <div class="subMenu2" id="s2" onmouseover="popupNoClose()" onmouseout="popupClose()"> 
+   <ul> 
+    <li><a href="http://www.51cto.com" target="_blank" title="中国领先的IT技术网站">51CTO.COM</a></li> 
+    <li><a href="http://www.cioage.com" target="_blank" title="中国首个专门服务于CIO的专业网站">CIOage.com</a></li> 
+    <li><a href="http://www.watchstor.com/" target="_blank" title="领先的中文存储网络媒体">WatchStor.com</a></li> 
+    <li><a href="http://www.hc3i.cn/" target="_blank" title="中国首家专注于数字医疗及医疗信息化的专业网站">HC3i.cn</a></li> 
+   </ul> 
+  </div> 
+  <div class="subMenu3" id="s3" onmouseover="popupNoClose()" onmouseout="popupClose()"> 
+   <ul> 
+    <li><a href="http://home.51cto.com" target="_blank">家园</a></li> 
+    <li><a href="http://edu.51cto.com" target="_blank">学院</a></li> 
+    <li><a href="http://blog.51cto.com" target="_blank">博客</a></li> 
+    <li><a href="http://bbs.51cto.com" target="_blank">论坛</a></li> 
+    <li><a href="http://down.51cto.com" target="_blank">下载</a></li> 
+    <li><a href="http://selftest.51cto.com" target="_blank">自测</a></li> 
+    <li><a href="http://doctor.51cto.com" target="_blank">门诊</a></li> 
+    <li><a href="http://blog.51cto.com/newsletter/" target="_blank">周刊</a></li> 
+    <li><a href="http://book.51cto.com" target="_blank">读书</a></li> 
+    <li><a href="http://t.51cto.com" target="_blank" style="color:red;">题库</a></li> 
+    <li><a href="http://gaozhao.51cto.com" target="_blank">高招</a></li>
+   </ul> 
+  </div> 
+  <div class="subMenu4" id="s4" onmouseover="popupNoClose()" onmouseout="popupClose()"> 
+   <ul> 
+    <li><a href="http://edu.51cto.com/course/courseList/id-all.html?jydh " target="_blank">视频课程</a></li> 
+    <li><a href="http://edu.51cto.com/px/?jydh " target="_blank">微职位培训</a></li> 
+    <li><a href="http://edu.51cto.com/activity/lists/id-10.html?jydh" target="_blank">APP下载</a></li> 
+   </ul> 
+  </div> 
+  <div style="display: none;" class="subMenu5" id="s5" onmouseover="popupNoClose()" onmouseout="popupClose()"> 
+   <ul> 
+    <li><a href="http://wot.51cto.com/?down" target="_blank">WOT峰会</a></li> 
+    <li><a href="http://x.51cto.com/?down" target="_blank">CTO训练营</a></li> 
+    <li><a href="http://wot.51cto.com/act/bcsl/info?down" target="_blank">百城沙龙</a></li> 
+   </ul> 
+  </div> 
+  <div class="banner" style=""> 
+   <div class="newcenter" id="ad_down_5"> 
+    <div style="position:relative;display:inline-block;width:auto;"> 
+    </div> 
+   </div> 
+  </div> 
+  <!--简导航结束--> 
+  <div class="header"> 
+   <!----> 
+   <div class="adv level center" id="ad_down_1"> 
+   </div> 
+   <!----> 
+   <link href="http://down.51cto.com/css/new_16css/public.css" rel="stylesheet" type="text/css" /> 
+   <link href="http://down.51cto.com/css/new_16css/index.css" rel="stylesheet" type="text/css" /> 
+   <script src="http://down.51cto.com/js/new_16/public.js" type="text/javascript"></script> 
+   <script src="http://down.51cto.com/js/new_16/imgscal.js" type="text/javascript"></script> 
+   <script src="http://down.51cto.com/js/new_16/thorTo.min.js" type="text/javascript"></script> 
+   <script src="http://down.51cto.com/js/new_16/master.js" type="text/javascript"></script> 
+   <div class="theme-header newcenter clearfix"> 
+    <div class="logobox clearfix"> 
+     <a href="http://down.51cto.com/" class="logo_xz"><img src="http://down.51cto.com/images/new_16/logo_xz.png" alt="51CT0下载" /></a> 
+     <span class="slogn"><img src="http://down.51cto.com/images/new_16/slgon.png" alt="下你所需，载你所想" /></span> 
+    </div> 
+    <div class="searchbox left"> 
+     <div class="inpscrbox"> 
+      <form action="/search.php" method="get" onsubmit="return chkForm(this)"> 
+       <span class="left"><input name="q" type="text" class="findval inputtext_del" onclick="" value="" /></span> 
+       <div class="right condit tr select_box"> 
+        <input name="" type="text" class="styleval" readonly="readonly" value="全部资料" /> 
+        <div class="stylehide"> 
+         <a href="javascript:void(0)">全部资料</a> 
+         <a href="javascript:void(0)">专题</a> 
+         <a href="javascript:void(0)">标签</a> 
+         <a href="javascript:void(0)">用户名</a> 
+        </div> 
+       </div> 
+       <input type="hidden" id="f_type" name="f" disabled="disabled" /> 
+       <span><input name="" type="submit" class="findbtn" value="" /></span> 
+      </form> 
+     </div> 
+    </div> 
+    <div class="right clearfix"> 
+     <div class="wdscbox right">
+      <a href="http://home.51cto.com/apps/favorite/index.php?s=/Index/index" class="wdsc_a"><b></b>我的收藏</a>
+     </div> 
+     <div class="czbox right">
+      <a href="http://pay.51cto.com/index.php?do=dou" class="cz_a"><b></b>充值</a>
+     </div> 
+     <div class="sczlbox right">
+      <a href="http://down.51cto.com/upload" class="sczl_a"><b></b>上传资料</a>
+     </div> 
+    </div> 
+   </div> 
+   <div class="navigation level center"> 
+    <ul class="items"> 
+     <li> <a href="http://down.51cto.com" class="house ">首页</a> </li> 
+     <li> <a href="http://down.51cto.com/detail_list.php?type=1" class="download ">分类下载</a> </li> 
+     <li> <a href="http://down.51cto.com/commend" class="download ">推荐下载</a> </li> 
+     <li> <a href="http://down.51cto.com/zt" class="note ">资料专题</a> </li> 
+     <li> <a href="http://down.51cto.com/rank" class="rank ">用户榜</a> </li> 
+     <li> 
+      <!----> <a href="http://home.51cto.com?reback=http%253A%252F%252Fdown.51cto.com%252Fdata%252F247886" class="person ">我的资料</a> 
+      <!----> </li>
+     <li><a href="http://edu.51cto.com/activity/lists/id-10.html?down">APP下载</a></li> 
+    </ul> 
+    <div class="announcement"> 
+     <a href="http://edu.51cto.com/px/train/115?downycwz
+" target="_blank"><b class="icon_tzhi"></b>【免费】Linux新版课程免费试学</a> 
+    </div> 
+   </div> 
+   <!----> 
+   <div class="crumb level center"> 
+    <ul class="items"> 
+     <li><a href="http://down.51cto.com" class="tit channel00" target="_blank">首页</a></li> 
+     <li><span class="sign">&gt;</span></li> 
+     <li><a href="/commend" class="channel0">资料列表</a></li>
+     <li><span class="sign">&gt;</span></li>
+     <li><a>迈普路由器的IPsec VPN</a></li> 
+    </ul> 
+    <ul class="own"> 
+     <!----> 
+     <li><a href="javascript:;" class="ina exit_list_fkui">意见反馈</a></li> 
+     <!----> 
+    </ul>
+   </div> 
+   <!----> 
+  </div> 
+  <div style="display:none" class="jsUserLogin"> 
+   <div class="area"> 
+    <div class="tit">
+      登录51CTO,百万精品IT资料不再错过！ 
+    </div> 
+    <ul class="toolbar"> 
+     <li class="element"> 
+      <ul class="card"> 
+       <li><a href="http://home.51cto.com?reback=http%253A%252F%252Fdown.51cto.com%252Fdata%252F247886" class="btn log" target="_blank">登录</a></li> 
+       <li><span class="time"><span id="jsUrlBack" class="num">10</span>秒后自动跳转到登录页</span></li> 
+      </ul> </li> 
+     <li class="element"> 
+      <ul class="card"> 
+       <li><a href="http://home.51cto.com/user/register?reback=http%253A%252F%252Fdown.51cto.com%252Fdata%252F247886" class="btn reg" target="_blank">注册</a></li> 
+       <li><span class="award">(奖励5下载豆)</span></li> 
+      </ul> </li> 
+    </ul> 
+   </div> 
+   <ul class="shortcut"> 
+    <li> <span class="word">快捷登录：</span> </li> 
+    <li> <a href="http://home.51cto.com?reback=http%253A%252F%252Fdown.51cto.com%252Fdata%252F247886" class="icon" target="_blank"> <img src="http://down.51cto.com/images/new_16/part_weixin.png" alt="" /> </a> <a class="name">微信 </a> </li> 
+    <li> <a href="http://home.51cto.com/third-party/auth?type=sina" class="icon" target="_blank"> <img src="http://down.51cto.com/images/newimages/images/sina.png" alt="" /> </a> <a class="name">新浪微博 </a> </li> 
+    <li> <a href="http://home.51cto.com/third-party/auth?type=douban" class="icon" target="_blank"> <img src="http://down.51cto.com/images/newimages/images/bean.png" alt="" /> </a> <a class="name">豆瓣网 </a> </li> 
+   </ul> 
+  </div> 
+  <script src="/js/51cto.js"></script> 
+  <script src="/js/jquery.message.js"></script> 
+  <script src="http://down.51cto.com/js/newjs/cent.js"></script> 
+  <div id="jsFreeCredits" style="display:none"> 
+   <dl class="card"> 
+    <dt class="pic"></dt> 
+    <dd class="tit">
+     您已收获
+     <span class="num jsgetNum">2</span>颗下载豆！
+    </dd> 
+    <dd class="note">
+     豆豆送不停，记得明天再来哦 ^_^
+    </dd> 
+   </dl> 
+   <ul class="items jsAds"> 
+   </ul> 
+  </div> 
+  <div style="display:none"> 
+   <div id="ad_down_1_1"> 
+    <script type="text/javascript"><!--//<![CDATA[
+   var m3_u = (location.protocol=='https:'?'https://gg.51cto.com/www/delivery/ajs.php':'http://gg3.51cto.com/www/delivery/ajs.php');
+   var m3_r = Math.floor(Math.random()*99999999999);
+   if (!document.MAX_used) document.MAX_used = ',';
+   document.write ("<scr"+"ipt type='text/javascript' src='"+m3_u);
+   document.write ("?zoneid=592");
+   document.write ('&amp;cb=' + m3_r);
+   if (document.MAX_used != ',') document.write ("&amp;exclude=" + document.MAX_used);
+   document.write (document.charset ? '&amp;charset='+document.charset : (document.characterSet ? '&amp;charset='+document.characterSet : ''));
+   document.write ("&amp;loc=" + escape(window.location));
+   if (document.referrer) document.write ("&amp;referer=" + escape(document.referrer));
+   if (document.context) document.write ("&context=" + escape(document.context));
+   if (document.mmm_fo) document.write ("&amp;mmm_fo=1");
+   document.write ("'><\/scr"+"ipt>");
+//]]>--></script>
+    <noscript>
+     <a href="//gg3.51cto.com/www/delivery/ck.php?n=a07512a3&amp;cb=INSERT_RANDOM_NUMBER_HERE" target="_blank"><img src="//gg2.51cto.com/www/delivery/avw.php?zoneid=592&amp;cb=INSERT_RANDOM_NUMBER_HERE&amp;n=a07512a3" border="0" alt="" /></a>
+    </noscript> 
+   </div> 
+   <script type="text/javascript">
+	//广告
+    var backfill = new Array("ad_down_1");
+    for(var i=0;i<backfill.length;i++){
+        document.getElementById(backfill[i]).innerHTML = document.getElementById(backfill[i] +'_1').innerHTML;
+    }
+</script> 
+  </div> 
+  <!----> 
+  <link href="http://down.51cto.com/css/newcss/detail.css" rel="stylesheet" type="text/css" /> 
+  <script>
+	var current_urlen="http%253A%252F%252Fdown.51cto.com%252Fdata%252F247886";	
+	var reportnum ="0";
+	var sonum = "3";
+	var sonum_y = "3";
+	var tids = "247886";
+</script> 
+  <ul class="popup visible" id="dateil" style="display:none"> 
+   <!--举报---> 
+   <li id="reportSuccess" style="display:none"> 
+    <ul class="items"> 
+     <li class="tit"> <a class="pop jsInfo"></a> </li> 
+    </ul> 
+    <div class="btn"> 
+     <a href="javascript:void(0)" onclick="close_e('pop')"> 确定 </a> 
+    </div> </li> 
+   <!--举报列表---> 
+   <li style="display:none" id="report_s"> 
+    <ul class="form"> 
+     <li> <span class="word">您正在举报的是：</span> <a class="name">迈普路由器的IPsec VPN</a> </li> 
+     <input type="hidden" id="report_tid" name="report_tid" value="247886" /> 
+     <li> <span class="word">举报类型：</span> <select name="report_type" id="report_type" style="width:200px"> 
+       <!----> <option value="1">不规范：上传重复资源</option> 
+       <!----> <option value="2">不规范：标题与实际内容不符</option> 
+       <!----> <option value="3">不规范：资源无法下载或使用</option> 
+       <!----> <option value="4">其他不规范行为</option> 
+       <!----> <option value="8">违规：资源涉及侵权</option> 
+       <!----> <option value="5">违规：含有危害国家安全等内容</option> 
+       <!----> <option value="6">违规：含有反动/色情等内容</option> 
+       <!----> <option value="7">违规：广告内容</option> 
+       <!----> </select> </li> 
+     <li> <span class="word">详细原因：</span> 
+      <div class="textarea"> 
+       <textarea name="report_details" id="report_details"></textarea> 
+      </div> </li> 
+     <li> <span class="tip"> 任何违反下载中心规定的资源，欢迎Down友监督举报，第一举报人可获5-10下载豆奖励。 </span> </li> 
+     <li> <a href="javascript:void(0)" id="submit_report" class="btn">提交</a> </li> 
+    </ul> </li> 
+   <!-- 添加资料到专题 --> 
+   <li style="display:none" id="subject_s"> 
+    <!--修改--------------------> 
+    <div class="form_list"> 
+    </div> 
+    <div class="btn"> 
+     <a href="javascript:void(0)" class="subject_zt_add"> 确认 </a> 
+    </div> </li> 
+   <!-- 下载弹框---> 
+   <li class="layer peas visible" style="display:none" id="download_one"> 
+    <div class="title"> 
+     <span class="word"> 欢迎来到国内最大技术资料站51CTO下载中心！ </span> 
+     <a href="" class="name"> down.51CTO.com </a> 
+     <a href="javascript:void(0)" onclick="close_e('download_one')" class="close"></a> 
+    </div> 
+    <ul class="area"> 
+    </ul> 
+    <div class="gain"> 
+     <div class="tit"> 
+      <span class="word"> 您可以通过以下方式获取下载豆： </span> 
+     </div> 
+     <ul class="items"> 
+      <li><a href="http://pay.51cto.com/index.php?do=downvip" class="crown">VIP充值</a></li> 
+      <li><a href="http://pay.51cto.com/index.php?do=dou" class="down">下载豆充值</a></li> 
+      <li><a href="http://down.51cto.com/download.php?do=credits&amp;m=acquire" class="free">免费赚取</a></li> 
+      <li><a href="http://down.51cto.com/credits/task" class="note">任务领取</a></li> 
+     </ul> 
+    </div> </li> 
+  </ul> 
+  <div class="popup_bg"></div> 
+  <!----> 
+  <div class="suspend"> 
+   <div class="area level center"> 
+    <a href="" class="close"></a> 
+    <div class="newaddtit">
+     视频课程推荐
+    </div> 
+    <ul class="items"> 
+     <!----> 
+     <li> 
+      <dl class="card"> 
+       <dt class="pic"> 
+        <a href="http://edu.51cto.com/course/course_id-3811.html?edu_recommend_adid=209"> <img src="https://s1.51cto.com/wyfs02/M01/6E/3B/wKioL1V3M5GCD9STAACQJvxo_mw565_small.jpg" alt="" style="width: 138px; height: 103px;" /> </a> 
+       </dt> 
+      </dl> </li> 
+     <!----> 
+     <li> 
+      <dl class="card"> 
+       <dt class="pic"> 
+        <a href="http://edu.51cto.com/course/course_id-1154.html?edu_recommend_adid=209"> <img src="https://s1.51cto.com/wyfs01/M02/53/48/wKioOVNCy9SA5UNpAAC_Jrla3HI288_small.jpg" alt="" style="width: 138px; height: 103px;" /> </a> 
+       </dt> 
+      </dl> </li> 
+     <!----> 
+     <li> 
+      <dl class="card"> 
+       <dt class="pic"> 
+        <a href="http://edu.51cto.com/course/course_id-1693.html?edu_recommend_adid=209"> <img src="https://s1.51cto.com/wyfs02/M00/3B/A6/wKioL1O_T6zjgLHwAAEFtKM84IU075_small.jpg" alt="" style="width: 138px; height: 103px;" /> </a> 
+       </dt> 
+      </dl> </li> 
+     <!----> 
+     <li> 
+      <dl class="card"> 
+       <dt class="pic"> 
+        <a href="http://edu.51cto.com/course/course_id-2176.html?edu_recommend_adid=209"> <img src="https://s1.51cto.com/wyfs02/M01/4A/72/wKioL1QlKibzqoodAAF5h1Bl7Fc147_small.jpg" alt="" style="width: 138px; height: 103px;" /> </a> 
+       </dt> 
+      </dl> </li> 
+     <!----> 
+     <li> 
+      <dl class="card"> 
+       <dt class="pic"> 
+        <a href="http://edu.51cto.com/course/course_id-1887.html?edu_recommend_adid=209"> <img src="https://s1.51cto.com/wyfs02/M02/43/84/wKioL1PbXp3BH7IjAACKQJLw_CI990_small.jpg" alt="" style="width: 138px; height: 103px;" /> </a> 
+       </dt> 
+      </dl> </li> 
+     <!----> 
+     <li> 
+      <dl class="card"> 
+       <dt class="pic"> 
+        <a href="http://edu.51cto.com/course/course_id-5281.html?edu_recommend_adid=209"> <img src="https://s1.51cto.com/images/201603/71e797a607a6c021595054b26e190982544cf7_small.jpg" alt="" style="width: 138px; height: 103px;" /> </a> 
+       </dt> 
+      </dl> </li> 
+     <!----> 
+    </ul> 
+   </div> 
+  </div> 
+  <!----> 
+  <div class="detail"> 
+   <div class="wrapper level center"> 
+    <div class="main left"> 
+     <div class="freedom"> 
+      <!----> 
+      <div class="title">
+        迈普路由器的IPsec VPN 
+      </div> 
+      <!----> 
+      <div class="pic"> 
+       <!--<a onclick="download_new(247886,'',1)" style="cursor: pointer;">--> 
+       <!--<img src="http://down.51cto.com/images/newimages/img/doc.png" alt="" class='box' />--> 
+       <!--</a>--> 
+      </div> 
+      <ul class="file"> 
+       <li class="element"> <span class="word"> 上传者： </span> <a href="http://down.51cto.com/2323538" class="name channel0">wwwCIThk</a>&nbsp;&nbsp;&nbsp; 
+        <!----> <a title="开通VIP服务" target="_blank" href="http://home.51cto.com/members/in-fo?down"><img src="/images/vip/vip_x_h.png" /></a> </li> 
+       <li class="element"> <span class="word"> 上传时间： </span> <span class="date"> 2011-09-08 10:32 </span> </li> 
+       <li class="element"> <span class="word"> 下载豆： </span> <span class="price free"> 
+         <!----> <img title="" src="http://down.51cto.com/images/newimages/peas.png" />&nbsp;<span>1</span> 
+         <!----> </span> </li> 
+       <li class="element"> <span class="word"> 技术分类： </span> 
+        <ul class="type"> 
+         <li><a class="channel0" href="http://down.51cto.com/detail?c_it=60" target="_blank">系统运维</a></li> 
+         <li><span class="sign">&gt;</span></li> 
+         <li><a class="channel0" href="http://down.51cto.com/detail?c_it=6004" target="_blank">安全技术</a></li> 
+        </ul> </li> 
+      </ul> 
+      <div class="label"> 
+       <ul class="items"> 
+        <!----> 
+        <li><a href="http://down.51cto.com/search.php?q=迈普路由器" target="_blank" class="even">迈普路由器</a></li> 
+        <!----> 
+        <li><a href="http://down.51cto.com/search.php?q=IPSEC" target="_blank" class="even">IPSEC</a></li> 
+        <!----> 
+        <li><a href="http://down.51cto.com/search.php?q=VPN" target="_blank" class="even">VPN</a></li> 
+        <!----> 
+       </ul> 
+      </div> 
+      <div class="grade"> 
+       <span class="word"> 资源评价： </span> 
+       <ul class="star"> 
+        <!----> 
+        <li class="active"></li> 
+        <!----> 
+        <li class="active"></li> 
+        <!----> 
+        <li class="active"></li> 
+        <!----> 
+        <li class="active"></li> 
+        <!----> 
+        <li class="active"></li> 
+        <!----> 
+       </ul> 
+       <div class="note">
+        （
+        <span class="num">6</span>位用户参与评价）
+       </div> 
+      </div> 
+      <div class="toolbar"> 
+       <ul class="info"> 
+        <li><a href="javascript:void(0)" id="favnums" class="collect bdms_point" data-behavior="favorite" data-method="add" title="一键收藏，随时查看，分享好友！">收藏</a><span class="num favnum"></span></li> 
+        <li><a href="javascript:void(0)" onclick="comments()" class="evaluate">评价</a><span class="num">(6)</span></li> 
+        <li><a href="javascript:void(0)" id="report" class="report">举报</a><span class="num reportnum">(0)</span></li> 
+        <li><a href="javascript:void(0)" id="subject_zt" class="add">添加专题</a></li> 
+       </ul> 
+       <div class="downloading select"> 
+        <!----> 
+        <a class="btn"> <span class="word"> 主站下载 </span> <span class="num"> (3 M) </span> </a> 
+        <div class="view"> 
+         <ul class="items"> 
+          <li><a href="javascript:void(0)" onclick="download_new(247886,'',3)">网鼎电信</a></li> 
+          <li><a href="javascript:void(0)" onclick="download_new(247886,'',1)">联通主站</a></li> 
+         </ul> 
+        </div> 
+        <!----> 
+       </div> 
+       <div class="total">
+         已被下载
+        <span class="num">&nbsp;81&nbsp;</span>次 
+       </div> 
+      </div> 
+      <div class="intro"> 
+       <ul class="items"> 
+        <li class="tit"> <span class="word">简介：</span> </li> 
+        <li class="area"> 
+         <div class="block" id="smallContent" style="display:block;font-size:12px;padding:6px 10px 0px 10px;color:#666666;line-height:25px;">
+           迈普路由器的VPN也比较成熟，配置比CISCO的简单 
+          <!----> 
+          <br />本资料共包含以下附件：
+          <br /> 
+          <!----> 
+          <div onclick="download_new(247886,'',1)" style="color:#1a579d;cursor:pointer">
+           IPsec VPN配置.doc
+          </div> 
+          <!----> 
+          <!----> 
+          <div class="block" id="fullContent" style="display:none;font-size:12px;padding:6px 10px 0px 10px;color:#666666;line-height:25px;">
+            迈普路由器的VPN也比较成熟，配置比CISCO的简单
+           <br />本资料共包含以下附件：
+           <br /> 
+           <!----> 
+           <div onclick="download_new(247886,'',1)" style="color:#1a579d;cursor:pointer">
+            IPsec VPN配置.doc
+           </div> 
+           <!----> 
+           <a href="javascript:" style="color:#2a609e" onclick="document.all.fullContent.style.display=(document.all.fullContent.style.display=='none')?'':'none';document.all.smallContent.style.display=(document.all.smallContent.style.display=='none')?'':'none'">[收起]</a>
+          </div> 
+         </div></li> 
+       </ul> 
+      </div> 
+     </div> 
+     <ul class="comment comment_word" id="comment_word"> 
+      <!----> 
+      <li class="oneself" id="do_rcound"> 
+       <div class="title"> 
+        <span class="word">评价</span> 
+       </div> 
+       <div class="grade"> 
+        <span class="word"> 资源评价： </span> 
+        <ul class="star"> 
+         <li><a href=""></a></li> 
+         <li><a href=""></a></li> 
+         <li><a href=""></a></li> 
+         <li><a href=""></a></li> 
+         <li><a href=""></a></li> 
+        </ul> 
+        <div class="note">
+         （
+         <span class="num">6</span>位用户参与评价）
+        </div> 
+       </div> 
+       <div class="frame"> 
+        <div class="area"> 
+         <textarea class="evaluation" placeholder="评论内容至少输入5个汉字" style="resize:none"></textarea> 
+        </div> 
+        <div class="btn"> 
+         <a href="javascript:void(0)" id="submit"> 提交 </a> 
+        </div> 
+        <div class="mes_error"></div> 
+       </div> </li> 
+      <!----> 
+      <li class="others"> </li> 
+      <li class="others" id="others"> 
+       <div class="title"> 
+        <span class="word"> down友评价 </span> 
+        <select name="select" onchange="getcomment(247886,this.value,1,81)"> <option value="0">全部评价</option> <option value="6">优质评论</option> <option value="1">力荐</option> <option value="2">好评</option> <option value="3">中评</option> <option value="4">差评</option> </select> 
+       </div> 
+       <ul class="shelf"> 
+        <!----> 
+        <li class="element" id="comment_5384893"> 
+         <!----> 
+         <dl class="card"> 
+          <dt class="pic"> 
+           <a href="/10196102" target="_blank" class="position_r"><img src="http://ucenter.51cto.com/avatar.php?uid=10196102&amp;size=small" alt="" class="box" /> 
+            <!----> </a> 
+          </dt> 
+          <dd class="tit"> 
+           <a href="/10196102" target="_blank" class="name"> haha1321Q 
+            <!----> </a> 
+           <span href="" class="declare"> 力荐 </span> 
+           <span href="" class="date"> 2016-10-11 14:47:43 </span> 
+           <span class="say">说</span> 
+          </dd> 
+          <dd class="content">
+            下载看看，学习学习 
+          </dd> 
+         </dl> 
+         <ul class="child"> 
+          <!----> 
+         </ul> 
+         <div class="toolbar"> 
+          <ul class="items"> 
+           <li> <span style="position:absolute;z-index:5; top:-5px;left:12px; display:none;font-size:14px;" id="zan_5384893">+1</span> <a href="javascript:void(0)" onclick="zan(5384893)" class="praise zan">赞 (<b style="color:#777777;" class="zan_num_5384893">0</b>) </a> </li> 
+           <li> <a href="" cid="5384893" class="reply"> 回复 </a> </li> 
+          </ul> 
+         </div> 
+         <div class="view"> 
+          <div class="frame"> 
+           <div class="area"> 
+            <textarea name="comment_content"></textarea> 
+           </div> 
+           <div class="reply"> 
+            <a href="javascript:void(0)" onclick="reply_u(5384893)"> 回复 </a> 
+           </div> 
+           <div class="close"> 
+            <a href=""> 关闭 </a> 
+           </div> 
+          </div> 
+         </div> </li> 
+        <!----> 
+        <li class="element" id="comment_4742822"> 
+         <!----> 
+         <dl class="card"> 
+          <dt class="pic"> 
+           <a href="/1958444" target="_blank" class="position_r"><img src="http://ucenter.51cto.com/avatar.php?uid=1958444&amp;size=small" alt="" class="box" /> 
+            <!----> <span class="vip_small"></span> 
+            <!----> </a> 
+          </dt> 
+          <dd class="tit"> 
+           <a href="/1958444" target="_blank" class="name"> ilovery 
+            <!----> </a> 
+           <span href="" class="declare"> 好评 </span> 
+           <span href="" class="date"> 2014-11-23 09:14:24 </span> 
+           <span class="say">说</span> 
+          </dd> 
+          <dd class="content">
+            公司有台此设备正愁不知道怎么弄，有了这就好了。 
+          </dd> 
+         </dl> 
+         <ul class="child"> 
+          <!----> 
+         </ul> 
+         <div class="toolbar"> 
+          <ul class="items"> 
+           <li> <span style="position:absolute;z-index:5; top:-5px;left:12px; display:none;font-size:14px;" id="zan_4742822">+1</span> <a href="javascript:void(0)" onclick="zan(4742822)" class="praise zan">赞 (<b style="color:#777777;" class="zan_num_4742822">0</b>) </a> </li> 
+           <li> <a href="" cid="4742822" class="reply"> 回复 </a> </li> 
+          </ul> 
+         </div> 
+         <div class="view"> 
+          <div class="frame"> 
+           <div class="area"> 
+            <textarea name="comment_content"></textarea> 
+           </div> 
+           <div class="reply"> 
+            <a href="javascript:void(0)" onclick="reply_u(4742822)"> 回复 </a> 
+           </div> 
+           <div class="close"> 
+            <a href=""> 关闭 </a> 
+           </div> 
+          </div> 
+         </div> </li> 
+        <!----> 
+        <li class="element" id="comment_4438853"> 
+         <!----> 
+         <dl class="card"> 
+          <dt class="pic"> 
+           <a href="/2820769" target="_blank" class="position_r"><img src="http://ucenter.51cto.com/avatar.php?uid=2820769&amp;size=small" alt="" class="box" /> 
+            <!----> </a> 
+          </dt> 
+          <dd class="tit"> 
+           <a href="/2820769" target="_blank" class="name"> lixiaojiao2009 
+            <!----> </a> 
+           <span href="" class="declare"> 力荐 </span> 
+           <span href="" class="date"> 2014-04-21 14:32:06 </span> 
+           <span class="say">说</span> 
+          </dd> 
+          <dd class="content">
+            很好的文档哦 
+          </dd> 
+         </dl> 
+         <ul class="child"> 
+          <!----> 
+         </ul> 
+         <div class="toolbar"> 
+          <ul class="items"> 
+           <li> <span style="position:absolute;z-index:5; top:-5px;left:12px; display:none;font-size:14px;" id="zan_4438853">+1</span> <a href="javascript:void(0)" onclick="zan(4438853)" class="praise zan">赞 (<b style="color:#777777;" class="zan_num_4438853">0</b>) </a> </li> 
+           <li> <a href="" cid="4438853" class="reply"> 回复 </a> </li> 
+          </ul> 
+         </div> 
+         <div class="view"> 
+          <div class="frame"> 
+           <div class="area"> 
+            <textarea name="comment_content"></textarea> 
+           </div> 
+           <div class="reply"> 
+            <a href="javascript:void(0)" onclick="reply_u(4438853)"> 回复 </a> 
+           </div> 
+           <div class="close"> 
+            <a href=""> 关闭 </a> 
+           </div> 
+          </div> 
+         </div> </li> 
+        <!----> 
+        <li class="element" id="comment_4075081"> 
+         <!----> 
+         <dl class="card"> 
+          <dt class="pic"> 
+           <a href="/4104035" target="_blank" class="position_r"><img src="http://ucenter.51cto.com/avatar.php?uid=4104035&amp;size=small" alt="" class="box" /> 
+            <!----> </a> 
+          </dt> 
+          <dd class="tit"> 
+           <a href="/4104035" target="_blank" class="name"> 远方守望者 
+            <!----> </a> 
+           <span href="" class="declare"> 好评 </span> 
+           <span href="" class="date"> 2013-10-24 10:58:52 </span> 
+           <span class="say">说</span> 
+          </dd> 
+          <dd class="content">
+            介绍的比较全面，不同厂商的配置差异 
+          </dd> 
+         </dl> 
+         <ul class="child"> 
+          <!----> 
+         </ul> 
+         <div class="toolbar"> 
+          <ul class="items"> 
+           <li> <span style="position:absolute;z-index:5; top:-5px;left:12px; display:none;font-size:14px;" id="zan_4075081">+1</span> <a href="javascript:void(0)" onclick="zan(4075081)" class="praise zan">赞 (<b style="color:#777777;" class="zan_num_4075081">0</b>) </a> </li> 
+           <li> <a href="" cid="4075081" class="reply"> 回复 </a> </li> 
+          </ul> 
+         </div> 
+         <div class="view"> 
+          <div class="frame"> 
+           <div class="area"> 
+            <textarea name="comment_content"></textarea> 
+           </div> 
+           <div class="reply"> 
+            <a href="javascript:void(0)" onclick="reply_u(4075081)"> 回复 </a> 
+           </div> 
+           <div class="close"> 
+            <a href=""> 关闭 </a> 
+           </div> 
+          </div> 
+         </div> </li> 
+        <!----> 
+        <li class="element" id="comment_3603329"> 
+         <!----> 
+         <dl class="card"> 
+          <dt class="pic"> 
+           <a href="/2923793" target="_blank" class="position_r"><img src="http://ucenter.51cto.com/avatar.php?uid=2923793&amp;size=small" alt="" class="box" /> 
+            <!----> </a> 
+          </dt> 
+          <dd class="tit"> 
+           <a href="/2923793" target="_blank" class="name"> jamesevax 
+            <!----> </a> 
+           <span href="" class="declare"> 力荐 </span> 
+           <span href="" class="date"> 2013-02-27 14:00:44 </span> 
+           <span class="say">说</span> 
+          </dd> 
+          <dd class="content">
+            有没有迈普和思科设备的案例可以看啊！ 
+          </dd> 
+         </dl> 
+         <ul class="child"> 
+          <!----> 
+         </ul> 
+         <div class="toolbar"> 
+          <ul class="items"> 
+           <li> <span style="position:absolute;z-index:5; top:-5px;left:12px; display:none;font-size:14px;" id="zan_3603329">+1</span> <a href="javascript:void(0)" onclick="zan(3603329)" class="praise zan">赞 (<b style="color:#777777;" class="zan_num_3603329">0</b>) </a> </li> 
+           <li> <a href="" cid="3603329" class="reply"> 回复 </a> </li> 
+          </ul> 
+         </div> 
+         <div class="view"> 
+          <div class="frame"> 
+           <div class="area"> 
+            <textarea name="comment_content"></textarea> 
+           </div> 
+           <div class="reply"> 
+            <a href="javascript:void(0)" onclick="reply_u(3603329)"> 回复 </a> 
+           </div> 
+           <div class="close"> 
+            <a href=""> 关闭 </a> 
+           </div> 
+          </div> 
+         </div> </li> 
+        <!----> 
+        <li class="element" id="comment_2627252"> 
+         <!----> 
+         <dl class="card"> 
+          <dt class="pic"> 
+           <a href="/1105952" target="_blank" class="position_r"><img src="http://ucenter.51cto.com/avatar.php?uid=1105952&amp;size=small" alt="" class="box" /> 
+            <!----> </a> 
+          </dt> 
+          <dd class="tit"> 
+           <a href="/1105952" target="_blank" class="name"> AC2046 
+            <!----> <img src="/images/tubiao.gif" title="评论达人" /> 
+            <!----> </a> 
+           <span href="" class="declare"> 好评 </span> 
+           <span href="" class="date"> 2011-10-14 14:51:05 </span> 
+           <span class="say">说</span> 
+          </dd> 
+          <dd class="content">
+            迈普路由器关于IPESC方面的详细配置手册，对于其它品牌路由器配置也是具有参考价值的 
+          </dd> 
+         </dl> 
+         <ul class="child"> 
+          <!----> 
+         </ul> 
+         <div class="toolbar"> 
+          <ul class="items"> 
+           <li> <span style="position:absolute;z-index:5; top:-5px;left:12px; display:none;font-size:14px;" id="zan_2627252">+1</span> <a href="javascript:void(0)" onclick="zan(2627252)" class="praise zan">赞 (<b style="color:#777777;" class="zan_num_2627252">2</b>) </a> </li> 
+           <li> <a href="" cid="2627252" class="reply"> 回复 </a> </li> 
+          </ul> 
+         </div> 
+         <div class="view"> 
+          <div class="frame"> 
+           <div class="area"> 
+            <textarea name="comment_content"></textarea> 
+           </div> 
+           <div class="reply"> 
+            <a href="javascript:void(0)" onclick="reply_u(2627252)"> 回复 </a> 
+           </div> 
+           <div class="close"> 
+            <a href=""> 关闭 </a> 
+           </div> 
+          </div> 
+         </div> </li> 
+        <!----> 
+       </ul> </li> 
+      <li class="page" id="LiswePks"> 
+       <div class="inside"> 
+        <div class="method"> 
+         <ul class="items"> 
+         </ul> 
+        </div> 
+       </div> </li> 
+     </ul> 
+     <div class="help"> 
+      <div class="title"> 
+       <span class="word"> 相关帮助 </span> 
+      </div> 
+      <div class="area center"> 
+       <div class="tit">
+         51CTO下载中心常见问题： 
+       </div> 
+       <div class="item"> 
+        <div class="question">
+          1.如何获得下载豆？ 
+        </div> 
+        <ul class="step"> 
+         <li>1)上传资料</li> 
+         <li>2)评论资料</li> 
+         <li>3)每天在首页签到领取</li> 
+         <li>4)购买VIP会员服务，无需下载豆下载资源</li> 
+         <li>5)更多途径：点击此处</li> 
+        </ul> 
+       </div> 
+       <div class="item"> 
+        <div class="question">
+          2.如何删除自己的资料？ 
+        </div> 
+        <div class="info">
+          进入“我的资料”页面，在“上传过的资料”区域点击删除按钮，如果无法删除，请您联系我们相关工作人员的
+         <a href="http://wpa.qq.com/msgrd?v=3&amp;uin=1843863993&amp;site=qq&amp;menu=yes" target="_blank">QQ：1843863993</a>进行咨询 
+        </div> 
+        <div class="lead">
+          下载资料意味着您已同意遵守以下协议： 
+        </div> 
+        <ul class="step"> 
+         <li>1.资料的所有权益归上传用户所有</li> 
+         <li>2.未经权益所有人同意，不得将资料中的内容挪作商业或盈利用途</li> 
+         <li>3.51CTO下载中心仅提供资料交流平台，并不对任何资料负责</li> 
+         <li>4.本站资料中如有侵权或不适当内容，请邮件与我们联系（<a class="name">market@51CTO.com</a>）</li> 
+         <li>5.本站不保证资源的准确性、安全性和完整性, 同时也不承担用户因使用这些资料对自己和他人造成任何形式的伤害或损失</li> 
+        </ul> 
+       </div> 
+      </div> 
+     </div> 
+    </div> 
+    <div class="side right"> 
+     <!----> 
+     <div class="download" id="losv_new_no_0"> 
+      <div class="title"> 
+       <span class="word"> 相关推荐 </span> 
+       <a href="javascript:void(0)" rel_losv="0" class="losv exchange">换一换</a> 
+      </div> 
+      <ul class="items"> 
+       <!----> 
+       <li class="element"> 
+        <ul class="file"> 
+         <li class="tit"> <span class="dot"></span> <span class="name"><a href="http://down.51cto.com/data/2291374" target="_blank">运维常用linux命令1</a></span> </li> 
+         <li class="intro"> 
+          <ul class="msg"> 
+           <li><span class="total">下载548次</span></li> 
+           <li><span class="free">免费</span></li> 
+           <li><span class="total end">320 K</span></li> 
+          </ul> </li> 
+        </ul> </li> 
+       <!----> 
+       <li class="element"> 
+        <ul class="file"> 
+         <li class="tit"> <span class="dot"></span> <span class="name"><a href="http://down.51cto.com/data/2282319" target="_blank">黑客攻防从入门到精通</a></span> </li> 
+         <li class="intro"> 
+          <ul class="msg"> 
+           <li><span class="total">下载581次</span></li> 
+           <li><span class="price">2</span></li> 
+           <li><span class="total end">9 M</span></li> 
+          </ul> </li> 
+        </ul> </li> 
+       <!----> 
+       <li class="element"> 
+        <ul class="file"> 
+         <li class="tit"> <span class="dot"></span> <span class="name"><a href="http://down.51cto.com/data/2281670" target="_blank">2016年度物联网安全研究报告.匡恩网</a></span> </li> 
+         <li class="intro"> 
+          <ul class="msg"> 
+           <li><span class="total">下载339次</span></li> 
+           <li><span class="free">免费</span></li> 
+           <li><span class="total end">3 M</span></li> 
+          </ul> </li> 
+        </ul> </li> 
+       <!----> 
+       <li class="element"> 
+        <ul class="file"> 
+         <li class="tit"> <span class="dot"></span> <span class="name"><a href="http://down.51cto.com/data/2278011" target="_blank">精通Linux防火墙 中文高清版</a></span> </li> 
+         <li class="intro"> 
+          <ul class="msg"> 
+           <li><span class="total">下载1008次</span></li> 
+           <li><span class="free">免费</span></li> 
+           <li><span class="total end">27 M</span></li> 
+          </ul> </li> 
+        </ul> </li> 
+       <!----> 
+      </ul>
+     </div> 
+     <!----> 
+     <div class="download" id="losv_new_no_1" style="display:none"> 
+      <div class="title"> 
+       <span class="word"> 相关推荐 </span> 
+       <a href="javascript:void(0)" rel_losv="1" class="losv exchange">换一换</a> 
+      </div> 
+      <ul class="items"> 
+       <!----> 
+       <li class="element"> 
+        <ul class="file"> 
+         <li class="tit"> <span class="dot"></span> <span class="name"><a href="http://down.51cto.com/data/2251522" target="_blank">华为防火墙高级安全技术（学习防火</a></span> </li> 
+         <li class="intro"> 
+          <ul class="msg"> 
+           <li><span class="total">下载765次</span></li> 
+           <li><span class="free">免费</span></li> 
+           <li><span class="total end">26 M</span></li> 
+          </ul> </li> 
+        </ul> </li> 
+       <!----> 
+       <li class="element"> 
+        <ul class="file"> 
+         <li class="tit"> <span class="dot"></span> <span class="name"><a href="http://down.51cto.com/data/2251160" target="_blank">VPN从入门到精通（17集 实验精华）</a></span> </li> 
+         <li class="intro"> 
+          <ul class="msg"> 
+           <li><span class="total">下载798次</span></li> 
+           <li><span class="free">免费</span></li> 
+           <li><span class="total end">6 M</span></li> 
+          </ul> </li> 
+        </ul> </li> 
+       <!----> 
+       <li class="element"> 
+        <ul class="file"> 
+         <li class="tit"> <span class="dot"></span> <span class="name"><a href="http://down.51cto.com/data/2251167" target="_blank">网络安全概述与常见安全攻击防范解</a></span> </li> 
+         <li class="intro"> 
+          <ul class="msg"> 
+           <li><span class="total">下载770次</span></li> 
+           <li><span class="free">免费</span></li> 
+           <li><span class="total end">46 M</span></li> 
+          </ul> </li> 
+        </ul> </li> 
+       <!----> 
+       <li class="element"> 
+        <ul class="file"> 
+         <li class="tit"> <span class="dot"></span> <span class="name"><a href="http://down.51cto.com/data/2242485" target="_blank">华为防火墙原理一日通（华为内部大</a></span> </li> 
+         <li class="intro"> 
+          <ul class="msg"> 
+           <li><span class="total">下载1049次</span></li> 
+           <li><span class="free">免费</span></li> 
+           <li><span class="total end">4 M</span></li> 
+          </ul> </li> 
+        </ul> </li> 
+       <!----> 
+      </ul>
+     </div> 
+     <!----> 
+     <div class="download" id="losv_new_no_2" style="display:none"> 
+      <div class="title"> 
+       <span class="word"> 相关推荐 </span> 
+       <a href="javascript:void(0)" rel_losv="2" class="losv exchange">换一换</a> 
+      </div> 
+      <ul class="items"> 
+       <!----> 
+       <li class="element"> 
+        <ul class="file"> 
+         <li class="tit"> <span class="dot"></span> <span class="name"><a href="http://down.51cto.com/data/2238426" target="_blank">Cisco ASA防火墙模拟器（工具、使用</a></span> </li> 
+         <li class="intro"> 
+          <ul class="msg"> 
+           <li><span class="total">下载590次</span></li> 
+           <li><span class="free">免费</span></li> 
+           <li><span class="total end">10 M</span></li> 
+          </ul> </li> 
+        </ul> </li> 
+       <!----> 
+       <li class="element"> 
+        <ul class="file"> 
+         <li class="tit"> <span class="dot"></span> <span class="name"><a href="http://down.51cto.com/data/2231990" target="_blank">Yeslab现任明教教主 讲解 3750X交换</a></span> </li> 
+         <li class="intro"> 
+          <ul class="msg"> 
+           <li><span class="total">下载266次</span></li> 
+           <li><span class="free">免费</span></li> 
+           <li><span class="total end">1 M</span></li> 
+          </ul> </li> 
+        </ul> </li> 
+       <!----> 
+       <li class="element"> 
+        <ul class="file"> 
+         <li class="tit"> <span class="dot"></span> <span class="name"><a href="http://down.51cto.com/data/2229421" target="_blank">Wireshark 从入门到精通（源文件、</a></span> </li> 
+         <li class="intro"> 
+          <ul class="msg"> 
+           <li><span class="total">下载1007次</span></li> 
+           <li><span class="free">免费</span></li> 
+           <li><span class="total end">3 M</span></li> 
+          </ul> </li> 
+        </ul> </li> 
+       <!----> 
+       <li class="element"> 
+        <ul class="file"> 
+         <li class="tit"> <span class="dot"></span> <span class="name"><a href="http://down.51cto.com/data/2227694" target="_blank">网络安全实用技术PPT课件</a></span> </li> 
+         <li class="intro"> 
+          <ul class="msg"> 
+           <li><span class="total">下载1462次</span></li> 
+           <li><span class="free">免费</span></li> 
+           <li><span class="total end">18 M</span></li> 
+          </ul> </li> 
+        </ul> </li> 
+       <!----> 
+      </ul>
+     </div> 
+     <!----> 
+     <div class="download" id="losv_new_no_3" style="display:none"> 
+      <div class="title"> 
+       <span class="word"> 相关推荐 </span> 
+       <a href="javascript:void(0)" rel_losv="3" class="losv exchange">换一换</a> 
+      </div> 
+      <ul class="items"> 
+       <!----> 
+       <li class="element"> 
+        <ul class="file"> 
+         <li class="tit"> <span class="dot"></span> <span class="name"><a href="http://down.51cto.com/data/2227564" target="_blank">一大波儿资料来袭，助你了解Intel </a></span> </li> 
+         <li class="intro"> 
+          <ul class="msg"> 
+           <li><span class="total">下载220次</span></li> 
+           <li><span class="free">免费</span></li> 
+           <li><span class="total end">5 M</span></li> 
+          </ul> </li> 
+        </ul> </li> 
+       <!----> 
+       <li class="element"> 
+        <ul class="file"> 
+         <li class="tit"> <span class="dot"></span> <span class="name"><a href="http://down.51cto.com/data/2216212" target="_blank">加密与解密实战全攻略</a></span> </li> 
+         <li class="intro"> 
+          <ul class="msg"> 
+           <li><span class="total">下载1458次</span></li> 
+           <li><span class="free">免费</span></li> 
+           <li><span class="total end">33 M</span></li> 
+          </ul> </li> 
+        </ul> </li> 
+       <!----> 
+       <li class="element"> 
+        <ul class="file"> 
+         <li class="tit"> <span class="dot"></span> <span class="name"><a href="http://down.51cto.com/data/2211665" target="_blank">资源标题</a></span> </li> 
+         <li class="intro"> 
+          <ul class="msg"> 
+           <li><span class="total">下载1143次</span></li> 
+           <li><span class="price">1</span></li> 
+           <li><span class="total end">21 M</span></li> 
+          </ul> </li> 
+        </ul> </li> 
+       <!----> 
+       <li class="element"> 
+        <ul class="file"> 
+         <li class="tit"> <span class="dot"></span> <span class="name"><a href="http://down.51cto.com/data/2195588" target="_blank">如何为你的数据安全保驾护航？</a></span> </li> 
+         <li class="intro"> 
+          <ul class="msg"> 
+           <li><span class="total">下载406次</span></li> 
+           <li><span class="free">免费</span></li> 
+           <li><span class="total end">6 M</span></li> 
+          </ul> </li> 
+        </ul> </li> 
+       <!----> 
+      </ul>
+     </div> 
+     <!----> 
+     <div class="subject" id="commend_specials_new_no_0"> 
+      <div class="title"> 
+       <span class="word"> 相关专题推荐 </span> 
+       <a href="javascript:void(0)" rel="0" class="reccourse exchange">换一换</a> 
+      </div> 
+      <ul class="items"> 
+       <!----> 
+       <li class="element"> 
+        <dl class="card"> 
+         <dt class="pic"> 
+          <a href="http://down.51cto.com/zt/66" target="_blank"> <img src="http://s5.51cto.com/wyfs02/M00/75/25/wKioL1YzQouy8fABAABx5859HT4921.jpg" style="width:90px;height:59px" /> </a> 
+         </dt> 
+         <dd class="name">
+          <a href="http://down.51cto.com/zt/66" class="channel3">运维人员必杀技:网</a>
+         </dd> 
+         <dd class="intro">
+          不论你是黑客发烧友，还是网络安全工
+         </dd> 
+        </dl> </li> 
+       <!----> 
+       <li class="element"> 
+        <dl class="card"> 
+         <dt class="pic"> 
+          <a href="http://down.51cto.com/zt/84" target="_blank"> <img src="http://s4.51cto.com/wyfs02/M01/75/28/wKiom1YzQlSgSsz8AABa5qAyWuA483.jpg" style="width:90px;height:59px" /> </a> 
+         </dt> 
+         <dd class="name">
+          <a href="http://down.51cto.com/zt/84" class="channel3">黑客攻防技术系列</a>
+         </dd> 
+         <dd class="intro">
+          网络管理人员应认真分析各种可能的入
+         </dd> 
+        </dl> </li> 
+       <!----> 
+       <li class="element"> 
+        <dl class="card"> 
+         <dt class="pic"> 
+          <a href="http://down.51cto.com/zt/232" target="_blank"> <img src="http://s2.51cto.com/wyfs02/M01/75/26/wKioL1YzQo_SZhEOAAAteyz44Ik876.jpg" style="width:90px;height:59px" /> </a> 
+         </dt> 
+         <dd class="name">
+          <a href="http://down.51cto.com/zt/232" class="channel3">DDoS攻击与检测精</a>
+         </dd> 
+         <dd class="intro">
+          DDOS全名是Distributed Denial of se
+         </dd> 
+        </dl> </li> 
+       <!----> 
+       <li class="element"> 
+        <dl class="card"> 
+         <dt class="pic"> 
+          <a href="http://down.51cto.com/zt/273" target="_blank"> <img src="http://s4.51cto.com/wyfs02/M01/75/29/wKiom1YzQliifehjAAAo-4DoHpc900.jpg" style="width:90px;height:59px" /> </a> 
+         </dt> 
+         <dd class="name">
+          <a href="http://down.51cto.com/zt/273" class="channel3">无线密码破解综合</a>
+         </dd> 
+         <dd class="intro">
+          本着学习和研究的精神，以知己知彼为
+         </dd> 
+        </dl> </li> 
+       <!----> 
+      </ul> 
+     </div> 
+     <!----> 
+     <div class="subject" id="commend_specials_new_no_1" style="display:none"> 
+      <div class="title"> 
+       <span class="word"> 相关专题推荐 </span> 
+       <a href="javascript:void(0)" rel="1" class="reccourse exchange">换一换</a> 
+      </div> 
+      <ul class="items"> 
+       <!----> 
+       <li class="element"> 
+        <dl class="card"> 
+         <dt class="pic"> 
+          <a href="http://down.51cto.com/zt/351" target="_blank"> <img src="http://s3.51cto.com/wyfs02/M00/75/29/wKiom1YzQlqhXduCAABpVhfC0Ho553.jpg" style="width:90px;height:59px" /> </a> 
+         </dt> 
+         <dd class="name">
+          <a href="http://down.51cto.com/zt/351" class="channel3">打造网络安全工程</a>
+         </dd> 
+         <dd class="intro">
+          本视频专题包涵从了解互联网世界，服
+         </dd> 
+        </dl> </li> 
+       <!----> 
+       <li class="element"> 
+        <dl class="card"> 
+         <dt class="pic"> 
+          <a href="http://down.51cto.com/zt/498" target="_blank"> <img src="http://s1.51cto.com/wyfs02/M00/75/27/wKioL1YzQpSxzbDAAAA1-yhF-IA959.jpg" style="width:90px;height:59px" /> </a> 
+         </dt> 
+         <dd class="name">
+          <a href="http://down.51cto.com/zt/498" class="channel3">黑客必备渗透工具</a>
+         </dd> 
+         <dd class="intro">
+          本专题收集了渗透中常用的一些工具（
+         </dd> 
+        </dl> </li> 
+       <!----> 
+       <li class="element"> 
+        <dl class="card"> 
+         <dt class="pic"> 
+          <a href="http://down.51cto.com/zt/549" target="_blank"> <img src="http://s4.51cto.com/wyfs02/M01/75/28/wKioL1YzQpXB4B6IAAAr8t3tbdo057.jpg" style="width:90px;height:59px" /> </a> 
+         </dt> 
+         <dd class="name">
+          <a href="http://down.51cto.com/zt/549" class="channel3">黑客入侵基础视频</a>
+         </dd> 
+         <dd class="intro">
+          本专题为黑客入侵基础视频教程，共10
+         </dd> 
+        </dl> </li> 
+       <!----> 
+       <li class="element"> 
+        <dl class="card"> 
+         <dt class="pic"> 
+          <a href="http://down.51cto.com/zt/606" target="_blank"> <img src="http://s5.51cto.com/wyfs02/M00/75/28/wKioL1YzQpayFBWcAAAvjzyDSIA313.jpg" style="width:90px;height:59px" /> </a> 
+         </dt> 
+         <dd class="name">
+          <a href="http://down.51cto.com/zt/606" class="channel3">《黑客X档案》201</a>
+         </dd> 
+         <dd class="intro">
+          　　目前国内发行量最大的网络安全（
+         </dd> 
+        </dl> </li> 
+       <!----> 
+      </ul> 
+     </div> 
+     <!----> 
+     <div class="subject" id="commend_specials_new_no_2" style="display:none"> 
+      <div class="title"> 
+       <span class="word"> 相关专题推荐 </span> 
+       <a href="javascript:void(0)" rel="2" class="reccourse exchange">换一换</a> 
+      </div> 
+      <ul class="items"> 
+       <!----> 
+       <li class="element"> 
+        <dl class="card"> 
+         <dt class="pic"> 
+          <a href="http://down.51cto.com/zt/633" target="_blank"> <img src="http://s1.51cto.com/wyfs02/M01/75/28/wKioL1YzQpbAFxOwAAAeahqePXo923.jpg" style="width:90px;height:59px" /> </a> 
+         </dt> 
+         <dd class="name">
+          <a href="http://down.51cto.com/zt/633" class="channel3">黑客新手入门必备</a>
+         </dd> 
+         <dd class="intro">
+          本专题为电脑报随书视频——《黑客入
+         </dd> 
+        </dl> </li> 
+       <!----> 
+       <li class="element"> 
+        <dl class="card"> 
+         <dt class="pic"> 
+          <a href="http://down.51cto.com/zt/2173" target="_blank"> <img src="http://s2.51cto.com/wyfs02/M00/75/2D/wKioL1YzQqvywYYcAAAmWyNvxBk498.jpg" style="width:90px;height:59px" /> </a> 
+         </dt> 
+         <dd class="name">
+          <a href="http://down.51cto.com/zt/2173" class="channel3">黑鹰破解视频教程</a>
+         </dd> 
+         <dd class="intro">
+          本专题为黑鹰破解视频教程基础篇，掌
+         </dd> 
+        </dl> </li> 
+       <!----> 
+       <li class="element"> 
+        <dl class="card"> 
+         <dt class="pic"> 
+          <a href="http://down.51cto.com/zt/2290" target="_blank"> <img src="http://s5.51cto.com/wyfs02/M01/75/30/wKiom1YzQnWiSbnhAABpt3KqkR4703.jpg" style="width:90px;height:59px" /> </a> 
+         </dt> 
+         <dd class="name">
+          <a href="http://down.51cto.com/zt/2290" class="channel3">黑客入门常用dos命</a>
+         </dd> 
+         <dd class="intro">
+          本专题为黑客入门常用dos命令视频教程
+         </dd> 
+        </dl> </li> 
+       <!----> 
+       <li class="element"> 
+        <dl class="card"> 
+         <dt class="pic"> 
+          <a href="http://down.51cto.com/zt/5495" target="_blank"> <img src="http://s4.51cto.com/wyfs02/M00/75/3A/wKiom1YzQqCwoPqmAAA3lE7Vm_g634.jpg" style="width:90px;height:59px" /> </a> 
+         </dt> 
+         <dd class="name">
+          <a href="http://down.51cto.com/zt/5495" class="channel3">网络安全管理视频</a>
+         </dd> 
+         <dd class="intro">
+          网络安全管理视频，阐述网络安全的基
+         </dd> 
+        </dl> </li> 
+       <!----> 
+      </ul> 
+     </div> 
+     <!----> 
+     <div class="subject" id="commend_specials_new_no_3" style="display:none"> 
+      <div class="title"> 
+       <span class="word"> 相关专题推荐 </span> 
+       <a href="javascript:void(0)" rel="3" class="reccourse exchange">换一换</a> 
+      </div> 
+      <ul class="items"> 
+       <!----> 
+       <li class="element"> 
+        <dl class="card"> 
+         <dt class="pic"> 
+          <a href="http://down.51cto.com/zt/5518" target="_blank"> <img src="http://s5.51cto.com/wyfs02/M02/75/38/wKioL1YzQtjC1Om-AAA-MNU0oKY718.jpg" style="width:90px;height:59px" /> </a> 
+         </dt> 
+         <dd class="name">
+          <a href="http://down.51cto.com/zt/5518" class="channel3">TCP/IP 协议分析详</a>
+         </dd> 
+         <dd class="intro">
+          TCP/IP协议详解，包括了链路层、ARP、
+         </dd> 
+        </dl> </li> 
+       <!----> 
+       <li class="element"> 
+        <dl class="card"> 
+         <dt class="pic"> 
+          <a href="http://down.51cto.com/zt/6294" target="_blank"> <img src="http://s5.51cto.com/wyfs02/M01/75/3D/wKiom1YzQquz5vmXAABM6tqkZgA045.jpg" style="width:90px;height:59px" /> </a> 
+         </dt> 
+         <dd class="name">
+          <a href="http://down.51cto.com/zt/6294" class="channel3">黑客技术之新手入</a>
+         </dd> 
+         <dd class="intro">
+          本专题为学习黑客技术朋友们提供的新
+         </dd> 
+        </dl> </li> 
+       <!----> 
+       <li class="element"> 
+        <dl class="card"> 
+         <dt class="pic"> 
+          <a href="http://down.51cto.com/zt/6397" target="_blank"> <img src="http://s1.51cto.com/wyfs02/M01/75/3B/wKioL1YzQuSgp-ItAABE_g2H5u0959.jpg" style="width:90px;height:59px" /> </a> 
+         </dt> 
+         <dd class="name">
+          <a href="http://down.51cto.com/zt/6397" class="channel3">WEB安全-渗透测试</a>
+         </dd> 
+         <dd class="intro">
+          本专题为WEB安全-渗透测试安全培训视
+         </dd> 
+        </dl> </li> 
+       <!----> 
+       <li class="element"> 
+        <dl class="card"> 
+         <dt class="pic"> 
+          <a href="http://down.51cto.com/zt/6398" target="_blank"> <img src="http://s5.51cto.com/wyfs02/M01/75/3D/wKiom1YzQq3zjH9sAAAw5BpTz7M433.jpg" style="width:90px;height:59px" /> </a> 
+         </dt> 
+         <dd class="name">
+          <a href="http://down.51cto.com/zt/6398" class="channel3">华中红客基地网站</a>
+         </dd> 
+         <dd class="intro">
+          本专题为华中红客基地的网站入侵视频
+         </dd> 
+        </dl> </li> 
+       <!----> 
+      </ul> 
+     </div> 
+     <!----> 
+    </div> 
+   </div>
+  </div>  
+  <div id="hiddenhtml"> 
+  </div> 
+  <div id="jsDownDedetail" style="display:none"> 
+  </div> 
+  <input type="hidden" id="jsUserLogin_Eps" value="" /> 
+  <script type="text/javascript" src="http://down.51cto.com/js/newjs/detail.js"></script> 
+  <!--<!----> 
+  <div class="fixexit_small"> 
+   <div class="infixexit"> 
+    <div class="exit_list exit_list_fkui">
+     <a href="javascript:;" class="ina"><b>改版<br />反馈</b></a>
+    </div> 
+    <div class="exit_list exit_list_zxun">
+     <a href="http://wpa.qq.com/msgrd?v=3&amp;uin=1922702647&amp;site=qq&amp;menu=yes" class="ina" target="_blank"></a>
+    </div> 
+    <div class="exit_list exit_list_back">
+     <a href="#" class="ina"><b>返回<br />顶部</b></a>
+    </div> 
+   </div> 
+  </div> 
+  <div class="PopBox PopBox_440"> 
+   <div class="PopBoxin pb20"> 
+    <span class="pop_offbtn_white">&times;</span> 
+    <div class="poptite pl20 mb25 t14">
+     改版反馈
+    </div> 
+    <div class="popyjdatil"> 
+     <dl class="dl_400 pl20 mb10 clearfix"> 
+      <dt class="left mt5 tr">
+       意见或建议：
+      </dt> 
+      <dd class="left validation_or"> 
+       <span><textarea name="" cols="" rows="" placeholder="请详细描述意见、问题或建议，2-300字以内" class="pop_area_320 inputtext_del t12" id="area"></textarea><span class="cl_red" id="cl_red"></span></span> 
+      </dd> 
+     </dl> 
+     <dl class="dl_400 pl20 mb10 clearfix"> 
+      <dt class="left mt5 tr">
+       联系方式：
+      </dt> 
+      <dd class="left validation_or"> 
+       <span><input type="text" placeholder="邮箱/QQ号" value="" class="pop_input_320 inputtext_del t12" name="" id="ord" /><span class="cl_red" id="c1_red"></span></span> 
+      </dd> 
+     </dl> 
+     <div class="Pop_btns pl96 tl pt10 clearfix"> 
+      <span class="Popbtn_blue_82 mr10 left" id="smbtn_yj">提交</span>
+      <span class="fail_tj"></span> 
+     </div> 
+    </div> 
+    <div class="popsuctext">
+     您已提交成功！
+     <br />感谢您的宝贵意见，我们会尽快处理
+    </div> 
+   </div> 
+  </div> 
+  <ul class="footer"> 
+   <li class="link"> <a href="http://www.51cto.com/about/aboutus.html">关于我们</a> <a href="http://www.51cto.com/about/zhaopin.html">诚聘英才</a> <a href="http://www.51cto.com/about/contactus.html">联系我们</a> <a href="http://www.51cto.com/about/history.html">网站大事</a> <a href="javascript:;" class="ina exit_list_fkui">意见反馈</a> <a href="http://www.51cto.com/about/map.htm">网站地图</a> </li> 
+   <li class="copy_right"> Copyright&copy;2005-2017 51CTO.COM 版权所有 </li> 
+   <li class="remark"> 本站部分带宽由网鼎科技、悦游信息技术提供 </li> 
+  </ul> 
+  <script>
+ var url_spos="http://down.51cto.com/service/index_down_ajax.php";
+$("#smbtn_yj").bind('click',function(){ 
+ $("#cl_red").hide(); 
+ $("#c1_red").hide(); 
+  if($("#area").val()== '' ){
+    $("#cl_red").show();
+	$("#cl_red").text("意见或建议不能为空");	
+	return false;
+  }  
+  if(strlenlig($("#area").val()) <4 ){
+	$("#cl_red").text("意见或建议不能少于2个汉字");
+	$("#cl_red").show();
+	return false;
+  }
+  if(strlenlig($("#area").val()) >600){
+	$("#cl_red").text("意见或建议不能大于300个汉字");
+	$("#cl_red").show();
+	return false;
+  }
+   if($("#ord").val()== '' ){
+    $("#c1_red").show();
+	$("#c1_red").text("联系方式不能为空");	
+	return false;
+  }
+  var emailformat = /^([a-zA-Z0-9]+[_|\_|\.]?)*[a-zA-Z0-9]+@([a-zA-Z0-9]+(\.|-)+[-_|\_|\.]?)*[a-zA-Z0-9]+\.[a-zA-Z]{2,3}$/;  
+  if($("#ord").val().indexOf("@")==-1){
+     var patten = /^[1-9][0-9]{4,15}$/;
+	 if(!patten.test($("#ord").val())){
+		 $("#c1_red").show();
+		 $("#c1_red").text("请输入正确的QQ格式");return false;		
+	  }
+  }else{
+	  if(!emailformat.test($("#ord").val())){
+		 $("#c1_red").show();
+		 $("#c1_red").text("请输入正确的邮箱格式");return false;		
+	  } 
+  } 
+  jQuery.ajax({
+		type: "POST",		
+		data: {'content':$("#area").val(),'contact':$("#ord").val()},
+		url: url_spos+"?do=feedback&time="+Math.random(),		
+		dataType:'json',
+		success: function(data){ 
+			 if(data.message==1){				
+                $(".popyjdatil").hide();
+                $(".popsuctext").show();       				
+			 }else{
+				 $(".fail_tj").html(data.message);								
+			}		 
+		 }
+	}); 
+})
+function strlenlig(str){  
+  var len = 0;
+    for (var i=0; i<str.length; i++) { 
+     var c = str.charCodeAt(i); 
+    //单字节加1 
+     if ((c >= 0x0001 && c <= 0x007e) || (0xff60<=c && c<=0xff9f)) { 
+       len++; 
+     } 
+     else { 
+      len+=2; 
+     } 
+    } 
+    return len;
+} 
+</script> 
+  <script src="http://down.51cto.com/js/newjs/boyka.js"></script> 
+  <script src="http://home.51cto.com/index.php?s=/Index/getLoginStatus/reback/http%253A%252F%252Fdown.51cto.com%252Fdata%252F247886"></script> 
+  <script src="http://down.51cto.com/js/Down_PNG.js"></script> 
+  <script type="text/javascript" src="/service/doutip.srv.php"></script> 
+  <script src="http://logs.51cto.com/rizhi/count/count.js"></script> 
+  <div style="display:none"> 
+   <script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?bed4d0a3a7f5299b62480de9e61c5ca3";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script> 
+  </div> 
+  <iframe frameborder="0" scrolling="no" width="0" height="0" src="http://log.51cto.com/pageview.php?frompos=blog_art"></iframe> 
+  <script type="text/javascript">
+
+            document.write(decodeURI("%3Cscript src='https://tongji.51cto.com/cto.js/146f5bca0721f08d662577c314b675a9' type='text/javascript'%3E%3C/script%3E"));
+</script>   
+  <!---->
+ </body>
+</html>

@@ -1,0 +1,652 @@
+<html><head></head><body><pre style="word-wrap: break-word; white-space: pre-wrap;">var LKId = LKconfig.WebSiteId;
+if (LKconfig.PSiteId != undefined &amp;&amp; LKconfig.PSiteId != null &amp;&amp; LKconfig.PSiteId != "") {
+    LKId = LKconfig.PSiteId + "/" + LKconfig.WebSiteId;
+}
+document.write("&lt;script type=\"text/javascript\" src=\"" + LKconfig.WebURL + "/Scripts/" + LKId + ".js\"&gt;&lt;/script&gt;")
+document.write("&lt;script type=\"text/javascript\" src=\"" + LKconfig.MUrls + "/Scripts/m/Utils.js\"&gt;&lt;/script&gt;");
+document.write("&lt;script type=\"text/javascript\" src=\"" + LKconfig.MUrls + "/Scripts/MTemplate.js\"&gt;&lt;/script&gt;");
+document.write("&lt;script type=\"text/javascript\" src=\"" + LKconfig.MUrls + "/Scripts/xhr/NetComet.js\"&gt;&lt;/script&gt;");
+
+var isAddTrace = 0, connectTime = 0, CometObject = null, ckLine = null, eng = "0", IsActive = 0;
+var AllWebSite = "fh,sun,tw";
+var ExistWebsite = AllWebSite.indexOf(LKconfig.WebSiteId) != -1 ? true : false;
+
+IMLeadBase = function () {
+    InitInviteWindow: function InitInviteWindow() {
+        if ($("#LRdiv0").length &lt; 1)
+            $("body").append(TemplateConfig.RightTemplate);
+
+        if ($("#LRdiv0").attr("IsShow") == 1)
+            $("#LRdiv0").show();
+    }
+
+    InitCenterWindow: function InitCenterWindow() {
+        if ($("#LRdiv1").length &lt; 1)
+            $("body").append(TemplateConfig.CenterTemplate);
+
+        if ($("#LRdiv1").attr("IsShow") == 1) {
+            $("#LRdiv1").show();
+        }
+    }
+
+    this.CloseWin = function CloseWin() {
+        $("#LRdiv1").hide()
+        window.setTimeout(function () { $("#LRdiv1").show(); }, SysConfig.MInviteShowts);
+    }
+
+    this.GetUserInfoOrArea = function () {
+        if (GetOrSetCookies(LKconfig.WebSiteId + "uname") == null || GetOrSetCookies(LKconfig.WebSiteId + "uname") == undefined || GetOrSetCookies(LKconfig.WebSiteId + "uname") == "" || GetOrSetCookies(LKconfig.WebSiteId + "uname") == "null") {
+            $.getJSON(LKconfig.WebURL + "/XYAjax/MsgChange.ashx?type=GetUserArea&amp;jsoncallback=?", null, function (data) {
+                GetOrSetCookies(LKconfig.WebSiteId + "uname", data.Area, { expires: 7, path: LKconfig.CookiesPath, domain: LKconfig.Cookiesdomain });
+                setTimeout(InitConnect, 1000);
+            });
+        }
+        else {
+            setTimeout(InitConnect, 1000);
+        }
+    }
+
+    //浮动框和邀请框的平滑移动
+    var stop = false, lastScrollY = 0;
+    heartBeat: function heartBeat() {
+        if (!stop) {
+            var diffY;
+            if (document.documentElement &amp;&amp; document.documentElement.scrollTop)
+                diffY = document.documentElement.scrollTop;
+            else if (document.body)
+                diffY = document.body.scrollTop
+            else
+            { /*Netscape stuff*/ }
+            percent = .3 * (diffY - lastScrollY);
+            if (percent &gt; 0) percent = Math.ceil(percent);
+            else percent = Math.floor(percent);
+            document.getElementById("LRdiv0").style.top = parseInt(document.getElementById("LRdiv0").style.top) + percent + "px";
+            lastScrollY = lastScrollY + percent;
+        }
+    }
+
+    this.InitWin = function () {
+        InitInviteWindow();
+        GetOrSetCookies(LKconfig.WebSiteId + "IsExistCookie", "1", { expires: 0, path: LKconfig.CookiesPath, domain: LKconfig.Cookiesdomain });
+        if (GetOrSetCookies(LKconfig.WebSiteId + "IsExistCookie") == "1") {
+            if (GetOrSetCookies(LKconfig.WebSiteId + "uid") != undefined &amp;&amp; GetOrSetCookies(LKconfig.WebSiteId + "uid") != null &amp;&amp; GetOrSetCookies(LKconfig.WebSiteId + "uid") != "" &amp;&amp; GetOrSetCookies(LKconfig.WebSiteId + "uid") != "null") {
+                if (connectTime &lt; 1) {
+                    AddUserInfo();
+                    connectTime++;
+                    isAddTrace++;
+                }
+            }
+            else {
+                GetOrSetCookies(LKconfig.WebSiteId + "sid", null, { expires: 0, path: LKconfig.CookiesPath, domain: LKconfig.Cookiesdomain });
+                GetOrSetCookies(LKconfig.WebSiteId + "usercookie", null, { expires: 0, path: LKconfig.CookiesPath, domain: LKconfig.Cookiesdomain });
+                GetOrSetCookies(LKconfig.WebSiteId + "Isinvite", null, { expires: 0, path: LKconfig.CookiesPath, domain: LKconfig.Cookiesdomain });
+            }
+            if (GetOrSetCookies(LKconfig.WebSiteId + "Isinvite") == null || GetOrSetCookies(LKconfig.WebSiteId + "Isinvite") == undefined || GetOrSetCookies(LKconfig.WebSiteId + "Isinvite") == "") {//记录客服未发出聊天邀请
+                if (GetOrSetCookies(LKconfig.WebSiteId + "usercookie") == null || GetOrSetCookies(LKconfig.WebSiteId + "usercookie") == undefined || GetOrSetCookies(LKconfig.WebSiteId + "usercookie") == "") {//未连接
+                    this.GetUserInfoOrArea();
+                }
+            }
+            setInterval(heartBeat, 200);
+            AddUserTrace();
+            setTimeout(InitCenterWindow, SysConfig.MFirstShowts);
+
+        } else {
+            alert("您的浏览器不支持cookie,请开启浏览器的Cookies");
+        }
+    }
+
+    GetUserParamArgs: function GetUserParamArgs() {
+        var key = "wsheader=" + LKconfig.WsCoonectStr + "website=" + LKconfig.WebSiteId + "$number=" + LKconfig.WebSiteNumber + "$ftype=" + LKconfig.FromType;
+        if (GetOrSetCookies(LKconfig.WebSiteId + "uname") != null &amp;&amp; GetOrSetCookies(LKconfig.WebSiteId + "uname") != undefined) {
+            key += "$area=" + encodeURI(GetOrSetCookies(LKconfig.WebSiteId + "uname"));
+        }
+        if (GetOrSetCookies(LKconfig.WebSiteId + "uid") != null &amp;&amp; GetOrSetCookies(LKconfig.WebSiteId + "uid") != undefined &amp;&amp; GetOrSetCookies(LKconfig.WebSiteId + "uid") != "") {
+            key += "$user=" + GetOrSetCookies(LKconfig.WebSiteId + "uid");
+        }
+        if (GetOrSetCookies(LKconfig.WebSiteId + "lsid") != null &amp;&amp; GetOrSetCookies(LKconfig.WebSiteId + "lsid") != undefined &amp;&amp; GetOrSetCookies(LKconfig.WebSiteId + "lsid") != "") {
+            key += "$psid=" + GetOrSetCookies(LKconfig.WebSiteId + "lsid");
+        }
+        if (GetOrSetCookies(LKconfig.WebSiteId + "sid") != undefined &amp;&amp; GetOrSetCookies(LKconfig.WebSiteId + "sid") != null &amp;&amp; GetOrSetCookies(LKconfig.WebSiteId + "sid") != "") {
+            key += "$staff=" + GetOrSetCookies(LKconfig.WebSiteId + "sid");
+        }
+
+        IsActive = 1;
+        eng = GetRefUrlftype();
+        key += "$eng=" + eng + "$page=0";
+        key += "$refurl=" + GetCurrenttURL();
+        return key;
+    }
+
+    InitConnect: function InitConnect() {
+        var Args = "Type=UserOnLine&amp;" + GetUserParamArgs();
+        $.getJSON(LKconfig.WebURL + "/XYAjax/MyHandler.ashx?" + Args + "&amp;jsoncallback=?", null, function (data) {
+            if (GetOrSetCookies(LKconfig.WebSiteId + "uid") == null || GetOrSetCookies(LKconfig.WebSiteId + "uid") == undefined || GetOrSetCookies(LKconfig.WebSiteId + "uid") == "" || GetOrSetCookies(LKconfig.WebSiteId + "uid") == "null") {
+                GetOrSetCookies(LKconfig.WebSiteId + "uid", data.Msg, { expires: 360, path: LKconfig.CookiesPath, domain: LKconfig.Cookiesdomain });
+                if (connectTime &lt; 1) {
+                    AddUserInfo();
+                }
+                connectTime++;
+            }
+            Connect(data.Msg);
+        });
+    }
+
+    Connect: function Connect(userId) {
+        if (CometObject == null) {
+            CometObject = new NetComet(LKconfig.WebURL + "/XYAjax/MyAsyncHandler.ashx", userId, "CometObject", 4000, 4000, 0);
+            CometObject.addTimeoutHandler(TimeoutHandler);
+            CometObject.addFailureHandler(FailureHandler);
+            CometObject.addSuccessHandler(SuccessHandler);
+            CometObject.subscribe(true);
+        }
+    }
+
+    RecieveMsg: function RecieveMsg(data) {
+        var Msg = eval('(' + data + ')');
+        if (Msg.Type == "欢迎消息")//（有客服在线则点击右边框到聊天页，如果没客服也显示右边框，只是点击时跳到留言页面(二期)）
+        {
+            GetOrSetCookies(LKconfig.WebSiteId + "usercookie", Msg.CustomSessionID, { expires: 0, path: LKconfig.CookiesPath, domain: LKconfig.Cookiesdomain });
+            if (GetOrSetCookies(LKconfig.WebSiteId + "uid") == null || GetOrSetCookies(LKconfig.WebSiteId + "uid") == undefined || GetOrSetCookies(LKconfig.WebSiteId + "uid") == "") {
+                GetOrSetCookies(LKconfig.WebSiteId + "uid", Msg.TID, { expires: 360, path: LKconfig.CookiesPath, domain: LKconfig.Cookiesdomain });
+            }
+            else if (GetOrSetCookies(LKconfig.WebSiteId + "uid") != Msg.TID) {
+                GetOrSetCookies(LKconfig.WebSiteId + "uid", Msg.TID, { expires: 360, path: LKconfig.CookiesPath, domain: LKconfig.Cookiesdomain });
+            }
+            if (connectTime &lt; 1) {
+                AddUserInfo();
+            }
+            connectTime++;
+            ckLine = setInterval(checkUserOnLine, 180000);
+        }
+        else if (Msg.Type == "邀请消息")//客服邀请对话
+        {
+            GetOrSetCookies(LKconfig.WebSiteId + "Isinvite", 1, { expires: 0, path: LKconfig.CookiesPath, domain: LKconfig.Cookiesdomain });
+            GetOrSetCookies(LKconfig.WebSiteId + "sid", Msg.StaffSessionID, { expires: 0, path: LKconfig.CookiesPath, domain: LKconfig.Cookiesdomain });
+            $("#LRdiv1").show();
+        }
+        else if (Msg.Type == "客服注销") { //客服注销
+            GetOrSetCookies(LKconfig.WebSiteId + "Isinvite", null, { expires: 0, path: LKconfig.CookiesPath, domain: LKconfig.Cookiesdomain });
+        }
+        else if (Msg.Type == "关闭客户连接") { //后台断开用户连接
+            GetOrSetCookies(LKconfig.WebSiteId + "usercookie", null, { expires: 0, path: LKconfig.CookiesPath, domain: LKconfig.Cookiesdomain });
+            if (CometObject != undefined &amp;&amp; CometObject != null) {
+                CometObject.unsubscribe();
+                CometObject = null;
+            }
+        }
+        else if (Msg.Type == "取消邀请") {
+            GetOrSetCookies(LKconfig.WebSiteId + "Isinvite", null, { expires: 0, path: LKconfig.CookiesPath, domain: LKconfig.Cookiesdomain });
+            GetOrSetCookies(LKconfig.WebSiteId + "sid", null, { expires: 0, path: LKconfig.CookiesPath, domain: LKconfig.Cookiesdomain });
+            $("#LRdiv1").hide();
+            setTimeout(InitCenterWindow, SysConfig.MFirstShowts);
+        }
+    }
+
+    SuccessHandler: function SuccessHandler(privateToken, alias, message) {
+        try {
+            if (message.c != null) {
+                RecieveMsg(message.c);
+            }
+        }
+        catch (ex) { }
+    }
+
+    FailureHandler: function FailureHandler(privateToken, alias, error) {
+        if (ckLine != undefined &amp;&amp; ckLine != null)
+            clearInterval(ckLine);
+        if (ckLinks != undefined &amp;&amp; ckLinks != null)
+            clearTimeout(ckLinks);
+        if (CometObject != undefined &amp;&amp; CometObject != null) {
+            CometObject.unsubscribe();
+            CometObject = null;
+        }
+    }
+
+    TimeoutHandler: function TimeoutHandler(privateToken, alias) { }
+
+    this.CloseXHR = function (i) {
+        try {
+            if (CometObject != undefined &amp;&amp; CometObject != null &amp;&amp; CometObject != "null" &amp;&amp; CometObject != "") {
+                var msgjson = '{"Type":"客户关闭连接","Msg":"1","TID":"","CustomSessionID":"' + GetOrSetCookies(LKconfig.WebSiteId + "uid") + '"}';
+                if (i == 3) {
+                    msgjson = '{"Type":"跳转聊天","Msg":"","TID":"","CustomSessionID":"' + GetOrSetCookies(LKconfig.WebSiteId + "uid") + '","StaffSessionID":"' + GetOrSetCookies(LKconfig.WebSiteId + "sid") + '"}';
+                }
+                Send("USendMsg", msgjson);
+                CometObject.unsubscribe();
+                CometObject = null;
+            }
+        } catch (e) { }
+        try {
+            if (ckLine != undefined &amp;&amp; ckLine != null)
+                clearInterval(ckLine);
+            if (ckLinks != undefined &amp;&amp; ckLinks != null)
+                clearTimeout(ckLinks);
+        } catch (ex) { }
+    }
+
+    AddUserInfo: function AddUserInfo() {
+        if (GetOrSetCookies(LKconfig.WebSiteId + "uid") != undefined &amp;&amp; GetOrSetCookies(LKconfig.WebSiteId + "uid") != null &amp;&amp; GetOrSetCookies(LKconfig.WebSiteId + "uid") != "" &amp;&amp; GetOrSetCookies(LKconfig.WebSiteId + "uid") != "null") {
+            var info = "timezone=" + (new Date()).toTimeString().substr(9, 8).replace("+", "A").replace("-", "B");
+            info += "&amp;screencolor=" + encodeURI(screen.colorDepth);
+            info += "&amp;resolution=" + screen.width + "×" + screen.height;
+            info += "&amp;isaddtrace=" + isAddTrace + "&amp;website=" + LKconfig.WebSiteId;
+            info += "&amp;pronumber=" + LKconfig.WebSiteNumber;
+            info += "&amp;referrer=" + GetReferrerUrl();
+            info += "&amp;ftype=" + LKconfig.FromType;
+            $.getJSON(LKconfig.WebURL + "/XYAjax/MsgChange.ashx?type=saveuser&amp;id=" + GetOrSetCookies(LKconfig.WebSiteId + "uid") + "&amp;jsoncallback=?", info, function (data) { });
+        }
+    }
+
+    AddUserTrace: function AddUserTrace() {
+        if (isAddTrace == 0) {
+            if (GetOrSetCookies(LKconfig.WebSiteId + "uid") != "" &amp;&amp; GetOrSetCookies(LKconfig.WebSiteId + "uid") != null &amp;&amp; GetOrSetCookies(LKconfig.WebSiteId + "uid") != undefined) {
+                var info = "id=" + GetOrSetCookies(LKconfig.WebSiteId + "uid");
+                info += "&amp;website=" + LKconfig.WebSiteId;
+                info += "&amp;referrer=" + GetReferrerUrl();
+                $.getJSON(LKconfig.WebURL + "/XYAjax/MsgChange.ashx?type=SaveUserTrace&amp;jsoncallback=?", info, function (data) { });
+            }
+        }
+    }
+
+    GetParamsInfo: function GetParamsInfo() {
+        var Urlstr = "?utype=2";
+        if (GetOrSetCookies(LKconfig.WebSiteId + "lsid") != null &amp;&amp; GetOrSetCookies(LKconfig.WebSiteId + "lsid") != undefined &amp;&amp; GetOrSetCookies(LKconfig.WebSiteId + "lsid") != "") {
+            Urlstr = "?utype=1";
+            Urlstr += "&amp;psid=" + GetOrSetCookies(LKconfig.WebSiteId + "lsid");
+        }
+        if (GetOrSetCookies(LKconfig.WebSiteId + "sid") != null &amp;&amp; GetOrSetCookies(LKconfig.WebSiteId + "sid") != undefined &amp;&amp; GetOrSetCookies(LKconfig.WebSiteId + "sid") != "") {
+            Urlstr = "?utype=1";
+            Urlstr += "&amp;sid=" + GetOrSetCookies(LKconfig.WebSiteId + "sid");
+        }
+        if (LKconfig.WebSiteId != null &amp;&amp; LKconfig.WebSiteId != "" &amp;&amp; LKconfig.WebSiteId != undefined)
+            Urlstr += "&amp;siteid=" + LKconfig.WebSiteId;
+
+        if (LKconfig.WebSiteNumber != null &amp;&amp; LKconfig.WebSiteNumber != "" &amp;&amp; LKconfig.WebSiteNumber != undefined)
+            Urlstr += "&amp;number=" + LKconfig.WebSiteNumber;
+
+        if (GetOrSetCookies(LKconfig.WebSiteId + "uid") != null &amp;&amp; GetOrSetCookies(LKconfig.WebSiteId + "uid") != undefined &amp;&amp; GetOrSetCookies(LKconfig.WebSiteId + "uid") != "")
+            Urlstr += "&amp;uid=" + GetOrSetCookies(LKconfig.WebSiteId + "uid");
+
+        if (GetOrSetCookies(LKconfig.WebSiteId + "uname") != null &amp;&amp; GetOrSetCookies(LKconfig.WebSiteId + "uname") != undefined &amp;&amp; GetOrSetCookies(LKconfig.WebSiteId + "uname") != "")
+            Urlstr += "&amp;uname=" + encodeURI(GetOrSetCookies(LKconfig.WebSiteId + "uname"));
+
+        if (LKconfig.PSiteId != undefined &amp;&amp; LKconfig.PSiteId != null &amp;&amp; LKconfig.PSiteId != "")
+            Urlstr += "&amp;psiteid=" + LKconfig.PSiteId;
+
+        Urlstr += "&amp;eng=" + eng + "&amp;ftype=" + LKconfig.FromType + "&amp;act=" + IsActive + "&amp;refurl=" + GetCurrenttURL();
+        return Urlstr;
+    }
+
+    this.GetParamsInfo1 = function () {
+        var Urlstr = "?utype=2";
+        if (GetOrSetCookies(LKconfig.WebSiteId + "lsid") != null &amp;&amp; GetOrSetCookies(LKconfig.WebSiteId + "lsid") != undefined &amp;&amp; GetOrSetCookies(LKconfig.WebSiteId + "lsid") != "") {
+            Urlstr = "?utype=1";
+            Urlstr += "&amp;psid=" + GetOrSetCookies(LKconfig.WebSiteId + "lsid");
+        }
+        if (GetOrSetCookies(LKconfig.WebSiteId + "sid") != null &amp;&amp; GetOrSetCookies(LKconfig.WebSiteId + "sid") != undefined &amp;&amp; GetOrSetCookies(LKconfig.WebSiteId + "sid") != "") {
+            Urlstr = "?utype=1";
+            Urlstr += "&amp;sid=" + GetOrSetCookies(LKconfig.WebSiteId + "sid");
+        }
+        if (LKconfig.WebSiteId != null &amp;&amp; LKconfig.WebSiteId != "" &amp;&amp; LKconfig.WebSiteId != undefined)
+            Urlstr += "&amp;siteid=" + LKconfig.WebSiteId;
+
+        if (LKconfig.WebSiteNumber != null &amp;&amp; LKconfig.WebSiteNumber != "" &amp;&amp; LKconfig.WebSiteNumber != undefined)
+            Urlstr += "&amp;number=" + LKconfig.WebSiteNumber;
+
+        if (GetOrSetCookies(LKconfig.WebSiteId + "uid") != null &amp;&amp; GetOrSetCookies(LKconfig.WebSiteId + "uid") != undefined &amp;&amp; GetOrSetCookies(LKconfig.WebSiteId + "uid") != "")
+            Urlstr += "&amp;uid=" + GetOrSetCookies(LKconfig.WebSiteId + "uid");
+
+        if (GetOrSetCookies(LKconfig.WebSiteId + "uname") != null &amp;&amp; GetOrSetCookies(LKconfig.WebSiteId + "uname") != undefined &amp;&amp; GetOrSetCookies(LKconfig.WebSiteId + "uname") != "")
+            Urlstr += "&amp;uname=" + encodeURI(GetOrSetCookies(LKconfig.WebSiteId + "uname"));
+
+        if (LKconfig.PSiteId != undefined &amp;&amp; LKconfig.PSiteId != null &amp;&amp; LKconfig.PSiteId != "")
+            Urlstr += "&amp;psiteid=" + LKconfig.PSiteId;
+
+        Urlstr += "&amp;eng=" + eng + "&amp;ftype=" + LKconfig.FromType + "&amp;act=" + IsActive + "&amp;refurl=" + GetCurrenttURL();
+        return Urlstr;
+    }
+
+    this.openkfWin = function (i) {
+        try {
+            //lgl 2015-09-22 判断弹出验证框
+            var boolCode = CheckPageOrSite() ? CheckVisitsTime() : false;
+            if (boolCode) {
+                this.CloseXHR(3);
+                var param = '' + GetParamsInfo();
+                if (window.SysConfig &amp;&amp; SysConfig.ReceptionType &amp;&amp; typeof (SysConfig.ReceptionType) == 'string') { //售前售后
+                    param = param.replace(/^\?/, (i != undefined &amp;&amp; i != null &amp;&amp; typeof (i) == 'number' &amp;&amp; i == 2 ? '?rtype=2&amp;' : '?rtype=1&amp;')); //开启后 i: 2 售后，其他售前
+                }
+                var target = LKconfig.WebURL + '/ChatXHR.aspx' + param;
+                window.open(target);
+                setTimeout(function () { CheckTalkState(2) }, 10000);
+            }
+        } catch (e) { }
+    }
+
+    Send: function Send(type, msgjson) {
+        var dataArgs = "Type=" + type + "&amp;msg=" + encodeURI(msgjson);
+        $.getJSON(LKconfig.WebURL + "/XYAjax/MyHandler.ashx?" + dataArgs + "&amp;v=" + new Date().getMilliseconds() + "&amp;jsoncallback=?", null, function (data) { });
+    }
+
+    this.SetInitVal = function (AddTrace, conTime) {
+        isAddTrace = AddTrace;
+        connectTime = conTime;
+    }
+}
+
+
+var fun = new IMLeadBase();
+function openkfWin(i) {
+    fun.openkfWin(i);
+}
+
+function checkUserOnLine() {
+    $.getJSON(LKconfig.WebURL + "/XYAjax/MyHandler.ashx?Type=IsLinks&amp;jsoncallback=?", { userId: GetOrSetCookies(LKconfig.WebSiteId + "uid"), website: LKconfig.WebSiteId }, function (data) {
+        var json = eval(data);
+        if (json.Msg != "1") {
+            fun.CloseXHR(1);
+        }
+    });
+}
+
+//$(window).load(function () {
+$(function () {
+    try {
+        if (ckLinks != undefined &amp;&amp; ckLinks != null)
+            clearTimeout(ckLinks);
+        if (CometObject != undefined &amp;&amp; CometObject != null) {
+            CometObject.unsubscribe();
+        }
+    } catch (e) { }
+
+    fun.InitWin();
+});
+
+$(window).bind("beforeunload", function () { fun.CloseXHR(1); });
+$(window).bind("unload", function () { fun.CloseXHR(1); });
+
+var Gtimes = 0;
+function CheckTalkState(typeId) {
+    if (GetOrSetCookies(LKconfig.WebSiteId + "uid") != undefined &amp;&amp; GetOrSetCookies(LKconfig.WebSiteId + "uid") != null &amp;&amp; GetOrSetCookies(LKconfig.WebSiteId + "uid") != "") {
+        $.getJSON(LKconfig.WebURL + "/XYAjax/MsgChange.ashx?type=CheckTalkState&amp;jsoncallback=?", { userId: GetOrSetCookies(LKconfig.WebSiteId + "uid"), website: LKconfig.WebSiteId, types: typeId }, function (data) {
+            if (data.Msg != undefined &amp;&amp; data.Msg != null &amp;&amp; data.Msg.length &gt; 10 &amp;&amp; typeId == 2) {
+                GetOrSetCookies(LKconfig.WebSiteId + "lsid", data.Msg, { expires: 1, path: LKconfig.CookiesPath, domain: LKconfig.Cookiesdomain });
+                Gtimes = 0;
+            } else {
+                if (Gtimes &lt; 3) {
+                    setTimeout(function () { CheckTalkState(2) }, 10000);
+                    Gtimes = Gtimes + 1;
+                }
+            }
+        });
+    }
+}
+
+
+function GookieVal(offset)
+    //获得Cookie解码后的值 
+{
+    var endstr = document.cookie.indexOf(";", offset);
+    if (endstr == -1)
+        endstr = document.cookie.length;
+    return unescape(document.cookie.substring(offset, endstr));
+}
+function Gookie(name)
+    //获得Cookie的原始值
+{
+    var arg = name + "=";
+    var alen = arg.length;
+    var clen = document.cookie.length;
+    var i = 0;
+    while (i &lt; clen) {
+        var j = i + alen;
+        if (document.cookie.substring(i, j) == arg)
+            return GookieVal(j);
+        i = document.cookie.indexOf(" ", i) + 1;
+        if (i == 0) break;
+    }
+    return null;
+}
+function Sookie(name, value)
+    //设定Cookie值
+{
+    var argv = Sookie.arguments;
+    var argc = Sookie.arguments.length;
+    var expires = (argc &gt; 2) ? argv[2] : null;
+    var path = (argc &gt; 3) ? argv[3] : null;
+    var domain = (argc &gt; 4) ? argv[4] : null;
+    var secure = (argc &gt; 5) ? argv[5] : false;
+    document.cookie = name + "=" + escape(value) + ((expires == null) ? "" : ("; expires=" + expires.toGMTString()))
+   + ((path == null) ? "" : ("; path=" + path)) + ((domain == null) ? "" : ("; domain=" + domain)) + ((secure == true) ? "; secure" : "");
+}
+function Dookie(name) {
+    var exp = new Date();
+    exp.setTime(exp.getTime() - 1);
+    var cval = Gookie(name);
+    document.cookie = name + "=" + cval + '';
+    expires = '' + exp.toGMTString();
+}
+
+//lgl 2015-09-22 网页或站点拦截
+function CheckPageOrSite() {
+    var openCode = false;
+    if (SysConfig.SiteVisits)
+        openCode = true;
+    else if (SysConfig.PageVisits != undefined &amp;&amp; SysConfig.PageVisits != '') {
+        var url = window.location.href.split('?')[0].replace(/^http:\/\//gi, '');
+        var urlList = SysConfig.PageVisits.split('|');
+        var pageStr = '';
+        for (var row in urlList) {
+            urlList[row] = urlList[row].replace(/\/$/g, '');
+            pageStr += (urlList[row].replace(/\./g, '\\\.') + '[\\\/]?|');
+        }
+        pageStr = pageStr.substr(0, pageStr.length - 1);
+        var r = new RegExp('^(' + pageStr + ')$', 'gi');
+        if (r.test(url))
+            openCode = true;
+    }
+
+    if (openCode) {
+        //加入验证码div代码
+        $(document.body).append(SetCheckdiv());
+        //createCode();
+        if (!ExistWebsite) {
+            createCode();
+        }
+        else {
+            if ($("#imgCode").length &gt; 0) {
+                document.getElementById("txtIdentifyingCode").value = "";
+                document.getElementById("imgCode").click();
+            }
+        }
+        //显示验证码弹框
+        document.getElementById('light').style.display = 'block';
+        document.getElementById('fade').style.display = 'block';
+
+        return false;
+    }
+    return true;
+}
+
+//访问次数拦截
+function CheckVisitsTime() {
+    var expdate = new Date();
+    var myDate = new Date();
+    var numberOfTimes = SysConfig.NumberOfTimes != undefined &amp;&amp; SysConfig.NumberOfTimes != null ? SysConfig.NumberOfTimes : '';
+    var times = 0, number = 0;
+    if (numberOfTimes != '') {
+        numberOfTimes = numberOfTimes.split('|');
+        if (numberOfTimes.length == 2) {
+            times = StringIsInt32(numberOfTimes[0]);
+            number = StringIsInt32(numberOfTimes[1]);
+        }
+    }
+    expdate.setTime(expdate.getTime() + (60 * 60 * 1000));
+    if (!(visits = Gookie("visitsTime"))) {
+        var mytime = myDate.getTime();     //获取当前时间
+        visits = 1;
+        Sookie("visitsTime", visits, expdate, "/", null, false);
+        Sookie("Time", mytime, expdate, "/", null, false);
+    }
+    else {
+        var mytime = myDate.getTime();     //获取当前时间
+        var diff = (mytime - Gookie("Time")) / 1000;
+        var visitsTime = times;
+        if (diff &lt;= visitsTime) {      //N秒了点击的次数
+            visits++;
+            Sookie("visitsTime", visits, expdate, "/", null, false);
+        } else {     //超过N秒重新计算
+            var mytime = myDate.getTime();     //获取当前时间
+            visits = 1;
+            Sookie("visitsTime", visits, expdate, "/", null, false);
+            Sookie("Time", mytime, expdate, "/", null, false);
+        }
+    }
+
+    //lgl 2015-09-17 VisitsCodeOpen保存的Cookie值判断
+    var visitsCodeOpen = Gookie('VisitsCodeOpen');
+    var timeNumber = number;
+    var showCode = false;
+    if (timeNumber &gt; 0) {
+        if ((visitsCodeOpen &amp;&amp; visitsCodeOpen == 1) || visits &gt; timeNumber)
+            showCode = true;
+    }
+
+    if (showCode) {
+        //加入验证码div代码
+        $(document.body).append(SetCheckdiv());
+        createCode();
+        //显示验证码弹框
+        document.getElementById('light').style.display = 'block';
+        document.getElementById('fade').style.display = 'block';
+
+        //lgl 2015-09-16 添加cookie标识符VisitsCodeOpen = 1
+        Sookie('VisitsCodeOpen', 1);
+        return false;
+    }
+    return true;
+}
+
+//验证码div块
+function SetCheckdiv() {
+    var tem = '&lt;input type=\"text\" onclick=\"createCode()\" readonly=\"readonly\" id=\"checkCode\" style=\"border:0;width: 80px;height:35px;cursor: pointer;font-size:18px;background:#3DB743;text-align:center;\" title=\"点击刷新\" /&gt;';
+
+    if (ExistWebsite) {
+        var yzm = LKconfig.WebURL + '/IdentifyingCode.aspx';
+        tem = '&lt;img id=\"imgCode\" src=\"' + yzm + '\" style=\"height:40px;\"  alt=\"点击刷新\" onclick=\"javascript:var time = new Date().getTime(); this.src=this.src + \'?\' + time;\" /&gt;'
+    }
+
+    return '&lt;div id=\"light\" style=\"display: none;position: fixed ! important;left: 50%; margin-left: -150px ! important; top: 50%; margin-top: -110px ! important;text-align:center;width: 250px;height: 180px;padding: 16px;border: 16px solid orange;background-color: white;z-index:9999999648991;\"&gt;&lt;table align=\"center\" cellpadding=\"5\" cellspacing=\"5\"&gt;&lt;tr&gt;&lt;td colspan=\"2\" style=\"color:red;\"&gt;请输入验证码！&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;input id=\"txtIdentifyingCode\"  style=\"display: inline-block;height: 35px;line-height: 20px;color: #000000;font-size:16px;background: #fff;vertical-align: middle;width: 100px;\"placeholder=\"验证码\" title=\"验证码\" type=\"text\" /&gt;&lt;/td&gt;&lt;td&gt;' + tem + '&lt;/td&gt;&lt;/tr&gt;&lt;tr style=\"text-align:center;margin-bottom: 30px;\"&gt;&lt;td&gt;&lt;input value=\"确  定\" id=\"btnSubmit\" type=\"submit\" style=\"text-align: center ! important; display: block;height:40px; width: 100px;color: #fff;border: 2px solid #ECEFF1;background: #33B5E5;cursor: pointer;\" onclick=\"validate()\" /&gt;&lt;/td&gt;&lt;td&gt;&lt;input value=\"关  闭\" id=\"btnCancel\"  type=\"submit\" style=\"text-align: center ! important; display: block;height:40px;width: 100px;color: #fff;border: 2px solid #ECEFF1;background: #33B5E5;cursor: pointer;\" onclick=\"document.getElementById(\'light\').style.display = \'none\';document.getElementById(\'fade\').style.display = \'none\'\" /&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/div&gt;&lt;div id=\"fade\" style=\"display: none;position: fixed ! important;top: 0%;left: 0%;width: 100%;height: 100%;background-color: black;z-index: 21001;-moz-opacity: 0.8;opacity: .80;filter: alpha(opacity=80);\"&gt;&lt;/div&gt;';
+}
+
+var code; //在全局定义验证码   
+//产生验证码  
+function createCode() {
+    code = "";
+    var codeLength = 4;//验证码的长度  
+    var checkCode = document.getElementById("checkCode");
+    var random = new Array(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R',
+    'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z');//随机数  
+    for (var i = 0; i &lt; codeLength; i++) {//循环操作  
+        var index = Math.floor(Math.random() * 36);//取得随机数的索引（0~35）  
+        code += random[index];//根据索引取得随机数加到code上  
+    }
+    checkCode.value = code;//把code值赋给验证码  
+}
+
+//将字符串转化为整数，否侧返回默认值 0
+function StringIsInt32(s) {
+    var reg = /^\d+$/;
+    if (reg.test(s))
+        return parseInt(s);
+    else
+        return 0;
+}
+
+//校验验证码  
+function validate() {
+    var inputCode = document.getElementById("txtIdentifyingCode").value.toUpperCase(); //取得输入的验证码并转化为大写        
+    if (inputCode.length &lt;= 0) { //若输入的验证码长度为0  
+        alert("请输入验证码！"); //则弹出请输入验证码  
+        return false;
+    }
+    else {
+        if (ExistWebsite) {
+            $.ajax({
+                type: "get",
+                async: false,
+                url: LKconfig.WebURL + "/XYAjax/MsgChange.ashx?type=Identify&amp;NoNumber=" + inputCode,
+                dataType: "jsonp",//数据类型为jsonp  
+                jsonp: "jsonCallback",//服务端用于接收callback调用的function名的参数  
+                success: function (data) {
+                    if (data.Msg == "0") {
+                        alert("验证码输入错误！"); //则弹出验证码输入错误
+                        document.getElementById("txtIdentifyingCode").value = "";//清空文本框
+                        return false;
+                    }
+                    else {
+                        //关闭验证码弹框
+                        document.getElementById("light").style.display = "none";
+                        document.getElementById("fade").style.display = "none";
+                        //跳转正常连接页面
+                        try {
+                            var target = LKconfig.WebURL + '/ChatXHR.aspx' + fun.GetParamsInfo1();
+                            window.open(target);
+                            setTimeout(function () { CheckTalkState(2) }, 10000);
+                        } catch (e) { }
+
+                        return true;
+                    }
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    $("div").html(textStatus);
+                    $("div").append("&lt;br/&gt;" + XMLHttpRequest.status);
+                    $("div").append("&lt;br/&gt;" + XMLHttpRequest.readyState);
+                    $("div").append("&lt;br/&gt;" + XMLHttpRequest.responseText);
+                }
+            });
+        }
+        else {
+            if (inputCode != code) { //若输入的验证码与产生的验证码不一致时  
+                alert("验证码输入错误！"); //则弹出验证码输入错误  
+                createCode();//刷新验证码  
+                document.getElementById("txtIdentifyingCode").value = "";//清空文本框  
+                return false;
+            }
+            else { //输入正确时  
+                //重新设置cookie
+                Sookie('VisitsCodeOpen', 0);
+                var expdate = new Date();
+                var myDate = new Date();
+                expdate.setTime(expdate.getTime() + (60 * 60 * 1000));
+                Sookie("visitsTime", 0, expdate, "/", null, false);
+                Sookie("Time", myDate.getTime(), expdate, "/", null, false);
+                //关闭验证码弹框
+                document.getElementById("light").style.display = "none";
+                document.getElementById("fade").style.display = "none";
+                //跳转正常连接页面
+                try {
+                    var target = LKconfig.WebURL + '/ChatXHR.aspx' + fun.GetParamsInfo1();
+                    window.open(target);
+                    setTimeout(function () { CheckTalkState(2) }, 10000);
+                } catch (e) { }
+
+                return true;
+            }
+        }
+    }
+}
+
+//初始化售前售后弹窗功能
+window.SelectRType = function () {
+    var obj = $('#chatUl'); //document.getElementById('chatUl');
+    if (obj.length == 0) {
+        var temp = '&lt;ul id="chatUl" class="chatUl" style="display: none"&gt;&lt;li class="chat_sq" onclick="openkfWin(1);$(this).parent().hide();return false;"&gt;&lt;em&gt;&lt;/em&gt;售前咨询&lt;/li&gt;&lt;li class="chat_sh" onclick="openkfWin(2);$(this).parent().hide();return false;"&gt;&lt;em&gt;&lt;/em&gt;售后咨询&lt;/li&gt;&lt;/ul&gt;';
+        $('#LRdiv0').append(temp);
+        obj = $(document.getElementById('chatUl'));
+    }
+    if (obj.css('display') != 'none')
+        obj.hide();
+    else
+        obj.show();
+}</pre></body></html>

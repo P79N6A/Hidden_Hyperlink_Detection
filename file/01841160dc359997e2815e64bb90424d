@@ -1,0 +1,1435 @@
+﻿
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head runat="server">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>重庆电子口岸</title>
+</head>
+<body>
+<script language="javascript">
+
+<!--
+
+var jq = function (id) {
+
+    return "string" == typeof id ? document.getElementById(id) : id;
+
+}
+
+var Bind = function(object, fun) {
+
+    return function() {
+
+        return fun.apply(object, arguments);
+
+    }
+
+}
+
+function AutoComplete(obj,autoObj,arr){
+
+    this.obj=jq(obj);        //输入框
+
+    this.autoObj=jq(autoObj);//DIV的根节点
+
+    this.value_arr=arr;        //不要包含重复值
+
+    this.index=-1;          //当前选中的DIV的索引
+
+    this.search_value="";   //保存当前搜索的字符
+
+}
+
+AutoComplete.prototype={
+
+    //初始化DIV的位置
+
+    init: function(){
+
+        this.autoObj.style.left = this.obj.offsetLeft + "px";
+
+        this.autoObj.style.top  = this.obj.offsetTop + this.obj.offsetHeight + "px";
+
+        this.autoObj.style.width= this.obj.offsetWidth - 2 + "px";//减去边框的长度2px
+
+    },
+
+    //删除自动完成需要的所有DIV
+
+    deleteDIV: function(){
+
+        while(this.autoObj.hasChildNodes()){
+
+            this.autoObj.removeChild(this.autoObj.firstChild);
+
+        }
+
+        this.autoObj.className="auto_hidden";
+
+    },
+
+    //设置值
+
+    setValue: function(_this){
+
+        return function(){
+
+            _this.obj.value=this.seq;
+
+            _this.autoObj.className="auto_hidden";
+
+        }
+
+    },
+
+    //模拟鼠标移动至DIV时，DIV高亮
+
+    autoOnmouseover: function(_this,_div_index){
+
+        return function(){
+
+            _this.index=_div_index;
+
+            var length = _this.autoObj.children.length;
+
+            for(var j=0;j<length;j++){
+
+                if(j!=_this.index ){
+
+                    _this.autoObj.childNodes[j].className='auto_onmouseout';
+
+                }else{
+
+                    _this.autoObj.childNodes[j].className='auto_onmouseover';
+
+                }
+
+            }
+
+        }
+
+    },
+
+    //更改classname
+
+    changeClassname: function(length){
+
+        for(var i=0;i<length;i++){
+
+            if(i!=this.index ){
+
+                this.autoObj.childNodes[i].className='auto_onmouseout';
+
+            }else{
+
+                this.autoObj.childNodes[i].className='auto_onmouseover';
+
+                this.obj.value=this.autoObj.childNodes[i].seq;
+
+            }
+
+        }
+
+    }
+
+    ,
+
+    //响应键盘
+
+    pressKey: function(event){
+
+        var length = this.autoObj.children.length;
+
+        //光标键"↓"
+
+        if(event.keyCode==40){
+
+            ++this.index;
+
+            if(this.index>length){
+
+                this.index=0;
+
+            }else if(this.index==length){
+
+                this.obj.value=this.search_value;
+
+            }
+
+            this.changeClassname(length);
+
+        }
+
+        //光标键"↑"
+
+        else if(event.keyCode==38){
+
+            this.index--;
+
+            if(this.index<-1){
+
+                this.index=length - 1;
+
+            }else if(this.index==-1){
+
+                this.obj.value=this.search_value;
+
+            }
+
+            this.changeClassname(length);
+
+        }
+
+        //回车键
+
+        else if(event.keyCode==13){
+
+            this.autoObj.className="auto_hidden";
+
+            this.index=-1;
+
+        }else{
+
+            this.index=-1;
+
+        }
+
+    },
+
+    //程序入口
+
+    start: function(event){
+
+        if(event.keyCode!=13&&event.keyCode!=38&&event.keyCode!=40){
+
+            this.init();
+
+            this.deleteDIV();
+
+            this.search_value=this.obj.value;
+
+            var valueArr=this.value_arr;
+
+            valueArr.sort();
+
+            if(this.obj.value.replace(/(^\s*)|(\s*$)/g,'')==""){ return; }//值为空，退出
+
+            try{ var reg = new RegExp("(" + this.obj.value + ")","i");}
+
+            catch (e){ return; }
+
+            var div_index=0;//记录创建的DIV的索引
+
+            for(var i=0;i<valueArr.length;i++){
+
+                if(reg.test(valueArr[i])){
+
+                    var div = document.createElement("div");
+
+                    div.className="auto_onmouseout";
+
+                    div.seq=valueArr[i];
+
+                    div.onclick=this.setValue(this);
+
+                    div.onmouseover=this.autoOnmouseover(this,div_index);
+
+                    div.innerHTML=valueArr[i].replace(reg,"<strong>$1</strong>");//搜索到的字符粗体显示
+
+                    this.autoObj.appendChild(div);
+
+                    this.autoObj.className="auto_show";
+
+                    div_index++;
+
+                }
+
+            }
+
+        }
+
+        this.pressKey(event);
+
+        window.onresize=Bind(this,function(){this.init();});
+
+    }
+
+}
+
+//-->
+
+</script>
+
+<div class="top_wrap">
+
+  <div class="top_con">
+
+    <div class="logo"><img src="img/logo.jpg" alt=""/></div>
+
+    <div class="nav">
+
+<ul id="nav1"> 
+
+<li><a href="index.php">首页</a></li> 
+
+<li><a href="item.php">应用项目</a></li> 
+
+<li><a href="news.php?open_Id=1">新闻资讯</a></li> 
+
+<li><a href="news.php?open_Id=0">通知公告</a></li> 
+
+<li><a href="news.php?open_Id=2">政策法规	</a></li> 
+
+<li><a href="#">共建单位</a><div>
+
+    <ul> 
+
+      <li><a href="http://www.cqeport.gov.cn/about.php?open_Id=0" target="_blank">口岸办</a></li>
+
+      <li><a href="http://chongqing.customs.gov.cn/" target="_blank">重庆海关</a></li>
+
+      <li><a href="http://www.cqciq.gov.cn/" target="_blank">检验检疫</a></li>
+
+      <li><a href="http://www.ft.cq.cn/" target="_blank">外经贸委</a></li>
+
+      <li><a href="http://www.cqsw.gov.cn/" target="_blank">国税局</a></li>
+
+      <li><a href="http://www.safe.gov.cn/" target="_blank">外管局</a></li>
+
+      <li><a href="http://www.cqdpc.gov.cn/" target="_blank">发改委</a></li>
+
+      <li><a href="http://www.cqjt.gov.cn/" target="_blank">市交委</a></li>
+
+      <li><a href="http://wjx.cq.gov.cn/" target="_blank">市经信委</a></li>
+
+      <li><a href="http://www.cstc.gov.cn/" target="_blank">市科委</a></li>
+
+      <li><a href="http://wsy.cq.gov.cn/" target="_blank">市商委</a></li>
+
+      <li><a href="http://www.cqga.gov.cn/" target="_blank">市公安局</a></li>
+
+      <li><a href="http://www.cqgs12315.cn/" target="_blank">市工商局</a></li>
+
+      <li><a href="http://www.cqmsa.gov.cn/" target="_blank">重庆海事局</a></li>
+
+      <li><a href="#">武警重庆市边防总队</a></li>
+
+      <li><a href="http://www.liangjiang.gov.cn/" target="_blank">两江新区管委会</a></li>
+
+      <li><a href="http://www.ccfta.com/" target="_blank">重庆保税港区公司</a></li>
+
+      <li><a href="http://www.xiyongpark.com/" target="_blank">重庆西永微电园</a></li>
+
+      <li><a href="http://www.cqa.cn/" target="_blank">机场集团</a></li>
+
+      <li><a href="http://www.cqg.com.cn/" target="_blank">重庆港务物流集团</a></li>
+
+      <li><a href="http://www.crintermodal.com/cn/locations.asp?classid=21" target="_blank">中铁联集重庆公司</a></li>
+
+    </ul> </div>
+
+</li> 
+
+<li><a href="cusCenter.php?open_Id=0">办事指南</a> </li> 
+
+<li><a href="about.php?open_Id=0">关于我们</a><div>
+
+    <ul> 
+
+      <li><a href="about.php?open_Id=0">口岸办简介</a></li>
+
+      <li><a href="about.php?open_Id=1">中心简介</a></li>
+
+      <li><a href="about.php?open_Id=2">机构设置</a></li>
+
+      <li><a href="about.php?open_Id=3">机构职责</a></li>
+
+      <li><a href="about.php?open_Id=4">联系方式</a></li>
+
+    </ul> </div>
+
+</li> 
+
+</ul> 
+
+    </div>
+
+    <div class="top_right">
+
+      <div class="top_right_top"> <a class="bor" href="./system/index.php">登录</a> <a class="bor" href="register.php">注册</a> <i>&nbsp;</i> <!--a class="a_img" href="###"><img src="img/weibo.png" alt=""/></a> <a class="a_img" href="###"><img src="img/weixin.png" alt=""/></a--> </div>
+
+      <p>
+
+        <input type="text" id="keyword" onkeyup="autoComplete.start(event)" placeholder="输入关键字" />
+
+        <img src="img/search.png" alt="" id="search" style="cursor: pointer;" /> </p>
+
+      <div class="auto_hidden" id="auto"><!--自动完成 DIV--></div>
+
+    </div>
+
+  </div>
+
+  <!--top_con--> 
+
+</div>
+
+<!--top_wrap--> 
+
+<!--nav_hover--> 
+
+<script>
+
+    var autoComplete=new AutoComplete('keyword','auto',['海关','海关公告','b22','b3','b4','b5','b6','b7','b8','b2','abd','ab','acd','accd','b1','cd','ccd','cbcv','cxf']);
+
+</script> 
+
+ 
+
+<script type=text/javascript> 
+
+ 
+
+function menuFix(){ 
+
+    var sfEls = document.getElementById("nav").getElementsByTagName("li"); 
+
+    for (var i=0; i<sfEls.length; i++){
+
+        sfEls[i].onmouseover=function(){
+
+        this.className+=(this.className.length>0? " ": "") + "sfhover"; 
+
+        }
+
+        sfEls[i].onMouseDown=function(){
+
+        this.className+=(this.className.length>0? " ": "") + "sfhover"; 
+
+        }
+
+        sfEls[i].onMouseUp=function(){
+
+        this.className+=(this.className.length>0? " ": "") + "sfhover"; 
+
+        }
+
+        sfEls[i].onmouseout=function(){
+
+        thisthis.className=this.className.replace(new RegExp("( ?|^)sfhover\\b"), 
+
+"");
+
+        }
+
+    }
+
+}
+
+window.onload=menuFix; 
+
+</script> <div class="wrap">
+  <div class="banner">
+    <ul class="banner_img">
+      <li><a href="news.php?open_Id=0"><img src="img/index/banner.jpg" alt=""/></a></li>
+      <li><a href="news.php?open_Id=0"><img src="img/index/banner1.jpg" alt=""/></a></li>
+      <li><a href="news.php?open_Id=0"><img src="img/index/banner2.jpg" alt=""/></a></li>
+    </ul>
+    <!--banner图片-->
+    <div class="device">
+      <div class="dev_top">
+        <a href="news.php?open_Id=0" style="color:white;"><p>口岸公告<i>+</i></p></a>
+      </div>
+      <div class="swiper-container">
+        <div class="swiper-wrapper">
+                  <div class="swiper-slide"> <a href="news.php?open_Id=0&id=742">
+            <p><b>2016.11.08</b></p>
+            <p class="p1"><b>重庆电子口岸中心“双十一”值班安排表</b></p>
+            <p class="p2"></p>
+            </a> </div>          <div class="swiper-slide"> <a href="news.php?open_Id=0&id=727">
+            <p><b>2016.09.30</b></p>
+            <p class="p1"><b>紧急通知</b></p>
+            <p class="p2"></p>
+            </a> </div>          <div class="swiper-slide"> <a href="news.php?open_Id=0&id=722">
+            <p><b>2016.09.28</b></p>
+            <p class="p1"><b>重庆电子口岸中心2016年“国庆节”期间值班表</b></p>
+            <p class="p2"></p>
+            </a> </div>        </div>
+        <!--swiper-wrapper--> 
+      </div>
+      <!--swiper-container-->
+      <div class="pagination"></div>
+    </div>
+    <!--gg公告--> 
+  </div>
+  <!--banner-->
+  
+  <div class="main">
+    <!--div class="main_nav">
+      <ul>
+        <li><i class="i_1"></i>国际物流企业</li>
+        <li><i class="i_2"></i>报关企业</li>
+        <li><i class="i_3"></i>船代货代企业</li>
+        <li><i class="i_4"></i>仓储企业</li>
+        <li><i class="i_5"></i>电商企业</li>
+        <li><i class="i_6"></i>更多企业</li>
+      </ul>
+    </div-->
+    <!--main_nav-->
+    <div class="main_conDom" style="display:block;">
+      <ul>
+        <li class="yyxm"> <a href="item.php">
+          <h2>应用项目<i>+</i></h2>
+          </a>
+                    <ul>
+          <h3>已上线项目</h3>
+          			     <a href="http://www.cqkjs.com" target="_blank" title="<p>　　跨境贸易电子商务公共服务平台（已上线）。2014年6月17日，电子口岸上线运行重庆跨境贸易电子商务公共服务平台。该平台在通关监管、身份认证、物流仓储、订单管理等方面有诸多创新，为跨境电子商务相关的电商、物流、支付、海关、检验检疫、外汇、国税等监管机构提供一站式通关、监管、结汇、征税等服务。</p>">
+                 <li><p><img style="vertical-align:middle; margin-right:10px;" src="upload/19700101833stXnAGu.jpeg" alt=""/><p><i>重庆跨境贸易电子商务公共服务系统</i></li></a>
+           			     <a href="http://61.186.251.106/yd/login.aspx" target="_blank" title="<p>　　重庆水港出口运抵报告传输系统是水运出口货物运抵海关监管场所后，监管场所经营人通过重庆电子口岸数据交换中心，向出入境地海关发送运抵报告，海关执法系统H2000系统将报关单数据与运抵报告数据对碰，当数据一致后，才允许进入海关报关审批流程，否则直接将报关单进行退单处理。该系统完善了通关监管模式，实现实货验放，进一步严密海关监管，降低执法风险；同时，充分考虑提前报关、无纸通关、多点报关、区域通关等业务改革取得的良好成效，合理设定业务流程，确保现有改革措施不受影响；最后，充分考虑物流运作实际，科学设定运抵报告发送主体、发送和对碰环节，努力实现顺势监管，确保通关效率不降低、通关成本不提高。</p>">
+                 <li><p><img style="vertical-align:middle; margin-right:10px;" src="upload/19700101833stjtkvG.jpeg" alt=""/><p><i>重庆水港出口运抵报告传输系统</i></li></a>
+           			     <a href="http://183.230.7.163/pdms_lnd/" target="_blank" title="<p>　　该系统服务重庆铁路口岸，分国内和国际两部分。一期国内部分包括海关辅助系统、检验检疫辅助系统、铁路口岸场站管理系统、监管场所联网监管系统、关务检务物流协同申报系统。二期国际部分包括与渝新欧沿线国家海关、检验检疫、铁路公司、外贸运输、物流货代、报关报检公司的联网交换系统，实现真正的国际数据交换。</p>">
+                 <li><p><img style="vertical-align:middle; margin-right:10px;" src="upload/19700101833stkFGqp.jpeg" alt=""/><p><i>重庆铁路口岸通关服务辅助系统</i></li></a>
+           			     <a href="http://bf.cqeport.gov.cn/" target="_blank" title="<p>　　重庆各旅行社通过该系统预申报出境旅行团信息，在日常工作中该系统为旅游团便捷申报，快速通关和边防总队创新社会管理发挥了重要作用。</p><p>&nbsp;</p>">
+                 <li><p><img style="vertical-align:middle; margin-right:10px;" src="upload/19700101833stMYAfD.jpeg" alt=""/><p><i>重庆边防出境旅行团网上报检系统</i></li></a>
+           			     <a href="http://183.230.7.163/pdms_lnd/" target="_blank" title="<p>该系统服务重庆汽车整车进口口岸，实现铁路口岸与整车口岸之间的连接，包括铁路口岸和整车口岸两个场所之间联网监管、卡口自动放行，两个场所海关辅助管理系统之间信息自动传输交换，场站经营人通过系统进行运抵报申报、拆箱申请、理货报、核放申请（关联报关单）、整车地跑出区（刷卡、自动抬杆）。</p>">
+                 <li><p><img style="vertical-align:middle; margin-right:10px;" src="upload/19700101833steCMpl.jpeg" alt=""/><p><i>重庆整车口岸辅助服务系统</i></li></a>
+           			     <a href="http://113.204.136.5/CQDZYD/LoginZBQ.aspx" target="_blank" title="<p>　　该系统采用信息化的手段加强海关对转关运抵和“重庆西永综保区”、“重庆两路寸滩保税港”及二线运抵货物的监管，实现无纸化电子申报，规范企业申报及作业行为，有利于降低风险，使货物流转过程真正做到“一次申报”、“一次验放”，全程有效监管。</p>">
+                 <li><p><img style="vertical-align:middle; margin-right:10px;" src="upload/19700101833stEDSGu.jpeg" alt=""/><p><i>重庆转关运抵及二线运抵电子报告系统</i></li></a>
+           			     <a href="http://218.70.16.165/pdms_ys/" target="_blank" title="<p>“渝深快线区域联动”通关服务辅助系统</p>">
+                 <li><p><img style="vertical-align:middle; margin-right:10px;" src="upload/19700101833stJRbNx.jpeg" alt=""/><p><i>“渝深快线区域联动”通关服务辅助系统</i></li></a>
+           			     <a href="http://218.70.16.165/mft/index.aspx" target="_blank" title="<p>　　该系统实现地面代理、重庆电子口岸和中国电子口岸数据中心间XML舱单报文的解析、交换、入库。与外部系统接口包括SITA舱单接口或地面代理舱单接口、与中国电子口岸舱单报文接口、H2000订阅数据接口。通过实施本项目，完全打通重庆电子口岸网络到中国电子口岸、海关信息中心网络数据传输及执法数据源的通道。</p>">
+                 <li><p><img style="vertical-align:middle; margin-right:10px;" src="upload/19700101833striYWT.jpeg" alt=""/><p><i>重庆新舱单管理服务辅助系统</i></li></a>
+           			     <a href="http://183.230.7.163/pdms_port/default.aspx" target="_blank" title="<p>重庆航空物流综合信息化管理系统通过信息化建设，规范报关报检手续，采取属地申报、口岸验放的通关模式，降低了物流成本，提高了通关效率，实现区港联动。同时提供对货物流转情况的全程跟踪，并与各联检单位执法系统数据进行实时对碰，提供了风险分析数据，完善了风险预警机制。<br/></p>">
+                 <li><p><img style="vertical-align:middle; margin-right:10px;" src="upload/19700101833steaNDn.jpeg" alt=""/><p><i>重庆航空物流综合服务辅助系统</i></li></a>
+           <a href="#" title="<p>　　实现重庆进出口领域相关部门（海关、出入境检验检疫局、外经贸委、税务、外汇、边防、公安、机场、码头、铁路、公路、外贸企业等）的信息互换。该平台支持多种数据交换格式，包括国际数据交换标准、国内数据交换标准格式及用户自定义标准格式，如EDIFACT、ANSI&nbsp;X12、CargoIMP、XML(DTD，Schema)、海关H2000标准、海关新舱单标准、交通部集装箱运输电子报文平台文件标准等，上述各种数据交换格式之间的自动转换功能（不需转换中间格式），支持对中文字符进行解析。</p>"><li><p><img style="vertical-align:middle; margin-right:10px;" src="upload/19700101833stmsAMH.jpeg" alt=""/><p><i>电子口岸AXWAY数据交换平台</i></li></a>
+           			     <a href="http://113.204.136.9/cqapp/index.aspx" target="_blank" title="<p>重庆口岸业务移动互联系统（手机APP系统，已完成招标）。将口岸作业流程系统化，并实现手机操作。系统自动向监管部门推送作业流程和环节，监管部门一线工作人员通过手机即可掌握业务进展情况并适时进行操作。该系统同时服务广大外贸物流企业。</p>">
+                 <li><p><img style="vertical-align:middle; margin-right:10px;" src="upload/19700101833stveelV.jpeg" alt=""/><p><i>重庆口岸业务移动互联服务辅助系统</i></li></a>
+                     </ul>
+          <ul>
+          <h3>测试项目</h3>
+          <a href="#" title="<p>重庆航空口岸检验检疫旅检辅助系统</p>"><li><p><img style="vertical-align:middle; margin-right:10px;" src="upload/19700101833stQDrfx.jpeg" alt=""/><p><i>重庆航空口岸检验检疫旅检辅助系统</i></li></a>
+           <a href="#" title="<p>　　该系统采用电子化的快件通关模式来代替当前纸质模式，提高了快件通关效率、降低企业通关成本。</p>"><li><p><img style="vertical-align:middle; margin-right:10px;" src="upload/19700101833stDuMMm.jpeg" alt=""/><p><i>重庆国际快件海关电子化管理辅助系统</i></li></a>
+           <a href="#" title="<p>　　该系统服务机场国际航空快件中心，包括海关通关和物流监管两个主要部分，从新舱单系统中订阅快件舱单，形成电子底账，报关行通过该系统申报个人物品申报单，与底账比对，海关通过该系统进行审核、布控，并在分拣线查验和录入查验结果，进行征税、退运、移交缉私、放行等处理，快件公司通过系统申请核放、拍卡出区。</p>"><li><p><img style="vertical-align:middle; margin-right:10px;" src="upload/19700101833stNJHWQ.jpeg" alt=""/><p><i>重庆国际快件中心监管辅助系统</i></li></a>
+           			     <a href="http://demo.metinform.cn/cqlcl/site/index/index.action;jsessioni" target="_blank" title="<p>　　航空公司、船公司、物流公司通过拼箱网系统发布箱源信息，企业通过拼箱网进行订舱交易，解决集装箱箱源信息不对称，集装箱找不到适箱货源而空舱发船，或企业有少量货物找不到箱源而高价转运的问题，从而盘活外贸集装箱资源，降低企业物流成本。</p>">
+                 <li><p><img style="vertical-align:middle; margin-right:10px;" src="upload/19700101833stkicXn.jpeg" alt=""/><p><i>重庆多式联运交易服务辅助系统  （拼箱网）</i></li></a>
+                     </ul>
+        </li>
+        <li class="news"> <a href="news.php?open_Id=1">
+          <h2>新闻中心<i>+</i></h2>
+          </a>
+          <div class="news_banner">
+            <div class="move">
+              <div class="moveDesc">
+                        <ul>
+                          <li><a href="news.php?open_Id=2&id=728"><img src="upload/19700101833stHwUkH.jpeg" alt=""/></a></li>
+                            <li><a href="news.php?open_Id=2&id=615"><img src="upload/19700101833stCBamM.jpeg" alt=""/></a></li>
+                            <li><a href="news.php?open_Id=2&id=174"><img src="upload/19700101833stLRhWY.jpeg" alt=""/></a></li>
+                          </ul>
+              </div>
+              <!--moveDesc-->
+              <div class="moveBar">
+                <ul>
+                  <li class="current">1</li>
+                  <li>2</li>
+                  <li>3</li>
+                </ul>
+              </div>
+              <!--moveBar--> 
+            </div>
+            <!--move-->
+            <div class="news_info">
+              <ul>
+                        <a href="news.php?open_Id=1&id=728"><li class="on">铁路口岸进出口再创新高</li></a>
+                                <li>市政府口岸办开展全市跨境电子商务业务宣介活动</li>
+                        <li>重庆一季度对外投资预计约43亿美元</li>
+                      </ul>
+            </div>
+          </div>
+          <!--news_banner-->
+          <div class="news_con">
+              <!-- 
+            <ul class="news_con_nav">
+              <li ><a style="cursor:pointer"  id="kouan">口岸新闻</a></li>
+              <i>|</i>
+              <li><a style="cursor:pointer" id="haiguan">海关资讯</a></li>
+              <i>|</i>
+              <li><a style="cursor:pointer" id="jianyan">检验检疫</a></li>
+              <i>|</i>
+              <li><a style="cursor:pointer" id="wuliu">物流信息</a></li>
+            </ul>
+               -->
+                  <ul class="news_list" id="news_lista">
+                    <a href="news.php?open_Id=2&id=762"><li>
+                <p style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">打通内陆联通世界的“梗阻”——中新（重庆）战略性互联互通示范项目一周年观察</p>
+                <span>2017-02-07</span></li></a>
+                    <a href="news.php?open_Id=2&id=761"><li>
+                <p style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">商务部合作司负责人谈2016年我国对外投资合作情况</p>
+                <span>2017-02-07</span></li></a>
+                    <a href="news.php?open_Id=2&id=759"><li>
+                <p style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">渝五企获中国出口示范殊荣</p>
+                <span>2017-01-12</span></li></a>
+                    <a href="news.php?open_Id=2&id=758"><li>
+                <p style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">打通内陆联通世界的“梗阻”——中新（重庆）战略性互联互通示范项目一周年观察</p>
+                <span>2017-01-12</span></li></a>
+                    <a href="news.php?open_Id=2&id=756"><li>
+                <p style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">我国拟推出外商投资准入负面清单</p>
+                <span>2016-12-13</span></li></a>
+                  </ul>
+                  <ul class="news_list" id="news_listb">
+      
+              <a href="news.php?open_Id=2&id=287"><li>
+                <p>中华人民共和国海关法</p>
+                <span>2015-07-23</span></li></a>
+      
+              <a href="news.php?open_Id=3&id=275"><li>
+                <p>海关通关一体化改革红利释放 叠加效应显现</p>
+                <span>2015-07-21</span></li></a>
+      
+              <a href="news.php?open_Id=3&id=268"><li>
+                <p>创新海关监管手段 打通跨境电商提速“新通道”</p>
+                <span>2015-07-17</span></li></a>
+      
+              <a href="news.php?open_Id=3&id=266"><li>
+                <p>海关总署：正在制定跨境电子商务零售进口税收政策</p>
+                <span>2015-07-16</span></li></a>
+      
+              <a href="news.php?open_Id=1&id=259"><li>
+                <p>海关总署：上半年中国对“一带一路”国家贸易近3万亿</p>
+                <span>2015-07-14</span></li></a>
+                  </ul>
+                  <ul class="news_list" id="news_listc">
+                    <a href="news.php?open_Id=2&id=288"><li>
+                <p>中华人民共和国国境卫生检疫法</p>
+                <span>2015-07-23</span></li></a>
+                    <a href="news.php?open_Id=2&id=289"><li>
+                <p>中华人民共和国动物防疫法</p>
+                <span>2015-07-23</span></li></a>
+                    <a href="news.php?open_Id=2&id=290"><li>
+                <p>中华人民共和国进出口商品检验法</p>
+                <span>2015-07-23</span></li></a>
+                    <a href="news.php?open_Id=5&id=185"><li>
+                <p>2014年社会物流总额预计超210万亿</p>
+                <span>2015-03-31</span></li></a>
+                    <a href="news.php?open_Id=5&id=186"><li>
+                <p>重庆形成“水铁公”联运物流体系 长江中游货物21天直达欧洲</p>
+                <span>2015-03-31</span></li></a>
+                  </ul>
+                  <ul class="news_list" id="news_listd">
+              <a href="news.php?open_Id=5&id=274">
+              <li>
+                <p>重庆上半年货物运输量累计完成5亿吨 同比增长7.8%</p>
+                <span>2015-07-21</span></li></a>
+              <a href="news.php?open_Id=5&id=258">
+              <li>
+                <p>铁水联运 公水联运 水水转运 将助果园港成内陆国际物流枢纽</p>
+                <span>2015-07-14</span></li></a>
+              <a href="news.php?open_Id=5&id=185">
+              <li>
+                <p>2014年社会物流总额预计超210万亿</p>
+                <span>2015-03-31</span></li></a>
+              <a href="news.php?open_Id=5&id=186">
+              <li>
+                <p>重庆形成“水铁公”联运物流体系 长江中游货物21天直达欧洲</p>
+                <span>2015-03-31</span></li></a>
+              <a href="news.php?open_Id=5&id=188">
+              <li>
+                <p>重庆市着力完善城市商贸物流布局</p>
+                <span>2015-03-31</span></li></a>
+                  </ul>     
+          </div>
+        </li>
+        <li class="dynamic"> <a href="news.php?open_Id=2">
+          <h2>政策法规<i>+</i></h2>
+          </a>
+              <!-- <div class="dynamic_show">
+            <div class="dynamic_show_img"><a href="news.php?open_Id=2&id=723"><img src="upload/19700101833stdVPHH.jpeg" alt=""/></a></div>
+            <a href="news.php?open_Id=2&id=723"><div class="dynamic_show_con"> <b>海关总署公告2016年第55号（关于进口化妆品消费税政策调整执行事宜的公告）</b></a>
+              <a href="news.php?open_Id=2&id=723"><div class="cont_jq"><p><span style="font-size: 18px;">经国务院批准，对化妆品消费税政策进行调整（具体内容见财政部网站）。现就进口环节执行事宜公告如下：</span></p><p><span style="font-size: 18px;">　　一、进口货物收货人及其代理人申报时，应按以下规定填报报关单：</span></p><p><span style="font-size: 18px;">　　（一）化妆品的第一法定计量单位为“千克”，第二法定计量单位为“件”。（商品编码详见附件）</span></p><p><span style="font-size: 18px;">　　（二）包装标注含量以重量计的化妆品，按照净含量申报第一法定数量，即不包括内层包装物和外层包装物的重量；按照有独立包装的瓶（罐）数量申报第二法定数量。</span></p><p><span style="font-size: 18px;">　　（三）包装标注含量以体积计的化妆品，按照净含量1升=1千克的换算关系申报第一法定数量，即不包括内层包装物和外层包装物的体积；按照有独立包装的瓶（罐）数量申报第二法定数量。</span></p><p><span style="font-size: 18px;">　　（四）包装标注规格为“片”或“张”的化妆品，按照商品净重申报第一法定数量；按照“片”或“张”的数量申报第二法定数量。</span></p><p><span style="font-size: 18px;">　　二、海关总署2016年第20号公告第三十六条第四项第二目内容同时废止。</span></p><p><span style="font-size: 18px;">　　本公告自2016年10月1日起执行。<br/><br/></span></p><p><span style="font-size: 18px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></p><table id="ess_ctr126755_ModuleContent" class="ModCInfoC" width="100%" cellspacing="0" cellpadding="0"><tbody><tr class="firstRow"><td><p><span style="font-size: 18px;"></span></p><p style="text-align:right;"><span style="font-size: 18px;">海关总署</span></p><p style="text-align:right;"><span style="font-size: 18px;">　　2016年9月30日</span></p><p><br/></p></td></tr></tbody></table><p><span style="font-size: 18px;">&nbsp;</span><br/></p></div></a>
+            </div>
+          </div>  -->    
+                <ul>
+                  <li>
+              <a href="news.php?open_Id=2&id=723"><p style="width:212px; white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">海关总署公告2016年第55号（关于进口化妆品消费税政策调整执行事宜的公告）</p></a>
+              <span>2016-09-30</span></li>
+                 <li>
+              <a href="news.php?open_Id=2&id=280"><p style="width:212px; white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">口岸法律法规汇编</p></a>
+              <span>2015-07-23</span></li>
+                 <li>
+              <a href="news.php?open_Id=2&id=281"><p style="width:212px; white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">中华人民共和国进出口商品检验法 实施条例</p></a>
+              <span>2015-07-23</span></li>
+                 <li>
+              <a href="news.php?open_Id=2&id=282"><p style="width:212px; white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">国际航行船舶进出中华人民共和国 口岸检查办法</p></a>
+              <span>2015-07-23</span></li>
+                 <li>
+              <a href="news.php?open_Id=2&id=283"><p style="width:212px; white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">中华人民共和国国境卫生检疫法实施细则</p></a>
+              <span>2015-07-23</span></li>
+               </ul>
+        </li>
+      </ul>
+    </div>
+    <!--main_con-->
+      <div class="main_con">
+      <div class="main_con_item">
+        <ul>
+              <li>
+            <div class="main_con_icon"><a href="http://bf.cqeport.gov.cn/" target="_blank"><img src="upload/19700101833stMYAfD.jpeg"  /></div>
+            <div class="main_con_itemFont" style="width:150px; white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><a href="http://bf.cqeport.gov.cn/" target="_blank">重庆边防出境旅行团网上报检系统</a></div>
+          </li>
+               <li>
+            <div class="main_con_icon"><a href="http://183.230.7.163/pdms_lnd/" target="_blank"><img src="upload/19700101833steCMpl.jpeg"  /></div>
+            <div class="main_con_itemFont" style="width:150px; white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><a href="http://183.230.7.163/pdms_lnd/" target="_blank">重庆整车口岸辅助服务系统</a></div>
+          </li>
+               <li>
+            <div class="main_con_icon"><a href="http://113.204.136.5/CQDZYD/LoginZBQ.aspx" target="_blank"><img src="upload/19700101833stEDSGu.jpeg"  /></div>
+            <div class="main_con_itemFont" style="width:150px; white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><a href="http://113.204.136.5/CQDZYD/LoginZBQ.aspx" target="_blank">重庆转关运抵及二线运抵电子报告系统</a></div>
+          </li>
+               <li>
+            <div class="main_con_icon"><a href="http://218.70.16.165/pdms_ys/" target="_blank"><img src="upload/19700101833stJRbNx.jpeg"  /></div>
+            <div class="main_con_itemFont" style="width:150px; white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><a href="http://218.70.16.165/pdms_ys/" target="_blank">“渝深快线区域联动”通关服务辅助系统</a></div>
+          </li>
+               <li>
+            <div class="main_con_icon"><a href="http://218.70.16.165/mft/index.aspx" target="_blank"><img src="upload/19700101833striYWT.jpeg"  /></div>
+            <div class="main_con_itemFont" style="width:150px; white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><a href="http://218.70.16.165/mft/index.aspx" target="_blank">重庆新舱单管理服务辅助系统</a></div>
+          </li>
+               <li>
+            <div class="main_con_icon"><a href="http://183.230.7.163/pdms_port/default.aspx" target="_blank"><img src="upload/19700101833steaNDn.jpeg"  /></div>
+            <div class="main_con_itemFont" style="width:150px; white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><a href="http://183.230.7.163/pdms_port/default.aspx" target="_blank">重庆航空物流综合服务辅助系统</a></div>
+          </li>
+               <li>
+            <div class="main_con_icon"><a href="" target="_blank"><img src="upload/19700101833stmsAMH.jpeg"  /></div>
+            <div class="main_con_itemFont" style="width:150px; white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><a href="" target="_blank">电子口岸AXWAY数据交换平台</a></div>
+          </li>
+               <li>
+            <div class="main_con_icon"><a href="" target="_blank"><img src="upload/19700101833stQDrfx.jpeg"  /></div>
+            <div class="main_con_itemFont" style="width:150px; white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><a href="" target="_blank">重庆航空口岸检验检疫旅检辅助系统</a></div>
+          </li>
+               <li>
+            <div class="main_con_icon"><a href="" target="_blank"><img src="upload/19700101833stDuMMm.jpeg"  /></div>
+            <div class="main_con_itemFont" style="width:150px; white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><a href="" target="_blank">重庆国际快件海关电子化管理辅助系统</a></div>
+          </li>
+               <li>
+            <div class="main_con_icon"><a href="http://demo.metinform.cn/cqlcl/site/index/index.action;jsessioni" target="_blank"><img src="upload/19700101833stkicXn.jpeg"  /></div>
+            <div class="main_con_itemFont" style="width:150px; white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><a href="http://demo.metinform.cn/cqlcl/site/index/index.action;jsessioni" target="_blank">重庆多式联运交易服务辅助系统  （拼箱网）</a></div>
+          </li>
+               <li>
+            <div class="main_con_icon"><a href="http://113.204.136.9/cqapp/index.aspx" target="_blank"><img src="upload/19700101833stveelV.jpeg"  /></div>
+            <div class="main_con_itemFont" style="width:150px; white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><a href="http://113.204.136.9/cqapp/index.aspx" target="_blank">重庆口岸业务移动互联服务辅助系统</a></div>
+          </li>
+               <li>
+            <div class="main_con_icon"><a href="" target="_blank"><img src="upload/19700101833stNJHWQ.jpeg"  /></div>
+            <div class="main_con_itemFont" style="width:150px; white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><a href="" target="_blank">重庆国际快件中心监管辅助系统</a></div>
+          </li>
+               <li>
+            <div class="main_con_icon"><a href="http://www.cqkjs.com" target="_blank"><img src="upload/19700101833stXnAGu.jpeg"  /></div>
+            <div class="main_con_itemFont" style="width:150px; white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><a href="http://www.cqkjs.com" target="_blank">重庆跨境贸易电子商务公共服务系统</a></div>
+          </li>
+               <li>
+            <div class="main_con_icon"><a href="http://61.186.251.106/yd/login.aspx" target="_blank"><img src="upload/19700101833stjtkvG.jpeg"  /></div>
+            <div class="main_con_itemFont" style="width:150px; white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><a href="http://61.186.251.106/yd/login.aspx" target="_blank">重庆水港出口运抵报告传输系统</a></div>
+          </li>
+               <li>
+            <div class="main_con_icon"><a href="http://183.230.7.163/pdms_lnd/" target="_blank"><img src="upload/19700101833stkFGqp.jpeg"  /></div>
+            <div class="main_con_itemFont" style="width:150px; white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><a href="http://183.230.7.163/pdms_lnd/" target="_blank">重庆铁路口岸通关服务辅助系统</a></div>
+          </li>
+             </ul>
+      </div>
+      <div class="main_con_btn_close"><img src="img/index/gjwl/enterprise/btn_close.png"  /></div>
+    </div>
+    <div class="main_con">
+      <div class="main_con_item">
+    <ul>
+            </ul>
+      </div>
+      <div class="main_con_btn_close"><img src="img/index/gjwl/enterprise/btn_close.png"  /></div>
+    </div>
+    </div>
+    <div class="main_con">
+      <div class="main_con_item">
+    <ul>
+            </ul>
+      </div>
+      <div class="main_con_btn_close"><img src="img/index/gjwl/enterprise/btn_close.png"/></div>
+    </div>
+    <div class="main_con">
+      <div class="main_con_item">
+   <ul>
+            </ul>
+      </div>
+      <div class="main_con_btn_close"><img src="img/index/gjwl/enterprise/btn_close.png"  /></div>
+    </div>
+  
+    <div class="main_con">
+      <div class="main_con_item">
+    <ul>
+            </ul>
+      </div>
+      <div class="main_con_btn_close"><img src="img/index/gjwl/enterprise/btn_close.png"  /></div>
+    </div>
+  
+    <div class="main_con">
+      <div class="main_con_item">
+     <ul>
+            </ul>
+      </div>
+      <div class="main_con_btn_close"><img src="img/index/gjwl/enterprise/btn_close.png"  /></div>
+    </div>
+  </div>
+  <!--main-->
+  <!--div class="location">
+  <div style="width:1000px;">
+    <div class="loc_left">
+      <p>重庆市江北区远航大道88号保税港区水港功能区综合服务大楼22楼</p>
+    </div>
+    <ul>
+      <li><a href="cusCenter.php?open_Id=0">办事指南</a></li>
+      <li><a href="cusCenter.php?open_Id=1">常见问题</a></li>
+      <li><a href="cusCenter.php?open_Id=2">下载中心</a></li>
+      <li><a href="item.php?open_Id=2">APP应用</a></li>
+      <li><a href="other.php?open_Id=2">在线留言</a></li>
+      <li><a href="item.php">实用工具</a></li>
+    </ul>
+    </div>
+  </div>
+  <!--location-->
+  <!--div class="links">
+    <ul>
+      <li>友情链接<i>&nbsp;|&nbsp;Links</i></li>
+      <li>
+<select id="commLinks1" onchange="javascript:myLinksChange('commLinks1');" >
+                        <option value="" selected="selected">国家部委网站</option>
+                        <option value="http://www.gov.cn">中央政府门户网站</option>
+                        <option value="http://www.mfa.gov.cn/chn">外交部</option>
+                        <option value="http://www.mps.gov.cn">公安部</option>
+                        <option value="http://www.mwr.gov.cn">水利部</option>
+                        <option value="http://www.ccnt.gov.cn">文化部</option>
+                        <option value="http://www.most.gov.cn/">科学技术部</option>
+                        <option value="http://www.molss.gov.cn/">劳动和社会保障部</option>
+                        <option value="http://www.cin.gov.cn/">建设部</option>
+                        <option value="http://www.seac.gov.cn/">国家民族事务委员会</option>
+                        <option value="http://www.sara.gov.cn/">国家宗教事务局</option>
+                        <option value="http://www.moc.gov.cn/">交通部</option>
+                        <option value="http://www.china-mor.gov.cn">铁道部</option>
+                        <option value="http://www.mii.gov.cn/">信息产业部</option>
+                        <option value="http://www.agri.gov.cn">农业部</option>
+                        <option value="http://www.mca.gov.cn">民政部</option>
+                        <option value="http://www.moe.edu.cn">教育部</option>
+                        <option value="http://www.sdpc.gov.cn">国家发展和改革委员会</option>
+                        <option value="http://www.mop.gov.cn/">人事部</option>
+                        <option value="http://www.costind.gov.cn">国防科学技术工业委员会</option>
+                        <option value="http://www.mofcom.gov.cn">商务部</option>
+                        <option value="http://www.legalinfo.gov.cn">司法部</option>
+                        <option value="http://www.mof.gov.cn/">财政部</option>
+                        <option value="http://www.mlr.gov.cn/">国土资源部</option>
+                        <option value="http://www.moh.gov.cn/">卫生部</option>
+                        <option value="http://www.chinapop.gov.cn">国家人口和计划生育委员会</option>
+                        <option value="http://www.pbc.gov.cn">中国人民银行</option>
+                        <option value="http://www.audit.gov.cn/cysite/chpage/c1/">审计署</option>
+                        <option value="http://www.gapp.gov.cn">国家新闻出版署</option>
+                        <option value="http://www.customs.gov.cn">海关总署</option>
+                        <option value="http://www.aqsiq.gov.cn">国家质量监督检验检疫总局</option>
+                        <option value="http://www.cnta.com">国家旅游局</option>
+                        <option value="http://www.stats.gov.cn">国家统计局</option>
+                        <option value="http://www.sport.gov.cn">国家体育总局</option>
+                        <option value="http://www.caac.gov.cn/">中国民用航空总局</option>
+                        <option value="http://www.zhb.gov.cn/">国家环境保护总局</option>
+                        <option value="http://www.chinatax.gov.cn/">中国国家税务总局</option>
+                        <option value="http://www.saic.gov.cn/">国家工商行政管理总局</option>
+                        <option value="http://www.ncac.gov.cn/">国家版权局</option>
+                        <option value="http://www.ggj.gov.cn/">国务院机关事务管理局</option>
+                        <option value="http://www.sarft.gov.cn/">国家广播电影电视总局</option>
+                        <option value="http://www.forestry.gov.cn/">国家林业局</option>
+                        <option value="http://www.sda.gov.cn/">国家食品药品监督管理局</option>
+                        <option value="http://www.sipo.gov.cn/">国家知识产权局</option>
+                        <option value="http://www.chinasafety.gov.cn/">国家安全生产监督管理局</option>
+                        <option value="http://www.sasac.gov.cn/">国务院国有资产监督管理委员会</option>
+                        <option value="http://www.chinacoal-safety.gov.cn/">国家煤矿安全监察局</option>
+                        <option value="http://www.3g.gov.cn">国务院三峡工程建设委员会</option>
+                        <option value="http://www.gwytb.gov.cn/">国务院台湾事务</option>
+                        <option value="http://www.chinawest.gov.cn/">国务院西部开发领导小组</option>
+                        <option value="http://www.chinalaw.gov.cn/">国务院法制办公室</option>
+                        <option value="http://www.nsbd.gov.cn/">国务院南水北调工程建设委员会</option>
+                        <option value="http://www.drc.gov.cn/">国务院发展研究中心</option>
+                        <option value="http://www.ggj.gov.cn/">国务院机关事务管理局</option>
+                        <option value="http://www.gqb.gov.cn/">国侨办</option>
+                        <option value="http://www.hmo.gov.cn/public/">港澳办</option>
+                        <option value="http://www.gwytb.gov.cn/">台办</option>
+                        <option value="http://www.locpg.gov.cn/">中央政府驻港联络办</option>
+                        <option value="http://www.chinalaw.gov.cn/index.jsp">法制办</option>
+                        <option value="http://www.scio.gov.cn">新闻办</option>
+                        <option value="http://www.cma.gov.cn">中国气象局</option>
+                        <option value="http://www.cashq.ac.cn">中国科学院</option>
+                        <option value="http://www.cass.net.cn">中国社会科学院</option>
+                        <option value="http://www.circ.gov.cn/">中国保险监督管理委员会</option>
+                        <option value="http://www.nsfc.gov.cn/">国家自然科学基金委员会</option>
+                        <option value="http://www.csrc.gov.cn/">中国证券监督管理委员会</option>
+                        <option value="http://www.cea.gov.cn/">中国地震局</option>
+                        <option value="http://www.xinhua.org/">新华通讯社</option>
+                        <option value="http://www.cae.cn/">中国工程院</option>
+                        <option value="http://www.nsa.gov.cn/">国家行政学院</option>
+                        <option value="http://www.cbrc.gov.cn/">中国银行业监督管理委员会</option>
+                        <option value="http://www.safe.gov.cn">国家外汇管理局</option>
+                        <option value="http://www.soa.gov.cn/">国家海洋局</option>
+                        <option value="http://www.satcm.gov.cn/">国家中医药管理局</option>
+                        <option value="http://www.chinapost.gov.cn/">国家邮政局</option>
+                        <option value="http://www.cnsa.gov.cn/">国家航天局</option>
+                        <option value="http://www.safea.gov.cn/">国家外国专家局</option>
+                        <option value="http://www.tobacco.gov.cn/">国家烟草专卖局</option>
+                        <option value="http://www.grain.gov.cn/">国家粮食局</option>
+                        <option value="http://www.sbsm.gov.cn/">国家测绘局</option>
+                        <option value="http://www.sach.gov.cn/">国家文物局</option>
+                        <option value="http://www.caea.gov.cn/">国家原子能机构</option>
+                        <option value="http://www.saac.gov.cn/">国家档案局</option>
+                        <option value="http://www.idcpc.org.cn/">中共中央对外联络部</option>
+                        <option value="http://www.nlc.gov.cn/">中国国家图书馆</option>
+                        <option value="http://www.mei.net.cn/">中国机械工业联合会</option>
+                        <option value="http://www.clii.com.cn/">中国轻工业联合会</option>
+                        <option value="http://www.bm.cei.gov.cn/">中国建筑材料工业协会</option>
+                        <option value="http://www.mmi.gov.cn">中国钢铁工业协会</option>
+                        <option value="http://www.acfic.com.cn/">中华全国工商业联合会</option>
+                        <option value="http://www.chinacoal.gov.cn/">中国煤炭工业协会</option>
+                        <option value="http://www.ctei.gov.cn/">中国纺织工业协会</option>
+                        <option value="http://www.chinacoop.gov.cn/">中华全国供销合作总社</option>
+                        <option value="http://www.cpcia.org.cn/">中国石油和化学工业协会</option>
+                        <option value="http://www.sic.gov.cn/">国家信息中心</option>
+                        <option value="http://www.cctb.net/">中共中央编译局</option>
+                        <option value="http://www.acftu.org/">中华全国总工会</option>
+                        <option value="http://www.ccyl.org.cn/">共青团中央</option>
+                        <option value="http://www.women.org.cn/">中华全国妇女联合会</option>
+                        <option value="http://www.acyf.org.cn">中华全国青年联合会</option>
+                        <option value="http://www.ccyl.org.cn/xl/">中华全国学生联合会</option>
+                        <option value="http://www.chinaql.org/">中华全国归国华侨联合会</option>
+                        <option value="http://www.tailian.org.cn/">中华全国台湾同胞联谊会</option>
+                        <option value="http://www.cast.org.cn/">中国科学技术协会</option>
+                        <option value="http://www.cflac.org.cn/">中国文学艺术界联合会</option>
+                        <option value="http://www.cdpf.org.cn/">中国残疾人联合会</option>
+                        <option value="http://www.ccpit.org/">中国国际贸易促进委员会</option>
+                        <option value="http://www.cca.org.cn/">中国消费者协会</option>
+</select>
+      </li>
+
+       <li>
+<select id="commLinks2" onchange="javascript:myLinksChange('commLinks2');" >
+                          <option value="" selected="selected">共建单位</option>
+                          <OPTION value="http://www.cqeport.gov.cn/about.php?open_Id=0">口岸办</OPTION> 
+                          <OPTION value="http://www.ft.cq.cn/">外经贸委</OPTION> 
+                          <OPTION value="http://chongqing.customs.gov.cn/">重庆海关</OPTION>
+                          <OPTION value="http://www.cqciq.gov.cn/">检验检疫</OPTION>
+                          <OPTION value="http://cqcz.cq.gov.cn/">财政局</OPTION>
+                          <OPTION value="http://www.cqsw.gov.cn/">国税局</OPTION>
+                          <OPTION value="http://www.safe.gov.cn/">外管局</OPTION> 
+                          <OPTION value="http://www.cqdpc.gov.cn/">发改委</OPTION>
+                          <OPTION value="http://www.cqjt.gov.cn/">市交委</OPTION>
+                          <OPTION value="http://wjx.cq.gov.cn/">信产局</OPTION> 
+                          <OPTION value="http://www.cqa.cn/">机场集团</OPTION>
+                          <OPTION value="http://www.china-mor.gov.cn/zwzc/zzjg/tlj/201012/t20101228_791.html">成铁渝办</OPTION>
+
+</select>
+      </li>
+      <li>
+<select id="commLinks3" onchange="javascript:myLinksChange('commLinks3');" >
+                        <option value="" selected="selected">市级部门网站</option>
+                        <option value="http://www.cqdpc.gov.cn/">市发改委</option>
+                        <option value="http://wjj.cq.gov.cn/">市经委</option>
+                        <option value="http://www.cqedu.gov.cn/">市教委</option>
+                        <option value="http://wkj.cq.gov.cn/">市科委</option>
+                        <option value="http://wmz.cq.gov.cn/">市民宗委</option>
+                        <option value="http://jga.cq.gov.cn/">市公安局</option>
+                        <option value="http://jjc.cq.gov.cn/">市监察局</option>
+                        <option value="http://jmz.cq.gov.cn">市民政局</option>
+                        <option value="http://jsf.cq.gov.cn/">市司法局</option>
+                        <option value="http://jcz.cq.gov.cn">市财政局</option>
+                        <option value="http://www.cqpa.gov.cn">市人事局</option>
+                        <option value="http://jld.cq.gov.cn/">市劳动保障局</option>
+                        <option value="http://www.cqgtfw.gov.cn/">市国土房管局</option>
+                        <option value="http://wjs.cq.gov.cn/">市建委</option>
+                        <option value="http://www.cqupb.gov.cn/">市规划局</option>
+                        <option value="http://wsz.cq.gov.cn/">市市政委</option>
+                        <option value="http://wjt.cq.gov.cn/">市交委</option>
+                        <option value="http://jxc.cq.gov.cn/">市信产局</option>
+                        <option value="http://www.cqwater.gov.cn/">市水利局</option>
+                        <option value="http://www.cqagri.gov.cn/zw/">市农业局</option>
+                        <option value="http://wsy.cq.gov.cn/">市商委</option>
+                        <option value="http://www.ft.cq.cn/">市外经贸委</option>
+                        <option value="http://www.cqcrtv.gov.cn/">市文广局</option>
+                        <option value="http://www.cqwsj.gov.cn/">市卫生局</option>
+                        <option value="http://www.cqrk.gov.cn/">市人口计生委</option>
+                        <option value="http://jsj.cq.gov.cn/">市审计局</option>
+                        <option value="http://jym.cq.gov.cn/">市移民局</option>
+                        <option value="http://fao.cq.gov.cn/">市政府外事办</option>
+                        <option value="http://www.sasaccq.gov.cn/">市国资委</option>
+                        <option value="http://jds.cq.gov.cn/">市地税局</option>
+                        <option value="http://www.cepb.gov.cn/">市环保局</option>
+                        <option value="http://jty.cq.gov.cn">市体育局</option>
+                        <option value="http://jtj.cq.gov.cn/">市统计局</option>
+                        <option value="http://jgs.cq.gov.cn">市工商局</option>
+                        <option value="http://www.cqppb.gov.cn/">市新闻出版局</option>
+                        <option value="http://jliny.cq.gov.cn/">市林业局</option>
+                        <option value="http://jzj.cq.gov.cn/">市质监局</option>
+                        <option value="http://jyj.cq.gov.cn/">市食品药品监管局</option>
+                        <option value="http://jly.cq.gov.cn/">市旅游局</option>
+                        <option value="http://jls.cq.gov.cn">市粮食局</option>
+                        <option value="http://bnc.cq.gov.cn">市农办</option>
+                        <option value="http://bfp.cq.gov.cn">市扶贫办</option>
+                        <option value="http://www.cqipo.gov.cn/">市知识产权局</option>
+                        <option value="http://bqw.cq.gov.cn">市侨办</option>
+                        <option value="http://www.cqfzb.gov.cn/">市政府法制办</option>
+                        <option value="http://jda.cq.gov.cn/">市档案局</option>
+                        <option value="http://jjg.cq.gov.cn/">市机关事务局</option>
+                        <option value="http://jwj.cq.gov.cn/">市物价局</option>
+                        <option value="http://jxq.cq.gov.cn/">市中小企业局</option>
+                        <option value="http://jjy.cq.gov.cn/">市监狱管理局</option>
+                        <option value="http://bnz.cq.gov.cn">市农综办</option>
+                        <option value="http://brf.cq.gov.cn">市人防办</option>
+                        <option value="http://www.cqylj.gov.cn/">市园林局</option>
+                        <option value="http://www.cqawb.gov.cn">市爱卫办</option>
+                        <option value="http://jnj.cq.gov.cn/">市农机局</option>
+                        <option value="http://www.cqcoop.gov.cn/">市供销社</option>
+                        <option value="http://jaj.cq.gov.cn/">市安监局</option>
+                        <option value="http://www.cqsw.gov.cn/">市国税局</option>
+                        <option value="http://www.cqmb.gov.cn">市气象局</option>
+                        <option value="http://www.cqca.gov.cn/">市通信管理局</option>
+                        <option value="http://dzj.cq.gov.cn">市地震局</option>
+                        <option value="http://www.cqmj.gov.cn/">重庆煤监局</option>
+                        <option value="http://bzs.cq.gov.cn/">市招考办</option>
+                        <option value="http://ghj.cq.gov.cn">市港航局</option>
+                        <option value="http://whsc.cq.gov.cn/">市文化执法总队</option>
+                        <option value="http://jtzf.cq.gov.cn">市交通执法总队</option>
+                        <option value="http://jbm.cq.gov.cn/">市保密局</option>
+
+</select>
+      </li>
+      <li>
+<select id="commLinks4" onchange="javascript:myLinksChange('commLinks4');" >
+                           <option value="" selected="selected">各地口岸网站</option>
+            			 <OPTION value="http://www.bjeport.gov.cn/">北京电子口岸</OPTION> <OPTION 
+                          value="http://www.szeport.gov.cn/">深圳电子口岸</OPTION> 
+                          <OPTION 
+                          value="http://www.gzeport.com/">广州电子口岸</OPTION> 
+                          <OPTION value="http://www.sdeport.com/homepage/mpages/index.aspx">山东电子口岸</OPTION> <OPTION 
+                          value="http://www.dleport.gov.cn/">大连电子口岸</OPTION> 
+                          <OPTION 
+                          value="http://hn-eport.gov.cn/">湖南电子口岸</OPTION> 
+                          <OPTION 
+                          value="http://www.aheport.gov.cn/">安徽电子口岸</OPTION> 
+                          <OPTION 
+                          value="http://www.jmeport.gov.cn/">江门电子口岸</OPTION> 
+                          <OPTION 
+                          value="http://www.hb-eport.gov.cn/">湖北电子口岸</OPTION> 
+                          <OPTION 
+                          value="http://www.gbeport.gov.cn/">拱北电子口岸</OPTION> 
+                          <OPTION 
+                          value="http://www.cdeport.gov.cn/">四川电子口岸</OPTION> 
+                          <OPTION 
+                          value="http://www.zjeport.gov.cn/">湛江电子口岸</OPTION> 
+                          <OPTION 
+                          value="http://www.nbeport.gov.cn/">宁波电子口岸</OPTION> 
+                          <OPTION 
+                          value="http://www.eport.sh.cn/cms/">上海电子口岸</OPTION> 
+                          <OPTION 
+                          value="http://www.tjeport.gov.cn/default.htm">天津电子口岸</OPTION> 
+                          <OPTION 
+                          value="http://www.sjzeport.cn/">河北电子口岸</OPTION> 
+                          <OPTION 
+                          value="http://www.jseport.gov.cn/">江苏电子口岸</OPTION> 
+                          <OPTION 
+                          value="http://www.fjeport.gov.cn/">福建电子口岸</OPTION> 
+                          <OPTION 
+                          value="http://www.steport.gov.cn/steport/default.aspx">粤东电子口岸</OPTION> 
+                          <OPTION 
+                          value="http://www.eport.jx.cn/">江西电子口岸</OPTION> 
+                          <OPTION 
+                          value="http://www1.chinaport.gov.cn/subeport/xinjiang/pub/">新疆电子口岸</OPTION> 
+                          <OPTION 
+                          value="http://www.hneport.gov.cn/">海南电子口岸</OPTION> 
+                          <OPTION 
+                          value="http://www.hhhteport.gov.cn/">内蒙古电子口岸</OPTION> 
+                          <OPTION 
+                          value="http://www.lneport.gov.cn/">辽宁电子口岸</OPTION> 
+                          <OPTION 
+                          value="http://www.zjport.gov.cn/">浙江电子口岸</OPTION> 
+                          <OPTION 
+                          value="http://www.zzeport.gov.cn/">河南电子口岸</OPTION> 
+                          <OPTION 
+                          value="http://www.gxeport.gov.cn/">广西电子口岸</OPTION> 
+                          <OPTION 
+                          value="http://www.yneport.gov.cn/">云南电子口岸</OPTION> 
+
+</select>
+      </li>
+
+<!--      <li>
+<select onchange="window.location.href=this.options[selectedIndex].value" >
+  <option value="http://www.86shichang.com" >其他类型网站</option>
+  <option value="http://www.yahoo.com" >雅虎</option>
+  <option value="http://www.baidu.com" >百度</option>
+</select>
+      </li>-->
+    <!--/ul>
+  </div>
+  
+</div>
+<!--wrap--> 
+<div class="bottom_wrap">
+	<div class="bottom_con">
+    	<ul>
+      <li>友情链接<i>&nbsp;|&nbsp;Links</i></li>
+      <li>&nbsp;&nbsp;&nbsp;&nbsp;
+<select id="commLinks1" onchange="javascript:myLinksChange('commLinks1');" >
+                        <option value="" selected="selected">国家部委网站</option>
+                        <option value="http://www.gov.cn">中央政府门户网站</option>
+                        <option value="http://www.mfa.gov.cn/chn">外交部</option>
+                        <option value="http://www.mps.gov.cn">公安部</option>
+                        <option value="http://www.mwr.gov.cn">水利部</option>
+                        <option value="http://www.ccnt.gov.cn">文化部</option>
+                        <option value="http://www.most.gov.cn/">科学技术部</option>
+                        <option value="http://www.molss.gov.cn/">劳动和社会保障部</option>
+                        <option value="http://www.cin.gov.cn/">建设部</option>
+                        <option value="http://www.seac.gov.cn/">国家民族事务委员会</option>
+                        <option value="http://www.sara.gov.cn/">国家宗教事务局</option>
+                        <option value="http://www.moc.gov.cn/">交通部</option>
+                        <option value="http://www.china-mor.gov.cn">铁道部</option>
+                        <option value="http://www.mii.gov.cn/">信息产业部</option>
+                        <option value="http://www.agri.gov.cn">农业部</option>
+                        <option value="http://www.mca.gov.cn">民政部</option>
+                        <option value="http://www.moe.edu.cn">教育部</option>
+                        <option value="http://www.sdpc.gov.cn">国家发展和改革委员会</option>
+                        <option value="http://www.mop.gov.cn/">人事部</option>
+                        <option value="http://www.costind.gov.cn">国防科学技术工业委员会</option>
+                        <option value="http://www.mofcom.gov.cn">商务部</option>
+                        <option value="http://www.legalinfo.gov.cn">司法部</option>
+                        <option value="http://www.mof.gov.cn/">财政部</option>
+                        <option value="http://www.mlr.gov.cn/">国土资源部</option>
+                        <option value="http://www.moh.gov.cn/">卫生部</option>
+                        <option value="http://www.chinapop.gov.cn">国家人口和计划生育委员会</option>
+                        <option value="http://www.pbc.gov.cn">中国人民银行</option>
+                        <option value="http://www.audit.gov.cn/cysite/chpage/c1/">审计署</option>
+                        <option value="http://www.gapp.gov.cn">国家新闻出版署</option>
+                        <option value="http://www.customs.gov.cn">海关总署</option>
+                        <option value="http://www.aqsiq.gov.cn">国家质量监督检验检疫总局</option>
+                        <option value="http://www.cnta.com">国家旅游局</option>
+                        <option value="http://www.stats.gov.cn">国家统计局</option>
+                        <option value="http://www.sport.gov.cn">国家体育总局</option>
+                        <option value="http://www.caac.gov.cn/">中国民用航空总局</option>
+                        <option value="http://www.zhb.gov.cn/">国家环境保护总局</option>
+                        <option value="http://www.chinatax.gov.cn/">中国国家税务总局</option>
+                        <option value="http://www.saic.gov.cn/">国家工商行政管理总局</option>
+                        <option value="http://www.ncac.gov.cn/">国家版权局</option>
+                        <option value="http://www.ggj.gov.cn/">国务院机关事务管理局</option>
+                        <option value="http://www.sarft.gov.cn/">国家广播电影电视总局</option>
+                        <option value="http://www.forestry.gov.cn/">国家林业局</option>
+                        <option value="http://www.sda.gov.cn/">国家食品药品监督管理局</option>
+                        <option value="http://www.sipo.gov.cn/">国家知识产权局</option>
+                        <option value="http://www.chinasafety.gov.cn/">国家安全生产监督管理局</option>
+                        <option value="http://www.sasac.gov.cn/">国务院国有资产监督管理委员会</option>
+                        <option value="http://www.chinacoal-safety.gov.cn/">国家煤矿安全监察局</option>
+                        <option value="http://www.3g.gov.cn">国务院三峡工程建设委员会</option>
+                        <option value="http://www.gwytb.gov.cn/">国务院台湾事务</option>
+                        <option value="http://www.chinawest.gov.cn/">国务院西部开发领导小组</option>
+                        <option value="http://www.chinalaw.gov.cn/">国务院法制办公室</option>
+                        <option value="http://www.nsbd.gov.cn/">国务院南水北调工程建设委员会</option>
+                        <option value="http://www.drc.gov.cn/">国务院发展研究中心</option>
+                        <option value="http://www.ggj.gov.cn/">国务院机关事务管理局</option>
+                        <option value="http://www.gqb.gov.cn/">国侨办</option>
+                        <option value="http://www.hmo.gov.cn/public/">港澳办</option>
+                        <option value="http://www.gwytb.gov.cn/">台办</option>
+                        <option value="http://www.locpg.gov.cn/">中央政府驻港联络办</option>
+                        <option value="http://www.chinalaw.gov.cn/index.jsp">法制办</option>
+                        <option value="http://www.scio.gov.cn">新闻办</option>
+                        <option value="http://www.cma.gov.cn">中国气象局</option>
+                        <option value="http://www.cashq.ac.cn">中国科学院</option>
+                        <option value="http://www.cass.net.cn">中国社会科学院</option>
+                        <option value="http://www.circ.gov.cn/">中国保险监督管理委员会</option>
+                        <option value="http://www.nsfc.gov.cn/">国家自然科学基金委员会</option>
+                        <option value="http://www.csrc.gov.cn/">中国证券监督管理委员会</option>
+                        <option value="http://www.cea.gov.cn/">中国地震局</option>
+                        <option value="http://www.xinhua.org/">新华通讯社</option>
+                        <option value="http://www.cae.cn/">中国工程院</option>
+                        <option value="http://www.nsa.gov.cn/">国家行政学院</option>
+                        <option value="http://www.cbrc.gov.cn/">中国银行业监督管理委员会</option>
+                        <option value="http://www.safe.gov.cn">国家外汇管理局</option>
+                        <option value="http://www.soa.gov.cn/">国家海洋局</option>
+                        <option value="http://www.satcm.gov.cn/">国家中医药管理局</option>
+                        <option value="http://www.chinapost.gov.cn/">国家邮政局</option>
+                        <option value="http://www.cnsa.gov.cn/">国家航天局</option>
+                        <option value="http://www.safea.gov.cn/">国家外国专家局</option>
+                        <option value="http://www.tobacco.gov.cn/">国家烟草专卖局</option>
+                        <option value="http://www.grain.gov.cn/">国家粮食局</option>
+                        <option value="http://www.sbsm.gov.cn/">国家测绘局</option>
+                        <option value="http://www.sach.gov.cn/">国家文物局</option>
+                        <option value="http://www.caea.gov.cn/">国家原子能机构</option>
+                        <option value="http://www.saac.gov.cn/">国家档案局</option>
+                        <option value="http://www.idcpc.org.cn/">中共中央对外联络部</option>
+                        <option value="http://www.nlc.gov.cn/">中国国家图书馆</option>
+                        <option value="http://www.mei.net.cn/">中国机械工业联合会</option>
+                        <option value="http://www.clii.com.cn/">中国轻工业联合会</option>
+                        <option value="http://www.bm.cei.gov.cn/">中国建筑材料工业协会</option>
+                        <option value="http://www.mmi.gov.cn">中国钢铁工业协会</option>
+                        <option value="http://www.acfic.com.cn/">中华全国工商业联合会</option>
+                        <option value="http://www.chinacoal.gov.cn/">中国煤炭工业协会</option>
+                        <option value="http://www.ctei.gov.cn/">中国纺织工业协会</option>
+                        <option value="http://www.chinacoop.gov.cn/">中华全国供销合作总社</option>
+                        <option value="http://www.cpcia.org.cn/">中国石油和化学工业协会</option>
+                        <option value="http://www.sic.gov.cn/">国家信息中心</option>
+                        <option value="http://www.cctb.net/">中共中央编译局</option>
+                        <option value="http://www.acftu.org/">中华全国总工会</option>
+                        <option value="http://www.ccyl.org.cn/">共青团中央</option>
+                        <option value="http://www.women.org.cn/">中华全国妇女联合会</option>
+                        <option value="http://www.acyf.org.cn">中华全国青年联合会</option>
+                        <option value="http://www.ccyl.org.cn/xl/">中华全国学生联合会</option>
+                        <option value="http://www.chinaql.org/">中华全国归国华侨联合会</option>
+                        <option value="http://www.tailian.org.cn/">中华全国台湾同胞联谊会</option>
+                        <option value="http://www.cast.org.cn/">中国科学技术协会</option>
+                        <option value="http://www.cflac.org.cn/">中国文学艺术界联合会</option>
+                        <option value="http://www.cdpf.org.cn/">中国残疾人联合会</option>
+                        <option value="http://www.ccpit.org/">中国国际贸易促进委员会</option>
+                        <option value="http://www.cca.org.cn/">中国消费者协会</option>
+</select>
+      </li>
+      <li>&nbsp;&nbsp;&nbsp;&nbsp;
+<select id="commLinks3" onchange="javascript:myLinksChange('commLinks3');" >
+                        <option value="" selected="selected">市级部门网站</option>
+                        <option value="http://www.cqdpc.gov.cn/">市发改委</option>
+                        <option value="http://wjj.cq.gov.cn/">市经委</option>
+                        <option value="http://www.cqedu.gov.cn/">市教委</option>
+                        <option value="http://wkj.cq.gov.cn/">市科委</option>
+                        <option value="http://wmz.cq.gov.cn/">市民宗委</option>
+                        <option value="http://jga.cq.gov.cn/">市公安局</option>
+                        <option value="http://jjc.cq.gov.cn/">市监察局</option>
+                        <option value="http://jmz.cq.gov.cn">市民政局</option>
+                        <option value="http://jsf.cq.gov.cn/">市司法局</option>
+                        <option value="http://jcz.cq.gov.cn">市财政局</option>
+                        <option value="http://www.cqpa.gov.cn">市人事局</option>
+                        <option value="http://jld.cq.gov.cn/">市劳动保障局</option>
+                        <option value="http://www.cqgtfw.gov.cn/">市国土房管局</option>
+                        <option value="http://wjs.cq.gov.cn/">市建委</option>
+                        <option value="http://www.cqupb.gov.cn/">市规划局</option>
+                        <option value="http://wsz.cq.gov.cn/">市市政委</option>
+                        <option value="http://wjt.cq.gov.cn/">市交委</option>
+                        <option value="http://jxc.cq.gov.cn/">市信产局</option>
+                        <option value="http://www.cqwater.gov.cn/">市水利局</option>
+                        <option value="http://www.cqagri.gov.cn/zw/">市农业局</option>
+                        <option value="http://wsy.cq.gov.cn/">市商委</option>
+                        <option value="http://www.ft.cq.cn/">市外经贸委</option>
+                        <option value="http://www.cqcrtv.gov.cn/">市文广局</option>
+                        <option value="http://www.cqwsj.gov.cn/">市卫生局</option>
+                        <option value="http://www.cqrk.gov.cn/">市人口计生委</option>
+                        <option value="http://jsj.cq.gov.cn/">市审计局</option>
+                        <option value="http://jym.cq.gov.cn/">市移民局</option>
+                        <option value="http://fao.cq.gov.cn/">市政府外事办</option>
+                        <option value="http://www.sasaccq.gov.cn/">市国资委</option>
+                        <option value="http://jds.cq.gov.cn/">市地税局</option>
+                        <option value="http://www.cepb.gov.cn/">市环保局</option>
+                        <option value="http://jty.cq.gov.cn">市体育局</option>
+                        <option value="http://jtj.cq.gov.cn/">市统计局</option>
+                        <option value="http://jgs.cq.gov.cn">市工商局</option>
+                        <option value="http://www.cqppb.gov.cn/">市新闻出版局</option>
+                        <option value="http://jliny.cq.gov.cn/">市林业局</option>
+                        <option value="http://jzj.cq.gov.cn/">市质监局</option>
+                        <option value="http://jyj.cq.gov.cn/">市食品药品监管局</option>
+                        <option value="http://jly.cq.gov.cn/">市旅游局</option>
+                        <option value="http://jls.cq.gov.cn">市粮食局</option>
+                        <option value="http://bnc.cq.gov.cn">市农办</option>
+                        <option value="http://bfp.cq.gov.cn">市扶贫办</option>
+                        <option value="http://www.cqipo.gov.cn/">市知识产权局</option>
+                        <option value="http://bqw.cq.gov.cn">市侨办</option>
+                        <option value="http://www.cqfzb.gov.cn/">市政府法制办</option>
+                        <option value="http://jda.cq.gov.cn/">市档案局</option>
+                        <option value="http://jjg.cq.gov.cn/">市机关事务局</option>
+                        <option value="http://jwj.cq.gov.cn/">市物价局</option>
+                        <option value="http://jxq.cq.gov.cn/">市中小企业局</option>
+                        <option value="http://jjy.cq.gov.cn/">市监狱管理局</option>
+                        <option value="http://bnz.cq.gov.cn">市农综办</option>
+                        <option value="http://brf.cq.gov.cn">市人防办</option>
+                        <option value="http://www.cqylj.gov.cn/">市园林局</option>
+                        <option value="http://www.cqawb.gov.cn">市爱卫办</option>
+                        <option value="http://jnj.cq.gov.cn/">市农机局</option>
+                        <option value="http://www.cqcoop.gov.cn/">市供销社</option>
+                        <option value="http://jaj.cq.gov.cn/">市安监局</option>
+                        <option value="http://www.cqsw.gov.cn/">市国税局</option>
+                        <option value="http://www.cqmb.gov.cn">市气象局</option>
+                        <option value="http://www.cqca.gov.cn/">市通信管理局</option>
+                        <option value="http://dzj.cq.gov.cn">市地震局</option>
+                        <option value="http://www.cqmj.gov.cn/">重庆煤监局</option>
+                        <option value="http://bzs.cq.gov.cn/">市招考办</option>
+                        <option value="http://ghj.cq.gov.cn">市港航局</option>
+                        <option value="http://whsc.cq.gov.cn/">市文化执法总队</option>
+                        <option value="http://jtzf.cq.gov.cn">市交通执法总队</option>
+                        <option value="http://jbm.cq.gov.cn/">市保密局</option>
+
+</select>
+      </li>
+      <li>&nbsp;&nbsp;&nbsp;&nbsp;
+<select id="commLinks4" onchange="javascript:myLinksChange('commLinks4');" >
+                           <option value="" selected="selected">各地口岸网站</option>
+            			 <OPTION value="http://www.bjeport.gov.cn/">北京电子口岸</OPTION> <OPTION 
+                          value="http://www.szeport.gov.cn/">深圳电子口岸</OPTION> 
+                          <OPTION 
+                          value="http://www.gzeport.com/">广州电子口岸</OPTION> 
+                          <OPTION value="http://www.sdeport.com/homepage/mpages/index.aspx">山东电子口岸</OPTION> <OPTION 
+                          value="http://www.dleport.gov.cn/">大连电子口岸</OPTION> 
+                          <OPTION 
+                          value="http://hn-eport.gov.cn/">湖南电子口岸</OPTION> 
+                          <OPTION 
+                          value="http://www.aheport.gov.cn/">安徽电子口岸</OPTION> 
+                          <OPTION 
+                          value="http://www.jmeport.gov.cn/">江门电子口岸</OPTION> 
+                          <OPTION 
+                          value="http://www.hb-eport.gov.cn/">湖北电子口岸</OPTION> 
+                          <OPTION 
+                          value="http://www.gbeport.gov.cn/">拱北电子口岸</OPTION> 
+                          <OPTION 
+                          value="http://www.cdeport.gov.cn/">四川电子口岸</OPTION> 
+                          <OPTION 
+                          value="http://www.zjeport.gov.cn/">湛江电子口岸</OPTION> 
+                          <OPTION 
+                          value="http://www.nbeport.gov.cn/">宁波电子口岸</OPTION> 
+                          <OPTION 
+                          value="http://www.eport.sh.cn/cms/">上海电子口岸</OPTION> 
+                          <OPTION 
+                          value="http://www.tjeport.gov.cn/default.htm">天津电子口岸</OPTION> 
+                          <OPTION 
+                          value="http://www.sjzeport.cn/">河北电子口岸</OPTION> 
+                          <OPTION 
+                          value="http://www.jseport.gov.cn/">江苏电子口岸</OPTION> 
+                          <OPTION 
+                          value="http://www.fjeport.gov.cn/">福建电子口岸</OPTION> 
+                          <OPTION 
+                          value="http://www.steport.gov.cn/steport/default.aspx">粤东电子口岸</OPTION> 
+                          <OPTION 
+                          value="http://www.eport.jx.cn/">江西电子口岸</OPTION> 
+                          <OPTION 
+                          value="http://www1.chinaport.gov.cn/subeport/xinjiang/pub/">新疆电子口岸</OPTION> 
+                          <OPTION 
+                          value="http://www.hneport.gov.cn/">海南电子口岸</OPTION> 
+                          <OPTION 
+                          value="http://www.hhhteport.gov.cn/">内蒙古电子口岸</OPTION> 
+                          <OPTION 
+                          value="http://www.lneport.gov.cn/">辽宁电子口岸</OPTION> 
+                          <OPTION 
+                          value="http://www.zjport.gov.cn/">浙江电子口岸</OPTION> 
+                          <OPTION 
+                          value="http://www.zzeport.gov.cn/">河南电子口岸</OPTION> 
+                          <OPTION 
+                          value="http://www.gxeport.gov.cn/">广西电子口岸</OPTION> 
+                          <OPTION 
+                          value="http://www.yneport.gov.cn/">云南电子口岸</OPTION> 
+
+</select>
+      </li>
+      <li>&nbsp;&nbsp;&nbsp;&nbsp;<a href="other.php?open_Id=2">在线留言</a>&nbsp;&nbsp;&nbsp;&nbsp;</li>
+        </ul>
+        <a class="back" href="###">返回顶层</a>
+    	<p>版权所有 重庆电子口岸   Copyright&copy; 2015 cqeport.gov.cn All Rights Reserved   渝ICP备 08001252 号</p>
+    </div>
+            <center><a href="http://www.cqwa.gov.cn/" target="_blank"><img src="img/cqnet110.gif" width="50" height="71" border="0" /></a><a href="http://bszs.conac.cn/sitename?method=show&amp;id=05FAD858ED662660E053022819AC964B" target="_blank"><img src="img/red.png" width="80" height="80" border="0" /></a></center>
+</div>
+
+</body>
+</html>
+<link rel="stylesheet" type="text/css" href="css/idangerous.swiper.css"/>
+<link href="css/common.css" type="text/css" rel="stylesheet" />
+<link rel="stylesheet" type="text/css" href="css/shou.css"/>
+<link rel="stylesheet" type="text/css" href="css/index.css"/>
+<script type="text/javascript" language="javascript" src="js/jquery-1.10.2.min.js"></script>
+<script type="text/javascript" src="js/idangerous.swiper.js"></script>
+<script type="text/javascript" src="js/jquery.ellipsis.js"></script>
+<script type="text/javascript" src="js/tab.js"></script>
+<script type="text/javascript" src="js/public.js"></script>
+<script type="text/javascript">
+$(".cont_jq").wordLimit(60);
+$('#news_listc ul li p').wordLimit();
+$(document).ready(function(){    
+  slide();
+  wordLimit();
+  click_switch();
+  search();
+}); 
+function myLinksChange(id){
+  var obj = $("#"+id).val();
+  if(obj !=""){
+    var index = obj.indexOf("http://");
+    if(index ==-1){
+      obj = "http://"+obj;
+    }
+    window.open(obj);
+  }
+}
+function search(){
+   $("#search").click(function(){
+    var text=$("#keyword").val();
+      location.href ="search.php?keyword="+text;
+  });
+  }
+
+function click_switch(){
+
+    $("#news_lista").show();
+    $("#news_listb").hide();
+    $("#news_listc").hide();
+    $("#news_listd").hide();  
+    $("#kouan").click(function(){
+      $("#news_lista").show();
+        $("#news_listb").hide();
+        $("#news_listc").hide();
+       $("#news_listd").hide();
+    });
+    $("#haiguan").click(function(){ 
+      $("#news_lista").hide();
+      $("#news_listb").show();
+       $("#news_listc").hide();
+        $("#news_listd").hide();
+    });
+    
+    $("#jianyan").click(function(){
+     $("#news_lista").hide();
+      $("#news_listb").hide();
+       $("#news_listc").show();
+        $("#news_listd").hide();
+    });
+
+    $("#wuliu").click(function(){
+       $("#news_lista").hide();
+      $("#news_listb").hide();
+       $("#news_listc").hide();
+        $("#news_listd").show();
+    
+    }); 
+}
+
+
+
+
+function slide(){
+  var mySwiper = new Swiper('.swiper-container',{
+    pagination: '.pagination',
+    loop:true,
+    grabCursor: true,
+    paginationClickable: true,
+    autoplay:5000
+   })
+   
+   $(".banner_img li").hide();
+   $(".banner_img li:eq(0)").show();
+   mySwiper.addCallback('SlideChangeStart', function(swiper){
+      //console.log(mySwiper.activeLoopIndex)循环模式索引
+      var _idx = mySwiper.activeLoopIndex;
+      $(".banner_img li").stop().fadeOut();
+      $(".banner_img li:eq("+_idx+")").stop().fadeIn();
+    })
+}
+
+//超出显示省略号
+function wordLimit(){
+  //首页公告
+  $(".swiper-slide").each(function(index, element) {
+        $(this).find(".p1 b").wordLimit(20);
+    $(this).find(".p2").wordLimit(45);
+    });
+  $(".news_info li").wordLimit(15);
+  $(".news_list li p").wordLimit(22);
+  $(".dynamic_show_con b").wordLimit(11);
+  $(".dynamic_show_con p").wordLimit(36);
+  $(".dynamic>ul li p").wordLimit(18);
+}
+
+</script>

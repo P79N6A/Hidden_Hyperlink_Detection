@@ -1,0 +1,716 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"><html xmlns="http://www.w3.org/1999/xhtml"><head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8;">
+<title>往年英语四级成绩怎么查询？_新东方在线</title>
+<meta name="keywords" content="往年英语四级成绩怎么查询？">
+<meta name="description" content="往年英语四级成绩怎么查询？">
+<script async="" src="//www.google-analytics.com/analytics.js"></script><script type="text/javascript" src="/fckeditor/fckeditor.js"></script>
+<script type="text/javascript" src="/templates/faq2010/js/popup.js"></script>
+<script type="text/javascript" src="http://images.koolearn.com/js/jquery/jquery-1.4.2.min.js"></script>
+<script type="text/javascript" src="/templates/faq2010/js/validate.js"></script>
+
+<script type="text/javascript">
+
+window.onload = showPoint;
+function showPoint(){
+}
+
+function evaluateTopic(type)
+{
+	var time = new Date().getTime();
+	var url = "/topic/evaluate/406339/"+type+".page?time="+time ;
+
+	$.ajax({
+	 	type: "GET",
+	  	url: url ,
+	   	error: function(){
+	        alert('Error loading XML document');
+	    },
+		success: function(msg){
+			$("#evaluate").html(msg);
+	   	}
+	}); 
+}
+function moveTopic()
+{	
+	var win_bg = $("<div id='win_bg'></div>").fadeTo("slow", 0.66);
+	win_bg.prependTo("body");
+	$(window).resize(function(){
+		win_bg.width($(document).width()).height($(document).height());
+	}).resize();
+	$("#win_bg").show();
+	$(".win_box").css({"left":function(){
+		return ($(document).width()-$(this).width())/2;
+	},"top":function(){
+	return ($(window).height()-$(this).height())/2;
+	}}).show();
+}
+
+function selectCate()
+{
+	var cateId = 0 ; 
+	var forumId = 0 ; 
+	$("option[id*='cateId']") .each(function(i){
+		var id = $(this).attr("id") ;
+		var x = document.getElementById(id);
+		if(x.selected)
+		{
+			cateId = x.value ;
+		}
+	});	
+	$("option[id*='forumId']") .each(function(i){
+		var id = $(this).attr("id") ;
+		var x = document.getElementById(id);
+		if(x.selected)
+		{
+			forumId = x.value ;
+		}
+	});	
+	document.move.cate_id.value = cateId ; 	
+	document.move.forum_id.value = forumId ; 
+	document.move.submit();	
+}
+
+function changeCate()
+{
+	var time = new Date().getTime();
+	var cateId = 0 ; 
+	$("option[id*='cateId']") .each(function(i){
+		var id = $(this).attr("id") ;
+		var x = document.getElementById(id);
+		if(x.selected)
+		{
+			cateId = x.value ;
+		}
+	});
+	var url = "/topic/getForums/"+cateId+".page?time="+time;
+	$.ajax({
+	 	type: "GET",
+	  	url: url ,
+	   	error: function(){
+	        alert('Error loading XML document');
+	    },
+		success: function(msg){
+			$("#forumId").html(msg);
+	   	}
+	}); 
+}
+function closeWin(){
+$("#win_bg,.win_box").hide();
+}
+
+function closeEvaluate()
+{
+	$("#win_bg,.win_box").hide();
+	document.getElementById("win_evaluate").style.display = "none" ; 
+}
+
+function validateEditPostForm(f)
+{
+	var editorInstance = FCKeditorAPI.GetInstance('editMessage');
+	if (isBlankFCK(editorInstance.GetHTML())) {
+		alert("发表文章必须要有文章内容");
+		editorInstance.Focus();
+		return false;
+	}
+	return true;
+}
+
+function validateComplaintPostForm(f)
+{
+	var complaintInstance = FCKeditorAPI.GetInstance('complaintMessage');
+	if (isBlankFCK(complaintInstance.GetHTML())) {
+		alert("投诉必须要有投诉内容");
+		complaintInstance.Focus();
+		return false;
+	}
+	return true;
+}
+
+/**
+type为1表示编辑问题。type为2表示编辑答案
+*/
+function editTopic(post_id,type)
+{
+	var time = new Date().getTime();
+	var url = "/post/show/"+post_id+".page?time="+time;
+	var postText ;
+	var postSubject;
+	$.ajax({
+	 	type: "GET",
+	  	url: url ,
+	   	error: function(){
+	        alert('Error loading XML document');
+	    },
+		success: function(msg){
+			var postStrs = msg.split("<<<<~~~");
+			postText =  postStrs[0];
+			postSubject = postStrs[1];
+			viewPost(post_id,postText,postSubject,type);
+	   	}
+	}); 
+
+}
+
+function viewPost(post_id,postText,postSubject,type)
+{
+postSubject = postSubject.replaceAll('\"','&quot;');
+	var dd = ''
+           +'<div class="pop_c1">'
+           +'</div>'
+           +'<div class="pop_con2">'
+		   +'<form action="/jforum.page;jsessionid=EEA3D6455E22BF3F93FCADAD171F052B.faqa" method="post" enctype="multipart/form-data" name="editPost" id="editPost" onsubmit="return validateEditPostForm(this)">'	
+           +'<input type="hidden" name="action" value="edit" />'
+		   +'<input type="hidden" name="module" value="post" />'
+		   +'<input type="hidden" name="post_id" value="'+post_id+'" /><br />'
+		   +'<input type="text"  style="width:490px;height:25px;" name="editSubject" value="'+postSubject+'" /><br />'
+           +'<textarea class="input" name="editMessage">'+postText+'</textarea><br />'
+           +'<div class="po_btnb1"><input type="submit" name="submit" value="提交" class="po_btn1" /></div>'
+ 		   +'</form>';
+ 	if(type == 2){
+ 		dd = ''
+           +'<div class="pop_c1">'
+           +'</div>'
+           +'<div class="pop_con2">'
+		   +'<form action="/jforum.page;jsessionid=EEA3D6455E22BF3F93FCADAD171F052B.faqa" method="post" enctype="multipart/form-data" name="editPost" id="editPost" onsubmit="return validateEditPostForm(this)">'	
+           +'<input type="hidden" name="action" value="edit" />'
+		   +'<input type="hidden" name="module" value="post" />'
+		   +'<input type="hidden" name="post_id" value="'+post_id+'" /><br />'
+           +'<textarea class="input" name="editMessage">'+postText+'</textarea><br />'
+           +'<div class="po_btnb1"><input type="submit" name="submit" value="提交" class="po_btn1" /></div>'
+ 		   +'</form>';
+ 	}
+    var rc_pop = new Popup({contentType:2,isReloadOnClose:false,width:500,isAutoSize:true });
+    rc_pop.setContent("contentHtml",dd);
+    rc_pop.setContent("title","编辑问题");
+	rc_pop.build();
+	rc_pop.show();
+	var oFCKeditor = new FCKeditor( 'editMessage' ) ;  
+   	oFCKeditor.BasePath = '/fckeditor/' ; 
+	oFCKeditor.Width = '500';
+	oFCKeditor.Config = '/fckeditor/fckconfig.js';
+	oFCKeditor.Height = '200' ;
+	oFCKeditor.ToolbarSet = "Ask" ;
+	oFCKeditor.ReplaceTextarea() ;  
+}
+function complaintPost(post_id,teacher_name){
+	var dd = ''
+           +'<div class="pop_c1">'          
+           +'</div>'
+           +'<div class="pop_con2">'
+           +'<br/>&nbsp; &nbsp; &nbsp; &nbsp;投诉问题:英语四六级';
+           var title="往年英语四级成绩怎么查询？";         
+           	dd += '>英语四级>'+title;
+        dd += '<br/><br/>&nbsp; &nbsp; &nbsp; &nbsp;被投诉人:'+teacher_name+'<br/><br/>'
+		   +'<form action="/jforum.page;jsessionid=EEA3D6455E22BF3F93FCADAD171F052B.faqa" method="post" enctype="multipart/form-data" name="complaintPost" id="complaintPost"  onsubmit="return validateComplaintPostForm(this)">'	
+           +'<input type="hidden" name="action" value="complaint" />'
+		   +'<input type="hidden" name="module" value="post" />'
+		   +'<input type="hidden" name="post_id" value="'+post_id+'" />'
+           +'<textarea class="input" name="complaintMessage"></textarea><br />'
+           +'<div class="po_btnb1"><input type="submit" name="submit" value="提交" class="po_btn1" /> &nbsp;&nbsp;<font color="red">注：投诉只能投一次，且投诉内容不能为空！</font></div>'
+ 		   +'</form>';
+    var rc_pop = new Popup({contentType:2,isReloadOnClose:false,width:500,isAutoSize:true });
+    rc_pop.setContent("contentHtml",dd);
+    rc_pop.setContent("title","我要投诉");
+	rc_pop.build();
+	rc_pop.show();
+	var oFCKeditor = new FCKeditor( 'complaintMessage' ) ;  
+   	oFCKeditor.BasePath = '/fckeditor/' ; 
+	oFCKeditor.Width = '500';
+	oFCKeditor.Config = '/fckeditor/fckconfig.js';
+	oFCKeditor.Height = '200' ;
+	oFCKeditor.ToolbarSet = "Ask" ;
+	oFCKeditor.ReplaceTextarea() ;  
+
+}
+
+
+</script>
+<link href="http://bdimg.share.baidu.com/static/css/bdsstyle.css?cdnversion=20131219" rel="stylesheet" type="text/css"><script src="http://bdimg.share.baidu.com/static/js/logger.js?cdnversion=414175"></script></head>
+<body class="whd"><iframe style="display: none; " frameborder="0"></iframe><div id="bdshare_s" style="display: block; "><iframe id="bdsIfr" style="position:absolute;display:none;z-index:9999;" frameborder="0"></iframe><div id="bdshare_l" style="display: none; "><div id="bdshare_l_c"><h6>分享到</h6><ul><li><a href="#" class="bds_mshare mshare">一键分享</a></li><li><a href="#" class="bds_qzone qqkj">QQ空间</a></li><li><a href="#" class="bds_tsina xlwb">新浪微博</a></li><li><a href="#" class="bds_bdysc bdysc">百度云收藏</a></li><li><a href="#" class="bds_renren rrw">人人网</a></li><li><a href="#" class="bds_tqq txwb">腾讯微博</a></li><li><a href="#" class="bds_bdxc bdxc">百度相册</a></li><li><a href="#" class="bds_kaixin001 kxw">开心网</a></li><li><a href="#" class="bds_tqf txpy">腾讯朋友</a></li><li><a href="#" class="bds_tieba bdtb">百度贴吧</a></li><li><a href="#" class="bds_douban db">豆瓣网</a></li><li><a href="#" class="bds_tsohu shwb">搜狐微博</a></li><li><a href="#" class="bds_bdhome bdhome">百度新首页</a></li><li><a href="#" class="bds_sqq sqq">QQ好友</a></li><li><a href="#" class="bds_thx thx">和讯微博</a></li><li><a href="#" class="bds_more">更多...</a></li></ul><p><a href="#" class="goWebsite">百度分享</a></p></div></div></div>
+<script type="text/javascript" src="http://images.koolearn.com/www/subject/script/jquery-1.4.2.min.js"></script>
+<script type="text/javascript" src="/templates/faq2010/js/public.js"></script>
+<link href="/templates/faq2010/css/main.css" rel="stylesheet" type="text/css">
+<div class="pop" id="window2">
+<div class="tan">
+<div class="ptxt"><span class="pop_c"><a href="#"><img alt="关闭" onclick="$(this).closest('.pop').hide()" src="http://images.koolearn.com/www09/class/cart/close.gif" width="17" height="17"></a></span></div>
+<div style="clear:both;"></div>
+<span class="poptxt">
+
+
+</span>
+<div style="padding:10px; text-align:center;"><!--
+<a href="/topic/index.page" class="p_inp1">知识堂首页</a>
+<a href="/topic/ask.page" class="p_inp2">请教同学</a>
+-->
+</div>
+</div>
+</div>
+<link type="text/css" rel="stylesheet" href="http://www.koolearn.com/css/product/publicHead.css">
+<script type="text/javascript">
+document.createElement("hide");
+if(typeof(window.jQuery)=="undefined")document.write('<scr'+'ipt type="text/javascr'+'ipt" src="http://images.koolearn.com/js/jquery/jquery-1.4.2.min.js"></scr'+'ipt>');
+</script>
+<style type="text/css">
+hide{display:none;}
+</style>
+
+
+<script type="text/javascript">
+window.next_page = window.next_page || "";
+</script>
+
+<script type="text/javascript">
+//window.next_page = window.next_page || "<%=next_page %>";
+function userLogout() {
+    //document.logoutForm.next_page.value=window.location.href;
+	//document.logoutForm.submit();
+	//document.forms['logoutForm'].submit();
+	window.location.href = 'http://login.koolearn.com/sso/logout.do?next_page='+escape(window.next_page || window.location.href);
+}
+</script>
+<!-- 新全局页头 --> 
+<div id="PH"> 
+<div class="ww">
+	<ul class="login-info fc">
+	<li class="logo-xdf"><img src="http://images.koolearn.com/www09/class/common/xdf.png" width="53" height="18" alt="新东方官网"></li>
+	
+	<li>欢迎来到<a href="http://www.koolearn.com/" style="margin-right:0">新东方在线</a>！<a href="http://login.koolearn.com/sso/toLogin.do?next_page=http%3A//ask.koolearn.com/topic/show/406339.page" target="_self">请登录</a><a href="http://login.koolearn.com/sso/toEmailRegister.do?next_page=http%3A//ask.koolearn.com/topic/show/406339.page" target="_self">注册</a></li>
+	
+	</ul>
+	<ul class="quick-menu fc">
+	
+	<li class="hd-buy"><a href="http://login.koolearn.com/shopping?_method=gotoCart" style="padding-top: 2px; ">购物车</a></li>
+	
+	<li class="li-Other" style="padding-top: 4px; "><a href="http://www.koolearn.com/couponCommon?_method=loginGetCoupon" style="line-height: 12px; ">保存优惠券</a><a href="http://www.koolearn.com/ticketReg?_method=loginRegTicket" style="line-height: 12px; ">快速注卡</a><a href="http://www.koolearn.com/saleschannel/index.jsp" style="line-height: 12px; ">各地购课</a><a class="a-last" href="http://mobile.koolearn.com/" style="line-height: 12px; ">手机报</a></li>
+	<li class="services menu-item">
+		<div class="menu-box">
+			<a class="menu-hd" style="width: 48px; line-height: 18px; " href="http://www.koolearn.com/sitemap/">网站导航<i></i></a>
+			<div class="menu-bd">
+				<div class="menu-bd-panel" style="padding:10px 0 10px 8px;">
+					<div>
+						<a href="http://toefl.koolearn.com/">托福</a><a href="http://ielts.koolearn.com/">雅思</a><a href="http://cet4.koolearn.com/">四级</a><a href="http://cet6.koolearn.com/">六级</a><a href="http://english.koolearn.com/kouyi/">口译</a><br>
+						<a href="http://kaoyan.koolearn.com/">考研</a><a href="http://zhongkao.koolearn.com">初中</a><a href="http://nce.koolearn.com/">新概念</a><a href="http://shuoshi.koolearn.com/tdxl/">同等学力</a><br>
+						<a href="http://zhicheng.koolearn.com/">职称英语</a><a href="http://language.koolearn.com/jp/">日语</a><a href="http://www.koolearn.com/kouyu/">口语</a><a href="http://english.koolearn.com/bec/">BEC</a><div class="PHbdb"></div>
+						
+						<a href="http://www.koolearn.com/class/">网络课堂</a><a href="http://news.koolearn.com/">资讯中心</a><a href="http://ask.koolearn.com/">知识堂</a><br>
+						<a href="http://v.koolearn.com/">公开课</a><a href="http://bbs.koolearn.com/">学习论坛</a><a href="http://www.koolearn.com/app">移动学习</a><br>
+						<a href="http://souxiao.koolearn.com/">考研搜校</a><a href="http://www.koolearn.com/help/">客服中心</a><a href="http://xueci.koolearn.com/">学词</a><div class="PHbdb"></div>
+						
+						<a href="http://www.koolearn.com/eclass/mzoneLoginCard.jsp">M-Zone</a><a href="http://mobile.koolearn.com/">手机报</a><a href="http://news.koolearn.com/bbc/">BBC英语</a><br>
+						<a href="http://news.koolearn.com/english/">英语学习公会</a><div class="PHbdb"></div>
+						
+						<a href="http://ent.koolearn.com/eclass/qypx/index.jsp">企业培训</a><a href="http://www.koolearn.com/saleschannel/index.jsp">各地购课</a><a href="http://agent.koolearn.com">代理商</a><br>
+						<a href="http://school.koolearn.com/tpo">TPO模考</a><a href="http://school.koolearn.com/">混合学习平台</a><div class="PHbdb"></div>
+						<div class="fc hd-tar"><a href="http://www.koolearn.com/" class="hd-green">返回网站首页</a></div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</li> 
+	</ul> 
+</div> 
+</div>
+<script type="text/javascript" src="http://www.koolearn.com/js/product/publicHead.js"></script>
+<script type="text/javascript">
+nextPage.apply($("#PH"));
+</script>
+<!-- end 新全局页头 -->
+<!--<div class="widthBox"><a href="http://11.koolearn.com" target="_blank"><img src="http://images.koolearn.com/casupload/upload//advs/be8a0b4b1f504a97be9273a7614b8768.jpg" alt="11周年活动" width="960" height="50"/></a></div>-->
+<div class="widthBox search_wrap">
+<table cellpadding="0" cellspacing="0">
+	<tbody><tr>
+		<td class="td1"><img src="http://images.koolearn.com/www/subject/2010_0818_zrt/logo1.gif" width="177" height="35" border="0" usemap="#Map">
+          <map name="Map" id="Map">
+            <area shape="rect" coords="96,6,176,34" href="/" alt="知识堂">
+            <area shape="rect" coords="2,4,92,35" href="http://www.koolearn.com" alt="新东方在线" target="_blank">
+          </map>          
+</td>
+		<td class="td2">
+			
+			<div class="bq">
+			<form accept-charset="UTF-8" name="form" action="/jforum.page;jsessionid=EEA3D6455E22BF3F93FCADAD171F052B.faqa" method="post">
+				<input type="hidden" name="action" value="search">
+				<input type="hidden" name="module" value="search">
+				<input type="text" name="search_keywords" class="keyword">
+				<input type="submit" name="search" class="search" tabindex="0" value="搜 索">
+				<span>热门：</span><span id="otherKeys">
+					<a href="/jforum.page?module=search&amp;action=search&amp;search_keywords=六级" title="六级" style="display: inline-block; width: 40.666666666666664px; ">六级</a><a href="/jforum.page?module=search&amp;action=search&amp;search_keywords=讲义" title="讲义" style="display: inline-block; width: 40.666666666666664px; ">讲义</a><a href="/jforum.page?module=search&amp;action=search&amp;search_keywords=考研" title="考研" style="display: inline-block; width: 40.666666666666664px; ">考研</a><a href="/jforum.page?module=search&amp;action=search&amp;search_keywords=出国" title="出国" style="display: none; width: 40.666666666666664px; ">出国</a><a href="/jforum.page?module=search&amp;action=search&amp;search_keywords=四级" title="四级" style="display: none; width: 40.666666666666664px; ">四级</a></span>
+			</form>
+			</div>
+			
+			
+			
+		</td>
+		<td class="td3" style="width:242px;">
+		<a href="/topic/ask.page" title="请教同学"><img src="http://images.koolearn.com/www/subject/2010_0818_zrt/headgg1.gif" width="113" height="39" alt="请教同学"></a>
+		<!-- --><a href="/topic/ask/1.page" title="请教老师"><img src="http://images.koolearn.com/www/subject/2010_0818_zrt/headgg2.gif" width="113" height="39" alt="请教老师"></a>
+		</td>
+	</tr>
+</tbody></table>
+</div>
+<script type="text/javascript">
+(function(){
+	var box = $("#otherKeys"), bq = box.closest(".bq"), a = $("a",box), n = (6,3);
+	a.each(function(i){
+		var s = $(this).text();
+		$(this).attr("title",s);
+		$(this).text(s.substring(0,3));
+	}).css({"display":"inline-block","width":((bq.width()-390)/n)+"px"});
+	a.slice(n).hide();
+	if (a.length > n) {
+		box.hover(function(){
+			$(this).data("hover", true);
+		}, function(){
+			$(this).data("hover", false);
+		});
+		setInterval(function(){
+			if (box.data("hover"))return;
+			a.slice(0, n).fadeOut(200, function(i){
+				$(this).appendTo(box);
+				if (a.index(this) == n - 1) {
+					a = $("a", box);
+					a.slice(0, n).show();
+				}
+			});
+		}, 3000);
+	}
+})();
+</script><style type="text/css">
+a,a:link,a:hover {
+    text-decoration:none;
+    color:#2828FF;
+}
+</style>
+<div class="path"><div class="widthBox"><a href="/topic/index.page">知识堂</a> &gt; <a href="/topic/gotoCategories/6.page">英语四六级</a> 
+&gt; <span><a href="/topic/gotoForums/11/0.page">英语四级</a></span>
+</div></div>
+<div class="widthBox body_wrap">
+<table cellpadding="0" cellspacing="0" class="bodyTab">
+<tbody><tr>
+<td class="td1">
+<div class="tabWrap1">
+<div class="tabBox1">
+<div class="title title1">
+
+
+
+
+
+<img src="http://images.koolearn.com/www/subject/2010_0916/whd.gif"><span>待解决问题</span>
+</div>
+<div class="tabBox2">
+<div class="s1">往年英语四级成绩怎么查询？</div>
+<div class="s2"><span class="ss1">悬赏分:0</span></div>
+<div class="s3">往年英语四级成绩怎么查询？<br></div>
+<div class=""><a href="http://login.koolearn.com/sso/toLogin.do?&amp;next_page=http://ask.koolearn.com/post/show/406339.page">我来回答</a></div>
+<div class="s4"><span style="float:left;margin-top:5px;">
+<!-- Baidu Button BEGIN -->
+    <div id="bdshare" class="bdshare_t bds_tools get-codes-bdshare">
+        <a class="bds_qzone" title="分享到QQ空间" href="#"></a>
+        <a class="bds_tsina" title="分享到新浪微博" href="#"></a>
+        <a class="bds_tqq" title="分享到腾讯微博" href="#"></a>
+        <a class="bds_renren" title="分享到人人网" href="#"></a>
+        <a class="bds_tsohu" title="分享到搜狐微博" href="#"></a>
+        <a class="bds_tqf" title="分享到腾讯朋友" href="#"></a>
+        <a class="bds_douban" title="分享到豆瓣网" href="#"></a>
+        <span class="bds_more"></span>
+    </div>
+<script type="text/javascript" id="bdshare_js" data="type=tools&amp;uid=324170" src="http://bdimg.share.baidu.com/static/js/bds_s_v2.js?cdnversion=414175"></script>
+
+<script type="text/javascript">
+var bds_config = {'snsKey':{'tsina':'3297384058','tqq':'ba36faf481494730bccc2c58de9f6cf9'}};
+document.getElementById("bdshell_js").src = "http://news.share.baidu.com/static/js/shell_v2.js?cdnversion=" + new Date().getHours();
+</script>
+<!-- Baidu Button END -->
+</span><span class="ss2">提问时间：2012-08-20 18:23:20</span>提问者：
+	<a href="/user/userQuestTopics/54313378.page">asfdo349z</a>
+	<span class="ss3">[初中生]</span></div>
+
+</div>
+</div>
+</div>
+<div class="tabWrap1">
+<div class="tabBox1">
+<div class="title title3"><img src="http://images.koolearn.com/www/subject/2010_0723/blank.gif"><span>其它答案</span></div>
+<div class="tabBox2">
+<div class="p"><p></p><p>一是可以到手持证书人英语四六级考试的学校教务处进行核对；二是可以和全国英语四六级考试委员会进行联系查核。目前网上还不能进行查核。</p><p>&nbsp;&nbsp;&nbsp; 全国大学英语四六级考试委员会联系方式 ：<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 上海邮政信箱30-14上海交通大学浩然高科技大厦2203室&nbsp;&nbsp;&nbsp; <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 邮编：200030&nbsp;&nbsp;&nbsp; <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 电话：（021）62932756&nbsp;&nbsp;&nbsp; 传真：（021）62826622</p><p>&nbsp;&nbsp;&nbsp; 北京考试中心 ：北京市清华大学外语系转大学英语考试中心&nbsp;&nbsp;&nbsp; <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 邮编：100084&nbsp;&nbsp; <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 电话：（010）62772338 <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 分管：北京、天津、河北、山西、内蒙古、辽宁、吉林、黑龙江<br>&nbsp;&nbsp; <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 北京地区考生可拨打声讯台9516888199咨询四六级相关问题</p><p>&nbsp;</p><p>&nbsp;</p><p></p>
+<div class="s4">
+<span class="ss2">回答时间：2012-08-20 18:25:06</span>
+回答者：<a href="/user/userQuestTopics/54313335.page">oo4qom</a>
+<span class="ss3">[初中生]</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="tabWrap1">
+<div class="tabBox1">
+<div class="tabBox2">
+<div class="title"><span>相关问题</span></div>
+<ul>
+<li><a href="/topic/show/514305.page" class="s" title="多久可以查到英语四级考试成绩？">多久可以查到英语四级考试成绩？</a></li>
+<li><a href="/topic/show/514306.page" class="s" title="英语四级考试成绩在哪里可以查到？">英语四级考试成绩在哪里可以查到？</a></li>
+<li><a href="/topic/show/514468.page" class="s" title="2013英语四级成绩查询时间 大概是在什么时候？">2013英语四级成绩查询时间 大概是在什么时候？</a></li>
+<li><a href="/topic/show/514470.page" class="s" title="用身份证查询四级英语成绩 可行吗？">用身份证查询四级英语成绩 可行吗？</a></li>
+<li><a href="/topic/show/522131.page" class="s" title="考研成绩单项查询">考研成绩单项查询</a></li>
+<li><a href="/topic/show/522485.page" class="s" title="2013年12月四级成绩查询入口">2013年12月四级成绩查询入口</a></li>
+<li><a href="/topic/show/522505.page" class="s" title="关于英语六级成绩的问题">关于英语六级成绩的问题</a></li>
+<li><a href="/topic/show/522484.page" class="s" title="2013年12月四级成绩查询时间">2013年12月四级成绩查询时间</a></li>
+</ul>
+</div>
+</div>
+</div>
+</td>
+<td class="line"></td>
+<td class="td2">
+<style type="text/css">
+.fc:after{content:".";display:block;height:0;clear:both;visibility:hidden;}
+.fc{display:inline-block;*zoom:1;}
+.pos_a{position:absolute;}
+.pos_r{position:relative;}
+.whd .bodyTab .td2{width:300px;}
+.whd .bodyTab .tabBox .td2{width:50px}
+.whd .rightgg img{width:298px;}
+.whd .tabWrap2 .rmkc{border-top: #A7CBD7 solid 1px;width:298px; overflow:hidden;}
+.tw1 li{list-style:none;}
+</style>
+<link href="http://img.koolearn.com/v2/css/news2.css" rel="stylesheet" type="text/css">
+	<div class="tabWrap2">
+	<script type="text/javascript">
+	function zhuka1310(){
+	   deliverCoupon(36153225,36153225);
+	}
+	function myabc(dat){
+	   alert(dat.message);
+	}
+	</script>
+	
+	<a href="#" class="rightgg" onclick="zhuka1310();"><img src="/advertisement/18a4e27434962d9e0f8b958dbd6bfd3b.jpg" width="300" height="155" style="margin-bottom:0"></a>
+	</div>
+	
+	
+	<div class="tabWrap2">
+	<h2 class="head"><span>热门课程</span></h2>
+	<div class="rmkc">
+	<script src="http://img.koolearn.com/zt/poster_js/code45.js"></script><style type="text/css"><!--.STYLE1 {color: #FF0000;font-weight: bold;}--></style><div class="tw1 fc"><div class="tu1 pos_r"><a rel="nofollow" href="http://un.koolearn.com/alliance/clickword?userid=ff80808138fed9e801390002fcd60003&amp;kid=ff808081410e9c6501411015a5cd175d&amp;url=http://www.koolearn.com/product/43408_1.html"><img src="http://images.koolearn.com/fe_upload/2015_12_21_1450686149788.jpg" width="145" height="91"></a><span class="pos_a">四级零基础直播VIP密训班</span></div><ul class="txt3 fs14 list-paddingleft-2"><li><em></em><a rel="nofollow" href="http://un.koolearn.com/alliance/click?userid=ff8080815232c6f00152355144170003&amp;url=http://www.koolearn.com/product/43408_1.html#m">免费试听</a></li><li><em></em><a rel="nofollow" href="http://un.koolearn.com/alliance/click?userid=ff8080815232c6f00152355144170003&amp;url=http://www.koolearn.com/product/43408_1.html">名师介绍</a></li><li><em></em><a rel="nofollow" href="http://un.koolearn.com/alliance/click?userid=ff8080815232c6f00152355144170003&amp;url=http://www.koolearn.com/product/43408_1.html">课程详情</a></li><li><em></em><a rel="nofollow" href="http://un.koolearn.com/alliance/click?userid=ff8080815232c6f00152355144170003&amp;url=http://www.koolearn.com/product/43408_1.html">课程咨询</a></li></ul></div><table class="kb1"><tbody><tr><td width="152"><span><a rel="nofollow" href="http://un.koolearn.com/alliance/click?userid=ff8080815232c6f00152355144170003&amp;url=http://www.koolearn.com/product/43406_1.html" title="大学英语四级全程通关班【2015年6月】" target="_blank" class="txt1"><i class="ic2"></i>四级全程通关班</a></span></td><td width="82"><a rel="nofollow" href="http://un.koolearn.com/alliance/click?userid=ff8080815232c6f00152355144170003&amp;url=http://www.koolearn.com/product/43406_1.html#m" title="免费试听" target="_blank" class="txt4 sting1"><i></i>免费试听</a></td><td width="63"><a rel="nofollow" href="http://un.koolearn.com/alliance/click?userid=ff8080815232c6f00152355144170003&amp;url=http://www.koolearn.com/product/43406_1.html" title="购买" target="_blank" class="buy1">购买</a></td></tr><tr class="bg1"><td><span><a rel="nofollow" href="http://un.koolearn.com/alliance/click?userid=ff8080815232c6f00152355144170003&amp;url=http://www.koolearn.com/product/40280_1.html" title="大学英语四级寒假词汇语法训练营" target="_blank" class="txt1"><i class="ic2"></i>四级必备词汇班</a></span></td><td><a rel="nofollow" href="http://un.koolearn.com/alliance/click?userid=ff8080815232c6f00152355144170003&amp;url=http://www.koolearn.com/product/40280_1.html#m" title="" target="_blank" class="txt4 sting1"><i></i>免费试听</a></td><td width="63"><a rel="nofollow" href="http://un.koolearn.com/alliance/click?userid=ff8080815232c6f00152355144170003&amp;url=http://www.koolearn.com/product/40280_1.html" title="购买" target="_blank" class="buy1">购买</a></td></tr><tr><td><span><a rel="nofollow" href="http://un.koolearn.com/alliance/click?userid=ff8080815232c6f00152355144170003&amp;url=http://www.koolearn.com/product/40373_1.html" title="大学英语四级核心词汇【赵丽主讲】" target="_blank" class="txt1"><i class="ic2"></i>核心语法及长难句</a></span></td><td><a rel="nofollow" href="http://un.koolearn.com/alliance/click?userid=ff8080815232c6f00152355144170003&amp;url=http://www.koolearn.com/product/40373_1.html#m" title="" target="_blank" class="txt4 sting1"><i></i>免费试听</a></td><td><a rel="nofollow" href="http://un.koolearn.com/alliance/click?userid=ff8080815232c6f00152355144170003&amp;url=http://www.koolearn.com/product/40373_1.html" title="购买" target="_blank" class="buy1">购买</a></td></tr>  <tr class="bg1"><td><span><a rel="nofollow" href="http://un.koolearn.com/alliance/click?userid=ff8080815232c6f00152355144170003&amp;url=http://www.koolearn.com/product/41908_1.html" title="大学英语核心语法及长难句精讲班【刘晓峰主讲】" target="_blank" class="txt1"><i class="ic2"></i>四级写作单项突破</a></span></td><td><a rel="nofollow" href="http://un.koolearn.com/alliance/click?userid=ff8080815232c6f00152355144170003&amp;url=http://www.koolearn.com/product/41908_1.html#m" title="免费试听" target="_blank" class="txt4 sting1"><i></i>免费试听</a></td><td width="63"><a rel="nofollow" href="http://un.koolearn.com/alliance/click?userid=ff8080815232c6f00152355144170003&amp;url=http://www.koolearn.com/product/41908_1.html" title="购买" target="_blank" class="buy1">购买</a></td></tr><tr><td><span><a rel="nofollow" href="http://un.koolearn.com/alliance/click?userid=ff8080815232c6f00152355144170003&amp;url=http://www.koolearn.com/product/40821_1.html" title="大学英语四级零基础VIP全程班【寒假定制版】" target="_blank" class="txt1"><i class="ic2"></i>四级翻译单项突破</a></span></td><td><a rel="nofollow" href="http://un.koolearn.com/alliance/click?userid=ff8080815232c6f00152355144170003&amp;url=http://www.koolearn.com/product/40821_1.html#m" title="免费试听" target="_blank" class="txt4 sting1"><i></i>免费试听</a></td><td width="63"><a rel="nofollow" href="http://un.koolearn.com/alliance/click?userid=ff8080815232c6f00152355144170003&amp;url=http://www.koolearn.com/product/40821_1.html" title="购买" target="_blank" class="buy1">购买</a></td></tr></tbody></table>
+	</div>
+	</div>
+	
+	
+<div class="tabWrap2">
+<h2 class="head"><span>名师回答</span></h2>
+<ul class="txt">
+			<li><a href="/topic/show/197421.page" title="请问函授本科可以报考大学英语四级吗？或是全日制专科毕业生毕业后可以考大学英语四级吗？" class="more" target="_blank">请问函授本科可以报考大学英语四级吗？或是全日制专科毕业生毕业后可以考大学英语四级吗？</a></li>
+			<li><a href="/topic/show/178239.page" title="刘一男老师说的词源字典是什么字典,那里可以找到?" class="more" target="_blank">刘一男老师说的词源字典是什么字典,那里可以找到?</a></li>
+			<li><a href="/topic/show/177601.page" title="大学非英语专业学生怎样才能有资格考专四英语" class="more" target="_blank">大学非英语专业学生怎样才能有资格考专四英语</a></li>
+			<li><a href="/topic/show/205618.page" title="今年的四级考试会机考吗？谢谢~如果是的话~做题的顺序和形式会是什么样的呢？谢谢" class="more" target="_blank">今年的四级考试会机考吗？谢谢~如果是的话~做题的顺序和形式会是什么样的呢？谢谢</a></li>
+			<li><a href="/topic/show/198223.page" title="take charge of与take the charge of 的区别" class="more" target="_blank">take charge of与take the charge of 的区别</a></li>
+			<li><a href="/topic/show/178644.page" title="学完刘畅背单词6000后，大概是多少词汇量。" class="more" target="_blank">学完刘畅背单词6000后，大概是多少词汇量。</a></li>
+			<li><a href="/topic/show/185255.page" title="现在报名四级全程班，为09年12月份的四级考试做准备时间还够吗？" class="more" target="_blank">现在报名四级全程班，为09年12月份的四级考试做准备时间还够吗？</a></li>
+			<li><a href="/topic/show/179631.page" title="罗培老师在讲到背单词的问题时说最好有磁带，刘毅词汇书哪一本适合六级的词汇要求呢？我明年要考英语专业八级，现在背的是刘毅10000，不知道是否适合六级的要求，有必要再另外背诵六级词汇吗？谢谢！" class="more" target="_blank">罗培老师在讲到背单词的问题时说最好有磁带，刘毅词汇书哪一本适合六级的词汇要求呢？我明年要考英语专业八级，现在背的是刘毅10000，不知道是否适合六级的要求，有必要再另外背诵六级词汇吗？谢谢！</a></li>
+			<li><a href="/topic/show/184419.page" title="那什么情况下清辅音浊化" class="more" target="_blank">那什么情况下清辅音浊化</a></li>
+			<li><a href="/topic/show/193440.page" title="退出比赛英语怎么翻译？" class="more" target="_blank">退出比赛英语怎么翻译？</a></li>
+
+</ul>
+</div>
+<script type="text/javascript" src="http://www.koolearn.com/js/popup.js"></script>
+<script src="http://sub.koolearn.com/subject/zhuka/zhuka.jsp?cb=myabc"></script>
+</td>
+</tr>
+</tbody></table>
+</div>
+<div class="win_box">
+<select name="cateId" onchange="changeCate();">
+	<option value="0">全部</option>
+			<option id="cateId5" value="5">考研</option>
+			<option id="cateId1601" value="1601">考研直通车</option>
+			<option id="cateId6" value="6">英语四六级</option>
+			<option id="cateId7" value="7">职称外语</option>
+			<option id="cateId8" value="8">国外考试</option>
+			<option id="cateId10" value="10">新概念</option>
+			<option id="cateId11" value="11">商务英语/BEC</option>
+			<option id="cateId12" value="12">在职硕士</option>
+			<option id="cateId13" value="13">英语单项</option>
+			<option id="cateId14" value="14">中学</option>
+			<option id="cateId15" value="15">职业教育</option>
+			<option id="cateId16" value="16">学历应试</option>
+			<option id="cateId1801" value="1801">专业英语</option>
+			<option id="cateId17" value="17">多语种</option>
+			<option id="cateId3001" value="3001">考博</option>
+			<option id="cateId2402" value="2402">口语风暴课程</option>
+			<option id="cateId18" value="18">投诉建议</option>
+			<option id="cateId2601" value="2601">青春期问题</option>
+			<option id="cateId3201" value="3201">娱乐八卦吐槽</option>
+			<option id="cateId3401" value="3401">小学</option>
+			<option id="cateId3601" value="3601">托业考试</option>
+</select>
+<span id="forum_tag">
+<div id="forumId">
+<select name="forumId" onchange="changeForum();">
+	<option value="0">全部</option>
+</select>
+<div id="tagId">
+<select name="tagId">
+</select>
+</div>
+</div>
+</span>
+<input type="button" value="确定" class="button" onclick="selectCate();">
+<input type="button" value="取消" class="button" onclick="closeWin();">
+</div>
+<div id="win_evaluate" style="display:none">
+<p>你已经做过评价，不能再次评价</p>
+<input type="button" value="取消" class="button" onclick="closeEvaluate();">
+</div>
+<form action="/jforum.page;jsessionid=EEA3D6455E22BF3F93FCADAD171F052B.faqa" method="post" enctype="multipart/form-data" name="move" id="move">
+<input type="hidden" name="action" value="move">
+<input type="hidden" name="module" value="topic">
+<input type="hidden" name="topic_id" value="406339">
+<input type="hidden" name="cate_id" value="">
+<input type="hidden" name="forum_id" value="">
+</form>
+<script type="text/javascript">
+function evaluateTopic(type)
+{
+	var time = new Date().getTime();
+	var url = "/topic/evaluate/406339/"+type+".page?time="+time ;
+
+	$.ajax({
+	 	type: "GET",
+	  	url: url ,
+	   	error: function(){
+	        alert('Error loading XML document');
+	    },
+		success: function(msg){
+			$("#evaluate").html(msg);
+	   	}
+	}); 
+}
+function moveTopic()
+{	
+	var win_bg = $("<div id='win_bg'></div>").fadeTo("slow", 0.66);
+	win_bg.prependTo("body");
+	$(window).resize(function(){
+		win_bg.width($(document).width()).height($(document).height());
+	}).resize();
+	$("#win_bg").show();
+	$(".win_box").css({"left":function(){
+		return ($(document).width()-$(this).width())/2;
+	},"top":function(){
+	return ($(window).height()-$(this).height())/2;
+	}}).show();
+}
+
+function selectCate()
+{
+	var cateId = 0 ; 
+	var forumId = 0 ; 
+	$("option[id*='cateId']") .each(function(i){
+		var id = $(this).attr("id") ;
+		var x = document.getElementById(id);
+		if(x.selected)
+		{
+			cateId = x.value ;
+		}
+	});	
+	$("option[id*='forumId']") .each(function(i){
+		var id = $(this).attr("id") ;
+		var x = document.getElementById(id);
+		if(x.selected)
+		{
+			forumId = x.value ;
+		}
+	});	
+	document.move.cate_id.value = cateId ; 	
+	document.move.forum_id.value = forumId ; 
+	document.move.submit();	
+}
+
+function changeCate()
+{
+	var time = new Date().getTime();
+	var cateId = 0 ; 
+	$("option[id*='cateId']") .each(function(i){
+		var id = $(this).attr("id") ;
+		var x = document.getElementById(id);
+		if(x.selected)
+		{
+			cateId = x.value ;
+		}
+	});
+	var url = "/topic/getForums/"+cateId+".page?time="+time;
+	$.ajax({
+	 	type: "GET",
+	  	url: url ,
+	   	error: function(){
+	        alert('Error loading XML document');
+	    },
+		success: function(msg){
+			$("#forumId").html(msg);
+	   	}
+	}); 
+}
+function changeForum(){
+	var forumId = 0 ; 
+	$("option[id*='forumId']") .each(function(i){
+		var id = $(this).attr("id") ;
+		var x = document.getElementById(id);
+		if(x.selected)
+		{
+			forumId = x.value ;
+		}
+	});
+	var url = "/topic/getTags/"+forumId+".page";
+	$.ajax({
+	 	type: "GET",
+	  	url: url ,
+	   	error: function(){
+	        alert('Error loading XML document');
+	    },
+		success: function(msg){
+			$("#tagId").html(msg);
+	   	}
+	}); 
+
+}
+function closeWin(){
+$("#win_bg,.win_box").hide();
+}
+
+function closeEvaluate()
+{
+	$("#win_bg,.win_box").hide();
+	document.getElementById("win_evaluate").style.display = "none" ; 
+}
+function deleteTopic(id){
+	document.getElementById("deleteButton_"+id).disabled = true;
+	window.location.href='/post/delete/'+id+'/2.page';
+}
+function deleteTopicLink(id){
+	
+	document.getElementById("deleteTopicLink").onclick = function(){return false;};
+	window.location.href='/post/delete/'+id+'/1.page';
+}
+function deleteAnswerLink(id){
+	document.getElementById("deleteAnswerLink_"+id).onclick= function(){return false;};
+	window.location.href='/post/delete/'+id+'/2.page';
+}
+</script>
+<script type="text/javascript" src="http://www.koolearn.com/js/common/showNumber.js"></script>
+<div id="b_b2">
+<div class="copyright">
+<p>
+<a href="http://www.koolearn.com/gb/aboutus.jsp?on=1">关于我们</a> - <a href="http://www.koolearn.com/gb/business.jsp?on=2">商务合作</a> - <a href="http://www.koolearn.com/gb/advertisement.jsp?on=6">广告服务</a> - <a href="http://www.koolearn.com/agent/">代理商区域</a> - <a href="http://www.koolearn.com/help/">客服帮助</a> - <a href="http://www.koolearn.com/help/create_leavemessage.jsp">在线留言</a> - <a href="http://www.koolearn.com/help/q_con2.jsp?i=354675#helptxt">退换货说明</a> - <a href="http://www.koolearn.com/gb/partners.jsp?on=7">合作伙伴</a> - <a href="http://www.koolearn.com/gb/contact.jsp?on=8">联系我们</a> - <a href="http://www.koolearn.com/gb/hr.jsp?on=5">人员招聘</a> - <a href="http://www.koolearn.com/sitemap/">网站地图</a>
+</p>
+</div>
+<p class="ft_p1">
+<a href="http://www.neworiental.org/" rel="nofollow">新东方教育科技集团</a>旗下成员公司 全国客服专线：<strong style="COLOR: blue">400-676-3300</strong> 上海客服专线：021-65017211 购卡咨询(上海)：021-65026384<br>Copyright (C) 2000-2016 <a href="http://www.koolearn.com/"><strong>koolearn.com</strong></a> Inc. All rights reserved. 新东方在线 版权所有<br><a href="http://www.miibeian.gov.cn/" rel="nofollow">京ICP证050421号</a> <a href="http://www.miibeian.gov.cn/" rel="nofollow">京ICP备05067669号</a> 京公安备110-1081940 <a href="http://news.koolearn.com/t_0_28454_0_647292.html">网络视听许可证0110531号</a></p>
+<div class="ft_logo">
+<a href="http://www.xdf.cn/" rel="nofollow"><img alt="新东方官网" src="http://images.koolearn.com/www09/class/common/ft_pic1.jpg"></a> 　<a href="http://www.koolearn.com/"><img alt="新东方在线" src="http://images.koolearn.com/www09/class/common/ft_pic2.jpg"></a><p class="kooxin"><a href="http://www.itrust.org.cn/yz/pjwx.asp?wm=177256341X" rel="nofollow"><img src="http://images.koolearn.com/www09/class/common/kooxin.gif" alt="中国信用企业"></a></p>
+</div>
+</div>
+<!--统计代码-->
+<script type="text/javascript" src="http://images.koolearn.com/www/subject/script/tongji.js" charset="utf-8"></script><script type="text/javascript" src="//www.googleadservices.com/pagead/conversion.js"></script><iframe name="google_conversion_frame" title="Google conversion frame" width="300" height="13" src="http://googleads.g.doubleclick.net/pagead/viewthroughconversion/963202888/?random=1491029710883&amp;cv=8&amp;fst=1491029710883&amp;num=1&amp;fmt=1&amp;guid=ON&amp;u_h=0&amp;u_w=0&amp;u_ah=0&amp;u_aw=0&amp;u_cd=0&amp;u_his=1&amp;u_tz=480&amp;u_java=false&amp;u_nplug=0&amp;u_nmime=0&amp;frm=0&amp;url=http%3A%2F%2Fask.koolearn.com%2Ftopic%2Fshow%2F406339.page&amp;tiba=%E5%BE%80%E5%B9%B4%E8%8B%B1%E8%AF%AD%E5%9B%9B%E7%BA%A7%E6%88%90%E7%BB%A9%E6%80%8E%E4%B9%88%E6%9F%A5%E8%AF%A2%EF%BC%9F_%E6%96%B0%E4%B8%9C%E6%96%B9%E5%9C%A8%E7%BA%BF" frameborder="0" marginwidth="0" marginheight="0" vspace="0" hspace="0" allowtransparency="true" scrolling="no"></iframe><script src=" http://hm.baidu.com/h.js?5023f5fc98cfb5712c364bb50b12e50e" type="text/javascript"></script>
+<!--统计代码  End-->
+
+</body></html>

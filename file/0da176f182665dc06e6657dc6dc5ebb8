@@ -1,0 +1,1108 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head id="Head1"><title>
+	湖南科技报告服务系统
+</title><meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><meta http-equiv="X-UA-Compatible" content="IE=7" /><link rel="Stylesheet" type="text/css" href="csslib/jquery.css" /><link rel="stylesheet" href="csslib/jquery-ui.css" /><link rel="stylesheet" type="text/css" href="csslib/main.css" />
+    <script src="js/jquery-1.9.1.js" type="text/javascript"></script>
+    <script src="ScriptLibrary/jquery-ui.js" type="text/javascript"></script>
+    <script src="js/floater.js" type="text/javascript"></script>
+    <script src="js/scrolltop.js" type="text/javascript"></script>
+    <style type="text/css">
+        .imgbox
+        {
+            width: 250px;
+            height: 200px;
+            margin: 1px 0 10px 0px;
+            margin-top: 0px;
+            border: 0px #CCCCCC solid;
+            text-align: center;
+        }
+        .imgbox .list
+        {
+            display: none;
+        }
+        /*sss*/
+        #BgDiv
+        {
+            background-color: #2F4F4F;
+            position: absolute;
+            z-index: 99;
+            left: 0;
+            top: 0;
+            display: none;
+            width: 100%;
+            height: 1000px;
+            opacity: 0.5;
+            filter: alpha(opacity=50);
+            -moz-opacity: 0.5;
+        }
+        .fgg
+        {
+            border: 1px solid #ff4400;
+            padding: 5px;
+            position: fixed;
+            background: green;
+        }
+        #scrolltop1
+        {
+            position: fixed;
+            right: 170px;
+            top: 209px;
+            background: green;
+            width: 40px;
+            height: 80px;
+        }
+        #scrolltop1 span
+        {
+            display: block;
+            text-align: center;
+            margin-top: 10px;
+        }
+        #scrolltop1 img
+        {
+            border: 0px;
+        }
+        .floatFixedRightTop
+        {
+            position: absolute;
+        }
+        .floatFixedRight
+        {
+            float: right;
+            height: 80px;
+            position: fixed;
+            right: 10px;
+            bottom: 190px;
+        }
+    </style>
+        <script type="text/javascript">
+        function loadXMLDoc(dname) {
+            try //Internet Explorer
+  {
+                xmlDoc = new ActiveXObject("Microsoft.XMLDOM");
+            }
+            catch (e) {
+                try //Firefox, Mozilla, Opera, etc.
+    {
+                    xmlDoc = document.implementation.createDocument("", "", null);
+                }
+                catch (e) { alert(e.message) }
+            }
+            try {
+                xmlDoc.async = false;
+                xmlDoc.load(dname);
+                return (xmlDoc);
+            }
+            catch (e) {  }
+            return (null);
+        }
+
+        $(function () {
+            $("#tabs").tabs();
+            var xmlDoc = loadXMLDoc("UserControl/XMLSource/xiangxiBGTELandURL.xml");
+           // var x = xmlDoc.getElementsByTagName('VISITS');
+            //  alert(x[0].getAttribute("COUNT"));
+        });
+    </script>
+    <script type="text/javascript">
+        (function ($) {
+            $.fn.extend({
+                'imgbox': function (options) {
+                    var defaultSetting = {
+                        'changeTime': 5
+                    };
+                    options = $.extend(defaultSetting, options || {})
+                    return this.each(function () {
+                        var $obj = $(this);
+                        $obj.css('position', 'relative');
+                        var $list = $('div.list', $obj).find('a');
+                        var t = 3;
+                        var len = $list.length;
+                        var i = len;
+                        var w = parseInt($obj.css('width'));
+                        var h = parseInt($obj.css('height')) - 30;
+                        show_imgbox();
+                        var tid = window.setInterval(function () {
+                            show_imgbox();
+                        }, t * 1000);
+                        function show_imgbox() {
+                            i += 1;
+                            if (i >= len) i = 0;
+                            var $img = $($list[i]);
+                            var title = $img.attr('title');
+                            var url = $img.attr('href');
+                            var src = $img.find('img').attr('src');
+                            var $panel = $('div.imgbox_panel', $obj);
+                            if ($panel.length == 0) {
+                                $panel = $('<div><a href="#"><img src="" border="0" /></a><p style="height:23px;line-height:23px; padding-left:5px;padding-right:5px;text-align:center;margin:0 auto;background:#EEE;position:absolute;"><a href="#" style="font-weight:400;color:#034da2">loading...</a></p></div>').attr('class', 'imgbox_panel');
+                                $panel.find('p').css({
+                                    'width': w - 20 + 'px',
+                                    'left': '3px',
+                                    'top': h + 5 + 'px'
+                                });
+                                $panel.find('img').css({
+                                    'width': w + 'px',
+                                    'height': h + 'px',
+                                    'border': 0
+                                }).attr('width', w + 'px').attr('height', h + 'px');
+                                $obj.append($panel);
+                                $panel.mouseover(function (e) {
+                                    window.clearInterval(tid);
+                                }).mouseout(function (e) {
+                                    tid = window.setInterval(function () {
+                                        show_imgbox();
+                                    }, t * 1000);
+                                });
+                            }
+                            $panel.find('img').attr('src', src);
+                            $panel.find('a').attr('href', url).attr('title', title);
+                            var showTitle = title.length > 18 ? (title.substring(0, 17) + '...') : title;
+                            $panel.find('a:last').html(showTitle);
+                            var $u = $('ul.imgbox_num', $obj);
+                            if ($u.length == 0) {
+                                $u = $('<ul style="display:block;list-style-type:none;overflow:hidden;zoom:1;position:absolute;left:0;top:0;visibility:hidden;text-align:left;padding:0;margin:0;" />').attr('class', 'imgbox_num').css('width', len * 29 + 'px');
+                                for (var i2 = 1; i2 <= len; i2++) {
+                                    $('<li style="display:block;width:15px;height:15px;line-height:15px;text-align:center;vertical-align:middle;float:left;margin:0 3px;border:1px #777 solid;font-weight:700;color:#000;cursor:pointer;" />').html(i2).appendTo($u);
+                                }
+                                $u.css({
+                                    'left': (w - $u.width() + 10) + 'px',
+                                    'top': (h - $u.height() - $panel.find('p').height() - 0) + 'px',
+                                    'visibility': 'visible'
+                                });
+                                $obj.append($u);
+                                $u.find('li').mouseover(function (e) {
+                                    window.clearInterval(tid);
+                                    i = parseInt($(this).html()) - 2;
+                                    if (i < 0) i = len;
+                                    show_imgbox();
+                                }).mouseout(function (e) {
+                                    tid = window.setInterval(function () {
+                                        show_imgbox();
+                                    }, t * 1000);
+                                });
+                            }
+                            var $uli = $u.find('li');
+                            $uli.css({
+                                'border': '1px #777 solid', //background-color:#f8990d;
+                                'background': '#f8990d',
+                                'color': ''
+                            });
+                            $($uli[i]).css({
+                                'border': '1px #F60 solid',
+                                'background': '#3d3934',
+                                'color': '#f60'
+                            });
+                        }
+                    });
+                }
+            });
+        })(jQuery);
+        jQuery(function ($) {
+            $('div.imgbox').imgbox();
+        });
+
+    </script>
+</head>
+<body class="GJKJBG2013_body_all">
+
+<iframe src="Validate/WebForm1.aspx" id="ifrm" style="display:none"></iframe>
+
+    <script type="text/javascript">
+        function unuserFun() {
+            var section = '湖南';
+            if (confirm("是否申请" + section + "正式用户")) {
+
+                $.post("ashx/casInsertUser.ashx", { action: "islogin" }, function (data) {
+
+                    var da = eval(data);
+                    if (da > 0) {
+                        window.location.reload();
+                    }
+                });
+            }
+        }
+        //cas登录地址
+        var casServerLoginUrl = 'http://tyrz.nstrs.cn/login';
+        //本地默认地址
+        var defaultUrl = 'http://www.hnstrs.cn/Professional.aspx?flag=r';
+        var casServerUrlPrefix = 'http://tyrz.nstrs.cn/';
+        var currentUser = ''; //alert(currentUser);
+        var IsCasVerify = 'true';
+
+        var userType = "dz";
+        $(function () {
+            var currentUrl = document.URL;
+            var url = "http://" + "www.hnstrs.cn:80" + "/ashx/header.ashx";
+            var zhongxinurl = "http://" + "www.hnstrs.cn:80" + "/User/MemberCenter.aspx";
+            if (IsCasVerify == "true") {
+                $("#login").attr('href', casServerLoginUrl + '?service=' + defaultUrl);
+                $("#login").attr('onclick', '');
+            }
+            else {
+                $("#login").attr('onclick', 'loginByLocation()');
+                $("#login").attr('href', 'javascript:void(0)');
+            }
+            posthead();
+            $("#logout").click(function () {
+                $.post("../ashx/header.ashx", { action: "logout" }, function (data) {
+                    if (data == "1") {
+                        //alert("退出日志记录完毕");
+                        if (IsCasVerify == "true") {
+                            //cas地址
+
+                            window.location.href = casServerUrlPrefix + "/logout?service=" + defaultUrl;
+
+                        } else {
+                            window.location.href = defaultUrl;
+                        }
+                    }
+                });
+            });
+
+        });
+
+        function posthead() {
+        ///
+            var currentUrl = document.URL;
+            var url = "http://" + "www.hnstrs.cn:80" + "/ashx/header.ashx";
+            var zhongxinurl = "http://" + "www.hnstrs.cn:80" + "/User/MemberCenter.aspx";
+            $.post("../ashx/header.ashx", { action: "islogin" }, function (data) {
+                var d = eval("(" + data + ")");
+                if (d.code == "1" || d.code == "3") {
+                    $("#login").hide();
+                    $("#register").hide();
+                    $("#LoginMsg").show();
+                }
+                if (d.pd == 1) {
+                    if (d.code == "1") {
+                        $("#MenberCenter").show();
+                        $("#message").html("欢迎您<a href='" + zhongxinurl + "'>" + d.name + "</a>!");
+                    } else if (d.code == "3") {
+                        $("#MenberCenter").hide();
+                        $("#message").html("欢迎您&nbsp&nbsp&nbsp&nbsp" + d.name + "<a  href='" + "" + "' style=' cursor: pointer;'>本地审核未通过用户</a>");
+                    }
+
+                    if (d.isAdmin == "True") {
+                        $("#userMrg").show();
+                    }
+
+                } else {
+                    $("#MenberCenter").hide();
+                    $("#message").html("欢迎您&nbsp&nbsp&nbsp&nbsp" + d.name + "<a onclick=\"unuserFun()\" style=' cursor: pointer;'>非本地用户</a>");
+                }
+                if (d.code == "0") {
+                    $("#LoginMsg").hide();
+                }
+            });
+        }
+
+        function getUrl1() {
+            var resulturl = "";
+            var url = document.URL;
+            var arr = url.split('?');
+            var ar = arr[0];
+            if (arr[1].split("=")[0] == "categoryId") {
+                ar += "?categoryId=" + arr[1].split("=")[1];
+                resulturl = ar;
+            }
+            else {
+                resulturl = ar;
+            }
+            return resulturl;
+        }
+        function getUrl() {
+            var url = document.URL;
+            var arr = url.split('?');
+            var ar = arr[0];
+            return ar;
+        }
+
+        function funparent() {
+            posthead();
+        }
+
+
+        //本地登录
+        function loginByLocation() {
+            window.location.href = "../login.aspx?ReturnUrl=" + encodeURIComponent(getUrl());
+        }
+        //Cas登录
+        function loginByCas() {
+
+        }
+
+        //nzl 254-283社会，专业，管理
+        function alerUerWord() {
+            gltel();
+            var xmlhttp, i, val, type;
+            $.ajax({
+                url: "UserControl/XMLSource/XMLindex2UserWord.xml",
+                dataType: 'xml',
+                type: 'GET',
+                timeout: 2000,
+                error: function (xmlhttp) { },
+                success: function (xmlhttp) {
+                    $(xmlhttp).find("index2WORD").each(function (i) {
+                        val = $(this).children("USER").text();
+                        switch (val) {
+                            case "社会公众":
+                                type = "shgz"; break;
+                            case "专业人员":
+                                type = "zyry"; break;
+                            case "管理人员":
+                                type = "glry"; break;
+
+                        }
+                        document.getElementById(type).innerHTML = "<b>" + $(this).children("TITLE").text() + "</b> </br> &nbsp;&nbsp;&nbsp;&nbsp;"
+                            + $(this).children("TEXT").text();
+
+                    }
+                )
+                }
+
+            });
+        }
+        function gltel() {
+            var xmlhttp, i, val, type;
+            $.ajax({
+                url: "UserControl/XMLSource/xiangxiBGTELandURL.xml",
+                dataType: 'xml',
+                type: 'GET',
+                timeout: 2000,
+                error: function (xmlhttp) { },
+                success: function (xmlhttp) {
+
+                    document.getElementById("gltel").innerHTML = $(xmlhttp).find("XIANGXIGB").first().children("TEL").text() + "。";
+                    // alert(document.getElementById("gltel").innerHTML);
+                }
+
+            });
+        }
+    </script>
+    
+    <form name="Form1" method="post" action="index2.aspx" id="Form1">
+<div>
+<input type="hidden" name="__CSRFTOKEN" id="__CSRFTOKEN" value="/wEFJDJmOWYxZjI2LWRiNDctNGIxOS04NTVkLTFhY2Q3YWUwYThhNA==" />
+<input type="hidden" name="__VIEWSTATE" id="__VIEWSTATE" value="/wEPDwUKMTQ0MjA5NzUyNQ9kFgICAQ9kFgICAQ8WAh4Fc3R5bGUFDGRpc3BsYXk6bm9uZWRkIxMJYv4/SCyO/YPIF4K/q5pxa2k=" />
+</div>
+
+<div>
+
+	<input type="hidden" name="__VIEWSTATEGENERATOR" id="__VIEWSTATEGENERATOR" value="8AAC1870" />
+</div>
+    <div class="GJKJBG2013_div_all">
+        <div class="GJKJBG2013_hd">
+            <div class="logo" style="padding-top: 0px;">
+                <img alt="" src="../images/logo.jpg" /></div>
+            <div class="link" id="LoginMsg" style="display: none;">
+                <span id="message"></span>&nbsp;&nbsp;<a href="BusinessManager.aspx" id="userMrg" style="display:none">[用户管理]</a>&nbsp;&nbsp;<a href="../../User/MemberCenter.aspx" id="MenberCenter">[个人中心]</a>&nbsp;&nbsp;<a
+                    id="logout" href="javascript:void(0)">[退出]</a>
+            </div>
+            <div class="link2">
+                <a id="login" href="javascript:void(0)" class="a1">登录</a>
+<a href="../../help/help.htm"
+                    id="help" class="a2">使用帮助</a><br>
+
+ <a id="register" href="../../User/TermsOfRegister.aspx" class="a3">注册</a><!--
+<a id="takeAdvice"
+                    href="../../TakeAdvice.aspx" class="a4">征求意见</a>-->
+
+
+
+
+<a id="takeAdvice" href="admin/Content/ArtileDetails.aspx?arid=10&type=3"
+                    target="_blank" class="a4">知识问答</a>
+
+
+
+
+
+            </div>
+            
+            
+            <div class="GJKJBG2013_clear">
+            </div>
+            <div class="GJKJBG2013_nav">
+                
+                <a href="../../BaogaoLiulan.aspx">报告导航</a>
+                <img alt="" src="../../images/nav_line.gif" />
+                
+                <a href="../../Admin/Content/WorkNews.aspx?categoryId=1" target="_blank">工作动态</a>
+                
+                <img alt="" src="../../images/nav_line.gif" />
+                
+                <a href="../../Admin/Content/Standard.aspx?categoryId=2" target="_blank">标准规范</a>
+                <img alt="" src="../../images/nav_line.gif" />
+                
+                <a href="../../Admin/Content/StudyTraining.aspx?categoryId=3" target="_blank">学习培训</a>
+                
+                
+                 <img alt="" src="../../images/nav_line.gif" />
+                
+
+                <a href="../../BaogaoCenter/CertificateApply.aspx">收录证书</a>
+   <!--             <img alt="" src="../../images/nav_line.gif" />
+
+                <a href="../../BaogaoCenter/YdApply.aspx">阅点领取</a>
+                <img alt="" src="../../images/nav_line.gif" />
+				--><!--
+                <a href="../../Train/train.aspx" target="_blank">样例报告</a>
+				--><!--
+				<a class="help" href="admin/Content/ArtileDetails.aspx?arid=4624&type=3"
+                    target="_blank">知识问答</a> -->
+                <img alt="" src="../../images/nav_line.gif" /> 
+                <a href="../../Admin/Content/policy.aspx" target="_blank">政策解读</a>
+		<a class="help" href="http://61.187.87.57:8088/reportsubmit/" target="_blank" style="font-size: 17px">报告呈交</a>
+            </div>
+        </div>
+        <div class="GJKJBG2013_bd">
+            
+
+<script src="../js/LeftNavMenu_li.js" type="text/javascript"></script>
+<script src="../js/tools.tabs-1.0.4.min.js" type="text/javascript"></script>
+<div class="GJKJBG2013_Dleft2">
+    <div class="GJKJBG2013_BuWeiLeftnav" style="height: 543px;">
+        <div class="middle" style="height: 528px; width: 342px; overflow-x: auto; overflow-y: auto;
+            scrollbar-face-color: #9EBFE8; scrollbar-shadow-color: #FFFFFF; scrollbar-highlight-color: #FFFFFF;
+            scrollbar-3dlight-color: #9EBFE8; scrollbar-darkshadow-color: #9EBFE8; scrollbar-track-color: #FFFFFF;
+            scrollbar-arrow-color: #FFFFFF">
+            <div class="GJKJBG2013_clear">
+                &nbsp;
+            </div>
+            <div class="title">
+                <div class="sbNum" style="float: right;">
+                    系统收录报告数量:581&nbsp;&nbsp;
+                </div>
+                ·&nbsp;分类导引
+            </div>
+            
+            <div class="GJKJBG2013_card1">
+                <div class="PH_title" style="margin-top: 5px;display:none;">
+                    <ul id="card1_nav" class="card1_nav" style="text-align: left">
+                        <li><a class="current" href="javascript:void(0);">按部门</a></li>
+                        <li><a href="javascript:void(0);" class="">按省市</a></li>
+                    </ul>
+                </div>
+                <div id="card1_div">
+                    <div style="display: block;">
+                        <table id="wenzhaTab" cellspacing="0" cellpadding="0" class="PH_TB1">
+                            <ul id="JhOfSb_1">
+                                <li>·&nbsp;<a href="javascript:void(0);" title="国家项目(510)" id="bm_2">国家项目(510)</a></li><ul id="jhOfbm_2" class='lingyu' style="display: none;margin-bottom:0; padding-bottom:0"><li>·&nbsp;<a href="javascript:void(0);" title="科学技术部(510)" id="Jh_22">科学技术部(510)</a></li><ul id="LyOfJh_22" class='lingyu' style="display: none;margin-bottom:0; padding-bottom:0"><li><a href="javascript:void(0);"id="Jh_CC_221" title="国家科技重大专项(21)">国家科技重大专项(21)</a></li><ul id="LyOfJh_CC_221" class='lingyu' style="display: none;margin-bottom:0; padding-bottom:0"><li><a href="javascript:void(0);" title="高档数控机床与基础制造技术(7)">高档数控机床与基础制造技术(7)</a></li><li><a href="javascript:void(0);" title="转基因生物新品种培育(9)">转基因生物新品种培育(9)</a></li><li><a href="javascript:void(0);" title="重大新药创制(3)">重大新药创制(3)</a></li><li><a href="javascript:void(0);" title="艾滋病和病毒性肝炎等重大传染病防治(2)">艾滋病和病毒性肝炎等重大传染病防治(2)</a></li></ul><li><a href="javascript:void(0);"id="Jh_CC_222" title="国家重点基础研究发展计划(150)">国家重点基础研究发展计划(150)</a></li><ul id="LyOfJh_CC_222" class='lingyu' style="display: none;margin-bottom:0; padding-bottom:0"><li><a href="javascript:void(0);" title="农业科学领域(2)">农业科学领域(2)</a></li><li><a href="javascript:void(0);" title="能源科学领域(3)">能源科学领域(3)</a></li><li><a href="javascript:void(0);" title="信息科学领域(4)">信息科学领域(4)</a></li><li><a href="javascript:void(0);" title="资源环境科学领域(5)">资源环境科学领域(5)</a></li><li><a href="javascript:void(0);" title="健康科学领域(40)">健康科学领域(40)</a></li><li><a href="javascript:void(0);" title="材料科学领域(55)">材料科学领域(55)</a></li><li><a href="javascript:void(0);" title="制造与工程科学领域(24)">制造与工程科学领域(24)</a></li><li><a href="javascript:void(0);" title="综合交叉科学领域(15)">综合交叉科学领域(15)</a></li><li><a href="javascript:void(0);" title="重大科学前沿领域(2)">重大科学前沿领域(2)</a></li><li><a href="javascript:void(0);" title="国家重大科学研究计划(18)">国家重大科学研究计划(18)</a></li></ul><li><a href="javascript:void(0);"id="Jh_CC_223" title="国家高技术研究发展计划(202)">国家高技术研究发展计划(202)</a></li><ul id="LyOfJh_CC_223" class='lingyu' style="display: none;margin-bottom:0; padding-bottom:0"><li><a href="javascript:void(0);" title="信息技术领域(51)">信息技术领域(51)</a></li><li><a href="javascript:void(0);" title="生物和医药技术领域(19)">生物和医药技术领域(19)</a></li><li><a href="javascript:void(0);" title="新材料技术领域(26)">新材料技术领域(26)</a></li><li><a href="javascript:void(0);" title="先进制造技术领域(32)">先进制造技术领域(32)</a></li><li><a href="javascript:void(0);" title="先进能源技术领域(9)">先进能源技术领域(9)</a></li><li><a href="javascript:void(0);" title="资源环境技术领域(15)">资源环境技术领域(15)</a></li><li><a href="javascript:void(0);" title="海洋技术领域(9)">海洋技术领域(9)</a></li><li><a href="javascript:void(0);" title="现代农业技术领域(15)">现代农业技术领域(15)</a></li><li><a href="javascript:void(0);" title="现代交通技术领域(12)">现代交通技术领域(12)</a></li><li><a href="javascript:void(0);" title="地球观测与导航技术领域(14)">地球观测与导航技术领域(14)</a></li></ul><li><a href="javascript:void(0);"id="Jh_CC_224" title="国家科技支撑计划(96)">国家科技支撑计划(96)</a></li><ul id="LyOfJh_CC_224" class='lingyu' style="display: none;margin-bottom:0; padding-bottom:0"><li><a href="javascript:void(0);" title="人口与健康(6)">人口与健康(6)</a></li><li><a href="javascript:void(0);" title="信息产业与现代服务业(5)">信息产业与现代服务业(5)</a></li><li><a href="javascript:void(0);" title="材料(5)">材料(5)</a></li><li><a href="javascript:void(0);" title="制造业(11)">制造业(11)</a></li><li><a href="javascript:void(0);" title="能源(7)">能源(7)</a></li><li><a href="javascript:void(0);" title="资源(11)">资源(11)</a></li><li><a href="javascript:void(0);" title="环境(1)">环境(1)</a></li><li><a href="javascript:void(0);" title="农业(31)">农业(31)</a></li><li><a href="javascript:void(0);" title="交通运输(5)">交通运输(5)</a></li><li><a href="javascript:void(0);" title="城镇化与城市发展(3)">城镇化与城市发展(3)</a></li><li><a href="javascript:void(0);" title="公共安全与其他社会事业(8)">公共安全与其他社会事业(8)</a></li><li><a href="javascript:void(0);" title="村镇建设(3)">村镇建设(3)</a></li></ul><li><a href="javascript:void(0);"id="Jh_CC_225" title="国家国际科技合作专项(21)">国家国际科技合作专项(21)</a></li><ul id="LyOfJh_CC_225" class='lingyu' style="display: none;margin-bottom:0; padding-bottom:0"><li><a href="javascript:void(0);" title="生命科学领域(12)">生命科学领域(12)</a></li><li><a href="javascript:void(0);" title="化学与化工领域(1)">化学与化工领域(1)</a></li><li><a href="javascript:void(0);" title="材料科学技术领域(3)">材料科学技术领域(3)</a></li><li><a href="javascript:void(0);" title="能源科学技术领域(2)">能源科学技术领域(2)</a></li><li><a href="javascript:void(0);" title="工程与技术领域(1)">工程与技术领域(1)</a></li><li><a href="javascript:void(0);" title="交通科学技术领域(2)">交通科学技术领域(2)</a></li></ul><li><a href="javascript:void(0);"id="Jh_CC_226" title="国家重大科学仪器设备开发专项(3)">国家重大科学仪器设备开发专项(3)</a></li><ul id="LyOfJh_CC_226" class='lingyu' style="display: none;margin-bottom:0; padding-bottom:0"><li><a href="javascript:void(0);" title="其他(3)">其他(3)</a></li></ul></ul></ul><li>·&nbsp;<a href="javascript:void(0);" title="省属项目(71)" id="bm_0">省属项目(71)</a></li><ul id="jhOfbm_0" class='lingyu' style="display: none;margin-bottom:0; padding-bottom:0"><li>·&nbsp;<a href="javascript:void(0);" title="科技厅(71)" id="Jh_00">科技厅(71)</a></li><ul id="LyOfJh_00" class='lingyu' style="display: none;margin-bottom:0; padding-bottom:0"><li><a href="javascript:void(0);"id="Jh_CC_002" title="科技重大专项(71)">科技重大专项(71)</a></li><ul id="LyOfJh_CC_002" class='lingyu' style="display: none;margin-bottom:0; padding-bottom:0"><li><a href="javascript:void(0);" title="电子与信息(7)">电子与信息(7)</a></li><li><a href="javascript:void(0);" title="新材料(13)">新材料(13)</a></li><li><a href="javascript:void(0);" title="先进制造技术(6)">先进制造技术(6)</a></li><li><a href="javascript:void(0);" title="生物与医药-中医(1)">生物与医药-中医(1)</a></li><li><a href="javascript:void(0);" title="农业-农产品加工(7)">农业-农产品加工(7)</a></li><li><a href="javascript:void(0);" title="农业-农业新技术(4)">农业-农业新技术(4)</a></li><li><a href="javascript:void(0);" title="农业-其他(4)">农业-其他(4)</a></li><li><a href="javascript:void(0);" title="资源与环境(12)">资源与环境(12)</a></li><li><a href="javascript:void(0);" title="工程与交通(3)">工程与交通(3)</a></li><li><a href="javascript:void(0);" title="化学与化工(5)">化学与化工(5)</a></li><li><a href="javascript:void(0);" title="其他(9)">其他(9)</a></li></ul></ul></ul>
+                                <li id="zsylTip" style="display: none"></li>
+                            </ul>
+                        </table>
+                    </div>
+                    <div style="display: none;">
+                        <table id="quuanwenTab" cellspacing="0" cellpadding="0" class="PH_TB1">
+                        </table>
+                    </div>
+                </div>
+                <script type="text/javascript">
+                    $(function () {
+                        $('#card1_nav').tabs('#card1_div>div', { history: true });
+                       //20141201添加 默认展开第一项
+                        $("#jhOfbm_0").css("display", "block");
+                        $("#LyOfJh_00").css("display", "block");
+
+
+
+                        //处理特殊的 国家重大科学研究计划
+                        var a = '<a href="javascript:void(0);"                        id="Jh_CC_222012" title="国家重大科学研究计划(18)">国家重大科学研究计划(18)</a>';
+                        $("a:contains('国家重大科学研究计划')").attr("id", "Jh_CC_002012");
+                        $("#Jh_CC_002012").parent().attr("id", "Jh_CC");
+
+
+                        var b = '<ul id="LyOfJh_CC_222012" class="lingyu" style="display: none;"><li><a href="javascript:void(0);" title="纳米研究(1)">纳米研究(1)</a></li><li><a href="javascript:void(0);" title="量子调控研究(2)">量子调控研究(2)</a></li><li><a href="javascript:void(0);" title="蛋白质研究(12)">蛋白质研究(12)</a></li><li><a href="javascript:void(0);" title="发育与生殖研究(1)">发育与生殖研究(1)</a></li><li><a href="javascript:void(0);" title="干细胞研究(2)">干细胞研究(2)</a></li></ul>';
+                        $("#Jh_CC").parent().append(b);
+                        $("#Jh_CC_002012").click(function () {
+                            if ($("#LyOfJh_CC_222012").is(":hidden")) {
+                                $("#LyOfJh_CC_222012").css("display", "block");
+                            } else {
+                                $("#LyOfJh_CC_222012").css("display", "none");
+                            }
+                        })
+
+                        
+                        $('#LyOfJh_CC_222012 a').click(function () {
+                            var curA = $(this);
+                            var Atext = curA.text();
+                            
+                            var fieldCount = Atext.substring(Atext.lastIndexOf('(') + 1, Atext.lastIndexOf(')')); //获取领域的个数
+                            
+                            var spliterIndex = Atext.indexOf("(");
+                            var curJh = $(this).parent().parent().prev().find("a");
+                            var chrJhtext = curJh.text();
+                            var jihuaCount = chrJhtext.substring(chrJhtext.lastIndexOf('(') + 1, chrJhtext.lastIndexOf(')')); //获取计划的个数
+                            
+                            var jhName = chrJhtext.substring(0, chrJhtext.indexOf("("));
+                            var realJhName = "";
+
+
+
+                            if (userType == "dz" || userType == "zy") {
+                                window.location.href = "../BaogaoLiulan.aspx?actionType=anjihua" + "&jihua=" + escape(realJhName) + "&field=" + escape($(this).attr("title").split('(')[0]) + "&fc=" + fieldCount + "&jc=" + jihuaCount + "&a=lnm";
+                            }
+                            else if (userType == "gl") {
+                                window.location.href = "../BaogaoLiulan.aspx?actionType=anjihua" + "&jihua=" + escape(realJhName) + "&field=" + escape($(this).attr("title").split('(')[0]) + "&fc=" + fieldCount + "&jc=" + jihuaCount + "&a=lnm";
+                            }
+                        })
+
+
+
+
+                    });
+                </script>
+            </div>
+        </div>
+    </div>
+</div>
+
+            <div style="width: 640px; height: 75px; float: left; margin: 0 0 0 5px">
+                <a href="ZCJD.html" target="_blank">
+                    <img src="images/pic_ZCJD.jpg" alt="" style="cursor: pointer;"></a>
+            </div>
+            <div class="GJKJBG2013_Dmiddle2">
+                <div class="GJKJBG2013_User4_1" style="height: 120px;">
+                    <div class="title">
+                        <a href="/ashx/TransferStation.ashx?action=cp">社会公众<span class="sbNum">（直接点击进入）</span></a></div>
+                    <div id="shgz" class="txt" style="line-height: 23px;">
+                        <b>向社会公众无偿提供科技报告摘要浏览服务</b>
+                        <br />
+                        &nbsp;&nbsp; 社会公众不需要注册，即可通过检索科技报告摘要和基本信息，了解湖南科技投入及在湘实施国家项目所产出科技报告的基本情况。
+                    </div>
+                </div>
+                <div class="GJKJBG2013_User4_2" style="height: 144px;">
+                    <div class="title">
+                        <a href="/ashx/TransferStation.ashx?action=p">专业人员<span class="sbNum">（经实名注册后登录进入）</span></a></div>
+                    <div id="zyry" class="txt" style="line-height: 23px;">
+                        <b>向专业人员提供在线全文浏览服务</b>
+                        <br />
+                        &nbsp;&nbsp;专业人员需要实名注册，通过身份认证即可检索并在线浏览批准范围内的科技报告全文，不能下载保存全文。
+                    </div>
+                </div>
+                <div class="GJKJBG2013_User4_3" style="height: 120px;">
+                    <div class="title">
+                        <a href="/ashx/TransferStation.ashx?action=m" id="mlinkid">管理人员<span class="sbNum">（实名注册并由管理部门批准后登录进入）</span></a></div>
+                    <div id="glry" class="txt" style="line-height: 23px;">
+                        <b>向各级科研管理人员提供统计分析服务 </b>
+                        <br />
+                        &nbsp;&nbsp;管理人员需实名注册，并通过科研管理部门批准后，享有检索、查询、全文浏览以及批准范围内的相应统计分析等服务。
+                    </div>
+                </div>
+                <div class="GJKJBG2013_User4_4" style="display: none;">
+                    <div class="title">
+                        <a href="#">决策支持<span class="sbNum">（建设中）</span></a>
+                    </div>
+                    <div class="txt">
+                        <b>向政府部门提供决策支持服务</b>
+                        <br />
+                        &nbsp;&nbsp;用户需要通过管理部门批准注册，提供基于科技报告内容的技术情报研究、团队/机构评价、行业/领域深度分析等数据挖掘服务和相关知识关联服务，为政府部门提供决策支持。
+                    </div>
+                </div>
+
+
+                <div id="advice" class="GJKJBG2013_ZQYJ" style="display:none">
+                    <div class="top">
+                        <a href="TakeAdvice.aspx" style="font-size: 16px; color: #034DA2">征求意见栏</a>
+                    </div>
+                    <div class="txt">
+                        您对国家科技报告服务系统的意见和建议？</div>
+                </div>
+            </div>
+            <div class="GJKJBG2013_Dright2">
+                <div class="GJKJBG2013_ZQYJL_R" style="display: none">
+                    <a href="TakeAdvice.aspx">
+                        <img alt="" src="images/button_ZQYJL_R1.jpg" /></a>
+                </div>
+                
+<link rel="stylesheet" type="text/css" href="../csslib/main.css" />
+<script src="../js/kxbdMarquee.js" type="text/javascript"></script>
+
+<div class="GJKJBG2013_module1">
+    <div class="top">
+        <table style="width: 250px;">
+            <tr>
+                <td align="left" style="font-size: 16px">
+                    工作动态
+                </td>
+                <td align="right">
+                    <a href="../Admin/Content/WorkNews.aspx?categoryId=1">
+                        <img alt="更多" src="../images/more1.gif" /></a>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div id="marqueeGZDT" class="middle" style="height: 421px; _height: 541px;">
+        <div class="imgbox">
+            <div class="list">
+                
+                <a href="Admin/Content/ArtileDetails.aspx?arid=29&type=1" style="color: blue;"
+                    title="湖南省正式启动科技报告工作" target="_blank">
+                    <img alt="" src="Admin/Upload/imgs/201678940qdkjbggz.jpg" title="湖南省正式启动科技报告工作"
+                        border="0" /></a>
+                
+            </div>
+        </div>
+		<!--
+     <div style="width: 259px; margin-left:-7px;margin-top:-10px; height: 32px; line-height: 35px;  text-align: center">
+            <a style="color: #FF0000; font-size: 12px" target="_blank;" href="../Admin/Content/ArtileDetails.aspx?arid=4699&type=1">
+                国家自然科学基金及交通运输部科技报告上线</a>
+        </div>
+		-->
+        
+        <div id="demo1" style="overflow: hidden; width: 263px; height: 169px; line-height: 20px;
+            font-size: 12px; position: absolute;">
+            <ul id="ulGZDT">
+                
+                
+                <li class="liShow">
+                    
+                    ·<a style="font-size: 12px" href="Admin/Content/ArtileDetails.aspx?arid=28"
+                        title="湖南科技报告服务系统开通试运行" target='_blank'>湖南科技报告服务系统开通试运行</a>
+                    <span class="time" style="display: none">
+                        2016-05-16</span> </li>
+                
+                <li>&nbsp;</li><li>&nbsp;</li>
+                
+            </ul>
+        </div>
+		<!--
+        <div style="width: 243px; height: 42px; line-height: 35px; background: #EEEEEE; position: absolute;
+            margin-top: 139px;">
+            
+         <a href="../ZhuanTi/daqiwuran/default.aspx" target="_blank"><img src="../images/dqzt.jpg" /></a>
+        </div>    
+-->		
+        <div id="demo2">
+        </div>
+        <script type="text/javascript">
+            $('#demo1').kxbdMarquee({ direction: 'up', isEqual: false, scrollDelay: 40 });           
+        </script>
+    </div>
+</div>
+
+                <div style="display: none">
+                    
+
+<div class="GJKJBG2013_module1">
+    <div class="top">
+        <table style="width: 100%">
+            <tr>
+                <td align="left" style="font-size: 16px">
+                    学习培训
+                </td>
+                <td align="right">
+                    <a href="../Admin/Content/StudyTraining.aspx?categoryId=3">
+                        <img alt="更多" src="../images/more1.gif" /></a>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="middle">
+        <ul class="ul1">
+            
+            <li>·<a href="Admin/Content/ArtileDetails.aspx?arid=41&type=3"
+                title="科技报告：内涵、制度起源与撰写方法（PPT课件）" target="_blank">
+                科技报告：内涵、制度起源...</a></li>
+            
+            <li>·<a href="Admin/Content/ArtileDetails.aspx?arid=44&type=3"
+                title="科技报告撰写常见错误.doc" target="_blank">
+                科技报告撰写常见错误.d...</a></li>
+            
+            <li>·<a href="Admin/Content/ArtileDetails.aspx?arid=38&type=3"
+                title="科技报告模板（通用版）.doc" target="_blank">
+                科技报告模板（通用版）....</a></li>
+            
+            <li>·<a href="Admin/Content/ArtileDetails.aspx?arid=37&type=3"
+                title="科技报告的共享" target="_blank">
+                科技报告的共享</a></li>
+            
+            <li>·<a href="Admin/Content/ArtileDetails.aspx?arid=36&type=3"
+                title="科技报告的呈交" target="_blank">
+                科技报告的呈交</a></li>
+            
+            <li>·<a href="Admin/Content/ArtileDetails.aspx?arid=35&type=3"
+                title="科技报告撰写规范" target="_blank">
+                科技报告撰写规范</a></li>
+            
+        </ul>
+    </div>
+</div>
+
+                </div>
+            </div>
+            <div class="GJKJBG2013_clear">
+                &nbsp;</div>
+            <div class="GJKJBG2013_clear">
+            </div>
+            <!--sss-->
+            <div style="display: none">
+                <div id="scrolltop1" style="display: none;">
+                    <span><a title="返回顶部" onclick="window.scrollTo('0','0')" alt="返回顶部">
+                        <img src="images/home_1.png" /></a></span> <span><a onclick="ShowDIV('feedback');"
+                            class="replyfast" alt="征求意见" title="意见">
+                            <img src="images/contact_6.png" /></a></span>
+                </div>
+                <div id="BgDiv">
+                </div>
+                <div style="display: none;" id="feedback">
+                    <div class="feedback-inner">
+                        <div class="feedback-hd js-cancel">
+                            <a title="" href="javascript:void(0);" onclick="closeDiv('feedback','ok')"></a>
+                        </div>
+                        <div class="feedback-bd">
+                            <div id="dv1" style="display: block;">
+                                <h3 class="tit tit1">
+                                    1.请选择问题分类：</h3>
+                                <div id="tabs1" style="display: none;">
+                                    <ul>
+                                        <li><a href="#tabs-1">样式建议</a></li>
+                                        <li><a href="#tabs-2">功能模块建议</a></li>
+                                        <li><a href="#tabs-3">Bug建议</a></li>
+                                        <li><a href="#tabs-4">其他问题</a></li>
+                                    </ul>
+                                    <div id="tabs-1">
+                                        <textarea cols="70" rows="6">对我们的系统有什么建议，来这里反馈吧~</textarea></div>
+                                    <div id="tabs-2">
+                                        <textarea cols="70" rows="6">对我们的系统有什么建议，来这里反馈吧~</textarea></div>
+                                    <div id="tabs-3">
+                                        <textarea cols="70" rows="6">对我们的系统有什么建议，来这里反馈吧~</textarea></div>
+                                    <div id="tabs-4">
+                                        <textarea cols="70" rows="6">对我们的系统有什么建议，来这里反馈吧~</textarea></div>
+                                </div>
+                                <div class="content" style="display: block">
+                                    <ul class="tag">
+                                        <li text-default="对我们的系统有什么样式的意见和建议，来这里反馈吧~" class="on"><a title="" id="lis1"><span
+                                            class="l"></span><span class="m">样式建议</span><span class="r"></span></a></li>
+                                        <li text-default="更好的功能，我要建议~"><a title="" id="lis2"><span class="l"></span><span
+                                            class="m">功能模块建议</span><span class="r"></span></a></li>
+                                        <li text-default="系统出错、BUG~"><a title="" id="lis3"><span class="l"></span><span class="m">
+                                            Bug建议</span><span class="r"></span></a></li>
+                                    </ul>
+                                    <div class="reply">
+                                        <textarea class="txt" id="message1" name="message_fake1">对我们的系统有什么意见和建议，来这里反馈吧~</textarea>
+                                        <textarea class="txt" id="message2" name="message_fake2">对我们的系统有什么意见和建议，来这里反馈吧~</textarea>
+                                        <textarea class="txt" id="message3" name="message_fake3">对我们的系统有什么意见和建议，来这里反馈吧~</textarea>
+                                    </div>
+                                </div>
+                                <div class="content">
+                                    <h1>
+                                        2.留下您的邮箱</h1>
+                                    <input type="text" value="邮箱" class="number" id="contact" name="contact" />
+                                </div>
+                                <div class="content" style="display: block; float: left;">
+                                    <h1>
+                                        3.满意度</h1>
+                                    <input type="radio" value="1" name="score" />非常满意
+                                    <input type="radio" value="2" name="score" />满意
+                                    <input type="radio" value="3" name="score" />一般
+                                    <input type="radio" value="4" name="score" />不满意
+                                </div>
+                                <div class="btn-wrap">
+                                    <div class="errortip" style="display: none;" id="feedback_hit">
+                                        亲，您忘了添加反馈了吧~
+                                    </div>
+                                    <a class="btn submit" href="javascript:void(0)" id="submit_btn">提&#12288;交</a>
+                                </div>
+                                <input type="hidden" value="8" name="sectionid"><input type="hidden" name="deviceinfo"
+                                    id="deviceinfo" value="{&quot;screen&quot;:&quot;1366*768&quot;,&quot;browser&quot;:{&quot;userAgent&quot;:&quot;Mozilla/5.0 (Windows NT 6.1; WOW64; rv:23.0) Gecko/20100101 Firefox/23.0&quot;,&quot;platform&quot;:&quot;Win32&quot;,&quot;product&quot;:&quot;Gecko&quot;,&quot;language&quot;:&quot;zh-CN&quot;,&quot;oscpu&quot;:&quot;Windows NT 6.1; WOW64&quot;,&quot;vendor&quot;:&quot;&quot;,&quot;cookieEnabled&quot;:true,&quot;onLine&quot;:true,&quot;buildID&quot;:&quot;20130814063812&quot;}}">
+                                <input type="hidden" value="http://feedback.hao.360.cn/index/index/?sectionid=8"
+                                    id="feedback_referer" name="referer">
+                                <input type="hidden" value="" id="message_real" name="message">
+                                <!--</form>-->
+                            </div>
+                            <div style="display: none" class="success" id="feedback_success">
+                                <div class="show-result">
+                                    <img src="http://p9.qhimg.com/.png" />
+                                </div>
+                                <div class="tip">
+                                    点<a title="" href="/">这里</a>回到科技报告服务平台首页,继续提意见请点<a title="" id="feedback_agin">这里</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+
+<div class="GJKJBG2013_ft">
+    <div class="link">
+        <a  target="_blank" href="../../Admin/Content/AboutUs.aspx">关于我们</a>|<a  target="_blank" href="/admin/Content/ArtileDetails.aspx?arid=10&type=3">问题解答</a>|<a target="_blank" href="http://61.187.87.49/pms-hn/">科技计划</a>|<a href="../../Sitemap.aspx">网站地图</a>
+    </div>
+ <script type="text/javascript">
+        //nzl 9-46读取版权，备注
+        $(function () {
+            var xmlhttp;
+            var txt, val, node, i, j;
+            txt = "";
+            $.ajax({
+                url: "../../UserControl/XMLSource/XMLfooter.xml",
+                dataType: 'xml',
+                type: 'GET',
+                timeout: 2000,
+                error: function (xmlhttp) {
+                    //                val=$(this).attr("NAME");
+                    ;
+
+                },
+                success: function (xmlhttp) {
+                    $(xmlhttp).find("NODE").each(function (i) {
+                        val = $(this).children("DISPLAY").text();
+                       // alert(xmlhttp.length)
+                        if (val != "换行") {
+                          
+                            if (val != "不显示")
+                                txt += val + "：" + $(this).children("VALUE").text();
+                            else
+                                txt += $(this).children("VALUE").text();
+                            txt += "&nbsp;&nbsp;&nbsp;&nbsp;";
+                           
+                        }
+                        else
+                            txt += "<br/>";
+
+                    });
+//                      alert(txt);
+//                  if(txt!=null)
+                    document.getElementById("txtfooter").innerHTML = txt;
+                }
+            });
+           
+            
+           
+        });
+    </script>
+    <div  class="txt">
+<div id="txtfooter">
+        地址：湖南省杭州市环城西路33号&nbsp;&nbsp;&nbsp;&nbsp;邮编：310006&nbsp;&nbsp;&nbsp;&nbsp;电子邮箱：kjbg@zjinfo.gov.cn&nbsp;&nbsp;&nbsp;&nbsp;咨询电话：0571-87054742
+        <br />
+        湖南省科学技术厅&nbsp;&nbsp;版权所有&nbsp;&nbsp;浙ICP备10026396号-1
+        <br />
+</div>
+        <img alt="" src="../../images/logo_GS.gif" />
+    </div>
+</div>
+
+    </div>
+    </form>
+    
+    <style type="text/css">
+        /*遮罩div css*/
+        .JanSheZhong1
+        {
+            background-color: #fff;
+            border: 1px #D4D4D4 solid;
+            padding: 20px 20px;
+            line-height: 30px;
+            font-family: "Microsoft YaHei";
+            font-size: 14px;
+            color: #123A76;
+            text-align: left;
+            text-indent: 2em;
+        }
+        .JanSheZhong1 .t1
+        {
+            color: #0066CC;
+        }
+        #showdiv
+        {
+            /*
+            width: 300px;
+            background-color: #FFFFFF;
+            padding: 12px;*/
+            z-index: 9999;
+            display: none;
+            position: absolute;
+            width: 500px;
+            height: 300px;
+        }
+        #screen
+        {
+            display: none;
+            position: absolute;
+            width: 100%;
+            left: 0;
+            top: 0;
+            background-color: #000000;
+            z-index: 8888;
+        }
+        #move
+        {
+            cursor: move;
+            font-size: 9pt;
+            font-family: 宋体;
+            color: #333333;
+            float: inherit;
+        }
+        #btnquxiao
+        {
+            cursor: pointer;
+            font-size: 9pt;
+            font-family: 宋体;
+            color: #333333;
+        }
+    </style>
+    <script type="text/javascript">
+        /*遮罩div js*/
+        var popupStatus = 0;
+        var $place = function (selector) { //目标居中
+            var $t = 0;
+            var $l = 0;
+            $t = ($(window).height() - $(selector).height()) / 2 + $(document).scrollTop();
+            $l = ($(window).width() - $(selector).width()) / 2;
+            $(selector).css({ "left": $l + "px", "top": $t + "px" });
+            $("#screen").css({ "height": $("body").height() + "px" });
+        };
+        $(function () {
+            var isProfessional=0;
+            if(isProfessional==1){
+                $("#mlinkid").click(function() {
+                    showdiv();
+                    return false;
+                })
+            }
+
+            $("#FeeReading").click(function () {
+                showdiv();
+            });
+            //取消
+            $("#btnquxiao").click(function () {
+                //仅在开启标志popupStatus为1的情况下去除     
+                if (popupStatus == 1) {
+                    $("#screen").fadeOut("slow");
+                    $("#showdiv").fadeOut("slow");
+                    popupStatus = 0;
+                }
+            });
+        });
+        function showdiv() {
+            $place($("#showdiv"));
+            $(window).resize(function () { $place($("showdiv")); }) //调整浏览器大小 
+            loadPopup();
+        }
+        function loadPopup() {
+            //仅在开启标志popupStatus为0的情况下加载 
+            if (popupStatus == 0) {
+                $("#screen").css({
+                    "opacity": "0.5"
+                });
+                $("#screen").fadeIn("slow");
+
+                $("#showdiv").fadeIn("slow");
+
+                $("body").css({ "overflow": "hidden" });
+
+                popupStatus = 1;
+            }
+        }
+    </script>
+    
+    <div id="tjDiv" style="width: 100%; height: 100%">
+        <div id="screen">
+            <!--该DIV用于锁屏-->
+        </div>
+        <div id="showdiv">
+            
+            <div id="tjShowDiv" class="txt middle">
+                <p>
+                </p>
+                <div class="JanSheZhong1">
+                    <p>
+                        您尚未获得管理人员授权，管理人员需实名注册，并通过科研管理部门批准后，才能进入。目前您只能进入专业人员页面，如有疑问，请咨询 <span id="gltel"></span></p>
+                    <div style="text-align: center;">
+                        <input class="GJKJBG2013_Button1" style="background-image: url(../images/button_1_1.png);
+                            width: 166px;" type="submit" value="进入专业人员首页" name="btnenter" onclick="window.location.href='/Professional.aspx'" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        <input class="GJKJBG2013_Button1" style="background-image: url(../images/button_1_1.png);"
+                            type="submit" value="返    回" name="btnreturn" onclick="window.location.href='/index2.aspx'" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+<script type="text/javascript">
+    $(function () {
+        $("#lis1").click(function () {
+            for (i = 1; i <= 3; i++) {
+                $("#message" + i).hide();
+            }
+            $("#message1").show();
+        });
+        $("#lis2").click(function () {
+            for (i = 1; i <= 3; i++) {
+                $("#message" + i).hide();
+            }
+            $("#message2").show();
+        });
+        $("#lis3").click(function () {
+            for (i = 1; i <= 3; i++) {
+                $("#message" + i).hide();
+            }
+            $("#message3").show();
+        });
+
+        $("#submit_btn").click(function () {
+            $("#dv1").css("display", "none");
+            $("#feedback_success").css("display", "block");
+        })
+        $("#feedback_agin").click(function () {
+            $("#dv1").css("display", "block");
+            $("#feedback_success").css("display", "none");
+        })
+        for (var i = 1; i <= 3; i++) {
+            $("#message" + i).focus(function () {
+                $(this).val("");
+            });
+        }
+        $(".number").focus(function () {
+            $(this).val("");
+        });
+        $(".tag li").click(function () {
+            $(this).parent().find("li").removeClass("on");
+            $(this).addClass("on");
+        });
+        $("#submit_btn").click(function () {
+            var Email = $("#contact").val();
+            var styleContent = $("#message1").val();
+            var moduleContent = $("#message2").val();
+            var bugContent = $("#message3").val();
+            var Satisfaction = $(".content input[name='score']:checked").val();
+            $.ajax({
+                type: "Post",
+                url: "ashx/advice.ashx",
+                data: { "Satisfaction": Satisfaction, "Email": Email,
+                    "styleContent": styleContent, "moduleContent": moduleContent, "bugContent": bugContent
+                },
+                success: function (data) {
+                    alert(data);
+                },
+                error: function (data) {
+                    alert(data);
+                }
+            });
+        });
+
+    });
+    function ShowDIV(thisObjID) {
+        $("#BgDiv").css({ display: "block", height: $(document).height() });
+        var yscroll = document.documentElement.scrollTop;
+        // $("#" + thisObjID).css("top", "150px");
+        $("#" + thisObjID).css("display", "block");
+        document.documentElement.scrollTop = 0;
+
+    }
+    function closeDiv(thisObjID, obj) {
+        if (obj == "ok") {
+            $("#BgDiv").css("display", "none");
+            $("#" + thisObjID).css("display", "none");
+        }
+        else {
+            window.location.href = "../Index2.aspx";
+        }
+    }
+</script>
+
+

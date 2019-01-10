@@ -1,0 +1,88 @@
+<html><head></head>
+<body>
+<script type="text/javascript">
+
+    //ie browser do not support base64encode and base64decode
+    if (!window.btoa) {
+        window.btoa = function (text) {
+            if (/([^\u0000-\u00ff])/.test(text)) return;
+            var table = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/",
+                    i = 0,
+                    cur, prev, byteNum,
+                    result = [];
+
+            while (i < text.length) {
+                cur = text.charCodeAt(i);
+                byteNum = (i + 1) % 3;
+
+                switch (byteNum) {
+                    case 1: //first byte
+                        result.push(table.charAt(cur >> 2));
+                        break;
+                    case 2: //second byte
+                        result.push(table.charAt((prev & 3) << 4 | (cur >> 4)));
+                        break;
+                    case 0: //third byte
+                        result.push(table.charAt((prev & 0x0f) << 2 | (cur >> 6)));
+                        result.push(table.charAt(cur & 0x3f));
+                        break;
+                }
+                prev = cur;
+                i++;
+            }
+
+            if (byteNum == 1) {
+                result.push(table.charAt((prev & 3) << 4));
+                result.push("==");
+            } else if (byteNum == 2) {
+                result.push(table.charAt((prev & 0x0f) << 2));
+                result.push("=");
+            }
+            return result.join("");
+        }
+    }
+
+    var pptvip = getParameter('pptvip');
+    if(pptvip != undefined){
+        pptvip = pptvip.replace(/X/ig,'.');
+    }
+    var exptimeStr = getParameter('exptime');
+    var pptv_dx_gecode = getParameter('geocode');
+    var exptime;
+
+    var expire_reg = /^1[4-8]\d{8}$/;
+    if (expire_reg.test(exptimeStr)) {
+        exptime = parseInt(exptimeStr) * 1000;
+    } else {
+        exptime = 0;
+    }
+
+    var ip_reg = /^((?:(?:25[0-5]|2[0-4]\d|((1\d{2})|([1-9]?\d)))\.){3}(?:25[0-5]|2[0-4]\d|((1\d{2})|([1-9]?\d))))$/;
+    var isIp = ip_reg.test(pptvip);
+    var encodeIp = btoa(pptvip);
+    var nowDate = new Date();
+    var expire = new Date(exptime);
+    expire = '; expires=' + expire.toGMTString();
+    var path = '; path=/';
+    var domain = '; domain=pptv.com';
+    if (isIp) {
+        document.cookie = 'pptvuserip' + '=' + encodeIp + expire + path + domain;
+//        document.cookie = 'pptv_dx_ct = ' + Math.round(new Date().getTime() / 1000) + expire + path + domain;
+//        document.cookie = 'pptv_dx_gecode' + '=' + pptv_dx_gecode + expire + path + domain;
+    }
+
+    function getParameter(param) {
+        var url = window.location.href;
+        var queryStr = url.split('#')[1] || '';
+        var paramList = queryStr.split('&');
+        for (index in paramList) {
+            var params = paramList[index].split('=');
+            if (params[0] == param) {
+                return params[1];
+            }
+        }
+        return "";
+    }
+</script>
+
+</body></html>

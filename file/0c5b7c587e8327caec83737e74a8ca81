@@ -1,0 +1,152 @@
+<!DOCTYPE html><html lang="en" xmlns="http://www.w3.org/1999/xhtml"><head>
+  <meta charset="UTF-8">
+  <meta name="Generator" content="EditPlus®">
+  <meta name="Author" content="yaochuanlu">
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8;">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta content="always" name="referrer">
+  <title>loaded</title>
+<style type="text/css">
+body,div {
+margin:0; padding:0;
+}
+</style>
+  <script>
+	var index = 0;//当前显示iframe序号
+	var initindex = 0;
+	var objarr = null ;
+	var offset = 0;//动画中偏移量
+	var currentiframe = null;//当前显示的iframe
+	var nextiframe = null;//下个要显示的iframe
+	var iframe1 ;//第一个显示的iframe
+	var changeInterval = 10000;//设置广告切换时间为10S
+	var parentDiv;//需要插入的父级元素
+	var srcarr =  new Array("http://www.duba.com/union2.html?u2896011_300_250_pg");//所有需要加载的广告src
+	var iframewidth = 300;
+	var iframeheight = 250;
+
+	function change()
+	{
+		if(objarr == null)init();//如果没有初始化则进行初始化
+		currentiframe = objarr[index];//当前需要展示的iframe序号
+		nextiframe = objarr[getindex()];
+		move();
+	};
+	function move()
+	{
+		//设置平移效果
+		offset -= 20;
+		currentiframe.style.left = offset + "px";
+		nextiframe.style.left = iframewidth + offset + "px";
+		nextiframe.style.width = Math.abs(offset) + "px";
+		
+		if(offset <= -1*iframewidth)
+		{
+			offset = 0;
+			return;
+		}
+		else
+		{
+			setTimeout("move()",50);
+		}
+
+	};
+	function init()
+	{
+		objarr = new Array();//定义存储iframe的数组
+		parentDiv = document.getElementById("main");
+		if(parentDiv == null || parentDiv == "underfined")
+		{
+			//发送异常则停止
+			return;
+		}
+		//初始化第一个iframe，加载src资源
+		iframe1 = document.getElementById("external-frame");
+
+		if(iframe1 != null)
+		{
+			iframe1.setAttribute("src",srcarr[initindex++]);
+			iframe1.style.height = 250 + "px";
+			objarr.push(iframe1);
+		}
+		else
+		{
+			return setTimeout( "init()", 1000);
+		}
+	
+		/*
+			添加延迟加载功能，延迟加载前两个广告位
+			防止一次打开多个iframe造成卡顿现象
+		*/
+//		setTimeout("addChildAdTask()",3000);//动态加载需要展示的广告
+//		setTimeout("addOther()",1000);
+		//开始定时轮播广告
+//		setInterval( "change()", changeInterval);
+	}
+
+	function getindex()
+	{
+		if(index == objarr.length -1)
+		{
+			index = 0;
+			return index;
+		}
+		else
+		{
+			return ++index;
+		}
+	};
+	function addChildAdTask()
+	{
+		var ifr = document.createElement("iframe");
+		ifr.style.position = "absolute";
+		ifr.style.left = -300 + "px";
+		ifr.style.top =  0 + "px";
+		ifr.style.width = 300 + "px";
+		ifr.style.height = 250 + "px";
+		ifr.scrolling = "no";
+		ifr.marginWidth= "0";
+		ifr.marginHeight="0";
+		ifr.frameBorder="0";
+		ifr.src = srcarr[initindex++];
+		parentDiv.appendChild(ifr);
+		objarr.push(ifr);
+		if(initindex < srcarr.length)setTimeout("addChildAdTask()",3000);
+	};
+	function readyTask(u){
+			var ifr = document.createElement("iframe");
+			ifr.style.position = "absolute";
+			ifr.style.display="none";
+			ifr.style.left = "0px";
+			ifr.style.top = "300px";
+			ifr.style.width = 300 + "px";
+			ifr.style.height = 250 + "px";
+			ifr.scrolling = "no";
+			ifr.marginWidth= "0";
+			ifr.marginHeight="0";
+			ifr.frameBorder="0";
+			ifr.src = u;
+			parentDiv.appendChild(ifr);
+	}
+	function addOther()
+	{
+		var rand=Math.random();
+		if(rand<0.15){
+			readyTask("http://www.duba.com/union2.html?u2816405_300_250_pg");
+		}
+	};
+	
+	window.onload = function() 
+	{
+		//网页加载完成1秒之后开始延迟初始化
+		setTimeout( "init()", 50);
+	};
+  </script>
+ </head>
+ <body>
+	<div id="main" style="padding: 0px; width: 300px; height: 250px;">
+		<iframe id="external-frame" scrolling="no" frameborder="0" marginwidth="0" marginheight="0" style="position:absolute; left: 0px; top: 0px; padding: 0px; width: 300px; height: 250px;"></iframe>
+	</div>
+ 
+
+</body></html>

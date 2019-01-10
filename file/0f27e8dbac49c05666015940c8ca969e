@@ -1,0 +1,149 @@
+<!DOCTYPE html><html><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<meta name="format-detection" content="telephone=no">
+<script src="/staticappread/lib/swiper.min.js"></script>
+<link rel="stylesheet" href="/staticappread/css/swiper.min.css">
+<link rel="stylesheet" href="/staticappread/css/tingshu.css">
+<link rel="stylesheet" href="/staticappread/css/loadmore.css">
+<!-- <script type="text/javascript" src="http://wap.sogou.com/staticapp/js/zepto.min-v1.0.js"></script> -->
+<script type="text/javascript" src="/staticappread/js/jquery.min.js"></script>
+<script type="text/javascript" src="/staticappread/js/jquery.cookie.js"></script>
+<script type="text/javascript" src="/staticappread/js/jquery-ui-1.10.4.custom.min.js"></script>
+<script src="/staticappread/js/jquery.ui.touch-punch.min.js"></script>
+<script type="text/javascript" src="/staticappread/js/dropload.js"></script>
+<script type="text/javascript" src="/staticappread/js/appdownload.js"></script>
+<script src="http://res.wx.qq.com/open/js/jweixin-1.0.0.js"></script>
+<script type="text/javascript" src="/staticappread/js/weixin.js"></script>
+<script type="text/javascript" src="/staticappread/js/util.js"></script>
+<script type="text/javascript">
+var shelfData = {
+		a:null,
+		o:null,
+		i:null,
+		t:null,
+		cid:null,
+		s:null,
+		hot:null
+	};
+</script>
+
+<title>_搜狗阅读听书专区</title>
+<style>
+
+.trackplaying {
+	animation: 9.5s linear 0s normal none infinite rotate;
+	-webkit-animation:9.5s linear 0s normal none infinite rotate;
+}
+
+.btn-play-pre , .btn-play-nxt {
+	z-index: 10;
+}
+.gotop {
+	z-index: 100;
+	display:none;
+}
+</style>
+</head>
+<body style="">
+
+
+
+
+
+
+<script type="text/javascript">
+	window.gp = 'gf=e-d-pother-i&uID=366CC7651418980A0000000058DFFFF8&sgid=0&src=0';
+</script>
+<div class="fullcontent">
+	<div class="cover-wrap" id="player">
+		<div class="topbar">
+			<a href="&amp;gf=e-d-pother-i&amp;uID=366CC7651418980A0000000058DFFFF8&amp;sgid=0&amp;src=0" class="top-back"></a>
+	        <a href="&amp;gf=e-d-pother-i&amp;uID=366CC7651418980A0000000058DFFFF8&amp;sgid=0&amp;src=0" class="top-home"></a>
+	    </div>
+		<div class="cover-blur">
+			
+			   		<img src="../staticappread/images/blurImgs/" alt="">
+			    
+		</div>
+		<div class="cover-main"><h1 class="player-title"></h1>
+		   <div class="player-author"></div>
+		   <div class="player-box">
+		       <a class="btn-play-pre player-prev"></a>
+		       <!--点击切换播放状态-->
+		       <div class="player-cover pause"><img onerror="this.src='../staticappread/images/defaultaudio.png'" src="../staticappread/images/defaultaudio.png" class="play-thumb"></div>
+		       <a class="player-next btn-play-nxt"></a>
+		   </div>
+		   <div class="progress-box">
+		       <time class="time-elapsed play-bar-txt"></time>
+		       <div class="progress-bar ui-slider ui-slider-horizontal ui-widget ui-widget-content ui-corner-all" aria-disabled="false">
+		           <div class="progress-current" style="width: 0%;"><i class="progress-current-btn"></i></div>
+		       <a class="ui-slider-handle ui-state-default ui-corner-all" href="#" style="left: 0%; "></a></div>
+		       <time class="time-left play-bar-txt2"></time>
+		    </div>
+		</div>
+		<a href="http://mp.weixin.qq.com/s?__biz=MjM5NjQyNjY5Mg==&amp;mid=400731210&amp;idx=1&amp;sn=8027ba4f10a1510a53d884f717915033#rd" class="weixin" style="top:100px;">关注微信随时听</a>
+	</div>
+	<ul class="read-list" id="list_tracks">
+		
+	</ul>
+    <a href="#" class="gotop"></a>
+</div>
+<div class="dialog-offline" style="display: none; ">断网了，请连接网络后再试~</div>
+
+
+<script> 
+$(function(){
+	var s = new Date().getTime();
+	
+	//console.log('play.start'+s);
+	$('.dialog-offline').hide();
+	
+	var navH = $(".read-list").offset().top;
+	//滚动条事件
+	$(window).scroll(function(){
+	//获取滚动条的滑动距离
+		var scroH = $(this).scrollTop();
+		//滚动条的滑动距离大于等于定位元素距离浏览器顶部的距离，就固定，反之就不固定
+		if(scroH>=navH){
+			$('.gotop').show();
+		}else {		
+			$('.gotop').hide();
+		}
+	});
+	
+  //weixin init start
+	var shareData = {
+	   title: '_趣味听书，智能搜书_搜狗阅读',
+	   desc: '超过1500万音频，应有尽有，就在搜狗阅读等你来！',
+	   link: location.href.split('#')[0],
+	   imgUrl: ('' == '')?'http://img04.sogoucdn.com/app/a/10190001/111482406117524':''
+	 };
+	
+	wx.ready(function(){
+		wx.onMenuShareAppMessage(shareData);
+		wx.onMenuShareTimeline(shareData);
+	});
+	//weixin init end
+	$(window).bind('beforeunload',function(){
+		_send_log(new Date().getTime()-s);
+		console.log(shelfData);
+		_send_shelfData(shelfData);
+	});
+	
+	function _send_log(tj){
+	    var n=(new Date()).getTime();
+	    var c=window[n]=new Image();
+	    c.onload=c.onerror=c.onabort=function(){window[n]=null};
+	    var url="http://as.sogou.com/ting/pages/test.jsp?&"+tj+"&";
+	    //var url="http://127.0.0.1/pages/tj.jsp?"+tj+"&nolog=1&t="+new Date().getTime();
+	    console.log(url);
+	    c.src=url;
+	}
+})
+
+</script>
+<script type="text/javascript" src="/staticappread/js/online.js"></script>
+<script type="text/javascript" src="/staticappread/js/play.js"></script>
+</body></html>

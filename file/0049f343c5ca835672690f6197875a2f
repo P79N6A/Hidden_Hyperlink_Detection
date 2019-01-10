@@ -1,0 +1,107 @@
+<!DOCTYPE html><html><head>
+    <meta charset="utf-8">
+    <meta http-equiv="Cache-Control" content="public">
+    <meta name="msapplication-tap-highlight" content="no">
+    <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, minimum-scale=1.0, maximum-scale=1.0,user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>汽车在线</title>
+    <script type="text/javascript">
+        if('mapoo.10010care.com' == 'www.gpsoo.net'){
+            location.href = location.href.replace(location.host, 'mapoo.10010care.com');
+        }
+    </script>
+    <link type="text/css" rel="stylesheet" href="css/global.css?t=20170331.1355">
+    <style>
+        html,body{overflow: auto;}
+        .bind-container {padding-top: 3.5em;}
+        .bind-container .bind-tip{margin: 30px auto;width: 90%;height: 3em;line-height: 3em;font-size: 1.2em;color: #333;text-align: center;border: 1px solid #ccc;background-color: #fff;}
+        .bind-container .bind-form{width: 90%;margin: 0 auto;}
+        .bind-container .bind-form li{margin: 20px 0;}
+        .change-lang{text-align: center;margin-top: 20px;}
+    </style>
+    <script src="js/lang_cn.js?v=20170331.1355"></script>
+    <script src="js/brand/zepto.min.js"></script>
+    <script src="js/global.js?v=20170331.1355"></script>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h3 class="title">
+            汽车在线
+        </h3>
+    </div>
+    <div class="bind-container">
+        <div class="bind-tip">请输入账号和密码登录</div>
+        <ul class="bind-form">
+            <li><input type="text" name="username" id="username" value="" placeholder="账号"></li>
+            <li><input type="password" name="password" id="password" value="" placeholder="密码"></li>
+            <li class="center"><a href="javascript:;" class="normal-btn" id="bind-btn">确定</a></li>
+        </ul>
+        <div class="change-lang">
+            
+            切换语言:&nbsp;&nbsp;<a href="index.shtml?locale=en-us&amp;type=">English</a>
+            
+        </div>
+    </div>
+</div>
+<script src="js/brand/md5.js?v=201407311515"></script>
+<script type="text/javascript">
+    (function(){
+        var loginUrl = goome.wx.config.apiUrl+'auth/access_token',
+                params = goome.wx.utils.params(),
+                $username = $('#username'),
+                $password = $('#password'),
+                $bindBtn = $('#bind-btn');
+        function getRemoteData(url, params){
+            return $.ajax({
+                url: url,
+                data: params,
+                dataType: 'jsonp'
+            });
+        }
+        function bind(uname,pwd){
+            params.time = Math.floor(new Date().getTime()/1000);
+            params.signature = hex_md5(hex_md5(pwd)+params.time);
+            // params.account = uname;
+            params.access_type = 'inner';
+
+            $.when(getRemoteData(loginUrl + '?account=' + encodeURIComponent(uname), params))
+                    .done(function(result){
+                        if(result && result.errcode === 0){
+                            //params.sign = result.data.access_token;
+                            //params.access_token = result.data.access_token;
+                            $.fn.cookie('access_token', result.data.access_token);
+                            location.href = (params.jumpto || 'device_list')+'.shtml?'
+                                    +'account='+encodeURIComponent(uname)
+                                    +'&target='+encodeURIComponent(uname)
+                                    //+'&access_token='+params.access_token
+                                    +'&time='+params.time
+                                    +'&map_type=BAIDU'
+                                    +'&iswap=true'
+                                    +'&access_type=inner';
+                        }else{
+                            goome.wx.utils.showTip(result);
+                        }
+                    })
+                    .fail(function(err){
+                        goome.wx.utils.showTip(err);
+                    });
+        }
+        $bindBtn.on('click', function(){
+            var username = $username.val(),
+                    password = $password.val();
+            if(!username){
+                goome.wx.utils.showTip('用户名不能为空!');
+                return;
+            }else if(!password){
+                goome.wx.utils.showTip('密码不能为空!');
+                return;
+            }
+            bind(username, password);
+        });
+        $.fn.cookie('locale', 'cn'=='en'?'en-us':'zh-cn', {path:'/'});
+        $.fn.cookie('iswap', 'true', {path:'/'});
+    })();
+</script>
+
+</body></html>

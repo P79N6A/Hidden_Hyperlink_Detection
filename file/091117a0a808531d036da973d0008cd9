@@ -1,0 +1,413 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head>
+
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8;">
+	<link rel="shortcut icon" href="/sso/images/favicon.ico" type="image/x-icon">
+	<link rel="BookMark" href="/sso/images/favicon.ico" type="image/x-icon">
+	<script type="text/javascript" src="/sso/js/jquery-1.2.6.min.js"></script>
+	<link href="/sso/css/reset.css" rel="stylesheet" type="text/css">
+	<link href="/sso/css/login.css" rel="stylesheet" type="text/css">
+	<title>东航飞行网</title> 
+ 
+ 
+
+	<script language="JavaScript">
+$(document).ready(function(){
+	 
+	
+		try {
+			createCode();
+			document.onkeydown = function(evt){
+				var evt = window.event?window.event:evt;
+				if(evt.keyCode==13)
+				{
+					onLogin();
+				}
+			}
+			if (document.getElementById('userCode')) {
+				document.getElementById('userCode').focus();
+			}
+		} catch(e){}
+});
+
+	if(top.location != self.location){
+		 top.location = self.location;
+	}
+	
+	
+	
+	$(function () {  
+	    //点击图片更换验证码
+	    $("#Verify").click(function(){
+	        $(this).attr("src","Security/loginImge.do?timestamp="+new Date().getTime());
+	    });
+	});
+	
+	
+	/*
+	window.onload=function(){
+	    var verifyObj = document.getElementById("Verify");
+	    verifyObj.onclick=function(){
+	        this.src="SecurityCodeImageAction?timestamp="+new Date().getTime();
+	    };
+	}
+*/
+function onLogin() {
+	var userCode = document.getElementById("userCode").value;
+	if(userCode.length <=0){
+		alert("请输入飞行网账号登录");
+		return false;
+	}
+
+	var password = document.getElementById("password").value;
+	if(password.length <=0)
+	{
+		alert("请输入密码!")
+		return false;
+	}
+	
+	
+	var isChecked=false;
+	if ($("#userCode").val() != null && $("#userCode").val() != '') {
+		var userCode = $("#userCode").val();
+		var userPassword = $("#password").val();
+		$.ajax({
+			type : "POST",
+			//async: false,
+			url : "/sso/password/isUserWithNoId.do?userCode=" + userCode+"&password="+userPassword,
+			dataType : "text",
+			success : function(data) {
+				data = data.replace("(","");
+				data = data.replace(")","");
+				var info = data.split(",");
+				if(info[0]=="true"){
+					//$("#loginRiskInset").attr("display","");
+					$("#name").val(info[1]);
+					$("#email").val(info[2]);
+					$("#idNumname").val(info[3]);
+					$(".loginRiskInset").show();
+					isChecked = true;
+					
+				}else{
+					$(".loginRiskInset").hide();
+					
+				}
+				
+				if(!isChecked){
+					document.forms[0].submit(); 
+				}
+				return isChecked;
+			}
+		});
+		
+	}
+	return isChecked;
+	//add by ling.pan 2016-3-11
+	
+	
+	
+	/*
+	if(!validate()) {
+		return;
+	}*/
+	
+}
+
+var code ;
+function createCode()
+{
+	code = "";
+	var codeLength = 4;
+	var checkCode = document.getElementById("checkCode");
+	//var selectChar = new Array(0,1,2,3,4,5,6,7,8,9,'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z');// 所有候选组成验证码的字符，当然也可以用中文的
+	var selectChar = new Array(0,1,2,3,4,5,6,7,8,9);
+
+	for(var i=0;i<codeLength;i++)
+	{
+	var charIndex = Math.floor(Math.random()*10);
+	code +=selectChar[charIndex];
+	}
+	if(checkCode)
+	{
+		//checkCode.className="code";
+		checkCode.value = code;
+	}
+
+}
+
+function validate ()
+{
+	
+	var inputCode = document.getElementById("userCode").value;
+	if(inputCode=="请输入飞行网账号登录"){
+		document.getElementById("userCode").value="";
+		return false;
+	}
+	
+	if(inputCode.length <=0)
+	{
+		document.getElementById("userCode").value="请输入飞行网账号登录";
+		document.getElementById("userCode").focus();
+		return false;
+		
+	}
+	
+	return true;
+}
+
+function KeyDown()
+{
+　　if (event.keyCode == 13)
+　　{
+　　　　onLogin();
+　　}
+}
+
+function getpsw(){
+	var flag = $("#flag").val("001");
+	document.forms[0].submit(); 
+	var flag = $("#flag").val("");
+	
+}
+
+//增加身份证验证
+
+function checkIdCode(){
+	
+}
+
+function validateIdCard(){
+	
+	
+		
+	var tel = $("#mobile").val();
+	if(tel!=null && tel !=""){
+		var reg = /^0?1[3|4|5|6|7|8|9][0-9]\d{8}$/;
+		 if (!reg.test(tel)) {
+		      alert("号码格式不正确");
+		      return false;
+		 }
+	}
+	 
+	
+	 
+	 var email =$("#email").val()
+	 if(email!=null && email !=""){
+		 var reg =  /^([a-zA-Z0-9_-])+@([a-zA-Z0-9_-])+((\.[a-zA-Z0-9_-]{2,3}){1,2})$/;
+			if(!reg.test(email)){
+				alert("邮箱格式不正确");
+				return false;
+			} 
+	 }
+		
+	 var val = $("#nativePlace").val();
+	 if(val=="2"){
+		 var code = $("#passport").val();
+			 if(code==null ||code==""){
+				 alert("can not empty!");
+				 return null;
+			 }else{
+				 insertIdCode(code);
+			 }
+		 }
+	 if(val=="1"){
+		 var idCard =$("#idCode").val();
+			
+		 //15位和18位身份证号码的正则表达式
+		 var regIdCard=/^(^[1-9]\d{7}((0\d)|(1[0-2]))(([0|1|2]\d)|3[0-1])\d{3}$)|(^[1-9]\d{5}[1-9]\d{3}((0\d)|(1[0-2]))(([0|1|2]\d)|3[0-1])((\d{4})|\d{3}[Xx])$)$/;
+
+		 if(regIdCard.test(idCard)){
+		
+		
+		
+		 //如果通过该验证，说明身份证格式正确，但准确性还需计算
+		 
+		  if(idCard.length==18){
+		   var idCardWi=new Array( 7, 9, 10, 5, 8, 4, 2, 1, 6, 3, 7, 9, 10, 5, 8, 4, 2 ); //将前17位加权因子保存在数组里
+		   var idCardY=new Array( 1, 0, 10, 9, 8, 7, 6, 5, 4, 3, 2 ); //这是除以11后，可能产生的11位余数、验证码，也保存成数组
+		   var idCardWiSum=0; //用来保存前17位各自乖以加权因子后的总和
+		   for(var i=0;i<17;i++){
+		    idCardWiSum+=idCard.substring(i,i+1)*idCardWi[i];
+		   }
+
+		   var idCardMod=idCardWiSum%11;//计算出校验码所在数组的位置
+		   var idCardLast=idCard.substring(17);//得到最后一位身份证号码
+
+		   //如果等于2，则说明校验码是10，身份证号码最后一位应该是X
+		   if(idCardMod==2){
+		    if(idCardLast=="X"||idCardLast=="x"){
+		     //alert("恭喜通过验证啦！");
+		     insertIdCode(idCard);
+		    }else{
+		     alert("身份证号码错误！");
+		    }
+		   }else{
+		    //用计算出的验证码与最后一位身份证号码匹配，如果一致，说明通过，否则是无效的身份证号码
+		    if(idCardLast==idCardY[idCardMod]){
+		     //alert("恭喜通过验证啦！");
+		     insertIdCode(idCard);
+		    }else{
+		     alert("身份证号码错误！");
+		    }
+		   }
+		  } 
+		 }else{
+		  alert("身份证格式不正确!");
+		 }
+	 }
+	
+	}
+	
+	
+	function insertIdCode(idCode){
+		if(idCode != null && idCode != ""){
+			var userCode = $("#userCode").val();
+			var name = $("#name").val();
+			var mobile = $("#mobile").val();
+			var email = $("#email").val();
+			var password = $("#password").val();
+			
+			$.ajax({
+				type : "POST",
+				url : "/sso/password/insertIdCode.do?userCode=" + userCode +"&idCode="+idCode+"&name="+encodeURI(encodeURI(name))+"&email="+email+"&password="+password,
+				dataType : "json",
+				success : function(data) {
+					if(data==true){
+						alert("保存成功");
+						$(".loginRiskInset").hide();
+						document.forms[0].submit();
+					}
+				}
+			});
+		}
+	}
+	
+	function loginRiskClose(){
+		$(".loginRiskInset").hide();
+	}
+	
+	function changeTr(){
+		var val = $("#nativePlace").val();
+		if(val=="1"){
+			$("#codeTr").show();
+			$("#passportTr").hide();
+		}
+		if(val=="2"){
+			$("#passportTr").show();
+			$("#codeTr").hide();
+		}
+	}
+</script>
+</head>
+
+<body>
+
+<style type="text/css">
+.loginRiskInset{margin:0;padding:0;position:fixed;width:100%;height:100%;display:none;z-index:9999;}
+    #loginRiskInsetDiv{filter:alpha(opacity=30);-moz-opacity:0.3;-khtml-opacity:0.3;opacity:0.3;background:#999;position:absolute;width:100%;height:100%;}
+    .loginRiskInsetCont{position:fixed;_position:absolute;top:50%;left:50%;margin:-151px 0 0 -201px;width:400px;height:300px;border:1px solid #CCC;
+			         text-align:left;font-size:14px;overflow:hidden;background:#fff;-moz-border-radius:5px;-webkit-border-radius: 5px;border-radius:5px;}
+	.loginRiskInsetTitle{background:#4e5c78;height:30px;text-align:center;line-height:32px;font-size:15px;color:#fff;position:relative;}
+		.loginRiskInsetTitle img{position:absolute;left:94%;width:20px;height:20px;top:5px;cursor:pointer;}
+	.loginRiskInsetSM{max-height:410px;text-align:left;font-size:14px;color:#333;position:relative;}
+		.loginRiskInsetSM input,.loginRiskInsetSM select{border-radius:5px;}
+		.loginRiskInsetSM table {margin:auto;padding:0;border:0;border-spacing:0;border-collapse:collapse;table-layout:fixed;}
+		.loginRiskInsetSM table td{margin:0;padding:0;border:0;height:35px;border:0;text-align:left;border-radius:5px;table-layout:fixed;}
+</style>
+
+	<div class="loginRiskInset">
+        <div id="loginRiskInsetDiv"></div>
+        <div class="loginRiskInsetCont">
+        	<div class="loginRiskInsetTitle">身份信息完善<img onclick="loginRiskClose()" src="/sso/images/grayClose.png"></div>
+        	<div class="loginRiskInsetSM">
+        		<div id="idNumCheck" style="width:80%;margin:20px auto;text-align:left;">
+					<div style="color:red;margin-bottom:12px;margin-top:12px">为了您能够获得更好的用户体验，请完善以下信息</div>
+					<table>
+						<tbody><tr>
+							<td><label>姓名：</label></td>
+							<td><input id="name" style="margin:0;padding:0 6px;height:25px;width:200px;border:1px solid #c9c9c9;"></td>
+						</tr>
+						<tr>
+							<td><label>邮箱：</label></td>
+							<td><input id="email" style="margin:0;padding:0 6px;height:25px;width:200px;border:1px solid #c9c9c9;"></td>
+						</tr>
+						<tr>
+							<td><label>请选择国籍：</label></td>
+							<td><select id="nativePlace" onchange="changeTr()" style="margin:0;padding:0 6px;height:25px;width:100px;border:1px solid #c9c9c9;"><option value="1">中国</option><option value="2">外国</option></select></td>
+						</tr>
+						<tr id="codeTr">
+							<td><label name="idNumname">身份证号：</label></td>
+							<td><input id="idCode" name="idNumname" maxlength="18" style="margin:0;padding:0 6px;height:25px;width:200px;border:1px solid #9c9c9c;"></td>
+						</tr>
+						
+						<tr id="passportTr" style="display: none">
+							<td><label name="">护照号：</label></td>
+							<td><input id="passport" name="" maxlength="18" style="margin:0;padding:0 6px;height:25px;width:200px;border:1px solid #9c9c9c;"></td>
+						</tr>
+					</tbody></table>
+					<div style="color:white;width:100%;margin:10px auto;text-align:center;">
+						<input type="button" value="确认" onclick="validateIdCard()" style="padding:0;height:28px;min-width:70px;background-color: #677288;line-height:28px">
+					</div>
+				</div>
+        	</div>
+        </div>
+    </div>
+
+
+	<form action="/sso/sso-login.do" method="post">
+		<input type="hidden" name="isLogin" value="true"> <input type="hidden" name="returnUrl" value="http://flynet2.ceair.com:7011/portal/news/news_index_2.do?isForceRead">
+		<input type="hidden" id="flag" name="flag" value="">
+		<div class="login_show"></div>
+		<div class="login_body">
+			<div class="login_header">&nbsp;</div>
+			<div class="login_content">
+				<div class="login_box">
+					<div class="login_lang">
+						<div class="login_lang_in">
+							<a onclick="getpsw()" target="_blank">忘记密码? 密码被锁?</a>
+						</div>
+					</div>
+					<div id="loginTab">
+						<div class="login_input">
+							<div class="user">
+								<input id="userCode" name="userCode" type="text" value="">
+							</div>
+							<div class="password">
+								<input id="password" name="password" type="password" style="font-size: 10px" maxlength="16" value="">
+							</div>
+							<div class="code">
+								<input id="inputCheckCode" name="inputCheckCode" value=""><img src="Security/loginImge.do" id="Verify" name="Verify">
+							</div>
+							<div class="error">
+								<h5>&nbsp;</h5>
+							</div>
+							<input type="button" name="btnLogin" value="登 录" class="login_btn" onclick="onLogin()">
+								<div class="clear"></div>
+						</div>
+					</div>
+					<div class="clear">&nbsp;</div>
+					<div class="login_new" style="visibility: hidden;">
+						<div class="login_pic">
+							<img src="/sso/images/newportal/temp.jpg" width="130" height="86">
+						</div>
+						<div class="login_w">
+							<a href="#">【团队建设】"飞扬的青春 "第二季。载着飞扬的青春，载着我们的梦，飞向未来！</a>
+						</div>
+						<div class="clear"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		
+		<div class="login_footer">为了您能完全正常使用本系统功能，建议使用IE 9.0以上版本浏览器，1280*800以上屏幕分辨率！
+		<!-- 
+			<a href="http://fn-fs.ceair.com/cms/IE8-WindowsXP-x86-CHS.exe" title="IE8(32位)下载">点击下载IE8(32位)</a>
+		 -->	
+			<a href="http://fn-fs.ceair.com/cms/IE10-Windows6.1-x86-zh-cn.exe" title="IE10(32位)下载">点击下载IE10(32位)</a>
+			<a href="http://fn-fs.ceair.com/cms/IE10-Windows6.1-x64-zh-cn.exe" title="IE10(64位)下载">点击下载IE10(64位)</a>
+		<br>
+		<br>中国东方航空股份有限公司 版权所有 © 2015&nbsp;&nbsp;报修电话：021-22331777</div>
+	</form>
+
+
+</body></html>

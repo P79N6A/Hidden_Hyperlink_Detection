@@ -1,0 +1,132 @@
+<html><head></head><body><div class="zr-box">
+    <div class="zj-nav">
+       阵容概览
+    </div>
+    <div drunk-if="hasTeamworthData" class="dataBox">
+        <ul class="dataItem">
+            <li class="itemL">
+                <em class="num">{{teamworth.coach.hcoach||null|default:'--'|truncate:6}}</em>
+            </li>
+            <li class="itemC">
+                <span class="item-info">主教练</span>
+            </li>
+            <li class="itemR">
+                <em class="num">{{teamworth.coach.acoach||null|default:'--'|truncate:6}}</em>
+            </li>
+        </ul>
+        <ul class="dataItem">
+            <li class="itemL">
+                <em class="num">{{teamworth.worth.hworth ? '€' + teamworth.worth.hworth: null |default:'--'}}</em>
+            </li>
+            <li class="itemC">
+                <span class="item-info">球队身价</span>
+            </li>
+            <li class="itemR">
+                <em class="num">{{teamworth.worth.aworth ? '€' + teamworth.worth.aworth: null |default:'--'}}</em>
+            </li>
+        </ul>
+        <ul class="dataItem">
+            <li class="itemL">
+                <em class="num">{{teamworth.superstar.hsuperstar||null|default:'--'|truncate:6}}</em>
+                <span class="item-info">{{teamworth.superstar.hvalue ? '€' + teamworth.superstar.hvalue : null | default:'--'}} {{teamworth.superstar.hpostion}}</span>
+            </li>
+            <li class="itemC">
+                <span class="item-info">头牌</span>
+                <em class="num">&nbsp;</em>
+            </li>
+            <li class="itemR">
+                <em class="num">  {{teamworth.superstar.asuperstar||null|default:'--'|truncate:6}}</em>
+                <span class="item-info">{{teamworth.superstar.avalue ? '€' + teamworth.superstar.avalue : null | default:'--'}} {{teamworth.superstar.apostion}}</span>
+            </li>
+        </ul>
+    </div>
+    <div class="feed-back" drunk-if="!hasTeamworthData&amp;&amp;!isRequesting">
+        <div class="feed-box">
+            <em>暂无数据</em>
+        </div>
+    </div>
+    <div class="item-loader" drunk-if="isRequesting">
+        <div class="la-ball-pulse la-2x">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </div>
+</div>
+
+<div class="zhedie-box" drunk-if="formation.alineup">
+    <div class="zj-nav">
+        {{formation.ispre == -1 ?'上场首发' : '本场首发' }}
+    </div>
+    <div class="feed-back" drunk-if="!isRequesting &amp;&amp; !formationHidden &amp;&amp; !formation.alineup">
+        <div class="feed-box">
+            <em>暂无数据</em>
+        </div>
+    </div>
+    <div class="zhedie" drunk-if="!formationHidden &amp;&amp; formation.alineup">
+        <div class="zuqiuc">
+            <table cellspacing="0" cellpadding="0" border="0" class="zx-table" width="100%">
+                <tbody><tr drunk-repeat="row in formation.hlineup">
+                    <td>
+                        <ul class="zx-ul responsive">
+                            <li class="each-resone" drunk-repeat="player in row">
+                                <span drunk-if="player.playernum == '' || player.playernum == null" class="person-mr"></span>
+                                <span class="person" drunk-if="!(player.playernum == '' || player.playernum == null)">
+                                            {{player.playernum}}
+                                            <img drunk-if="player.characterpic1" drunk-lazy-load="player.characterpic1">
+                                        </span>
+                                <br> {{player.playernum}} {{(player.playername || '')|truncate:8}}
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+            </tbody></table>
+
+            <table cellspacing="0" cellpadding="0" border="0" class="zx-table" width="100%">
+                <tbody><tr drunk-repeat="row in formation.alineup">
+                    <td>
+                        <ul class="zx-ul responsive">
+                            <li class="each-resone" drunk-repeat="player in row">
+                                <span drunk-if="player.playernum == null" class="person-mr"></span>
+                                <span class="person" drunk-if="player.playernum != null">
+                                            {{player.playernum}}
+                                            <img drunk-if="player.characterpic1" drunk-lazy-load="player.characterpic1">
+                                        </span>
+                                <br> {{player.playernum}} {{(player.playername || '')|truncate:8}}
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+            </tbody></table>
+
+            <div class="zhu-zx">{{match.homesxname}}阵型 {{formation.hformation.split('').join('-')}}</div>
+            <div class="ke-zx">{{formation.aformation.split('').join('-')}} {{match.awaysxname}}阵型</div>
+        </div>
+    </div>
+</div>
+
+<div class="zhedie-box" drunk-if="lineup" drunk-init-data="!lineupHidden &amp;&amp; (lineupHidden = {houbei:false, shangbing:false, shoufa: false})" drunk-repeat="name,type in {shoufa: '预测首发', houbei: '替补阵容', shangbing: '伤停阵容'}">
+    <div class="zj-nav">
+         {{name}}
+    </div>
+    <div class="feed-back" drunk-if="!isRequesting &amp;&amp; !lineupHidden[type] &amp;&amp; (lineup[type] == null || !lineup[type].length)">
+        <div class="feed-box">
+            <em>暂无数据</em>
+        </div>
+    </div>
+    <div class="zhedie" drunk-if="!lineupHidden[type] &amp;&amp; lineup[type] != null &amp;&amp; lineup[type].length">
+        <table width="100%" cellpadding="0" cellspacing="0" class="lq-zr">
+
+            <tbody><tr drunk-repeat="info in lineup[type]">
+                <td width="50%">
+                    <span class="qiuhao">{{info.home.playernum}}</span>&nbsp;{{info.home.playername|default:''|truncate:8}}
+                    <span class="gangwei">{{info.home.rolegbname}}</span>
+                </td>
+                <td width="50%">
+                    <span class="qiuhao">{{info.away.playernum}}</span>&nbsp;{{info.away.playername|default:''|truncate:8}}
+                    <span class="gangwei">{{info.away.rolegbname}}</span>
+                </td>
+            </tr>
+        </tbody></table>
+    </div>
+</div></body></html>

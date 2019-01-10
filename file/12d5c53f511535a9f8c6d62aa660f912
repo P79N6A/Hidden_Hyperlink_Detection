@@ -1,0 +1,266 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head>
+<script type="text/javascript" language="javascript">
+	if(self != top) {
+		self.location.href = "/sso/login/inc_logindiv.htm?v=v1.4&site2pstoretoken=v1.4~4945C3A0~F4D778832F773D5508A79D78D7DF6468DF8E9F1EC31A8F0A11C13CDCE84582C7542A245DAC0E85F50EB3382439FB881BCAF134EF56DBEB6E867C4F5382CDACE3A6570FEF0F3D85D1FC62B01E142C31AC0494BC3D636BA8DBB3D0B9DF3E30DEC12A54F3904C94F21F2C49F3C58E51ACD2BB86DA263733A57E88B0DB4D5E83846A83220206D24F67E27EF55F13A754D545D3138EFB878BDE0B09E365F949572C8E591388617EA9126048721B50429D864F82CF8B6B2EB2CC1A46635255BE60D61E0576EAE60B89943B4371B68CD17251CA8A9406073F7E373C&locale=";
+	}else if('v1.4~4945C3A0~F4D778832F773D5508A79D78D7DF6468DF8E9F1EC31A8F0A11C13CDCE84582C7542A245DAC0E85F50EB3382439FB881BCAF134EF56DBEB6E867C4F5382CDACE3A6570FEF0F3D85D1FC62B01E142C31AC0494BC3D636BA8DBB3D0B9DF3E30DEC12A54F3904C94F21F2C49F3C58E51ACD2BB86DA263733A57E88B0DB4D5E83846A83220206D24F67E27EF55F13A754D545D3138EFB878BDE0B09E365F949572C8E591388617EA9126048721B50429D864F82CF8B6B2EB2CC1A46635255BE60D61E0576EAE60B89943B4371B68CD17251CA8A9406073F7E373C' == '') {
+		self.location.href = "https://www.99bill.com/website/myaccount/myacctinfo.htm";
+	}
+</script>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8;">
+<title>欢迎登录快钱 - 领先的综合电子支付专家</title>
+<meta name="keywords" content="信用卡还款,手机充值,公共事业缴费,批量付款,优惠券,网上付款,安全,人民币,外卡,神州行,企业网银">
+<meta name="description" content="中国领先的独立第三方支付企业, 最早推出基于Email和手机号码的综合电子支付服务，拥有千万级注册用户，被评为2006中国十佳成长金融机构、2007中国电子支付优秀企业。能够有效帮助商家提高交易量，为互联网用户提供优惠购物、手机优惠充值等多种增值服务。">
+<link href="https://img.99bill.com/jt/p/c/common/gr.css" rel="stylesheet" type="text/css">
+<link href="https://img.99bill.com/jt/p/c/login/login1.css" rel="stylesheet" type="text/css">
+<link href="https://img.99bill.com/jt/p/c/nav/nav.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="https://img.99bill.com/public/js/jquery-1.7.2.min.js"></script>
+<script type="text/javascript">
+ var $$ = $.noConflict();
+  $$(function(){
+    $$(".loginMian").on('blur', '#formFocus', function(event) {
+      event.preventDefault();
+      loginErrorCount();
+    });
+    $$(".loginMian").on("click", "#sendSmsValidateCode", function(){
+      if($$("#sendSmsValidateCode").val() == "获取短信验证码"){
+        sendSms();
+      }
+    });
+    if(document.getElementById("formFocus").value.indexOf("手机") == -1){
+      loginErrorCount();
+    }
+
+    ;function loginErrorCount(){
+      $$.ajax({
+        type: 'GET',
+        cache: false,
+        url: "/sso/login/smsvalidate.htm?method=loginErrorCount&idContent="+document.getElementById("formFocus").value,
+        dataType: "JSON",
+        success: function(data){
+          if (data) {
+            if(data.errorCount >= 3 && data.errorCount < 5){
+              $$(".validateCode").show();
+            }else{
+              $$(".validateCode").hide();
+            }
+          }
+        }
+        
+      });
+    }
+    ;function sendSms(){
+      $$.ajax({
+        type: 'GET',
+        cache: false,
+        url: "/sso/login/smsvalidate.htm?method=send&mobile="+document.getElementById("formFocus").value,
+                dataType: "JSON",
+        success: function(data){
+          if (data) {
+            // alert(JSON.stringfy(data));
+            if(data.errorcode == 0){
+              $$("#bizId").val(data.bizId);
+              btnTimer($$("#sendSmsValidateCode"));
+            }else{
+              alert(data.message);
+            }
+          }
+        }
+
+      });
+    }
+    ;function btnTimer(btn) {
+        btn.addClass('disabled');
+        var s = 60;
+        btn.val(s-- + '秒重新发送短信');
+        SMStimer = setInterval(function() {
+            if (s == 0) {
+                clearInterval(SMStimer);
+                btn.removeClass('disabled');
+                btn.val(btn.data('text'));
+                return;
+            }
+            btn.val(s-- + '秒重新发送短信');
+        }, 1000);
+        return btn;
+    }
+    
+  })
+</script>
+<script src="https://img.99bill.com/seashell/website/js/common.js" type="text/javascript"></script>
+<script src="https://img.99bill.com/seashell/website/js/validator.js" type="text/javascript"></script>
+<script src="https://img.99bill.com/seashell/website/js/message/map.js" type="text/javascript"></script>
+<script src="https://img.99bill.com/seashell/website/js/message/common_message.js" type="text/javascript"></script>
+<script src="https://img.99bill.com/seashell/website/js/message/login_message.js" type="text/javascript"></script>
+<script type="text/javascript" language="javascript" src="https://img.99bill.com/seashell/website/js_s/common/setfocus.js"></script>
+
+<style type="text/css">
+body{ font-size:12px;}
+.login,.servicesList,.applicationList,.forum,.corp,#bank{ }
+.loginMian {margin-top:1px;*margin-top:0px; display:block;}
+.loginMian ul{display: block; clear:both;}
+.loginMian li{ float: left; display: block; margin-bottom:3px;}
+.loginMianL { width:50px; text-align:right; padding-right:5px; margin-top:0px; height:30px; line-height:30px;}
+.loginMianR { width:165px; line-height:30px;}
+.loginMianR2 { padding-left:55px; width:165px; height:20px; line-height:20px}
+.inputRand{ width:50px;}
+.loginMianR3 {
+	padding-left: 55px;
+	width: 180px;
+	height: 14px;
+	padding-top: 4px;
+	line-height: 14px;
+}
+
+.loginFooter{border-top:1px dashed #ccc; margin:0 14px; vertical-align:middle; padding:6px 0 6px 40px;}
+.loginMian .validateCode{display: none;}
+#sendSmsValidateCode{
+    background: #F7F7F7;
+    padding: 5px;
+    color: rgb(0,0,0);
+    border: 1px solid #A9A9A9;
+    border-radius: 6px;
+    cursor: pointer;
+}
+#sendSmsValidateCode.disabled{
+      background: #F5F5F5;
+    border: 1px solid #F5F5F5;
+    padding: 5px;
+    color: rgb(138,138,144);
+    border-radius: 6px;
+    cursor: auto;
+}
+</style>  
+</head>
+<body>
+
+<!--header-->
+  <div class="header">
+    <div class="siteTop">
+      <div class="logo"><a href="https://www.99bill.com/"><img src="https://img.99bill.com/seashell/website/img/common/default/logo.gif"></a><img src="https://img.99bill.com/seashell/website/img/common/default/logo_text.gif" alt="领先的综合电子支付及清洁算专家" border="0"></div>
+      <div class="cs">
+        <ul>
+          <li class="hotline"><img src="https://img.99bill.com/jt/u/i/website/cs_025.gif"></li>
+          <li class="op">
+              <a href="https://www.99bill.com/website/login/authentication.htm">登录</a> <a href="http://www.99bill.com/website/signup/websignup.htm">注册</a> | &nbsp;<a href="http://help.99bill.com/" target="_blank">帮助中心</a>
+            </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="navAll"></div>
+<!--header end-->
+<!--mainBody-->
+<div id="wrapper">
+  <!--leftNav-->
+  <!--leftNav end-->
+    <div id="content" class="clearfix">
+	    <div class="most"><img src="https://img.99bill.com/jt/p/i/login/login_zh.jpg" alt=""></div>
+        <div class="login">
+	        <div class="loginTitle"><h2>企业/个人用户登录</h2></div>
+	    	<div class="loginIframe">
+			
+    <form method="post" name="loginFrom" id="loginFrom" target="_top" action="/sso/login/authentication1.htm" onsubmit="return Validator.Validate(this,4,'login','login')">
+		
+	  <input type="hidden" name="v" value="v1.4">
+	  <input type="hidden" name="site2pstoretoken" value="v1.4~4945C3A0~F4D778832F773D5508A79D78D7DF6468DF8E9F1EC31A8F0A11C13CDCE84582C7542A245DAC0E85F50EB3382439FB881BCAF134EF56DBEB6E867C4F5382CDACE3A6570FEF0F3D85D1FC62B01E142C31AC0494BC3D636BA8DBB3D0B9DF3E30DEC12A54F3904C94F21F2C49F3C58E51ACD2BB86DA263733A57E88B0DB4D5E83846A83220206D24F67E27EF55F13A754D545D3138EFB878BDE0B09E365F949572C8E591388617EA9126048721B50429D864F82CF8B6B2EB2CC1A46635255BE60D61E0576EAE60B89943B4371B68CD17251CA8A9406073F7E373C">
+	  <input type="hidden" name="locale" value="">
+	  <input type="hidden" name="REFRESH_CODE" value="HY85">
+      <input type="hidden" name="url" value="">
+      <input type="hidden" name="productCode" value="">
+      <input type="hidden" name="pageNo" value="0">
+         <div id="commonGo">
+          <div class="loginMian">
+            <div id="wrongWhole1" class="wrongInfo" style="display: none"></div>
+              <!-- update for oracle error message by green.hong -->
+              <!-- update end -->
+              
+              <ul>
+                <li class="loginMianL">用户名</li>
+                <li class="loginMianR">
+                 <input id="formFocus" class="w128" tabindex="1" onfocus="this.select();" type="text" name="idContent" value="电子邮箱或手机号" onblur="if(this.value=='')this.value='电子邮箱或手机号'" onclick="if(this.value=='电子邮箱或手机号')this.value=''" autocomplete="off" datatype="Limit" min="1" max="50" require="true">
+			     </li>
+              </ul>
+              <ul style="line-height:27px;">
+                <li class="loginMianL">附加码</li>
+                <li class="loginMianR">
+                  <input maxlength="4" class="w68" id="inputRand" autocomplete="off" tabindex="2" type="text" name="randomValidateCode" value="">
+			      <img id="imgValidateCode" src="/sso/validatecode/validatecode.htm" style="vertical-align:top" alt="附加码"> </li>
+              </ul>
+              <ul>
+                <li class="loginMianR2"><span class="textGray">附加码看不清，<a href="javascript:refreshValidateCode('imgValidateCode','/sso/validatecode/validatecode.htm');">换一张</a> </span></li>
+              </ul>
+               <ul class="validateCode" style="line-height:27px;">
+                <li class="loginMianL">验证码</li>
+                <li class="loginMianR">
+                  <input maxlength="10" class="w128" id="smsValidateCode " autocomplete="off" tabindex="3" type="text" name="smsValidateCode" value="">
+                  <input maxlength="10" class="w128" id="bizId" autocomplete="off" type="hidden" name="bizId" value="">
+              </li></ul>
+              <ul class="validateCode" style="line-height:27px;">
+                <li class="loginMianL"></li>
+                <li class="loginMianR">
+                  <input maxlength="10" class="w128" id="sendSmsValidateCode" autocomplete="off" tabindex="4" type="button" name="sendSmsValidateCode" data-text="获取短信验证码" value="获取短信验证码">
+              </li></ul>
+              <ul>
+                <li class="loginMianL"></li>
+                <li class="loginMianR" style="height:28px;">
+                  <input type="submit" name="submit" class="ButtonTwoNext" value="登录" tabindex="5"><input type="hidden" name="method" value="checkIdcontent">
+                </li>
+              </ul>
+             </div>
+      <div class="h5"></div>
+               <div class="loginFooter">您可以使用电子邮箱或手机号码<br>
+<a href="http://www.99bill.com/website/signup/websignup.htm" target="_parent">立即注册快钱账户</a> 
+ <div class="clear"></div>
+</div>
+             </div>
+			<!--popPage-->
+			<div class="login-hello" id="unenrollId" style="display:none"><span style="color:#CC0000; font-weight:bold;">您还未安装安全登录控件，安装后刷新页面即可顺利登录！</span><br>
+			          <span style="color:#999999">快钱安全登录控件可对您输入的密码进行加密保护，提升快钱账户的安全性。</span><div style="text-align:center; margin:10px auto;">
+					  <a href="https://img.99bill.com/seashell/website/js/pki/SF99BILL_Setup_11_v2.exe"><img src="https://img.99bill.com/seashell/website/img/common/index/kongjian.gif" alt="立即安装控件" border="0"></a></div>
+			          <a href="http://www.99bill.com/seashell/html/help/pki/0.html" target="_blank">什么是安全登录控件？</a><br>
+			          <a href="http://www.99bill.com/seashell/html/help/pki/0.html#12" target="_blank">安装不上怎么办？</a></div>
+			<!--popPage end-->
+		     <div class="loginHelp">
+     <ul>
+	     <li><a href="#" onclick="javascript:window.location.href='https://www.99bill.com/forgetpwd/findpassword/requestLoginPassword.htm?method=checkIdcontent&amp;pageNo=0'">找回登录密码</a></li>
+	     <!-- 口令卡服务将于2016年3月31日停止服务，请安装安全控件及数字证书保障账户安全  
+	     <li><a href="https://www.99bill.com/safecenter/common/matrixcard/request.htm">快钱口令卡申请</a></li>
+	     -->
+	     <li><a href="https://help.99bill.com/index.php/shield/shield-intro.html" target="_blank">快钱盾使用帮助</a></li>
+	     <li><a href="https://img.99bill.com/seashell/website/js/pki/快钱钱包数字证书助手.exe">下载安全登录控件</a> | <a href="https://help.99bill.com/index.php/security-2/security-controls/621-安全控件的下载安装.html " target="_blank">安装帮助</a></li>
+	 </ul>
+</div>
+    </form>
+			
+			</div>
+	    </div>
+	  <div class="explain">
+	      <h1> 登录快钱－－国内领先的创新型互联网金融机构</h1>
+	      <p>　　快钱公司是国内领先的创新型互联网金融机构。基于十年在电子支付领域的积累，
+	      快钱充分整合数据信息，结合各类应用场景，为消费者和企业提供丰富的支付工具，稳健的投资理财，
+	      便捷的融资信贷，以及丰富的应用，使客户能够随时随地畅享便利、智慧的互联网金融服务。 </p></div>
+　　
+	</div>
+</div>
+<!--mainBody end-->
+<!--footer-->
+<style>
+    .bill_footer{border-top:1px solid #ebebeb; margin-top:30px; padding:10px; text-align:center; font-size:12px; line-height:26px; color:#666666;background: #fff;}
+    .bill_footer a{margin-left:10px;margin-right:15px;color:#666666;}
+    .bill_footer a:link,.bill_footer a:visited{ color:#666666;text-decoration: none;}
+    .bill_footer a:hover,.bill_footer a:active{ color:#ff0000;text-decoration: none;}
+    .bill_footer .copyright{color: #999999;margin-top:1em;margin-bottom: 1em;text-align: center;}
+</style>
+<div class="bill_footer"><a href="https://www.99bill.com/seashell/html/corp/aboutuscn.html" target="_blank">关于快钱</a> | <a href="http://news.99bill.com/modules/news/index.php?storytopic=3" target="_blank">新闻中心</a> | <a href="https://www.99bill.com/seashell/html/corp/partnership.html" target="_blank">合作机构</a> | <a href="https://www.99bill.com/seashell/html/corp/contactus.html" target="_blank">联系快钱</a> | <a href="https://www.99bill.com/seashell/html/corp/jobs.html" target="_blank">诚聘英才</a> | <a href="https://www.99bill.com/seashell/html/corp/maps.html" target="_blank">网站地图</a><p class="copyright"><span class="year">快钱版权所有</span><a href="http://www.miibeian.gov.cn/" target="_blank" class="icp">ICP备案号：沪B2-20040492-1</a><a href="http://www.99bill.com/seashell/html/corp/icp.html" target="_blank" class="icp">ISP证：全国B2-20060204</a><a href="http://www.99bill.com/seashell/html/corp/icp_sh.html" target="_blank" class="id">沪B2-20100011</a></p></div>
+
+<!--footer end-->
+<div class="pageNo">1-001-0201-2-1-1</div>
+
+<script type="text/javascript" language="javascript">
+<!--
+var err = "\u4ee5\u4e0b\u539f\u56e0\u5bfc\u81f4\u63d0\u4ea4\u5931\u8d25\uff1a\t\t\t\t\n";
+//-->
+</script>
+
+
+</body></html>

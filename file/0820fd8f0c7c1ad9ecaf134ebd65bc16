@@ -1,0 +1,99 @@
+<!DOCTYPE html><html class="ui-mobile ui-nosvg"><head><base href="http://m.58eeg.com/login">
+    <meta charset="utf-8">
+    <meta name="viewport" content="target-densitydpi=286, width=640, user-scalable=no">
+    <title></title>
+    <link href="/resource/css/login.css" rel="stylesheet">
+    <link rel="stylesheet" href="/resource/libs/jqMobile/jquery.mobile-1.4.5.min.css">
+    <script src="/resource/libs/jquery-1.11.2.min.js" type="text/javascript"></script>
+    <script src="/resource/libs/jqMobile/jquery.mobile-1.4.5.min.js"></script>
+    <script src="/resource/js/main.js"></script>
+    <script>
+    var flag = true;
+    function login() {
+        if (!flag)
+            return;
+
+        flag = false;
+        var a = $(".account").val();
+        var p = $(".pwd").val();
+        if (a == "" || a.length < 4) {
+            showPopup("用户名至少由5个字符组成");
+            flag = true;
+            return;
+        }
+
+
+        if (p == "") {
+            showPopup("请输入密码！");
+            flag = true;
+            return;
+        }
+
+        if (p.length < 6) {
+            showPopup("用户名或密码错误！");
+            flag = true;
+            return;
+        }
+
+        $.mobile.loading('show', {
+            text: '登录中...',
+            textVisible: true,
+            theme: 'b',
+            html: ""
+        });
+
+
+        $.ajax({
+            url: "ajaxpage/login?account=" + a + "&pwd=" + p,
+            success: function (obj) {
+                flag = true;
+                $.mobile.loading('hide');
+                if (obj == "1") {
+                    location.href = "/";
+                }
+                else {
+                    if (obj.length > 50)
+                        showPopup("用户名至少由5个字符组成");
+                    else
+                        showPopup(obj);
+
+                }
+            },
+            error: function (o, ii) {
+                flag = true;
+                $.mobile.loading('hide');
+                showPopup("登录失败！");
+
+            }
+        });
+
+
+    }
+
+    </script>
+
+</head>
+<body class="ui-mobile-viewport ui-overlay-a"><div data-role="page" data-url="/login" tabindex="0" class="ui-page ui-page-theme-a ui-page-active" style="">
+    <div class="logins mg2 cen"><img align="absmiddle" src="/resource/images/login_03.jpg"></div>
+    <div class="loginc mg2">
+        <div class="logincs mg2">
+            <img align="absmiddle" src="/resource/images/login_07.jpg" class="f">
+            <input type="text" data-role="none" class="account bd1 f xi16" placeholder="请输入您的帐号">
+        </div>
+    </div>
+    <div class="loginc mg2">
+        <div class="logincs mg2">
+            <img align="absmiddle" src="/resource/images/login_10.jpg" class="f">
+            <input type="password" data-role="none" class="pwd bd1 f xi16" placeholder="请输入您的密码">
+        </div>
+    </div>
+    <div class="loginc mg2">
+        <div class="logincx mg2 cen"><input type="button" data-role="none" class="an1 xi28 bai" value="登录" onclick="login()"></div>
+    </div>
+    <div class="loginx mg2 xi16 bai cen">版权所有 请勿盗版<br>Copyright © 2014 Eeg inc .All rights reserved.</div>
+
+    <div style="display: none;" id="msgPopup-placeholder"><!-- placeholder for msgPopup --></div>
+
+    <div id="place-cover" style="display:none;z-index:999;opacity:0.6;background-color:#fff;position:absolute;width:100%;top:0;"></div>
+
+<div class="ui-screen-hidden ui-popup-screen ui-overlay-a" id="msgPopup-screen"></div><div class="ui-popup-container ui-popup-hidden ui-popup-truncate" id="msgPopup-popup"><div data-role="popup" id="msgPopup" class="ui-popup xi18 ui-body-inherit ui-overlay-shadow ui-corner-all" data-overlay-theme="a" data-position-to="window"></div></div></div><div class="ui-loader ui-corner-all ui-body-a ui-loader-default" style="top: 100px; "><span class="ui-icon-loading"></span><h1>loading</h1></div></body></html>

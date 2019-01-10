@@ -1,0 +1,243 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+ <head> 
+  <meta http-equiv="Content-Type" content="text/html; charset=gb2312" /> 
+  <title>用Linux防火墙构建软路由 - 防火墙 - 编程入门网</title> 
+  <meta name="description" content="本文主要介绍利用Linux自带的Firewall软件包来构建软路由的一种方法，此方法为内部网与外部网的互连提供了一种简单、安全的实现途径。Linux自带的Firewall构建" /> 
+  <link href="/templets/style/bianceng.css" rel="stylesheet" media="screen" type="text/css" /> 
+  <script language="javascript" src="/js1/head.js"></script> 
+ </head> 
+ <body class="articleview" onload="ReImgSize()"> 
+  <div class="header"> 
+   <div class="top w960 center"> 
+    <div class="title">
+     <a href="/"><img src="/images/logo.gif" border="0" /></a>
+    </div> 
+    <div class="banner">
+     <script src="/js1/top.js"></script>
+    </div> 
+    <div class="rlink">
+     <script src="/js1/top1.js"></script>
+    </div> 
+   </div> 
+   <div class="nav mt1"> 
+    <div class="w960 center"> 
+     <ul> 
+      <li><a href="/">首页</a></li> 
+      <li><a href="/Programming/">编程语言</a></li> 
+      <li><a href="/webkf/">web开发</a></li> 
+      <li><a href="/database/">数据库</a></li>
+      <li class="thisclass"><a href="/Network/">网络技术</a> </li> 
+      <li><a href="/OS/">操作系统</a></li> 
+      <li><a href="/Servers/">服务器</a></li> 
+      <li><a href="/web/">网页设计</a></li> 
+      <li><a href="/Design/">图形设计</a></li> 
+      <li><a href="/Office/">办公软件</a></li> 
+      <li><a href="/soft/">常用软件</a></li> 
+      <li><a href="/shadu/">杀毒频道</a></li> 
+      <li><a href="/PC/">学电脑</a></li> 
+      <li><a href="/special/">专题</a></li> 
+     </ul> 
+    </div> 
+   </div> 
+  </div> 
+  <div class="channel-nav w960 center clear"> 
+   <ul> 
+    <li><a href="/Network/jhjs/"><span>交换技术</span></a></li> 
+    <li><a href="/Network/lyjs/"><span>路由技术</span></a></li> 
+    <li><a href="/Network/wgzs/"><span>网管知识</span></a></li> 
+    <li><a href="/Network/zwjs/"><span>组网技术</span></a></li> 
+    <li><a href="/Network/wlyy/"><span>网络应用</span></a></li> 
+    <li><a href="/Network/wxwl/"><span>无线网络</span></a></li> 
+    <li><a href="/Network/zhbx/"><span>综合布线</span></a></li> 
+    <li><a href="/Network/basis/"><span>网络基础</span></a></li> 
+    <li><a href="/Network/Security/"><span>网络安全</span></a></li>
+    <li class="thisclass"><a href="/Network/Firewall/"><span>防火墙</span></a> </li> 
+   </ul> 
+  </div> 
+  <div class="hf">
+   <script src="/js1/1.js"></script>
+  </div> 
+  <div class="w960 center clear mt1"> 
+   <div class="pleft"> 
+    <div class="place"> 
+     <strong>当前位置:</strong> 
+     <a href="http://www.bianceng.cn/">首页</a> &gt; 
+     <a href="/Network/">网络技术</a> &gt; 
+     <a href="/Network/Firewall/">防火墙</a> &gt; 正文 
+    </div> 
+    <div class="viewbox"> 
+     <div class="title1"> 
+      <h1>用Linux防火墙构建软路由</h1> 
+     </div> 
+     <div class="info1">
+      <small>时间:</small>2007-06-26 
+     </div> 
+     <div class="intro">
+      <div class="a1">
+       <script src="/js1/300.js"></script>
+      </div>
+      <p>本文主要介绍利用Linux自带的Firewall软件包来构建软路由的一种方法，此方法为内部网与外部网的互连提供了一种简单、安全的实现途径。Linux自带的Firewall构建软路由，主要是通过IP地址来控制访问权限，较一般的代理服务软件有更方便之处。 </p> 
+      <p>一、防火墙 </p> 
+      <p>防火墙一词用在计算机网络中是指用于保护内部网不受外部网的非法入侵的设备，它是利用网络层的IP包过滤程序以及一些规则来保护内部网的一种策略，有硬件实现的，也有软件实现的。 </p> 
+      <p>运行防火墙的计算机（以下称防火墙）既连接外部网，又连接内部网。一般情况下，内部网的用户不能直接访问外部网，反之亦然。如果内部网用户要访问外部网，必须先登录到防火墙，由防火墙进行IP地址转换后，再由防火墙发送给外部网，即当内部网机器通过防火墙时，源IP地址均被设置（或称伪装，或称欺骗）成外部网合法的IP地址。经伪装以后，在外部网看来，内部网的机器是一个具有合法的IP地址的机器，因而可进行通信。外部网用户要访问内部网用户时，也要先登录到防火墙，经过滤后，仅通过允许的服务。 </p> 
+      <p>由此可见，防火墙在内部网与外部网之间起到了两个作用： </p> 
+      <p>(1)IP包过滤&#x2014;&#x2014;保护作用； </p> 
+      <p>(2)路由&#x2014;&#x2014;网络互连作用。 </p> 
+      <p>二、防火墙的安装 </p> 
+      <p>1.硬件安装 </p> 
+      <p>运行Linux防火墙的计算机上必须安装有两块网卡或一块网卡、一块Modem卡。本文以两块网卡为例。安装网卡，正确设置中断号及端口号，并为各网卡分配合适的IP地址。 </p> 
+      <p>配置以后的防火墙模型。 </p> 
+      <p>2.安装网关 </p> 
+      <p>安装网关的方法有两种：一种是运行linuxconf，进入ROUTINGANDGATEWAYS选项，配置网关；另一种是修改rc.inet1文件。下面介绍修改rc.inet1文件的方法安装网关。 </p> 
+      <p>进入/etc/rc.d/目录，键入virc.inet1回车，参照下面内容修改： </p> 
+      <p>IPADDR=&quot;202.114.194.130&quot;＃第一块卡的外部网IP地址 </p> 
+      <p>NETMASK=&quot;255.255.255.128&quot;＃第一块卡的外部网子网掩码 </p> 
+      <p>NETWORK=&quot;202.114.194.0&quot;＃第一块卡的外部网网段 </p> 
+      <p>BROADCAST=&quot;202.114.194.255&quot;＃第一块卡的外部网广播地址 </p> 
+      <p>GATEWAY=&quot;202.114.194.129&quot;＃第一块卡的外部网网关，也是 </p> 
+      <p>默认网关 </p> 
+      <p>IPADDR1=&quot;192.168.0.1&quot; </p> 
+      <p>＃第二块卡的内部网IP地址 </p> 
+      <p>NETMASK1=&quot;255.255.255.0&quot; </p> 
+      <p>＃第二块卡的内部网子网掩码 </p> 
+      <p>NETWORK1=&quot;192.168.0.0&quot; </p> 
+      <p>＃第二块卡的内部网网段 </p> 
+      <p>BROADCAST1=&quot;192.168.0.255&quot; </p> 
+      <p>＃第二块卡的内部网广播地址 </p> 
+      <p>/sbin/ifconfigeth0＄{IPADDR} </p> 
+      <p>broadcast＄{BROADCAST}metmask＄{NETMASK} </p> 
+      <p>＃设置第一块卡 </p> 
+      <p>/sbin/ifconfigeth1＄{IPADDR1} </p> 
+      <p>broadcast＄{BROADCAST1}metmask＄ </p> 
+      <p>{NETMASK1} </p> 
+      <p>＃设置第二块卡 </p> 
+      <p>/sbin/routeadd－net＄{NETWORK} </p> 
+      <p>netmask＄{NETMASK} </p> 
+      <p>/sbin/routeadddefaultgw＄ </p> 
+      <p>{GATEWAY}metric1 </p> 
+      <p>/sbin/routeadd－net＄{NETWORK1} </p> 
+      <p>netmask＄{NETMASK1} </p> 
+      <p>要测试网关设置情况，可以用“ifconfig”命令测试，运行该命令后，会显示出eth0和eth1及上面我们修改的相关内容，如果没有显示这些相关信息，说明设置不正确，还要重新再来一次。 </p> 
+      <p>三、构建软路由 </p> 
+      <p>1.IP地址转换 </p> 
+      <p>IP地址转换也称为IP地址伪装或IP地址欺骗，也就是指当内部网机器登录到防火墙上时，防火墙将内部网IP(不合法的外部网IP地址)伪装成合法的外部网IP地址，再与外部网通信。IP地址伪装的命令格式如下： </p> 
+      <p>ipfwadm－F－amasquerade－D0.0.0.0/0－Weth0 </p> 
+      <p>其中“－D0.0.0.0/0”表示允许对所有内部网IP地址进行转换，“－Weth0”表示内部网IP地址是通过网卡1进行转换的。 </p> 
+      <p>IP地址伪装设置完毕后，就可以在内部网机器上ping一下外部网的机器，如果防火墙上的forwarding没有被关闭的话，就可以ping通了，说明配置一切正确。 </p> 
+      <p>2.设定访问外部网的权限 </p> 
+      <p>为了加强对<a href="/Network/">网络</a>的管理，有时要对内部网访问外部网进行一定的限制，这种限制包括：(1)允许哪些机器可以上网；(2)允许访问哪些站点。 </p> 
+      <p>限制上网机器可以参照以下脚本： </p> 
+      <p>ipfwadm－F－pdeny＃全部拒绝内部网机器上网 </p> 
+      <p>ipfwadm－F－am－S192.168.0.5/32 </p> 
+      <p>－d0.0.0.0/0＃允许192.168.0.5机器对 </p> 
+      <p>外部网的访问 </p> 
+      <p>限制访问站点，可以这样设置： </p> 
+      <p>ipfwadm－O－ireject－D0.0.0.0/0 </p> 
+      <p>＃对外部网的所有站点加以 </p> 
+      <p>拒绝 </p> 
+      <p>ipfwadm－O－iaccept－D202.114.0.0/16 </p> 
+      <p>＃允许访问202.114.0.0～ </p> 
+      <p>202.114.255.255内的所有站点 </p> 
+      <p>上述设置中，“0.0.0.0/0”表示全部网址，“202.114.0.0/16”表示202.114.0.0至202.114.255.255的所有站点。</p> 
+      <p>3.统计IP包流量 </p> 
+      <p>IP包流量记账的设置如下： </p> 
+      <p>ipfwadm－A－f </p> 
+      <p>/sbin/ipfwadm－A－f </p> 
+      <p>/sbin/ipfwadm－Aout－I－S192.168.0.0 </p> 
+      <p>/32－D0.0.0.0/0 </p> 
+      <p>＃对所有流出包 </p> 
+      <p>统计 </p> 
+      <p>/sbin/ipfwadm－Ain－I－S192.168.0.0 </p> 
+      <p>/32－D0.0.0.0/0 </p> 
+      <p>＃对所有流入包 </p> 
+      <p>统计 </p> 
+      <p>所在记账的统计都存放于/proc/net/ip_acct文件中，其所有IP地址均为16进制表示。 </p> 
+      <p>以上所有脚本，既可放置在/etc/rc.d文件中，也可单独设立shell脚本，用命令sh执行。 </p> 
+      <p>以上设置均在RedHat5.1上运行通过。</p>
+      <center>
+       <script src="/js1/4682.js"></script>
+      </center>
+     </div> 
+     <div class="dede_pages"> 
+      <ul class="pagelist"> 
+      </ul> 
+     </div> 
+     <div class="boxoff"></div> 
+     <div class="handle"> 
+      <div class="context"> 
+       <ul> 
+        <li>上一篇：<a href="/Network/Firewall/200706/2903.htm">硬件防火墙配置：高级篇</a> </li> 
+        <li>下一篇：<a href="/Network/Firewall/200706/2905.htm">用Linux防火墙构建DMZ</a> </li> 
+       </ul> 
+      </div> 
+     </div> 
+    </div> 
+   </div> 
+   <div class="pright"> 
+    <div class="commend"> 
+     <dl class="tbox"> 
+      <dt>
+       <strong>推荐内容</strong>
+      </dt> 
+      <dd> 
+       <ul class="c1 ico2"> 
+        <li><a href="/Network/Firewall/200805/10564.htm">天网防火墙IP规则设置方法</a></li> 
+        <li><a href="/Network/Firewall/200805/10561.htm">DDOS硬件防火墙安装配置过程</a></li> 
+        <li><a href="/Network/Firewall/200711/5547.htm">防火墙的功能和作用</a></li> 
+        <li><a href="/Network/Firewall/200706/2928.htm">防火墙的工作原理</a></li> 
+        <li><a href="/Network/Firewall/200706/2920.htm">Cisco PIX防火墙配置实例</a></li> 
+        <li><a href="/Network/Firewall/200706/2904.htm">用Linux防火墙构建软路由</a></li> 
+        <li><a href="/Network/Firewall/200706/2903.htm">硬件防火墙配置：高级篇</a></li> 
+        <li><a href="/Network/Firewall/200706/2897.htm">路由器和思科防火墙之间的IPSec配置</a></li> 
+        <li><a href="/Network/Firewall/200706/2890.htm">防火墙基本知识</a></li> 
+       </ul> 
+      </dd> 
+     </dl> 
+    </div> 
+    <div class="my_box1">
+     <script src="/js1/border3.js"></script>
+    </div> 
+    <div class="commend mt1"> 
+     <dl class="tbox"> 
+      <dt>
+       <strong>热门文章</strong>
+      </dt> 
+      <dd> 
+       <ul class="c1 ico2"> 
+        <li><a href="/Network/Firewall/200805/10561.htm">DDOS硬件防火墙安装配置过程</a> </li> 
+        <li><a href="/Network/Firewall/200706/2920.htm">Cisco PIX防火墙配置实例</a> </li> 
+        <li><a href="/Network/Firewall/200706/2902.htm">如何配置硬件防火墙</a> </li> 
+        <li><a href="/Network/Firewall/200706/2903.htm">硬件防火墙配置：高级篇</a> </li> 
+        <li><a href="/Network/Firewall/201307/36939.htm">飞塔防火墙FG V4.0 OS PPTP VPN 配置实例</a> </li> 
+        <li><a href="/Network/Firewall/201307/36940.htm">飞塔防火墙的IPSec VPN V4.0系列配置</a> </li> 
+        <li><a href="/Network/Firewall/200711/5554.htm">防火墙主流产品介绍</a> </li> 
+        <li><a href="/Network/Firewall/200805/10545.htm">ISA服务器安装设置全集</a> </li> 
+        <li><a href="/Network/Firewall/200706/2898.htm">路由器和防火墙区别</a> </li> 
+        <li><a href="/Network/Firewall/201307/36942.htm">两台FortiGate设备之间设置IPSec动态DNS VP</a> </li> 
+        <li><a href="/Network/Firewall/200706/2888.htm">防火墙的作用</a> </li> 
+        <li><a href="/Network/Firewall/200706/2913.htm">思科PIX防火墙VPN配置实例</a> </li> 
+        <li><a href="/Network/Firewall/200706/2928.htm">防火墙的工作原理</a> </li> 
+        <li><a href="/Network/Firewall/200711/5547.htm">防火墙的功能和作用</a> </li> 
+        <li><a href="/Network/Firewall/200805/10564.htm">天网防火墙IP规则设置方法</a> </li> 
+        <li><a href="/Network/Firewall/201305/36255.htm">Juniper SRX防火墙常用命令</a> </li> 
+        <li><a href="/Network/Firewall/200805/10565.htm">八款个人网络防火墙主要功能介绍</a> </li> 
+        <li><a href="/Network/Firewall/200805/10550.htm">通过ISA2006防火墙发布SSL的OWA</a> </li> 
+       </ul> 
+      </dd> 
+     </dl> 
+    </div> 
+    <div class="my_box1">
+     <script src="/js1/border1.js"></script>
+    </div> 
+   </div> 
+  </div> 
+  <div class="hf1">
+   <script src="/js1/2.js"></script>
+  </div> 
+  <div class="footer w960 center mt1 clear"> 
+   <p class="copyright">Bianceng.cn,All Rights Reserved. <script src="/js/tongji.js"></script></p> 
+  </div> 
+  <script src="/plus/count.php?aid=2904&amp;mid=0" language="javascript"></script>  
+ </body>
+</html>

@@ -1,0 +1,83 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8;">
+<title>欢迎登录后台管理系统</title>
+<link href="/css/style.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="/js/jquery.js"></script></head>
+
+
+<body style="background-color:#1c77ac; background-image:url(/images/light.png); background-repeat:no-repeat; background-position:center top; overflow:hidden;">
+    <input type="hidden" value="58dfe22da808b" name="token">
+    <div id="mainBody">
+      <div id="cloud1" class="cloud"></div>
+      <div id="cloud2" class="cloud"></div>
+    </div>  
+    <div class="loginbody">
+        <span class="systemlogo"></span> 
+        <div class="loginbox loginbox2" style="position: absolute; left: 144px; ">
+            <ul>
+                <li><input name="uname" type="text" class="loginuser" onclick="JavaScript:this.value=''"></li>
+                <li><input name="upwd" type="password" class="loginpwd" onclick="JavaScript:this.value=''"></li>
+                <li class="yzm">
+                <span><input name="ucode" type="text" value="验证码" onclick="JavaScript:this.value=''"></span>
+                <cite><img src="http://test-ocs.wanshifu.com/login/CreateCode" id="ucode">
+                </cite> 
+                </li>
+            <li><input type="button" class="loginbtn" value="登录" id="loginbt"><span style="color:red;display:inline-block;font-size:12px;margin-left:10px;" id="error_notice">&nbsp;</span></li>
+            </ul>
+        </div>
+    </div>
+    <div class="loginbm">版权所有  www.wanshifu.com  <a href="http://www.wanshifu.com" target="_blank">深圳市小亿网络有限公司版权所有</a></div>
+<script language="javascript">
+    $(function(){
+        $('.loginbox').css({'position':'absolute','left':($(window).width()-692)/2});
+            $(window).resize(function(){  
+        $('.loginbox').css({'position':'absolute','left':($(window).width()-692)/2});
+        });
+        $("#ucode").click(function(){//验证码切换
+            var url = "/login/CreateCode";
+            var url = url+"/timestr/"+Math.random()*10000;
+            $(this).attr("src",url);
+
+        });
+        $("#loginbt").click(function(){//登录
+            var uname = $.trim($("input[name='uname']").val());
+            var upwd  = $.trim($("input[name='upwd']").val());
+            var ucode = $.trim($("input[name='ucode']").val());
+            var msg = "";
+			
+            if (uname.match(/^[a-z|A-Z]\w{2,}$/) == null ){
+                msg = "请输入至少3位字符的常用用户名";
+                $("#error_notice").html(msg);
+                return false;
+            }
+            if( upwd.match(/^\w{6,}$/) == null ){
+                msg = "请输入至少6位的常用密码";
+                $("#error_notice").html(msg);
+                return false;
+            }
+            if( ucode.match(/^[\d|a-z|A-Z]{4}$/) == null ){
+                msg = "请输入右边的验证码";
+                $("#error_notice").html(msg);
+                return false;
+            }
+            
+            var token = $.trim($("input[name='token']").val());
+            var url = "/login/login";
+            $.post(url,{"uname":uname,"upwd":upwd,"ucode":ucode,"token":token},function(data){
+                var backdata = $.parseJSON(data);
+                $("#loginbt").html("登录中...");
+                if(!backdata.status){
+                   location.href = "/main/index";
+                }else{
+				
+                }
+                $("#error_notice").html(backdata.msg);
+            },"JSON");
+        });
+    });  
+</script> 
+    
+
+
+
+</body></html>

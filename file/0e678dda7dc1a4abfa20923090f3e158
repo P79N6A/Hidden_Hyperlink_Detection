@@ -1,0 +1,1916 @@
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="renderer" content="webkit">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>打比赛就来约战吧</title>
+<link rel="stylesheet" href="/css/index.css" type="text/css"></link>
+
+
+
+<link rel="stylesheet" type="text/css" href="/css/style.css" />
+<script type="text/javascript" src="/js/jquery.min.js"></script>
+<script type="text/javascript" src="/js/jquery.easing.min.js"></script>
+<script type="text/javascript" src="/js/jquery.form.js"></script>
+<script type="text/javascript" src="/js/fixchat.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){
+	loadData();
+	});
+function loadData(){
+	var k=!0;
+
+	$(".loginmask").css("opacity",0.8);
+	
+	if($.browser.version <= 6){
+		$('#reg_setp,.loginmask').height($(document).height());
+	}
+	
+	$(".thirdlogin ul li:odd").css({marginRight:0});	
+	
+	$(".openlogin").click(function(){
+		k&&"0px"!=$("#loginalert").css("top")&& ($("#loginalert").show(),$(".loginmask").fadeIn(500),$("#loginalert").animate({top:0},400,"easeOutQuart"))
+	});
+	
+	$(".loginmask,.closealert").click(function(){
+		k&&(k=!1,$("#loginalert").animate({top:-600},400,"easeOutQuart",function(){$("#loginalert").hide();k=!0}),$(".loginmask").fadeOut(500))
+	});
+	
+	
+	$("#sigup_now,.reg a").click(function(){
+		$("#reg_setp,#setp_quicklogin").show();
+		$("#reg_setp").animate({left:0},500,"easeOutQuart")
+	});																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																								
+	
+	$(".back_setp").click(function(){
+		"block"==$("#setp_quicklogin").css("display")&&$("#reg_setp").animate({left:"100%"},500,"easeOutQuart",function(){$("#reg_setp,#setp_quicklogin").hide()})
+	});
+	
+	/*
+	 *登录部分
+	 */
+	 var options = {
+        //target:        '#competeRoom',   // target element(s) to be updated with server response
+        beforeSubmit:  showRequest,  // pre-submit callback
+        success:       showResponse  // post-submit callback
+        // other available options:
+        //url:       url         // override for form's 'action' attribute
+        //type:      type        // 'get' or 'post', override for form's 'method' attribute
+        //dataType:  null        // 'xml', 'script', or 'json' (expected server response type)
+        //clearForm: true        // clear all form fields after successful submit
+        //resetForm: true        // reset the form after successful submit
+
+        // $.ajax options can be used here too, for example:
+        //timeout:   3000
+    };
+
+    // bind form using 'ajaxForm'
+    $('#login_form').ajaxForm(options);
+	
+	var regoptions = {
+        beforeSubmit:  registerRequest,  // pre-submit callback
+        success:       register  // post-submit callback
+    };
+	$('#regForm').ajaxForm(regoptions);
+	 
+	
+}
+function closeWindow(){
+		k&&(k=!1,$("#loginalert").animate({top:-600},400,"easeOutQuart",function(){$("#loginalert").hide();k=!0}),$(".loginmask").fadeOut(500))
+	}
+
+// pre-submit callback
+function showRequest(formData, jqForm, options) {
+    // formData is an array; here we use $.param to convert it to a string to display it
+    // but the form plugin does this for you automatically when it submits the data
+    var queryString = $.param(formData);
+
+    // jqForm is a jQuery object encapsulating the form element.  To access the
+    // DOM element for the form do this:
+    // var formElement = jqForm[0];
+
+    //alert('About to submit: \n\n' + queryString);
+
+    // here we could return false to prevent the form from being submitted;
+    // returning anything other than false will allow the form submit to continue
+	//console.log($("username"));
+	if($("loginUserName").val()==""){
+		$(".login_warning").html("用户名不能为空");
+		return false;
+		}
+	if($("loginPassWord").val()==""){
+		$(".login_warning").html("密码不能为空");
+		return false;
+		}
+    return true;
+}
+
+// post-submit callback
+function showResponse(responseText, statusText, xhr, $form)  {
+	//console.log(responseText);
+	var p=responseText.indexOf("登录成功");
+	if(p!=-1){
+		$(".closealert").click();
+		//$("#topLogin").html("<li><a href='/info?flag=detail' class='font_bs_01_2'>"+responseText.replace("登录成功","")+"</a> 您好，欢迎您来到约战吧</li><li> <a href='/memberexit' class='font_bs_01_2'>【退出】</a></li>");
+		window.location.href="/indexNew";
+		}else{
+			$(".login_warning").html(responseText);
+			}
+    // for normal html responses, the first argument to the success callback
+    // is the XMLHttpRequest object's responseText property
+
+    // if the ajaxForm method was passed an Options Object with the dataType
+    // property set to 'xml' then the first argument to the success callback
+    // is the XMLHttpRequest object's responseXML property
+
+    // if the ajaxForm method was passed an Options Object with the dataType
+    // property set to 'json' then the first argument to the success callback
+    // is the json data object returned by the server
+
+    //alert('status: ' + statusText + '\n\nresponseText: \n' + responseText +
+      //  '\n\nThe output div should have already been updated with the responseText.');
+}
+
+function registerRequest(formData, jqForm, options) {
+	var queryString = $.param(formData);
+	//console.log(queryString);
+	if($("#username").val()==""){
+		$(".reg_warning").html("用户名不能为空");
+		return false;
+		}
+	if($("#password").val()==""){
+		$(".reg_warning").html("密码不能为空");
+		return false;
+		}
+	if($("#checkCode").val()==""){
+		$(".reg_warning").html("验证码不能为空");
+		return false;
+		}
+    return true;
+}
+
+function register(responseText, statusText, xhr, $form)  {
+	//console.log(responseText);
+	var p=responseText.indexOf("注册成功");
+	if(p!=-1){
+		$(".closealert").click();$(".back_setp").click();
+		<!--$("#topLogin").html("<li><a href='/info?flag=detail' class='font_bs_01_2'>"+responseText.replace("注册成功","")+"</a> 您好，欢迎您来到约战吧</li><li> <a href='/memberexit' class='font_bs_01_2'>【退出】</a></li>");-->
+		$(".wrap").load("/includes/topLogin.jsp");
+		}else{
+			alert(responseText);
+			$(".reg_warning").html(responseText);
+			}
+}
+
+//刷新验证码
+function changeCode(){
+	var ic = document.getElementById('ic');
+	var timenow = new Date().getTime();
+	ic.src ='picget?'+timenow;
+}
+function debug(msg){
+    if(window.console != undefined){
+        console.log(msg);
+    }
+}
+</script>
+</head>
+<body class="act_0217">
+     
+
+
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="/css/style.css" />
+<link rel="stylesheet" type="text/css" href="/css/head.css">
+<script type="text/javascript" src="/js/head.js"></script>
+<script type="text/javascript">
+$(document).ready(function() {
+        $(".uc_nav").on('click', '.title', function(event) {
+            event.preventDefault();
+            var $this = $(this);
+            $this.next(".titlegrop").toggle(200);
+        });
+        
+        $("#mark").on("keyup",function(){
+		var code=$("#mark").val();	
+		var phone = $("#phone").val();
+         if (code.length >=6 ) {
+        	 $.ajax({
+			type: "post",
+            url: "/action/sms/back/checkCode",
+            data: {code:code,phone:phone,newUser:1},
+            dataType: "text",
+			success: function(msg){
+            	if(msg=="ok"){
+            	$("#showInfo").text("验证成功")
+            	$("#showInfo").css("color","green")
+            	clearInterval(setVTime);
+                $("#Send").css("display","none");
+            	 	setVtimes = 0;
+             	}else{
+             	$("#showInfo").text("验证失败")
+             	$("#showInfo").css("color","red")
+             	}
+	      	}
+	      });
+    };
+})
+    });
+function daohang(val){
+		  $.ajax({
+			type: "post",
+            url: "/dh",
+            data: {dh:val},
+            dataType: "text",
+			success: function(msg){
+	      	}
+	      });
+}
+  function checkUserName(){
+	  var flag=false;
+	  var val=$("#username").val();
+	  if(val==""||val==null){
+		  $("#userName").text("用户名不能为空！")
+           $("#userName").css("color","red");
+	  }else{
+		  	  $.ajax({
+			type: "post",
+            url: "/checkUserName",
+            async:false,
+            data: {username:val},
+            dataType: "text",
+			success: function(msg){
+            		if(msg=="ok"){
+            		$("#userName").text("用户名已存在！")
+            		$("#userName").css("color","red");
+            	}else{
+            		if(val!=""){
+            		$("#userName").text("")
+            		}
+            		flag=true;
+            	}
+	      	}
+	      });
+	  }
+	  return flag;
+  }
+   function checkEmail(){
+	    var flag=false;
+	   var val=$("#email").val();
+	   var reg = /^([a-zA-Z0-9_-])+@([a-zA-Z0-9_-])+((\.[a-zA-Z0-9_-]{2,3}){1,2})$/;
+	   if(val==""||val==null){
+		   $("#Email").text("邮箱不能为空！")
+           $("#Email").css("color","red");
+	   }else if(!reg.test(val)){
+		    $("#Email").text("邮箱格式不对！")
+           $("#Email").css("color","red");
+	   }else{
+		     $.ajax({
+			type: "post",
+            url: "/checkEmail",
+             async:false,
+            data: {email:val},
+            dataType: "text",
+			success: function(msg){
+            	if(msg=="ok"){
+            		$("#Email").text("邮箱已存在！")
+            		$("#Email").css("color","red");
+            	}else{
+            			$("#Email").text("")
+            		flag=true;
+            	}
+	      	}
+	      });
+	   }
+	   return flag;
+  }
+   function checkPass(){
+	   var flag=false;
+	    var val=$("#password").val();
+	    if(val==""||val==null){
+	    	$("#pass").text("密码不能为空！")
+            $("#pass").css("color","red");
+	    }else{
+	    	$("#pass").text("")
+	    	flag=true;
+	    }
+	    return flag;
+   }
+   function checkPassre(){
+	   var flag=false;
+	    var val=$("#password").val();
+	    var valre=$("#repassword").val();
+	    if(valre==""||valre==null){
+	    	$("#repass").text("确认密码不能为空！")
+            $("#repass").css("color","red");
+	    }else if(val!=valre){
+	    	$("#repass").text("两次密码不一致")
+            $("#repass").css("color","red");
+	    }else{
+	    	$("#repass").text("")
+	    	flag=true;
+	    }
+	    return flag;
+   }
+   function checkPhone(){
+	   var flag=false;
+	    var val=$("#phone").val();
+	    var p=/^13[0-9]{9}$|14[0-9]{9}|15[0-9]{9}$|18[0-9]{9}$|17[0-9]{9}$/;
+	    if(val==""||val==null){
+	    	 $("#cPhone").text("手机号不能为空")
+	    	  $("#cPhone").css("color","red");
+	    }else
+	       if(!(p.test(val))){ 
+				   $("#cPhone").text("手机格式有误！")
+				    $("#cPhone").css("color","red");
+			   }else{
+				    $("#cPhone").text("")
+				   flag=true;
+			   }
+	    return flag;
+   }
+   
+     var setVTime = null;
+	  var setVtimes = 0;
+	function setVal(id,val,txt){
+			if(val>0){
+				$(id).text("剩"+val+"秒");
+			}else{
+				$(id).text(txt);
+				clearInterval(setVTime);
+				$(id).removeClass("disabled");
+			}
+		}
+      function checkP(){
+	   var flag=false;
+	    var val=$("#phone").val();
+	    var p=/^13[0-9]{9}$|14[0-9]{9}|15[0-9]{9}$|18[0-9]{9}$|17[0-9]{9}$/;
+	    if(val==""||val==null){
+	    	 $("#cPhone").text("手机号不能为空")
+	    	  $("#cPhone").css("color","red");
+	    }else
+	       if(!(p.test(val))){ 
+				   $("#cPhone").text("手机格式有误！")
+				    $("#cPhone").css("color","red");
+			   }else{
+				    $("#cPhone").text("")
+				   flag=true;
+			if(val==""||val==null){
+			$("#cphone").text("请填写手机号！")
+			$("#cphone").css("color","red");
+			}else{
+			if (setVtimes == 0) {
+			$.ajax({
+			type: "post",
+            url: "/action/sms/back/checkPhone",
+            data: {phone:val},
+            dataType: "text",
+			success: function(msg){
+            if(msg=="ok"){
+           if(setVtimes > 0){
+				return false;
+			}
+            $("#Send").addClass("disabled");
+				setVtimes = 120;
+						setVTime = setInterval(function(){
+							setVal("#Send",setVtimes,"重发");
+							if(setVtimes >0){
+								setVtimes -=1;
+							}
+						},1000);
+						$("#showCode").css("display","block");
+             	}else{
+             		$("#cPhone").text("该手机号已被使用！")
+				    $("#cPhone").css("color","red");
+             	}
+	      	}
+	      });
+			}
+			}
+			   }
+   }
+    function checkQq(){
+	   var flag=false;
+		var userQQ=$("#qqinfo").val();
+		if(userQQ==""||userQQ==null){
+			   $("#cQq").text("QQ不能为空！")
+				$("#cQq").css("color","red");
+		}else if(isNaN(userQQ)){
+				$("#cQq").text("QQ输入有误！")
+				$("#cQq").css("color","red");
+			}else if(userQQ.length<4||userQQ.length>13){
+				$("#cQq").text("QQ格式有误！")
+				$("#cQq").css("color","red");
+			}else{
+				$("#cQq").text("")
+				flag=true;
+			}
+		return flag;
+   }
+   function checkForm(){
+	   var flag=false;
+  if(checkUserName()&checkEmail()&checkPass()&checkPassre()&checkPhone()&checkQq()){
+	  if($("#showInfo").text()=="验证成功"){
+		   flag=true;
+	  }else{
+		  $("#cPhone").text("请验证手机号！")
+		  $("#cPhone").css("color","red");
+	  }
+	   }
+	   return flag;
+   }
+</script>
+<div class="header">
+<div class="wrap">
+		<h1 class="h_title"></h1>
+		<a class="h_logo" href="/" target="_blank"><img src="/images/logo.jpg" alt=""></a>
+		<ul class="h_nav">
+			<li><a href="/" class="txtc8">首页</a></li>
+			<li> <a href="/contest/contestIndex" class="txtc8">赛事中心</a></li>
+			<li><a href="/teamfundCompete" class="txtc8">战队基金</a></li>
+			<li><a href="/member/teamIndex" class="txtc8">战队排名</a></li>
+			<li> <a href="/action/video/videoShowList" class="txtc8">视频录像</a></li>
+			<li><a href="/gift/giftList" class="txtc8">奖品兑换</a></li>
+			<li><a href="/helpindex" class="txtc8">帮助中心 </a></li>
+			<li><a href="/info?flag=detail" class="txtc8">会员中心 </a></li>
+		</ul>
+		  
+		<div class="h_ucenter">
+			
+			  
+			<div class="login_bef" >
+				 <a href="javascript:void(0);" class="openlogin">登录</a>
+		<span class="reg"><a href="javascript:void(0);"  class="reg">注册</a></span>
+			</div>	
+			<div class="login_aft">
+				<img src="/img/team1/default.jpg" alt="" class="h_anchor">
+				<span class="wel">欢迎访问约战吧</span>
+				<div class="h_nameWr" id="h_nameWr">
+					<a href="/info?flag=detail" class="name"></a>
+					<div class="panel">
+						<i class="icf"></i>
+						<div class="cons">
+							<div class="infos">
+								<a href="#" title="人名称" class="p_anchor_w" target="_blank"><img src="/img/team1/default.jpg" alt="" class="p_anchor"></a>
+								<p class="first"><a href="javascript:;" title="" class="p_name" ></a></p>
+								<p class="second"><i class="icf">&#xe606;</i><span class="pb_phone"><a href="/info?flag=detail">手机未绑定，去绑定</a><i class="icf">&#xe603;</i></span></p>
+								<p class="third"><a href="/tenpay/initForUserRecharge" class="go_exp" target="_bank">充值</a><span class="exp" >竞技豆：<em id="p_money"></em></span></p>
+							</div>
+							<p class="last"><em class="p_fans">粉丝:</em><em class="p_rank">排名:</em><em class="p_price">市值:</em></p>
+							<div class="tabs">
+							  
+								 
+								<a href="/info?flag=detail" onclick="daohang('资料管理')"><i class="icf">&#xe602;</i><em>资料管理</em></a>
+								<a href="/queryaccountbymem" onclick="daohang('财务信息')"><i class="icf">&#xe605;</i><em>财务信息</em></a>
+								<a href="/gift/member/giftOrderList" onclick="daohang('兑换记录')"><i class="icf">&#xe601;</i><em>兑换记录</em></a>
+								
+								 
+									 
+							</div>
+							
+						</div>
+						<div class="loading"><span class="ico"></span></div>
+					</div>
+				</div>
+				<a href="javascript:;" class="logout" onclick="if( confirm('确认？'))location.href='/memberexit';">退出</a>
+			</div>
+		</div>
+	
+</div>
+
+</div>
+
+
+<div class="loginmask" style="opacity: 0.8; display: none;"></div>
+
+<div id="loginalert" style="display: none; top: -600px;">
+	
+	<div class="pd20 loginpd">
+		<h3><i class="closealert fr"></i><div class="clear"></div></h3>
+		<div class="loginwrap">
+			<div class="loginh">
+				<div class="fl">会员登录</div>
+				<div class="fr">还没有账号<a id="sigup_now" href="javascript:void(0);">立即注册</a></div>
+			</div>
+			<h3><span class="fl">请输入用户名</span><span class="login_warning"></span><div class="clear"></div></h3>
+			<form action="/memberloginAjax" method="post" id="login_form">
+				<div class="logininput">
+					<input type="text" name="loginUserName" class="loginusername" value="" placeholder="用户名">
+					<input type="password" name="loginPassWord" class="loginuserpasswordt" value="" placeholder="密码">
+					
+				</div>
+				<div class="loginbtn">
+					<div class="loginsubmit fl"><input type="submit" value="登录" class="btn"></div>
+					<div class="fl" style="margin:26px 0 0 0;"><input id="bcdl" type="checkbox" checked="true">保持登录</div>
+					<div class="fr" style="margin:26px 0 0 0;"><a href="/retrievePwd.jsp" target="_blank">忘记密码?</a></div>
+					<div class="clear"></div>
+				</div>
+			</form>
+		</div>
+	</div>
+	
+	<div class="thirdlogin">
+		<div class="pd50">
+			<h4>用第三方帐号直接登录</h4>
+			<ul>
+				<!--<li id="sinal"><a href="http://www.17sucai.com/oauth/weibo/login">微博账号登录</a></li>-->
+				
+			<a href="/action/qq/login"><img src="/images/qqLogin.png"></a>
+			</ul>
+			<div class="clear"></div>
+		</div>
+	</div>
+	
+</div><!--loginalert end-->
+
+
+<div id="reg_setp" style="display: none; left: 100%;">
+	<div class="back_setp">返回</div>
+	<div class="blogo"></div>
+	<div id="setp_quicklogin" style="display: none;">
+    
+        <div class="reg">  
+   		<div class="reg_tit">会员注册<span style="padding-left:20px; font-size:12px; color:#ff4200;">( * 为必填项) </span></div>
+        <div class="reg_con">
+<form action="/memberregisterAjax" method="post" id="regForm" onsubmit="return checkForm();">
+	<div class="rltaball">
+    	<div class="rlleft">
+       <span style="color:#ff4200;"> *</span>登录账号：
+        </div>
+        <div class="rlright" style="width: 400px;">
+        <input name="username" type="text" class="bdform" id="username"  value="" placeholder="请输入用户名"  onblur="checkUserName()" /><span class="Validform_checktip" id="userName"></span> 
+                        <input type="hidden" id="t" name="t" value="" />
+          
+        </div>
+    </div>
+    <div class="rltaball">
+    	<div class="rlleft">
+       <span style="color:#ff4200;"> *</span>邮箱：
+        </div>
+        <div class="rlright" style="width: 400px;">
+          <input type="text" id="email" name="email" class="bdform" value="" style="width: 200px;" placeholder="请输入邮箱地址"    onblur="checkEmail()"/><span class="Validform_checktip" id="Email"></span> 
+        </div>
+    </div>
+    <div class="rltaball">
+    	<div class="rlleft">
+       <span style="color:#ff4200;"> *</span>设置密码：
+        </div>
+        <div class="rlright" style="width: 400px;">
+          
+          <input type="password" id="password" name="password"
+															value="" class="bdform"   placeholder="请输入密码"  onblur="checkPass()"/><span class="Validform_checktip" id="pass"></span> 
+        </div>
+    </div>
+    <div class="rltaball">
+    	<div class="rlleft">
+        <span style="color:#ff4200;"> *</span>确认密码：
+        </div>
+        <div class="rlright" style="width: 400px;">
+          
+          <input type="password" id="repassword" name="repassword"
+															value="" class="bdform"   placeholder="请输入确认密码"  onblur="checkPassre()"/><span class="Validform_checktip" id="repass"></span> 
+        </div>
+    </div>
+        <div class="rltaball">
+    	<div class="rlleft">
+        <span style="color:#ff4200;"> *</span>QQ：
+        </div>
+        <div class="rlright" style="width: 400px;">
+          <input name=qq type="text" class="bdform" id="qqinfo" value="" placeholder="请输入QQ号码"  onblur="checkQq()"/><span class="Validform_checktip" id="cQq">*此QQ号作为比赛服开通帐号</span> 
+        </div>
+    </div>
+    <div class="rltaball">
+    	<div class="rlleft">
+        <span style="color:#ff4200;"> *</span>手机号码：
+        </div>
+        <div class="rlright" style="width: 400px;">
+          <input name="phone" type="text" class="bdform" id="phone" value="" placeholder="请输入手机号码"  onblur="checkPhone()"/><button type="button" class="btn"  id="Send" onclick="checkP()" >验证</button><span class="Validform_checktip" id="cPhone"></span> 
+        </div>
+    </div>
+     <div class="rltaball" style="display: none" id="showCode">
+    	<div class="rlleft">
+        手机验证码：
+        </div>
+        <div class="rlright" style="width: 400px;">
+          <input  id=mark  class="bdform" /><span class="Validform_checktip" id="showInfo"></span> 
+        </div>
+    </div>
+    <div class="rltaball">
+    	<div class="rlleft">
+        <span style="color:#ff4200;"> *</span>验证码：
+        </div>
+        <div class="rlright">
+          
+         <input name="checkCode" type="text" class="bdform" id="checkCode" size="4" maxlength="4" placeholder="请输入验证码"  require="true"  style=" width: 100px;"/>                        <img src="picget" id="ic" onClick="changeCode();" width="55" height="25" />
+                                                            
+        </div>
+    </div>
+    <br />
+    <div class="rltaball">
+    <div class="rlleft">
+        
+    </div>
+    <div class="rlright">
+    <input type="submit" value="提交注册" class="btn addbtnend addbtn" style="height:33px;">
+      </div>
+    </div>
+    </form>
+        </div>
+        </div>
+		<h3>您可以选择以下第三方，一分钟完成注册</h3>
+		<ul class="quicklogin_socical" style="padding-left:0px;">
+			<!--<li class="quicklogin_socical_weibo"><a href="#">微博帐号注册</a></li>-->
+		</ul>
+			<a href="/action/qq/login"><img src="/images/qqLogin.png"></a>
+	</div>
+</div>
+
+    <div class="nwrap">
+        <div class="f_top clearfix f_total">
+            <ul class="total_list clearfix">
+                <li>注册战队:<br><em>2447</em>支</li>
+                <li>比赛场次:<br><em>1590</em>场</li>
+                <li>发放奖金:<br><em>140951</em>RMB</li>
+                  
+                  
+                <li>当前奖池:<br><em><img src="/images/7.gif" /><img src="/images/6.gif" /><img src="/images/8.gif" /><img src="/images/2.gif" /><img src="/images/6.gif" /></em>RMB</li>
+                  
+                
+                  
+                
+                  
+                
+                  
+                
+                  
+                
+            </ul>
+            <div class="total_btn"><a onclick="showWindowLogin('/initCreateCompetePage?type=2','创建战队');">创建战队</a>
+            <a href="javascript:;" onclick="qiandao()"><em id="qiandaoCount">2731</em>签到</a></div>
+        </div>
+        <div class="f_top clearfix">
+                  <div class="fbanner" id="fbanner">
+                <div class="tab_box">
+                	
+                    <div ><a href="http://www.yuezhanba.com/shouwang"><img  src="/img/frilink//1473473626886.png"   alt="守望先锋郑州富士康工厂赛"></a></div>
+                     
+                    <div ><a href="http://www.yuezhanba.com/2016"><img  src="/img/frilink//1467442003908.jpg"   alt="2016电子竞技冠军联赛-第二届"></a></div>
+                     
+                    <div ><a href="http://www.yuezhanba.com/111"><img  src="/img/frilink//1446797878961.jpg"   alt="水冷风电竞英雄争霸赛"></a></div>
+                     
+                    <div ><a href="http://www.yuezhanba.com/jieshao"><img  src="/img/frilink//1437360655782.jpg"   alt="一分钟看懂约战吧"></a></div>
+                     
+                </div>
+                <ul class="tab_menu">
+                   
+                    <li class="current"><a href="http://www.yuezhanba.com/shouwang"><span class="alpha"></span><em>守望先锋郑州富士康工厂赛</em></a></li>
+                    
+                    <li ><a href="http://www.yuezhanba.com/2016"><span class="alpha"></span><em>2016电子竞技冠军联赛-第二届</em></a></li>
+                    
+                    <li ><a href="http://www.yuezhanba.com/111"><span class="alpha"></span><em>水冷风电竞英雄争霸赛</em></a></li>
+                    
+                    <li ><a href="http://www.yuezhanba.com/jieshao"><span class="alpha"></span><em>一分钟看懂约战吧</em></a></li>
+                    
+                </ul>
+            </div>
+            <ul class="f_topbar">
+                       
+                <li><a href="#">
+                        <div class="fl">
+                            <img src="/img/team1/icon/1484014283108.jpg" class="bar_anchor" alt="">
+                            <div class="con">FTDD<br></div>
+                        </div>
+                        <div class="fr">
+                            <img src="/img/team1/icon/1484033559576.jpg" class="bar_anchor" alt="">
+                            <div class="con">大洋ON<br></div>
+                        </div>
+                       
+                          
+                                <p class="inf">
+                            <em>
+                            1
+                            :
+                            0
+                            </em>
+                        </p>
+                    
+                    </a></li>
+                    
+                <li><a href="#">
+                        <div class="fl">
+                            <img src="/img/team1/icon/1484033559576.jpg" class="bar_anchor" alt="">
+                            <div class="con">大洋ON<br></div>
+                        </div>
+                        <div class="fr">
+                            <img src="/img/team1/icon/1484013695345.png" class="bar_anchor" alt="">
+                            <div class="con">ROG<br></div>
+                        </div>
+                       
+                          
+                                <p class="inf">
+                            <em>
+                            0
+                            :
+                            1
+                            </em>
+                        </p>
+                    
+                    </a></li>
+                    
+                <li><a href="#">
+                        <div class="fl">
+                            <img src="/img/team1/icon/1484013695345.png" class="bar_anchor" alt="">
+                            <div class="con">ROG<br></div>
+                        </div>
+                        <div class="fr">
+                            <img src="/img/team1/icon/1484033559576.jpg" class="bar_anchor" alt="">
+                            <div class="con">大洋ON<br></div>
+                        </div>
+                       
+                          
+                                <p class="inf">
+                            <em>
+                            0
+                            :
+                            1
+                            </em>
+                        </p>
+                    
+                    </a></li>
+                    
+            </ul>
+        </div>
+        <div class="f_match ">
+            <div class="contitle">
+                <h2>赛事中心</h2>
+            </div>
+            <div class="f_match_con">
+                <ul class="clearfix">
+                
+                    <li><a href="/league?id=3"><img src="/img/contests/1467411233031.png" alt=""><span class="inf">2016电子竞技冠军联赛-第二届</span></a></li>
+                
+                 <li><a href="javascript:;"><img src="/img/wu.jpg" alt=""><span class="inf"></span></a></li>
+                 <li><a href="javascript:;"><img src="/img/wu.jpg" alt=""><span class="inf"></span></a></li>
+                 <li><a href="javascript:;"><img src="/img/wu.jpg" alt=""><span class="inf"></span></a></li>
+                </ul>
+            </div>
+        </div>
+              <div class="f_bar">
+             <div class="f_bartop gradient_bar">
+            	 <a href="javascript:showWindowLogin('/initCreateCompete','发起比赛');" class="f_bar_fq button orange" onclick="return isLogin();">发起约战</a>
+                <span class="f_bar_act">
+                    <a href="javascript:loadRooms(0);"><i class="icf">&#xe61b;</i>刷新房间</a>
+                    <a href="javascript:loadRooms(0);"><i class="icf">&#xe61a;</i>全部列表</a>
+                    <a href="javascript:myRooms(0);"><i class="icf">&#xe619;</i>我的房间</a>
+                </span>
+                <ul class="f_bar_tab"><li  id="lol"><a href="javascript:void(0);" onclick="gameType(26)">英雄联盟</a></li><li id="cf"><a href="javascript:void(0);" onclick="gameType(27)">穿越火线</a></li></ul>
+                <form   action="" class="f_bar_search">
+                    <label for="">房间编号</label>
+                    <input name="roomId" id="roomId"  class="inputs" value="" />
+                    <button type="button" class="btn"  onclick="room(0);">提交</button>
+                </form>
+            </div>
+            <div class="f_bar_list" id="yuezhan">
+            </div>
+        </div>
+        <div class="f_supt ">
+            <div class="contitle">
+                <h2>品牌扶持</h2>
+            </div>
+            <div class="f_supt_con">
+                <ul class="clearfix">
+                
+                    <li><a href="#"><img src="/img/member/icon/1470371898488.jpg" alt=""><span class="inf">金诺七品外设</span><em class="bds"></em></a>
+                    <p>&nbsp;&nbsp;RMB&nbsp;&nbsp;扶持</p></li>
+                
+                    <li><a href="#"><img src="/img/member/icon/1470384982593.jpg" alt=""><span class="inf">仕德科技</span><em class="bds"></em></a>
+                    <p>&nbsp;&nbsp;RMB&nbsp;&nbsp;扶持</p></li>
+                
+                    <li><a href="#"><img src="/img/member/icon/1470371936148.jpg" alt=""><span class="inf">香江家具</span><em class="bds"></em></a>
+                    <p>&nbsp;&nbsp;RMB&nbsp;&nbsp;扶持</p></li>
+                
+                    <li><a href="#"><img src="/img/member/icon/1470387622315.jpg" alt=""><span class="inf">三星曲面显示器</span><em class="bds"></em></a>
+                    <p>&nbsp;&nbsp;RMB&nbsp;&nbsp;扶持</p></li>
+                
+                </ul>
+            </div>
+        </div>
+    <div class="f_fund">
+            <div class="contitle">
+                <h2>战队基金</h2><span class="title_note"></span>
+            </div>
+            <div class="m-boxlist" id="m-boxlist-tzxm">
+            
+                <div class="hd">
+                    <a class="prev icf" href="javascript:void(0)">&#xe61e;</a>
+                    <a class="next icf" href="javascript:void(0)">&#xe61d;</a>
+                </div>
+            	<ul class="bd clearfix">
+            	
+                        <li class="m-box">
+                            <div class="m-box-hd">
+                            <img alt="" src="img/team1/icon/1402709731623.jpg" class="extra">
+                            <div class="title"><a href="/teamFundListInfo?id=2684" >Ty</a></div>
+                                <div class="explain">战队代码：2684</div>
+                            </div>
+                            <p class="guarantee">
+                            
+                            
+                            
+                            <em class="lvl">等级：<em class="tag bg-blue">钻石</em></em>
+                            
+                            <a ><img  src="/img/forum1/icon/1436003939953.gif"   alt=""><span title="">英雄联盟</span></a></p>
+                            <div class="m-box-bd">
+                                <div class="m-box-bdt"><span>今日收益</span><span>当前市价</span><span>排名</span></div>
+                                <div class="data clearfix">
+                                        <div class="rate"><span class="number ">0.0%</span></div>
+                                        <div class="rate"><span class="number ">29.85</span></div>
+                                        <div class="term"><span class="number ">1</span></div>
+                                    </div>
+                                <div class="bidprogress">
+                                    <div class="u-progress"><div class="u-progress-bar"><span class="sr-only" style="width:0.659077291791492%"></span></div></div>
+                                </div>
+                                <div class="tzinfo"><em><span>7</span>人投资</em>
+                                3316/ <span class="gray">3338</span>
+                                </div>
+                                <p class="ph">股东派红比例 70%</p>
+                            </div>
+                            <div class="m-box-ft">
+                            
+                            
+                                <a href="/teamFundListInfo?id=2684" class="u-btn u-btn-orange">
+                                我要投资 </a>
+                            
+                                </div>
+                        </li>
+            	
+                        <li class="m-box">
+                            <div class="m-box-hd">
+                            <img alt="" src="img/team1/icon/1428401097728.jpg" class="extra">
+                            <div class="title"><a href="/teamFundListInfo?id=2686" >珑英</a></div>
+                                <div class="explain">战队代码：2686</div>
+                            </div>
+                            <p class="guarantee">
+                            
+                            
+                            
+                            <em class="lvl">等级：<em class="tag bg-blue">钻石</em></em>
+                            
+                            <a ><img  src="/img/forum1/icon/1436003939953.gif"   alt=""><span title="">英雄联盟</span></a></p>
+                            <div class="m-box-bd">
+                                <div class="m-box-bdt"><span>今日收益</span><span>当前市价</span><span>排名</span></div>
+                                <div class="data clearfix">
+                                        <div class="rate"><span class="number ">0.0%</span></div>
+                                        <div class="rate"><span class="number ">29.7</span></div>
+                                        <div class="term"><span class="number ">2</span></div>
+                                    </div>
+                                <div class="bidprogress">
+                                    <div class="u-progress"><div class="u-progress-bar"><span class="sr-only" style="width:1.347305389221557%"></span></div></div>
+                                </div>
+                                <div class="tzinfo"><em><span>7</span>人投资</em>
+                                3295/ <span class="gray">3340</span>
+                                </div>
+                                <p class="ph">股东派红比例 70%</p>
+                            </div>
+                            <div class="m-box-ft">
+                            
+                            
+                                <a href="/teamFundListInfo?id=2686" class="u-btn u-btn-orange">
+                                我要投资 </a>
+                            
+                                </div>
+                        </li>
+            	
+                        <li class="m-box">
+                            <div class="m-box-hd">
+                            <img alt="" src="img/team1/bigicon/1436000536529.jpg" class="extra">
+                            <div class="title"><a href="/teamFundListInfo?id=2692" >TOG</a></div>
+                                <div class="explain">战队代码：2692</div>
+                            </div>
+                            <p class="guarantee">
+                            
+                            
+                            
+                            <em class="lvl">等级：<em class="tag bg-blue">钻石</em></em>
+                            
+                            <a ><img  src="/img/forum1/icon/1436003939953.gif"   alt=""><span title="">英雄联盟</span></a></p>
+                            <div class="m-box-bd">
+                                <div class="m-box-bdt"><span>今日收益</span><span>当前市价</span><span>排名</span></div>
+                                <div class="data clearfix">
+                                        <div class="rate"><span class="number ">0.0%</span></div>
+                                        <div class="rate"><span class="number ">29.25</span></div>
+                                        <div class="term"><span class="number ">5</span></div>
+                                    </div>
+                                <div class="bidprogress">
+                                    <div class="u-progress"><div class="u-progress-bar"><span class="sr-only" style="width:0.2080856123662307%"></span></div></div>
+                                </div>
+                                <div class="tzinfo"><em><span>3</span>人投资</em>
+                                3357/ <span class="gray">3364</span>
+                                </div>
+                                <p class="ph">股东派红比例 70%</p>
+                            </div>
+                            <div class="m-box-ft">
+                            
+                            
+                                <a href="/teamFundListInfo?id=2692" class="u-btn u-btn-orange">
+                                我要投资 </a>
+                            
+                                </div>
+                        </li>
+            	
+                        <li class="m-box">
+                            <div class="m-box-hd">
+                            <img alt="" src="img/team1/bigicon/1436873250251.jpg" class="extra">
+                            <div class="title"><a href="/teamFundListInfo?id=2693" >HOPE</a></div>
+                                <div class="explain">战队代码：2693</div>
+                            </div>
+                            <p class="guarantee">
+                            
+                            
+                            
+                            <em class="lvl">等级：<em class="tag bg-blue">钻石</em></em>
+                            
+                            <a ><img  src="/img/forum1/icon/1436003939953.gif"   alt=""><span title="">英雄联盟</span></a></p>
+                            <div class="m-box-bd">
+                                <div class="m-box-bdt"><span>今日收益</span><span>当前市价</span><span>排名</span></div>
+                                <div class="data clearfix">
+                                        <div class="rate"><span class="number ">0.0%</span></div>
+                                        <div class="rate"><span class="number ">28.65</span></div>
+                                        <div class="term"><span class="number ">9</span></div>
+                                    </div>
+                                <div class="bidprogress">
+                                    <div class="u-progress"><div class="u-progress-bar"><span class="sr-only" style="width:0.11880011880011879%"></span></div></div>
+                                </div>
+                                <div class="tzinfo"><em><span>2</span>人投资</em>
+                                3363/ <span class="gray">3367</span>
+                                </div>
+                                <p class="ph">股东派红比例 70%</p>
+                            </div>
+                            <div class="m-box-ft">
+                            
+                            
+                                <a href="/teamFundListInfo?id=2693" class="u-btn u-btn-orange">
+                                我要投资 </a>
+                            
+                                </div>
+                        </li>
+            	
+                        <li class="m-box">
+                            <div class="m-box-hd">
+                            <img alt="" src="img/team1/bigicon/1430564864634.jpg" class="extra">
+                            <div class="title"><a href="/teamFundListInfo?id=2688" >杀神队</a></div>
+                                <div class="explain">战队代码：2688</div>
+                            </div>
+                            <p class="guarantee">
+                            
+                            
+                            
+                            <em class="lvl">等级：<em class="tag bg-blue">钻石</em></em>
+                            
+                            <a ><img  src="/img/forum1/icon/1436003939953.gif"   alt=""><span title="">英雄联盟</span></a></p>
+                            <div class="m-box-bd">
+                                <div class="m-box-bdt"><span>今日收益</span><span>当前市价</span><span>排名</span></div>
+                                <div class="data clearfix">
+                                        <div class="rate"><span class="number ">0.0%</span></div>
+                                        <div class="rate"><span class="number ">28.05</span></div>
+                                        <div class="term"><span class="number ">13</span></div>
+                                    </div>
+                                <div class="bidprogress">
+                                    <div class="u-progress"><div class="u-progress-bar"><span class="sr-only" style="width:0.2988643156007173%"></span></div></div>
+                                </div>
+                                <div class="tzinfo"><em><span>3</span>人投资</em>
+                                3336/ <span class="gray">3346</span>
+                                </div>
+                                <p class="ph">股东派红比例 70%</p>
+                            </div>
+                            <div class="m-box-ft">
+                            
+                            
+                                <a href="/teamFundListInfo?id=2688" class="u-btn u-btn-orange">
+                                我要投资 </a>
+                            
+                                </div>
+                        </li>
+            	
+                        <li class="m-box">
+                            <div class="m-box-hd">
+                            <img alt="" src="img/team1/bigicon/1430564509056.jpg" class="extra">
+                            <div class="title"><a href="/teamFundListInfo?id=2687" >YP队</a></div>
+                                <div class="explain">战队代码：2687</div>
+                            </div>
+                            <p class="guarantee">
+                            
+                            
+                            
+                            <em class="lvl">等级：<em class="tag bg-blue">钻石</em></em>
+                            
+                            <a ><img  src="/img/forum1/icon/1436003939953.gif"   alt=""><span title="">英雄联盟</span></a></p>
+                            <div class="m-box-bd">
+                                <div class="m-box-bdt"><span>今日收益</span><span>当前市价</span><span>排名</span></div>
+                                <div class="data clearfix">
+                                        <div class="rate"><span class="number ">0.0%</span></div>
+                                        <div class="rate"><span class="number ">27.3</span></div>
+                                        <div class="term"><span class="number ">18</span></div>
+                                    </div>
+                                <div class="bidprogress">
+                                    <div class="u-progress"><div class="u-progress-bar"><span class="sr-only" style="width:0.23930601256356565%"></span></div></div>
+                                </div>
+                                <div class="tzinfo"><em><span>3</span>人投资</em>
+                                3335/ <span class="gray">3343</span>
+                                </div>
+                                <p class="ph">股东派红比例 70%</p>
+                            </div>
+                            <div class="m-box-ft">
+                            
+                            
+                                <a href="/teamFundListInfo?id=2687" class="u-btn u-btn-orange">
+                                我要投资 </a>
+                            
+                                </div>
+                        </li>
+            	
+               </ul>
+        	</div>			
+        </div>
+        <div class="f_club">
+            <div class="contitle">
+                <h2>推荐赛点</h2>
+            </div>
+            <div class="f_clubcon">
+                <ul class="clearfix">
+                    <li><a href="javascript:void(0);">
+                        <img class="imgs" src="/ibar/img/aite.jpg" alt="">
+                        <div class="inf"><span class="fl">开封</span><span class="fr">河南-开封</span></div>
+                    </a></li>
+                    <li><a href="javascript:void(0);">
+                        <img class="imgs" src="/ibar/img/jinying.jpg" alt="">
+                        <div class="inf"><span class="fl">金鹰电竞馆</span><span class="fr">河南-漯河</span></div>
+                    </a></li>
+                    <li><a href="javascript:void(0);">
+                        <img class="imgs" src="/ibar/img/gediao.jpg" alt="">
+                        <div class="inf"><span class="fl">格调网咖</span><span class="fr">河南-南阳</span></div>
+                    </a></li>
+                    <li><a href="javascript:void(0);">
+                        <img class="imgs" src="/ibar/img/lanhai.jpg" alt=""><div class="inf"><span class="fl">蓝海网咖</span><span class="fr">河南-商丘</span></div>
+                    </a></li>
+                    <li><a href="javascript:void(0);">
+                        <img class="imgs" src="/ibar/img/ajia.jpg" alt=""><div class="inf"><span class="fl">A+电竞馆</span><span class="fr">河南-平顶山</span></div>
+                    </a></li>
+                    <li><a href="javascript:void(0);">
+                        <img class="imgs" src="/ibar/img/beidou.jpg" alt=""><div class="inf"><span class="fl">北斗电竞馆</span><span class="fr">河南-许昌</span></div>
+                    </a></li>
+                    <li><a href="javascript:void(0);">
+                        <img class="imgs" src="/ibar/img/dayang.jpg" alt=""><div class="inf"><span class="fl">大洋网咖</span><span class="fr">河南-郑州</span></div>
+                    </a></li>
+                    <li><a href="javascript:void(0);">
+                        <img class="imgs" src="/ibar/img/xinganjue.jpg" alt=""><div class="inf"><span class="fl">中牟新感觉</span><span class="fr">河南-郑州</span></div>
+                    </a></li>
+                </ul>
+            </div>
+        </div>
+               <div class="f_video">
+            <div class="contitle">
+                <h2>精彩视频</h2>
+                <a href="javascript:void(0);" class="videotab active">英雄联盟</a>
+                <a href="javascript:void(0);" class="videotab">穿越火线</a>
+            </div>
+            <ul class="f_videolist clearfix" style="display:block;">
+             
+                <li><a href="/action/video/videoShow?id=136" target="_blank">
+                        <img  src="/img/compete/vedio/1472621639831.png"  alt="">
+                        <div class="inof">
+                            <span class="alp"></span>
+                            <p class="name">【三门峡网咖】 任我行 VS LYJ</p>
+                            <p class="des">【2016 HECL争霸赛三门</p>
+                            <p class="num">播放次数：496</p>
+                        </div>
+                    </a></li>
+                    
+                <li><a href="/action/video/videoShow?id=135" target="_blank">
+                        <img  src="/img/compete/vedio/1472621456620.png"  alt="">
+                        <div class="inof">
+                            <span class="alp"></span>
+                            <p class="name">【三门峡网咖】 任我行 VS XX</p>
+                            <p class="des">【2016 HECL争霸赛三门</p>
+                            <p class="num">播放次数：418</p>
+                        </div>
+                    </a></li>
+                    
+                <li><a href="/action/video/videoShow?id=134" target="_blank">
+                        <img  src="/img/compete/vedio/1471841462962.png"  alt="">
+                        <div class="inof">
+                            <span class="alp"></span>
+                            <p class="name">【托尔网咖】世纪梦想 VS 托尔网管</p>
+                            <p class="des">【2016 HECL争霸赛郑州</p>
+                            <p class="num">播放次数：418</p>
+                        </div>
+                    </a></li>
+                    
+                <li><a href="/action/video/videoShow?id=133" target="_blank">
+                        <img  src="/img/compete/vedio/1471841326190.png"  alt="">
+                        <div class="inof">
+                            <span class="alp"></span>
+                            <p class="name">【大洋电竞】小贱3队 VS 大洋电竞</p>
+                            <p class="des">【2016 HECL争霸赛济源</p>
+                            <p class="num">播放次数：367</p>
+                        </div>
+                    </a></li>
+                    
+                <li><a href="/action/video/videoShow?id=132" target="_blank">
+                        <img  src="/img/compete/vedio/1471841201725.png"  alt="">
+                        <div class="inof">
+                            <span class="alp"></span>
+                            <p class="name">【托尔网咖】XK VS 托尔网管</p>
+                            <p class="des">【2016 HECL争霸赛郑州</p>
+                            <p class="num">播放次数：418</p>
+                        </div>
+                    </a></li>
+                    
+                <li><a href="/action/video/videoShow?id=131" target="_blank">
+                        <img  src="/img/compete/vedio/1471243850184.png"  alt="">
+                        <div class="inof">
+                            <span class="alp"></span>
+                            <p class="name">【熊猫网咖 】老司机 VS 熊猫网咖</p>
+                            <p class="des">【2016 HECL争霸赛周口</p>
+                            <p class="num">播放次数：548</p>
+                        </div>
+                    </a></li>
+                    
+                <li><a href="/action/video/videoShow?id=130" target="_blank">
+                        <img  src="/img/compete/vedio/1471243744146.png"  alt="">
+                        <div class="inof">
+                            <span class="alp"></span>
+                            <p class="name">【熊猫网咖 】老村长 VS 老司机</p>
+                            <p class="des">【2016 HECL争霸赛周口</p>
+                            <p class="num">播放次数：466</p>
+                        </div>
+                    </a></li>
+                    
+                <li><a href="/action/video/videoShow?id=129" target="_blank">
+                        <img  src="/img/compete/vedio/1471141166456.png"  alt="">
+                        <div class="inof">
+                            <span class="alp"></span>
+                            <p class="name">【战队基金】 龙宝 VS ROG</p>
+                            <p class="des">“战队基金”是约战吧为了让更多</p>
+                            <p class="num">播放次数：499</p>
+                        </div>
+                    </a></li>
+                    
+                <li><a href="/action/video/videoShow?id=128" target="_blank">
+                        <img  src="/img/compete/vedio/1471140880403.png"  alt="">
+                        <div class="inof">
+                            <span class="alp"></span>
+                            <p class="name">【战队基金】龙宝 VS ONG</p>
+                            <p class="des">“战队基金”是约战吧为了让更多</p>
+                            <p class="num">播放次数：516</p>
+                        </div>
+                    </a></li>
+                    
+                <li><a href="/action/video/videoShow?id=127" target="_blank">
+                        <img  src="/img/compete/vedio/1470273926891.png"  alt="">
+                        <div class="inof">
+                            <span class="alp"></span>
+                            <p class="name">【A+电竞馆】MZ vs北皇</p>
+                            <p class="des">第二届河南电子竞技冠军联赛，本</p>
+                            <p class="num">播放次数：780</p>
+                        </div>
+                    </a></li>
+                    
+            </ul>
+            <ul class="f_videolist clearfix">
+            
+                 <li><a href="/action/video/videoShow?id=87" target="_blank">
+                        <img  src="/img/compete/vedio/1428562448312.png"   alt="">
+                        <div class="inof">
+                            <span class="alp"></span>
+                            <p class="name">CFPL S6 虎牙vs白鲨第三场</p>
+                            <p class="des"></p>
+                            <p class="num">播放次数：2449</p>
+                        </div>
+                    </a></li>
+                    
+                 <li><a href="/action/video/videoShow?id=88" target="_blank">
+                        <img  src="/img/compete/vedio/1428562582328.png"   alt="">
+                        <div class="inof">
+                            <span class="alp"></span>
+                            <p class="name">CFPL S6 白鲨vs红灯笼第三场</p>
+                            <p class="des"></p>
+                            <p class="num">播放次数：2353</p>
+                        </div>
+                    </a></li>
+                    
+                 <li><a href="/action/video/videoShow?id=85" target="_blank">
+                        <img  src="/img/compete/vedio/1428562204312.png"   alt="">
+                        <div class="inof">
+                            <span class="alp"></span>
+                            <p class="name">CFPL S6 白鲨vs倾城第二场</p>
+                            <p class="des"></p>
+                            <p class="num">播放次数：1911</p>
+                        </div>
+                    </a></li>
+                    
+                 <li><a href="/action/video/videoShow?id=86" target="_blank">
+                        <img  src="/img/compete/vedio/1428562274562.png"   alt="">
+                        <div class="inof">
+                            <span class="alp"></span>
+                            <p class="name">CFPL S6 红灯笼vs倾城第一场</p>
+                            <p class="des"></p>
+                            <p class="num">播放次数：1862</p>
+                        </div>
+                    </a></li>
+                    
+                 <li><a href="/action/video/videoShow?id=89" target="_blank">
+                        <img  src="/img/compete/vedio/1428562682890.png"   alt="">
+                        <div class="inof">
+                            <span class="alp"></span>
+                            <p class="name">CFPL S6  半决赛 白鲨vsEP </p>
+                            <p class="des"></p>
+                            <p class="num">播放次数：1847</p>
+                        </div>
+                    </a></li>
+                    
+                 <li><a href="/action/video/videoShow?id=84" target="_blank">
+                        <img  src="/img/compete/vedio/1428562127812.png"   alt="">
+                        <div class="inof">
+                            <span class="alp"></span>
+                            <p class="name"> CFPL S6 虎牙vs汉宫第二场</p>
+                            <p class="des"></p>
+                            <p class="num">播放次数：1719</p>
+                        </div>
+                    </a></li>
+                    
+                 <li><a href="/action/video/videoShow?id=91" target="_blank">
+                        <img  src="/img/compete/vedio/1428562811796.png"   alt="">
+                        <div class="inof">
+                            <span class="alp"></span>
+                            <p class="name">CFPL S6常规赛AGvEP第一场</p>
+                            <p class="des"></p>
+                            <p class="num">播放次数：1423</p>
+                        </div>
+                    </a></li>
+                    
+                 <li><a href="/action/video/videoShow?id=90" target="_blank">
+                        <img  src="/img/compete/vedio/1428562821593.png"   alt="">
+                        <div class="inof">
+                            <span class="alp"></span>
+                            <p class="name">CFPL S6倾城 VS 虎牙 鹰眼</p>
+                            <p class="des"></p>
+                            <p class="num">播放次数：1404</p>
+                        </div>
+                    </a></li>
+                    
+                 <li><a href="/action/video/videoShow?id=83" target="_blank">
+                        <img  src="/img/compete/vedio/1428562119796.png"   alt="">
+                        <div class="inof">
+                            <span class="alp"></span>
+                            <p class="name">CFPL S6 虎牙vs汉宫第一场</p>
+                            <p class="des"></p>
+                            <p class="num">播放次数：1179</p>
+                        </div>
+                    </a></li>
+                    
+                 <li><a href="/action/video/videoShow?id=82" target="_blank">
+                        <img  src="/img/compete/vedio/1428551235165.jpg"   alt="">
+                        <div class="inof">
+                            <span class="alp"></span>
+                            <p class="name">CFPL S6常规赛超酷炫精彩集锦</p>
+                            <p class="des">CFPL S6常规赛超酷炫精彩</p>
+                            <p class="num">播放次数：979</p>
+                        </div>
+                    </a></li>
+                    
+            </ul>
+        </div>
+        <div class="f_picture">
+            <div class="contitle">
+                <h2>活动现场</h2>
+            </div>
+            <div class="f_picwrap">
+                <ul class="f_piclist clearfix">
+                    <li>
+                       
+                
+                        <div class="pl pl_s"><a href="http://www.yuezhanba.com/contest/getImage?id=388#p=1">
+                                <img src="/img/frilink//1473054894109.jpg" alt="HECL争霸赛">
+                                <span class="mask"></span>
+                                <div class="txts"><p>HECL争霸赛</p></div>
+                            </a></div>
+                            
+                            
+                
+                        <div class="pl pl_s"><a href="http://yuezhanba.com/contest/getImage?id=389#p=2">
+                                <img src="/upload/1470288669809.png" alt="HECL争霸赛">
+                                <span class="mask"></span>
+                                <div class="txts"><p>HECL争霸赛</p></div>
+                            </a></div>
+                            
+                            
+                
+                        <div class="pl pl_s"><a href="http://yuezhanba.com/contest/getImage?id=390#p=3">
+                                <img src="/img/frilink//1473054910711.jpg" alt="HECL争霸赛">
+                                <span class="mask"></span>
+                                <div class="txts"><p>HECL争霸赛</p></div>
+                            </a></div>
+                            
+                            
+                
+                            
+                
+                            
+                
+                            
+                
+                            
+                
+                            
+                
+                            
+                
+                            
+                
+                            
+                
+                            
+                
+                            
+                
+                            
+                
+                            
+                
+                            
+                
+                            
+                
+                            
+                
+                            
+                    </li>
+                    <li>
+                       
+                       
+                             
+                            
+                       
+                             
+                            
+                       
+                             
+                            
+                       
+                        <div class="pl pl_b"><a href="http://yuezhanba.com/contest/getImage?id=391#p=4">
+                             <img src="/img/frilink//1470538493673.png" alt="HECL争霸赛">
+                                <span class="mask"></span>
+                                <div class="txts"><p>HECL争霸赛</p></div>
+                            </a></div>
+                            
+                             
+                            
+                       
+                             
+                        <div class="pl pl_s"><a href="http://yuezhanba.com/contest/getImage?id=392#p=5">
+                                <img src="/img/frilink//1473054921464.jpg" alt="HECL争霸赛">
+                                <span class="mask"></span>
+                                <div class="txts"><p>HECL争霸赛</p></div>
+                            </a></div>
+                            
+                            
+                       
+                             
+                            
+                       
+                             
+                            
+                       
+                             
+                            
+                       
+                             
+                            
+                       
+                             
+                            
+                       
+                             
+                            
+                       
+                             
+                            
+                       
+                             
+                            
+                       
+                             
+                            
+                       
+                             
+                            
+                       
+                             
+                            
+                       
+                             
+                            
+                       
+                             
+                            
+                       
+                             
+                            
+                    </li>
+                    <li>
+                              
+                
+                            
+                
+                            
+                
+                            
+                
+                            
+                
+                            
+                
+                        <div class="pl pl_s"><a href="http://yuezhanba.com/contest/getImage?id=393#p=6">
+                                <img src="/upload/1470288694643.png" alt="HECL争霸赛">
+                                <span class="mask"></span>
+                                <div class="txts"><p>HECL争霸赛</p></div>
+                            </a></div>
+                            
+                            
+                
+                        <div class="pl pl_s"><a href="http://yuezhanba.com/contest/getImage?id=394#p=7">
+                                <img src="/img/frilink//1473054934638.jpg" alt="HECL争霸赛">
+                                <span class="mask"></span>
+                                <div class="txts"><p>HECL争霸赛</p></div>
+                            </a></div>
+                            
+                            
+                
+                        <div class="pl pl_s"><a href="http://yuezhanba.com/contest/getImage?id=395#p=8">
+                                <img src="/upload/1470288694866.png" alt="HECL争霸赛">
+                                <span class="mask"></span>
+                                <div class="txts"><p>HECL争霸赛</p></div>
+                            </a></div>
+                            
+                            
+                
+                            
+                
+                            
+                
+                            
+                
+                            
+                
+                            
+                
+                            
+                
+                            
+                
+                            
+                
+                            
+                
+                            
+                
+                            
+                    </li>
+                    <li>
+                                
+                       
+                             
+                            
+                       
+                             
+                            
+                       
+                             
+                            
+                       
+                             
+                            
+                       
+                             
+                            
+                       
+                             
+                            
+                       
+                             
+                            
+                       
+                             
+                            
+                       
+                        <div class="pl pl_b"><a href="http://yuezhanba.com/contest/getImage?id=396#p=9">
+                                 <img src="/img/frilink//1470540682380.png" alt="HECL争霸赛">
+                                <span class="mask"></span>
+                                <div class="txts"><p>HECL争霸赛</p></div>
+                            </a></div>
+                            
+                             
+                            
+                       
+                             
+                        <div class="pl pl_s"><a href="http://yuezhanba.com/contest/getImage?id=387#p=10">
+                                <img src="/upload/1468834856289.jpg" alt="HECL争霸赛">
+                                <span class="mask"></span>
+                                <div class="txts"><p>HECL争霸赛</p></div>
+                            </a></div>
+                            
+                            
+                       
+                             
+                            
+                       
+                             
+                            
+                       
+                             
+                            
+                       
+                             
+                            
+                       
+                             
+                            
+                       
+                             
+                            
+                       
+                             
+                            
+                       
+                             
+                            
+                       
+                             
+                            
+                    </li>
+                </ul>
+            </div>
+        </div>
+         <div class="f_links">
+            <h3>媒体合作</h3>
+              
+            <a href="http://cf.yzz.cn/" target="_blank">叶子猪CF专区</a>
+              
+            <a href="http://cf.766.com/" target="_blank">766穿越火线</a>
+              
+            <a href="http://cf.15w.com" target="_blank">15w穿越火线</a>
+              
+            <a href="http://www.15w.com/" target="_blank">要我玩</a>
+              
+            <a href="http://cf.17173.com/" target="_blank">17173CF</a>
+              
+            <a href="http://cf.uuu9.com/" target="_blank">UUU9穿越火线</a>
+              
+            <a href="http://lol.tgbus.com/ " target="_blank">电玩巴士</a>
+              
+            <a href="http://lol.replays.net/" target="_blank">锐派英雄联盟</a>
+              
+            <a href="http://www.k7.cn" target="_blank">K7游戏中心</a>
+              
+        </div>
+    </div>
+    <div class="fixchat" id="fixChat">
+        <a href="javascript:void(0);" class="btns bactop" id="bacTop"><em>顶部</em><i class="icf">&#xe604;</i></a>
+        <div id="chatBtn"><a class="btns chatbtn" href="javascript:void(0);"><em>约战</em><i class="icf">&#xe615;</i></a>
+            <div class="chatvideo" id="chatVideo">
+                <i class="ico"></i>
+                <a href="javascript:void(0);" id="chatVClose" class="close icf">&#xe603;</a>
+                <embed align="middle" allowfullscreen="true" allowscriptaccess="always" bgcolor="#000000" flashvars="http://www.yuezhanba.com/flash/chat/PrivateChatSeminar.swf" height="400" id="tenvideo_flash_player_1421385304801" name="tenvideo_flash_player_1421385304801" pluginspage="http://get.adobe.com/cn/flashplayer/" quality="high" src="/flash/chat/PrivateChatSeminar.swf" type="application/x-shockwave-flash" width="250" wmode="opaque">
+            </div>
+        </div>
+    </div>
+      <script src="/js/index.js" ></script>
+    <script type="text/javascript" src="/js/jquery.SuperSlide.2.1.1.js"></script>
+    <script type="text/javascript" src="/js/head.js"></script>
+	
+
+
+<div class="bottom" id="Gfooter">
+<p><a href="/standalone/about.jsp" target="_blank">关于我们</a> | <a href="/standalone/comunication.jsp" target="_blank">联系我们</a> | <a href="/helpindex" target="_blank">使用帮助</a> | <a href="/standalone/zhaopin.jsp">招聘英才</a></p>
+	<p ><span class="txts12">Copyright &copy; 2013 yuezhanba.com All Rights Reserved. 约战吧 版权所有 豫B2-20070022-10</span>
+	<script type="text/javascript">
+				var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://"
+						: " http://");
+				document
+						.write(unescape("%3Cscript src='"
+								+ _bdhmProtocol
+								+ "hm.baidu.com/h.js%3F000233fb8cbd3fcd20304423156cdf39' type='text/javascript'%3E%3C/script%3E"));
+			</script>
+	
+	</p>
+</div>
+
+<script type='text/javascript' src="/js/ppp.js"></script>
+<script type='text/javascript' src='/dwr/engine.js'></script>
+<script type='text/javascript' src='/dwr/util.js'></script>
+<script type='text/javascript' src='/dwr/interface/UNameCheck.js'></script>
+<script type='text/javascript'>
+$(function(){
+	   //账户信息
+		   $("#top_myinfo").mouseover(function (){
+		   	$("#top_myinfo_window").show();
+		   });
+		   $("#top_myinfo").mouseout(function (){
+		   	$("#top_myinfo_window").hide();
+		   });
+		   $("#top_myinfo_window").mouseover(function (){
+		   	$("#top_myinfo_window").show();
+		   });
+		   $("#top_myinfo_window").mouseout(function (){
+		   	$("#top_myinfo_window").hide();
+		   });
+		   //会员战队信息
+		   $("#top_myinfo_team").mouseover(function (){
+		   	$("#top_myinfo_window_team").show();
+		   });
+		   $("#top_myinfo_team").mouseout(function (){
+		   	$("#top_myinfo_window_team").hide();
+		   });
+		   $("#top_myinfo_window_team").mouseover(function (){
+		   	$("#top_myinfo_window_team").show();
+		   });
+		   $("#top_myinfo_window_team").mouseout(function (){
+		   	$("#top_myinfo_window_team").hide();
+		   });
+		   
+		   $("#top_myinfo_window").hide();
+		   if (parent.layer) {
+				var i = parent.layer.getFrameIndex(window.name);
+				parent.layer.close(i);
+			};
+
+	   });
+
+
+
+	var getQuizMoney = function(data) {
+		if (data != null && typeof data == 'object') {
+			alert(dwr.util.toDescriptiveString(data, 2));
+		} else {
+			alert(dwr.util.toDescriptiveString(data, 1));
+		}
+	}
+	var alertGMSG = function(data) {
+		if (data != null && typeof data == 'object') {
+			alert(dwr.util.toDescriptiveString(data, 2));
+		} else {
+			var d=dwr.util.toDescriptiveString(data, 1);
+			if(d.length!=0){
+			alert(d);
+			}
+		}
+	}
+	//UNameCheck.syncMemberInfo(alertGMSG);
+	function resume(){return true;}
+	//onerror=resume;
+	
+</script>
+<style>
+.loginInfo{line-height:25px;}
+.loginInfo li{clear:both;}
+#top_myinfo_window a{ background:none; width:auto; height:auto; display:inherit;}
+</style>
+    
+<script type="text/javascript" src="/js/layer/layer.min.js"></script>
+<script type="text/javascript">
+/*
+ *网吧地图窗口
+ */
+function networkStoreAddress(id){
+	$.layer({
+							type : 2,
+							title : ['网吧地图',true],
+							iframe : {src : '/contest/getAddress?id='+id},
+							area : ['620px' , '500px'],
+							offset : ['50px','']
+						});	
+	}
+/*
+*预约窗口
+*/
+function showWindow(url,title){
+	$.layer({
+							type : 2,
+							title : [title,true],
+							iframe : {src : url},
+							area : ['620px' , '500px'],
+							offset : ['50px','']
+						});
+	}
+function showWindowLoginSync(url,title){
+	$.layer({
+							type : 2,
+							title : [title,true],
+							iframe : {src : url},
+							area : ['620px' , '500px'],
+							offset : ['50px',''],
+							end: function(){
+								//$("#top").load("/member/memberTop.jsp?date="+date.getTime());
+								}
+						});
+	}
+/*弹出窗口，判断是否需要登录*/
+	function isLogin() {
+		var r=false;
+		$.ajax({ url: "/action/api/getLoginName",async:false, context: document.body, success: function(e){
+			console.log(e);
+		if(e.indexOf("吧友")!=-1||e.indexOf("游客")!=-1){
+				$(".openlogin").click();
+				//showWindowLoginSync('/loginPop.jsp','请先登录');
+				r=false;
+			}else{
+				r=true;
+				}
+      }});
+	 // alert(r);
+		return r;
+	}
+	
+function showWindowLogin(url,title){
+	if(!isLogin()){
+		return;
+		}
+	$.layer({
+							type : 2,
+							title : [title,true],
+							iframe : {src : url},
+							area : ['620px' , '500px'],
+							offset : ['50px','']
+						});
+}
+//close
+/* if(""==1){
+	var i = parent.layer.getFrameIndex(window.name);
+	parent.layer.close(i);
+} */
+</script>
+    <script type="text/javascript">
+    //签到
+    function qiandao(){
+    	var qiandaoCount=$("#qiandaoCount").text();
+     if(true){
+	    $(".openlogin").click();
+       }else{
+    	        $.ajax({
+			type: "post",
+            url: "/payRed",
+            dataType: "text",
+			success: function(msg){
+    	        	if(msg=="two"){
+    	        		alert("今天已经签到过了~~")
+    	        	}else{
+    	        		alert(msg)
+    	        		$("#qiandaoCount").text(parseInt(qiandaoCount)+1)
+    	        	}
+	      	}
+	      });
+				 }
+    }
+    ;(function($) {
+        $.fn.extend({
+            Tabs: function(options) {
+                // 处理参数
+                options = $.extend({
+                    event: 'mouseover',
+                    timeout: 0,
+                    auto: 0,
+                    callback: null
+                }, options);
+                var self = $(this),
+                    tabBox = self.children('div.tab_box').children('div'),
+                    menu = self.children('ul.tab_menu'),
+                    items = menu.find('li'),
+                    timer;
+                var tabHandle = function(elem) {
+                        elem.siblings('li')
+                            .removeClass('current')
+                            .end()
+                            .addClass('current');
+                        tabBox.siblings('div')
+                            .addClass('hide')
+                            .end()
+                            .eq(elem.index())
+                            .removeClass('hide');
+                    },
+                    delay = function(elem, time) {
+                        time ? setTimeout(function() {
+                            tabHandle(elem);
+                        }, time) : tabHandle(elem);
+                    },
+                    start = function() {
+                        if (!options.auto) return;
+                        timer = setInterval(autoRun, options.auto);
+                    },
+                    autoRun = function() {
+                        var current = menu.find('li.current'),
+                            firstItem = items.eq(0),
+                            len = items.length,
+                            index = current.index() + 1,
+                            item = index === len ? firstItem : current.next('li'),
+                            i = index === len ? 0 : index;
+                        current.removeClass('current');
+                        item.addClass('current');
+                        tabBox.siblings('div')
+                            .addClass('hide')
+                            .end()
+                            .eq(i)
+                            .removeClass('hide');
+                    };
+                items.bind(options.event, function() {
+                    delay($(this), options.timeout);
+                    if (options.callback) {
+                        options.callback(self);
+                    }
+                });
+                if (options.auto) {
+                    start();
+                    self.hover(function() {
+                        clearInterval(timer);
+                        timer = undefined;
+                    }, function() {
+                        start();
+                    });
+                }
+                return this;
+            }
+        });
+    })(jQuery);
+    function tabInit(a,b,act){
+        a.on(act,function(e){
+            e.stopPropagation();
+            var inde = a.index(this);
+            a.removeClass("active").eq(inde).addClass("active");
+            b.hide().eq(inde).show();
+        })
+    }
+    $(document).ready(function() {
+        tabInit($(".f_bonus_tab li"),$(".f_top_bonus .cont"),"mouseover");
+        tabInit($(".f_video .videotab"),$(".f_video .f_videolist"),"mouseover");
+        $("#fbanner").Tabs({
+          auto: 3000
+      });
+        /*投资*/
+        $("#m-boxlist-tzxm .bd li").each(function(i){ $("#m-boxlist-tzxm .bd li").slice(i*4,i*4+4).wrapAll("<ul></ul>");});
+        /*赛程*/
+        $("#m-boxlist-sczb .bd li").each(function(i){ $("#m-boxlist-sczb .bd li").slice(i*5,i*5+5).wrapAll("<ul></ul>");});
+        $(".bd>ul").each(function(index, el) {
+        	$(this).find('li').first().addClass('first');
+        	$(this).find('li').last().addClass('last');
+        });
+        $(".m-boxlist").slide({titCell:".hd ul",mainCell:".bd",autoPage:true,effect:"leftLoop",autoPlay:false});
+        $(".m-boxlist").hover(function(){
+        	$(this).addClass("active");
+        },function(){
+        	$(this).removeClass("active")
+        })
+        $(".matchsearch").on('click','.btn' ,function(event) {
+            layer.open({
+    			type: 2,
+    			title: '赛点查询',
+    			shadeClose: true,
+    			shade: 0.8,
+    			area: ['610px', '510px'],
+    			content: '/iframe/actpk.html' //iframe的url
+            });
+        });
+    });
+        /*弹出窗口，判断是否需要登录*/
+	function showRoom(id) {
+		var r=false;
+		$.ajax({ url: "/action/api/roomCan?qid="+id,async:false, context: document.body, success: function(e){
+			console.log(e);
+		if(e==0){
+			r = true;
+		}else if(e!=0){
+			if(e=="请先登录"){
+				$(".openlogin").click();
+				//showWindowLoginSync('/loginPop.jsp','请先登录');
+			}else if(e=="该房间比赛已经结束"){
+				alert(e);
+				loadRooms(0);
+			}else{
+			 alert(e);
+			}
+			r = false;
+		}else{
+       		alert("请求失败，请稍后重试");
+			r = false;
+		}
+      }});
+		return r;
+	}
+    </script>
+</body>
+</html>

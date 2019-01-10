@@ -1,0 +1,386 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<!-- Begin header.tpl (This has to be underneath the doctype statement due to bug in IE. The header actually starts with the Doctype statement.) -->
+
+<head>
+    <title>Arkansas Custom Iron Doors</title>
+    <meta name="keywords" content="" />
+    <meta name="description" content="" />
+
+    <link rel=StyleSheet type="text/css" href="./modules/includes/css/site_style.css.php"  media="screen" />
+    <link rel="stylesheet" href="./modules/includes/js/shadowbox/shadowbox.css" type="text/css" media="screen" />
+    <link rel="stylesheet" type="text/css" media="screen" href="./css/custom.css" />
+        
+    <script type="text/javascript" src="./modules/includes/js/shadowbox/shadowbox.js"></script>
+    <script type="text/javascript" src="./modules/includes/js/jquery.js"></script>
+    <script type="text/javascript">
+    
+        $(document).ready( function()
+        {
+                        Shadowbox.init();
+            
+            try
+            {
+                // Todo: make this code check for installed JsDatePick and include the code only as needed
+                new JsDatePick({
+                    useMode:2,
+                    target:"ev_dateInput",
+                    isStripped:false,
+                    dateFormat:"%Y-%m-%d",
+                    imgPath:"modules/includes/js/jsdatepick-calendar/img/"
+                });
+            }
+            catch(e)
+            {
+                // file probably not included, just ignore this
+            }
+        });
+
+    </script>
+            
+</head>
+<body>
+<script type="text/javascript" src="./modules/includes/js/tooltip.js"></script>
+
+    <script type="text/javascript" src="./modules/includes/js/jquery.imagesloaded.js"></script>
+<script type="text/javascript" src="./modules/includes/js/jquery.cycle.all.js"></script>
+<script type="text/javascript">
+
+    var curSlide = null;
+    var dynamicSlideIndex = 0;
+    var slidePaused = false;
+
+    $(document).ready(function()
+    {
+        $('#slideshowBox img:first').imagesLoaded( function()
+        {
+            var firstImg = $('#slideshowBox img:first');
+            if( firstImg.length > 0 )
+            {
+                beforeTransitionImage(null, firstImg[0], null, null, true);
+                firstImg[0].style.display = 'none';
+                firstImg[0].style.visibility = 'visible';
+                $('#slideshowBox img:first').fadeIn(750, function()
+                {
+                    $(window).resize( function(){ if( curSlide != null ){ beforeTransitionImage(null, curSlide, null, null, true); } } );
+                    
+                    $('#slideshowBox').cycle(
+                    { 
+                        fx:    'fade', 
+                        timeout:  5000,
+                        containerResize: 0,
+                        slideResize: false,
+                        speed:1000,
+                        //delay:300,
+                        resumed: function(cont, opts, byHover) {
+                            slidePaused = false;
+                        },
+                        before: beforeTransitionImage
+                    });
+                });
+            }
+        });
+        /*
+        setTimeout(function()
+        {
+            $('#preloaderImg').remove();
+        },
+        1800); */
+
+    
+            
+        setTimeout(function()
+        {
+            $(window).blur( function(){ $('#slideshowBox').cycle('pause'); });
+            $(window).focus( function(){ if( slidePaused == false ){ $('#slideshowBox').cycle('resume'); setTimeout(function(){$('#slideshowBox').cycle('next') }, 400); } });
+        },
+        350);
+        
+        });
+    
+    
+    
+    function beforeTransitionImage(currSlideElement, nextSlideElement, opts, forwardFlag, keepHidden)
+    {
+        if( nextSlideElement == null )
+        {
+            return;
+        }
+        if( typeof(keepHidden) == 'undefined' )
+            keepHidden = false;
+        
+        nextSlideElement.style.display = "block";
+        if( $('#preloaderImg') )
+        {
+            //$('#preloaderImg').remove();
+        }
+        var img = nextSlideElement;
+        boxWidth = Math.floor($('#slideshowBox').width());
+        boxHeight = Math.floor($('#slideshowBox').height());
+        
+
+        var boxRatio = boxWidth / boxHeight;
+        var imgRatio = img.offsetWidth / img.offsetHeight;
+        
+        // Check for image height / width proportions fitting to the window
+        
+        // if the resized image's width is less than the container's width, then
+        // resize the image's width to the container's width
+        if( ( boxHeight * imgRatio ) <= boxWidth )
+        {
+            nextSlideElement.style.height = "auto";
+            nextSlideElement.style.width = boxWidth + "px";
+            nextSlideElement.style.left = 0;
+            //alert("Resized width to " + boxWidth + " pixels.");
+        }
+        
+        // if the resized image's height is less than the container's height, then resize the image's height to the container's height
+        else if( ( boxWidth / imgRatio ) <= boxHeight )
+        {
+            nextSlideElement.style.width = "auto";
+            nextSlideElement.style.height = boxHeight + "px";
+            nextSlideElement.style.left = (boxWidth - img.offsetWidth) / 2 + 'px';
+            //alert("Resized height to " + boxHeight + " pixels.");
+        }
+        
+        else
+        {
+            nextSlideElement.style.height = "auto";
+            nextSlideElement.style.width = boxWidth + "px";
+            nextSlideElement.style.left = 0;
+            //alert("Resized width to " + boxWidth + " pixels.");
+        }
+        
+        curSlide = nextSlideElement;
+        if( !keepHidden )
+            nextSlideElement.style.visibility = 'visible';
+        
+        
+        // ******** Add slides dynamically ********* //
+        // on the first pass, addSlide is undefined (plugin hasn't yet created the fn); 
+        // when we're finshed adding slides we'll null it out again 
+        if( opts == null )
+            return;
+        if (!opts.addSlide)
+            return; 
+ 
+        if( typeof(newImages) != 'undefined' )
+        {
+            if (dynamicSlideIndex >= newImages.length )
+            { 
+                // final slide in our slide slideshow is about to be displayed 
+                // so there are no more to fetch 
+                opts.addSlide = null; 
+                return; 
+            } 
+             
+            // add our next slide 
+            opts.addSlide('<img src="' + newImages[dynamicSlideIndex++] + '" />'); 
+        }
+    }
+    
+</script>
+
+    <div style="position:relative; width:100%; height:100%; z-index:0; ">
+        <div id="slideshowBox" style="width:100%; height:100%; position:fixed; z-index:0; top:0; left:0;  ">
+            <img src="./modules/bseSlideshow/images/slide1.jpg" />
+            <img src="./modules/bseSlideshow/images/slide2.jpg" />
+        </div>
+        <script type="text/javascript">
+            var newImages = new Array();
+            newImages[0] = "./modules/bseSlideshow/images/slide3.jpg";
+            newImages[newImages.length] = "./modules/bseSlideshow/images/slide4.jpg";
+            newImages[newImages.length] = "./modules/bseSlideshow/images/slide5.jpg";
+            newImages[newImages.length] = "./modules/bseSlideshow/images/slide6.jpg";
+            newImages[newImages.length] = "./modules/bseSlideshow/images/slide7.jpg";
+            newImages[newImages.length] = "./modules/bseSlideshow/images/slide8.jpg";
+        </script>
+        
+    </div>
+    
+    
+    
+        <!--  Start code for slideshow control panel
+
+<script type="text/javascript" src="./modules/includes/js/jquery.fittext.js"></script>
+
+<script type="text/javascript">
+    var menuHidden = false;
+
+    $(window).resize( function()
+    {
+        $(".nav_item").fitText(1.3);
+    });
+
+    $(document).ready( function()
+    {
+        $(".nav_item").fitText(1.3);
+        $("#navContainer").css("visibility", "visible");
+    });
+    
+</script> 
+    <div id="slidesControlPanel">
+        <img src="./iface/prevSlide.png"      onmouseover="Tip('Previous Slide');" onmouseout="UnTip();" onmouseup="$('#slideshowBox').cycle('prev');" />
+        <img src="./iface/playPauseSlide.png" onmouseover="if( slidePaused ){Tip('Resume Show');}else{Tip('Pause Show');}" onmouseout="UnTip();" onmouseup="if( slidePaused ){ $('#slideshowBox').cycle('resume');$('#slideshowBox').cycle('next'); } else{ $('#slideshowBox').cycle('pause'); slidePaused=true; }" />
+        <img src="./iface/minimizeSlide.png"  onmouseover="if( menuHidden ){Tip('Show Menu');}else{Tip('Hide Menu');}" onmouseout="UnTip();" onmouseup="if( menuHidden ){ $('#navContainer').slideDown(200); }else{ $('#navContainer ').slideUp(200); }; menuHidden = !menuHidden; "/>
+        <img src="./iface/nextSlide.png"      onmouseover="Tip('Next Slide');" onmouseout="UnTip();" onmouseup="$('#slideshowBox').cycle('next');" />
+    </div>
+   
+    End code for slideshow control panel   
+-->
+    
+    
+<!--   Some default menu items and images -->
+    <div id="navContainer" style="background-image:url('./images/navbar.png'); ">
+        <div id="nav">
+            <img id="logo" src="./images/logo.png" />
+            <div class="nav_item homeSelected selected"><a href="./">Home</a></div>
+            <div class="nav_item"><a href="./about/">Why Us</a></div>
+            <div class="nav_item prodSelected"><a href="./products/">Our Products</a></div>
+            <div class="nav_item custSel"><a href="./custom/">Custom Options</a></div>
+            <div class="nav_item vidSel"><a href="./videos/">Video Center</a></div>
+            <div class="nav_item contSel"><a href="./contact/">Contact Us</a></div>            
+        </div>
+
+        <div id="navLinks">
+            <img src="./images/localShowroom.png" />
+        </div>
+
+    </div>
+    
+
+
+ 
+<!-- End header.tpl -->
+
+
+<!-- Begin content.tpl -->
+
+
+<!-- End content.tpl -->
+
+
+
+
+
+<!--  Begin footer.tpl  -->
+
+
+
+    <!-- Begin admin_header.tpl -->
+
+<script type="text/javascript"> <!-- Hide
+var root = "./";
+var leftArrow = new Image();
+var rightArrow = new Image();
+
+leftArrow.src = root + "iface/admin_arrow_left.png";
+rightArrow.src = root + "iface/admin_arrow_right.png";
+
+    function setCookie(c_name,value,exdays)
+    {
+        var exdate=new Date();
+        exdate.setDate(exdate.getDate() + exdays);
+        var c_value=escape(value) + ((exdays==null) ? "" : "; expires="+exdate.toUTCString());
+        document.cookie=c_name + "=" + c_value + "; path=/;";
+    }
+
+
+    function showHideMenu(menu)
+    {
+        if( menu.offsetLeft >= 0 )
+        {
+            hideAdminMenu(menu)
+        }
+        else
+        {
+            showAdminMenu(menu);
+        }
+    }
+
+
+
+    function showAdminMenu(menu)
+    {
+        setTimeout(function() {moveMenu(menu,150);}, 20);
+    }
+
+
+
+    function hideAdminMenu(menu)
+    {
+        setTimeout(function() {moveMenu(menu,-150);}, 20);
+    }
+
+
+
+    function moveMenu(menu, amount)   // positive number moves to the right, negative numbers move to the left
+    {
+        menu.style.left = (menu.offsetLeft + amount) + "px";
+
+        if( amount > 0 )
+        {
+            if( menu.offsetLeft > -(amount) )	// Done moving menu, do required stuff
+            {
+                menu.style.left = "0px";
+                img = document.getElementById('show_hide_btn');
+                document.getElementById('show_hide_img').src = leftArrow.src;
+                setOpacity(img, 10);
+                setCookie("menu_position","out", 2);
+            }
+            else
+                showAdminMenu(menu);
+        }
+        else
+        {
+            if( menu.offsetLeft + menu.offsetWidth < Math.abs(amount) )
+            {
+                menu.style.left = -(menu.offsetWidth) + "px";
+                img = document.getElementById('show_hide_btn');
+                document.getElementById('show_hide_img').src = rightArrow.src;
+                setOpacity(img, 3);
+                setCookie("menu_position","in", 2);
+            }
+            else
+                hideAdminMenu(menu);
+        }
+    }
+
+
+    function setOpacity(obj, opacity)
+    {
+        obj.style.filter='progid:DXImageTransform.Microsoft.Alpha(Opacity=' + opacity * 10 + ')';
+        obj.style.opacity = opacity/10;
+    }
+        
+
+    function clickAdminLink()
+    {
+        var menu = document.getElementById('admin_header');
+        menu.style.left = "0px";
+        menu.style.top = "1px";
+        window.scroll(0,0);
+        document.getElementById('loginInput').focus();    }
+
+// Unhide -->
+</script>
+<div id="admin_header" style="font-size:14px; ">
+    <div id="show_hide_btn" style="position:absolute; top:2px; right:-28px; cursor:pointer;  " onmouseover="if( this.parentNode.offsetLeft < 0 ) {setOpacity(this, 9);}" onmouseout="if( this.parentNode.offsetLeft < 0 ) {setOpacity(this, 3); }" onclick="showHideMenu(document.getElementById('admin_header') );"><img id="show_hide_img" src="./iface/admin_arrow_left.png" /></div>
+<!-- Begin admin_header_login_form.tpl -->
+
+    <form method="post" action="./modules/base/admin/login.php" style="display:inline; ">
+        <span style="margin-right:5px; ">Username:</span><input id="loginInput" style="width:100px; " type="text" name="uname" />
+        <span style="margin-right:5px; margin-left:15px; ">Password:</span><input style="width:100px; " type="password" name="pword" />
+        <input type="submit" value="Login" />
+    </form>
+
+<!-- End admin_header_login_form.tpl --></div>
+
+<!-- End admin_header.tpl -->
+
+
+
+</body>
+</html>
+
+<!-- End footer.tpl -->

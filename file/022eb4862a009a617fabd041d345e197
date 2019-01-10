@@ -1,0 +1,448 @@
+<html><head></head><body><pre style="word-wrap: break-word; white-space: pre-wrap;">(function($){
+
+    $.session = {
+
+        _id: null,
+
+        _cookieCache: undefined,
+
+        _init: function()
+        {
+            if (!window.name) {
+                window.name = Math.random();
+            }
+            this._id = window.name;
+            this._initCache();
+
+            // See if we've changed protcols
+
+            var matches = (new RegExp(this._generatePrefix() + "=([^;]+);")).exec(document.cookie);
+            if (matches &amp;&amp; document.location.protocol !== matches[1]) {
+               this._clearSession();
+               for (var key in this._cookieCache) {
+                   try {
+                   window.sessionStorage.setItem(key, this._cookieCache[key]);
+                   } catch (e) {};
+               }
+            }
+
+            document.cookie = this._generatePrefix() + "=" + document.location.protocol + ';path=/;expires=' + (new Date((new Date).getTime() + 120000)).toUTCString();
+
+        },
+
+        _generatePrefix: function()
+        {
+            return '__session:' + this._id + ':';
+        },
+
+        _initCache: function()
+        {
+            var cookies = document.cookie.split(';');
+            this._cookieCache = {};
+            for (var i in cookies) {
+                var kv = cookies[i].split('=');
+                if ((new RegExp(this._generatePrefix() + '.+')).test(kv[0]) &amp;&amp; kv[1]) {
+                    this._cookieCache[kv[0].split(':', 3)[2]] = kv[1];
+                }
+            }
+        },
+
+        _setFallback: function(key, value, onceOnly)
+        {
+            var cookie = this._generatePrefix() + key + "=" + value + "; path=/";
+            if (onceOnly) {
+                cookie += "; expires=" + (new Date(Date.now() + 120000)).toUTCString();
+            }
+            document.cookie = cookie;
+            this._cookieCache[key] = value;
+            return this;
+        },
+
+        _getFallback: function(key)
+        {
+            if (!this._cookieCache) {
+                this._initCache();
+            }
+            return this._cookieCache[key];
+        },
+
+        _clearFallback: function()
+        {
+            for (var i in this._cookieCache) {
+                document.cookie = this._generatePrefix() + i + '=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+            }
+            this._cookieCache = {};
+        },
+
+        _deleteFallback: function(key)
+        {
+            document.cookie = this._generatePrefix() + key + '=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+            delete this._cookieCache[key];
+        },
+
+        get: function(key)
+        {
+            return window.sessionStorage.getItem(key) || this._getFallback(key);
+        },
+
+        set: function(key, value, onceOnly)
+        {
+            try {
+                window.sessionStorage.setItem(key, value);
+            } catch (e) {}
+            this._setFallback(key, value, onceOnly || false);
+            return this;
+        },
+        
+        'delete': function(key){
+            return this.remove(key);
+        },
+
+        remove: function(key)
+        {
+            try {
+            window.sessionStorage.removeItem(key);
+            } catch (e) {};
+            this._deleteFallback(key);
+            return this;
+        },
+
+        _clearSession: function()
+        {
+          try {
+                window.sessionStorage.clear();
+            } catch (e) {
+                for (var i in window.sessionStorage) {
+                    window.sessionStorage.removeItem(i);
+                }
+            }
+        },
+
+        clear: function()
+        {
+            this._clearSession();
+            this._clearFallback();
+            return this;
+        }
+
+    };
+
+    $.session._init();
+
+})(jQuery);
+
+
+document.domain = 'ppkao.com';
+
+
+var loginData=null;
+
+$(function() {
+    if ($.session.get('UserIsLoginKey') == "1" &amp;&amp; $.session.get('UserIsLoginusername')!=null &amp;&amp; $.session.get('UserIsLoginUserFace')!=null) {
+        loginHTML($.session.get('UserIsLoginusername'),$.session.get('UserIsLoginUserFace'));
+    } else if ($.session.get('UserIsLoginKey') == "3") {
+        tipsDialog("您的账号在另一地点登陆，您被迫下线。如果这不是您本人操作，请注意账号安全。");
+		return;
+    } else {
+        //top
+        $.ajax({
+            type: 'get',
+            url: 'http://user.ppkao.com/Interface/IsLogin.ashx?action=UserIsLogin',
+            dataType: 'jsonp',
+            cache: true,
+            contentType: 'application/x-www-form-urlencoded;charset=utf-8',
+            jsonp: "callback",
+            //传递给请求处理程序或页面的，用以获得jsonp回调函数名的参数名(默认为:callback)
+            jsonpCallback: "callback",
+            //自定义的jsonp回调函数名称，默认为jQuery自动生成的随机函数名
+            async: false,
+            success: function(data) {
+                if (data.name == "1") {
+                    $.session.set('UserIsLoginKey', data.name);
+					$.session.set('UserIsLoginusername', data.username);
+					$.session.set('UserIsLoginUserFace', data.UserFace);
+                    loginHTML(data.username,data.UserFace);
+
+                } else if (data.name == "3") {
+                    $.session.set('UserIsLoginKey', data.name);
+                    tipsDialog("您的账号在另一地点登陆，您被迫下线。如果这不是您本人操作，请注意账号安全。");
+                    return;
+                }
+				$.session.set('GetUserIPKey', null);
+            },
+            error: function(XMLHttpRequest, textStatus, errorThrown) {
+                return;
+            }
+
+        });
+
+    }
+    //footer
+    $(".foot").html("&lt;div class=\"fbox\"&gt;&lt;p&gt;&lt;a href=\"http://www.ppkao.com/help/aboutus.htm\"&gt;关于我们&lt;/a&gt; | &lt;a href=\"http://www.ppkao.com/help/pay.htm\"&gt;付款方式&lt;/a&gt; | &lt;a href=\"http://www.ppkao.com/help/myad.htm\"&gt;广告联系&lt;/a&gt; | &lt;a href=\"http://www.ppkao.com/help/contact.htm\"&gt;联系我们&lt;/a&gt; | &lt;a href=\"http://www.ppkao.com/help/map.htm\"&gt;网站地图&lt;/a&gt; | &lt;a href=\"http://www.ppkao.com/help/shengming.htm\"&gt;网站申明&lt;/a&gt; | &lt;a href=\"http://www.ppkao.com/help/link.htm\"&gt;友情链接&lt;/a&gt; | &lt;a href=\"http://www.ppkao.com/help/job.htm\"&gt;网站招聘&lt;/a&gt; | &lt;a href=\"http://www.ppkao.com/help/\"&gt;帮助中心&lt;/a&gt;&lt;/p&gt; 全国客服热线：0731-89679581 &lt;a href='http://www.miitbeian.gov.cn/' title='信息产业部ICP备案' target='_blank'&gt;湘ICP备14005140号-2&lt;/a&gt;&lt;br/&gt;&lt;p class=\"copyRight\"&gt;版权所有&amp;copy考试资料网(ppkao.com)All Rights Reserved&lt;/p&gt;&lt;div style=\"padding-top:12px;padding-bottom:10px; text-align:center;\"&gt;&lt;a href=\"http://www.anquan.org/authenticate/cert/?site=ppkao.com&amp;at=realname\" target=\"_blank\"&gt;&lt;img src=\"http://www.ppkao.com/images/raz3.gif\"&gt; &amp;nbsp; &amp;nbsp;&lt;img src=\"http://www.ppkao.com/images/raz2.gif\"&gt;&lt;/a&gt;&lt;/div&gt;&lt;/div&gt;")
+
+    /*右侧*/
+    $('body').append("&lt;div class='right-wrap'&gt;&lt;ul&gt;&lt;li class='customer-service trs'&gt;&lt;a href='http://q.url.cn/s/JTJtAXm' id='customservice' target='_blank'&gt;&lt;span class='public-icon'&gt;&lt;/span&gt;&lt;i&gt;客服中心&lt;/i&gt;&lt;/a&gt;&lt;/li&gt;&lt;li class='gotop trs hide'&gt;&lt;a class='public-icon'&gt;&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;&lt;/div&gt;&lt;div class='erweima'&gt;&lt;span class='public-icon'&gt;&lt;/span&gt;&lt;div class='ss pos_a'&gt;&lt;div class='ewm-box pos_r'&gt;&lt;div class='close pos_a'&gt;x&lt;/div&gt;&lt;span class='public-icon'&gt;&lt;/span&gt;&lt;p&gt;扫一扫免费做题&lt;/p&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;")
+
+    //滚动变化
+    $(window).scroll(function() {
+        if ($(window).scrollTop() &gt; 200) {
+            $(".gotop").fadeIn("slow")
+        } else {
+            $(".gotop").fadeOut("slow")
+        }
+    });
+    //滚动变化		
+    $(".gotop a").click(function() {
+        $("html,body").animate({
+            scrollTop: 0
+        },
+        500);
+    })
+    $('.close').on('click',
+    function() {
+        $('.ss').animate({
+            left: '-150px'
+        });
+    })
+    $('.erweima span').hover(function() {
+        $('.ss').animate({
+            left: '-10px'
+        });
+    })
+})
+
+if (top != self) {
+    location.href = "http://www.ppkao.com/";
+}
+
+$('.fastLogin').on('click',
+function() {
+    fastLogin("");
+})
+$('.fastRegister').on('click',
+function() {
+    fastRegister();
+
+})
+
+function isIE() { //ie?  
+    if ( !! window.ActiveXObject || "ActiveXObject" in window) return true;
+    else return false;
+}
+
+var result = '';
+function ViewAnswers(openUrl) {
+    if ($.session.get('GetUserIPKey') == "-1") {
+        tasteLogin(openUrl);
+        return false;
+    } else if ($.session.get('GetUserIPKey') == "0") {
+        tasteLogin(openUrl);
+        return false;
+    } else if ($.session.get('GetUserIPKey') == "4") {
+        result = openUrl;
+        if (isIE()) {
+            location.href = result;
+            result = "";
+            return false;
+        }
+    } else if ($.session.get('GetUserIPKey') == "1") {
+        result = openUrl;
+        if (isIE()) {
+            location.href = result;
+            result = "";
+            return false;
+        }
+    } else if ($.session.get('GetUserIPKey') == "2") {
+        tasteLogin(openUrl); //fastLogin(openUrl);
+        return false;
+    } else if ($.session.get('GetUserIPKey') == "3") {
+        tipsDialog("您的账号在另一地点登陆，您被迫下线。如果这不是您本人操作，请注意账号安全。");
+        return false;
+    } else {
+
+        $.ajax({
+            type: 'POST',
+            async: false,
+            url: 'http://user.ppkao.com/Interface/IsLogin.ashx?action=GetUserIP',
+            dataType: 'jsonp',
+            cache: false,
+            crossDomain: true,
+            contentType: 'application/x-www-form-urlencoded;charset=utf-8',
+            jsonp: "callback",
+            //传递给请求处理程序或页面的，用以获得jsonp回调函数名的参数名(默认为:callback)
+            jsonpCallback: "callback",
+            //自定义的jsonp回调函数名称，默认为jQuery自动生成的随机函数名
+            success: function(data) {
+                if (data.name == "-1") {
+                    $.session.set('GetUserIPKey', data.name);
+                    tasteLogin(openUrl); //fastLogin(openUrl);
+                    return false;
+                } else if (data.name == "0") {
+                    $.session.set('GetUserIPKey', data.name);
+                    tasteLogin(openUrl);
+                    return false;
+                } else if (data.name == "4") {
+                    $.session.set('GetUserIPKey', data.name);
+                    result = openUrl;
+                    if (isIE()) {
+                        location.href = result;
+                        result = "";
+                        return false;
+                    }
+                } else if (data.name == "1") {
+                    $.session.set('GetUserIPKey', data.name);
+                    result = openUrl;
+                    if (isIE()) {
+                        location.href = result;
+                        result = "";
+                        return false;
+                    }
+                } else if (data.name == "2") {
+                    $.session.set('GetUserIPKey', data.name);
+                    tasteLogin(openUrl); //fastLogin(openUrl);
+                    return false;
+                } else if (data.name == "3") {
+                    $.session.set('GetUserIPKey', data.name);
+                    tipsDialog("您的账号在另一地点登陆，您被迫下线。如果这不是您本人操作，请注意账号安全。");
+                    return false;
+                }
+                else {
+                    tasteLogin(openUrl); //fastLogin(openUrl);
+                    return false;
+                }
+            },
+            error: function(XMLHttpRequest, textStatus, errorThrown) {
+                result = openUrl.replace("http://user.ppkao.com/", "http://api.ppkao.com/");
+                if (isIE()) {
+                    location.href = result;
+                    result = "";
+                    return false;
+                }
+                return false;
+            }
+        });
+    }
+    setTimeout(function() {
+        if (result.length &gt; 0 &amp;&amp; result != null &amp;&amp; result != "") {
+            window.open(result, "_blank");
+            return false;
+        }
+    },
+    100);
+}
+
+function AlertButtn(mess) {
+    var d = dialog({
+        title: ' ',
+        content: mess,
+        okValue: '确定',
+        ok: function() {
+            location.href = 'http://user.ppkao.com/';
+        }
+    });
+    d.showModal();
+}
+
+function tipsDialog(mess) {
+    var d = dialog({
+        id: 'd',
+        title: ' ',
+        content: '&lt;div style=\"padding-bottom:10px; width:280px; text-align:center;\"&gt;&lt;p style=\"margin:25px 0;\"&gt;' + mess + '&lt;/p&gt;&lt;p style=\"margin:25px 0;\"&gt;&lt;input style=\"padding:6px 10px; margin:0px 10px; border-radius:3px; width:100px; background:#36A306 none repeat scroll 0% 0%; color:#FFF; border:medium none; text-align:center; cursor:pointer;\" type=\"button\" value=\"确定\" onclick=\"window.location.reload();\"&gt;&lt;/p&gt;&lt;/div&gt;',
+        fixed: true
+    });
+    d.showModal();
+}
+
+function fastRegister() {
+    var signup = dialog({
+        title: '　',
+        url: 'http://user.ppkao.com/user/login/index_pop.aspx?action=reg',
+        width: '380px',
+        height: '498px',
+		 onclose:function()
+		{
+		    if(this.returnValue)
+		     {
+		       window.location.href=this.returnValue;
+		     }	
+		}
+    });
+    signup.showModal();
+}
+
+function fastLogin(openUrl) {
+    var login = dialog({
+        title: '　',
+        url: 'http://user.ppkao.com/user/login/index_pop.aspx?url=' + encodeURIComponent(openUrl) + '&amp;action=login',
+        width: '380px',
+        height: '498px',
+	    onclose:function()
+		{
+		    if(this.returnValue)
+		     {
+		       window.location.href=this.returnValue;
+		     }	
+		}
+    });
+
+    login.showModal();
+}
+
+function tasteLogin(openUrl) {
+    var login = top.dialog({
+        title: '　',
+		 url: 'http://user.ppkao.com/user/login/index_taste.aspx?url=' + encodeURIComponent(openUrl) + '&amp;action=login',
+        //url: 'http://user.ppkao.com/user/login/index_qrcode.aspx?url=' + encodeURIComponent(openUrl) + '&amp;action=login',
+       // width: '515px',
+//        height: '595px',
+//		onclose:function()
+//		{
+//		    if(this.returnValue)
+//		     {
+//		       window.location.href=this.returnValue;
+//		     }	
+//		}
+    });
+
+    login.showModal();
+}
+
+function UotLogin() {
+    $.ajax({
+        type: 'get',
+        async: false,
+        url: 'http://user.ppkao.com/Interface/IsLogin.ashx?action=UserOutLogin',
+        dataType: 'jsonp',
+        cache: true,
+        contentType: 'application/x-www-form-urlencoded;charset=utf-8',
+        jsonp: "callback",
+        //传递给请求处理程序或页面的，用以获得jsonp回调函数名的参数名(默认为:callback)
+        jsonpCallback: "callback",
+        //自定义的jsonp回调函数名称，默认为jQuery自动生成的随机函数名
+        success: function(data) {
+            if (data.name == "1") {
+				$.session.set('GetUserIPKey', null);
+				$.session.set('UserIsLoginKey', null);
+                location.reload(false);
+            }
+        },
+        error: function(XMLHttpRequest, textStatus, errorThrown) {
+            return;
+        }
+    });
+}
+
+
+function loginHTML(username,UserFace) {
+    $(".login-box").html("&lt;div class='tn-title' id='uloginedbox'&gt;&lt;a class='vip-name'&gt;" + username + "&lt;span&gt;&lt;/span&gt;&lt;/a&gt;&lt;div class='personal hide-wrap'&gt;&lt;div class='personal-content'&gt;&lt;span class='guide-icon icon'&gt;&lt;/span&gt;&lt;div class='personal-content-top'&gt;&lt;p class='pic_box'&gt;&lt;a&gt;&lt;img src='" + UserFace + "'&gt;&lt;/a&gt;&lt;/p&gt;&lt;p class='name'&gt;" + username + "&lt;/p&gt;&lt;/div&gt;&lt;div class='personal-content-center'&gt;&lt;h4&gt;我的服务&lt;/h4&gt;&lt;ul class='clearfix'&gt;&lt;li&gt;&lt;a href='http://user.ppkao.com/user/index.aspx'&gt;&lt;span class='vip icon'&gt;&lt;/span&gt;个人中心&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href='http://user.ppkao.com/user/upgrade.aspx'&gt;&lt;span class='upgrade icon'&gt;&lt;/span&gt;升级会员&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href='http://user.ppkao.com/user/xxjl.aspx'&gt;&lt;span class='record icon'&gt;&lt;/span&gt;练习记录&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href='#'&gt;&lt;span class='wrong icon'&gt;&lt;/span&gt;错题集&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;&lt;/div&gt;&lt;div class='personal-content-bottom'&gt;&lt;ul class='clearfix'&gt;&lt;li class='setting'&gt;&lt;a href='http://user.ppkao.com/user/editinfo.aspx'&gt;账号设置&lt;/a&gt;&lt;/li&gt;&lt;li class='quit'&gt;&lt;a onclick='UotLogin()'&gt;退出&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class='tn-title' id='service'&gt;&lt;a&gt;客服中心&lt;span&gt;&lt;/span&gt;&lt;/a&gt;&lt;div class='service hide-wrap'&gt;&lt;span class='guide-icon kf icon'&gt;&lt;/span&gt;&lt;ul&gt;&lt;li&gt;&lt;a href='http://www.ppkao.com/help/pay.htm'&gt;帮助中心&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href='http://www.ppkao.com/help/contact.htm'&gt;联系客服&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;");
+}
+
+ $(document).ready(function () {
+	 try
+	 {
+      CustomService();  
+	 }catch(ex)
+	 {
+		 
+	}
+ })</pre></body></html>

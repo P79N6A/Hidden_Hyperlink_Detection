@@ -1,0 +1,298 @@
+<!DOCTYPE html><html lang="en"><head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
+    <title></title>
+    <link rel="stylesheet" href="/staticfile/SpecialColumn/css/core.css">
+    <link rel="stylesheet" href="/staticfile/SpecialColumn/css/share.css">
+    <script src="/staticfile/SpecialColumn/lib/utils.js"></script>
+    <script src="/staticfile/SpecialColumn/lib/rem.js"></script>
+</head>
+
+<body>
+    <div class="g-doc">
+        <div class="g-hd">
+            <!-- banner start -->
+            <div class="m-banner">
+                <img id="headImageView" src="" alt="">
+            </div>
+            <!-- banner end -->
+        </div>
+        <div class="g-bd">
+            <!-- detail start -->
+            <div class="m-detail">
+<!--                <div class="itm">
+                    <h2 class="tt" id="specialColTitle"></h2>
+                    <p class="txt"></p>
+                </div>-->
+                <div class="itm" id="specialColContent">
+                    <h2 class="tt" id="specialColTitle"></h2>
+                </div>
+            </div>
+            <!-- detail end -->
+
+            <!-- project start -->
+            <div class="m-project">
+                <ul class="lst" id="projectListView">
+                </ul>
+            </div>
+            <!-- project end -->
+
+            <!-- comment start -->
+<!--            <div class="m-comment">
+                <div class="hd">
+                    <h2 class="tt">- 热门评论 -</h2>
+                </div>
+                <div class="bd">
+                    <ul class="lst" id="commentListView">
+                        <li class="itm">
+                            <a class="avatar" href="javascript:;" title="内存告急的小怪兽" style="background-image: url(&quot;/staticfile/SpecialColumn/static/img/pic_05.jpg&quot;);"></a>
+                            <h3 class="name">内存告急的小怪兽</h3>
+                            <a class="like like-on" href="javascript:;">3321</a>
+                            <p class="time">30分钟前</p>
+                            <p class="txt">天师有着水瓶座一般的飘逸，王子有着双鱼座一般的浪漫，高云飞大将军有着狮子座一般的霸气。天师有着水瓶座一般的飘逸。</p>
+                        </li>
+                    </ul>
+                    <a class="more" href="javascript:;">查看更多评论</a>
+                </div>
+                <div class="ft">
+                    <div class="ops">
+                        <a class="itm itm-like itm-like-on" href="javascript:;">喜欢(267)</a>
+                        <a class="itm itm-comment" href="javascript:;">评论(39)</a>
+                    </div>
+                </div>
+            </div>-->
+            <!-- comment end -->
+        </div>
+        <div class="g-ft"></div>
+    </div>
+
+<!--<script src="../dist/js/page/common.js"></script>
+<script src="../dist/js/page/index.js"></script>-->
+<script src="https://res.wx.qq.com/open/js/jweixin-1.0.0.js"></script>
+<script src="http://mat.damai.cn/20160312dmqd/js/jquery-2.2.0.min.js"></script>
+<script src="/staticfile/SpecialColumn/lib/user-avatar.js"></script>
+<script>
+//微信分享参数
+var titlex = '';
+var descx = '';
+var linkx = "http://mapi.damai.cn/Page/SpecialColumn/SpecialColumnH5.aspx?specialColId=" + 0;
+var img_urlx = '';
+    
+//1，加载专栏数据
+var context = { title: '', summary:'',viewPic:'',shareContent:'',contentType:0,content:'',projectList:[]};
+
+var infoUrl = "http://gw.damai.cn/channel/specialcolumn/1/SpecialColumnView.json?specialColId="+0;
+jQuery.getJSON(infoUrl,function(data){
+    if(data && data.data){
+        buildContext(data.data);
+        buildSpecialColumnView();
+
+        titlex = data.data.title;
+        descx = data.data.shareContent;
+        img_urlx = data.data.viewPic;
+        commonshare();
+        document.title = data.data.title;
+        if(typeof(special_title) != "undefined" && special_title.setSpecialTitle && special_title.setSpecialTitle(data.data.title)){}
+        if(window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.setSpecialTitle && window.webkit.messageHandlers.setSpecialTitle.postMessage(data.data.title)){}
+        //if(data.data.contentType == 2)
+        //{
+        //    loadComments();
+        //}
+    }
+});
+
+function forward(projectId)
+{
+    window.location.href = 'http://m.damai.cn/ticket/{projectId}.html'.replace('{projectId}',projectId);
+}
+
+//2，加载评论数据
+var commentContext = {comments:[],total:0,statistics:{favourCount:0,commentsCount:0}};
+var commentsUrl = "http://localhost:8080/comment/specialcolumn/1/list.json?pageSize=10&pageIndex=1&specialColId="+0;
+function loadComments()
+{
+    jQuery.getJSON(commentsUrl,function(data){
+        if(data && data.data){
+            commentContext.total = data.data.total;
+            commentContext.statistics = data.data.statistics;
+            commentContext.comments = data.data.comments;
+            //显示评论列表
+            showComments();
+        }
+    });
+}
+
+function showComments()
+{
+    var pageCommentsHtml = buildCommentsView(commentContext.comments);
+    jQuery('#commentListView').append(pageCommentsHtml);
+}
+
+function buildCommentsView(commentList)
+{
+    var buffer = [];
+    if(commentList && commentList.length > 0)
+    {
+        for(var i = 0;i<commentList.length;i++)
+        {
+            //var projectImage = 'http://pimg.dmcdn.cn/perform/project/'+parseInt(projectList[i].projectId/100)+'/'+projectList[i].projectId+'_n.jpg';
+            buffer.push('<li class="itm">');
+                buffer.push('<a class="avatar" href="javascript:;" title="'+commentList[i].userName+'" style="background-image: url(&quot;/staticfile/SpecialColumn/static/img/pic_05.jpg&quot;);"></a>');
+                buffer.push('<h3 class="name">'+commentList[i].userName+'</h3>');
+                buffer.push('<a class="like like-on" href="javascript:;">'+commentList[i].favourCount+'</a>');
+                buffer.push('<p class="time">30分钟前</p>');
+                buffer.push('<p class="txt">'+commentList[i].commentText+'</p>');
+            buffer.push('</li>');
+        }
+    }
+    return buffer.join(' ');
+}
+
+function buildSpecialColumnView()
+{
+    //头部图片
+    jQuery('#headImageView').attr('src',context.viewPic);
+    //专栏名称
+    jQuery('#specialColTitle').html(context.title);
+    //专栏内容specialColContent
+    //jQuery('#specialColContent').html(context.content);
+	
+    jQuery('#specialColContent').append(formatContent(context.content));
+    //项目列表projectListView
+    var projectListViewHtml = buildProjectListView(context.projectList);
+    jQuery('#projectListView').html(projectListViewHtml);
+
+}
+
+function formatContent(html) {
+  var $root = $('<div class="root">');
+  
+  html = html.replace(/^[\s\S]*<body>|<\/body>[\s\S]*/ig, '');
+
+  html = html.replace(/(<img[^<>]+)width="[^<>]+"/ig, '$1').replace(/(<img[^<>]+)height="[^<>]+"/ig, '$1');
+
+  $root.html( html );
+
+  
+
+  return $root.html();
+}
+
+function buildProjectListView(projectList)
+{
+    var buffer = [];
+    if(projectList && projectList.length > 0)
+    {
+        for(var i = 0;i<projectList.length;i++)
+        {
+            var projectImage = 'https://pimg.dmcdn.cn/perform/project/'+parseInt(projectList[i].projectId/100)+'/'+projectList[i].projectId+'_n.jpg';
+            buffer.push('<li class="itm" onclick="forward('+projectList[i].projectId+')">');
+                buffer.push('<a class="thumb" href="javascript:;" style="background-image: url(&apos;'+projectImage+'&apos;);"></a>');
+                buffer.push('<h3 class="tt">'+projectList[i].projectName+'</h3>');
+                buffer.push('<div class="info">');
+                    buffer.push('<p class="itm">时间：'+projectList[i].playTime+'</p>');
+                    buffer.push('<p class="itm">场馆：'+projectList[i].venueName+'</p>');
+                buffer.push('</div>');
+                buffer.push('<div class="ops">');
+                    buffer.push('<a class="u-btn" style="text-decoration:none;" href="javascript:;">抢票</a>');
+                buffer.push('</div>');
+            buffer.push('</li>');
+        }
+    }
+    return buffer.join(' ');
+}
+
+function buildContext(data){
+
+    context.title = data.title;
+	//document.title=data.title;
+	setTitle(data.title)
+    context.summary = data.summary;
+    context.viewPic = data.viewPic;
+    context.shareContent = data.shareContent;
+    context.contentType = data.contentType;
+    context.content = data.content;
+    if(data.projectList && data.projectList.length > 0){
+        //for(var i=0;i<data.projectList.length;i++)
+        //{
+        //    context.push({projectName:data.projectList[i].projectName,projectId:data.projectList[i].projectId,playTime:data.projectList[i].playTime,venueName:data.projectList[i].venueName});
+        //}
+        context.projectList = data.projectList;
+    }
+}
+
+// 设置微信朋友圈 url
+$('.m-layer-share .u-btn-timeline').attr('href', 'http://m.damai.cn/weixinfshare.aspx?title=' + titlex + '&content=' + descx + '&pics=' + img_urlx + '&rurl=' + linkx);
+// 设置微信 url
+$('.m-layer-share .u-btn-wechat').attr('href', 'http://m.damai.cn/weixinshare.aspx?title=' + titlex + '&content=' + descx + '&pics=' + img_urlx + '&rurl=' + linkx);
+
+function commonshare(){
+    if (navigator.userAgent.toLowerCase().indexOf('micromessenger') != -1) {
+        var url = location.href.split('#')[0];
+        jQuery.ajax({
+            cache: false,
+            type: 'GET',
+            url: 'http://mat.damai.cn/server/api/weixin/share',
+            data: {
+                url: encodeURIComponent(url)
+            },
+            dataType: 'jsonp',
+            jsonp: "callback",
+            jsonpCallback: "success_jsonp",
+            timeout: 10000,
+            success: function (json) {
+                if (json.success) {
+                    var data = json.data;
+                    share(data.appId, data.timestamp, data.nonceStr, data.signature);
+                }
+            }
+        });
+    }
+};
+
+function share(appId, timestamp, nonceStr, signature) {
+    wx.config({
+        debug: false,
+        appId: appId,
+        timestamp: timestamp,
+        nonceStr: nonceStr,
+        signature: signature,
+        jsApiList: ['onMenuShareTimeline', 'onMenuShareAppMessage']
+    });
+
+    wx.ready(function () {
+        wx.onMenuShareTimeline({
+            title: titlex,
+            link: linkx,
+            imgUrl: img_urlx,
+            success: function () {
+            },
+            cancel: function () {
+            }
+        });
+        wx.onMenuShareAppMessage({
+            title: titlex,
+            desc: descx,
+            link: linkx,
+            imgUrl: img_urlx,
+            success: function () {
+            },
+            cancel: function () {
+            }
+        });
+    });
+}
+function setTitle(t) 
+{
+ document.title = t; 
+ var i = document.createElement('iframe'); 
+ i.src = '//m.baidu.com/favicon.ico'; 
+ i.style.display = 'none'; 
+ i.onload = function() { setTimeout(function(){ i.remove(); }, 9) }; document.body.appendChild(i); 
+ }
+</script>    
+
+
+
+
+</body></html>

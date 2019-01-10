@@ -1,0 +1,289 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd" >
+<html>
+		<head>
+			<title>&#22825;&#22320;&#22270;&#22025;&#23786;&#20851;</title>
+			<meta http-equiv="X-UA-Compatible" content="IE=7" />
+			<link href="../css/main.css" rel="stylesheet" type="text/css" />
+			<link href="../js/dojo1.4.3/dijit/themes/soria/soria.css" rel="stylesheet" type="text/css" />
+			<link href="../js/dojo1.4.3/resources/dojo.css" rel="stylesheet" type="text/css" />
+			<script language="javascript" src="../js/prototype.js"> </script>
+			<script language="javascript" src="../js/effects.js"> </script>
+			<script language="javascript" src="../js/p_esri_core.js"> </script>
+			<script language="javascript" src="../js/applications.js"> </script>
+			<style type="text/css">
+				body{margin: 1px 10px 2px 10px; text- align: center; background-color: #FFF;}
+			.STYLE1 {
+	color: #005E8F;
+	font-weight: bold;
+}
+            .STYLE3 {color: #666666}
+.STYLE6 {color: #005E8F}
+            </style>
+			<script type="text/javascript">
+var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3F90d84a866a495f952e90c591565e4383' type='text/javascript'%3E%3C/script%3E"));
+</script>
+
+		</head>
+		<script language="javascript" src="../js/dojo1.4.3/dojo/dojo.js" djConfig="isDebug: false, parseOnLoad: true, usePlainJson: true"> </script>
+		<script language="javascript" src="../js/services_extent_reg.js"></script>
+		<script type="text/javascript"> 
+	    //<![CDATA[ 
+		var isIE = !!window.ActiveXObject;  
+		var isIE6 = isIE && !window.XMLHttpRequest;  
+		if (isIE6){
+			window.location = "isIE6.jsf";　 
+		}
+		 // ]]>	
+    </script>
+		<script language="JavaScript">
+	 dojo.require("dijit.layout.LayoutContainer");
+	 dojo.require("dijit.Dialog"); 
+	 dojo.require("mgr.util");
+	 dojo.require("dijit.form.SimpleTextarea");
+	 //<![CDATA[ 
+      var invalidStr="!@%():;?$#%^&*<>\'\"";
+      function message(){
+      	  
+          if(document.getElementById("message")){ 
+        	  dojo.byId('errorLabel').innerHTML=document.getElementById("message").children(0).innerHTML;
+              dijit.byId("errorDialog").show();
+          }           
+      }
+      function check(){
+        var username=document.getElementById("LoginForm:username");
+        var password=document.getElementById("LoginForm:password");          
+        var errorInfo="";
+        var badCharacter=false;
+        if(username.value==""){
+           errorInfo="请输入用户名！";
+           dojo.byId('errorLabel').innerHTML=errorInfo;
+           dijit.byId("errorDialog").show();      
+           username.focus(); 
+           return false;          
+        }
+        for(i=0;i<invalidStr.length;i++)
+	    {
+		 if(username.value.indexOf(invalidStr.charAt(i))>= 0){		 
+
+  
+           badCharacter=true;
+           break;
+		 }
+	    }	    
+	    if(badCharacter){
+	       errorInfo="用户名不能包含非法字符"+invalidStr;
+	       dojo.byId('errorLabel').innerHTML=errorInfo;
+           dijit.byId("errorDialog").show();   
+	       username.focus(); 
+	       badCharacter=false;
+	       return false;
+	    }
+        if(password.value==""){
+         errorInfo="请输入密码！";
+         password.focus(); 
+         dojo.byId('errorLabel').innerHTML=errorInfo;
+         dijit.byId("errorDialog").show();   
+         return false;        
+       } 
+       showProgress(dojo.byId("LoginDialog"),"加载中.......");  
+       return true;
+      }
+      function checkRegist(){
+      	var pattern = /^([a-zA-Z0-9_-])+@([a-zA-Z0-9_-])+(\.[a-zA-Z0-9_-])+/;
+      	var regname = document.getElementById("RegistForm:regname").value.trim();
+      	if(regname==""){
+      		return false;
+      		}
+      	var regusername = document.getElementById("RegistForm:regusername").value.trim();
+      	if(regusername==""){
+      		return false;
+      		}
+      	var regpassword = document.getElementById("RegistForm:regpassword").value.trim();
+		if(regpassword==""||regpassword.length<6){
+			return false;
+			}
+      	var confirmpassword = document.getElementById("RegistForm:confirmpassword").value.trim();
+      	if(confirmpassword!=regpassword){
+      		dojo.byId('RegistForm:confirmpassworderror').innerHTML='密码不一致!';
+      		return false;
+      		}
+      	var email = document.getElementById("RegistForm:email").value.trim();
+      	if(email!=""){
+      		if(!pattern.test(email)){
+      		dojo.byId('RegistForm:emailerror').innerHTML='邮件格式不正确!';
+      		return false;
+      		}
+      	}
+      	var desc = document.getElementById("RegistForm:desc").value.trim();
+      	var memom = document.getElementById("RegistForm:memo").value.trim();
+      //	if(regname=="")
+       showProgress(dojo.byId("RegistDialog"),"注册中......");  
+      return true;
+      }
+      var psw;
+      function checkisnull(obj){
+      var re =/^([u4e00-u9fa5]|[ufe30-uffa0]|[a-za-z0-9_])*$/;
+      	if(obj.name=='RegistForm:regname'){
+      		if(obj.value.trim()==""){
+      			dojo.byId('RegistForm:regnameerror').innerHTML='用户名不能为空!';
+      			return false; 
+      		}else if(re.test(obj.value.trim()) == false){
+      			dojo.byId('RegistForm:regnameerror').innerHTML='用户名不能含中文!';
+      			return false; 
+      		}else{
+      			dojo.byId('RegistForm:regnameerror').innerHTML='';
+      		}
+      	}
+      	if(obj.name=='RegistForm:regusername'){
+      		if(obj.value.trim()==""){
+      			dojo.byId('RegistForm:regusernameerror').innerHTML='姓名不能为空!';
+      			return false;
+      		}else{
+      			dojo.byId('RegistForm:regusernameerror').innerHTML='';
+      		}
+      	}
+      	if(obj.name=='RegistForm:regpassword'){
+      		psw=obj.value;
+      		if(obj.value.trim()==""){
+      			dojo.byId('RegistForm:regpassworderror').innerHTML='密码不能为空!';
+      			return false;
+      		}else if(obj.value.trim().length<8){
+      			dojo.byId('RegistForm:regpassworderror').innerHTML='密码不能小于8位!';
+      			return false;
+      		}else{
+      			dojo.byId('RegistForm:regpassworderror').innerHTML='';
+      		}
+      	}
+      	if(obj.name=='RegistForm:confirmpassword'){
+      		if(obj.value.trim()==""){
+      			dojo.byId('RegistForm:confirmpassworderror').innerHTML='确认密码不能为空!';
+      			return false;
+      		}else if(obj.value.trim()!=psw){
+      			dojo.byId('RegistForm:confirmpassworderror').innerHTML='密码不一致!';
+      			return false;
+      		}else{
+      			dojo.byId('RegistForm:confirmpassworderror').innerHTML='';
+      		}
+      	}
+      }
+      function cancel(){
+    	  document.LoginForm.reset();
+    	  dojo.byId("LoginDialog").style.display='none';
+    	  hideProgress(dojo.byId("LoginDialog"));
+      }
+       function regcancel(){
+    	  document.RegistForm.reset();
+    	  dojo.byId('RegistForm:regnameerror').innerHTML='*';
+    	  dojo.byId('RegistForm:regusernameerror').innerHTML='*';
+    	  dojo.byId('RegistForm:regpassworderror').innerHTML='*'
+    	  dojo.byId('RegistForm:confirmpassworderror').innerHTML='*';
+    	  dojo.byId('RegistForm:emailerror').innerHTML='';
+    	  dojo.byId("RegistDialog").style.display='none';
+    	  hideProgress(dojo.byId("RegistDialog"));
+      }
+      function showLogin(){      	 
+    	 dojo.byId("LoginDialog").style.display='block';
+    	 dojo.byId("LoginForm:username").focus();
+    	 dojo.byId("RegistDialog").style.display='none';
+      }
+      function showRegist(){
+      	dojo.byId("RegistDialog").style.display='block';
+      	document.getElementById("RegistForm:regname").focus(); 
+      	dojo.byId("LoginDialog").style.display='none';
+      }
+       function changeIframeSize(iframeContentHeight){
+         document.getElementById('homeContent').style.height = iframeContentHeight+30+"px";
+      }
+      function keydown(event){
+      	if(event.keyCode==13){
+				dojo.byId('LoginForm:btLogin').onclick();
+			}      	
+      }
+      dojo.addOnLoad(message);      
+	 // ]]>	
+	</script>
+		<body class="soria">
+			<div id="mainContainer" align="center">
+				<div align="center" id="headContent">
+							<div class="login">
+								<ul>
+									<a href="#" onclick="showLogin();">&#30331;&#24405;</a>
+									<a href="#" onclick="showRegist();">&#27880;&#20876;</a>
+								</ul>
+							</div>
+				</div>
+				<div align="center" id="menuContent">
+					<iframe id="menuFrm" marginHeight="0" height="45" frameBorder="0" width="100%" src="menu.jsf" marginWidth="0" scrolling="no" allowtransparency="true">
+					</iframe>
+				</div>
+				<div align="center" id="homeContent">
+					<iframe id="homeFrm" marginHeight="0" frameBorder="0" width="100%" height="100%" src="home.jsf" marginWidth="0" scrolling="no" allowtransparency="true">
+					</iframe>
+				</div>
+				<!--<div id="footer"> 甘肃省测绘地理信息局嘉峪关市人民政府监制  技术支持：甘肃省测绘工程院  
+				</div> -->
+				<div id="footer">
+				   <div><span class="soria STYLE6"><strong>&#29976;&#32899;&#30465;&#27979;&#32472;&#22320;&#29702;&#20449;&#24687;&#23616;&nbsp;&nbsp;&#22025;&#23786;&#20851;&#24066;&#20154;&#27665;&#25919;&#24220;&nbsp;&#30417;&#21046;&nbsp;</strong></span><span class="STYLE1">&nbsp;</span><strong>&nbsp;</strong>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="STYLE6"><strong>&#22025;&#23786;&#20851;&#24066;&#22269;&#22303;&#36164;&#28304;&#23616;&#20027;&#21150;</strong>&nbsp;&nbsp;</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="STYLE3">&#25216;&#26415;&#25903;&#25345;&#65306;&#29976;&#32899;&#30465;&#27979;&#32472;&#24037;&#31243;&#38498; </span></div>
+				</div>
+			</div>
+			<!--   end maincontainer begin login dialog -->
+			<div id="LoginDialog" dojoType="dijit.layout.LayoutContainer">
+<form id="LoginForm" name="LoginForm" method="post" action="/Portal/main/main.jsf;jsessionid=FBC47C9BB811F9788CB5B6D0F4B92BBF" enctype="application/x-www-form-urlencoded" onkeydown="keydown(event);" onsubmit="check();">
+<input type="hidden" name="LoginForm" value="LoginForm" />
+
+					<ul>
+						<li>&#29992;&#25143;&#21517;&#65306;<input id="LoginForm:username" type="text" name="LoginForm:username" class="logininput" /></li>
+						<li>&#23494;&nbsp;&nbsp;&nbsp;&#30721;&#65306;<input id="LoginForm:password" type="password" name="LoginForm:password" value="" class="logininput" /></li>
+						<li class="loginBtn">
+<script type="text/javascript" language="Javascript">function dpf(f) {var adp = f.adp;if (adp != null) {for (var i = 0;i < adp.length;i++) {f.removeChild(adp[i]);}}};function apf(f, pvp) {var adp = new Array();f.adp = adp;var ps = pvp.split(',');for (var i = 0,ii = 0;i < ps.length;i++,ii++) {var p = document.createElement("input");p.type = "hidden";p.name = ps[i];p.value = ps[i + 1];f.appendChild(p);adp[ii] = p;i += 1;}};function jsfcljs(f, pvp, t) {apf(f, pvp);if (t) {f.target = t;}f.submit();dpf(f);};</script>
+<a id="LoginForm:btLogin" href="#" onclick="var a=function(){return check();};var b=function(){if(typeof jsfcljs == 'function'){jsfcljs(document.forms['LoginForm'],'LoginForm:btLogin,LoginForm:btLogin','');}return false};return (a()==false) ? false : b();">&#30331;&#24405;</a>
+							&nbsp;&nbsp;
+							<a href="#" id="btCancel" onclick="cancel();">&#21462;&#28040;</a>
+						</li>
+					</ul><input type="hidden" name="javax.faces.ViewState" id="javax.faces.ViewState" value="H4sIAAAAAAAAAO1ZWWwcRRouD0nsGNg4ByYksHEOgpN15rDHc9iJEh8JHhgnUWxCIBKh3VOe6aSnu+mu8UyIQNnVbqJdEOJ+ikQESPBAXsgL8MAh3pDYFUi88IQQh5BgHxASxwO79Vdf1VecmQwb0NIPPTXVf/311/9//9F/v/INWlrT0eqjxePCghCXBaUcPzB3HItk9PF/Hnmux9gmxxBqaAihNYaOhkS1GjdqSnxeELERFzRNlkSBSKoSnyECwdOCIpSxXqhq8pZZHeP9agl/N//GmxeSt791HfCp9yO4+mC3hsWF8tRUBSskflfhsITrh1SVUFrjAfQwitUzbMFt4QsqpCrHp+htGhsG3dlAnVVzZC9Ps+WbF1m+T9WraHlRLUsKDO3FObo0hvoXWVxQtBqZxQ2CumoG1hWh6uw+whhsvxwGM1jUMWWhCYZRV/WSzSJ/WSwm1GpVUEpFSTmBOucIO4nNYfjyVdB9CJclg/A6yNK1y5rQQaeOy7wKdrH12xZZf6BGbAbXWQywrqu6zWW0SSmupUz8xhhrVpIejolHGvNMzZgV5PFbtiV5bCYeecaalmeFqCrzkl71y7S3WZnW+Bh55Bpu0mpLcVWQZK/Nm5Clmy33SJBuUoIlJWyILS+u4qrKu/7iNuH9tmuOmO7XqAELuGLOqMsdafSisXilG7HHVVXGgvJ+n376o3M//TuGOu5FSxcEuYYbWgeTZx3SNKqgqdnp4rHxsZnCBEVTgmpLYbd4AwSiPHsYzxqR5HhRFQUZP/zDyvvPJX/8OoaWFFBXRTAqIg3pRdQpqjWF6CcJWsUyRwLkSMwQXVLKo0XUBX9rNAzD3n2UfEHQJUEh7G9D+w+9CIpN7Ke3Bys02HuPU1AIpllk1afnX/z+z2dz9DgF+zi2iIxuf606h/Uzrzxzy7VPf/KInad6qXocZV0TosqVzqjTVaojATv8FD3otKAt7fz4nXd77//gGhTbh7plVSjtE0Si6gW0nFR0bFRUudTQdu9hLJbVu4ARbEXQWj5RypgY8emxQ3ceK0zSCJ/JYzGZGU6FUY0dPFgs7J2k0iQCzySaVeOTeF6oyWSfOblljGbgk7PqCaxMnfvX5Kjy7Hkzza4LmhehjiPHXzt9U6NBkWCnSTh/Gm7r4XYz9WcesHZW1djDkJu5SgPPBa/jB52SMq9WjTLgbolMUU3Q9SXJ0GTh5IhCvWBU47hy5I5JUIjpejmDwWhHUPcwnXC0nE7C/xTchuDcbo6HqXH+5D38yYEC/IygjVyRk2jsqNfrO+bpwx01XcYKOEOJka04gU+W1LrSjxeog28b1ayLSiJWsHii35y6JDA3OqM/hNBFnbjDe2Ixz4cPX2lnOeiFDw9/+dUtp263XaaDWP7lrOygCNwaHrtYoTdFkY/1GWEB6/e8d3HXU+fen46hWBEtF2WaCPbThGl5frdBaUpsDUG9ZqyQ1MQMpvFAlh4U5mQ82mDxbGsA8FiOzwrlwyDY3oZG/c2gNjCxgToA5zpaa8pIKX1k9e7TRz95++cnYoxstUPmUrzwt3/MfHvvhzuZEuj+G1W9TCtagZorhB+UtBtTdzz+vPSXGGwNxztS/xO6cfOpg6pOBJkBKw7lApz+IT5OmQW1pjVoSsv73bJvz2AmNZBK5vqYBXZtimC4qQGx1kbviF2XcEVnJJghOWma34m1wN1lYE5qnkXUSPB762mqffe5c7mEfjICoZPKLUGiNAl3hqB/c1vQn/Enz4M20SEO3DCaNc9zN7sfDZoSKpq7aUXTnCkHB1KpdLgpHYY+U9qlE1f886ZcxZvSLN/+h8a8YrP+0Rkta9aYpWyrxtyKVm0+RT03ziQcrxGiKhF2zKB0mB3TA6nBlGtHPy8w4UrXhNYbF3HevSJ9ESo9S/mzEHVui4h605hU1FJU2LvJiWd+ulcT7z3y2ffpx2JWjLqH7rHJG9n8SyC0nT2/+/X7XvrugB3aztIX9TVe+LLje5RoZhPHMAjUmUfZaHXS4onu5/cLk/GmxiXACgmW4r6mK318NtWCqA2DYNNVA057qwbutRjmnvT61oS992RAImfj63+pdD9fakPAM48Xt168mwp42Qy1bNIf8HwMWcBzdThizbvNAq9Cj/0C8Y0KwJAjGUpNlvtJRTJ8GLriSNfVuhVzAsDsxqCKWDXt64kElEVQx3bNndUcgYlEZBwpb1vwl59rFX8JtD4IF7uWicDgbrQrBIO5JMVgoH4KYQo47PUq2a2j+JbR/zse8znA4/pwVVmYDHTH2oXLthSCQqpVXA6gtT4I2VVZBCh3opEwUELKy0aA0uEYgki3HOSbhl7l6lcZkVcTm3M4BJue9mNIp/TXhM1ser5VbA6hDT4k0fKRb79GQHQCjYVBNDeQGoqKm37GgNR1nNJ9fd9gS/l3xNr2HhYBsRuilWehNrSX3i7ktiPbZ4eHW0XuNnSDD2CsWR+B1xzKhOA1PziQi4KryQ1A2sPpmc3a3xUCmvy1d0SuAHKZQYDcDX5VWEDjPpQElAI/W64WvrJDreKLe121EAFfciLglUXDYfDKDOQyEfBizABdKziVwqT1yeg3h622mCuVbJ+54NtZc+bKR5uLMfObCyatj3S/OXO13kXLpvIQClZzirC/MxL3k6P3dH91O1Twc4bd/17fjnqDL1f0Z9GmUGjrYCgJvdLhQFPIy5pvCxG07IuLL39+5lG/7iHU8e0hk8UlmkT/BYqO0yP3IgAA" />
+</form>
+			</div>
+			<div id="RegistDialog" onsubmit="checkRegist();" dojoType="dijit.layout.LayoutContainer">
+<form id="RegistForm" name="RegistForm" method="post" action="/Portal/main/main.jsf;jsessionid=FBC47C9BB811F9788CB5B6D0F4B92BBF" enctype="application/x-www-form-urlencoded">
+<input type="hidden" name="RegistForm" value="RegistForm" />
+
+					<ul>
+						<li>
+							&#30331;&#38470;&#21517;&#31216;&#65306;<input id="RegistForm:regname" type="text" name="RegistForm:regname" class="logininput" onblur="checkisnull(this);" /><span id="RegistForm:regnameerror" class="logintitle">*</span>
+						</li>
+						<li>
+							&#30495;&#23454;&#22995;&#21517;&#65306;<input id="RegistForm:regusername" type="text" name="RegistForm:regusername" class="logininput" onblur="checkisnull(this);" /><span id="RegistForm:regusernameerror" class="logintitle">*</span>
+						</li>
+						<li>
+							&#29992;&#25143;&#23494;&#30721;&#65306;<input id="RegistForm:regpassword" type="password" name="RegistForm:regpassword" value="" onblur="checkisnull(this);" class="logininput" /><span id="RegistForm:regpassworderror" class="logintitle">*</span>
+						</li>
+						<li>
+							&#30830;&#35748;&#23494;&#30721;&#65306;<input id="RegistForm:confirmpassword" type="password" name="RegistForm:confirmpassword" value="" onblur="checkisnull(this);" class="logininput" /><span id="RegistForm:confirmpassworderror" class="logintitle">*</span>
+						</li>
+						<li>
+							&#29992;&#25143;&#37038;&#31665;&#65306;<input id="RegistForm:email" type="text" name="RegistForm:email" class="logininput" /><span id="RegistForm:emailerror" class="logintitle"></span>
+						</li>
+						<li>
+							&#25551;&#36848;&#20449;&#24687;&#65306;<input id="RegistForm:desc" type="text" name="RegistForm:desc" class="logininput" />
+						</li>
+						<li>
+							&#22791;&#27880;&#20449;&#24687;&#65306;<input id="RegistForm:memo" type="text" name="RegistForm:memo" class="logininput" />
+						</li>
+						<li class="loginBtn"><a id="RegistForm:btRegist" href="#" onclick="var a=function(){return checkRegist();};var b=function(){if(typeof jsfcljs == 'function'){jsfcljs(document.forms['RegistForm'],'RegistForm:btRegist,RegistForm:btRegist','');}return false};return (a()==false) ? false : b();">&#27880;&#20876;</a>
+								&nbsp;&nbsp;
+								<a href="#" id="regCancel" onclick="regcancel();">&#21462;&#28040;</a>
+						</li>
+					</ul><input type="hidden" name="javax.faces.ViewState" id="javax.faces.ViewState" value="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" />
+</form>
+			</div>
+			<div id="errorDialog" dojoType="dijit.Dialog" title="&#20449;&#24687;&#25552;&#31034;" class="errorDialog">
+				<span id="errorLabel"></span>
+			</div>
+		<script type="text/javascript">
+var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3F90d84a866a495f952e90c591565e4383' type='text/javascript'%3E%3C/script%3E"));
+</script>
+		</body>
+</html>

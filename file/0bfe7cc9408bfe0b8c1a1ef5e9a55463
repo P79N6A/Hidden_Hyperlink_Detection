@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en-US">
+ <head> 
+  <meta charset="UTF-8" /> 
+  <meta name="viewport" content="width=device-width, initial-scale=1" /> 
+  <link rel="pingback" href="http://neekey.net/wordpress/xmlrpc.php" /> 
+  <title>如何用阿里云ECS搭建Minecraft服务器 – neekey</title> 
+  <link rel="dns-prefetch" href="//fonts.googleapis.com" /> 
+  <link rel="dns-prefetch" href="//s.w.org" /> 
+  <link rel="alternate" type="application/rss+xml" title="neekey &raquo; Feed" href="http://neekey.net/feed/" /> 
+  <link rel="alternate" type="application/rss+xml" title="neekey &raquo; Comments Feed" href="http://neekey.net/comments/feed/" /> 
+  <link rel="alternate" type="application/rss+xml" title="neekey &raquo; 如何用阿里云ECS搭建Minecraft服务器 Comments Feed" href="http://neekey.net/2016/02/01/%e5%a6%82%e4%bd%95%e7%94%a8%e9%98%bf%e9%87%8c%e4%ba%91ecs%e6%90%ad%e5%bb%baminecraft%e6%9c%8d%e5%8a%a1%e5%99%a8/feed/" /> 
+  <script type="text/javascript">
+			window._wpemojiSettings = {"baseUrl":"https:\/\/s.w.org\/images\/core\/emoji\/2.2.1\/72x72\/","ext":".png","svgUrl":"https:\/\/s.w.org\/images\/core\/emoji\/2.2.1\/svg\/","svgExt":".svg","source":{"concatemoji":"http:\/\/neekey.net\/wordpress\/wp-includes\/js\/wp-emoji-release.min.js?ver=4.7.3"}};
+			!function(a,b,c){function d(a){var b,c,d,e,f=String.fromCharCode;if(!k||!k.fillText)return!1;switch(k.clearRect(0,0,j.width,j.height),k.textBaseline="top",k.font="600 32px Arial",a){case"flag":return k.fillText(f(55356,56826,55356,56819),0,0),!(j.toDataURL().length<3e3)&&(k.clearRect(0,0,j.width,j.height),k.fillText(f(55356,57331,65039,8205,55356,57096),0,0),b=j.toDataURL(),k.clearRect(0,0,j.width,j.height),k.fillText(f(55356,57331,55356,57096),0,0),c=j.toDataURL(),b!==c);case"emoji4":return k.fillText(f(55357,56425,55356,57341,8205,55357,56507),0,0),d=j.toDataURL(),k.clearRect(0,0,j.width,j.height),k.fillText(f(55357,56425,55356,57341,55357,56507),0,0),e=j.toDataURL(),d!==e}return!1}function e(a){var c=b.createElement("script");c.src=a,c.defer=c.type="text/javascript",b.getElementsByTagName("head")[0].appendChild(c)}var f,g,h,i,j=b.createElement("canvas"),k=j.getContext&&j.getContext("2d");for(i=Array("flag","emoji4"),c.supports={everything:!0,everythingExceptFlag:!0},h=0;h<i.length;h++)c.supports[i[h]]=d(i[h]),c.supports.everything=c.supports.everything&&c.supports[i[h]],"flag"!==i[h]&&(c.supports.everythingExceptFlag=c.supports.everythingExceptFlag&&c.supports[i[h]]);c.supports.everythingExceptFlag=c.supports.everythingExceptFlag&&!c.supports.flag,c.DOMReady=!1,c.readyCallback=function(){c.DOMReady=!0},c.supports.everything||(g=function(){c.readyCallback()},b.addEventListener?(b.addEventListener("DOMContentLoaded",g,!1),a.addEventListener("load",g,!1)):(a.attachEvent("onload",g),b.attachEvent("onreadystatechange",function(){"complete"===b.readyState&&c.readyCallback()})),f=c.source||{},f.concatemoji?e(f.concatemoji):f.wpemoji&&f.twemoji&&(e(f.twemoji),e(f.wpemoji)))}(window,document,window._wpemojiSettings);
+		</script> 
+  <style type="text/css">
+img.wp-smiley,
+img.emoji {
+	display: inline !important;
+	border: none !important;
+	box-shadow: none !important;
+	height: 1em !important;
+	width: 1em !important;
+	margin: 0 .07em !important;
+	vertical-align: -0.1em !important;
+	background: none !important;
+	padding: 0 !important;
+}
+</style> 
+  <link rel="stylesheet" id="graphy-font-css" href="https://fonts.googleapis.com/css?family=Source+Serif+Pro%3A400%7CLora%3A400%2C400italic%2C700&amp;subset=latin%2Clatin-ext" type="text/css" media="all" /> 
+  <link rel="stylesheet" id="genericons-css" href="http://neekey.net/wordpress/wp-content/themes/graphy/genericons/genericons.css?ver=3.4.1" type="text/css" media="all" /> 
+  <link rel="stylesheet" id="normalize-css" href="http://neekey.net/wordpress/wp-content/themes/graphy/css/normalize.css?ver=4.1.1" type="text/css" media="all" /> 
+  <link rel="stylesheet" id="graphy-style-css" href="http://neekey.net/wordpress/wp-content/themes/graphy/style.css?ver=2.1.2" type="text/css" media="all" /> 
+  <script type="text/javascript" src="http://neekey.net/wordpress/wp-includes/js/jquery/jquery.js?ver=1.12.4"></script> 
+  <script type="text/javascript" src="http://neekey.net/wordpress/wp-includes/js/jquery/jquery-migrate.min.js?ver=1.4.1"></script> 
+  <link rel="https://api.w.org/" href="http://neekey.net/wp-json/" /> 
+  <link rel="EditURI" type="application/rsd+xml" title="RSD" href="http://neekey.net/wordpress/xmlrpc.php?rsd" /> 
+  <link rel="wlwmanifest" type="application/wlwmanifest+xml" href="http://neekey.net/wordpress/wp-includes/wlwmanifest.xml" /> 
+  <link rel="prev" title="上海&middot;陆家嘴" href="http://neekey.net/2016/01/30/%e4%b8%8a%e6%b5%b7%c2%b7%e9%99%86%e5%ae%b6%e5%98%b4/" /> 
+  <link rel="next" title="小白易学 Mac &amp; iOS Shadowsocks 科学上网全攻略" href="http://neekey.net/2016/02/03/osx-ios9-shadowsocks/" /> 
+  <meta name="generator" content="WordPress 4.7.3" /> 
+  <link rel="canonical" href="http://neekey.net/2016/02/01/%e5%a6%82%e4%bd%95%e7%94%a8%e9%98%bf%e9%87%8c%e4%ba%91ecs%e6%90%ad%e5%bb%baminecraft%e6%9c%8d%e5%8a%a1%e5%99%a8/" /> 
+  <link rel="shortlink" href="http://neekey.net/?p=624" /> 
+  <meta name="robots" content="noindex,follow" /> 
+  <link rel="alternate" type="application/json+oembed" href="http://neekey.net/wp-json/oembed/1.0/embed?url=http%3A%2F%2Fneekey.net%2F2016%2F02%2F01%2F%25e5%25a6%2582%25e4%25bd%2595%25e7%2594%25a8%25e9%2598%25bf%25e9%2587%258c%25e4%25ba%2591ecs%25e6%2590%25ad%25e5%25bb%25baminecraft%25e6%259c%258d%25e5%258a%25a1%25e5%2599%25a8%2F" /> 
+  <link rel="alternate" type="text/xml+oembed" href="http://neekey.net/wp-json/oembed/1.0/embed?url=http%3A%2F%2Fneekey.net%2F2016%2F02%2F01%2F%25e5%25a6%2582%25e4%25bd%2595%25e7%2594%25a8%25e9%2598%25bf%25e9%2587%258c%25e4%25ba%2591ecs%25e6%2590%25ad%25e5%25bb%25baminecraft%25e6%259c%258d%25e5%258a%25a1%25e5%2599%25a8%2F&amp;format=xml" /> 
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-72890973-1', 'auto');
+  ga('send', 'pageview');
+
+</script> 
+  <style type="text/css">
+		/* Colors */
+				.entry-content a, .entry-summary a, .page-content a, .author-profile-description a, .comment-content a, .main-navigation .current_page_item > a, .main-navigation .current-menu-item > a {
+			color: #1e73be;
+		}
+						.main-navigation a:hover, .entry-content a:hover, .entry-summary a:hover, .page-content a:hover, .author-profile-description a:hover, .comment-content a:hover {
+			color: #6595bf;
+		}
+		
+			</style> 
+  <style type="text/css">.recentcomments a{display:inline !important;padding:0 !important;margin:0 !important;}</style> 
+ </head> 
+ <body class="post-template-default single single-post postid-624 single-format-gallery has-sidebar footer-0 has-avatars"> 
+  <div id="page" class="hfeed site"> 
+   <a class="skip-link screen-reader-text" href="#content">Skip to content</a> 
+   <header id="masthead" class="site-header"> 
+    <div class="site-branding"> 
+     <div class="site-title">
+      <a href="http://neekey.net/" rel="home">neekey</a>
+     </div> 
+     <div class="site-description">
+      Learn and live.
+     </div> 
+    </div>
+    <!-- .site-branding --> 
+    <nav id="site-navigation" class="main-navigation"> 
+     <button class="menu-toggle"><span class="menu-text">Menu</span></button> 
+     <div class="menu-neekey-menu-container">
+      <ul id="menu-neekey-menu" class="menu">
+       <li id="menu-item-414" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-414"><a href="/">Home</a></li> 
+       <li id="menu-item-1072" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-1072"><a href="http://niyunjian.lofter.com">Memory</a></li> 
+       <li id="menu-item-413" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-413"><a href="http://neekey.net/about/">About</a></li> 
+      </ul>
+     </div> 
+     <form role="search" method="get" class="search-form" action="http://neekey.net/"> 
+      <label> <span class="screen-reader-text">Search for:</span> <input type="search" class="search-field" placeholder="Search …" value="" name="s" /> </label> 
+      <input type="submit" class="search-submit" value="Search" /> 
+     </form> 
+    </nav>
+    <!-- #site-navigation --> 
+   </header>
+   <!-- #masthead --> 
+   <div id="content" class="site-content"> 
+    <div id="primary" class="content-area"> 
+     <main id="main" class="site-main"> 
+      <div class="post-full post-full-summary"> 
+       <article id="post-624" class="post-624 post type-post status-publish format-gallery hentry category-coding post_format-post-format-gallery"> 
+        <header class="entry-header"> 
+         <div class="cat-links">
+          <a rel="category tag" href="http://neekey.net/category/coding/" class="category category-18">Coding</a>
+         </div>
+         <!-- .cat-links --> 
+         <h1 class="entry-title">如何用阿里云ECS搭建Minecraft服务器</h1> 
+         <div class="entry-meta">
+           Posted 
+          <span class="posted-on">on <a href="http://neekey.net/2016/02/01/%e5%a6%82%e4%bd%95%e7%94%a8%e9%98%bf%e9%87%8c%e4%ba%91ecs%e6%90%ad%e5%bb%baminecraft%e6%9c%8d%e5%8a%a1%e5%99%a8/" rel="bookmark"><time class="entry-date published updated" datetime="2016-02-01T13:41:54+00:00">01/02/2016</time></a> </span> 
+          <span class="byline">by <span class="author vcard"> <a class="url fn n" href="http://neekey.net/author/neekey/" title="View all posts by neekey"><span class="author-name">neekey</span></a> </span> </span> 
+          <span class="entry-meta-sep"> / </span> 
+          <span class="comments-link"> <a href="http://neekey.net/2016/02/01/%e5%a6%82%e4%bd%95%e7%94%a8%e9%98%bf%e9%87%8c%e4%ba%91ecs%e6%90%ad%e5%bb%baminecraft%e6%9c%8d%e5%8a%a1%e5%99%a8/#comments">15 Comments</a> </span> 
+         </div>
+         <!-- .entry-meta --> 
+        </header>
+        <!-- .entry-header --> 
+        <div class="entry-content"> 
+         <p><img class="aligncenter size-full wp-image-625" src="http://neekey.net/wp-content/uploads/2016/01/9046f88840f8acc535cb70912c0ba1a3.jpg" alt="9046f88840f8acc535cb70912c0ba1a3" width="1400" height="1400" srcset="http://neekey.net/wordpress/wp-content/uploads/2016/01/9046f88840f8acc535cb70912c0ba1a3.jpg 1400w, http://neekey.net/wordpress/wp-content/uploads/2016/01/9046f88840f8acc535cb70912c0ba1a3-150x150.jpg 150w, http://neekey.net/wordpress/wp-content/uploads/2016/01/9046f88840f8acc535cb70912c0ba1a3-300x300.jpg 300w, http://neekey.net/wordpress/wp-content/uploads/2016/01/9046f88840f8acc535cb70912c0ba1a3-768x768.jpg 768w, http://neekey.net/wordpress/wp-content/uploads/2016/01/9046f88840f8acc535cb70912c0ba1a3-1024x1024.jpg 1024w, http://neekey.net/wordpress/wp-content/uploads/2016/01/9046f88840f8acc535cb70912c0ba1a3-800x800.jpg 800w" sizes="(max-width: 1400px) 100vw, 1400px" /></p> 
+         <p>最近几天心血来潮，想要和小伙伴们一起玩一下Minecraft，看了下官网的价格还是感觉略贵，由于之前玩过其他小伙伴的私人服务器，就特别想自己也搭建一个。</p> 
+         <p><span id="more-624"></span></p> 
+         <p>结果这两日一直在捣鼓这个东西并且发现实际时间都耗在：</p> 
+         <ul> 
+          <li>找一个免费的服务器来搭建服务</li> 
+          <li>找一个免费的客户端</li> 
+         </ul> 
+         <p>实际情况就是，免费的服务器基本上没有找到，后来尝试重新注册一个AWS账号来获取免费的服务器配额，也实在感觉无法忍受其在国内访问的缓慢。最后干脆还是去阿里云先买了一个最便宜的ECS，包一个月玩一下先。下面具体介绍搭建的完整流程。</p> 
+         <h3>购买ECS</h3> 
+         <p>选择用阿里云的产品，主要是考量到：大公司，稳定可靠，在国内速度快，产品丰富网站的界面交互等都还不错。自从最近把博客架设到阿里云以后，对其好感就愈加强烈，并且最近准备把所有的域名都从其他网站上收敛过来统一管理。</p> 
+         <p>废话不多，直接去阿里云的ECS<a href="https://www.aliyun.com/easybuy">推荐购买</a>里面选择第一款：</p> 
+         <p><img class="aligncenter size-full wp-image-648" src="http://neekey.net/wp-content/uploads/2016/02/推荐购买.jpg" alt="推荐购买" width="1400" height="742" srcset="http://neekey.net/wordpress/wp-content/uploads/2016/02/推荐购买.jpg 1400w, http://neekey.net/wordpress/wp-content/uploads/2016/02/推荐购买-300x159.jpg 300w, http://neekey.net/wordpress/wp-content/uploads/2016/02/推荐购买-768x407.jpg 768w, http://neekey.net/wordpress/wp-content/uploads/2016/02/推荐购买-1024x543.jpg 1024w, http://neekey.net/wordpress/wp-content/uploads/2016/02/推荐购买-800x424.jpg 800w" sizes="(max-width: 1400px) 100vw, 1400px" /></p> 
+         <p>确认配置后付钱。一个月60，大家自己看着办吧，可以先买一个月尝试：</p> 
+         <p><img class="aligncenter size-full wp-image-647" src="http://neekey.net/wp-content/uploads/2016/02/确认配置.jpg" alt="确认配置" width="1400" height="967" srcset="http://neekey.net/wordpress/wp-content/uploads/2016/02/确认配置.jpg 1400w, http://neekey.net/wordpress/wp-content/uploads/2016/02/确认配置-300x207.jpg 300w, http://neekey.net/wordpress/wp-content/uploads/2016/02/确认配置-768x530.jpg 768w, http://neekey.net/wordpress/wp-content/uploads/2016/02/确认配置-1024x707.jpg 1024w, http://neekey.net/wordpress/wp-content/uploads/2016/02/确认配置-800x553.jpg 800w" sizes="(max-width: 1400px) 100vw, 1400px" /></p> 
+         <p>购买完成以后，新实例会需要几分钟的激活和启动，可以在个人的管理控制台中看到新购买的这个实例：</p> 
+         <p><img class="aligncenter size-full wp-image-638" src="http://neekey.net/wp-content/uploads/2016/02/控制台.jpg" alt="控制台" width="1400" height="428" srcset="http://neekey.net/wordpress/wp-content/uploads/2016/02/控制台.jpg 1400w, http://neekey.net/wordpress/wp-content/uploads/2016/02/控制台-300x92.jpg 300w, http://neekey.net/wordpress/wp-content/uploads/2016/02/控制台-768x235.jpg 768w, http://neekey.net/wordpress/wp-content/uploads/2016/02/控制台-1024x313.jpg 1024w, http://neekey.net/wordpress/wp-content/uploads/2016/02/控制台-800x245.jpg 800w" sizes="(max-width: 1400px) 100vw, 1400px" /></p> 
+         <p>待机器已经正常运行后，就可以进行连接了，点击 “管理”，然后在实例的信息页可以看到“连接帮助”：</p> 
+         <p><img class="aligncenter size-full wp-image-639" src="http://neekey.net/wp-content/uploads/2016/02/连接帮助.jpg" alt="连接帮助" width="1400" height="885" srcset="http://neekey.net/wordpress/wp-content/uploads/2016/02/连接帮助.jpg 1400w, http://neekey.net/wordpress/wp-content/uploads/2016/02/连接帮助-300x190.jpg 300w, http://neekey.net/wordpress/wp-content/uploads/2016/02/连接帮助-768x485.jpg 768w, http://neekey.net/wordpress/wp-content/uploads/2016/02/连接帮助-1024x647.jpg 1024w, http://neekey.net/wordpress/wp-content/uploads/2016/02/连接帮助-800x506.jpg 800w" sizes="(max-width: 1400px) 100vw, 1400px" /></p> 
+         <p>点开后一目了然，windows用户自己去倒腾putty吧（反正我是没用过）：</p> 
+         <p><img class="aligncenter size-full wp-image-652" src="http://neekey.net/wp-content/uploads/2016/02/连接指南2.jpg" alt="连接指南2" width="1400" height="1129" srcset="http://neekey.net/wordpress/wp-content/uploads/2016/02/连接指南2.jpg 1400w, http://neekey.net/wordpress/wp-content/uploads/2016/02/连接指南2-300x242.jpg 300w, http://neekey.net/wordpress/wp-content/uploads/2016/02/连接指南2-768x619.jpg 768w, http://neekey.net/wordpress/wp-content/uploads/2016/02/连接指南2-1024x826.jpg 1024w, http://neekey.net/wordpress/wp-content/uploads/2016/02/连接指南2-800x645.jpg 800w" sizes="(max-width: 1400px) 100vw, 1400px" /></p> 
+         <p>打开你的终端，我们开始进行连接到实例：</p> 
+         <p><code>$ ssh root@你的公网ip（公网IP在实例页面有哦）</code></p> 
+         <p>会提示你输入密码，是你阿里云账号的登录密码，成功登录你会看到：</p> 
+         <p><code>Welcome to aliyun Elastic Compute Service!</code></p> 
+         <p>Good Job!</p> 
+         <h3>搭建服务</h3> 
+         <p>下面我们要为开始搭建服务器做一些准备工作。首先更新一下yum的包，确保我们要安装的东西都能找到：</p> 
+         <p><code>$ yum update</code></p> 
+         <p>等好了之后我们安装 “screen”，linux下的一个终端进程和窗口的管理工具，简单来说有了它我们就可以：</p> 
+         <ul> 
+          <li>同时运行多个会话，执行进程，并且可以在多个会话间切换</li> 
+          <li>即使我们断开连接，进程还会继续维持运行，并且下次还可以回到之前启动的会话中</li> 
+         </ul> 
+         <p>直接执行 <code>yum install screen</code> 就可以完成安装。接下来创建一个目录，把相关的操作都放到这个目录里面，方便整理：</p> 
+         <p><code>$ mkdir minecraft<br /> $ cd minecraft<br /> $ mkdir server # 把server相关东西都放进去<br /> $ cd server</code></p> 
+         <p>创建完目录后，我们开启一个新的screen会话，后续我们就把所有mc相关的操作都放到这个会话中：</p> 
+         <p><code>$ screen -S Minecraft # -S 是为会话取个名字</code></p> 
+         <p>你会注意到整个终端被清空，其实已经在新建的这个会话中了，可以查看当前已经创建的会话：</p> 
+         <p><code>$ screen -ls<br /> There is a screen on:<br /> 6316.Minecraft (Attached)<br /> 1 Socket in /var/folders/mj/45h_01550mx6ph2jt8vy3_7h0000gn/T/.screen.</code></p> 
+         <p>好，我们干正事。首先需要安装Java，有yum真是太简单了：</p> 
+         <p><code>yum install java</code></p> 
+         <p>So easy!下一步，下载minecraft的server文件，直接去minecraft的<a href="https://minecraft.net/download">官网可以下载</a>，在页面下面的”Multiple Player”部分，可以找到最新的下载链接，直接下载到server目录下：</p> 
+         <p><code>$ wget https://s3.amazonaws.com/Minecraft.Download/versions/1.8.9/minecraft_server.1.8.9.jar</code></p> 
+         <p>有了启动文件，我们就可以启动它，官网直接有提示如何启动：</p> 
+         <p><code>$ java -Xmx1024M -Xms1024M -jar minecraft_server.1.8.9.jar</code></p> 
+         <p>上面两个参数都是用来控制分配内存的，建议根据自己的ECS实例具体情况分配。直接在终端执行以上命令后，肯定会提示错误，要求你去修改一个文件来同意他们的条款。此时ls一下server目录，你会发现运行一遍后多了一堆文件。找到其中的evla.txt, 修改false为true:</p> 
+         <p><code>By changing the setting below to TRUE you are indicating your agreement to our EULA (https://account.mojang.com/documents/minecraft_eula).<br /> Fri Jan 29 20:40:42 CST 2016<br /> eula=true</code></p> 
+         <p>我们还需要禁用掉minecraft的用户在线校验，打开 server.properties, 修改:</p> 
+         <p><code>$ online-mod=false</code></p> 
+         <p>配置基本完成。补充一下 server.properties 可以用来配置很多游戏的特性，比如最多在线人数，具体的每个配置项可以<a href="http://minecraft-zh.gamepedia.com/index.php?title=Server.properties&amp;variant=zh-tw">参考wiki</a>。</p> 
+         <p>在正式启动server之前，为了后续的操作方便，我们可以专门新建一个启动脚本来包裹启动命令，新建一个 start.sh 然后输入下面的内容：</p> 
+         <p><code>#!/bin/bash<br /> java -Xincgc -Xmx512M -Xms512M -jar minecraft_server.1.8.9.jar</code></p> 
+         <p>保存，然后添加可以执行权限：</p> 
+         <p><code>$ chmod +x start.sh</code></p> 
+         <p>启动脚本：</p> 
+         <p><code>$ ./start.sh</code></p> 
+         <p>Done! 我们的服务器就配置好啦！你可以拿着你的公网ip邀请小伙伴们加入游戏了。</p> 
+         <h3>关于Screen</h3> 
+         <p>下面再补充和总结下screen的一些操作。会话级别的操作：</p> 
+         <p><code>$ screen -S sessionName # 创建会话<br /> $ screen -ls # 查看已经创建的会话<br /> $ screen -x sessionName # 重新进入之前已经创建的会话</code></p> 
+         <p>有了上面三个命令，你就不怕不小心链接实例的ssh突然断掉等情况了。除了上面会话级别的操作以外，在一个会话里面，可以同时开启多个窗口来并行执行多个操做。当你在一个会话中时，就可以通过 ctrl + a 作为命令的开始，然后再按下下一个命令键来完成命令：</p> 
+         <p><code>ctrl-a + w # 列出所有的打开的窗口（会显示在终端的标题栏上）<br /> ctrl-a + c # 新建一个窗口<br /> ctrl-a + n # 切换到第N个窗口<br /> ctrl-a + space #切换到下一个窗口<br /> ctrl-a + k # 关闭当前窗口<br /> ctrl-a + d # detach 离开当前的会话（会话会继续在后台执行，后面你可以用上面的会话命令 screen -x 重新链接回来）<br /> ctrl-a + [ # 进行copy模式，这个在窗口内容很多的时候比较有用，因为screen下的窗口是没法通过滚轮查看上面的内容的，开启copy mod就可以用vi的方式移动光标了</code></p> 
+         <h3>Minecraft客户端使用帮助</h3> 
+         <p>下面再说下客户端。不是所有的一起玩的小伙伴都是搞开发的，因此要想让一个正常的用户也能欢快的玩起来，还是需要一些工作要做。</p> 
+         <p>首先，安装Java。直接<a href="http://www.java.com">官网下载</a>即可，不多说。</p> 
+         <p>其次，需要翻墙。在此正好安利一下某开源的免费翻墙工具，对于非技术人员来说使用太简单了。这个产品就是<a href="https://www.getlantern.org/">Latern</a>（他们的官网被墙了）：</p> 
+         <p><img class="aligncenter size-full wp-image-656" src="http://neekey.net/wp-content/uploads/2016/02/屏幕快照-2016-02-01-13.35.11.jpg" alt="屏幕快照-2016-02-01-13.35.11" width="1400" height="904" srcset="http://neekey.net/wordpress/wp-content/uploads/2016/02/屏幕快照-2016-02-01-13.35.11.jpg 1400w, http://neekey.net/wordpress/wp-content/uploads/2016/02/屏幕快照-2016-02-01-13.35.11-300x194.jpg 300w, http://neekey.net/wordpress/wp-content/uploads/2016/02/屏幕快照-2016-02-01-13.35.11-768x496.jpg 768w, http://neekey.net/wordpress/wp-content/uploads/2016/02/屏幕快照-2016-02-01-13.35.11-1024x661.jpg 1024w, http://neekey.net/wordpress/wp-content/uploads/2016/02/屏幕快照-2016-02-01-13.35.11-800x517.jpg 800w" sizes="(max-width: 1400px) 100vw, 1400px" /></p> 
+         <p>好在他们的项目是在github上，可以直接在其<a href="https://github.com/getlantern/lantern">github首页</a>找到下载。下载完成后，直接启动就可以翻墙了。</p> 
+         <p>要是Latern不可用了或者搞不定，请移步我写的另一篇科学上网教程《<a href="http://neekey.net/2016/02/03/osx-ios9-shadowsocks/">小白易学 Mac &amp; iOS Shadowsocks 科学上网全攻略</a>》</p> 
+         <p>最后就是下载免费的minecraft客户端，可以直接使用<a href="http://teamshiginima.com">teamshiginima.com</a>。但是他家的广告真是有点多..要skip好久。（<a href="https://pan.baidu.com/s/1jHNCZ5c">百度云盘</a>）</p> 
+         <h3>开始游戏</h3> 
+         <p>直接双击从teamshiginima下载的文件中对应你自己系统的Shiginima Launcher SE v3.000.jar，等个一会儿会出现用户名设置：</p> 
+         <p><img class="aligncenter size-full wp-image-641" src="http://neekey.net/wp-content/uploads/2016/02/屏幕快照-2016-02-01-12.54.45.jpg" alt="屏幕快照-2016-02-01-12.54.45" width="1400" height="957" srcset="http://neekey.net/wordpress/wp-content/uploads/2016/02/屏幕快照-2016-02-01-12.54.45.jpg 1400w, http://neekey.net/wordpress/wp-content/uploads/2016/02/屏幕快照-2016-02-01-12.54.45-300x205.jpg 300w, http://neekey.net/wordpress/wp-content/uploads/2016/02/屏幕快照-2016-02-01-12.54.45-768x525.jpg 768w, http://neekey.net/wordpress/wp-content/uploads/2016/02/屏幕快照-2016-02-01-12.54.45-1024x700.jpg 1024w, http://neekey.net/wordpress/wp-content/uploads/2016/02/屏幕快照-2016-02-01-12.54.45-800x547.jpg 800w" sizes="(max-width: 1400px) 100vw, 1400px" /></p> 
+         <p>然后点击play后进入配置页面：</p> 
+         <p><img class="aligncenter size-full wp-image-642" src="http://neekey.net/wp-content/uploads/2016/02/屏幕快照-2016-02-01-12.55.04.jpg" alt="屏幕快照-2016-02-01-12.55.04" width="1400" height="957" srcset="http://neekey.net/wordpress/wp-content/uploads/2016/02/屏幕快照-2016-02-01-12.55.04.jpg 1400w, http://neekey.net/wordpress/wp-content/uploads/2016/02/屏幕快照-2016-02-01-12.55.04-300x205.jpg 300w, http://neekey.net/wordpress/wp-content/uploads/2016/02/屏幕快照-2016-02-01-12.55.04-768x525.jpg 768w, http://neekey.net/wordpress/wp-content/uploads/2016/02/屏幕快照-2016-02-01-12.55.04-1024x700.jpg 1024w, http://neekey.net/wordpress/wp-content/uploads/2016/02/屏幕快照-2016-02-01-12.55.04-800x547.jpg 800w" sizes="(max-width: 1400px) 100vw, 1400px" /></p> 
+         <p>右下角的问题如果是 “loading versions…” 则说明是在进行数据加载，此时先等待。正常显示后，点击play，然后会开始下载你选择的版本的资源文件（要自己决定哪个版本，可以edit profile），这个过程可能要很久，请耐心等待。而且如果出现加载完毕后没有反应点击了play又重新下载，可能是上一次的下载超时了。</p> 
+         <p>因此这一步骤是最容易卡主的，需要耐心~待成功下载完成后，会自动开始游戏界面：</p> 
+         <p><img class="aligncenter size-full wp-image-643" src="http://neekey.net/wp-content/uploads/2016/02/屏幕快照-2016-02-01-12.58.23.jpg" alt="屏幕快照-2016-02-01-12.58.23" width="1400" height="890" srcset="http://neekey.net/wordpress/wp-content/uploads/2016/02/屏幕快照-2016-02-01-12.58.23.jpg 1400w, http://neekey.net/wordpress/wp-content/uploads/2016/02/屏幕快照-2016-02-01-12.58.23-300x191.jpg 300w, http://neekey.net/wordpress/wp-content/uploads/2016/02/屏幕快照-2016-02-01-12.58.23-768x488.jpg 768w, http://neekey.net/wordpress/wp-content/uploads/2016/02/屏幕快照-2016-02-01-12.58.23-1024x651.jpg 1024w, http://neekey.net/wordpress/wp-content/uploads/2016/02/屏幕快照-2016-02-01-12.58.23-800x509.jpg 800w" sizes="(max-width: 1400px) 100vw, 1400px" /></p> 
+         <p>简直要喜极而泣。如果你的是英文界面，可以在下面左边的那个大按钮里面设置。选择多人游戏：</p> 
+         <p><img class="aligncenter size-full wp-image-644" src="http://neekey.net/wp-content/uploads/2016/02/屏幕快照-2016-02-01-12.58.28.jpg" alt="屏幕快照-2016-02-01-12.58.28" width="1400" height="890" srcset="http://neekey.net/wordpress/wp-content/uploads/2016/02/屏幕快照-2016-02-01-12.58.28.jpg 1400w, http://neekey.net/wordpress/wp-content/uploads/2016/02/屏幕快照-2016-02-01-12.58.28-300x191.jpg 300w, http://neekey.net/wordpress/wp-content/uploads/2016/02/屏幕快照-2016-02-01-12.58.28-768x488.jpg 768w, http://neekey.net/wordpress/wp-content/uploads/2016/02/屏幕快照-2016-02-01-12.58.28-1024x651.jpg 1024w, http://neekey.net/wordpress/wp-content/uploads/2016/02/屏幕快照-2016-02-01-12.58.28-800x509.jpg 800w" sizes="(max-width: 1400px) 100vw, 1400px" /></p> 
+         <p>点击“添加服务器”来添加服务器，只要输入服务器的ip即可，名字随意：</p> 
+         <p><img class="aligncenter size-full wp-image-645" src="http://neekey.net/wp-content/uploads/2016/02/屏幕快照-2016-02-01-12.59.13.jpg" alt="屏幕快照-2016-02-01-12.59.13" width="1400" height="890" srcset="http://neekey.net/wordpress/wp-content/uploads/2016/02/屏幕快照-2016-02-01-12.59.13.jpg 1400w, http://neekey.net/wordpress/wp-content/uploads/2016/02/屏幕快照-2016-02-01-12.59.13-300x191.jpg 300w, http://neekey.net/wordpress/wp-content/uploads/2016/02/屏幕快照-2016-02-01-12.59.13-768x488.jpg 768w, http://neekey.net/wordpress/wp-content/uploads/2016/02/屏幕快照-2016-02-01-12.59.13-1024x651.jpg 1024w, http://neekey.net/wordpress/wp-content/uploads/2016/02/屏幕快照-2016-02-01-12.59.13-800x509.jpg 800w" sizes="(max-width: 1400px) 100vw, 1400px" /></p> 
+         <p>然后直接双击创建好的服务器就可以进入游戏了！下面是我自己随便先进来造的小房子：</p> 
+         <p><img class="aligncenter size-full wp-image-646" src="http://neekey.net/wp-content/uploads/2016/02/屏幕快照-2016-02-01-13.04.06.jpg" alt="屏幕快照-2016-02-01-13.04.06" width="1400" height="890" srcset="http://neekey.net/wordpress/wp-content/uploads/2016/02/屏幕快照-2016-02-01-13.04.06.jpg 1400w, http://neekey.net/wordpress/wp-content/uploads/2016/02/屏幕快照-2016-02-01-13.04.06-300x191.jpg 300w, http://neekey.net/wordpress/wp-content/uploads/2016/02/屏幕快照-2016-02-01-13.04.06-768x488.jpg 768w, http://neekey.net/wordpress/wp-content/uploads/2016/02/屏幕快照-2016-02-01-13.04.06-1024x651.jpg 1024w, http://neekey.net/wordpress/wp-content/uploads/2016/02/屏幕快照-2016-02-01-13.04.06-800x509.jpg 800w" sizes="(max-width: 1400px) 100vw, 1400px" /></p> 
+         <p>终于！祝大家玩的开心，</p> 
+         <p></p> 
+        </div>
+        <!-- .entry-content --> 
+        <div class="author-profile"> 
+         <div class="author-profile-avatar"> 
+          <img alt="" src="http://2.gravatar.com/avatar/8896cc725e36350023e7f41f0455b8aa?s=90&amp;d=mm&amp;r=g" srcset="http://2.gravatar.com/avatar/8896cc725e36350023e7f41f0455b8aa?s=180&amp;d=mm&amp;r=g 2x" class="avatar avatar-90 photo" height="90" width="90" /> 
+         </div>
+         <!-- .author-profile-avatar --> 
+         <div class="author-profile-meta"> 
+          <div class="author-profile-name">
+           <strong>neekey</strong>
+          </div> 
+         </div>
+         <!-- .author-profile-meta --> 
+         <div class="author-profile-description"> 
+          <a class="author-profile-description-link" href="http://neekey.net/author/neekey/" rel="author">View all posts by neekey →</a> 
+         </div>
+         <!-- .author-profile-description --> 
+        </div>
+        <!-- .author-profile --> 
+       </article>
+       <!-- #post-## --> 
+      </div>
+      <!-- .post-full --> 
+      <nav class="navigation post-navigation"> 
+       <h2 class="screen-reader-text">Post navigation</h2> 
+       <div class="nav-links"> 
+        <div class="nav-previous">
+         <div class="post-nav-title">
+          Older post
+         </div>
+         <a href="http://neekey.net/2016/01/30/%e4%b8%8a%e6%b5%b7%c2%b7%e9%99%86%e5%ae%b6%e5%98%b4/" rel="prev">上海&middot;陆家嘴</a>
+        </div>
+        <div class="nav-next">
+         <div class="post-nav-title">
+          Newer post
+         </div>
+         <a href="http://neekey.net/2016/02/03/osx-ios9-shadowsocks/" rel="next">小白易学 Mac &amp; iOS Shadowsocks 科学上网全攻略</a>
+        </div> 
+       </div>
+       <!-- .nav-links --> 
+      </nav>
+      <!-- .post-navigation --> 
+      <div id="comments" class="comments-area"> 
+       <h2 class="comments-title"> 15 Comments </h2> 
+       <ol class="comment-list"> 
+        <li id="comment-75" class="comment even thread-even depth-1"> 
+         <article id="div-comment-75" class="comment-body"> 
+          <footer class="comment-meta"> 
+           <div class="comment-author vcard"> 
+            <img alt="" src="http://2.gravatar.com/avatar/892b4ce70f506268197dcd1be14da94d?s=60&amp;d=mm&amp;r=g" srcset="http://2.gravatar.com/avatar/892b4ce70f506268197dcd1be14da94d?s=120&amp;d=mm&amp;r=g 2x" class="avatar avatar-60 photo" height="60" width="60" /> 
+            <b class="fn">csorz</b> 
+            <span class="says">says:</span> 
+           </div>
+           <!-- .comment-author --> 
+           <div class="comment-metadata"> 
+            <a href="http://neekey.net/2016/02/01/%e5%a6%82%e4%bd%95%e7%94%a8%e9%98%bf%e9%87%8c%e4%ba%91ecs%e6%90%ad%e5%bb%baminecraft%e6%9c%8d%e5%8a%a1%e5%99%a8/#comment-75"> <time datetime="2016-02-14T19:24:17+00:00"> 14/02/2016 at 19:24 </time> </a> 
+           </div>
+           <!-- .comment-metadata --> 
+          </footer>
+          <!-- .comment-meta --> 
+          <div class="comment-content"> 
+           <p>非常感谢，我试试:-P</p> 
+          </div>
+          <!-- .comment-content --> 
+          <div class="reply">
+           <a rel="nofollow" class="comment-reply-link" href="http://neekey.net/2016/02/01/%e5%a6%82%e4%bd%95%e7%94%a8%e9%98%bf%e9%87%8c%e4%ba%91ecs%e6%90%ad%e5%bb%baminecraft%e6%9c%8d%e5%8a%a1%e5%99%a8/?replytocom=75#respond" onclick="return addComment.moveForm( &quot;div-comment-75&quot;, &quot;75&quot;, &quot;respond&quot;, &quot;624&quot; )" aria-label="Reply to csorz">Reply</a>
+          </div> 
+         </article>
+         <!-- .comment-body --> </li>
+        <!-- #comment-## --> 
+        <li id="comment-77" class="pingback odd alt thread-odd thread-alt depth-1"> 
+         <div class="comment-body">
+           Pingback: 
+          <a href="http://www.csorz.com/?p=527" rel="external nofollow" class="url">minecraft配置文件 | csorz</a> 
+         </div> </li>
+        <!-- #comment-## --> 
+        <li id="comment-108" class="comment even thread-even depth-1 parent"> 
+         <article id="div-comment-108" class="comment-body"> 
+          <footer class="comment-meta"> 
+           <div class="comment-author vcard"> 
+            <img alt="" src="http://1.gravatar.com/avatar/a205222eb4f0a6492072d68e88b91b4b?s=60&amp;d=mm&amp;r=g" srcset="http://1.gravatar.com/avatar/a205222eb4f0a6492072d68e88b91b4b?s=120&amp;d=mm&amp;r=g 2x" class="avatar avatar-60 photo" height="60" width="60" /> 
+            <b class="fn">Monkey</b> 
+            <span class="says">says:</span> 
+           </div>
+           <!-- .comment-author --> 
+           <div class="comment-metadata"> 
+            <a href="http://neekey.net/2016/02/01/%e5%a6%82%e4%bd%95%e7%94%a8%e9%98%bf%e9%87%8c%e4%ba%91ecs%e6%90%ad%e5%bb%baminecraft%e6%9c%8d%e5%8a%a1%e5%99%a8/#comment-108"> <time datetime="2016-04-18T13:13:28+00:00"> 18/04/2016 at 13:13 </time> </a> 
+           </div>
+           <!-- .comment-metadata --> 
+          </footer>
+          <!-- .comment-meta --> 
+          <div class="comment-content"> 
+           <p>话说。。怎么关掉服务器啊233</p> 
+          </div>
+          <!-- .comment-content --> 
+          <div class="reply">
+           <a rel="nofollow" class="comment-reply-link" href="http://neekey.net/2016/02/01/%e5%a6%82%e4%bd%95%e7%94%a8%e9%98%bf%e9%87%8c%e4%ba%91ecs%e6%90%ad%e5%bb%baminecraft%e6%9c%8d%e5%8a%a1%e5%99%a8/?replytocom=108#respond" onclick="return addComment.moveForm( &quot;div-comment-108&quot;, &quot;108&quot;, &quot;respond&quot;, &quot;624&quot; )" aria-label="Reply to Monkey">Reply</a>
+          </div> 
+         </article>
+         <!-- .comment-body --> 
+         <ol class="children"> 
+          <li id="comment-109" class="comment byuser comment-author-neekey bypostauthor odd alt depth-2 parent"> 
+           <article id="div-comment-109" class="comment-body"> 
+            <footer class="comment-meta"> 
+             <div class="comment-author vcard"> 
+              <img alt="" src="http://2.gravatar.com/avatar/8896cc725e36350023e7f41f0455b8aa?s=60&amp;d=mm&amp;r=g" srcset="http://2.gravatar.com/avatar/8896cc725e36350023e7f41f0455b8aa?s=120&amp;d=mm&amp;r=g 2x" class="avatar avatar-60 photo" height="60" width="60" /> 
+              <b class="fn">neekey</b> 
+              <span class="says">says:</span> 
+             </div>
+             <!-- .comment-author --> 
+             <div class="comment-metadata"> 
+              <a href="http://neekey.net/2016/02/01/%e5%a6%82%e4%bd%95%e7%94%a8%e9%98%bf%e9%87%8c%e4%ba%91ecs%e6%90%ad%e5%bb%baminecraft%e6%9c%8d%e5%8a%a1%e5%99%a8/#comment-109"> <time datetime="2016-04-18T14:44:26+00:00"> 18/04/2016 at 14:44 </time> </a> 
+             </div>
+             <!-- .comment-metadata --> 
+            </footer>
+            <!-- .comment-meta --> 
+            <div class="comment-content"> 
+             <p>首先用文中的命令切回到你的开启服务器的会话: <code>screen -x sessionName</code>，然后进去一般 <code>ctrl + c</code> 即可。</p> 
+            </div>
+            <!-- .comment-content --> 
+            <div class="reply">
+             <a rel="nofollow" class="comment-reply-link" href="http://neekey.net/2016/02/01/%e5%a6%82%e4%bd%95%e7%94%a8%e9%98%bf%e9%87%8c%e4%ba%91ecs%e6%90%ad%e5%bb%baminecraft%e6%9c%8d%e5%8a%a1%e5%99%a8/?replytocom=109#respond" onclick="return addComment.moveForm( &quot;div-comment-109&quot;, &quot;109&quot;, &quot;respond&quot;, &quot;624&quot; )" aria-label="Reply to neekey">Reply</a>
+            </div> 
+           </article>
+           <!-- .comment-body --> 
+           <ol class="children"> 
+            <li id="comment-111" class="comment even depth-3 parent"> 
+             <article id="div-comment-111" class="comment-body"> 
+              <footer class="comment-meta"> 
+               <div class="comment-author vcard"> 
+                <img alt="" src="http://1.gravatar.com/avatar/a205222eb4f0a6492072d68e88b91b4b?s=60&amp;d=mm&amp;r=g" srcset="http://1.gravatar.com/avatar/a205222eb4f0a6492072d68e88b91b4b?s=120&amp;d=mm&amp;r=g 2x" class="avatar avatar-60 photo" height="60" width="60" /> 
+                <b class="fn">Monkey</b> 
+                <span class="says">says:</span> 
+               </div>
+               <!-- .comment-author --> 
+               <div class="comment-metadata"> 
+                <a href="http://neekey.net/2016/02/01/%e5%a6%82%e4%bd%95%e7%94%a8%e9%98%bf%e9%87%8c%e4%ba%91ecs%e6%90%ad%e5%bb%baminecraft%e6%9c%8d%e5%8a%a1%e5%99%a8/#comment-111"> <time datetime="2016-04-18T23:01:18+00:00"> 18/04/2016 at 23:01 </time> </a> 
+               </div>
+               <!-- .comment-metadata --> 
+              </footer>
+              <!-- .comment-meta --> 
+              <div class="comment-content"> 
+               <p>嗯嗯谢谢_(:3)∠)_怎么加插件和mod呢</p> 
+              </div>
+              <!-- .comment-content --> 
+              <div class="reply">
+               <a rel="nofollow" class="comment-reply-link" href="http://neekey.net/2016/02/01/%e5%a6%82%e4%bd%95%e7%94%a8%e9%98%bf%e9%87%8c%e4%ba%91ecs%e6%90%ad%e5%bb%baminecraft%e6%9c%8d%e5%8a%a1%e5%99%a8/?replytocom=111#respond" onclick="return addComment.moveForm( &quot;div-comment-111&quot;, &quot;111&quot;, &quot;respond&quot;, &quot;624&quot; )" aria-label="Reply to Monkey">Reply</a>
+              </div> 
+             </article>
+             <!-- .comment-body --> 
+             <ol class="children"> 
+              <li id="comment-114" class="comment byuser comment-author-neekey bypostauthor odd alt depth-4"> 
+               <article id="div-comment-114" class="comment-body"> 
+                <footer class="comment-meta"> 
+                 <div class="comment-author vcard"> 
+                  <img alt="" src="http://2.gravatar.com/avatar/8896cc725e36350023e7f41f0455b8aa?s=60&amp;d=mm&amp;r=g" srcset="http://2.gravatar.com/avatar/8896cc725e36350023e7f41f0455b8aa?s=120&amp;d=mm&amp;r=g 2x" class="avatar avatar-60 photo" height="60" width="60" /> 
+                  <b class="fn">neekey</b> 
+                  <span class="says">says:</span> 
+                 </div>
+                 <!-- .comment-author --> 
+                 <div class="comment-metadata"> 
+                  <a href="http://neekey.net/2016/02/01/%e5%a6%82%e4%bd%95%e7%94%a8%e9%98%bf%e9%87%8c%e4%ba%91ecs%e6%90%ad%e5%bb%baminecraft%e6%9c%8d%e5%8a%a1%e5%99%a8/#comment-114"> <time datetime="2016-04-20T10:57:10+00:00"> 20/04/2016 at 10:57 </time> </a> 
+                 </div>
+                 <!-- .comment-metadata --> 
+                </footer>
+                <!-- .comment-meta --> 
+                <div class="comment-content"> 
+                 <p>我暂时也还没有加过插件和mod，一直都在玩原版：）</p> 
+                </div>
+                <!-- .comment-content --> 
+                <div class="reply">
+                 <a rel="nofollow" class="comment-reply-link" href="http://neekey.net/2016/02/01/%e5%a6%82%e4%bd%95%e7%94%a8%e9%98%bf%e9%87%8c%e4%ba%91ecs%e6%90%ad%e5%bb%baminecraft%e6%9c%8d%e5%8a%a1%e5%99%a8/?replytocom=114#respond" onclick="return addComment.moveForm( &quot;div-comment-114&quot;, &quot;114&quot;, &quot;respond&quot;, &quot;624&quot; )" aria-label="Reply to neekey">Reply</a>
+                </div> 
+               </article>
+               <!-- .comment-body --> </li>
+              <!-- #comment-## --> 
+             </ol>
+             <!-- .children --> </li>
+            <!-- #comment-## --> 
+           </ol>
+           <!-- .children --> </li>
+          <!-- #comment-## --> 
+         </ol>
+         <!-- .children --> </li>
+        <!-- #comment-## --> 
+        <li id="comment-118" class="comment even thread-odd thread-alt depth-1 parent"> 
+         <article id="div-comment-118" class="comment-body"> 
+          <footer class="comment-meta"> 
+           <div class="comment-author vcard"> 
+            <img alt="" src="http://2.gravatar.com/avatar/b2d4d66f12efdca16947ef586430008b?s=60&amp;d=mm&amp;r=g" srcset="http://2.gravatar.com/avatar/b2d4d66f12efdca16947ef586430008b?s=120&amp;d=mm&amp;r=g 2x" class="avatar avatar-60 photo" height="60" width="60" /> 
+            <b class="fn">Ellis</b> 
+            <span class="says">says:</span> 
+           </div>
+           <!-- .comment-author --> 
+           <div class="comment-metadata"> 
+            <a href="http://neekey.net/2016/02/01/%e5%a6%82%e4%bd%95%e7%94%a8%e9%98%bf%e9%87%8c%e4%ba%91ecs%e6%90%ad%e5%bb%baminecraft%e6%9c%8d%e5%8a%a1%e5%99%a8/#comment-118"> <time datetime="2016-04-27T18:33:14+00:00"> 27/04/2016 at 18:33 </time> </a> 
+           </div>
+           <!-- .comment-metadata --> 
+          </footer>
+          <!-- .comment-meta --> 
+          <div class="comment-content"> 
+           <p>感谢教程<br /> 想知道ECS使用windows server 2012的话是不是直接远程控制服务器，安装java和mc服务端就可以使用呢。。<br /> 不会linux，只在windows下用过傻瓜式的MC服务器搭建软件，不需要输入命令行，在GUI中就能修改各种服务器设置很是方便。不清楚这种软件在windows server系统中能不能使用呢。。</p> 
+          </div>
+          <!-- .comment-content --> 
+          <div class="reply">
+           <a rel="nofollow" class="comment-reply-link" href="http://neekey.net/2016/02/01/%e5%a6%82%e4%bd%95%e7%94%a8%e9%98%bf%e9%87%8c%e4%ba%91ecs%e6%90%ad%e5%bb%baminecraft%e6%9c%8d%e5%8a%a1%e5%99%a8/?replytocom=118#respond" onclick="return addComment.moveForm( &quot;div-comment-118&quot;, &quot;118&quot;, &quot;respond&quot;, &quot;624&quot; )" aria-label="Reply to Ellis">Reply</a>
+          </div> 
+         </article>
+         <!-- .comment-body --> 
+         <ol class="children"> 
+          <li id="comment-121" class="comment byuser comment-author-neekey bypostauthor odd alt depth-2"> 
+           <article id="div-comment-121" class="comment-body"> 
+            <footer class="comment-meta"> 
+             <div class="comment-author vcard"> 
+              <img alt="" src="http://2.gravatar.com/avatar/8896cc725e36350023e7f41f0455b8aa?s=60&amp;d=mm&amp;r=g" srcset="http://2.gravatar.com/avatar/8896cc725e36350023e7f41f0455b8aa?s=120&amp;d=mm&amp;r=g 2x" class="avatar avatar-60 photo" height="60" width="60" /> 
+              <b class="fn">neekey</b> 
+              <span class="says">says:</span> 
+             </div>
+             <!-- .comment-author --> 
+             <div class="comment-metadata"> 
+              <a href="http://neekey.net/2016/02/01/%e5%a6%82%e4%bd%95%e7%94%a8%e9%98%bf%e9%87%8c%e4%ba%91ecs%e6%90%ad%e5%bb%baminecraft%e6%9c%8d%e5%8a%a1%e5%99%a8/#comment-121"> <time datetime="2016-05-01T10:03:47+00:00"> 01/05/2016 at 10:03 </time> </a> 
+             </div>
+             <!-- .comment-metadata --> 
+            </footer>
+            <!-- .comment-meta --> 
+            <div class="comment-content"> 
+             <p>基本上是差不多的，java本身就是跨平台滴</p> 
+            </div>
+            <!-- .comment-content --> 
+            <div class="reply">
+             <a rel="nofollow" class="comment-reply-link" href="http://neekey.net/2016/02/01/%e5%a6%82%e4%bd%95%e7%94%a8%e9%98%bf%e9%87%8c%e4%ba%91ecs%e6%90%ad%e5%bb%baminecraft%e6%9c%8d%e5%8a%a1%e5%99%a8/?replytocom=121#respond" onclick="return addComment.moveForm( &quot;div-comment-121&quot;, &quot;121&quot;, &quot;respond&quot;, &quot;624&quot; )" aria-label="Reply to neekey">Reply</a>
+            </div> 
+           </article>
+           <!-- .comment-body --> </li>
+          <!-- #comment-## --> 
+         </ol>
+         <!-- .children --> </li>
+        <!-- #comment-## --> 
+        <li id="comment-132" class="comment even thread-even depth-1 parent"> 
+         <article id="div-comment-132" class="comment-body"> 
+          <footer class="comment-meta"> 
+           <div class="comment-author vcard"> 
+            <img alt="" src="http://2.gravatar.com/avatar/b29212695c7533f705064576e6921dd1?s=60&amp;d=mm&amp;r=g" srcset="http://2.gravatar.com/avatar/b29212695c7533f705064576e6921dd1?s=120&amp;d=mm&amp;r=g 2x" class="avatar avatar-60 photo" height="60" width="60" /> 
+            <b class="fn">谁</b> 
+            <span class="says">says:</span> 
+           </div>
+           <!-- .comment-author --> 
+           <div class="comment-metadata"> 
+            <a href="http://neekey.net/2016/02/01/%e5%a6%82%e4%bd%95%e7%94%a8%e9%98%bf%e9%87%8c%e4%ba%91ecs%e6%90%ad%e5%bb%baminecraft%e6%9c%8d%e5%8a%a1%e5%99%a8/#comment-132"> <time datetime="2016-06-02T20:24:41+00:00"> 02/06/2016 at 20:24 </time> </a> 
+           </div>
+           <!-- .comment-metadata --> 
+          </footer>
+          <!-- .comment-meta --> 
+          <div class="comment-content"> 
+           <p>额。。如果用multicraft，要备案吗。。。还望求解答！谢谢！</p> 
+          </div>
+          <!-- .comment-content --> 
+          <div class="reply">
+           <a rel="nofollow" class="comment-reply-link" href="http://neekey.net/2016/02/01/%e5%a6%82%e4%bd%95%e7%94%a8%e9%98%bf%e9%87%8c%e4%ba%91ecs%e6%90%ad%e5%bb%baminecraft%e6%9c%8d%e5%8a%a1%e5%99%a8/?replytocom=132#respond" onclick="return addComment.moveForm( &quot;div-comment-132&quot;, &quot;132&quot;, &quot;respond&quot;, &quot;624&quot; )" aria-label="Reply to 谁">Reply</a>
+          </div> 
+         </article>
+         <!-- .comment-body --> 
+         <ol class="children"> 
+          <li id="comment-133" class="comment byuser comment-author-neekey bypostauthor odd alt depth-2"> 
+           <article id="div-comment-133" class="comment-body"> 
+            <footer class="comment-meta"> 
+             <div class="comment-author vcard"> 
+              <img alt="" src="http://2.gravatar.com/avatar/8896cc725e36350023e7f41f0455b8aa?s=60&amp;d=mm&amp;r=g" srcset="http://2.gravatar.com/avatar/8896cc725e36350023e7f41f0455b8aa?s=120&amp;d=mm&amp;r=g 2x" class="avatar avatar-60 photo" height="60" width="60" /> 
+              <b class="fn">neekey</b> 
+              <span class="says">says:</span> 
+             </div>
+             <!-- .comment-author --> 
+             <div class="comment-metadata"> 
+              <a href="http://neekey.net/2016/02/01/%e5%a6%82%e4%bd%95%e7%94%a8%e9%98%bf%e9%87%8c%e4%ba%91ecs%e6%90%ad%e5%bb%baminecraft%e6%9c%8d%e5%8a%a1%e5%99%a8/#comment-133"> <time datetime="2016-06-03T09:12:47+00:00"> 03/06/2016 at 09:12 </time> </a> 
+             </div>
+             <!-- .comment-metadata --> 
+            </footer>
+            <!-- .comment-meta --> 
+            <div class="comment-content"> 
+             <p>至少就我的经验来看是要的，只要是在阿里云的服务器上做web网站，如果你不做备案，访问的时候也会被阿里云直接拦截要求你先做备案的。</p> 
+             <p>不过如果是购买的香港或者新加坡的机器可能就不需要备案，你可以具体咨询一下阿里云的客服</p> 
+            </div>
+            <!-- .comment-content --> 
+            <div class="reply">
+             <a rel="nofollow" class="comment-reply-link" href="http://neekey.net/2016/02/01/%e5%a6%82%e4%bd%95%e7%94%a8%e9%98%bf%e9%87%8c%e4%ba%91ecs%e6%90%ad%e5%bb%baminecraft%e6%9c%8d%e5%8a%a1%e5%99%a8/?replytocom=133#respond" onclick="return addComment.moveForm( &quot;div-comment-133&quot;, &quot;133&quot;, &quot;respond&quot;, &quot;624&quot; )" aria-label="Reply to neekey">Reply</a>
+            </div> 
+           </article>
+           <!-- .comment-body --> </li>
+          <!-- #comment-## --> 
+         </ol>
+         <!-- .children --> </li>
+        <!-- #comment-## --> 
+        <li id="comment-221" class="pingback even thread-odd thread-alt depth-1"> 
+         <div class="comment-body">
+           Pingback: 
+          <a href="http://sonack.top/188.html" rel="external nofollow" class="url">用Ubuntu14.04玩我的世界1.7.2 并在阿里云ECS上搭建服务器 | sonack小站</a> 
+         </div> </li>
+        <!-- #comment-## --> 
+        <li id="comment-225" class="comment odd alt thread-even depth-1 parent"> 
+         <article id="div-comment-225" class="comment-body"> 
+          <footer class="comment-meta"> 
+           <div class="comment-author vcard"> 
+            <img alt="" src="http://1.gravatar.com/avatar/a205222eb4f0a6492072d68e88b91b4b?s=60&amp;d=mm&amp;r=g" srcset="http://1.gravatar.com/avatar/a205222eb4f0a6492072d68e88b91b4b?s=120&amp;d=mm&amp;r=g 2x" class="avatar avatar-60 photo" height="60" width="60" /> 
+            <b class="fn">Monkey</b> 
+            <span class="says">says:</span> 
+           </div>
+           <!-- .comment-author --> 
+           <div class="comment-metadata"> 
+            <a href="http://neekey.net/2016/02/01/%e5%a6%82%e4%bd%95%e7%94%a8%e9%98%bf%e9%87%8c%e4%ba%91ecs%e6%90%ad%e5%bb%baminecraft%e6%9c%8d%e5%8a%a1%e5%99%a8/#comment-225"> <time datetime="2016-09-11T22:23:37+00:00"> 11/09/2016 at 22:23 </time> </a> 
+           </div>
+           <!-- .comment-metadata --> 
+          </footer>
+          <!-- .comment-meta --> 
+          <div class="comment-content"> 
+           <p>在下载到Minecraft之后，执行<code>java -Xmx...</code>的时候，发生了以下报错：</p> 
+           <p><code></code><code><br /> Exception in thread &quot;main&quot; java.lang.ExceptionInInitializerError<br /> at java.lang.Class.initializeClass(libgcj.so.10)<br /> at net.minecraft.server.MinecraftServer.(SourceFile:49)<br /> at java.lang.Class.initializeClass(libgcj.so.10)<br /> Caused by: java.lang.UnsupportedOperationException: gnu::java::lang::management::VMThreadMXBeanImpl::getThreadInfoForId (jlong, jint) not implemented<br /> at gnu.java.lang.management.ThreadMXBeanImpl.getThreadInfo(libgcj.so.10)<br /> at java.lang.reflect.Method.invoke(libgcj.so.10)<br /> at java.lang.Thread.getStackTrace(libgcj.so.10)<br /> at org.apache.logging.log4j.status.StatusLogger.log(StatusLogger.java:182)<br /> at org.apache.logging.log4j.spi.AbstractLogger.warn(AbstractLogger.java:1918)<br /> at org.apache.logging.log4j.LogManager.(LogManager.java:114)<br /> at java.lang.Class.initializeClass(libgcj.so.10)<br /> ...2 more<br /> </code><code></code><br /> 在更新了java之后依然没有用，求解，，，</p> 
+          </div>
+          <!-- .comment-content --> 
+          <div class="reply">
+           <a rel="nofollow" class="comment-reply-link" href="http://neekey.net/2016/02/01/%e5%a6%82%e4%bd%95%e7%94%a8%e9%98%bf%e9%87%8c%e4%ba%91ecs%e6%90%ad%e5%bb%baminecraft%e6%9c%8d%e5%8a%a1%e5%99%a8/?replytocom=225#respond" onclick="return addComment.moveForm( &quot;div-comment-225&quot;, &quot;225&quot;, &quot;respond&quot;, &quot;624&quot; )" aria-label="Reply to Monkey">Reply</a>
+          </div> 
+         </article>
+         <!-- .comment-body --> 
+         <ol class="children"> 
+          <li id="comment-226" class="comment even depth-2"> 
+           <article id="div-comment-226" class="comment-body"> 
+            <footer class="comment-meta"> 
+             <div class="comment-author vcard"> 
+              <img alt="" src="http://1.gravatar.com/avatar/a205222eb4f0a6492072d68e88b91b4b?s=60&amp;d=mm&amp;r=g" srcset="http://1.gravatar.com/avatar/a205222eb4f0a6492072d68e88b91b4b?s=120&amp;d=mm&amp;r=g 2x" class="avatar avatar-60 photo" height="60" width="60" /> 
+              <b class="fn">Monkey</b> 
+              <span class="says">says:</span> 
+             </div>
+             <!-- .comment-author --> 
+             <div class="comment-metadata"> 
+              <a href="http://neekey.net/2016/02/01/%e5%a6%82%e4%bd%95%e7%94%a8%e9%98%bf%e9%87%8c%e4%ba%91ecs%e6%90%ad%e5%bb%baminecraft%e6%9c%8d%e5%8a%a1%e5%99%a8/#comment-226"> <time datetime="2016-09-11T22:30:03+00:00"> 11/09/2016 at 22:30 </time> </a> 
+             </div>
+             <!-- .comment-metadata --> 
+            </footer>
+            <!-- .comment-meta --> 
+            <div class="comment-content"> 
+             <p>机智的我<code>yum -y remove java</code>然后<code>yum -y install java-1.8.0-openjdk</code>就解决了2333</p> 
+            </div>
+            <!-- .comment-content --> 
+            <div class="reply">
+             <a rel="nofollow" class="comment-reply-link" href="http://neekey.net/2016/02/01/%e5%a6%82%e4%bd%95%e7%94%a8%e9%98%bf%e9%87%8c%e4%ba%91ecs%e6%90%ad%e5%bb%baminecraft%e6%9c%8d%e5%8a%a1%e5%99%a8/?replytocom=226#respond" onclick="return addComment.moveForm( &quot;div-comment-226&quot;, &quot;226&quot;, &quot;respond&quot;, &quot;624&quot; )" aria-label="Reply to Monkey">Reply</a>
+            </div> 
+           </article>
+           <!-- .comment-body --> </li>
+          <!-- #comment-## --> 
+         </ol>
+         <!-- .children --> </li>
+        <!-- #comment-## --> 
+        <li id="comment-238" class="comment odd alt thread-odd thread-alt depth-1 parent"> 
+         <article id="div-comment-238" class="comment-body"> 
+          <footer class="comment-meta"> 
+           <div class="comment-author vcard"> 
+            <img alt="" src="http://2.gravatar.com/avatar/b70a46f09148634901fa6e442fca8201?s=60&amp;d=mm&amp;r=g" srcset="http://2.gravatar.com/avatar/b70a46f09148634901fa6e442fca8201?s=120&amp;d=mm&amp;r=g 2x" class="avatar avatar-60 photo" height="60" width="60" /> 
+            <b class="fn">null</b> 
+            <span class="says">says:</span> 
+           </div>
+           <!-- .comment-author --> 
+           <div class="comment-metadata"> 
+            <a href="http://neekey.net/2016/02/01/%e5%a6%82%e4%bd%95%e7%94%a8%e9%98%bf%e9%87%8c%e4%ba%91ecs%e6%90%ad%e5%bb%baminecraft%e6%9c%8d%e5%8a%a1%e5%99%a8/#comment-238"> <time datetime="2016-10-21T19:19:37+00:00"> 21/10/2016 at 19:19 </time> </a> 
+           </div>
+           <!-- .comment-metadata --> 
+          </footer>
+          <!-- .comment-meta --> 
+          <div class="comment-content"> 
+           <p>百度云失效了</p> 
+          </div>
+          <!-- .comment-content --> 
+          <div class="reply">
+           <a rel="nofollow" class="comment-reply-link" href="http://neekey.net/2016/02/01/%e5%a6%82%e4%bd%95%e7%94%a8%e9%98%bf%e9%87%8c%e4%ba%91ecs%e6%90%ad%e5%bb%baminecraft%e6%9c%8d%e5%8a%a1%e5%99%a8/?replytocom=238#respond" onclick="return addComment.moveForm( &quot;div-comment-238&quot;, &quot;238&quot;, &quot;respond&quot;, &quot;624&quot; )" aria-label="Reply to null">Reply</a>
+          </div> 
+         </article>
+         <!-- .comment-body --> 
+         <ol class="children"> 
+          <li id="comment-245" class="comment byuser comment-author-neekey bypostauthor even depth-2"> 
+           <article id="div-comment-245" class="comment-body"> 
+            <footer class="comment-meta"> 
+             <div class="comment-author vcard"> 
+              <img alt="" src="http://2.gravatar.com/avatar/8896cc725e36350023e7f41f0455b8aa?s=60&amp;d=mm&amp;r=g" srcset="http://2.gravatar.com/avatar/8896cc725e36350023e7f41f0455b8aa?s=120&amp;d=mm&amp;r=g 2x" class="avatar avatar-60 photo" height="60" width="60" /> 
+              <b class="fn">neekey</b> 
+              <span class="says">says:</span> 
+             </div>
+             <!-- .comment-author --> 
+             <div class="comment-metadata"> 
+              <a href="http://neekey.net/2016/02/01/%e5%a6%82%e4%bd%95%e7%94%a8%e9%98%bf%e9%87%8c%e4%ba%91ecs%e6%90%ad%e5%bb%baminecraft%e6%9c%8d%e5%8a%a1%e5%99%a8/#comment-245"> <time datetime="2016-12-06T13:46:53+00:00"> 06/12/2016 at 13:46 </time> </a> 
+             </div>
+             <!-- .comment-metadata --> 
+            </footer>
+            <!-- .comment-meta --> 
+            <div class="comment-content"> 
+             <p>大概是因为包含Latern被和谐了，我更新了下，只保留Minecraft的客户端分享了</p> 
+            </div>
+            <!-- .comment-content --> 
+            <div class="reply">
+             <a rel="nofollow" class="comment-reply-link" href="http://neekey.net/2016/02/01/%e5%a6%82%e4%bd%95%e7%94%a8%e9%98%bf%e9%87%8c%e4%ba%91ecs%e6%90%ad%e5%bb%baminecraft%e6%9c%8d%e5%8a%a1%e5%99%a8/?replytocom=245#respond" onclick="return addComment.moveForm( &quot;div-comment-245&quot;, &quot;245&quot;, &quot;respond&quot;, &quot;624&quot; )" aria-label="Reply to neekey">Reply</a>
+            </div> 
+           </article>
+           <!-- .comment-body --> </li>
+          <!-- #comment-## --> 
+         </ol>
+         <!-- .children --> </li>
+        <!-- #comment-## --> 
+       </ol>
+       <!-- .comment-list --> 
+       <div id="respond" class="comment-respond"> 
+        <h3 id="reply-title" class="comment-reply-title">Leave a Reply to <a href="#comment-121">neekey</a> <small><a rel="nofollow" id="cancel-comment-reply-link" href="/2016/02/01/%E5%A6%82%E4%BD%95%E7%94%A8%E9%98%BF%E9%87%8C%E4%BA%91ecs%E6%90%AD%E5%BB%BAminecraft%E6%9C%8D%E5%8A%A1%E5%99%A8/#respond">Cancel reply</a></small></h3> 
+        <form action="http://neekey.net/wordpress/wp-comments-post.php" method="post" id="commentform" class="comment-form" novalidate=""> 
+         <p class="comment-notes"><span id="email-notes">Your email address will not be published.</span> Required fields are marked <span class="required">*</span></p>
+         <p class="comment-form-comment"><label for="comment">Comment</label> <textarea id="comment" name="comment" cols="45" rows="8" maxlength="65525" aria-required="true" required="required"></textarea></p>
+         <p class="comment-form-author"><label for="author">Name <span class="required">*</span></label> <input id="author" name="author" type="text" value="" size="30" maxlength="245" aria-required="true" required="required" /></p> 
+         <p class="comment-form-email"><label for="email">Email <span class="required">*</span></label> <input id="email" name="email" type="email" value="" size="30" maxlength="100" aria-describedby="email-notes" aria-required="true" required="required" /></p> 
+         <p class="comment-form-url"><label for="url">Website</label> <input id="url" name="url" type="url" value="" size="30" maxlength="200" /></p> 
+         <p class="form-submit"><input name="submit" type="submit" id="submit" class="submit" value="Post Comment" /> <input type="hidden" name="comment_post_ID" value="624" id="comment_post_ID" /> <input type="hidden" name="comment_parent" id="comment_parent" value="121" /> </p>
+         <p style="display: none;"><input type="hidden" id="akismet_comment_nonce" name="akismet_comment_nonce" value="29c35d986c" /></p>
+         <p style="display: none;"><input type="hidden" id="ak_js" name="ak_js" value="84" /></p> 
+        </form> 
+       </div>
+       <!-- #respond --> 
+      </div>
+      <!-- #comments --> 
+     </main>
+     <!-- #main --> 
+    </div>
+    <!-- #primary --> 
+    <div id="secondary" class="sidebar-area" role="complementary"> 
+     <div class="normal-sidebar widget-area"> 
+      <aside id="graphy_recent_posts-3" class="widget widget_graphy_recent_posts"> 
+       <h2 class="widget-title">RECENT</h2> 
+       <ul> 
+        <li> <a href="http://neekey.net/2017/01/23/responsive-master-detail-layout-in-react/"> 
+          <div class="recent-posts-text">
+            Responsive Master-Detail Layout in React 
+           <span class="post-date">23/01/2017</span> 
+          </div> </a> </li> 
+        <li> <a href="http://neekey.net/2017/01/01/auto-deployment-to-ftp-server-with-travis-ci/"> 
+          <div class="recent-posts-text">
+            Auto deployment to FTP server with Travis-CI 
+           <span class="post-date">01/01/2017</span> 
+          </div> </a> </li> 
+        <li> <a href="http://neekey.net/2016/12/16/rules-for-testing-react-ui-component-with-enzyme/"> 
+          <div class="recent-posts-text">
+            Rules for testing React UI component with Enzyme 
+           <span class="post-date">16/12/2016</span> 
+          </div> </a> </li> 
+        <li> <a href="http://neekey.net/2016/12/13/how-to-avoid-preflight-option-request-in-cros-request/"> 
+          <div class="recent-posts-text">
+            How to avoid preflight OPTION request in CROS request 
+           <span class="post-date">13/12/2016</span> 
+          </div> </a> </li> 
+        <li> <a href="http://neekey.net/2016/12/09/integrate-react-webpack-with-semantic-ui-and-theming/"> 
+          <div class="recent-posts-text">
+            React+Webpack+Semantic UI and how to do theming 
+           <span class="post-date">09/12/2016</span> 
+          </div> </a> </li> 
+       </ul> 
+      </aside> 
+     </div>
+     <!-- .normal-sidebar --> 
+    </div>
+    <!-- #secondary --> 
+   </div>
+   <!-- #content --> 
+   <footer id="colophon" class="site-footer"> 
+    <div class="site-bottom"> 
+     <div class="site-info"> 
+      <div class="site-copyright">
+        &copy; 2017 
+       <a href="http://neekey.net/" rel="home">neekey</a> 
+      </div>
+      <!-- .site-copyright --> 
+      <div class="site-credit">
+        Powered by 
+       <a href="https://wordpress.org/">WordPress</a> 
+       <span class="site-credit-sep"> | </span> Theme: 
+       <a href="http://themegraphy.com/wordpress-themes/graphy/">Graphy</a> by Themegraphy 
+      </div>
+      <!-- .site-credit --> 
+     </div>
+     <!-- .site-info --> 
+    </div>
+    <!-- .site-bottom --> 
+   </footer>
+   <!-- #colophon --> 
+  </div>
+  <!-- #page --> 
+  <script type="text/javascript" src="http://neekey.net/wordpress/wp-content/plugins/akismet/_inc/form.js?ver=3.2"></script> 
+  <script type="text/javascript" src="http://neekey.net/wordpress/wp-content/themes/graphy/js/skip-link-focus-fix.js?ver=20160525"></script> 
+  <script type="text/javascript" src="http://neekey.net/wordpress/wp-content/themes/graphy/js/navigation.js?ver=20160525"></script> 
+  <script type="text/javascript" src="http://neekey.net/wordpress/wp-content/themes/graphy/js/doubletaptogo.min.js?ver=1.0.0"></script> 
+  <script type="text/javascript" src="http://neekey.net/wordpress/wp-includes/js/comment-reply.min.js?ver=4.7.3"></script> 
+  <script type="text/javascript" src="http://neekey.net/wordpress/wp-content/themes/graphy/js/functions.js?ver=20160822"></script> 
+  <script type="text/javascript" src="http://neekey.net/wordpress/wp-includes/js/wp-embed.min.js?ver=4.7.3"></script>   
+ </body>
+</html>

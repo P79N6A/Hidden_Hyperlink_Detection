@@ -1,0 +1,1048 @@
+<!DOCTYPE html>
+<html>
+ <head> 
+  <meta charset="utf-8" /> 
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" /> 
+  <meta name="keywords" content="Lestat乐园|PHP|前后端交互|多用户博客系统" /> 
+  <meta name="description" content="Lestat乐园|PHP|前后端交互|多用户博客系统" /> 
+  <meta name="author" content="LestatLee" /> 
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" /> 
+  <title>mysql中GROUP BY结合GROUP_CONCAT的使用 | Lestat乐园🙃</title> 
+  <meta name="renderer" content="webkit" /> 
+  <meta name="mobile-web-app-capable" content="yes" /> 
+  <link rel="stylesheet" href="/Public/Static/amazeui/css/amazeui.min.css" /> 
+  <link rel="stylesheet" href="/Public/Static/amazeui/css/app.css" /> 
+  <link rel="stylesheet" href="/Public/Static/jquery-emoji/css/jquery.mCustomScrollbar.min.css" /> 
+  <link rel="stylesheet" href="/Public/Static/jquery-emoji/css/jquery.emoji.css" /> 
+  <link rel="stylesheet" href="/Public/Static/page/css/page.css" /> 
+  <link rel="stylesheet" href="/Public/Static/share/css/share.min.css" /> 
+  <link rel="stylesheet" href="/Public/Static/zooming/css/normalize.css" /> 
+  <script src="/Public/Static/jquery-2.0.3.min.js"></script> 
+  <script>
+        var _hmt = _hmt || [];
+        (function() {
+            var hm = document.createElement("script");
+            hm.src = "https://hm.baidu.com/hm.js?4389df7b269211f4e53bf82fabe99992";
+            var s = document.getElementsByTagName("script")[0];
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script> 
+ </head> 
+ <body id="blog"> 
+  <style>
+    .scrollspy-nav {
+        top: 0;
+        z-index: 100;
+        background: #333;
+        width: 100%;
+        padding: 0 10px;
+    }
+
+    .scrollspy-nav ul {
+        margin: 0;
+        padding: 0;
+    }
+
+    .scrollspy-nav li {
+        display: inline-block;
+        list-style: none;
+    }
+
+    .scrollspy-nav a {
+        color: #eee;
+        padding: 10px 20px;
+        display: inline-block;
+    }
+
+    .scrollspy-nav a.am-active {
+        color: #fff;
+        font-weight: bold;
+    }
+
+    .am-panel {
+        margin-top: 20px;
+    }
+
+    /**
+ * Custom
+ */
+
+    .field {
+        position: relative;
+    }
+
+    .field input:focus {
+        outline: 0;
+    }
+
+
+    /**
+     * Simplecomplete
+     */
+
+    .autocompleter {
+        width: 105%;
+        background: #dddddd;
+        position: absolute;
+        left: 0;
+        z-index: 100;
+    }
+
+
+
+
+    .autocompleter-list {
+        box-shadow: inset 0px 0px 6px rgba(0,0,0,0.1);
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        text-align: left;
+        -webkit-box-sizing: border-box;
+        box-sizing: border-box;
+    }
+
+    .autocompleter-item-selected {
+        background: #ffffff;
+    }
+
+    .autocompleter-item {
+        color: #333;
+        cursor: pointer;
+    }
+
+    .autocompleter-item:hover {
+        background: #ffffff;
+    }
+
+    .autocompleter-item strong {
+        background: #ffffff;
+        text-shadow: 0 1px 0 #ffffff;
+    }
+
+    .autocompleter-item span {
+        color: #333;
+    }
+
+    .autocompleter-hint {
+        color: #333;
+        text-align: left;
+        top: -56px;
+        left: 0;
+        width: 100%;
+        display: none;
+    }
+
+    .autocompleter-hint span {
+        color: transparent;
+    }
+
+    .autocompleter-hint-show {
+        display: block;
+    }
+
+    .autocompleter-closed {
+        display: none;
+    }
+
+</style> 
+  <nav class="blog-nav scrollspy-nav" data-am-scrollspynav="{offsetTop: 45}" data-am-sticky=""> 
+   <div class="am-collapse am-topbar-collapse" id="blog-collapse" style="font-size:16px;width:75%;min-width:1050px;margin:0 auto;overflow:hidden;"> 
+    <ul class="am-nav am-nav-pills am-topbar-nav"> 
+     <li><a href="/homepage">🚀首页</a></li> 
+     <li><a href="/articles/41">🐧Linux</a></li> 
+     <li><a href="/articles/42">🐘PHP</a></li>
+     <li class="am-active"><a href="/articles/43">🐬Mysql</a></li> 
+     <li><a href="/articles/44">🐢闲言碎语</a></li> 
+     <li><a href="/articles/45">🐥前端</a></li> 
+     <li><a href="/articles/46">😝网站项目</a></li> 
+     <li><a href="/articles/47">🦀科学上网</a></li> 
+     <li><a href="/timeline">🏴时间线</a></li> 
+    </ul> 
+    <div class="am-topbar-form am-topbar-right am-form-inline" role="search" id="search_form"> 
+     <div class="am-form-group" id="user_status" style="color:white;"> 
+      <span style="cursor:pointer" onclick="getBox()">登录</span> 
+     </div> 
+     <div class="am-form-group field"> 
+      <input style="width:105%;" id="keyword" type="text" class="am-form-field am-input-sm" placeholder="输入关键字后按回车键" value="" /> 
+     </div> 
+    </div> 
+   </div> 
+  </nav> 
+  <script src="/Public/Static/jquery-autocompleter/jquery.autocompleter.min.js"></script> 
+  <script>
+    /**
+     * Crayola colors in JSON format
+     * from: https://gist.github.com/jjdelc/1868136
+     */
+    var categories;
+    $.ajax({
+        url:"/Article/getDocuments.html",
+        type:'get',
+        async:false,//关闭异步
+        success:function(data){
+            categories = data;
+        }
+    });
+    $(function () {
+        $('#keyword').autocompleter({
+            // marker for autocomplete matches
+            highlightMatches: true,
+            // object to local or url to remote search
+            source: categories,
+            // custom template
+            template: '{{ label }}',
+            // show hint
+            hint: false,
+            // abort source if empty field
+            empty: false,
+            // max results
+            limit: 10
+        });
+    });
+</script> 
+  <hr /> 
+  <!-- content srart --> 
+  <div class="am-g am-g-fixed blog-fixed blog-content"> 
+   <div class="am-u-md-8 am-u-sm-12"> 
+    <article class="am-article blog-article-p"> 
+     <div class="am-article-hd"> 
+      <h1 class="am-article-title blog-text-center" style="font-weight:bold;font-size:30px;">mysql中GROUP BY结合GROUP_CONCAT的使用</h1> 
+      <p class="am-article-meta blog-text-center"> <span><a href="/articles/43"><i class="am-icon-file am-icon-fw am-icon-sm"></i>&nbsp;&nbsp;mysql &nbsp;</a></span> <span><a href="/author/1"><i class="am-icon-user am-icon-fw am-icon-sm"></i>&nbsp;&nbsp;Lestat &nbsp;</a></span> <span><i class="am-icon-calendar am-icon-fw am-icon-sm"></i>&nbsp;&nbsp;2016-10-08</span>&nbsp; <span><a href="#to-comment"><i class="am-icon-commenting am-icon-fw am-icon-sm"></i>&nbsp;&nbsp;0</a></span>&nbsp; <span><i class="am-icon-eye am-icon-fw am-icon-sm"></i>&nbsp;&nbsp;411</span> <span><i class="am-icon-google am-icon-fw am-icon-sm"></i>&nbsp;&nbsp;google:&nbsp;&nbsp;0</span> <span><i class="am-icon-recycle am-icon-fw am-icon-sm"></i>&nbsp;&nbsp;百度:&nbsp;&nbsp;0</span> </p> 
+     </div> 
+     <div class="am-article-bd" id="content_detail" style="word-wrap:break-word;"> 
+      <!--<img style="margin:0 auto;" src="" alt="" class="blog-entry-img blog-article-margin">--> 
+      <p><span style="color: rgb(61, 70, 77); font-family: &quot;Pingfang SC&quot;, STHeiti, &quot;Lantinghei SC&quot;, &quot;Open Sans&quot;, Arial, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;WenQuanYi Micro Hei&quot;, SimSun, sans-serif;  background-color: rgb(248, 248, 248);">今天对一批数据要迁移转换，查了下，有group_concat这个函数简单实现字段的列转行设置，过程记录如下&nbsp;</span><br style="box-sizing: inherit; -webkit-tap-highlight-color: transparent; color: rgb(61, 70, 77); font-family: &quot;Pingfang SC&quot;, STHeiti, &quot;Lantinghei SC&quot;, &quot;Open Sans&quot;, Arial, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;WenQuanYi Micro Hei&quot;, SimSun, sans-serif; white-space: normal; background-color: rgb(248, 248, 248);" /><br style="box-sizing: inherit; -webkit-tap-highlight-color: transparent; color: rgb(61, 70, 77); font-family: &quot;Pingfang SC&quot;, STHeiti, &quot;Lantinghei SC&quot;, &quot;Open Sans&quot;, Arial, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;WenQuanYi Micro Hei&quot;, SimSun, sans-serif; white-space: normal; background-color: rgb(248, 248, 248);" /><strong style="box-sizing: inherit; -webkit-tap-highlight-color: transparent; color: rgb(61, 70, 77); font-family: &quot;Pingfang SC&quot;, STHeiti, &quot;Lantinghei SC&quot;, &quot;Open Sans&quot;, Arial, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;WenQuanYi Micro Hei&quot;, SimSun, sans-serif; white-space: normal; background-color: rgb(248, 248, 248);">一.测试数据准备</strong><span style="color: rgb(61, 70, 77); font-family: &quot;Pingfang SC&quot;, STHeiti, &quot;Lantinghei SC&quot;, &quot;Open Sans&quot;, Arial, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;WenQuanYi Micro Hei&quot;, SimSun, sans-serif;  background-color: rgb(248, 248, 248);"></span></p>
+      <pre class="hljs ruby" style="box-sizing: inherit; -webkit-tap-highlight-color: transparent; overflow-x: auto; padding: 2px; background-color: rgb(63, 63, 63); color: rgb(220, 220, 220); border-radius: 3px; line-height: 1.4; word-wrap: normal; font-size: 13px; font-family: Menlo, Monaco, Consolas, &quot;Courier New&quot;, monospace;">mysql&gt;&nbsp;use&nbsp;test;
+Database&nbsp;changed
+mysql&gt;&nbsp;select&nbsp;*&nbsp;from&nbsp;t_kenyon;
++------+|&nbsp;id&nbsp;&nbsp;&nbsp;|+------+|&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;||&nbsp;&nbsp;123&nbsp;||&nbsp;&nbsp;789&nbsp;||&nbsp;&nbsp;345&nbsp;||&nbsp;&nbsp;&nbsp;78&nbsp;|+------+5&nbsp;rows&nbsp;in&nbsp;set&nbsp;(0.00&nbsp;sec)</pre>
+      <p><strong style="box-sizing: inherit; -webkit-tap-highlight-color: transparent; color: rgb(61, 70, 77); font-family: &quot;Pingfang SC&quot;, STHeiti, &quot;Lantinghei SC&quot;, &quot;Open Sans&quot;, Arial, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;WenQuanYi Micro Hei&quot;, SimSun, sans-serif; white-space: normal; background-color: rgb(248, 248, 248);">二.使用经过</strong><span style="color: rgb(61, 70, 77); font-family: &quot;Pingfang SC&quot;, STHeiti, &quot;Lantinghei SC&quot;, &quot;Open Sans&quot;, Arial, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;WenQuanYi Micro Hei&quot;, SimSun, sans-serif;  background-color: rgb(248, 248, 248);">&nbsp;</span><br style="box-sizing: inherit; -webkit-tap-highlight-color: transparent; color: rgb(61, 70, 77); font-family: &quot;Pingfang SC&quot;, STHeiti, &quot;Lantinghei SC&quot;, &quot;Open Sans&quot;, Arial, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;WenQuanYi Micro Hei&quot;, SimSun, sans-serif; white-space: normal; background-color: rgb(248, 248, 248);" /><span style="color: rgb(61, 70, 77); font-family: &quot;Pingfang SC&quot;, STHeiti, &quot;Lantinghei SC&quot;, &quot;Open Sans&quot;, Arial, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;WenQuanYi Micro Hei&quot;, SimSun, sans-serif;  background-color: rgb(248, 248, 248);">1.以默认的逗号作为分隔符</span></p>
+      <pre class="hljs lua" style="box-sizing: inherit; -webkit-tap-highlight-color: transparent; overflow-x: auto; padding: 2px; background-color: rgb(63, 63, 63); color: rgb(220, 220, 220); border-radius: 3px; line-height: 1.4; word-wrap: normal; font-size: 13px; font-family: Menlo, Monaco, Consolas, &quot;Courier New&quot;, monospace;">mysql&gt;&nbsp;select&nbsp;group_concat(id)&nbsp;from&nbsp;t_kenyon;
++------------------+|&nbsp;group_concat(id)&nbsp;|
++------------------+|&nbsp;1,123,789,345,78&nbsp;|
++------------------+1&nbsp;row&nbsp;in&nbsp;set&nbsp;(0.00&nbsp;sec)</pre>
+      <p><span style="color: rgb(61, 70, 77); font-family: &quot;Pingfang SC&quot;, STHeiti, &quot;Lantinghei SC&quot;, &quot;Open Sans&quot;, Arial, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;WenQuanYi Micro Hei&quot;, SimSun, sans-serif;  background-color: rgb(248, 248, 248);">2.对ID值进行排序后行转列</span></p>
+      <pre class="hljs lua" style="box-sizing: inherit; -webkit-tap-highlight-color: transparent; overflow-x: auto; padding: 2px; background-color: rgb(63, 63, 63); color: rgb(220, 220, 220); border-radius: 3px; line-height: 1.4; word-wrap: normal; font-size: 13px; font-family: Menlo, Monaco, Consolas, &quot;Courier New&quot;, monospace;">mysql&gt;&nbsp;select&nbsp;group_concat(id&nbsp;order&nbsp;by&nbsp;id)&nbsp;from&nbsp;t_kenyon;
++------------------------------+|&nbsp;group_concat(id&nbsp;order&nbsp;by&nbsp;id)&nbsp;|
++------------------------------+|&nbsp;1,78,123,345,789&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|
++------------------------------+1&nbsp;row&nbsp;in&nbsp;set&nbsp;(0.00&nbsp;sec)</pre>
+      <p><span style="color: rgb(61, 70, 77); font-family: &quot;Pingfang SC&quot;, STHeiti, &quot;Lantinghei SC&quot;, &quot;Open Sans&quot;, Arial, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;WenQuanYi Micro Hei&quot;, SimSun, sans-serif;  background-color: rgb(248, 248, 248);">3.使用其他分割符，如*和;等</span></p>
+      <pre class="hljs lua" style="box-sizing: inherit; -webkit-tap-highlight-color: transparent; overflow-x: auto; padding: 2px; background-color: rgb(63, 63, 63); color: rgb(220, 220, 220); border-radius: 3px; line-height: 1.4; word-wrap: normal; font-size: 13px; font-family: Menlo, Monaco, Consolas, &quot;Courier New&quot;, monospace;">mysql&gt;&nbsp;select&nbsp;group_concat(id&nbsp;separator&nbsp;'*')&nbsp;from&nbsp;t_kenyon;
++--------------------------------+|&nbsp;group_concat(id&nbsp;separator&nbsp;'*')&nbsp;|
++--------------------------------+|&nbsp;1*123*789*345*78&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|
++--------------------------------+1&nbsp;row&nbsp;in&nbsp;set&nbsp;(0.00&nbsp;sec)</pre>
+      <p><span style="color: rgb(61, 70, 77); font-family: &quot;Pingfang SC&quot;, STHeiti, &quot;Lantinghei SC&quot;, &quot;Open Sans&quot;, Arial, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;WenQuanYi Micro Hei&quot;, SimSun, sans-serif;  background-color: rgb(248, 248, 248);">4.分隔符与排序结合起来用</span></p>
+      <pre class="hljs lua" style="box-sizing: inherit; -webkit-tap-highlight-color: transparent; overflow-x: auto; padding: 2px; background-color: rgb(63, 63, 63); color: rgb(220, 220, 220); border-radius: 3px; line-height: 1.4; word-wrap: normal; font-size: 13px; font-family: Menlo, Monaco, Consolas, &quot;Courier New&quot;, monospace;">mysql&gt;&nbsp;select&nbsp;group_concat(id&nbsp;order&nbsp;by&nbsp;id&nbsp;separator&nbsp;'_')&nbsp;from&nbsp;t_kenyon;
++--------------------------------------------+|&nbsp;group_concat(id&nbsp;order&nbsp;by&nbsp;id&nbsp;separator&nbsp;'_')&nbsp;|
++--------------------------------------------+|&nbsp;1_78_123_345_789&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|
++--------------------------------------------+1&nbsp;row&nbsp;in&nbsp;set&nbsp;(0.00&nbsp;sec)</pre>
+      <p><span style="color: rgb(61, 70, 77); font-family: &quot;Pingfang SC&quot;, STHeiti, &quot;Lantinghei SC&quot;, &quot;Open Sans&quot;, Arial, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;WenQuanYi Micro Hei&quot;, SimSun, sans-serif;  background-color: rgb(248, 248, 248);">5.对相同的值分组</span></p>
+      <pre class="hljs ruby" style="box-sizing: inherit; -webkit-tap-highlight-color: transparent; overflow-x: auto; padding: 2px; background-color: rgb(63, 63, 63); color: rgb(220, 220, 220); border-radius: 3px; line-height: 1.4; word-wrap: normal; font-size: 13px; font-family: Menlo, Monaco, Consolas, &quot;Courier New&quot;, monospace;">mysql&gt;&nbsp;insert&nbsp;into&nbsp;t_kenyon&nbsp;values&nbsp;(78);
+Query&nbsp;OK,&nbsp;1&nbsp;row&nbsp;affected&nbsp;(0.00&nbsp;sec)
+
+mysql&gt;&nbsp;select&nbsp;group_concat(id)&nbsp;from&nbsp;t_kenyon&nbsp;group&nbsp;by&nbsp;id;
++------------------+|&nbsp;group_concat(id)&nbsp;|+------------------+|&nbsp;1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;||&nbsp;78,78&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;||&nbsp;123&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;||&nbsp;345&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;||&nbsp;789&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|+------------------+5&nbsp;rows&nbsp;in&nbsp;set&nbsp;(0.00&nbsp;sec)</pre>
+      <p><strong style="box-sizing: inherit; -webkit-tap-highlight-color: transparent; color: rgb(61, 70, 77); font-family: &quot;Pingfang SC&quot;, STHeiti, &quot;Lantinghei SC&quot;, &quot;Open Sans&quot;, Arial, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;WenQuanYi Micro Hei&quot;, SimSun, sans-serif; white-space: normal; background-color: rgb(248, 248, 248);">三.参数设置与限制说明&nbsp;</strong><span style="color: rgb(61, 70, 77); font-family: &quot;Pingfang SC&quot;, STHeiti, &quot;Lantinghei SC&quot;, &quot;Open Sans&quot;, Arial, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;WenQuanYi Micro Hei&quot;, SimSun, sans-serif;  background-color: rgb(248, 248, 248);"></span><br style="box-sizing: inherit; -webkit-tap-highlight-color: transparent; color: rgb(61, 70, 77); font-family: &quot;Pingfang SC&quot;, STHeiti, &quot;Lantinghei SC&quot;, &quot;Open Sans&quot;, Arial, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;WenQuanYi Micro Hei&quot;, SimSun, sans-serif; white-space: normal; background-color: rgb(248, 248, 248);" /><span style="color: rgb(61, 70, 77); font-family: &quot;Pingfang SC&quot;, STHeiti, &quot;Lantinghei SC&quot;, &quot;Open Sans&quot;, Arial, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;WenQuanYi Micro Hei&quot;, SimSun, sans-serif;  background-color: rgb(248, 248, 248);">1.查看服务器中设置</span></p>
+      <pre class="hljs lua" style="box-sizing: inherit; -webkit-tap-highlight-color: transparent; overflow-x: auto; padding: 2px; background-color: rgb(63, 63, 63); color: rgb(220, 220, 220); border-radius: 3px; line-height: 1.4; word-wrap: normal; font-size: 13px; font-family: Menlo, Monaco, Consolas, &quot;Courier New&quot;, monospace;">mysql&gt;&nbsp;show&nbsp;variables&nbsp;like&nbsp;'%group_concat%';
++----------------------+-------+|&nbsp;Variable_name&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;Value&nbsp;|
++----------------------+-------+|&nbsp;group_concat_max_len&nbsp;|&nbsp;1024&nbsp;&nbsp;|
++----------------------+-------+1&nbsp;row&nbsp;in&nbsp;set&nbsp;(0.00&nbsp;sec)</pre>
+      <p><span style="color: rgb(61, 70, 77); font-family: &quot;Pingfang SC&quot;, STHeiti, &quot;Lantinghei SC&quot;, &quot;Open Sans&quot;, Arial, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;WenQuanYi Micro Hei&quot;, SimSun, sans-serif;  background-color: rgb(248, 248, 248);">以上设置的值说明当前是默认长度1KB&nbsp;</span><br style="box-sizing: inherit; -webkit-tap-highlight-color: transparent; color: rgb(61, 70, 77); font-family: &quot;Pingfang SC&quot;, STHeiti, &quot;Lantinghei SC&quot;, &quot;Open Sans&quot;, Arial, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;WenQuanYi Micro Hei&quot;, SimSun, sans-serif; white-space: normal; background-color: rgb(248, 248, 248);" /><br style="box-sizing: inherit; -webkit-tap-highlight-color: transparent; color: rgb(61, 70, 77); font-family: &quot;Pingfang SC&quot;, STHeiti, &quot;Lantinghei SC&quot;, &quot;Open Sans&quot;, Arial, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;WenQuanYi Micro Hei&quot;, SimSun, sans-serif; white-space: normal; background-color: rgb(248, 248, 248);" /><span style="color: rgb(61, 70, 77); font-family: &quot;Pingfang SC&quot;, STHeiti, &quot;Lantinghei SC&quot;, &quot;Open Sans&quot;, Arial, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;WenQuanYi Micro Hei&quot;, SimSun, sans-serif;  background-color: rgb(248, 248, 248);">&nbsp;2.改变参数值&nbsp;</span><br style="box-sizing: inherit; -webkit-tap-highlight-color: transparent; color: rgb(61, 70, 77); font-family: &quot;Pingfang SC&quot;, STHeiti, &quot;Lantinghei SC&quot;, &quot;Open Sans&quot;, Arial, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;WenQuanYi Micro Hei&quot;, SimSun, sans-serif; white-space: normal; background-color: rgb(248, 248, 248);" /><span style="color: rgb(61, 70, 77); font-family: &quot;Pingfang SC&quot;, STHeiti, &quot;Lantinghei SC&quot;, &quot;Open Sans&quot;, Arial, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;WenQuanYi Micro Hei&quot;, SimSun, sans-serif;  background-color: rgb(248, 248, 248);">方法一：修改配置文件中参数，新增 group_concat_max_len = 10240&nbsp;</span><br style="box-sizing: inherit; -webkit-tap-highlight-color: transparent; color: rgb(61, 70, 77); font-family: &quot;Pingfang SC&quot;, STHeiti, &quot;Lantinghei SC&quot;, &quot;Open Sans&quot;, Arial, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;WenQuanYi Micro Hei&quot;, SimSun, sans-serif; white-space: normal; background-color: rgb(248, 248, 248);" /><span style="color: rgb(61, 70, 77); font-family: &quot;Pingfang SC&quot;, STHeiti, &quot;Lantinghei SC&quot;, &quot;Open Sans&quot;, Arial, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;WenQuanYi Micro Hei&quot;, SimSun, sans-serif;  background-color: rgb(248, 248, 248);">方法二：在会话中实现，全局或当前session中&nbsp;</span><br style="box-sizing: inherit; -webkit-tap-highlight-color: transparent; color: rgb(61, 70, 77); font-family: &quot;Pingfang SC&quot;, STHeiti, &quot;Lantinghei SC&quot;, &quot;Open Sans&quot;, Arial, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;WenQuanYi Micro Hei&quot;, SimSun, sans-serif; white-space: normal; background-color: rgb(248, 248, 248);" /><span style="color: rgb(61, 70, 77); font-family: &quot;Pingfang SC&quot;, STHeiti, &quot;Lantinghei SC&quot;, &quot;Open Sans&quot;, Arial, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;WenQuanYi Micro Hei&quot;, SimSun, sans-serif;  background-color: rgb(248, 248, 248);">SET GLOBAL group_concat_max_len=10240;&nbsp;</span><br style="box-sizing: inherit; -webkit-tap-highlight-color: transparent; color: rgb(61, 70, 77); font-family: &quot;Pingfang SC&quot;, STHeiti, &quot;Lantinghei SC&quot;, &quot;Open Sans&quot;, Arial, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;WenQuanYi Micro Hei&quot;, SimSun, sans-serif; white-space: normal; background-color: rgb(248, 248, 248);" /><span style="color: rgb(61, 70, 77); font-family: &quot;Pingfang SC&quot;, STHeiti, &quot;Lantinghei SC&quot;, &quot;Open Sans&quot;, Arial, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;WenQuanYi Micro Hei&quot;, SimSun, sans-serif;  background-color: rgb(248, 248, 248);">SET SESSION group_concat_max_len=10240;</span></p>
+      <p><br /></p> 
+     </div> 
+     <div id="share-1" style="text-align:center;"></div> 
+    </article> 
+    <hr /> 
+    <div class="am-g blog-author blog-article-margin"> 
+     <div class="am-u-sm-3 am-u-md-3 am-u-lg-2"> 
+      <img src="/Public/Static/images/timg.jpg" alt="" class="blog-author-img am-circle rotate" id="avatar" /> 
+     </div> 
+     <div class="am-u-sm-9 am-u-md-9 am-u-lg-10"> 
+      <h3><a href="http://mail.qq.com/cgi-bin/qm_share?t=qm_mailme&amp;email=hrWzsbO1tbe_v8b396jl6es">Lestat</a></h3> 
+      <p>交流|分享</p> 
+     </div> 
+    </div> 
+    <hr /> 
+    <ul class="am-pagination blog-article-margin"> 
+     <li class="am-pagination-next"><a href="/show/26">mysql索引优化 &raquo;</a> </li> 
+    </ul> 
+    <hr /> 
+    <h2>最新评论:</h2> 暂时还没有评论 
+    <a name="to-comment"></a> 
+    <hr /> 
+    <br /> 
+    <form class="am-form am-g"> 
+     <h3 class="blog-comment">发表评论</h3> 
+     <fieldset style="border:0;"> 
+      <div class="am-form-group"> 
+       <!--<textarea rows="5" id="content" name="content" placeholder="评论内容"></textarea>--> 
+       <!--<div style="font-size:16px;font-weight:500;height:150px;border:1px solid lightslategrey;padding:2px;font-family:Consolas;" id="content" contenteditable="true">评论内容...</div>--> 
+       <textarea style="font-size:16px;font-weight:500;height:150px;border:1px solid lightslategrey;padding:2px;font-family:Consolas;" name="" id="content" cols="" rows="" placeholder="评论内容..."></textarea> 
+      </div> 
+      <p> <span><i class="am-icon-smile-o am-icon-lg" id="emoji_comment"></i></span> <button type="button" class="am-btn am-btn-success" id="post">提交评论</button> </p> 
+     </fieldset> 
+    </form> 
+    <hr /> 
+   </div> 
+   <input type="hidden" id="isSignIn" value="0" /> 
+   <input type="hidden" id="articleid" value="9" /> 
+   <input type="hidden" id="userid" value="" /> 
+   <input type="hidden" id="login_elsewhere" value="" data-message="" data-url="" /> 
+  </div> 
+  <!-- content end --> 
+  <!--公共js资源引入--> 
+  <script src="/Public/Static/amazeui/js/amazeui.min.js"></script> 
+  <script src="/Public/Static/layer/js/layer.js"></script> 
+  <script src="/Public/Static/nprogress/js/nprogress.js"></script> 
+  <script src="/Public/Static/jquery.rotate.js"></script> 
+  <script src="/Public/Static/jquery-emoji/js/jquery.mousewheel-3.0.6.min.js"></script> 
+  <script src="/Public/Static/jquery-emoji/js/jquery.mCustomScrollbar.min.js"></script> 
+  <script src="/Public/Static/jquery-emoji/js/jquery.emoji.js"></script> 
+  <!--进度条插件--> 
+  <script>
+    $.AMUI.progress.start();
+    $(function(){
+        $.AMUI.progress.done();
+    });
+</script> 
+  <!--处理表单逻辑--> 
+  <script>
+    var hash = {
+        'qq.com': 'http://mail.qq.com',
+        'gmail.com': 'http://mail.google.com',
+        'sina.com': 'http://mail.sina.com.cn',
+        '163.com': 'http://mail.163.com',
+        '126.com': 'http://mail.126.com',
+        'yeah.net': 'http://www.yeah.net/',
+        'sohu.com': 'http://mail.sohu.com/',
+        'tom.com': 'http://mail.tom.com/',
+        'sogou.com': 'http://mail.sogou.com/',
+        '139.com': 'http://mail.10086.cn/',
+        'hotmail.com': 'http://www.hotmail.com',
+        'live.com': 'http://login.live.com/',
+        'live.cn': 'http://login.live.cn/',
+        'live.com.cn': 'http://login.live.com.cn',
+        '189.com': 'http://webmail16.189.cn/webmail/',
+        'yahoo.com.cn': 'http://mail.cn.yahoo.com/',
+        'yahoo.cn': 'http://mail.cn.yahoo.com/',
+        'eyou.com': 'http://www.eyou.com/',
+        '21cn.com': 'http://mail.21cn.com/',
+        '188.com': 'http://www.188.com/',
+        'foxmail.com': 'http://www.foxmail.com',
+        'outlook.com': 'http://www.outlook.com'
+    }
+    /*
+     * todo:为发送邮件按钮绑定事件
+     * */
+    $('#send-email').bind('click', function () {
+        var btn = $(this);
+        var mailto = $('#email').val();
+        var myreg = /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
+        if (!myreg.test(mailto)) {
+            layer.msg('请输入有效邮箱', {icon: 5, shift: 6});
+            $('#email').focus();
+            return false;
+        }
+
+        //判断是否需要检测邮箱重复
+        var notCheckEmail = $('#checkEmail').val();
+        if (notCheckEmail != 1) {
+            var res2 = checkRepeat(mailto, 'email');
+            if (res2 === true) {
+                $('#email').removeClass('am-field-valid');
+                $('#email').addClass('am-field-error');
+                $('#email').focus();
+                layer.msg('邮箱已被占用', {icon: 5, shift: 6});
+                return false;
+            }
+        }
+
+        // 点击登录邮箱
+        var _mail = mailto.split('@')[1];    //获取邮箱域
+        var email_url;
+        for (var j in hash) {
+            if (j == _mail) {
+                //替换登陆链接
+                email_url = hash[_mail];
+            }
+        }
+        layer.confirm("确定要发送至当前邮箱?", {icon: 3, title: '系统提示'}, function (index) {
+            //do something
+            var method = $('#method').val();
+            var title = 'Lestat乐园|注册验证';
+            var body = '您当前正在注册Lestat乐园,您的注册验证码是:';
+            $.ajax({
+                type: 'POST',
+                url: "/User/User/actAjaxVerify.html",
+                data: {mailto: mailto, method: method, title: title, body: body},
+                beforeSend: function () {
+                    btn.button('loading');
+                },
+                complete: function () {
+                    btn.button('reset');
+                },
+                success: function (data) {
+                    if (data.status == 200) {
+                        layer.open({
+                            title: '系统提示',
+                            content: data.message + ",<a href='" + email_url + "' target='_blank'>点击前往查收</a>"
+                        });
+                        $('#verify_request').val(data.verify_request);
+                    } else {
+                        layer.msg(data.message, {icon: 5, shift: 6});
+                    }
+                }
+            });
+            layer.close(index);
+        });
+    });
+    /*
+     * todo:判断指定字段是否存在,
+     * @return true:存在,false:不存在
+     * */
+    function checkRepeat(value, column) {
+        var res = false;
+        $.ajax({
+            type: 'POST',
+            url: "/User/User/checkRepeat.html",
+            data: {value: value, column: column},
+            async: false,
+            beforeSend: function () {
+                index = layer.load(1); //加载动画
+            },
+            success: function (data) {
+                layer.close(index);
+                res = data.status == 200;
+            }
+        });
+        return res;
+    }
+
+    /*
+     * todo:验证邮箱验证码
+     * */
+    function checkVerify(verify, method) {
+        var res = false;
+        $.ajax({
+            type: 'POST',
+            url: "/User/User/checkVerify.html",
+            data: {method: method, verify: verify},
+            async: false,
+            success: function (data) {
+                if (data.status == 200) {
+                    res = true;
+                } else {
+                    layer.msg(data.message, {icon: 5, shift: 6});
+                }
+            }
+        });
+        return res;
+    }
+
+    /*
+     * todo:通过用户名获取邮箱
+     * */
+    function getEmailByUsername(username) {
+        var email = false;
+        $.ajax({
+            type: 'POST',
+            url: "/User/User/getEmailByUsername.html",
+            data: {username: username},
+            async: false,
+            success: function (data) {
+                if (data.status == 200) {
+                    email = data.email;
+                } else {
+                    email = false;
+                }
+            }
+        });
+        return email;
+    }
+
+    function getDetail(id) {
+        location.href='/show/'+id;
+    }
+
+    /*
+     * todo:设置模糊滤镜效果
+     * */
+    function setBlur() {
+        $('.container').addClass('blur');
+    }
+
+    /*
+     * todo:取消模糊滤镜效果
+     * */
+    function unsetBlur() {
+        $('.container').removeClass('blur');
+    }
+</script> 
+  <!--处理别处登录操作--> 
+  <script>
+    $(function(){
+        var elsewhere = $('#login_elsewhere');
+        if(elsewhere.val() == 1){
+            /*layer.open({
+                title: '系统提示',
+                content:elsewhere.attr('data-message')
+            });*/
+            /*layer.alert(elsewhere.attr('data-message'), function(index){
+                //do something
+                location.href=elsewhere.attr('data-url');
+                layer.close(index);
+            });*/
+            layer.msg(elsewhere.attr('data-message'),{icon: 5,shift: 6}, function(){
+                location.reload();
+                //do something
+                //location.href=elsewhere.attr('data-url');
+            });
+        }
+    });
+</script> 
+  <!--处理登录登出弹出框相关--> 
+  <script src="/Public/Static/jsencrypt.js"></script> 
+  <script>
+    var sign_in_box;
+
+    $(function () {
+        $('#search_form').keydown(function (e) {
+            //回车触发搜索操作
+            if (e.keyCode == 13) {
+                beforeSearch();
+            }
+        });
+    });
+
+    function beforeSearch() {
+        var keyword = $('#keyword').val();
+        if (keyword == '') {
+            keyword = 'php';
+        }
+        //alert(keyword);return false;
+        layer.load(2);
+        location.href = '/search/' + keyword;
+    }
+
+    function getBox() {
+        //弹出登录框
+        sign_in_box = layer.open({
+            title: '',
+            type: 1,
+            shadeClose: true,//点击空白关闭
+            //skin: 'layui-layer-rim', //加上边框
+            area: ['420px', '480px'], //宽高
+            content: "<script>config = {gt: '0c2d46171c2756a2a6903c9bc7a82a1e', product: 'float'};var captchaObj = new Geetest(config);captchaObj.appendTo('#captcha-box');captchaObj.onSuccess(function () {var data = captchaObj.getValidate();$('#geetest_challenge').val(data.geetest_challenge);$('#geetest_seccode').val(data.geetest_seccode);$('#geetest_validate').val(data.geetest_validate);});captchaObj.getValidate();<\/script><div style='padding:10%;' class='am-form'><h1 style='text-align: center'>用户登录</h1><button class='am-btn am-btn-secondary am-radius' onclick='qqLogin()'><i class='am-icon-qq am-icon-sm'></i> QQ</button><button class='am-btn am-btn-danger am-radius' onclick='weiboLogin()'><i class='am-icon-weibo am-icon-sm'></i> 微博</button><!--<button class='am-btn am-btn-primary am-radius' onclick='facebookLogin()'><i class='am-icon-facebook am-icon-sm'></i> 脸书</button>--><!--<button class='am-btn am-btn-default am-radius' onclick='githubLogin()'><i class='am-icon-github am-icon-sm'></i> GITHUB</button>--><br><br><input type='text' placeholder='用户名' id='username'><br><input type='password' placeholder='密码' id='password'><p id='captcha-box'></p><br><button id='btn' type='button' class='am-btn am-btn-primary am-radius btn-loading-example' onclick='signIn()' data-am-loading=" + "{spinner: 'circle-o-notch', loadingText: '加载中...', resetText: '登录'}" + ">登录</button><button class='am-btn am-btn-success am-radius' onclick='signUp()'>注册</button><button style='margin-right:10px;' class='am-btn am-btn-default am-radius' onclick='resetPassword()'>忘记密码</button></div>"
+        });
+    }
+
+    function signIn() {
+        var username = $('#username').val();
+        var password = $('#password').val();
+        var geetest_challenge = $("#geetest_challenge").val();
+        var geetest_validate = $("#geetest_validate").val();
+        var geetest_seccode = $("#geetest_seccode").val();
+        var btn = $('#btn');
+        if (!username || !password) {
+            layer.msg('用户名或密码不能为空', {icon: 5, shift: 6});
+            return false;
+        }
+
+        $.ajax({
+            type: 'POST',
+            url: "/User/User/actSignIn.html",
+            data: {
+                username: username,
+                password: getEntryptPwd(password),
+                from: 'article_detail',
+                geetest_challenge: geetest_challenge,
+                geetest_validate: geetest_validate,
+                geetest_seccode: geetest_seccode
+            },
+            beforeSend: function () {
+                btn.button('loading');
+            },
+            complete: function () {
+                btn.button('reset');
+            },
+            success: function (data) {
+                switch (data.status) {
+                    case 200:
+                        getUserInfo();
+                        break;
+                    default:
+                        layer.msg(data.message, {icon: 5, shift: 6});
+                }
+            }
+        });
+    }
+
+    function getUserInfo() {
+        $.ajax({
+            type: 'get',
+            url: "/Home/Home/getUserInfo.html",
+            async: false,
+            success: function (data) {
+                var userid = data.id;
+                $('#userid').val(userid);
+                $('#isSignIn').val(1);
+                layer.msg('登录成功', {icon: 6});
+                layer.close(sign_in_box);
+                var comment_content = $('#content');
+                if (typeof(comment_content) != 'undefined') {
+                    comment_content.attr('placeholder', '在此输入评论内容...');
+                }
+                //更改nav栏状态显示
+                $('#user_status').empty();
+                $('#user_status').append("<span style='cursor:pointer' onclick='personalCenter()'><img style='width:28px;' src='" + data.head_pic + "' alt=''> " + data.nickname + "</span> | ");
+                $('#user_status').append("<span style='cursor:pointer' onclick='signOut()'>登出</span>");
+            }
+        });
+    }
+
+    /**
+     * 加密密码
+     * @param pwd
+     */
+    function getEntryptPwd(pwd){
+        var pubKey = window.atob($('#pubKey').val());
+        if(!pwd || !pubKey){
+            return false;
+        }
+        var encrypt = new JSEncrypt();
+        encrypt.setPublicKey(pubKey);
+        return encrypt.encrypt(pwd);
+    }
+
+    function signOut() {
+        $.ajax({
+            url: "/Home/Home/isSignIn.html",
+            type: 'get',
+            success: function (data) {
+                if (data.status != 200) {
+                    layer.msg('当前已登出,页面刷新中...', {icon: 6});
+                    location.reload();
+                } else {
+                    layer.msg('真的要退出了咩？', {
+                        time: 0 //不自动关闭
+                        , btn: ['确定', '取消']
+                        , yes: function (index) {
+                            $.ajax({
+                                type: 'get',
+                                url: "/User/Ucenter/actSignOut.html",
+                                beforeSend: function () {
+                                    layer.msg('登出中...', {icon: 6});
+                                },
+                                success: function (data) {
+                                    if (data.status == 200) {
+                                        $('#userid').val('');
+                                        layer.msg('已退出登录', {icon: 6});
+                                        var comment_content = $('#content');
+                                        if (typeof(comment_content) != 'undefined') {
+                                            comment_content.attr('placeholder', '请先登录后再发表评论...');
+                                        }
+                                        $('#user_status').empty();
+                                        $('#user_status').append("<span style='cursor:pointer' onclick='getBox()'>登录</span>");
+                                    } else {
+                                        layer.msg(data.message, {icon: 5, shift: 6});
+                                    }
+                                }
+                            });
+                            layer.close(index);
+                        }
+                });
+                }
+            }
+        });
+    }
+
+    function resetPassword() {
+        layer.close(sign_in_box);
+        reset_box = layer.open({
+            title: '',
+            type: 1,
+            shadeClose: true,//点击空白关闭
+            //skin: 'layui-layer-rim', //加上边框
+            area: ['350px', '220px'], //宽高
+            content: "<div style='padding:10%;' class='am-form'><input type='text' placeholder='请填写需要找回密码的用户名' id='reset_username'><br><button id='btn1' type='button' class='am-btn am-btn-primary am-radius btn-loading-example' onclick='toNext()' data-am-loading=" + "{spinner: 'circle-o-notch', loadingText: '发送中...', resetText: '重新发送'}" + ">发送确认邮件</button></div>"
+        });
+    }
+
+    function toNext() {
+        var username = $('#reset_username').val();
+        var btn = $('#btn1');
+        if (!username) {
+            layer.msg('请填写用户名', {icon: 5, shift: 6});
+            return false;
+        }
+        if (!checkRepeat(username, 'username')) {
+            layer.msg('用户名不存在', {icon: 5, shift: 6});
+            return false;
+        }
+        //获取当前用户名对应的邮箱
+        var email = getEmailByUsername(username);
+        var tip_name = email;
+        var reg = /^(.*).{13}$/;
+        tip_name = tip_name.replace(reg, "$1****");
+        layer.confirm("点击确定将发送重置链接到对应邮箱" + tip_name + "，确定吗?", {icon: 3, title: '系统提示'}, function (index) {
+            //do something
+            var method = $('#method').val();
+            var title = 'Lestat乐园|密码重置';
+            var body = "您当前正在重置密码,请点击以下链接进行重置操作:";
+            // 点击登录邮箱
+            var _mail = email.split('@')[1];    //获取邮箱域
+            var email_url;
+            for (var j in hash) {
+                if (j == _mail) {
+                    //替换登陆链接
+                    email_url = hash[_mail];
+                }
+            }
+            $.ajax({
+                type: 'POST',
+                url: "/User/User/actAjaxResetUrl.html",
+                data: {email: email, method: method, title: title, body: body, username: username},
+                beforeSend: function () {
+                    btn.button('loading');
+                },
+                complete: function () {
+                    btn.button('reset');
+                },
+                success: function (data) {
+                    if (data.status == 200) {
+                        layer.close(reset_box);
+                        layer.open({
+                            title: '系统提示',
+                            shadeClose: true,//点击空白关闭
+                            content: data.message + ",<a href='" + email_url + "' target='_blank' style='color:#0B7DF2;'>点击前往查看</a>"
+                        });
+                    } else {
+                        layer.msg(data.message, {icon: 5, shift: 6});
+                    }
+                }
+            });
+            layer.close(index);
+        });
+    }
+
+    function signUp() {
+        location.href = 'http://user.lestatlee.com/signUp';
+    }
+
+    function personalCenter() {
+        location.href = 'http://user.lestatlee.com';
+    }
+
+
+    function qqLogin() {
+        var redirect_url = location.href;
+        var url = $('#qqurl').val();
+        $.ajax({
+            type: "GET",
+            url: "/User/Manage/setLoginMethod.html",
+            data: {method: 'qq', redirect_url: redirect_url},
+            dataType: "json",
+            success: function (data) {
+                if (data.status != 200) {
+                    layer.msg('参数错误', {icon: 5, shift: 6});
+                    return false;
+                } else {
+                    !url ? layer.msg('参数错误', {icon: 5, shift: 6}) : openUrl(url);
+                }
+            }
+        });
+    }
+
+    function weiboLogin() {
+        var redirect_url = location.href;
+        var url = $('#weibourl').val();
+        $.ajax({
+            type: "GET",
+            url: "/User/Manage/setLoginMethod.html",
+            data: {method: 'weibo', redirect_url: redirect_url},
+            dataType: "json",
+            success: function (data) {
+                if (data.status != 200) {
+                    layer.msg('参数错误', {icon: 5, shift: 6});
+                    return false;
+                } else {
+                    !url ? layer.msg('参数错误', {icon: 5, shift: 6}) : openUrl(url);
+                }
+            }
+        });
+    }
+
+    function facebookLogin() {
+        location.href = $('#facebookurl').val();
+    }
+
+    function githubLogin() {
+        location.href = $('#github_login_url').val();
+    }
+
+    function openUrl(url) {
+        location.href = url;
+    }
+</script> 
+  <script>
+    $(function () {
+        $('#signIn').bind('click', function () {
+            getBox();
+        });
+        $("#content").emoji({
+            showTab: true,
+            animation: 'fade',
+            button: '#emoji_comment',
+            icons: [{
+                path: "/Public/Static/jquery-emoji/img/qq/",
+                maxNum: 91,
+                excludeNums: [41, 45, 54],
+                file: ".gif",
+                placeholder: "#qq_{alias}#"
+            }]
+        });
+        /*
+         * todo:表情转换
+         * */
+        $(".comment_common_area").emojiParse({
+            icons: [{
+                path: "/Public/Static/jquery-emoji/img/tieba/",
+                file: ".jpg",
+                placeholder: ":{alias}:",
+                alias: {
+                    1: "hehe",
+                    2: "haha",
+                    3: "tushe",
+                    4: "a",
+                    5: "ku",
+                    6: "lu",
+                    7: "kaixin",
+                    8: "han",
+                    9: "lei",
+                    10: "heixian",
+                    11: "bishi",
+                    12: "bugaoxing",
+                    13: "zhenbang",
+                    14: "qian",
+                    15: "yiwen",
+                    16: "yinxian",
+                    17: "tu",
+                    18: "yi",
+                    19: "weiqu",
+                    20: "huaxin",
+                    21: "hu",
+                    22: "xiaonian",
+                    23: "neng",
+                    24: "taikaixin",
+                    25: "huaji",
+                    26: "mianqiang",
+                    27: "kuanghan",
+                    28: "guai",
+                    29: "shuijiao",
+                    30: "jinku",
+                    31: "shengqi",
+                    32: "jinya",
+                    33: "pen",
+                    34: "aixin",
+                    35: "xinsui",
+                    36: "meigui",
+                    37: "liwu",
+                    38: "caihong",
+                    39: "xxyl",
+                    40: "taiyang",
+                    41: "qianbi",
+                    42: "dnegpao",
+                    43: "chabei",
+                    44: "dangao",
+                    45: "yinyue",
+                    46: "haha2",
+                    47: "shenli",
+                    48: "damuzhi",
+                    49: "ruo",
+                    50: "OK"
+                }
+            }, {
+                path: "/Public/Static/jquery-emoji/img/qq/",
+                file: ".gif",
+                placeholder: "#qq_{alias}#"
+            }]
+        });
+    });
+</script> 
+  <script>
+    $('#qq_login').bind('click', function () {
+        location.href = $(this).attr('data-url');
+    });
+
+    console.log("%c     ","font-size:50px;background:url('http://lestatlee.com/Public/Home/images/timg.jpg') no-repeat 0 0");
+    console.log("😝🐞🐢😙欢迎访问%c:lestat乐园😙🐢🐞😝","color:red;font-weight:bold;");
+    console.log("邮箱%c:2007lixiao@gmail.com","color:red;font-weight:bold;");
+</script> 
+  <!--处理图片点击缩放--> 
+  <script src="/Public/Static/zooming/src/zooming.js"></script> 
+  <script src="/Public/Static/timeago.min.js" type="text/javascript"></script> 
+  <script src="/Public/Static/share/js/jquery.share.min.js"></script>   
+  <script type="text/javascript">
+    timeago().render(document.querySelectorAll('.need_to_be_rendered'), 'zh_CN');
+    timeago().render(document.querySelectorAll('.need_to_be_rendered1'), 'zh_CN');
+</script> 
+  <script>
+    $(function () {
+        $('#content_detail').find('img').attr('data-action','zoom');
+        $('#content_detail').find('a').css('color','#0B7DF2');
+        $('#share-1').share();
+        $('#signIn').bind('click', function () {
+            getBox();
+        });
+    });
+</script> 
+  <script>
+    //处理用户评论
+    $(function () {
+        $('#content').focus(function(){
+            var content = $('#content').val();
+            if(content == ''){
+                $('#content').val('');
+            }
+        });
+        var btn = $('#post');
+        btn.bind('click', function () {
+            var content = $('#content').val();
+            var userid = $('#userid').val();
+            var articleid = $('#articleid').val();
+            $.ajax({
+                url: "/Home/Home/isSignIn.html",
+                type: 'get',
+                async: false,
+                success: function (data) {
+                    if (data.status != 200) {
+                        getBox()
+                    } else {
+                        //console.log(content);return false;
+                        actSetComment(userid, articleid, content);
+                    }
+                }
+            });
+        });
+    });
+
+    /*
+     * todo:评论方法
+     * */
+    function actSetComment(userid, articleid, content) {
+        if (!content) {
+            layer.msg('评论内容不能为空', {icon: 5, shift: 6});
+            return false;
+        }
+        if(content.length > 500){
+            layer.msg('评论内容不能大于500长度', {icon: 5, shift: 6});
+            return false;
+        }
+        $.ajax({
+            type: 'post',
+            url: "/Comment/actSetComment.html",
+            data: {content: content, userid: userid, articleid: articleid},
+            beforeSend: function () {
+
+            },
+            success: function (data) {
+                if (data.status != 200) {
+                    layer.msg(data.message, {icon: 5, shift: 6});
+                } else {
+                    layer.msg(data.message, {icon: 6});
+                    location.reload();
+                }
+            }
+        });
+    }
+
+    /*
+     * todo:回复方法
+     * */
+    function reply(parentid, replyTo, origin_id) {
+        var content = $('#content').val();
+        var userid = $('#userid').val();
+        var articleid = $('#articleid').val();
+        if(origin_id == userid){
+            layer.msg('肿么可以自己回复自己呢?', {icon: 5, shift: 6});
+            return false;
+        }
+        $.ajax({
+            url: "/Home/Home/isSignIn.html",
+            type: 'get',
+            success: function (data) {
+                if (data.status != 200) {
+                    getBox()
+                } else {
+                    //弹出回复框
+                    getReplyBox(parentid, replyTo);
+                }
+            }
+        });
+
+    }
+
+    /*
+     * todo:弹出回复框
+     * */
+    function getReplyBox(parentid, replyTo) {
+        reply_box = layer.open({
+            title: '',
+            type: 1,
+            shadeClose: true,//点击空白关闭
+            //skin: 'layui-layer-rim', //加上边框
+            area: ['480px', '280px'], //宽高
+            content: "<div style='padding:10%;' class='am-form'><textarea rows='5' id='reply_content' placeholder='@" + replyTo + "'></textarea><input type='hidden' id='parentid' value='" + parentid + "'><br><button id='btn' type='button' class='am-btn am-btn-primary am-radius btn-loading-example' onclick='actSetReply()' data-am-loading=" + "{spinner: 'circle-o-notch', loadingText: '回复中...', resetText: '回复'}" + ">回复</button></div>"
+        });
+    }
+
+    /*
+     * todo:执行回复操作
+     * */
+    function actSetReply() {
+        var loading;
+        var parentid = $('#parentid').val();
+        var userid = $('#userid').val();
+        var content = $('#reply_content').val();
+        var articleid = $('#articleid').val();
+        if (!content) {
+            layer.msg('回复内容不能为空', {icon: 5, shift: 6});
+            return false;
+        }
+        $.ajax({
+            type: 'post',
+            url: "/Comment/actSetReply.html",
+            data: {content: content, parentid: parentid, userid: userid, articleid: articleid},
+            beforeSend: function () {
+                loading = layer.load(2);
+            },
+            complete: function(){
+                layer.close(loading);
+            },
+            success: function (data) {
+                if (data.status != 200) {
+                    layer.msg(data.message, {icon: 5, shift: 6});
+                } else {
+                    layer.msg(data.message, {icon: 6});
+                    location.reload();
+                }
+            }
+        });
+    }
+</script> 
+  <script>
+    $(function () {
+        $('.rotate').rotate({
+            bind: {
+                mouseover: function () {
+                    $(this).rotate({animateTo: 360})
+                },
+                mouseout: function () {
+                    $(this).rotate({animateTo: 0})
+                }
+            }
+        });
+    });
+</script>
+ </body>
+</html>

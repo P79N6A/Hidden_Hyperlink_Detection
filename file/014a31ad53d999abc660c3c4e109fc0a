@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<!--[if IE 7]>
+<html class="ie ie7" lang="zh-CN">
+<![endif]-->
+<!--[if IE 8]>
+<html class="ie ie8" lang="zh-CN">
+<![endif]-->
+<!--[if !(IE 7) | !(IE 8)  ]><!-->
+<html lang="zh-CN">
+ <!--<![endif]-->
+ <head> 
+  <meta charset="UTF-8" /> 
+  <meta name="viewport" content="width=device-width" /> 
+  <!--[if lt IE 9]>
+<script src="http://www.szeju.com/wp-content/themes/iconic-one/js/html5.js" type="text/javascript"></script>
+<![endif]--> 
+  <title>Centos 7 配置PPTP VPN攻略 – 技术圈</title> 
+  <script type="text/javascript">
+			window._wpemojiSettings = {"baseUrl":"https:\/\/s.w.org\/images\/core\/emoji\/2.2.1\/72x72\/","ext":".png","svgUrl":"https:\/\/s.w.org\/images\/core\/emoji\/2.2.1\/svg\/","svgExt":".svg","source":{"concatemoji":"http:\/\/www.szeju.com\/wp-includes\/js\/wp-emoji-release.min.js?ver=4.7"}};
+			!function(a,b,c){function d(a){var b,c,d,e,f=String.fromCharCode;if(!k||!k.fillText)return!1;switch(k.clearRect(0,0,j.width,j.height),k.textBaseline="top",k.font="600 32px Arial",a){case"flag":return k.fillText(f(55356,56826,55356,56819),0,0),!(j.toDataURL().length<3e3)&&(k.clearRect(0,0,j.width,j.height),k.fillText(f(55356,57331,65039,8205,55356,57096),0,0),b=j.toDataURL(),k.clearRect(0,0,j.width,j.height),k.fillText(f(55356,57331,55356,57096),0,0),c=j.toDataURL(),b!==c);case"emoji4":return k.fillText(f(55357,56425,55356,57341,8205,55357,56507),0,0),d=j.toDataURL(),k.clearRect(0,0,j.width,j.height),k.fillText(f(55357,56425,55356,57341,55357,56507),0,0),e=j.toDataURL(),d!==e}return!1}function e(a){var c=b.createElement("script");c.src=a,c.defer=c.type="text/javascript",b.getElementsByTagName("head")[0].appendChild(c)}var f,g,h,i,j=b.createElement("canvas"),k=j.getContext&&j.getContext("2d");for(i=Array("flag","emoji4"),c.supports={everything:!0,everythingExceptFlag:!0},h=0;h<i.length;h++)c.supports[i[h]]=d(i[h]),c.supports.everything=c.supports.everything&&c.supports[i[h]],"flag"!==i[h]&&(c.supports.everythingExceptFlag=c.supports.everythingExceptFlag&&c.supports[i[h]]);c.supports.everythingExceptFlag=c.supports.everythingExceptFlag&&!c.supports.flag,c.DOMReady=!1,c.readyCallback=function(){c.DOMReady=!0},c.supports.everything||(g=function(){c.readyCallback()},b.addEventListener?(b.addEventListener("DOMContentLoaded",g,!1),a.addEventListener("load",g,!1)):(a.attachEvent("onload",g),b.attachEvent("onreadystatechange",function(){"complete"===b.readyState&&c.readyCallback()})),f=c.source||{},f.concatemoji?e(f.concatemoji):f.wpemoji&&f.twemoji&&(e(f.twemoji),e(f.wpemoji)))}(window,document,window._wpemojiSettings);
+		</script> 
+  <style type="text/css">
+img.wp-smiley,
+img.emoji {
+	display: inline !important;
+	border: none !important;
+	box-shadow: none !important;
+	height: 1em !important;
+	width: 1em !important;
+	margin: 0 .07em !important;
+	vertical-align: -0.1em !important;
+	background: none !important;
+	padding: 0 !important;
+}
+</style> 
+  <link rel="stylesheet" id="cool-tag-cloud-css" href="http://www.szeju.com/wp-content/plugins/cool-tag-cloud/inc/cool-tag-cloud.css?ver=4.7" type="text/css" media="all" /> 
+  <link rel="stylesheet" id="wp-syntax-css-css" href="http://www.szeju.com/wp-content/plugins/wp-syntax/css/wp-syntax.css?ver=1.1" type="text/css" media="all" /> 
+  <link rel="stylesheet" id="themonic-fonts-css" href="http://fonts.googleapis.com/css?family=Ubuntu:400,700&amp;subset=latin,latin-ext" type="text/css" media="all" /> 
+  <link rel="stylesheet" id="themonic-style-css" href="http://www.szeju.com/wp-content/themes/iconic-one/style.css?ver=1.7.8" type="text/css" media="all" /> 
+  <link rel="stylesheet" id="custom-style-css" href="http://www.szeju.com/wp-content/themes/iconic-one/custom.css?ver=4.7" type="text/css" media="all" /> 
+  <!--[if lt IE 9]>
+<link rel='stylesheet' id='themonic-ie-css'  href='http://www.szeju.com/wp-content/themes/iconic-one/css/ie.css?ver=20130305' type='text/css' media='all' />
+<![endif]--> 
+  <link rel="stylesheet" id="meks-ads-widget-css" href="http://www.szeju.com/wp-content/plugins/meks-easy-ads-widget/css/style.css?ver=2.0.1" type="text/css" media="all" /> 
+  <script type="text/javascript" src="http://www.szeju.com/wp-includes/js/jquery/jquery.js?ver=1.12.4"></script> 
+  <script type="text/javascript" src="http://www.szeju.com/wp-includes/js/jquery/jquery-migrate.min.js?ver=1.4.1"></script> 
+  <link rel="https://api.w.org/" href="http://www.szeju.com/index.php/wp-json/" /> 
+  <link rel="prev" title="普通、透明代理和反向代理的区别" href="http://www.szeju.com/index.php/other/45132772.html" /> 
+  <link rel="next" title="vim编辑器详解" href="http://www.szeju.com/index.php/other/47132775.html" /> 
+  <link rel="canonical" href="http://www.szeju.com/index.php/other/46132774.html" /> 
+  <link rel="alternate" type="application/json+oembed" href="http://www.szeju.com/index.php/wp-json/oembed/1.0/embed?url=http%3A%2F%2Fwww.szeju.com%2Findex.php%2Fother%2F46132774.html" /> 
+  <link rel="alternate" type="text/xml+oembed" href="http://www.szeju.com/index.php/wp-json/oembed/1.0/embed?url=http%3A%2F%2Fwww.szeju.com%2Findex.php%2Fother%2F46132774.html&amp;format=xml" /> 
+  <style type="text/css">
+    #category-posts-2-internal .cat-post-item span.cat-post-css-cropping img {max-width: initial;	max-height: initial;}
+#category-posts-2-internal .cat-post-title {display: inline-block; font-size: 15px;}
+#category-posts-2-internal .cat-post-current .cat-post-title {font-weight: bold; text-transform: uppercase;}.cat-post-date {font-size: 12px;	line-height: 18px; font-style: italic; margin-bottom: 10px;}
+#category-posts-2-internal .cat-post-comment-num {font-size: 12px; line-height: 18px;}
+#category-posts-2-internal .cat-post-author {margin-bottom: 0;}
+#category-posts-2-internal .cat-post-thumbnail {display: block;}
+#category-posts-2-internal .cat-post-thumbnail img {margin: 5px 10px 5px 0;}
+#category-posts-2-internal .cat-post-item:before {content: ""; display: table; clear: both;}
+#category-posts-2-internal .cat-post-item:after {content: ""; display: table;	clear: both;}
+#category-posts-2-internal .cat-post-item .cat-post-css-cropping span {margin: 5px 10px 5px 0;  overflow: hidden; display:inline-block}
+#category-posts-2-internal .cat-post-item .cat-post-css-cropping img {margin: initial;}
+#category-posts-2-internal .cat-post-white img {padding-bottom: 0 !important; -webkit-transition: all 0.3s ease; -moz-transition: all 0.3s ease; -ms-transition: all 0.3s ease; -o-transition: all 0.3s ease; transition: all 0.3s ease;}
+#category-posts-2-internal .cat-post-dark img {padding-bottom: 0 !important; -webkit-transition: all 0.3s ease; -moz-transition: all 0.3s ease; -ms-transition: all 0.3s ease; -o-transition: all 0.3s ease; transition: all 0.3s ease;}
+#category-posts-2-internal .cat-post-scale img {padding-bottom: 0 !important; -webkit-transition: all 0.3s ease; -moz-transition: all 0.3s ease; -ms-transition: all 0.3s ease; -o-transition: all 0.3s ease; transition: all 0.3s ease;}
+#category-posts-2-internal .cat-post-blur img {padding-bottom: 0 !important; -webkit-transition: all 0.3s ease; -moz-transition: all 0.3s ease; -ms-transition: all 0.3s ease; -o-transition: all 0.3s ease; transition: all 0.3s ease;}
+#category-posts-2-internal .cat-post-white {background-color: white;}
+#category-posts-2-internal .cat-post-white img:hover {opacity: 0.8;}
+#category-posts-2-internal .cat-post-dark img:hover {-webkit-filter: brightness(75%); -moz-filter: brightness(75%); -ms-filter: brightness(75%); -o-filter: brightness(75%); filter: brightness(75%);}
+#category-posts-2-internal .cat-post-scale span {overflow: hidden; margin: 5px 10px 5px 0;}
+#category-posts-2-internal .cat-post-scale img {margin: initial; -webkit-transition: all 0.3s ease; -moz-transition: all 0.3s ease; -ms-transition: all 0.3s ease; -o-transition: all 0.3s ease; transition: all 0.3s ease;}
+#category-posts-2-internal .cat-post-scale img:hover {-webkit-transform: scale(1.1, 1.1); -ms-transform: scale(1.1, 1.1); transform: scale(1.1, 1.1);}
+#category-posts-2-internal .cat-post-blur img:hover {-webkit-filter: blur(2px); -moz-filter: blur(2px); -o-filter: blur(2px); -ms-filter: blur(2px); filter: blur(2px);}
+#category-posts-2-internal .cat-post-item {border-bottom: 1px solid #ccc;	list-style: none; list-style-type: none; margin: 3px 0;	padding: 3px 0;}
+#category-posts-2-internal .cat-post-item:last-child {border-bottom: none;}
+#category-posts-2-internal .cat-post-thumbnail {float:left;}
+</style> 
+ </head> 
+ <body class="post-template-default single single-post postid-132774 single-format-standard custom-font-enabled single-author"> 
+  <div id="page" class="site"> 
+   <header id="masthead" class="site-header" role="banner"> 
+    <div class="io-title-description"> 
+     <a href="http://www.szeju.com/" title="技术圈" rel="home">技术圈</a> 
+     <br ...="" /> 
+     <a class="site-description">人生就像一场旅行,不必在乎目的地。在乎的,是沿途的风景,以及看风景的心情。</a> 
+    </div> 
+    <nav id="site-navigation" class="themonic-nav" role="navigation"> 
+     <a class="assistive-text" href="#content" title="Skip to content">Skip to content</a> 
+     <ul id="menu-top" class="nav-menu">
+      <li><a href="http://www.szeju.com/">首页</a></li>
+     </ul> 
+    </nav>
+    <!-- #site-navigation --> 
+    <div class="clear"></div> 
+   </header>
+   <!-- #masthead --> 
+   <div id="main" class="wrapper"> 
+    <div id="primary" class="site-content"> 
+     <div id="content" role="main"> 
+      <article id="post-132774" class="post-132774 post type-post status-publish format-standard hentry category-other"> 
+       <header class="entry-header"> 
+        <h1 class="entry-title">Centos 7 配置PPTP VPN攻略</h1> 
+        <div class="below-title-meta"> 
+         <div class="adt">
+           By 
+          <span class="vcard author"> <span class="fn"><a href="http://www.szeju.com/index.php/author/smartsmile2012" title="由smartsmile2012发布" rel="author">smartsmile2012</a></span> </span> 
+          <span class="meta-sep">|</span> 
+          <span class="date updated">2017年1月13日</span> 
+         </div> 
+         <div class="adt-comment"> 
+          <a class="link-comments" href="http://www.szeju.com/index.php/other/46132774.html#respond">0 Comment</a> 
+         </div> 
+        </div>
+        <!-- below title meta end --> 
+       </header>
+       <!-- .entry-header --> 
+       <div class="entry-content"> 
+        <div class="showContent"> 
+         <p>准备工作：</p> 
+         <p>1、一台centos7主机，内网ip 192.*.*.*</p> 
+         <p>2、一个连接外网的路由器，外网固定ip 210.*.*.* &nbsp;DNS 210.*.*.*</p> 
+         <p></p> 
+         <p>开始安装：</p> 
+         <p>1、更新centos7主机</p> 
+         <pre class="brush:bash;toolbar:false">yum&nbsp;update&nbsp;–y
+reboot&nbsp;#重启</pre> 
+         <p>2、检测系统环境</p> 
+         <pre class="brush:bash;toolbar:false">modprobe&nbsp;ppp-compress-18&nbsp;&amp;&amp;&nbsp;echo&nbsp;success</pre> 
+         <p>显示success说明系统支持MPPE补丁，如果不支持，需要先安装kernel-devel</p> 
+         <p># yum install kernel-devel</p> 
+         <p>检查系统是否开启TUN/TAP支持</p> 
+         <pre class="brush:bash;toolbar:false">cat&nbsp;/dev/net/tun</pre> 
+         <p>显示结果为下面的文本，则表明通过：</p> 
+         <p>cat:/dev/net/tun: File descriptor in bad state</p> 
+         <p>检查系统是否开启ppp支持</p> 
+         <pre class="brush:bash;toolbar:false">cat&nbsp;/dev/ppp</pre> 
+         <p>显示结果为下面的文本，则表明通过：</p> 
+         <p>cat:/dev/ppp: No such device or address</p> 
+         <p>上面三条必须同时满足，否则不能安装pptp vpn</p> 
+         <p></p> 
+         <p>3、关闭SELINUX</p> 
+         <pre class="brush:bash;toolbar:false">vi&nbsp;/etc/selinux/config
+#SELINUX=enforcing&nbsp;#注释掉
+#SELINUXTYPE=targeted&nbsp;#注释掉
+SELINUX=disabled&nbsp;#增加
+setenforce&nbsp;0&nbsp;#使配置立即生效</pre> 
+         <p>4、更新epel（参考&nbsp;<a href="http://mannerwang.blog.51cto.com/12009183/1852806" target="_blank">http://mannerwang.blog.51cto.com/12009183/1852806</a>）</p> 
+         <pre class="brush:bash;toolbar:false">yum&nbsp;makecache&nbsp;#更新yum缓存
+yum&nbsp;repolist&nbsp;#查看yum源，会多一个epel源</pre> 
+         <p>5、安装iptables、ppp、pptpd</p> 
+         <pre class="brush:bash;toolbar:false">yum&nbsp;install&nbsp;-y&nbsp;ppp&nbsp;iptables&nbsp;pptpd</pre> 
+         <p>6、配置pptp参数</p> 
+         <pre class="brush:bash;toolbar:false">vi&nbsp;/etc/ppp/options.pptpd</pre> 
+         <p>找到 ms-dns两行，将注释#去掉，并改为如下</p> 
+         <p>ms-dns 210.*.*.*（公司外网DNS、可以使用114、8等通用DNS）</p> 
+         <p>ms-dns 8.8.8.8</p> 
+         <p></p> 
+         <p>7、设置pptp拨号用户和密码（可以设置多个用户，每行一个）</p> 
+         <pre class="brush:bash;toolbar:false">vi&nbsp;/etc/ppp/chap-secrets
+#client&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;server&nbsp;&nbsp;&nbsp;secret&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IP&nbsp;addresses
+vpntest&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pptpd&nbsp;&nbsp;&nbsp;&nbsp;123456&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*</pre> 
+         <p>*表示为客户端自动分配IP地址</p> 
+         <p>8、设置pptp服务器IP地址，设置vpn拨入客户端ip地址池</p> 
+         <pre class="brush:bash;toolbar:false">vi&nbsp;/etc/pptpd.conf
+localip&nbsp;172.16.36.1&nbsp;&nbsp;#设置pptp虚拟拨号服务器IP地址（注意：不是服务器本身的IP地址）
+remoteip&nbsp;172.16.36.2-254&nbsp;&nbsp;#为拨入vpn的用户动态分配IP地址</pre> 
+         <p><strong><span style="color:rgb(255,0,0);">这里有个坑是最后一行需要为空内容，原因目前未知..</span></strong></p> 
+         <p>9、启动服务</p> 
+         <pre class="brush:bash;toolbar:false">systemctl&nbsp;start&nbsp;pptpd.service&nbsp;#启动pptp
+systemctl&nbsp;status&nbsp;pptpd.service&nbsp;#查看pptp状态
+systemctl&nbsp;enable&nbsp;pptpd.service&nbsp;#设置开机启动</pre> 
+         <p>10、修改内核转发参数</p> 
+         <pre class="brush:bash;toolbar:false">vi&nbsp;/etc/sysctl.conf&nbsp;&nbsp;#编辑
+net.ipv4.ip_forward&nbsp;=&nbsp;1&nbsp;&nbsp;#设置为1
+/sbin/sysctl&nbsp;-p&nbsp;&nbsp;#使设置立刻生效</pre> 
+         <p><span style="color:rgb(255,0,0);"><strong>11、修改防火墙规则—重点内容</strong></span></p> 
+         <pre class="brush:bash;toolbar:false">systemctl&nbsp;start&nbsp;iptables.service&nbsp;#启动防火墙</pre> 
+         <p>开机启动：chkconfig iptables on</p> 
+         <p><strong style="color:rgb(255,0,0);">编辑配置文件，以下为我的配置，请自行对比默认配置参考</strong></p> 
+         <p><strong style="color:rgb(255,0,0);">主要是添加1723端口和gre协议.不推荐SHELL运行，建议直接编辑配置文件</strong></p> 
+         <pre class="brush:bash;toolbar:false">vi&nbsp;/etc/sysconfig/iptables&nbsp;&nbsp;
+#sample&nbsp;configuration&nbsp;for&nbsp;iptables&nbsp;service
+#you&nbsp;can&nbsp;edit&nbsp;this&nbsp;manually&nbsp;or&nbsp;use&nbsp;system-config-firewall
+#please&nbsp;do&nbsp;not&nbsp;ask&nbsp;us&nbsp;to&nbsp;add&nbsp;additional&nbsp;ports/services&nbsp;to&nbsp;this&nbsp;defaultconfiguration
+&nbsp;
+*filter
+:INPUT&nbsp;ACCEPT&nbsp;[0:0]
+:FORWARD&nbsp;ACCEPT&nbsp;[0:0]
+:OUTPUT&nbsp;ACCEPT&nbsp;[0:0]
+&nbsp;
+-A&nbsp;INPUT&nbsp;-p&nbsp;icmp&nbsp;-j&nbsp;ACCEPT
+-A&nbsp;INPUT&nbsp;-i&nbsp;lo&nbsp;-j&nbsp;ACCEPT
+-A&nbsp;INPUT&nbsp;-p&nbsp;tcp&nbsp;-m&nbsp;state&nbsp;--state&nbsp;NEW,RELATED,ESTABLISHED&nbsp;-m&nbsp;tcp&nbsp;--dport&nbsp;22&nbsp;-jACCEPT
+-A&nbsp;INPUT&nbsp;-p&nbsp;tcp&nbsp;-m&nbsp;state&nbsp;--state&nbsp;NEW,RELATED,ESTABLISHED&nbsp;-m&nbsp;tcp&nbsp;--dport&nbsp;1723&nbsp;-jACCEPT
+-A&nbsp;INPUT&nbsp;-p&nbsp;gre&nbsp;-m&nbsp;state&nbsp;--state&nbsp;NEW,RELATED,ESTABLISHED&nbsp;-j&nbsp;ACCEPT
+-A&nbsp;INPUT&nbsp;-m&nbsp;state&nbsp;--state&nbsp;RELATED,ESTABLISHED&nbsp;-j&nbsp;ACCEPT
+-A&nbsp;FORWARD&nbsp;-i&nbsp;ppp+&nbsp;-m&nbsp;state&nbsp;--state&nbsp;NEW,RELATED,ESTABLISHED&nbsp;-j&nbsp;ACCEPT
+-A&nbsp;FORWARD&nbsp;-m&nbsp;state&nbsp;--state&nbsp;RELATED,ESTABLISHED&nbsp;-j&nbsp;ACCEPT
+-A&nbsp;FORWARD&nbsp;-m&nbsp;state&nbsp;--state&nbsp;INVALID&nbsp;-j&nbsp;DROP
+-A&nbsp;OUTPUT&nbsp;-m&nbsp;state&nbsp;--state&nbsp;INVALID&nbsp;-j&nbsp;DROP
+&nbsp;
+COMMIT
+#completed&nbsp;on&nbsp;2016-9-18&nbsp;15:33:54
+&nbsp;
+*nat
+:PREROUTING&nbsp;ACCEPT&nbsp;[0:0]
+:POSTROUTING&nbsp;ACCEPT&nbsp;[0:0]
+:OUTPUT&nbsp;ACCEPT&nbsp;[0:0]
+-A&nbsp;POSTROUTING&nbsp;-s&nbsp;172.16.36.0/24&nbsp;-o&nbsp;eno16777984&nbsp;-j&nbsp;MASQUERADE
+COMMIT
+#completed&nbsp;on&nbsp;2016-9-18&nbsp;15:33:54</pre> 
+         <p>由于centos7中的iptables规则重启失效，添加到local文件中</p> 
+         <p>vi /etc/rc.d/rc.local #在文件末尾添加此行代码</p> 
+         <pre class="brush:bash;toolbar:false">iptables&nbsp;-t&nbsp;nat&nbsp;-A&nbsp;POSTROUTING&nbsp;-s&nbsp;172.16.36.0/24&nbsp;-o&nbsp;eno16777984&nbsp;-j&nbsp;MASQUERADE</pre> 
+         <p>上面有2处需要注意，两个<strong><span style="color:rgb(255,0,0);">POSTROUTING</span></strong>字段都使用了本机的网卡名称，其中<strong style="color:rgb(255,0,0);">eno16777984</strong>是虚拟主机网卡，而不是传统上的<strong><span style="color:rgb(255,0,0);">eth0</span></strong>，务必注意！</p> 
+         <p></p> 
+         <p>重启iptables使得规则生效</p> 
+         <p>systemctl restart&nbsp;iptables.service</p> 
+         <p></p> 
+         <p>查看路由表及iptables规则</p> 
+         <pre class="brush:bash;toolbar:false">iptables&nbsp;-t&nbsp;nat&nbsp;-L
+Chain&nbsp;PREROUTING&nbsp;(policy&nbsp;ACCEPT)
+target&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;prot&nbsp;opt&nbsp;source&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;destination&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Chain&nbsp;INPUT&nbsp;(policy&nbsp;ACCEPT)
+target&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;prot&nbsp;opt&nbsp;source&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;destination&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Chain&nbsp;OUTPUT&nbsp;(policy&nbsp;ACCEPT)
+target&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;prot&nbsp;opt&nbsp;source&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;destination&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Chain&nbsp;POSTROUTING&nbsp;(policy&nbsp;ACCEPT)
+target&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;prot&nbsp;opt&nbsp;source&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;destination&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+MASQUERADE&nbsp;&nbsp;all&nbsp;&nbsp;--&nbsp;&nbsp;172.16.36.0/24&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;anywhere</pre> 
+         <pre class="brush:bash;toolbar:false">iptables&nbsp;-t&nbsp;filter&nbsp;-L
+Chain&nbsp;INPUT&nbsp;(policy&nbsp;ACCEPT)
+target&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;prot&nbsp;opt&nbsp;source&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;destination&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+ACCEPT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;icmp&nbsp;--&nbsp;&nbsp;anywhere&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;anywhere&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+ACCEPT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;all&nbsp;&nbsp;--&nbsp;&nbsp;anywhere&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;anywhere&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+ACCEPT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;tcp&nbsp;&nbsp;--&nbsp;&nbsp;anywhere&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;anywhere&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;state&nbsp;NEW,RELATED,ESTABLISHED&nbsp;tcp&nbsp;dpt:ssh
+ACCEPT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;tcp&nbsp;&nbsp;--&nbsp;&nbsp;anywhere&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;anywhere&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;state&nbsp;NEW,RELATED,ESTABLISHED&nbsp;tcp&nbsp;dpt:pptp
+ACCEPT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;gre&nbsp;&nbsp;--&nbsp;&nbsp;anywhere&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;anywhere&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;state&nbsp;NEW,RELATED,ESTABLISHED
+ACCEPT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;all&nbsp;&nbsp;--&nbsp;&nbsp;anywhere&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;anywhere&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;state&nbsp;RELATED,ESTABLISHED
+Chain&nbsp;FORWARD&nbsp;(policy&nbsp;ACCEPT)
+target&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;prot&nbsp;opt&nbsp;source&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;destination&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+ACCEPT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;all&nbsp;&nbsp;--&nbsp;&nbsp;anywhere&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;anywhere&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;state&nbsp;NEW,RELATED,ESTABLISHED
+ACCEPT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;all&nbsp;&nbsp;--&nbsp;&nbsp;anywhere&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;anywhere&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;state&nbsp;RELATED,ESTABLISHED
+DROP&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;all&nbsp;&nbsp;--&nbsp;&nbsp;anywhere&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;anywhere&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;state&nbsp;INVALID
+Chain&nbsp;OUTPUT&nbsp;(policy&nbsp;ACCEPT)
+target&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;prot&nbsp;opt&nbsp;source&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;destination&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+DROP&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;all&nbsp;&nbsp;--&nbsp;&nbsp;anywhere&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;anywhere&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;state&nbsp;INVALID</pre> 
+         <p><strong><span style="color:rgb(255,0,0);">坑点又来了</span></strong>,iptables启动时默认是不加载模块的，这样就会导致连接时报<strong><span style="color:rgb(255,0,0);">619无法验证密码</span></strong>的错误</p> 
+         <p style="white-space:normal;"><strong><span style="color:rgb(255,0,0);">加载iptables模块</span></strong></p> 
+         <pre class="brush:bash;toolbar:false">modprobeip_nat_pptp
+modprobeip_conntrack_pptp</pre> 
+         <p style="white-space:normal;">查看模块是否加载</p> 
+         <pre class="brush:bash;toolbar:false">lsmod|grep&nbsp;pptp
+nf_nat_pptp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;13115&nbsp;&nbsp;0
+nf_nat_proto_gre&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;13009&nbsp;1&nbsp;nf_nat_pptp
+nf_conntrack_pptp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;19257&nbsp;1&nbsp;nf_nat_pptp
+nf_conntrack_proto_gre&nbsp;&nbsp;&nbsp;&nbsp;14287&nbsp;1&nbsp;nf_conntrack_pptp
+nf_nat&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;26146&nbsp;&nbsp;4nf_nat_proto_gre,nf_nat_ipv4,nf_nat_pptp,nf_nat_masquerade_ipv4
+nf_conntrack&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;105745&nbsp;&nbsp;8nf_conntrack_proto_gre,nf_nat,nf_nat_ipv4,nf_nat_pptp,xt_conntrack,nf_nat_masquerade_ipv4,nf_conntrack_ipv4,nf_conntrack_pptp</pre> 
+         <p style="white-space:normal;">如果想让iptables自动加载以上模块，可以编辑</p> 
+         <pre class="brush:bash;toolbar:false">vi&nbsp;/etc/sysconfig/iptables-config</pre> 
+         <p style="white-space:normal;">在IPTABLES_MODULES=””字段中添加以上模块。</p> 
+         <p style="white-space:normal;">IPTABLES_MODULES=”ip_nat_pptp ip_nat_proto_gre”</p> 
+         <p style="white-space:normal;">重启iptables即可</p> 
+         <p></p> 
+         <p>12、安装net-tools，查看1723端口</p> 
+         <pre class="brush:bash;toolbar:false">yuminstall&nbsp;-y&nbsp;net-tools
+netstat&nbsp;-nap&nbsp;|&nbsp;grep&nbsp;1723&nbsp;|&nbsp;grep&nbsp;pptpd
+tcp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;0.0.0.0:1723&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0.0.0.0:*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LISTEN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1070/pptpd</pre> 
+         <p><strong><span style="color:rgb(255,0,0);">13、在路由器侧配置端口及外网ip，这个要看各自的路由本身的操作了，可能还需要配置路由表，将172.16.36.0加到表中.</span></strong></p> 
+         <p></p> 
+         <p>查看pptp服务状态</p> 
+         <p>systemctl status pptpd.service</p> 
+         <p>systemctl status iptables.service</p> 
+         <p><strong><span style="color:rgb(255,0,0);"><br /></span></strong></p> 
+         <p><strong><span style="color:rgb(255,0,0);">要保证的服务：</span></strong></p> 
+         <p><strong><span style="color:rgb(255,0,0);">pptpd可以自启动</span></strong></p> 
+         <p><strong><span style="color:rgb(255,0,0);">iptables可以自启动并加载转发、gre模块</span></strong></p> 
+         <p></p> 
+         <p>经过如上一系列操作，系统PPTP搭建成功，且重启后服务即刻启动。</p> 
+         <p></p> 
+         <p>通信分析：</p> 
+         <p>外网用户通过210 的PPTP外网映射ip及账号密码默认端口访问到内网192 PPTP主机并获得172 的IP</p> 
+         <p>访问内网页面时，192的请求指向172 VPN并由内网PPTP主机将172 IP nat到内网192 并返回数据，实现VPN的功能，，，也不知道我说得对不对</p> 
+         <p></p> 
+         <p>Q&amp;A：</p> 
+         <p>1、为什么选择pptp而不是openvpn？因为后者还没研究成果…</p> 
+         <p>2、关于吞吐量、关于安全—<strong>目前还在研究，包括iptables的规则也需要细化</strong></p> 
+         <p>3、PPTP支持同一用户多地重复连接</p> 
+         <p>4、连接多个不同VPN时是否有安全隐患–一般没有，可以设置路由表对网络通信进行区分</p> 
+         <p></p> 
+         <p>本文参考了如下作者内容，表示感谢！</p> 
+         <p style="white-space:normal;">http://www.wanghailin.cn/centos-7-vpn/</p> 
+         <p style="white-space:normal;">http://www.osyunwei.com/archives/7407.html</p> 
+         <p style="white-space:normal;">http://www.111cn.net/sys/linux/86641.htm</p> 
+         <p style="white-space:normal;">http://www.centoscn.com/image-text/install/2014/1201/4211.html</p> 
+         <p style="white-space:normal;">http://www.tuicool.com/articles/uu6NJb</p> 
+         <p></p> 
+         <p>(完)</p> 
+         <p>2016-9-21</p> 
+         <p>本文出自 “<a href="http://mannerwang.blog.51cto.com">尔与同愁</a>” 博客，请务必保留此出处<a href="http://mannerwang.blog.51cto.com/12009183/1854931">http://mannerwang.blog.51cto.com/12009183/1854931</a></p> 
+         <p></p>
+        </div> 
+        <div> 
+         <p><img src="http://www.szeju.com/wp-content/uploads/2017/01/950pxcsdn.jpg" alt="" width="800" class="alignnone size-full wp-image-12" /></p> 
+        </div> 
+       </div>
+       <!-- .entry-content --> 
+       <footer class="entry-meta"> 
+        <span>Category: <a href="http://www.szeju.com/index.php/category/other" rel="category tag">其它</a></span> 
+        <span></span> 
+       </footer>
+       <!-- .entry-meta --> 
+      </article>
+      <!-- #post --> 
+      <nav class="nav-single"> 
+       <div class="assistive-text">
+        Post navigation
+       </div> 
+       <span class="nav-previous"><a href="http://www.szeju.com/index.php/other/45132772.html" rel="prev"><span class="meta-nav">←</span> 普通、透明代理和反向代理的区别</a></span> 
+       <span class="nav-next"><a href="http://www.szeju.com/index.php/other/47132775.html" rel="next">vim编辑器详解 <span class="meta-nav">→</span></a></span> 
+      </nav>
+      <!-- .nav-single --> 
+      <div id="comments" class="comments-area"> 
+      </div>
+      <!-- #comments .comments-area --> 
+     </div>
+     <!-- #content --> 
+    </div>
+    <!-- #primary --> 
+    <div id="secondary" class="widget-area" role="complementary"> 
+     <aside id="text-2" class="widget widget_text"> 
+      <div class="textwidget">
+       <script type="text/javascript">(function(){document.write(unescape('%3Cdiv id="bdcs"%3E%3C/div%3E'));var bdcs = document.createElement('script');bdcs.type = 'text/javascript';bdcs.async = true;bdcs.src = 'http://znsv.baidu.com/customer_search/api/js?sid=4608519927286554898' + '&plate_url=' + encodeURIComponent(window.location.href) + '&t=' + Math.ceil(new Date()/3600000);var s = document.getElementsByTagName('script')[0];s.parentNode.insertBefore(bdcs, s);})();</script>
+      </div> 
+     </aside>
+     <aside id="cool_tag_cloud-4" class="widget widget_cool_tag_cloud">
+      <p class="widget-title">分类列表</p>
+      <div class="cool-tag-cloud">
+       <div class="ctcblue">
+        <div class="ctcleft">
+         <div class="arial" style="text-transform:none!important;">
+          <a href="http://www.szeju.com/index.php/category/android" class="tag-link-58 tag-link-position-1" title="2,651个话题" style="font-size: 10px;">Android</a>
+          <a href="http://www.szeju.com/index.php/category/asp-net" class="tag-link-47 tag-link-position-2" title="1,307个话题" style="font-size: 10px;">Asp.Net</a>
+          <a href="http://www.szeju.com/index.php/category/clanguage" class="tag-link-66 tag-link-position-3" title="1,531个话题" style="font-size: 10px;">C</a>
+          <a href="http://www.szeju.com/index.php/category/csharp" class="tag-link-46 tag-link-position-4" title="2,988个话题" style="font-size: 10px;">C#</a>
+          <a href="http://www.szeju.com/index.php/category/cpp" class="tag-link-67 tag-link-position-5" title="2,598个话题" style="font-size: 10px;">C++</a>
+          <a href="http://www.szeju.com/index.php/category/html" class="tag-link-55 tag-link-position-6" title="2,854个话题" style="font-size: 10px;">Html</a>
+          <a href="http://www.szeju.com/index.php/category/html5" class="tag-link-57 tag-link-position-7" title="1,629个话题" style="font-size: 10px;">html5</a>
+          <a href="http://www.szeju.com/index.php/category/ios" class="tag-link-59 tag-link-position-8" title="2,967个话题" style="font-size: 10px;">IOS</a>
+          <a href="http://www.szeju.com/index.php/category/java" class="tag-link-60 tag-link-position-9" title="2,707个话题" style="font-size: 10px;">Java</a>
+          <a href="http://www.szeju.com/index.php/category/javascript" class="tag-link-54 tag-link-position-10" title="2,836个话题" style="font-size: 10px;">Javascript</a>
+          <a href="http://www.szeju.com/index.php/category/jquery" class="tag-link-56 tag-link-position-11" title="2,516个话题" style="font-size: 10px;">JQuery</a>
+          <a href="http://www.szeju.com/index.php/category/linux" class="tag-link-69 tag-link-position-12" title="2,623个话题" style="font-size: 10px;">Linux</a>
+          <a href="http://www.szeju.com/index.php/category/mvc" class="tag-link-65 tag-link-position-13" title="1,464个话题" style="font-size: 10px;">MVC</a>
+          <a href="http://www.szeju.com/index.php/category/mysql" class="tag-link-53 tag-link-position-14" title="1,539个话题" style="font-size: 10px;">MySql</a>
+          <a href="http://www.szeju.com/index.php/category/nosql" class="tag-link-71 tag-link-position-15" title="910个话题" style="font-size: 10px;">NoSql</a>
+          <a href="http://www.szeju.com/index.php/category/oracle" class="tag-link-63 tag-link-position-16" title="1,998个话题" style="font-size: 10px;">Oracle</a>
+          <a href="http://www.szeju.com/index.php/category/php" class="tag-link-64 tag-link-position-17" title="2,736个话题" style="font-size: 10px;">PHP</a>
+          <a href="http://www.szeju.com/index.php/category/sqlserver" class="tag-link-52 tag-link-position-18" title="2,349个话题" style="font-size: 10px;">SQL Server</a>
+          <a href="http://www.szeju.com/index.php/category/other" class="tag-link-1 tag-link-position-19" title="52,547个话题" style="font-size: 10px;">其它</a>
+          <a href="http://www.szeju.com/index.php/category/design" class="tag-link-62 tag-link-position-20" title="1,004个话题" style="font-size: 10px;">架构设计</a>
+         </div>
+        </div>
+       </div>
+      </div>
+     </aside>
+     <aside id="category-posts-2" class="widget cat-post-widget">
+      <p class="widget-title">最新文章</p>
+      <ul id="category-posts-2-internal" class="category-posts-internal"> 
+       <li class="cat-post-item"><a class="post-title cat-post-title" href="http://www.szeju.com/index.php/other/20238307.html" rel="bookmark">C#继承之隐藏基类方法</a> </li>
+       <li class="cat-post-item"><a class="post-title cat-post-title" href="http://www.szeju.com/index.php/other/19238306.html" rel="bookmark">用vector实现矩阵， vector传参必须用模板泛型</a> </li>
+       <li class="cat-post-item"><a class="post-title cat-post-title" href="http://www.szeju.com/index.php/other/17238305.html" rel="bookmark">PLA算法Java实现——机器学习基石</a> </li>
+       <li class="cat-post-item"><a class="post-title cat-post-title" href="http://www.szeju.com/index.php/other/16238304.html" rel="bookmark">蓝桥杯_Fibonacci数列 java</a> </li>
+       <li class="cat-post-item"><a class="post-title cat-post-title" href="http://www.szeju.com/index.php/other/16238303.html" rel="bookmark">Leetcode 179 Largest number (最大的数字 和最小的数字)</a> </li>
+       <li class="cat-post-item"><a class="post-title cat-post-title" href="http://www.szeju.com/index.php/other/15238301.html" rel="bookmark">【maven】8、pom.xml介绍(一)</a> </li>
+       <li class="cat-post-item"><a class="post-title cat-post-title" href="http://www.szeju.com/index.php/other/14238300.html" rel="bookmark">java单例模式创建方法</a> </li>
+       <li class="cat-post-item"><a class="post-title cat-post-title" href="http://www.szeju.com/index.php/other/13238299.html" rel="bookmark">Hibernate的配置详解</a> </li>
+       <li class="cat-post-item"><a class="post-title cat-post-title" href="http://www.szeju.com/index.php/other/13238298.html" rel="bookmark">MD5加密汉字与站长工具MD5结果不一样</a> </li>
+       <li class="cat-post-item"><a class="post-title cat-post-title" href="http://www.szeju.com/index.php/other/13238297.html" rel="bookmark">最大子列和 动态规划 在线处理</a> </li>
+       <li class="cat-post-item"><a class="post-title cat-post-title" href="http://www.szeju.com/index.php/other/12238296.html" rel="bookmark">Hadoop 从 hdfs 中拷出文件权限不够</a> </li>
+       <li class="cat-post-item"><a class="post-title cat-post-title" href="http://www.szeju.com/index.php/other/12238294.html" rel="bookmark">排序算法(Java)</a> </li>
+       <li class="cat-post-item"><a class="post-title cat-post-title" href="http://www.szeju.com/index.php/other/12238293.html" rel="bookmark">零基础学HTML+CSS 第3版</a> </li>
+       <li class="cat-post-item"><a class="post-title cat-post-title" href="http://www.szeju.com/index.php/other/11238292.html" rel="bookmark">蓝桥杯：算法训练之最大最小公倍数</a> </li>
+       <li class="cat-post-item"><a class="post-title cat-post-title" href="http://www.szeju.com/index.php/other/11238291.html" rel="bookmark">C++学习笔记——STL</a> </li>
+      </ul> 
+     </aside>
+     <aside id="listcategorypostswidget-2" class="widget widget_listcategorypostswidget">
+      <p class="widget-title">相关推荐</p>
+      <ul>
+       <li><a href="http://www.szeju.com/index.php/other/32155980.html" title="TCP数据的传输进程">TCP数据的传输进程</a> </li>
+       <li><a href="http://www.szeju.com/index.php/other/3290505.html" title="
+        类中的访问顺序            
+        ">类中的访问顺序</a> </li>
+       <li><a href="http://www.szeju.com/index.php/other/03142404.html" title="Linux  常用系统工具与初始化配置">Linux 常用系统工具与初始化配置</a> </li>
+       <li><a href="http://www.szeju.com/index.php/other/08208518.html" title="
+        Qt|QT禁用最大化按钮和禁止调节窗口大小            
+        ">Qt|QT禁用最大化按钮和禁止调节窗口大小</a> </li>
+       <li><a href="http://www.szeju.com/index.php/other/28152772.html" title="Docker1.12  swarm模式下让容器在指定节点运行">Docker1.12 swarm模式下让容器在指定节点运行</a> </li>
+       <li><a href="http://www.szeju.com/index.php/other/40221495.html" title="
+        三色旗的问题            
+        ">三色旗的问题</a> </li>
+       <li><a href="http://www.szeju.com/index.php/other/09200524.html" title="Asp.Net MVC学习总结（二）——控制器与动作(Controller And Action)">Asp.Net MVC学习总结（二）——控制器与动作(Controller And Action)</a> </li>
+       <li><a href="http://www.szeju.com/index.php/other/0184528.html" title="
+        Qt 透明窗体            
+        ">Qt 透明窗体</a> </li>
+       <li><a href="http://www.szeju.com/index.php/other/43147986.html" title="mysql首字母排序，抛弃传统的php首字母排序">mysql首字母排序，抛弃传统的php首字母排序</a> </li>
+       <li><a href="http://www.szeju.com/index.php/other/13127011.html" title="linux centos系统永久关闭ipv6">linux centos系统永久关闭ipv6</a> </li>
+       <li><a href="http://www.szeju.com/index.php/other/38184690.html" title="
+        将自定义对象作为元素存到arrarylist集合中，并去除重复元素            
+        ">将自定义对象作为元素存到arrarylist集合中，并去除重复元素</a> </li>
+       <li><a href="http://www.szeju.com/index.php/other/13188294.html" title="
+        Java原理 完整java开发中JDBC连接数据库代码和步骤            
+        ">Java原理 完整java开发中JDBC连接数据库代码和步骤</a> </li>
+       <li><a href="http://www.szeju.com/index.php/other/4144013.html" title="
+        [leetcode]477. Total Hamming Distance            
+        ">[leetcode]477. Total Hamming Distance</a> </li>
+       <li><a href="http://www.szeju.com/index.php/other/5491678.html" title="
+        WebGL数据制作流程及加载            
+        ">WebGL数据制作流程及加载</a> </li>
+       <li><a href="http://www.szeju.com/index.php/other/24109808.html" title="LeetCode 378 Kth Smallest Element in a Sorted Matrix">LeetCode 378 Kth Smallest Element in a Sorted Matrix</a> </li>
+      </ul>
+      <a href="http://www.szeju.com/index.php/category/other"> </a>
+     </aside> 
+    </div>
+    <!-- #secondary --> 
+   </div>
+   <!-- #main .wrapper --> 
+   <footer id="colophon" role="contentinfo"> 
+    <div class="site-info"> 
+     <div class="footercopy">
+      Power By 深南 版权所有@Copyright 2016 
+     </div> 
+     <div class="footercredit">
+      <a href="http://www.miibeian.gov.cn" target="_blank">粤ICP备16030609号-1</a>
+     </div> 
+     <div class="clear"></div> 
+    </div>
+    <!-- .site-info --> 
+   </footer>
+   <!-- #colophon --> 
+   <div class="site-wordpress"> 
+    <script>
+				var _hmt = _hmt || [];
+				(function() {
+				  var hm = document.createElement("script");
+				  hm.src = "https://hm.baidu.com/hm.js?04aeaf0e393092c5d84114a68e9884c1";
+				  var s = document.getElementsByTagName("script")[0]; 
+				  s.parentNode.insertBefore(hm, s);
+				})();
+				</script> 
+   </div>
+   <!-- .site-info --> 
+   <div class="clear"></div> 
+  </div>
+  <!-- #page --> 
+  <script type="text/javascript" src="http://www.szeju.com/wp-content/plugins/wp-syntax/js/wp-syntax.js?ver=1.1"></script> 
+  <script type="text/javascript" src="http://www.szeju.com/wp-content/themes/iconic-one/js/selectnav.js?ver=1.0"></script> 
+  <script type="text/javascript" src="http://www.szeju.com/wp-includes/js/wp-embed.min.js?ver=4.7"></script>  
+ </body>
+</html>

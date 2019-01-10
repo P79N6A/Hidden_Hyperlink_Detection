@@ -1,0 +1,490 @@
+<!DOCTYPE html><html><head>
+<meta charset="utf-8">
+<title>个人中心-视频播放-嗨学网</title>
+<link href="http://static.highso.com.cn/css/base.css" rel="stylesheet">
+<link href="http://static.highso.com.cn/css/uCenter/uc-common2.css?v=2.0" rel="stylesheet">
+<link href="http://static.highso.com.cn/css/free-video.css" rel="stylesheet">
+<script type="text/javascript" language="javascript">
+var SERVER_CONTEXT = "";
+var ATTACHMENT_IMAGES_EXTENDS = 'jpg,jpeg,png,bmp,gif';
+</script>
+<script type="text/javascript" language="javascript" src="http://static.highso.com.cn/js/jquery-1.7.2.min.js"></script>
+<script type="text/javascript" language="javascript" src="http://static.highso.com.cn/js/jquery.artDialog.js"></script>
+<script type="text/javascript" language="javascript" src="http://static.highso.com.cn/js/common.js"></script>
+<script type="text/javascript" language="javascript" src="http://static.highso.com.cn/js/uc-common2.js"></script>
+<script type="text/javascript" language="javascript" src="http://static.highso.com.cn/js/jquery.loadmask.min.js"></script>
+<script type="text/javascript" language="javascript" src="http://static.highso.com.cn/js/watchVideo/freeVideo.js"></script>
+	        <script type="text/javascript" language="javascript" src="http://static.highso.com.cn/video/html5media.min.js"></script>
+        <script type="text/javascript" language="javascript" src="http://static.highso.com.cn/video/mobileplay.js"></script>
+    <script type="text/javascript" language="javascript" src="http://static.highso.com.cn/js/videoattached.js"></script>
+<script type="text/javascript" language="javascript" src="http://static.highso.com.cn/js/videoplay_free.js"></script>
+<script type="text/javascript" language="javascript">
+/*
+    art.dialog({title:'提示', content: '所访问免费视频不存在。', 
+    	width:300, height:100, lock:true, icon:"error", ok:true, cancel:false
+    });
+var catalogs = {};
+var videoindex = 0;
+var videoarray ={};
+ */
+
+
+function goodsCatalog(id,goodsCatalogName,createBySystem){
+	this.id = id;
+	this.goodsCatalogName = goodsCatalogName;
+	this.createBySystem = createBySystem;
+}
+var ci = 0;
+td = 0;
+//课程目录开关
+$(document).ready(function() {
+	//学习两个小时，有情提示
+	$("#j-videoSwitch").toggle(function(){
+		$("#videoSide").animate({right:-350},400);
+		$("#videoBox").animate({marginRight:0},400);
+		$(this).addClass("video-switch-hide");
+	},function(){
+		$("#videoSide").animate({right:0},400);
+		$("#videoBox").animate({marginRight:350},400);
+		$(this).removeClass("video-switch-hide");
+	});
+});
+//课程目录效果
+$(document).ready(function() {
+	$("#catalogList .list").find("li").live({
+    	mouseenter:
+    	function(){
+    		$(this).addClass("hover");
+    	},
+    	mouseleave:
+    	function(){
+    		$(this).removeClass("hover");
+    	}
+	});
+	$("#catalogList .chapter-tit").live("click",function() {
+		var $this=$(this);
+		var $list=$this.siblings(".list");
+		if($list.css("display")=="block")
+		{
+			$list.slideUp(300);
+			$this.find(".switch").addClass("close-ico").removeClass("open-ico");
+		}else
+		{
+			$list.slideDown(300);
+			$this.find(".switch").addClass("open-ico").removeClass("close-ico");
+		};
+		return false;
+	});
+	//默认关闭除本视频所在目录外所有的其他（仅针对拥有二级目录的列表）		pangld	20131227
+	try{
+		$(".chapter-tit", "#catalogList").not($(".chapter-box:has(li.current) .chapter-tit", "#catalogList")).click();
+	}catch(e){}
+});
+
+
+//滚动切换
+$(document).ready(function() {
+	(function(){
+		//滚动显示
+		rollBottomStudyBox();
+		var vPrev=$("#j-vPrev");
+		var vNext=$("#j-vNext");
+		var studyInner=$("#j-studyInner");
+		var windowH=$(window).height();
+		var studyTitle=$(".study-title");
+		vPrev.live("click",function(){
+			clearTimeout(playlazy);
+			if(videoindex==0){return false;}
+			function videoprev(){
+				studyInner.animate({top:windowH,bottom:-windowH},1000,function(){
+    				$("#tab_catalog").click();
+					videoindex--;
+    				scrollvideo();
+    				$("#playerBox").show();
+    				$("#vtestBox").hide();
+    				$("#playing-txt").html("正在播放");
+    				studyInner.animate({top:-windowH,bottom:windowH},0,function(){
+    					studyInner.animate({top:0,bottom:0},1000);
+    				});
+				});
+			}
+			playlazy=setTimeout(videoprev,300);
+			return false;
+		});
+		vNext.live("click",function(){
+			clearTimeout(playlazy);
+			
+			if(videoindex==videoarray.length-1 && catalogsindex<catalogs.length-1){
+				$('#cata-next').click();
+				return;
+			}
+			if(videoindex==videoarray.length-1){return false;}
+			
+			function videonext(){
+				studyInner.animate({top:-windowH,bottom:windowH},1000,function(){
+    				$("#tab_catalog").click();
+    				videoindex++;
+    				scrollvideo();
+    				$("#playerBox").show();
+    				$("#vtestBox").hide();
+    				$("#playing-txt").html("正在播放");
+    				studyInner.animate({top:windowH,bottom:-windowH},0,function(){
+    					studyInner.animate({top:0,bottom:0},1000);
+    				});
+				});
+			}
+			playlazy=setTimeout(videonext,300);
+			return false;
+		});
+		$('#cata-prev').click(function(){
+			clearTimeout(playlazy);
+			if(catalogsindex==0){return;}
+			if($("#catalogList").attr("catalogId")==catalogs[catalogsindex].id){
+				catalogData[catalogs[catalogsindex].id] = $("#catalogList").html();
+			}
+			catalogsindex--;
+			//导航控制
+			catalogShow();
+			//目录加载
+			$("#catalogName").html(catalogs[catalogsindex].goodsCatalogName);
+			if(catalogs[catalogsindex].createBySystem==1){
+	  			$("#catalogName").html($("#goodsName").html());
+	  		}
+			$("#displayName").html("");
+			function cataprev(){
+				player_pause();
+    			switchcatalog();
+    			studyInner.animate({top:windowH,bottom:-windowH},1000,function(){
+    				$("#playerBox").show();
+    				$("#vtestBox").hide();
+    				studyInner.animate({top:-windowH,bottom:windowH},0,function(){
+    					studyInner.animate({top:0,bottom:0},1000);
+    				});
+    			});
+    		}
+			playlazy=setTimeout(cataprev,500);
+		});
+		//上一个
+		if(catalogsindex==0){
+			$('#cata-prev').hide();
+		}
+		//下一个
+		if(catalogsindex==catalogs.length-1){
+			$('#cata-next').hide();
+		}
+		$('#cata-next').click(function(){
+			clearTimeout(playlazy);
+			if(catalogsindex==catalogs.length-1){return;}
+			if($("#catalogList").attr("catalogId")==catalogs[catalogsindex].id){
+				catalogData[catalogs[catalogsindex].id] = $("#catalogList").html();
+			}
+			catalogsindex++;
+			//导航控制
+			catalogShow();
+			//目录加载
+			$("#catalogName").html(catalogs[catalogsindex].goodsCatalogName);
+			if(catalogs[catalogsindex].createBySystem==1){
+	  			$("#catalogName").html($("#goodsName").html());
+	  		}
+			$("#displayName").html("");
+			function catanext(){
+				player_pause();
+    			switchcatalog();
+    			studyInner.animate({top:-windowH,bottom:windowH},1000,function(){
+    				$("#playerBox").show();
+    				$("#vtestBox").hide();
+    				studyInner.animate({top:windowH,bottom:-windowH},0,function(){
+    					studyInner.animate({top:0,bottom:0},1000);
+    				});
+				});
+			}
+			playlazy=setTimeout(catanext,500);
+		});
+		//视频上下节
+		if(videoindex==0){
+			$("#j-vPrev").hide();
+		}
+		if(videoindex==videoarray.length-1  && catalogsindex==catalogs.length-1){
+			$("#j-vNext").hide();
+		}
+		//视频点击切换
+		$(".vlink").live('click',function(){
+			clearTimeout(playlazy);
+			var _video = $(this);
+			if($("#catalogVideoId").val()==_video.attr("cid")){return;}
+			if(videoarray[parseInt(_video.attr("vindex"))].duration==0){
+				return;
+			}
+			function vlinkclick(){
+				player_pause();
+				var t = 0;
+				var b = 0;
+				if(videoindex>parseInt(_video.attr("vindex"))){
+					t = windowH ; b = -1 * windowH ;
+				}else{
+					t = -1 * windowH; b = windowH;
+				}
+				//切换视频
+    			td = 0;
+          		videoindex = _video.attr("vindex");
+          		videoShow();
+          		$("#catalogVideoId").val(_video.attr("cid"));
+          		$("#questionSourceId").val(_video.attr("cid"));
+          		$("#videoId").val(_video.attr("vid"));
+          		$("#displayName").html(_video.attr("title"));
+          		$("#catalogList .list").find("li").removeClass("current").removeClass("hover");
+          		$("#p_"+_video.attr("cid")).addClass("current");
+          		initCCplayer();
+    			studyInner.animate({top:t,bottom:b},1000,function(){
+    				$("#playerBox").show();
+    				$("#vtestBox").hide();
+    				studyInner.animate({top:b,bottom:t},0,function(){
+    					studyInner.animate({top:0,bottom:0},1000);
+    				});
+    			});
+			}
+			playlazy=setTimeout(vlinkclick,300);
+		});
+		//
+		$(".popup-close").bind("click",function(){
+			$(this).parents(".popup").hide();
+			return false;
+		});
+	})();
+});
+
+
+
+//点击弹出注册
+$(function(){
+	$("#studyBarBtn a").click(function() {
+		player_pause();
+		$("#web_top_black").show();
+		$("#regPop").show();
+		return false;
+	});
+	$('#logPopBtn').click(function() {
+		player_pause();
+		$("#regPop").hide();
+		$("#logPop").show();
+		return false;
+	});
+	$('#regPopBtn').click(function() {
+		player_pause();
+		$("#regPop").show();
+		$("#logPop").hide();
+		return false;
+	});
+	$(".regLog-close").click(function(){
+		player_play();
+		$("#web_top_black").hide();
+		$("#regPop").hide();
+		$("#logPop").hide();
+		
+	});
+	
+}); 
+</script>
+</head>
+<body><script src="//hm.baidu.com/hm.js?a2381ea68b047ac974f8d1977a0ef79e"></script>
+<input type="hidden" id="goodsId" name="goodsId" value="" autocomplete="off">
+<input type="hidden" id="videoId" name="videoId" value="" autocomplete="off">
+<input type="hidden" id="catalogVideoId" name="catalogVideoId" value="" autocomplete="off">
+<input type="hidden" id="createBySystem" name="createBySystem" value="" autocomplete="off">
+<input type="hidden" id="isFree" name="isFree" value="">
+<input type="hidden" id="randCode" name="randCode" value="" autocomplete="off">
+<input type="hidden" id="startExam" name="startExam" value="">
+<!--视频播放左侧 start-->
+<div id="videoBox" class="video-box">
+	<div class="video-inner">
+		<div class="video-con">
+			<div class="video-line"></div>
+			<div class="video-logo"></div>
+			<a href="javascript:void(0);" id="j-vPrev" class="v-prev">上一节</a>
+			<a href="javascript:void(0);" id="j-vNext" class="v-next">下一节</a>
+			<div class="study-box">
+				<div id="j-studyInner" class="study-inner">
+					<div class="study-title j-studyTitle">
+						<span id="playing-txt" class="playing-txt">正在播放</span>
+						<!--<span class="testing-txt">正在练习</span>-->
+						<span id="displayName" class="name"></span>
+					</div>
+					<div class="study-con">
+						<div id="playerBox" class="player-box">
+							<div id="ccplayer">
+															</div>
+						</div>
+						
+						<div id="studyBarBtn" class="study-bar clear-fix">
+							<div class="study-btn-bar fr">
+								<a href="uc-QA2-ask.html" target="_blank" class="btn-blue btn-small qa-btn"><em class="ico ico-qa"></em>我要提问</a>
+								<a href="#" class="btn-blue btn-small download-handouts download-link"><em class="ico ico-download1"></em>下载讲义</a>
+								<a href="#" class="btn-blue btn-small download-audio download-link"><em class="ico ico-download1"></em>下载音频</a>
+								<a href="#" class="btn-blue btn-small video-test-btn"><em class="ico"></em>随堂练习</a>
+							</div>
+						</div>
+					</div>
+									</div>
+			</div>
+		</div>
+	</div>
+	<div id="j-videoSwitch" class="video-switch" title="隐藏课程目录"></div>
+
+</div>
+<!--视频播放左侧 end-->
+<!--视频播放右侧 start-->
+<div id="videoSide" class="videoside">
+	<div class="video-title"><h2 id="goodsName"></h2></div>
+	<div class="v-tab">
+		<ul class="v-tab-nav">
+			<li class="v-tab-catalog current"><a href="javascript:void(0);" id="tab_catalog"><em></em>课程目录</a></li>
+		</ul>
+		<div class="v-tab-item">
+			<div id="first-catalog" class="first-catalog">
+				<h3 id="catalogName"></h3>
+				<a href="javascript:void(0);" id="cata-prev" class="cata-prev pn" title="上一班型">上一班型</a>
+				<a href="javascript:void(0);" id="cata-next" class="cata-next pn" title="下一班型">下一班型</a>
+			</div>
+			<div class="catalog-line"></div>
+			<div id="catalogBox" class="catalog-box">
+				<div id="catalogList" class="catalog-list" catalogid="">
+														</div>
+			</div>
+		</div>
+		<!-- 仅为阻止js报错 -->
+		<textarea style="display:none;" id="notesTextarea" class="notes-textarea" name="notesTextarea" cols="" rows="" onfocus="javascript:player_pause();"></textarea>
+	</div>
+</div>
+<!--视频播放右侧 end-->
+
+<!--[if IE 6]>
+<script type="text/javascript" language="javascript" >
+$(document).ready(function() {
+	(function(){
+		var wHeight=$(window).height();
+		var studyInnerWidth=$("#j-studyInner").width();
+		$(".study-con").height(wHeight-142).width(studyInnerWidth-40);
+		$("#playerBox").height(wHeight-180);
+		$("#vtestBox").height(wHeight-180);
+		$("#catalogBox").height(wHeight-175);
+		$(".myNotes-list").height(wHeight-320);
+		$(".newNotes-list").height(wHeight-175);
+		$(".qa-list-box").height(wHeight-250);
+	})();
+});
+</script>
+<![endif]--> 
+
+
+
+<div id="web_top_black" style="position:absolute; opacity: 0.5; filter:alpha(opacity=50); left: 0px; top: 0px; z-index:111; background:#000; width:100%; height: 22139px; display:none;"></div>
+<!--start 注册弹窗-->
+<div class="regLog-pop" id="regPop" style="top:10%;">
+	<div class="regLog-inner">
+		<div class="regLog-hd">
+			<div class="regLog-title">快速注册<span>欢迎加入嗨学网</span></div>
+			<a href="#" class="regLog-close" title="关闭">关闭</a>
+		</div>
+		<div class="regLog-bd">
+			<form name="">
+
+				<input type="hidden" name="flowSource" id="webFrom" value="">
+				<input type="hidden" name="registerPlace" value="1">
+				<input type="hidden" name="goodsCatalogVideoId" value="">
+			
+				<fieldset>
+					<legend class="pop-regTit">快速注册<span>欢迎加入嗨学网</span></legend>
+					<div class="form-con">
+						<div class="form-item">
+							<span class="ico ico-mail"></span>
+							<label for="udRegEmail" class="iholder">邮箱</label>
+							<input type="text" class="ipt" id="udRegEmail" name="email">
+								<span class="txt-ok" style="display:none;"><em></em></span>
+								<span class="valid" style="display:none;"><em></em>请填写您的常用邮箱!</span>
+								<span class="error" style="display:none;"><em></em>邮箱格式不正确，请重新输入!</span>
+						</div>
+						<div class="form-item">
+							<span class="ico ico-phone"></span>
+							<label for="regMobile" class="iholder">手机</label>
+							<input type="text" class="ipt" id="regMobile" name="mobile">
+								<span class="txt-ok" style="display:none;"><em></em></span>
+								<span class="valid" style="display:none;"><em></em>请填写您的常用手机号!</span>
+								<span class="error" style="display:none;"><em></em>手机格式不正确，请重新输入!</span>
+						</div>
+						<div class="form-item">
+							<span class="ico ico-pwd"></span>
+							<label for="udRegPwd" class="iholder">密码</label>
+							<input type="password" class="ipt" id="udRegPwd" name="password">
+								<span class="txt-ok" style="display:none;"><em></em></span>
+								<span class="valid" style="display:none;"><em></em>请输入密码!</span>
+								<span class="error" style="display:none;"><em></em>密码格式不正确，请重新输入!</span>
+						</div>
+						<div class="form-item">
+							<span class="ico ico-pwd"></span>
+							<label for="udCusPwdConfirm" class="iholder">确认密码</label>
+							<input type="password" class="ipt" id="udCusPwdConfirm" name="confirm_password">
+								<span class="txt-ok" style="display:none;"><em></em></span>
+								<span class="valid" style="display:none;"><em></em>请再次输入密码!</span>
+								<span class="error" style="display:none;"><em></em>密码格式不正确，请重新输入!</span>
+						</div>
+						
+						<div class="form-item-txt">
+							<input class="ck" type="checkbox" checked="checked" name="agree">同意
+							<a target="_blank" href="/help/agreement.html">嗨学网的用户协议</a>
+							<span class="txt-ok" style="display:none;"><em></em></span>
+							<span class="error" style="display:none;"><em></em>你还没有同意协议!</span>
+						</div>
+						<div class="form-item-btn"><a class="pop-btn pop-regBtn" href="javascript:;" id="submitBtn">立即免费注册</a></div>
+					</div>
+				</fieldset>    
+			</form>
+		</div>
+		<div class="regLog-ft">
+			<div class="fr">已有嗨学网账号? <a id="logPopBtn" href="javascript:;">直接登录</a></div>
+		</div>
+	</div>
+</div>
+<!--end 注册弹窗-->
+
+<!--start 登录弹窗-->
+<div class="regLog-pop" id="logPop" style="top:10%;">
+	<div class="regLog-inner">
+		<div class="regLog-hd">
+			<div class="regLog-title">直接登录<span>欢迎加入嗨学网</span></div>
+			<a href="#" class="regLog-close" title="关闭">关闭</a>
+		</div>
+		<div class="regLog-bd">
+			<form action="/doLogin.do">
+				<fieldset>
+					<legend class="pop-logTit">直接登录<span>欢迎加入嗨学网</span></legend>
+					<div class="form-con">
+						<div class="form-item">
+							<span class="ico ico-mail"></span>
+							<label for="login_email_3" class="iholder">邮箱/手机号</label>
+							<input type="text" class="ipt" id="j_username" name="j_username">
+						</div>
+						<div class="form-item">
+							<span class="ico ico-pwd"></span>
+							<label for="login_pwd_3" class="iholder">密码</label>
+							<input type="password" class="ipt" id="j_password" name="j_password">
+						</div>
+						<div class="form-item-txt">
+							<span class="fl"><input type="checkbox" name="_spring_security_remember_me" class="ck" id="rememberInput">记住我</span>
+							<span class="fr"><a href="/customerFindPassword/showFindPassword.do">找回密码</a></span>
+						</div>
+						<input type="hidden" name="type" value="order">
+						<div class="form-item-btn">
+							<a class="pop-btn pop-regBtn" id="loginBtn" href="javascript:;">登&nbsp;&nbsp;&nbsp;&nbsp;录</a>
+						</div>
+					</div>
+				</fieldset>    
+			</form>
+		</div>
+		<div class="regLog-ft">
+			<div class="fr">没有嗨学网账号? <a id="regPopBtn" href="javascript:;">快速注册</a></div>
+		</div>
+	</div>
+</div>
+<!--end 登录弹窗-->
+
+</body></html>

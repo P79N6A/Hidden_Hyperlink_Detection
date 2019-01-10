@@ -1,0 +1,262 @@
+<!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml"><head runat="server">
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8;">
+    <meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="black" name="apple-mobile-web-app-status-bar-style">
+    <meta content="telephone=no" name="format-detection">
+    <title id="title2"></title>
+
+    <link rel="stylesheet" type="text/css" href="css.css" media="all">
+    <script type="text/javascript" src="http://m.yiche.com/wap2.0/scripts/jquery-1.4.1.min.js"></script>
+    <script type="text/javascript" src="http://image.bitautoimg.com/uimg/mbt/js/myiche-lazyload.js"></script>
+    <script type="text/javascript" src="http://image.bitautoimg.com/wap/js/handlebars.js"></script>
+    <script type="text/javascript" src="../js/base.js"></script>
+    <script type="text/javascript" src="./sharebase.js"></script>
+    <script type="text/javascript" src="./share.js"></script>
+    <style type="text/css">
+        /*微信分享提示层*/
+        .zz-box {
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 99;
+        }
+
+        .yd-box {
+            width: 375px;
+            height: 100%;
+            position: fixed;
+            top: 80px;
+            right: -10px;
+            z-index: 100;
+            text-align: right;
+        }
+
+            .yd-box img {
+                width: 200px;
+                height: auto;
+                zoom: 1.8;
+                max-width: inherit;
+            }
+
+        .ng-cloak {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="top_load_box">
+        <span class="tb_box"></span>
+        <span class="wz_box"></span>
+        <a class="btn_box" href="http://app.yiche.com/d/54f67294c333d8280c36d386" id="topdown">下载</a>
+
+
+    </div>
+
+
+
+    <div class="yiche_wrap z_size" id="news-control">
+         <header>
+            <h1 id="title"></h1>
+             <p><span class="s_1"><span id="source"></span><em id="author"></em><em id="publishtime"></em></span></p>
+        </header>
+        <div class="content" id="content">
+           
+        </div>
+    </div>
+    
+    <div class="combox2" id="commentList-control"></div>
+<script id="commentList-template" type="text/x-handlebars-template">
+        
+    <div class="tit_box"><h4>最新评论</h4></div>
+     {{#each list}}
+<div class="m-comments">
+	<div class="m-comments-header">
+		<img src="{{UserAvatar}}">
+	</div>
+	<div class="m-comments-name">              
+		<strong><a href="#" target="_blank">{{UserName}}</a></strong>
+		<b>{{PublishTime}}</b>
+	</div>
+	<p>{{Content}}</p>
+</div>
+     {{/each}}
+
+    
+    
+    
+    
+    
+    </script>
+
+    <div class="footer_box">
+
+        <a class="btn_box" href="#" target="_blank" id="bottomdown">下载汽车报价大全查看所有评论</a>
+
+    </div>
+
+
+    <div class="zz-box" style="display: none;"></div>
+    <div class="yd-box" style="display: none;">
+        <img src="http://image.bitautoimg.com/wap/v2/images/baojiaicon512.png" alt="">
+    </div>
+    <div class="xz_box">
+        <a class="close_btn" href="javascript:void();"></a>
+        <span class="js_box"></span>
+        <a class="load_bj_btn" href="http://app.yiche.com/d/54f67294c333d8280c36d386">免费下载<em></em></a>
+    </div>
+
+    <script type="text/javascript">
+        var NewsDetail = {
+            bindList: function (name, data) {
+                if (data === undefined || data.length === 0) { return; }
+
+                var source = $('#' + name + '-template').html();
+                var template = Handlebars.compile(source);
+                var content = template({ list: data });
+                //alert(content);
+                $('#' + name + '-control').html(content);
+            },
+            showComment: function (data) {
+
+                this.bindList('commentList', data);
+            },
+            showNews: function (data) {
+                $('#title').html(data.title);
+                $('#title2').html(data.title);
+                var source = $.getUrlVar('source');
+                if (newsid > 1000000000 || source === 13 || source === 11) {
+                    $('#author').html("");
+                    $('#source').html(data.SourceName);
+                } else {
+                    $('#author').html(data.author);
+                    $('#source').html("易车网");
+                }
+                $('#publishtime').html(data.publishtime);
+                $('#content').html(data.content);
+              
+            }
+
+        };
+        function ConvertData(data) {
+            if (data === undefined || data.length === 0) { return data; }
+            if (data[0].UserAvatar == undefined) {
+                for (var i = 0; i < data.length; i++) {
+                    data[i].UserAvatar = data[i].logo;
+                    data[i].UserName = data[i].username;
+                    data[i].PublishTime = data[i].createtime;
+                    data[i].Content = data[i].content;
+
+                }
+            }
+            return data;
+        }
+        
+        $(document).ready(function () {
+            
+            try {
+                var newsid=$.getUrlVar('newsid');
+                $.get("news.ashx?newsid=" + newsid, function (data, status) {
+                    
+                    var newsdata = $.parseJSON(data);
+                    NewsDetail.showNews(newsdata);
+                   
+
+
+                });
+                $.get("newscomment.ashx?newsid="+newsid, function (data, status) {
+                  
+                       
+                        var newsdata = $.parseJSON(data);
+                        NewsDetail.showComment(newsdata);
+                   
+                   
+                  
+                    
+
+
+                });
+                defaultImg();
+                lazyloadImg();
+                //window.NewsHotCommentJsonObject.getHotCommentJsonObject('');
+                var source = $.getUrlVar('source');
+                if (newsid > 1000000000 || source === 13 || source === 11) {
+                    newsid = newsid - 1900000000;
+                    $.get("http://log.ycapp.yiche.com/statistics/log?type=medianews&share=true&source=1&id=" + newsid, function (data, status) { });
+                }
+            }
+            catch (e) {
+                //alert(e);
+            }
+
+        });
+        $.extend({
+            getUrlVars: function () {
+                var vars = [], hash;
+                var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+                for (var i = 0; i < hashes.length; i++) {
+                    hash = hashes[i].split('=');
+                    vars.push(hash[0]);
+                    vars[hash[0]] = hash[1];
+                }
+                return vars;
+            },
+            getUrlVar: function (name) {
+                return $.getUrlVars()[name];
+            }
+        });
+        function lazyloadImg() {
+            $("#lazyload img").bind("scrollin", function () {
+                var img = this,
+                    $img = $(img);
+                $img.unbind("scrollin");
+                if ($img.attr("img_src")) {
+                    img.src = $img.attr("img_src");
+                }
+            });
+        }
+        function defaultImg() {
+
+            $("#lazyload img").each(function (index) {
+                var img = this, $img = $(img);
+                if ($img.attr("img_src") && index > 0) {
+                    img.src = "http://image.bitautoimg.com/wapimg-670-0/wap/images/news_default.png";
+                }
+            });
+        }
+
+        //NewsDetail.showComment([
+        //    {
+        //        "UserID": -1,
+        //        "AgreeCount": "1",
+        //        "FullContent": [
+        //        ],
+        //        "CommentID": 4631770,
+        //        "UserAvatar": "http:\/\/image.bitautoimg.com\/wap\/i\/guest.png",
+        //        "PublishTime": "2015-03-23 13:34:55",
+        //        "Content": "煞笔笑什么呢？柴油车懂不？二球货！憨货！",
+        //        "UserName": "易车河南省南阳市网友"
+        //    },
+        //    {
+        //        "UserID": -1,
+        //        "AgreeCount": "0",
+        //        "FullContent": [
+        //        ],
+        //        "CommentID": 4631556,
+        //        "UserAvatar": "http:\/\/image.bitautoimg.com\/wap\/i\/guest.png",
+        //        "PublishTime": "2015-03-23 13:22:17",
+        //        "Content": "2.5T100千瓦。呵呵",
+        //        "UserName": "易车山东省济宁市网友"
+        //    }
+        //]);
+
+    </script>
+<!--    <script type="text/javascript" src="newscomment.ashx?newsid=6544868"></script>-->
+
+
+
+</body></html>

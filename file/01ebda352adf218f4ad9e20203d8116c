@@ -1,0 +1,615 @@
+<!DOCTYPE html><html><head>
+	<meta http-equiv="Content-Type" content="text/html;charset=utf-8;">
+	<meta name="keywords" content="易付宝,支付,专业的第三方支付平台,在线交易,网上交易,网上买,购物网站,安全购物,电子商务,放心买,网络购物,网购">
+	<meta name="description" content="易付宝 - 提供便捷、安全、专业的网上支付服务，更是为您打造一站式在线生活服务，做您的生活好帮手！">
+	<title>易付宝</title>
+	<link rel="shortcut icon" href="https://respay.suning.com/epp-epw/favicon.ico" type="image/x-icon">
+	<link rel="stylesheet" type="text/css" href="https://respay.suning.com/epp-epw/style/member/css/modules.css?v=20160727">
+	<link rel="stylesheet" type="text/css" href="https://respay.suning.com/epp-epw/style/member/css/yfb-member.css?v=20160727">
+	<link rel="stylesheet" type="text/css" href="https://respay.suning.com/epp-epw/style/member/css/siller.css?v=20160727">
+	<style type="text/css">
+		.small-login-wrapper .small-login-main .logo{ _background-image: none;
+			_filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='http://respay.suning.cn/epp-epw/style/member/images/logo-whole.png');
+		}
+		.small-login-wrapper .small-login-box .small-login-bg{ _background-image: none;
+			_filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='http://respay.suning.cn/epp-epw/style/member/images/smallLogin-box-new.png');
+		}
+		html{-ms-overflow-y: hidden;overflow: hidden;}
+               .login-wrapper{position: fixed;bottom: 28px;}
+    </style>
+	<iframe src="https://wmcdn.qtmojo.cn/adxcm_base_idigger.htm" style="width: 0px; height: 0px; position: absolute; top: -100px; left: -100px; display: none; "></iframe><script type="text/javascript" async="" src="//res.suning.cn/project/ssa/script/4a800e24-7b53-40a4-8113-cbc9a1305f4b/ssa.js"></script><script type="text/javascript" async="" src="//2.qtmojo.cn/aywmq_qt.js"></script><script type="text/javascript" async="" src="https://imgssl.suning.com/javascript/sn_da/da_opt.js"></script><script type="text/javascript" src="https://respay.suning.com/epp-epw/scripts/member/lib/jquery.js?v=20160727"></script>
+	<script language="javascript">
+	var epwStaticRes = "https://respay.suning.com/epp-epw/";
+	var needVerifyCodeVal = true;
+	var verifyCodeServer = "https://vcs.suning.com/vcs/validate_jsonp.htm";
+	var verifyCodeUUID = "d959a511-6bbe-4495-b306-7a9399a1e643";
+	var imageCodeVcsParam="level=0";
+    var verifyCodeType = "image";
+    var sillerDtCtx="https://dt.suning.com";
+
+	var findPwdLink = "https://pay.suning.com/epp-epw/useraccount/userdata/find-login-password!initFindLoginPassword.action";
+	//跳转的目标地址
+	var goUrl = "https://pay.suning.com/epp-epw/useraccount/user-account!initUserAccount.action";
+	var passport_domain = "https://paypassport.suning.com";
+
+	$(function(){
+		//checkShowImageCode();
+		showServerErrorMsg();
+		initShowVerifyCode();
+		qrcodeInit();
+		var isIE=!!window.ActiveXObject;
+		var isIE6=isIE&&!window.XMLHttpRequest;  
+		var isIE8=isIE&&!!document.documentMode;  
+		var isIE7=isIE&&!isIE6&&!isIE8;  
+		if (isIE6 || isIE7){  
+		   $(".login-box-change").hide();
+		}	
+	});
+
+	/**
+	 * 获取图片验证码
+	 */
+	function getVerifyCode() {
+		document.getElementById("vcodeimg1").src = 'https://vcs.suning.com/vcs/imageCode.htm?uuid='
+				+ "d959a511-6bbe-4495-b306-7a9399a1e643" + "&yys=" + new Date().getTime() + "&" + imageCodeVcsParam;
+	}
+
+
+		/**
+	 * 初始化显示图片验证码是否显示
+	 */
+	function initShowVerifyCode(){
+		if (needVerifyCodeVal) {
+			if(verifyCodeType=='image'){
+                hideSiller();
+				recoverVeriCode();
+
+			}else if(verifyCodeType=='siller'){
+
+                disableVeriCode();
+				showSiller();
+			}
+			 
+		} else {
+				disableVeriCode();
+				hideSiller();
+
+		}
+	}
+
+	/**
+	 * 显示返回的错误信息
+	 */
+	function showServerErrorMsg() {
+		var remainTimes = parseInt("", 10);
+		var snMemberErrorCode = "";
+		var errorCode = "";
+		var errorMessage = "";
+		var snapshotId = "";
+		if (snMemberErrorCode=="EPPMBR_ERR0001") {
+			accountNonExist();
+		} else if (snMemberErrorCode == "EPPMBR_ERR0013") {
+			showError('请使用个人账号登录');
+		} else if (snMemberErrorCode == "EPPMBR_ERR10001") {
+			showError('境外企业会员请从苏宁云台登录');
+        } else if (snMemberErrorCode == "EPPMBR_ERR0015") {
+			cmfNoUserPwd($("#unionLogin").attr('href'));
+		} else if (snMemberErrorCode == "EPPMBR_ERR003") {
+			showError(errorMessage);
+		} else {
+			if (errorCode=="badPassword.msg1" || errorCode=="badPassword.msg2") {
+				passwordValide(remainTimes, findPwdLink);
+			} else if (errorCode=="lockedBySystem" || errorCode=="lockedByManual") {
+				passwordValide(0, findPwdLink);
+			} else if (errorCode=="maliciousRegister" || errorCode=="highRiskAccount" || errorCode=="suspiciousLogin") {
+				var jumpUrl = "https://pay.suning.com/epp-epw/useraccount/userdata/find-login-password!initFindLoginPassword.action?errorCode=" + errorCode + "&ticket=" + snapshotId;
+				window.location.href = jumpUrl;
+			} else if (errorCode=="badVerifyCode" || errorCode=="needVerifyCode") {
+				if(errorCode=='badVerifyCode'){
+					  if(verifyCodeType=='siller'){
+					    errorMessage='滑块验证失败，请拖动滑块完成验证';
+					  }else if(verifyCodeType=='image'){
+					    errorMessage='验证码不正确，请重新输入';
+					  }
+				}else if (errorCode=='needVerifyCode'){
+					  if(verifyCodeType=='siller'){
+					    errorMessage='为了你的账户安全，请拖动滑块完成验证';
+					  }else if(verifyCodeType=='image'){
+					    errorMessage='请输入验证码';
+					  }
+				}
+				showError(errorMessage);
+			} else if (snMemberErrorCode!='' || errorCode!='') {
+				showError(errorMessage);
+			}
+		}
+	}
+
+	/**
+	 * 是否显示图片验证码
+	 */
+	function checkShowImageCode() {
+		
+			userNameBlur("#username");
+		
+	}
+
+	/**
+	 * 异步设置动态验证码是否显示
+	 */
+	function userNameBlur(o) {
+			var userNameVal = $(o).val();
+			userNameVal = $.trim(userNameVal);
+                        if ('注册邮箱/注册手机' == userNameVal) {
+				userNameVal = '';
+			}
+			jQuery.ajax({
+				type : 'POST',
+				url : 'needVerifyCode',
+				data : 'agentType=pc&username=' + encodeURIComponent(userNameVal),
+				dataType : 'json',
+				success : function(data) {                 
+					if(data && data.needVerifyCode){
+							if(data.verifyCodeType=='image'){	
+                              verifyCodeType = 'image';
+							  recoverVeriCode();
+							  imageCodeVcsParam=data.imageCodeVcsParam;
+							  getVerifyCode();
+							  hideSiller();
+
+							}else if(data.verifyCodeType=='siller'){
+                               
+                                verifyCodeType = 'siller';
+                                disableVeriCode();
+								showSiller();
+							}
+							
+						
+					} else if (data && !data.needVerifyCode){
+                         
+							if(data.verifyCodeType=='image'){
+                               verifyCodeType='image';
+							    disableVeriCode();
+							    hideSiller();
+
+							}else if(data.verifyCodeType=='siller'){
+                                verifyCodeType='siller';
+								hideSiller();
+								disableVeriCode();
+								
+								
+							}
+						
+						
+					}
+				},
+				error : function(data) {
+				  
+				}
+			});
+		
+	};
+
+	function disableVeriCode(){
+		$("#checkCode").attr('disabled', true);
+		$("#imageVerifyArea").hide();
+	}
+
+	function recoverVeriCode(){
+		$("#checkCode").removeAttr('disabled');
+		$("#imageVerifyArea").show();
+	}
+
+	function hideSiller(){
+    	$("#sillerDiv").hide();
+    }
+
+    function showSiller(){
+    	$("#sillerDiv").show();
+    }
+	
+
+	function passwordValide(time, findPwdLink){
+		var msgs = ['<p>错误次数已达上限，您可以通过</p><p><a href="' + findPwdLink + '">找回登录密码</a>再登录，或者明日零点后再试</p>',
+		            '<p>账户名或登录密码不正确，还有1次输入机会。</p><p><a href="' + findPwdLink + '">找回登录密码</a></p>',
+		            '<p>账户名或登录密码不正确，还有2次输入机会。</p><p><a href="' + findPwdLink + '">找回登录密码</a></p>',
+		            '<p>账户名或登录密码不正确，还有3次输入机会。</p><p><a href="' + findPwdLink + '">找回登录密码</a></p>',
+		            '<p>账户名或登录密码不正确，请重新输入。</p><p><a href="' + findPwdLink + '">找回登录密码</a></p>'];
+		$("#tip-box").addClass("tip-box-forget").show();
+		$("#tip-box").find("p").html(msgs[time]);
+		//$(".j-tit-register").hide();
+	}
+	function accountNonExist(){
+		$("#tip-box").removeClass("tip-box-forget").show();
+		$("#tip-box").find("p").html('账户名或登录密码不正确，请重新输入。<p><a href="' + findPwdLink + '">找回登录密码</a></p>');
+		//$(".j-tit-register").hide();
+	}
+	function cmfNoUserPwd(link){
+		$("#tip-box").removeClass("tip-box-forget").show();
+		$("#tip-box").find("p").html('请通过<a href="' + link + '">苏宁易购</a>登录易付宝');
+		//$(".j-tit-register").hide();
+	}
+	function showError(msg){
+		$("#tip-box").removeClass("tip-box-forget").show();
+		var tip = "登录失败，请稍后再试";
+		if(msg!=undefined && msg!='')
+			tip = msg;
+		$("#tip-box").find("p").html(tip);
+		//$(".j-tit-register").hide();
+	}
+
+	/**
+	 * 使用苏宁易购会员联合登录
+	 */
+	function egoLogin() {
+		var suningProviderUrl = "https://passport.suning.com/ids/oauth20/authorize?client_id=epp_01&response_type=code&redirect_uri=https%3A%2F%2Fpaypassport.suning.com%2Fids%2Flogin%3Foauth_provider%3DSuningProvider&state=https%3A%2F%2Frxf.suning.com%2Fepps-cpf%2Fapp%2FuserCenter%2FtoCouponList.do";
+		var service = "https://rxf.suning.com/epps-cpf/app/userCenter/toCouponList.do";
+		if (service.length > 0) {
+			location.href = suningProviderUrl+"&state="+encodeURIComponent(service);
+		} else {
+			location.href = suningProviderUrl;
+		}
+	}
+	
+	/*add qrcode login*/
+	function qrcodeInit(){
+		//切换登录方式
+		$(".login-box-change a").click(function(){
+			if(typeof(timeOutId) != "undefined"){
+				clearInterval(timeOutId);
+			}
+			$("#qrcode-box-err").removeClass("msg-err-show");
+			if($("#qrpicture").is(":hidden")){
+				$("#qrsuccess").hide();
+				$("#qrpicture").show();
+			}
+			if($(this).hasClass("qrcode-on")){
+				$(this).removeClass("qrcode-on");
+				$(".login-box").removeClass("login-static");
+				$(".mod-pwd-input-tip").show();
+			}else{
+				makeQrcode();
+				$(this).addClass("qrcode-on");
+				$(".login-box").addClass("login-static");
+				$(".mod-pwd-input-tip").hide();
+				//实时扫描
+				timeOutId = setInterval(checkQRCodesValidate,2000);
+			};
+		});
+		//移动二维码
+		$(".qrcode-box").hover(function(){
+			if($(this).hasClass("msg-err-show")){}else{
+				$("#qrcodeImg").stop().animate({"left":"0"},function(){
+					$(".qrcode-help").css("visibility","visible");
+				});
+			}
+		},function(){
+			$(".qrcode-help").css("visibility","hidden");
+			$("#qrcodeImg").stop().animate({"left":"80px"});
+		});
+		
+		$(".J_QRCodeRefresh").click(function(){
+			$("#qrcode-box-err").removeClass("msg-err-show");
+			makeQrcode();
+			//实时扫描
+			timeOutId = setInterval(checkQRCodesValidate,2000);
+		});
+	}
+
+	/*生成二维码*/
+	function makeQrcode(){
+		$.ajax({
+	        type : "get",  
+	        url : passport_domain+'/ids/qrLoginUuidGenerate',
+			data : 'image=false&yys=' + new Date().getTime(),
+	        dataType : "jsonp",//数据类型为
+			jsonpCallback:"qrCallback",
+	        success : function(data){},  
+	        error:function(){}  
+	    });   
+
+	}
+	function qrCallback(data){
+		var renderSelect = 'canvas';
+		var isIE=!!window.ActiveXObject;
+		var isIE6=isIE&&!window.XMLHttpRequest;  
+		var isIE8=isIE&&!!document.documentMode;  
+		var isIE7=isIE&&!isIE6&&!isIE8;  
+			if (isIE7 || isIE8){  
+		   renderSelect = 'table';
+			}
+		$('#qrcodeImg').empty();
+		$('#qrcodeImg').qrcode({
+		render: renderSelect ,//设置渲染方式
+		correctLevel: 3,
+		text: data.url + "",
+		width: 160,
+		height: 160
+		});
+		if($(".qrcode-help").is(":hidden")){
+			$(".qrcode-help").css("visibility","visible");
+			$("#qrcodeImg").css("left","72px");
+		}
+		$("#qrcode-box-err").removeClass("msg-err-show");
+		qr_uuid = data.uuid;
+	}
+	var qr_uuid;
+	
+	//实时的探测二维码信息  0：起始状态  1：已有手机扫描了二维码； 2：手机确认授权； 3：uuid不存在或过期；4：系统异常
+	function checkQRCodesValidate(){
+		$.ajax( {
+			type : 'POST',
+			url  : passport_domain+'/ids/qrLoginStateProbe',
+			data : 'uuid='+ qr_uuid,
+			dataType : 'jsonp',
+			success : function(data) {
+				if(data&& data.state){
+					if(data.state == 1){
+						//进行成功的跳转
+						showScanOK();
+					}else if(data.state == 2){
+						//手机确认授权
+						clearInterval(timeOutId);
+						window.location.href = goUrl;
+					}else if(data.state == 3){
+						//过期
+						clearInterval(timeOutId);
+						showScanError();
+					}else if(data.state == 4){
+						//系统异常
+						showScanError();
+					}
+				}else{
+					//系统异常
+					showScanError();
+				}
+			},
+			error : function(data) {
+				//系统异常
+				showScanError();
+			}
+		});
+	}
+	
+	function showScanInit(){
+		$("#qrCodeErrorDiv").hide();
+	}
+	function showScanOK(){
+		$("#qrpicture").hide();
+		$("#qrsuccess").show();
+	}
+	
+	//验证码失效
+	function showScanError(msg){
+		if($("#qrpicture").is(":hidden")){
+			$("#qrsuccess").hide();
+			$("#qrpicture").show();
+		}
+		if(msg){
+			$(".msg-err").find("h6").html(msg);
+		}
+		$("#qrcode-box-err").addClass("msg-err-show");
+		$(".qrcode-help").css("visibility","hidden");
+		$("#qrcodeImg").css("left","80px");
+	}
+	</script>
+<script type="text/javascript" charset="utf-8" async="" data-requirecontext="_" data-requiremodule="https://respay.suning.com/epp-epw/scripts/member/loginSmallMain.js?v=20160727" src="https://respay.suning.com/epp-epw/scripts/member/loginSmallMain.js?v=20160727"></script></head>
+<body>
+<!-- 顶通 [[ -->
+<div class="m-toolbar">
+	<div class="wrapper">
+		<div class="app-link-box">
+			<span class="app-link"><a href="javascript:void(0)"><b></b>苏宁金融APP</a></span>
+			<div class="app-ewm-box">
+				<div class="ewm-pic-box"><img src="https://respay.suning.com/epps-pps/person/barcode/yfbcode78.png?v=20160530" alt="易付宝二维码"></div>
+				<div class="ewm-txt-box">官方下载&nbsp;&nbsp;安全放心</div>
+			</div>
+		</div>
+		<div class="tool-link">
+			<span class="welcome">晚上好，欢迎来到易付宝</span>
+			<a class="login" href="login?loginTheme=defaultTheme" target="_blank">登录</a>
+			<a class="register" href="https://pay.suning.com/epp-epw/useraccount/reg/index.action" target="_blank">快速注册</a>
+			<a class="myAccount" href="https://pay.suning.com/epp-epw/useraccount/user-account!initUserAccount.action?loginTheme=defaultTheme" target="_blank">我的易付宝</a>
+			<em></em>
+			<a class="help" href="http://help.suning.com/" target="_blank">帮助中心</a>
+			<a class="advise" href="http://my.jr.suning.com/sfp/questionnaire/index.htm" target="_blank">提建议</a>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+var appLinkBox = $(".app-link-box").hover(function(){appLinkBox.addClass("app-link-box-hover");},function(){appLinkBox.removeClass("app-link-box-hover");});
+</script>
+<!-- 顶通 ]] -->
+<div class="small-login-wrapper">
+	<div class="m-wrapper">
+		<div class="small-login-main clearfix">
+			<div class="title-logo" style="position:relative;">
+				<div class="logo" title="易付宝" style="cursor:pointer;">易付宝</div>
+				<a href="https://pay.suning.com/epp-epw/login/login.action" title="易付宝" style="position: absolute;top:0px;left:0px;opacity: 0;-moz-opacity: 0;filter: alpha(opacity=0);width: 100%;cursor:pointer;width: 300px;height: 40px;border: 1px solid red;cursor:pointer; display:block; z-index:100;background:#FFF;"></a>
+			</div>
+			<div class="small-login-box">
+				
+				<div class="login-box">
+				    <div class="login-box-change">
+						<a href="javascript:void(0)"></a>
+					</div>
+					<form action="login" id="login-form" method="post">
+						<input type="hidden" name="service" value="https://rxf.suning.com/epps-cpf/app/userCenter/toCouponList.do" autocomplete="off" disableautocomplete="disableautocomplete">
+						<input type="hidden" name="loginTheme" value="defaultTheme" autocomplete="off" disableautocomplete="disableautocomplete">
+						<input type="hidden" name="oauth_redirect" value="" autocomplete="off" disableautocomplete="disableautocomplete">
+						<input type="hidden" name="trust_redirect" value="" autocomplete="off" disableautocomplete="disableautocomplete">
+						<input type="hidden" name="agentType" value="pc" autocomplete="off" disableautocomplete="disableautocomplete">
+						<div class="login-top-area">
+							  <div class="tit-register j-tit-register">
+								  <h3 class="title">易付宝会员登录</h3>
+							  </div>
+							
+							<div class="warn-text">
+							<div class="tip-box clearfix tip-box-exist hide" id="tip-box">
+								<span class="icon"></span>
+								<div class="tip-cnt">
+									<p></p>
+								</div>
+							</div>
+							</div>
+						</div>
+						
+						
+						
+						
+						
+						<dl class="user">
+							<dt class="user j-for-input" for="username"><label for="username"></label></dt>
+							<dd>
+								<input type="text" class="j-m-input j-mod-input-clear" name="username" id="username" value="" rel="注册邮箱/注册手机" autocomplete="off" disableautocomplete="disableautocomplete" style="color: rgb(102, 102, 102); " maxlength="100">
+							</dd>
+						</dl>
+						<dl class="user">
+							<dt class="pswd j-for-input" for="password"><label for="password"></label></dt>
+							<dd>
+								<input type="password" autocomplete="off" style="display:none" disableautocomplete="disableautocomplete">
+								<input type="password" class="j-m-input j-mod-input-clear" name="password" id="password" value="" autocomplete="off" disableautocomplete="disableautocomplete" style="color: rgb(102, 102, 102); "><ul class="psd-grade" style="display: none; position: absolute; height: 0px; "><li class="line1"></li><li class="line2"></li><li class="line3"></li> </ul><p class="input-tip" style="display: none; position: absolute; height: 0px; ">6-20个字符，由大小写字母、数字和符号两种及以上组合。</p>
+							</dd>
+						</dl>
+			
+						<dl id="imageVerifyArea" class="verify-code" style="display: none; ">
+							<dt class="verify-code j-for-input" for="checkCode"><label for="checkCode"></label></dt>
+							<dd>
+								<input type="text" name="verifyCode" id="checkCode" class="j-m-input" value="" autocomplete="off" disableautocomplete="disableautocomplete" style="color: rgb(102, 102, 102); " disabled="disabled">
+								<a href="javascript:void(0)" class="verify-code-img" title="换一张">
+									<img id="vcodeimg1" alt="验证码" onclick="getVerifyCode()">
+									<input type="hidden" name="uuid" value="d959a511-6bbe-4495-b306-7a9399a1e643" autocomplete="off" disableautocomplete="disableautocomplete">
+								</a><p class="input-tip" style="display:none;">输入图中的字符，不区分大小写。</p>
+							</dd>
+						</dl>
+
+						<div id="sillerDiv" style="display: none; ">
+						  <div id="J_StaticForm" class="dt_parent float" style="width: 300px; display: block; ">
+							<input name="sillerToken" id="slideInput" value="" type="hidden" autocomplete="off" disableautocomplete="disableautocomplete">
+						  <div class="dt_child_content" style="width: 300px; "><div class="dt_parent dt_slide_bar" style="width: 0px; "></div><div class="dt_parent dt_notice" id="dt_notice" style="width: 300px; ">请按住滑块拖动到最右边</div><div class="dt_parent dt_child_content_knob" style="left: 0px; "></div></div></div>
+						</div>
+						
+						<a id="j-focus-btn" href="javascript:void(0)" class="btn-entry"></a>
+						<div class="login-word_box">
+							<a href="https://pay.suning.com/epp-epw/useraccount/userdata/find-login-password!initFindLoginPassword.action" target="_blank" class="r">忘记登录密码？</a>
+						</div>
+							
+						<div class="login-btn"><a href="javascript:void(0)" class="btn-entry">登&nbsp;&nbsp;录</a></div>
+						
+						<p class="login-yigou clearfix">
+							<a href="javascript:egoLogin()" class="l">苏宁易购会员登录</a>
+							<a href="https://pay.suning.com/epp-epw/useraccount/reg/index.action" target="_blank" class="r">免费注册</a>
+						</p>
+						
+					</form>
+					<!-- 扫码登录 -->
+					 <div class="qrcode-login-form">
+						<div class="login-top-area">
+							<div class="tit-register j-tit-register">
+								<h3 class="title">手机扫码，安全登录</h3>
+							</div>
+						</div>
+						<div id="qrpicture">
+						<div class="qrcode-box" id="qrcode-box-err">
+							<div class="qrcode-box-img" id="qrcodeImg">
+
+							</div>
+							<div class="qrcode-help"><img width="168" height="220" src="https://respay.suning.com/epp-epw/temp/qrcode-help.png"></div>
+							<div class="msg-err">
+								<div class="msg-err-bg"></div>
+								<h6>二维码已失效</h6>
+								<a class="J_QRCodeRefresh" href="javascript:;">请点击刷新</a>
+							</div>
+						</div>
+						<div class="qrcode-box-tip">
+							<p>请使用苏宁金融APP，扫码登录</p>
+							<a href="https://respay.suning.com/eppClientApp/html/mobile/index.html" target="_blank">下载苏宁金融APP</a>
+						</div>
+						</div>
+						
+						<div id="qrsuccess" style="display:none;">
+						<div class="qrcode-box">
+							<img width="300" height="150" src="https://respay.suning.com/epp-epw/temp/qrcode-ok.jpg">
+							<p>扫码成功！</p>
+						</div>
+						<div class="qrcode-box-tip">
+							<p>请在手机上确认登录</p>
+							<p>请勿刷新本页面</p>
+						</div>
+						</div>
+						<div class="qrcode-box-bottom">企业会员请使用密码登录 </div>
+					</div>	
+				</div>
+				
+			</div>
+		</div>
+		
+		
+		<!-- 尾部 [[ -->
+		<div class="m-footer">
+			<div class="wrapper login-wrapper">
+				<p>
+					<a href="https://pay.suning.com/epp-epw/useraccount/user-account!initLink.action?sign=aboutEPP" target="_blank">关于易付宝</a>
+					<em>|</em>
+					<a href="https://pay.suning.com/epp-epw/useraccount/user-account!initLink.action?sign=contact-us" target="_blank">联系我们</a>
+					<em>|</em>
+					<a href="https://pay.suning.com/epp-epw/useraccount/user-account!initLink.action?sign=site-area" target="_blank">网站地图</a>
+					<em>|</em>
+					<a href="http://www.suning.com/" target="_blank">苏宁易购</a>
+					<em>|</em>
+					<a href="http://sop.suning.com/" target="_blank">开放平台</a>
+					<em>|</em>
+					<a href="http://careers.cnsuning.com/" target="_blank">诚聘英才</a>
+				</p>
+				<p>Copyright © 2002-2017 All Rights Reserved. 苏宁云商集团股份有限公司</p>
+				<p>
+               		<a href="http://www.miitbeian.gov.cn" target="_blank">苏ICP备10207551号-19</a> 易付宝 www.yifubao.com 
+					营业执照注册号：<a href="https://respay.suning.com/epp-epw/download/business-license.jpg?v=20160120" target="_blank">320102000206574</a> 
+					基金支付许可证：<a href="https://respay.suning.com/epp-epw/download/fund-sale-license.pdf?v=20160120" target="_blank">基金部函[2013]870号</a> 
+					增值电信业务经营许可证：<a href="https://respay.suning.com/epp-epw/download/value-added-telecom.pdf?v=20160120" target="_blank">苏B2-20140030</a>
+				</p>
+				<p>支付业务许可证注册号：<a href="https://respay.suning.com/epp-epw/download/payment-transactions.pdf?v=20160120" target="_blank">CFNR201301320154</a></p>
+			</div>
+		</div>
+		<!-- 尾部 ]] -->
+		</div>
+	</div>
+
+<div class="small-login-mainbg" style="position:absolute;left:0;top:0;width:100%;height:800px;background:url(https://respay.suning.com/epps-pps/person/style/images/bigbg-login.jpg?v=20170118) no-repeat center top;zoom:1;">
+</div>
+<script type="text/javascript">
+	function resize(){  
+		var wheight = $(window).height(),
+			bHeight = document.body.offsetHeight,
+			dHeight = document.documentElement.offsetHeight;
+			maxH = wheight>bHeight?wheight:bHeight;
+		maxH = maxH>dHeight?maxH:dHeight;
+		var wwidth = $(window).width(),
+			bWidth = document.body.offsetWidth,
+			dWidth = document.documentElement.offsetWidth;
+			maxW = wwidth>bWidth?wwidth:bWidth;
+		maxW = maxW>dWidth?maxW:dWidth;
+		$(".small-login-mainbg img").attr("width",maxW).attr("height",maxH);
+	} 
+	resize();
+	window.onresize = resize;
+</script>
+<script data-main="https://respay.suning.com/epp-epw/scripts/member/loginSmallMain.js?v=20160727" src="https://respay.suning.com/epp-epw/scripts/member/lib/require.min.js?v=20160727"></script>
+<script type="text/javascript" src="https://fp.suning.com/bennu-collector/fp/porto.js?v=20160727"></script>
+<script type="text/javascript">
+porto.init({ 
+partnerCode:'none', 
+appName:'commerce', 
+referenceId:'123', 
+sessionId:'123', 
+serviceUrl:"https://fp.suning.com/bennu-collector/fp/porto.json" 
+}); 
+</script>
+<script type="text/javascript" src="https://imgssl.suning.com/javascript/sn_pf/agent_js/performance_agent.js?v=20160727"></script> 
+<script type="text/javascript" src="https://respay.suning.com/epp-epw/scripts/member/anchor.js?v=20160727"></script>  
+<script type="text/javascript" src="https://respay.suning.com/epp-epw/scripts/member/lib/qrcode/qrcode.min.js?v=20160727"></script>  
+<script type="text/javascript">
+	setTimeout(checkShowImageCode, 100);
+</script>
+
+<i class="mod-input-clear" style="top: 197px; left: 975px; display: none; "></i><ul class="mod-input-autofill-list" id="username-select" style="left: 744px; width: 257px; overflow: hidden; z-index: 200; top: 222px; "><li></li><li class="on">@sina.com</li><li>@qq.com</li><li>@163.com</li><li>@126.com</li><li>@sohu.com</li><li>@hotmail.com</li><li>@gmail.com</li><li>@139.com</li><li>@foxmail.com</li><li>@189.cn</li><li>@21cn.com</li></ul><i class="mod-input-clear" style="top: 250px; left: 975px; display: none; "></i><span class="mod-pwd-input-tip" style="display: block; white-space: nowrap; z-index: 100; top: 244px; left: 754px; ">登录密码</span><script type="text/javascript">var _wmmq = _wmmq || [];var _wmmq_param1 = ["db", "ifc"];var _wmmq_param2 = ["sitecode", "T-000130-01"];var _wmmq_param_end = ["_trackPoint"];var _custno = "";var _cookiesArray = document.cookie.split("; ");for (var i = 0; i < _cookiesArray.length; i++) {var _cookieInfo = _cookiesArray[i].split("=");if (_cookieInfo[0] == "custno") {_custno = decodeURIComponent(_cookieInfo[1] ? _cookieInfo[1] : "");break;}}var _wmmq_param3 = ["userid", _custno, "userflag", ""];if (isArray(_wmmq)) {if (_wmmq.length == 0) {_wmmq.push(_wmmq_param1, _wmmq_param2);_wmmq.push(_wmmq_param3);_wmmq.push(_wmmq_param_end);} else {var _wmmq_param_list = new Set();var _wmmq_param;for (x in _wmmq) { _wmmq_param = _wmmq[x]; _wmmq_param_list.add(_wmmq_param.toString());} if (!_wmmq_param_list.contains(_wmmq_param1.toString())) {_wmmq.push(_wmmq_param1);} if (!_wmmq_param_list.contains(_wmmq_param2.toString())) {_wmmq.push(_wmmq_param2);} if (!_wmmq_param_list.contains(_wmmq_param3.toString())) {_wmmq.push(_wmmq_param3);} if (!_wmmq_param_list.contains(_wmmq_param_end.toString())) {_wmmq.push(_wmmq_param_end);}}}</script></body></html>

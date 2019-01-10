@@ -1,0 +1,696 @@
+<html><head></head><body><pre style="word-wrap: break-word; white-space: pre-wrap;">(function(window, document){
+    function ABQueue(){
+        this._init();
+    };
+    ABQueue.prototype = {
+        constrcutor: ABQueue,
+        UNKNOW: 'unknow',
+        _objStr: Object.prototype.toString, 
+        _isArray: function(data){
+            return data &amp;&amp; this._objStr.call(data) == '[object Array]' ? true : false;
+        },
+        _beforeDomLoadedQueue: [],
+        _debug: '',
+        _aburl: ('https:' == document.location.protocol ? 'https://' : 'http://') + 'ab.xin.com/collect.gif?',
+        _abposturl: ('https:' == document.location.protocol ? 'https://' : 'http://') + 'ab.xin.com/post.gif?',
+        _init: function(){
+            var that = this,
+                abQueue = [],
+                loadedEvent = function(e){
+                    while(abQueue.length &gt; 0){
+                        that.push(abQueue.splice(0, 1));
+                    }
+                },
+                onload = function(e){
+                    loadedEvent(e);
+                    if(window.performance &amp;&amp; Math.random()&lt;0.05 || that._getChannel() == 'performance'){
+                        setTimeout(function(){
+                            that._performance();
+                        }, 3000);
+                    }
+                    //开启参数传递功能入口
+                    that.deliver();
+                };
+            if(that._isArray(window._abq)){
+                var len = window._abq.length;
+
+                for(var i = 0;i &lt; len;i++){
+                    abQueue.push(window._abq[i]);
+                }
+            }
+
+            if(document.addEventListener){
+                document.removeEventListener('DOMContentLoaded', loadedEvent, false);
+                window.removeEventListener('load', onload, false);
+                document.addEventListener('DOMContentLoaded', loadedEvent, false);
+                window.addEventListener('load', onload, false);
+            }else if(document.attachEvent){
+                document.detachEvent('onreadystatechange', loadedEvent);
+                window.detachEvent('onload', onload);
+                document.attachEvent('onreadystatechange', loadedEvent);
+                window.attachEvent('onload', onload);
+            }
+
+        },
+
+        //传递指定的query变量
+        deliver: function(){
+            var that = this,
+
+                //要传递的参数列表
+                params = window.deliverParams || [],
+
+                //key=value格式化完成的参数列表
+                paramKV = [],
+                $ = that._jQuery();
+
+            //生成格式化的参数列表，先从页面url上取值，找不到的话用指定方法获取初始值
+            for(var i=0;i&lt;params.length;i++){
+                paramKV.push(params[i] + '=' + (that._getParam(params[i]) || that._getParamValue(params[i])));
+            }
+
+            //绑定事件，在超链接跳转之前修改链接地址，追加或修改要传递的参数
+            $ &amp;&amp; $(document).on("mousedown touchstart", "a", function(){
+                //已经处理过了，就不处理了。
+                if($(this).attr("deliver") == '1'){
+                    return;
+                }
+                var _href = $(this).attr("href");
+
+                if(!_href || /^(javascript\:|\#|tel\:)/.test(_href)){
+                    return;
+                }
+
+                var href = _href.split("?"),
+                    path = href[0],
+                    _search = (href.length&gt;1? href[1]: "").split("#"),
+                    search = _search[0],
+                    hash = _href.split("#")[1] || "";
+                    newObjSearch = {},
+                    newArrSearch = [];
+
+                search = search? search.split("&amp;"): [];
+
+                //把href上当前的参数加入队列
+                for(var i=0,kv;i&lt;search.length;i++){
+                    kv = search[i].split("=");
+                    newObjSearch[kv[0]] = kv[1];
+                }
+
+                //把要传递的参数加入队列，同名覆盖前面的
+                for(var i=0,kv;i&lt;paramKV.length;i++){
+                    kv = paramKV[i].split("=");
+                    newObjSearch[kv[0]] = kv[1];
+                }
+
+                //把队列里的参数转换到数组里
+                for(var k in newObjSearch){
+                    newArrSearch.push(k + "=" + newObjSearch[k]);
+                }
+
+                //拼接生成新的href
+                href = path + (
+                        newArrSearch.length&gt;0? "?" + newArrSearch.join("&amp;"): ""
+                    ) + (
+                        hash? "#" + hash: ""
+                    );
+                $(this).attr({
+                    "href": href,
+                    "deliver": 1
+                });
+            });
+        },
+
+        //获取特定query变量的初始值
+        _getParamValue: function(param){
+            var that = this;
+            switch(param){
+                case "abtest":
+                return that._getABtest();
+                default:
+                return '';
+            }
+        },
+
+        //绑定事件，暂不兼容ie8，不要使用。
+        _bind: function(dom, type, fn, select){
+            var callback = function(event){
+                event = event || window.event;
+                for(var i=0, dom;i&lt;event.path.length;i++){
+                    dom = event.path[i];
+                    if((dom.nodeName || dom.tagName).toUpperCase() == select.toUpperCase()){
+                        fn.call(dom, event);
+                        break;
+                    }
+                }
+            };
+            if(document.addEventListener){
+                dom.addEventListener(type, callback, false);
+            }else if(document.attachEvent){
+                dom.attachEvent(type, callback);
+            }
+        },
+
+        //返回jQuery对象
+        _jQuery: function(){
+            if(window.jQuery){
+                return window.jQuery;
+            }else if(window.Zepto){
+                return window.Zepto;
+            }else if(window.require){
+                try{
+                   return require('common:components/jquery/jquery')
+                }catch(err){
+                   //在此处理错误
+                }
+            }
+            return undefined;
+        },
+        _setCookie: function(name, value, domain, path, expires, secure){
+            document.cookie = [
+                name, 
+                '=', 
+                value,
+                ';', 
+                'domain', 
+                '=', 
+                domain, 
+                ';', 
+                'path', 
+                '=', 
+                path, 
+                ';', 
+                'expires', 
+                '=', 
+                expires, 
+                ';', 
+                (secure ? 'secure' : ''), 
+                ';'
+            ].join('');
+        },
+        _getCookie: function(name){
+            var reg = new RegExp(name + '\s*=\s*([^\;]+)\;*'),
+                result = reg.exec(document.cookie);
+
+            return result &amp;&amp; result.length &gt; 1 ? result[1] : this.UNKNOW;
+        },
+        _getGuid: function(){
+            var guid = '';  
+
+            for (var i = 1; i &lt;= 32; i++){  
+                var n = Math.floor(Math.random() * 16.0).toString(16);  
+
+                guid += n;  
+
+                if((i == 8) || (i == 12) || (i == 16) || (i == 20)){
+                    guid += '-';  
+                }
+            }
+
+            return guid;  
+        },
+        _getUniqueId: function(key){
+            var that = this,
+                key = 'XIN_UID_CK',
+                uniqueId = that._getCookie(key);
+            if(uniqueId == that.UNKNOW){
+                that._setCookie(key, that._getGuid(), 'xin.com', '/', (new Date('2037/12/31 23:59:59')).toUTCString());
+
+                uniqueId = that._getCookie(key);
+            }
+
+            return uniqueId;
+        },
+
+        /*获取ABtest的结果*/
+        _getABtest: function(B_Chance){
+            var that = this,
+                test = "",
+                guid = that._getUniqueId(),
+                abNum = parseInt(guid.split("-")[0], 16);
+            B_Chance = B_Chance || 0.3;
+            test = (abNum / 10000 )%1 &lt;= B_Chance? "B": "A";
+            return test;
+        },
+
+        
+        _getEvent: function(params){
+            var splitor = '/';
+            return splitor + params.slice(1).join(splitor);
+        }, 
+        _getFrom: function(){
+             var ua = window.navigator.userAgent,
+                ua = ua.toUpperCase(),
+                isApp = /XINAPP*[\/,=]*/.test(ua),
+                isAndroid = /android/ig.test(ua),
+                isIOS = /iphone/ig.test(ua),
+                from = '';
+
+            if(isApp){
+                if(isAndroid){
+                    from = 'm-android';
+                }else if(isIOS){
+                    from = 'm-ios';
+                }
+            }else{
+                from = isAndroid || isIOS ? 'm': 'www';
+            }
+
+            return from;
+        },
+        _getAppVersion: function(){
+            var uav = window.navigator.userAgent;
+                uav = uav.toUpperCase();
+            var version = /XINAPP*[\/,=]\s*([^\s]+)/.exec(uav);
+
+            return version &amp;&amp; version.length &gt; 1 ? version[1] : '';
+        },
+        _getUserId: function(){
+            var that = this,
+                userId = that._getCookie('XIN_UID');
+
+            return userId != that.UNKNOW ? userId : '';
+        },
+        _getCityId: function(){
+            var that = this,
+                cityData = that._getCookie('XIN_LOCATION_CITY');
+
+            return cityData != that.UNKNOW ? (JSON.parse(decodeURIComponent(cityData))).cityid : '';
+        },
+        _getSource: function(url){
+            var result = /.?:\/\/([^\/]+)\/.*/.exec(url);
+            return result &amp;&amp; result.length &gt; 1 ? result[1] : '';
+        },
+        _getChannel: function(){
+            var channel = /channel\s*=\s*([^&amp;]+)&amp;?/.exec(decodeURIComponent(window.location.search));
+
+            return channel &amp;&amp; channel.length &gt; 1 ? encodeURIComponent(channel[1]) : '';
+        },
+        _getSeoRef: function(url){
+            var that = this,
+                key = 'SEO_REF',
+                uniqueId = that._getCookie(key);
+            var items='';   
+            if(that._getParam("channel")){
+                // items = "seo_sm";
+                return items;
+            }
+            if(that._getParam("referer")){
+                url = that._getParam("referer");
+             }
+             var pattern = new RegExp("[?&amp;]referer\=([^&amp;]+)", "g");
+             var matcher = pattern.exec(url);
+             if(matcher !=null){
+                try{
+                    url = decodeURIComponent(decodeURIComponent(matcher[1]));
+                }catch(e){
+                    try{
+                        url = decodeURIComponent(matcher[1]);
+                    }catch(e){
+                        url = matcher[1];
+                    }
+                }
+             }
+             
+            if(uniqueId == that.UNKNOW &amp;&amp; url!="" || that._checkDomain(that._getSource(url)) &amp;&amp; that._getSource(url) != that._getSource(uniqueId) &amp;&amp; url!=""){
+                var exp = new Date();  
+                    exp.setTime(exp.getTime() + 60 * 1000 * 60 * 24);
+                    that._setCookie(key,url,'xin.com', '/', exp.toUTCString());
+                    uniqueId = that._getCookie(key);
+            }
+            if(that._checkDomain(that._getSource(uniqueId)) &amp;&amp; url!=''){
+                var domain = that._getSource(uniqueId);
+                    domain = domain.split(".");
+                    items = "seo_"+domain[1];
+            }
+            
+            return items;
+        },
+        _getSeoKey:function(url){
+            var that = this,
+                key = 'SEO_KEY',
+                uniqueId = that._getCookie(key),
+                item='';    
+            if(that._getParam("referer")){
+                url = that._getParam("referer");
+             }
+             var pattern = new RegExp("[?&amp;]referer\=([^&amp;]+)", "g");
+             var matcher = pattern.exec(url);
+             if(matcher !=null){
+                try{
+                    url = decodeURIComponent(decodeURIComponent(matcher[1]));
+                }catch(e){
+                    try{
+                        url = decodeURIComponent(matcher[1]);
+                    }catch(e){
+                        url = matcher[1];
+                    }
+                }
+             }
+            var keyd = ['word','wd','q','keyword','query'];
+                for(var i=0; i&lt;keyd.length;i++){
+                    var pattern = new RegExp("[?&amp;]"+keyd[i]+"\=([^&amp;]+)", "g");
+                     var matcher = pattern.exec(url);
+                     if(matcher !=null){
+                        try{
+                            item = decodeURIComponent(decodeURIComponent(matcher[1]));
+                        }catch(e){
+                            try{
+                                item = decodeURIComponent(matcher[1]);
+                            }catch(e){
+                                item = matcher[1];
+                            }
+                        }
+                     }
+                 }
+            if(uniqueId == that.UNKNOW &amp;&amp; item !="" || uniqueId != that.UNKNOW &amp;&amp; item!=""){
+                var exp = new Date();  
+                    exp.setTime(exp.getTime() + 60 * 1000 * 60 * 24);
+                    that._setCookie(key,item,'xin.com', '/', exp.toUTCString());
+                    item = that._getCookie(key);
+              }
+             if(uniqueId != that.UNKNOW &amp;&amp; item==''){
+                item = uniqueId;
+             }  
+            return item;
+        },
+        _checkDomain:function(name){
+            var domain = ['www.xin.com','che.xin.com','m.xin.com','che.m.xin.com'];
+            for(var i=0; i&lt;domain.length; i++){
+                if(domain[i]==name){
+                    return false;
+                }
+            }
+             return true;
+        },
+         _getParam:function(name){
+            var search = document.location.search;
+            var pattern = new RegExp("[?&amp;]"+name+"\=([^&amp;]+)", "g");
+            var matcher = pattern.exec(search);
+            var items = null;
+            if(null != matcher){
+                try{
+                    items = decodeURIComponent(decodeURIComponent(matcher[1]));
+                }catch(e){
+                    try{
+                        items = decodeURIComponent(matcher[1]);
+                    }catch(e){
+                        items = matcher[1];
+                    }
+                }
+            }
+            return items;
+         },
+        _isEnabledCookie: function(){
+            return window.navigator.cookieEnabled ? '1' : '0';
+        },
+        _isSupportLocalStorage: function(){
+            return window.localStorage ? '1' : '0';
+        },
+        _getLanguage: function(){
+            return window.navigator.language || window.navigator.browserLanguage || window.navigator.systemLanguage || window.navigator.userLanguage || '';
+        },
+        _getColorDepth: function(){
+            return window.screen.colorDepth || 0;
+        },
+        _getBaseParams: function(){
+            var that = this,
+                params = [];
+
+            params.push('cid=' + that._getUniqueId());
+            //params.push('ip=0');
+            params.push('from=' + that._getFrom());
+            params.push('app=' + that._getAppVersion());
+            params.push('net=');
+            params.push('ua=' + window.navigator.userAgent);
+            params.push('sc=' + window.screen.width + '*' + window.screen.height);
+            params.push('ts=' + (new Date()).getTime());
+            if(window.pageid != undefined){
+               params.push('pageid=' + window.pageid); 
+            }
+            if(window.ABtest == true){
+                params.push('ABtest=' + (that._getParam("abtest") || that._getABtest()).toUpperCase()); 
+            }
+
+            return params;
+        },
+        _getTrackParams: function(orginParams){
+            var that = this,
+                params = [];
+
+            params.push('type=c');
+            params.push('ev=' + encodeURI(that._getEvent(orginParams)));
+            //params.push('pid=0');
+            params.push('uid=' + that._getUserId());
+            params.push('cityid=' + that._getCityId());
+            params.push('url=' + encodeURIComponent(document.location.href));
+            params.push('ref=' + encodeURIComponent(document.referrer));
+            params.push('source=' + that._getSource(document.referrer));
+            params.push('channel=' + that._getChannel());
+            params.push('rf_seo=' + that._getClickSeoRef());
+            params.push('rf_key=' + encodeURIComponent(that._getClickSeoKey()));
+
+            params = params.concat(that._getBaseParams());
+            
+
+            return params;
+        },
+        _getClickSeoRef:function(){
+            var that = this,
+                uniqueId,
+                items="";
+             uniqueId = that._getCookie("SEO_REF");
+            if(uniqueId != that.UNKNOW &amp;&amp; that._checkDomain(that._getSource(uniqueId))){
+                var domain = that._getSource(uniqueId);
+                domain = domain.split(".");
+                items = "seo_"+domain[1];   
+             }
+             return items;
+        },
+        _getClickSeoKey:function(){
+            var that = this,
+                uniqueId,
+                item ="";
+             uniqueId = that._getCookie("SEO_KEY");
+            if(uniqueId != that.UNKNOW){
+                    item = uniqueId;
+             }
+             return item;
+        },
+        _getPageviewParams: function(orginParams){
+            var that = this,
+                params = [];
+
+            params.push('type=w');
+            //params.push('pid=0');
+            params.push('uid=' + that._getUserId());
+            params.push('cityid=' + that._getCityId());
+            params.push('url=' + encodeURIComponent(document.location.href));
+            params.push('ref=' + encodeURIComponent(document.referrer));
+            params.push('source=' + that._getSource(document.referrer));
+            params.push('channel=' + that._getChannel());
+            params.push('rf_seo=' + that._getSeoRef(document.referrer));
+            params.push('rf_key=' + that._getSeoKey(document.referrer));
+            params = params.concat(that._getBaseParams());
+            return params;
+        },
+        _getLoadviewParams: function(orginParams){
+            var that = this,
+                params = [];
+
+            params.push('type=e');
+            //params.push('pid=0');
+            params.push('uid=' + that._getUserId());
+            params.push('cityid=' + that._getCityId());
+            params.push('url=' + encodeURIComponent(document.location.href));
+            params.push('ref=' + encodeURIComponent(document.referrer));
+            params.push('source=' + that._getSource(document.referrer));
+            params.push('channel=' + that._getChannel());
+            params.push('rf_seo=' + that._getSeoRef(document.referrer));
+            params.push('rf_key=' + that._getSeoKey(document.referrer));
+            params = params.concat(that._getBaseParams());
+            
+            if(window.biAddAttributes != undefined){
+                params.push('pl=' + window.biAddAttributes.pl);
+                var va=""; 
+                for(key in window.biAddAttributes.ds){
+                    va+= key+"#"+window.biAddAttributes.ds[key]+ ",";
+                }
+                va=va.substring(0,va.length-1);
+                params.push('ds=' + encodeURIComponent(va));
+            }
+            if(orginParams!=undefined || orginParams !="" || orginParams!=null){
+                if(orginParams.pl!=undefined &amp;&amp; orginParams.ds!=undefined){
+                    params.push('pl=' + encodeURIComponent(orginParams.pl));
+                    params.push('ds=' + encodeURIComponent(orginParams.ds));
+                }           
+            }
+
+            return params;
+        },
+        _getPerformanceParams: function(orginParams){
+            var that = this,
+                params = [];
+
+            params.push('type=p');
+            params.push('ce=' + that._isEnabledCookie());
+            params.push('ls=' + that._isSupportLocalStorage());
+            params.push('lg=' + that._getLanguage());
+            params.push('cd=' + that._getColorDepth());
+            params.push('pid=' + that._getPageId());
+
+            if(window.performance){
+                var perf = window.performance;
+                if(perf.navigation){
+                    params.push('nt=' + perf.navigation.type);
+                    params.push('nr=' + perf.navigation.redirectCount);
+                }
+                
+                if(perf.timing){
+                    params.push('pce=' + perf.timing.connectEnd);
+                    params.push('pcs=' + perf.timing.connectStart);
+                    params.push('pdc=' + perf.timing.domComplete);
+                    params.push('pdclee=' + perf.timing.domContentLoadedEventEnd);
+                    params.push('pdcles=' + perf.timing.domContentLoadedEventStart);
+                    params.push('pdi=' + perf.timing.domInteractive);
+                    params.push('pdl=' + perf.timing.domLoading);
+                    params.push('pdle=' + perf.timing.domainLookupEnd);
+                    params.push('pdls=' + perf.timing.domainLookupStart);
+                    params.push('pfs=' + perf.timing.fetchStart);
+                    params.push('plee=' + perf.timing.loadEventEnd);
+                    params.push('ples=' + perf.timing.loadEventStart);
+                    params.push('pns=' + perf.timing.navigationStart);
+                    params.push('pre=' + perf.timing.redirectEnd);
+                    params.push('prs=' + perf.timing.redirectStart);
+                    params.push('preqs=' + perf.timing.requestStart);
+                    params.push('prese=' + perf.timing.responseEnd);
+                    params.push('press=' + perf.timing.responseStart);
+                    params.push('pscs=' + perf.timing.secureConnectionStart);
+                    params.push('puee=' + perf.timing.unloadEventEnd);
+                    params.push('pues=' + perf.timing.unloadEventStart);
+                }
+                if(perf.memory){
+                    params.push('pjshsl=' + perf.memory.jsHeapSizeLimit);
+                    params.push('ptjshs=' + perf.memory.totalJSHeapSize);
+                    params.push('pujshs=' + perf.memory.usedJSHeapSize);
+                }
+                params.push('entries=' + that._getEntriesParams());
+            }
+
+            params = params.concat(that._getBaseParams());
+
+            return params;
+        },
+        _getEntriesParams: function(){
+            var that = this,
+                params = [];
+            if(window.performance &amp;&amp; window.performance.getEntries){
+                var perf = window.performance.getEntries();
+                for (var i = 0; i &lt; perf.length; i++) {
+                    params.push(that._getEntrie(perf[i]));
+                }
+            }
+            return params.join(";");
+        },
+        _getEntrie: function(entrie){
+            var that = this,
+                fixed = that._toFixed,
+                newObj = [];
+            entrie.connectEnd &amp;&amp; (newObj.push('ece:' + fixed(entrie.connectEnd)));
+            entrie.connectStart &amp;&amp; (newObj.push('ecs:' + fixed(entrie.connectStart)));
+            entrie.decodedBodySize &amp;&amp; (newObj.push('edbs:' + fixed(entrie.decodedBodySize)));
+            entrie.domainLookupEnd &amp;&amp; (newObj.push('edle:' + fixed(entrie.domainLookupEnd)));
+            entrie.domainLookupStart &amp;&amp; (newObj.push('edls:' + fixed(entrie.domainLookupStart)));
+            entrie.duration &amp;&amp; (newObj.push('ed:' + fixed(entrie.duration)));
+            entrie.encodedBodySize &amp;&amp; (newObj.push('eebs:' + fixed(entrie.encodedBodySize)));
+            entrie.entryType &amp;&amp; (newObj.push('eet:' + entrie.entryType));
+            entrie.fetchStart &amp;&amp; (newObj.push('efs:' + fixed(entrie.fetchStart)));
+            entrie.initiatorType &amp;&amp; (newObj.push('eit:' + entrie.initiatorType));
+            entrie.name &amp;&amp; (newObj.push('en:' + entrie.name.replace(/^http(s?)\:\/\/([sc][1-6]?)\.xinstatic\.com\//i, "$1!$2//")));
+            entrie.redirectEnd &amp;&amp; (newObj.push('erde:' + fixed(entrie.redirectEnd)));
+            entrie.redirectStart &amp;&amp; (newObj.push('erds:' + fixed(entrie.redirectStart)));
+            entrie.requestStart &amp;&amp; (newObj.push('erqs:' + fixed(entrie.requestStart)));
+            entrie.responseEnd &amp;&amp; (newObj.push('erpe:' + fixed(entrie.responseEnd)));
+            entrie.responseStart &amp;&amp; (newObj.push('erps:' + fixed(entrie.responseStart)));
+            entrie.secureConnectionStart &amp;&amp; (newObj.push('escs:' + fixed(entrie.secureConnectionStart)));
+            entrie.startTime &amp;&amp; (newObj.push('est:' + fixed(entrie.startTime)));
+            entrie.transferSize &amp;&amp; (newObj.push('ets:' + fixed(entrie.transferSize)));
+            entrie.workerStart &amp;&amp; (newObj.push('ews:' + fixed(entrie.workerStart)));
+
+            return newObj.join(",");
+        },
+        _toFixed: function(num){
+            return num.toFixed(3)
+        },
+        _getCollectUrl: function(params){
+            var that = this;
+
+            return (that._debugurl ? that._debugurl : that._aburl) + params.join('&amp;');
+        },
+        _collect: function(params){
+            var img = new Image;
+
+            img.style.display = 'none';
+            img.src = this._getCollectUrl(params);
+
+            document.body.appendChild(img);
+        },
+        _collectPost: function(params){
+            var that = this,
+                xhr = new XMLHttpRequest();
+            xhr.open("POST", (that._debugurl ? that._debugurl : that._abposturl));
+            xhr.send(params.join("&amp;"));
+        },
+        _debug: function(params){
+            if(params.length &lt; 2) return;
+            
+            this._debugurl = params[1];
+        },
+        _track: function(params){
+            
+            var that = this;
+
+            that._collect(that._getTrackParams(params));
+        },
+        _pageview: function(params){
+            var that = this;
+            if(document.getElementById("ad_home_adver_top")){
+                that._collect(that._getLoadviewParams(params));
+            }
+            that._collect(that._getPageviewParams(params));
+        },
+        _performance: function(params){
+    
+            var that = this;
+
+            that._collectPost(that._getPerformanceParams(params));
+        },
+        push: function(params){
+            var that = this;
+
+            if(!that._isArray(params)) return;
+            
+            if(that._isArray(params[0])){
+                for(var i = 0 ; i&lt;params.length;i++){
+                    that.push(params[i]);
+                }
+                return false;
+             }
+
+            var method = that[params[0]];
+
+            if(!method) return;
+
+            method.call(that, params);
+        },
+        _eventReq:function(params){
+            var that = this;
+            that._collect(that._getLoadviewParams(params[1]));
+        },
+        _getPageId: function(){
+            return window.PAGE_ID || window.location.href.split("?")[0];
+        }
+    };
+    window._abq = new ABQueue;
+})(window, document);
+</pre></body></html>

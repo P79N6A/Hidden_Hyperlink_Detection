@@ -1,0 +1,449 @@
+<!DOCTYPE html><html><head><title>
+	本市企业查询
+</title>
+
+    <link href="/CreditManualNew/Content/Site.css" rel="stylesheet" type="text/css">
+    <link href="/CreditManualNew/Content/CSS/UI/redmond/jquery-ui-1.8.9.custom.css" rel="stylesheet" type="text/css"> 
+    <script src="/CreditManualNew/Scripts/jquery-1.5.2.min.js" type="text/javascript"></script> 
+    <script src="/CreditManualNew/Scripts/CustomJS/jquery-ui.extensions.js" type="text/javascript"></script> 
+    <script src="/CreditManualNew/Scripts/UI/jquery-ui-1.8.9.custom.min.js" type="text/javascript"></script>
+    <script src="/CreditManualNew/Scripts/json2.js" type="text/javascript"></script> 
+    <script src="/CreditManualNew/Scripts/CustomJS/PagingHelper.js" type="text/javascript"></script>
+    <script src="/CreditManualNew/Scripts/CustomJS/jquery.validateCust.js" type="text/javascript"></script>
+    <script src="/CreditManualNew/Scripts/CustomJS/jquery.validate_cn.js" type="text/javascript"></script>
+    <script src="/CreditManualNew/Scripts/CustomJS/global.js" type="text/javascript"></script>
+    <script src="/CreditManualNew/Scripts/jquery.unobtrusive-ajax.min.js" type="text/javascript"></script>
+
+    <script language="javascript" type="text/javascript">
+
+        $(function () {
+            document.getElementById("ddlZzxl").style.display = "none";
+            document.getElementById("ddlZzhy").style.display = "none";
+            document.getElementById("ddlZzlb").style.display = "none";
+            document.getElementById("ddlZzdj").style.display = "none";
+        });
+
+        function trim(str) {
+            return str.replace(/(^\s*)|(\s*$)/g, "");
+        }
+
+        //查询
+        function Search() {
+            if ($("#ddlZzdl").val() == '' && trim($("#txtDwmc").val()) == '' && $("#ddlQylx").val() == '') {
+                $("#div_msg").html("请输入查询条件！");
+                return;
+            }
+            var flag = true;
+            if ($("#ddlZzdl").val() != '') {
+                switch ($("#ddlZzdl").val()) {
+                    case "10":
+                        if ($("#ddlZzxl").val() == '' || $("#ddlZzlb").val() == '' || $("#ddlZzdj").val() == '') {
+                            flag = false;
+                        }
+                        break;
+                    case "20":
+                        if ($("#ddlZzlb").val() == '' || $("#ddlZzdj").val() == '') {
+                            flag = false;
+                        }
+                        break;
+                    case "30":
+                        if ($("#ddlZzlb").val() == '' || $("#ddlZzdj").val() == '') {
+                            flag = false;
+                        }
+                        break;
+                    case "40":
+                        if ($("#ddlZzxl").val() == '' || $("#ddlZzdj").val() == '') {
+                            flag = false;
+                        }
+                        switch ($("#ddlZzxl").val()) {
+                            case "4004-1":
+                                if ($("#ddlZzlb").val() == '') {
+                                    flag = false;
+                                }
+                                break;
+                            case "4004-2":
+                                if ($("#ddlZzhy").val() == '' || $("#ddlZzlb").val() == '') {
+                                    flag = false;
+                                }
+                                break;
+                            case "4004-3":
+                                if ($("#ddlZzlb").val() == '') {
+                                    flag = false;
+                                }
+                                break;
+                            case "4005":
+                                if ($("#ddlZzlb").val() == '') {
+                                    flag = false;
+                                }
+                                break;
+                            default:
+                                break;
+                        }
+                        break;
+                    case "41":
+                        if ($("#ddlZzlb").val() == '' || $("#ddlZzdj").val() == '') {
+                            flag = false;
+                        }
+                        break;
+                    case "50":
+                        if ($("#ddlZzdj").val() == '') {
+                            flag = false;
+                        }
+                        break;
+                    case "60":
+                        if ($("#ddlZzdj").val() == '') {
+                            flag = false;
+                        }
+                        break;
+                    case "80":
+                        if ($("#ddlZzlb").val() == '') {
+                            flag = false;
+                        }
+                        break;
+                    case "95":
+                        if ($("#ddlZzdj").val() == '') {
+                            flag = false;
+                        }
+                        break;
+                    case "11":
+                        if ($("#ddlZzdj").val() == '') {
+                            flag = false;
+                        }
+                        break;
+                    case "24":
+                        if ($("#ddlZzlb").val() == '' || $("#ddlZzdj").val() == '') {
+                            flag = false;
+                        }
+                        break;
+                    case "25":
+                        if ($("#ddlZzlb").val() == '' || $("#ddlZzdj").val() == '') {
+                            flag = false;
+                        }
+                        break;
+                    case "21":
+                        if ($("#ddlZzlb").val() == '' || $("#ddlZzdj").val() == '') {
+                            flag = false;
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
+            if (!flag) {
+                $("#div_msg").html("选择资质类别后,必须选定该资质类别下资质小分类及等级！");
+                return;
+            }
+            $("#div_msg").html("");
+            LoadQyxxListOfPaging(1);
+        }
+
+        function LoadQyxxListOfPaging(currentPage) {
+            var url = '/CreditManualNew/PublicCompany/SearchList';
+            var zzxl = $("#ddlZzxl").val();
+            var zzlb = $("#ddlZzlb").val();
+            var zzdj = $("#ddlZzdj").val();
+            var data =
+                {
+                    dwmc: $("#txtDwmc").val(),
+                    qylx: $("#ddlQylx").val(),
+                    zzdl: $("#ddlZzdl").val(),
+                    zzxl: $("#ddlZzxl").val(),
+                    zzlb: $("#ddlZzlb").val(),
+                    zzdj: $("#ddlZzdj").val(),
+                    page: currentPage
+                };
+            toggleLoading(1);
+            $.post(url, data, function (ret) {
+                $("#div_qyxx_list").html(ret);
+                toggleLoading(2);
+            });
+        }
+
+        //资质大类
+        function OnZzdlChanged() {
+            document.getElementById("ddlZzxl").style.display = "none";
+            document.getElementById("ddlZzhy").style.display = "none";
+            document.getElementById("ddlZzlb").style.display = "none";
+            document.getElementById("ddlZzdj").style.display = "none";
+            clearDropDownList($("select#ddlZzxl"));
+            clearDropDownList($("select#ddlZzhy"));
+            clearDropDownList($("select#ddlZzlb"));
+            clearDropDownList($("select#ddlZzdj"));
+            var zzdl = $("#ddlZzdl").val();
+            switch (zzdl) {
+                case "10":
+                    document.getElementById("ddlZzxl").style.display = "";
+                    document.getElementById("ddlZzlb").style.display = "";
+                    document.getElementById("ddlZzdj").style.display = "";
+                    ChangeZzxl(zzdl);
+                    ChangeZzdj(zzdl);
+                    break;
+                case "20":
+                    document.getElementById("ddlZzlb").style.display = "";
+                    document.getElementById("ddlZzdj").style.display = "";
+                    ChangeZzlb(zzdl, "", "");
+                    ChangeZzdj(zzdl);
+                    break;
+                case "30":
+                    document.getElementById("ddlZzlb").style.display = "";
+                    document.getElementById("ddlZzdj").style.display = "";
+                    ChangeZzlb(zzdl, "", "");
+                    ChangeZzdj(zzdl);
+                    break;
+                case "40":
+                    document.getElementById("ddlZzxl").style.display = "";
+                    document.getElementById("ddlZzdj").style.display = "";
+                    ChangeZzxl(zzdl);
+                    ChangeZzdj(zzdl);
+                    break;
+                case "41":
+                    document.getElementById("ddlZzlb").style.display = "";
+                    document.getElementById("ddlZzdj").style.display = "";
+                    ChangeZzlb(zzdl, "", "");
+                    ChangeZzdj(zzdl);
+                    break;
+                case "50":
+                    document.getElementById("ddlZzdj").style.display = "";
+                    ChangeZzdj(zzdl);
+                    break;
+                case "60":
+                    document.getElementById("ddlZzdj").style.display = "";
+                    ChangeZzdj(zzdl);
+                    break;
+                case "80":
+                    document.getElementById("ddlZzlb").style.display = "";
+                    ChangeZzlb(zzdl, "", "");
+                    break;
+                case "95":
+                    document.getElementById("ddlZzdj").style.display = "";
+                    ChangeZzdj(zzdl);
+                    break;
+                case "11":
+                    document.getElementById("ddlZzdj").style.display = "";
+                    ChangeZzdj(zzdl);
+                    break;
+                case "24":
+                    document.getElementById("ddlZzlb").style.display = "";
+                    document.getElementById("ddlZzdj").style.display = "";
+                    ChangeZzlb(zzdl, "", "");
+                    ChangeZzdj(zzdl);
+                    break;
+                case "25":
+                    document.getElementById("ddlZzlb").style.display = "";
+                    document.getElementById("ddlZzdj").style.display = "";
+                    ChangeZzlb(zzdl, "", "");
+                    ChangeZzdj(zzdl);
+                    break;
+                case "21":
+                    document.getElementById("ddlZzlb").style.display = "";
+                    document.getElementById("ddlZzdj").style.display = "";
+                    ChangeZzlb(zzdl, "", "");
+                    ChangeZzdj(zzdl);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        function OnZzxlChanged() {
+            document.getElementById("ddlZzhy").style.display = "none";
+            clearDropDownList($("select#ddlZzhy"));
+            clearDropDownList($("select#ddlZzlb"));
+            var zzdl = $("#ddlZzdl").val();
+            switch (zzdl) {
+                case "10":
+                    ChangeZzlb(zzdl, $("#ddlZzxl").val(), "");
+                    break;
+                case "40":
+                    switch ($("#ddlZzxl").val()) {
+                        case "4003":
+                            document.getElementById("ddlZzlb").style.display = "none";
+                            break;
+                        case "4004-1":
+                            document.getElementById("ddlZzlb").style.display = "";
+                            ChangeZzlb(zzdl, $("#ddlZzxl").val(), "");
+                            break;
+                        case "4004-2":
+                            document.getElementById("ddlZzhy").style.display = "";
+                            document.getElementById("ddlZzlb").style.display = "";
+                            ChangeZzhy($("#ddlZzxl").val());
+                            break;
+                        case "4004-3":
+                            document.getElementById("ddlZzlb").style.display = "";
+                            ChangeZzlb(zzdl, $("#ddlZzxl").val(), "");
+                            break;
+                        case "4005":
+                            document.getElementById("ddlZzlb").style.display = "";
+                            ChangeZzlb(zzdl, $("#ddlZzxl").val(), "");
+                            break;
+                        default:
+                            break;
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        function OnZzhyChanged() {
+            clearDropDownList($("select#ddlZzlb"));
+            var zzdl = $("#ddlZzdl").val();
+            switch (zzdl) {
+                case "40":
+                    switch ($("#ddlZzxl").val()) {
+                        case "4004-2":
+                            ChangeZzlb(zzdl, $("#ddlZzxl").val(), $("#ddlZzhy").val());
+                            break;
+                        default:
+                            break;
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        function ChangeZzxl(zzdl) {
+            var url = '/CreditManualNew/PublicCompany/GetZzxlList';
+            var data = { zzdl: zzdl };
+            $.post(url, data, function (result) {
+                var jsondata = JSON.parse(result);
+                for (var i = 0; i < jsondata.data.length; i++) {
+                    var item = jsondata.data[i];
+                    var selected = ""
+                    if (item.Selected) {
+                        selected = "selected";
+                    }
+                    $("<option value='" + item.Value + "' " + selected + ">" + item.Text + "</option>").appendTo($("select#ddlZzxl"));
+                }
+            }, 'json');
+        }
+
+        function ChangeZzhy(zzxl) {
+            var url = '/CreditManualNew/PublicCompany/GetZzhyList';
+            var data = { zzxl: zzxl };
+            $.post(url, data, function (result) {
+                var jsondata = JSON.parse(result);
+                for (var i = 0; i < jsondata.data.length; i++) {
+                    var item = jsondata.data[i];
+                    var selected = ""
+                    if (item.Selected) {
+                        selected = "selected";
+                    }
+                    $("<option value='" + item.Value + "' " + selected + ">" + item.Text + "</option>").appendTo($("select#ddlZzhy"));
+                }
+            }, 'json');
+        }
+
+        function ChangeZzlb(zzdl, zzxl, zzhy) {
+            var url = '/CreditManualNew/PublicCompany/GetZzlbList';
+            var data = { zzdl: zzdl, zzxl: zzxl, zzhy: zzhy };
+            $.post(url, data, function (result) {
+                var jsondata = JSON.parse(result);
+                for (var i = 0; i < jsondata.data.length; i++) {
+                    var item = jsondata.data[i];
+                    var selected = ""
+                    if (item.Selected) {
+                        selected = "selected";
+                    }
+                    $("<option value='" + item.Value + "' " + selected + ">" + item.Text + "</option>").appendTo($("select#ddlZzlb"));
+                }
+            }, 'json');
+        }
+
+        function ChangeZzdj(zzdl) {
+            var url = '/CreditManualNew/PublicCompany/GetZzdjList';
+            var data = { zzdl: zzdl };
+            $.post(url, data, function (result) {
+                var jsondata = JSON.parse(result);
+                for (var i = 0; i < jsondata.data.length; i++) {
+                    var item = jsondata.data[i];
+                    var selected = ""
+                    if (item.Selected) {
+                        selected = "selected";
+                    }
+                    $("<option value='" + item.Value + "' " + selected + ">" + item.Text + "</option>").appendTo($("select#ddlZzdj"));
+                }
+            }, 'json');
+        }
+
+        //删除下拉框中所有值
+        function clearDropDownList(obj) {
+            $("option", obj).remove();
+        }
+
+        function openwindow(dwid, dwdm, lsss) {
+            if (lsss == "310000") {
+                var url = '/CreditManualNew/PublicCompany/ShIndex' + "?dwid=" + dwid + "&dwdm=" + dwdm;
+                window.open(url, "newWin", "channelmode=no,directories=no,fullscreen=no,location=no,menubar=no,resizable=yes,scrollbars=yes,status=yes,toolbar=no,width=850,height=450");
+            }
+            else {
+                var url = '/CreditManualNew/PublicCompany/WssIndex' + "?dwid=" + dwid + "&dwdm=" + dwdm;
+                window.open(url, "newWin", "channelmode=no,directories=no,fullscreen=no,location=no,menubar=no,resizable=yes,scrollbars=yes,status=yes,toolbar=no,width=850,height=450");
+            }
+        }
+    </script>
+</head>
+<body>
+<div align="left">
+    <table cellpadding="0" cellspacing="0" border="1" class="defaultTable2" style="width: 640px;">
+        <tbody><tr style=" height:26px;">
+            <td width="12%" class="td_colorfirst">
+                &nbsp;企业名称
+            </td>
+            <td class="td_two">
+                <input type="text" id="txtDwmc" style="height:20px;width:240px;">
+            </td>
+        </tr>
+        <tr style=" height:26px;">
+            <td width="12%" class="td_colorfirst">
+                &nbsp;企业类型
+            </td>
+            <td class="td_two">
+                <select id="ddlQylx">
+                    <option value=""></option>
+                    <option value="1">本市企业</option>
+                    <option value="2">外省市企业</option>
+                </select>
+            </td>
+        </tr>
+        <tr style=" height:26px;">
+            <td width="12%" class="td_colorfirst">
+                &nbsp;资质类别
+            </td>
+            <td class="td_two">
+                <select onchange="OnZzdlChanged()" id="ddlZzdl" name="ddlZzdl"><option selected="selected" value=""></option>
+<option value="10">施工资质</option>
+<option value="20">监理资质</option>
+<option value="30">勘察资质</option>
+<option value="40">设计资质</option>
+<option value="41">设计施工一体化资质</option>
+<option value="50">招标代理资质</option>
+<option value="60">造价咨询资质</option>
+<option value="80">检测机构</option>
+<option value="95">审图机构</option>
+<option value="11">城市园林绿化资质</option>
+<option value="24">交通部公路工程监理资质</option>
+<option value="25">交通部水运工程监理资质</option>
+<option value="21">水利监理资质</option>
+</select>
+                <select onchange="OnZzxlChanged()" id="ddlZzxl" name="ddlZzxl" style="display: none; "></select>
+                <select onchange="OnZzhyChanged()" id="ddlZzhy" name="ddlZzhy" style="display: none; "></select>
+                <select id="ddlZzlb" name="ddlZzlb" style="display: none; "></select>
+                <select id="ddlZzdj" name="ddlZzdj" style="display: none; "></select>
+                <br>
+                <input type="image" id="btn_Search" src="/CreditManualNew/Content/Images/Public/websearch_butten_08.gif" onclick="Search();">
+            </td>
+        </tr>
+    </tbody></table>
+    <div id="div_msg" style="color:Red;width: 640px; font-weight:bold;"></div>
+    <br>
+    <p style="color:Red;width: 640px;">※ 查询条件：企业名称（必须输入至少两个汉字），资质类别（选择资质类别后，必须选定该资质类别下资质小分类及等级）。上述两项条件可任选一项输入。</p>
+    <br>
+    <div align="left" id="div_qyxx_list" style="width: 640px;"></div>
+    <br>
+    <div class="loading"></div>
+</div>
+
+
+</body></html>

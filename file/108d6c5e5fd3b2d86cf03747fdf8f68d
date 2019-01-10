@@ -1,0 +1,144 @@
+<!DOCTYPE html><html><head>
+		<meta charset="utf-8">
+		<title>我的美的</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1, user-scalable=no">
+		<link rel="stylesheet" type="text/css" href="css/personalCenter.css">
+	</head>
+	<body>
+		<div class="header">
+			<div class="info">
+				<!-- 头像信息 -->
+				<div class="headImg">
+					<img alt="headImg" src="">
+				</div>
+				<!-- 个人信息 -->
+				<div class="personalInfo">
+					<p class="nickname"></p>
+					<p class="totalScore">总积分0分</p>
+					<p class="checkinDay">已连续签到0天</p>
+				</div>
+				<!-- 签到处 -->
+				<div class="checkBtn">
+					<button>立即签到</button>
+				</div>
+			</div>
+		</div>
+		<div class="content">
+			<!-- 出价低 -->
+			<div class="bid" id="bid">
+				<div class="bidWords">
+					<p>猛戳出价</p>
+					<p></p>
+					<p>出价唯一最低者，产品马上抱回家</p>
+				</div>
+			</div>
+			<!-- 我家的产品 -->
+			<div class="homeProducts">我家的产品</div>
+			<!-- 菜谱 -->
+			<div class="foodMenus">我的菜谱</div>
+			<!-- 我的收藏 -->
+			<div class="myCollections">我的收藏</div>
+			<!-- 我的说明书 -->
+			<div class="ebooks">我的说明书</div>
+			<!-- 我的账户 -->
+			<div class="myAccount">我的账户</div>
+		</div>
+		<div class="footer">
+			<div class="myScore">
+				<img src="img/myaccount-no.png">
+				<p>我的积分</p>
+			</div>
+			<div class="mideaMall">
+				<img src="img/store-no.png">
+				<p>美的商店</p>
+			</div>
+			<div class="personalCenter">
+				<img src="img/myCenter-yes.png">
+				<p>个人中心</p>
+			</div>
+		</div>
+		<script type="text/javascript" src="../res/js/jquery-1.11.3.min.js"></script>
+		<script type="text/javascript">
+			$(function(){
+				// 页面加载
+				$.ajax({
+					type:"get",
+					url:"loadCheckinInfo.php",
+					async:false,
+					data:{
+						unionid: "",
+						openid : ""
+					},
+					error:function(){
+						alert('error');
+					},
+					success:function(data){
+						//console.log('页面加载信息' +data);
+						var checkInfo = JSON.parse(data);
+						$('.totalScore').html('总积分'+checkInfo.total_bonus+'分');
+						$('.checkinDay').html('已连续签到'+checkInfo.checkin_days+'天');
+						if(checkInfo.code == 1){
+							$('.checkBtn button').html('已签到');
+							$('.checkBtn button').attr('disabled', 'true');
+						}else{
+							$('.checkBtn button').html('立即签到');							
+						}
+					}
+				});
+				//签到动作
+				$('.checkBtn button').click(function(){
+					$.ajax({
+						type:"post",
+						url:"checkin.php",
+						data:{
+							unionid: "",
+							openid: ""
+						},
+						async:false,
+						error:function(){
+							alert('error');
+						},
+						success:function(data){
+							//console.log('签到信息'+ data);
+							var checkInfo = JSON.parse(data);
+							$('.totalScore').html('总积分'+checkInfo.total_bonus+'分');
+							$('.checkinDay').html('已连续签到'+checkInfo.checkin_days+'天');
+							if(checkInfo.code == 1){
+								$('.checkBtn button').html('已签到');
+								$('.checkBtn button').attr('disabled', 'true');
+							}else{
+								$('.checkBtn button').html('立即签到');					
+							}
+							var d = checkInfo.checkin_days%10;
+							if(d>=0 && d<=2){
+								alert(checkInfo.message + '，继续签到' + (3-d) + '天将额外获得5积分');
+							}else if(d>=3 && d<=4){
+								alert(checkInfo.message + '，继续签到' + (5-d) + '天将额外获得10积分');
+							}else if(d>=5 && d<10){
+								alert(checkInfo.message + '，继续签到' + (10-d) + '天将额外获得20积分');
+							}
+						}
+					});
+				});
+				$('.bid').click(function(){
+					window.location.href = 'lowerBid/php/index.php';
+				});
+				$('.homeProducts').click(function(){
+					window.location.href = 'myHomeProducts/index.php';
+				});
+				$('.foodMenus').click(function(){
+					window.location.href = '../foodmenu/search.php';
+				});
+				$('.myCollections').click(function(){
+					window.alert('敬请期待');
+				});
+				$('.ebooks').click(function(){
+					window.location.href = '../ebook/index.html';
+				});
+				$('.myAccount').click(function(){
+					window.alert('敬请期待');
+				});
+			});
+		</script>
+	
+</body></html>

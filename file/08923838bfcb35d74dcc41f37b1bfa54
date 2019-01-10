@@ -1,0 +1,91 @@
+<html><head></head><body><pre style="word-wrap: break-word; white-space: pre-wrap;">define(['jquery', 'search', 'module'], function ($, m, module) {
+    function unescapeParam(str) {
+        str = window.decodeURIComponent(window.decodeURIComponent(str));
+        if (str.indexOf(';') &lt; 1) {
+            return str
+        }
+        str = str.split(';');
+        return {
+            words: str[0],
+            url: str[1]
+        }
+    }
+    var zoneClick = module.config().clickP || '';
+    //字符处理
+    function strFormat(str, key, tag) {
+        var idx = str.indexOf(key);
+        if (idx &lt; 0)return str;
+        return str.substring(0, idx + key.length) + "&lt;" + tag + "&gt;" + str.substring(idx + key.length) + "&lt;/" + tag + "&gt;";
+    }
+    //单一模板示例
+    var pseriseTpl = {
+        tpl: '&lt;span&gt;频道直达&lt;/span&gt;&lt;ul class="model_car_lists_a spser"&gt;{{data.itemsHtml}}&lt;/ul&gt;',
+        itemTpl: '&lt;li rel="{{data.words}}"&gt;' +
+        '&lt;a href="{{data.url}}' + zoneClick['spser'] + '" target="_blank" title="" alt=""&gt;' +
+        '&lt;span class="model_list_left"&gt;' +
+        '{{data.words}}' +
+        '&lt;/span&gt;' +
+        '&lt;span class="model_list_right"&gt;' +
+        '{{data.price}}' +
+        '&lt;/span&gt;' +
+        '&lt;/a&gt;' +
+            /*车图*/
+        '&lt;div class="model_car_thumbnail"&gt;' +
+        '&lt;img src="{{data.purl}}" width="118" height="88" title="" alt=""&gt;' +
+        '&lt;/div&gt;' +
+            /*/车图*/
+        '&lt;/li&gt;'
+    };
+    var resultTpl = {
+        tpl: '&lt;span&gt;联想提示&lt;/span&gt;&lt;ul class="model_car_lists_b"&gt;{{data.itemsHtml}}&lt;/ul&gt;',
+        itemTpl: '&lt;li rel="{{data.words}}"&gt;&lt;a href="http://search.xcar.com.cn/search.php?k={{data.words}}&amp;c=1&amp;ie=utf8' + zoneClick['sresult'] + '" target="_blank" title="" alt=""&gt;&lt;b&gt;{{data.words}}&lt;/b&gt;&lt;/a&gt;&lt;/li&gt;'
+    };
+    var historyTpl = {
+        render: function (data) {
+            if (data.length &gt; 0) {
+                var headerHtml = '&lt;span&gt;历史记录&lt;/span&gt;&lt;ul class="model_car_lists_b shistory"&gt;';
+                var contentHtml = '';
+                var footerHtml = '&lt;/ul&gt;';
+                $.each(data, function (i, obj, arr) {
+                    str = unescapeParam(obj);
+                    if (typeof str == 'string') {
+                        contentHtml += '&lt;li rel="' + str + '"&gt;&lt;a href="http://search.xcar.com.cn/search.php?k=' + window.encodeURIComponent(str) + '&amp;c=1&amp;ie=utf8' + zoneClick['sresult'] + '" target="_blank" title="" alt=""&gt;' + str + '&lt;/a&gt;&lt;/li&gt;'
+                    } else {
+                        contentHtml += '&lt;li data-type="spser" rel="' + str.words + '"&gt;&lt;a href="' + str.url + zoneClick['sresult'] + '" target="_blank" title="" alt=""&gt;' + strFormat(str.words, $('#hsearchkey').val(), 'b') + '&lt;/a&gt;&lt;/li&gt;'
+                    }
+                });
+                return headerHtml + contentHtml + footerHtml;
+            }
+        }
+    };
+    var his = {
+        render: function (data) {
+            if (data.length &gt; 0) {
+                var headerHtml = '&lt;span&gt;联想提示&lt;/span&gt;&lt;ul class="model_car_lists_b associative"&gt;';
+                var contentHtml = '';
+                var footerHtml = '&lt;/ul&gt;';
+                $.each(data, function (i, obj, arr) {
+                    str = unescapeParam(obj.words);
+                    if (typeof str == 'string') {
+                        contentHtml += '&lt;li rel="' + str + '"&gt;&lt;a href="http://search.xcar.com.cn/search.php?k=' + window.encodeURIComponent(str) + '&amp;c=1&amp;ie=utf8' + zoneClick['associative'] + '" target="_blank" title="" alt=""&gt;' + str + '&lt;/a&gt;&lt;/li&gt;'
+                    } else {
+                        contentHtml += '&lt;li rel="' + str.words + '"&gt;&lt;a href="' + str.url + zoneClick['associative'] + '" target="_blank" title="" alt=""&gt;' + strFormat(str.words, $('#hsearchkey').val(), 'b') + '&lt;/a&gt;&lt;/li&gt;'
+                    }
+
+                });
+                return headerHtml + contentHtml + footerHtml;
+            }
+        }
+    };
+    var hasHistortyTpl = {
+        render: function (data) {
+            if (data.items == '') return;
+            return '&lt;div class="model_bm_empty"&gt;&lt;a href="javascript:void(0)" id="clearHistory" onclick="clearHistory()"&gt;清除历史记录……&lt;/a&gt;&lt;/div&gt;';
+        }
+    };
+    m.SearchTplManager.add('spser', pseriseTpl);
+    m.SearchTplManager.add('sresult', resultTpl);
+    m.SearchTplManager.add('associative', his);
+    m.SearchTplManager.add('shistory', historyTpl);
+    m.SearchTplManager.add('hashistory', hasHistortyTpl);
+});</pre></body></html>

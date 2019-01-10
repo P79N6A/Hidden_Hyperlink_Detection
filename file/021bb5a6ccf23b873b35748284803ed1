@@ -1,0 +1,446 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8;">
+<meta name="keywords" content="MSS,泰康人寿,销售支持系统">
+<title>泰康人寿销售支持系统 -- MSS 2.0</title>
+<link href="css/weixincss/welcome.css" rel="stylesheet" type="text/css">
+<link rel="stylesheet" type="text/css" href="css/tishi.css">
+
+<link rel="stylesheet" type="text/css" href="script/themes/taikang/jquery-ui-1.8.7.custom.css">
+
+<script type="text/javascript" src="script/jquery-1.4.4.min.js"></script>
+<script type="text/javascript" src="script/jquery-ui-1.8.7.custom.min.js"></script>
+<script type="text/javascript" src="script/validate/jquery.validate.min.js"></script>
+<script type="text/javascript" src="script/validate/localization/messages_cn.js" charset="utf-8"></script>
+<script type="text/javascript" src="script/jquery_query-2_1_7.js"></script>
+<script type="text/javascript" src="script/jquery.cookie.js"></script>
+<script type="text/javascript">
+	var dlgRegainPwd = null;
+	function openRegainPwdWin() {
+		var company = $("#company").val();
+		var userName = $("#username").val();
+		if(company == ""){
+			alert("请选择分公司或所属渠道！");
+			return;
+		}
+		if(userName=="") {
+			alert("必须输入用户名！");
+			return;
+		}
+		$("#j_username").val(company+userName);
+		var userId = $("#j_username").val();
+
+		var urls = "login/userInfo!isCanSendPwd.action?";
+		var params = {"userId":userId,"p":Math.random()};
+		if($("#company").val() != "medi"){
+			if(userId==null || userId=="" || userId.length != 9) {
+				alert("请在用户名输入框中输入您的八位工号！");
+				return;
+			}
+		}else{
+			var partnerOrgId = $("#medi_com").val();
+			if(partnerOrgId=="") {
+				alert("请选择中介机构!");
+				return;
+			}
+			var partnerId = $("#username").val();
+			urls = "/mediagnt/mediagnt!isCanSendPwd?p="+Math.random();
+			params = {"partnerOrgId":partnerOrgId ,"partnerId":partnerId};
+		}
+		//added by wanghuan 2011-6-10 添加短信发送次数限制判断
+		$.getJSON(urls, params, function(data){
+			if(data != null){
+				if(data.success == true){
+					dlgRegainPwd.dialog('open');
+					$("#mobile").html("<strong>手机号码：</strong>获取中...");
+					var url = "login/userInfo!fetchAgntContact.action";
+					var param = {"userId":userId ,"p":Math.random()};
+					if($("#company").val() == "medi"){
+						var partnerOrgId = $("#medi_com").val();
+						var partnerId = $("#username").val();
+						url = "/mediagnt/mediagnt!fetchAgntContact?p="+Math.random();
+						param = {"partnerOrgId":partnerOrgId ,"partnerId":partnerId};
+					}
+					$.getJSON(url, param, function(data){
+						if(data != null && data.agntnum != null) {
+							/*if(data.email != null && data.email != "") {
+								$("#email").html("<strong>电子邮件:</strong>&nbsp;&nbsp;" + data.email + "&nbsp;&nbsp;<span align='left'><input type='checkbox' id='emailCb' name='contactCb' value='1'/> 邮件提醒</span>");
+							}else{
+								$("#email").html("<strong>电子邮件:</strong>&nbsp;&nbsp;没有登记电子邮件地址。");
+							}*/
+							if(data.mobile != null && data.mobile != "") {
+								var remixMobile = data.mobile.replace(data.mobile.substr(3,4),"****");
+								$("#mobile").html("<strong>手机号码:</strong>&nbsp;&nbsp;" + remixMobile + "&nbsp;&nbsp;<span align='left'><input type='checkbox' id='mobileCb' name='contactCb' value='0'/>发送短信</span>");
+							}else{
+								$("#mobile").html("<strong>手机号码:</strong>&nbsp;&nbsp;您没有登记手机号码。");
+							}
+						} else {
+							$('#regain_pwd_dialog').dialog('close');
+							alert("系统中找不到该帐号！");
+						}
+					}); 
+				}else{
+					alert(data.message);
+				}
+			}
+		})
+		//end
+	
+	}
+
+	function reCaptcha() {
+		var p = Math.random();
+		$("#captcha").attr("src", "login/jcaptcha!genImage.action?now="+p);
+	}
+
+	var returnKeyPress = false;
+	function validateCaptcha() {
+		if(returnKeyPress) return;
+		$("#captcha_blank").hide();
+		$("#captcha_error").hide();
+		$("#check_captcha_ok").hide();
+		$("#check_captcha_error").hide();
+		if($("#j_captcha").val()=="") {
+			$("#captcha_blank").show();
+			$("#check_captcha_error").show();
+			return;
+		}
+		$.getJSON("login/jcaptcha!checkCaptcha.action?p="+Math.random(), 
+				{"captcha":$("#j_captcha").val()}, function(d){
+			if(d!=null && d.success==true) {
+				$("#captcha_blank").hide();
+				$("#check_captcha_ok").show();
+			} else {
+				$("#captcha_error").show();
+				$("#check_captcha_error").show();
+			}
+			validating = false;
+		});
+	}
+
+		
+
+
+	
+	$(document).ready(function() {
+		//从cookie中取值
+		var companyCookie = $.cookie('company');
+		var uidCookie = $.cookie('uid');
+		$("#company").val(companyCookie);
+		$("#username").val(uidCookie);
+		
+		
+		if($.query.get("error") == '') {
+			$("#login_error").hide();
+		} else {
+			$("#login_error").show();
+		}
+		if($.query.get("res") == '1') {
+			$("#login_error").after("<span style='color:red;text-align:left;'>"+decodeURIComponent($.query.get("mes"))+"</span>");
+		}
+		$("#j_captcha").keydown(function(event){
+			if(event.keyCode==13) {
+				returnKeyPress = true;
+			}
+		});
+		$("#j_captcha").change(function(){
+			validateCaptcha();
+		});
+		$("#retgain_password").validate();
+		
+		//中介公司输入框
+		if($("#company").val() == "medi"){
+			$("#medi_com_name_p").show();
+			$("#medi_com_p").show();
+			$(".quhui_one").text("1.如果您认为上述联系方式与您现用资料不一致，请联系泰康工作人员变更个人资料，谢谢！");
+		}else{
+			$("#medi_com_name_p").hide();
+			$("#medi_com_p").hide();
+			$(".quhui_one").text("1.如果您认为上述联系方式与您现用资料不一致，请在工作时间到个险人管处做个人资料更改，谢谢！");
+		}
+		$("#company").change(function(){
+			var companyValue = $("#company").val();
+			if(companyValue == "medi"){
+				$("#medi_com_name_p").show();
+				$("#medi_com_p").show();
+				$(".quhui_one").text("1.如果您认为上述联系方式与您现用资料不一致，请联系泰康工作人员变更个人资料，谢谢！");
+			}else{
+				$("#medi_com_name_p").hide();
+				$("#medi_com_p").hide();
+				$(".quhui_one").text("1.如果您认为上述联系方式与您现用资料不一致，请在工作时间到个险人管处做个人资料更改，谢谢！");
+			}
+			$("#j_username").val($("#company").val()+$("#username").val());
+		});
+		$("#username").change(function(){
+			$("#j_username").val($("#company").val()+$("#username").val());
+		});
+		dlgRegainPwd = $("#regain_pwd_dialog").dialog({
+			autoOpen: false,
+			height: 430,
+			width: 720,
+			modal: true,
+			dialogClass: 'ui-dialog',
+			buttons: {
+				'确定': function() {
+					var userName = $("#j_username").val();
+					//var noticeMethod = $("input:checked").val();
+					
+					var emailFlag = $("input:checked")
+					
+					var sendSms = false;
+					var sendMail = false;
+					
+					
+					$(":checkbox[name='contactCb'][checked]").each(function(){
+						if(this.id == "mobileCb"){
+							sendSms = true;
+						}
+						/*if(this.id == "emailCb")
+						{
+							sendMail = true;
+						}*/
+					});
+
+					if(sendSms == false && sendMail == false)
+					{
+						alert("请确认联系方式已选择正确！");
+						return;
+					}
+					
+					$(":button").slice(0,1).attr("disabled","disabled");
+					
+					var url = "login/userInfo!updatePwd.action";
+					var param = {"businessType":"TNAAE", "userId":userName, "sendSms": sendSms , "sendMail":sendMail , "p" : Math.random()};
+					if($("#company").val() == "medi"){
+						var partnerOrgId = $("#medi_com").val();
+						var partnerId = $("#username").val();
+						url = "/mediagnt/mediagnt!updatePwd?p="+Math.random();
+						param = {"businessType":"TNAAE", "partnerOrgId":partnerOrgId , "partnerId":partnerId, "sendSms": sendSms};
+					}
+					$.getJSON(url, param, function(data){
+						if(data!=null && data.success==true) {
+							$(":button").slice(0,1).attr("disabled","");
+							$('#regain_pwd_dialog').dialog('close');
+							alert("MSS系统登录密码已发送，请查收！");
+						} else {
+							$(":button").slice(0,1).attr("disabled","");
+							$('#regain_pwd_dialog').dialog('close');
+							alert("发送MSS系统登录密码失败！");
+						}
+					});
+					
+				},
+				'取消': function() {
+					$(":button").slice(0,1).attr("disabled","");
+					$(this).dialog('close');
+				}
+			},
+			close: function() {
+				$(":button").slice(0,1).attr("disabled","");
+			}
+		});
+		
+		$("#form_login").submit(function(event){
+			var company = $("#company").val();
+			var userName = $("#username").val();
+			userName=$.trim(userName);
+			var action = "j_spring_security_check";
+			
+			//添加cookie支持
+			$.cookie('company', company, { expires: 7 });
+			$.cookie('uid', userName, { expires: 7 });
+			
+			if(company == ""){
+				alert("请选择分公司或所属渠道！");
+				return false;
+			}
+			if(company == "medi"){
+				var medicom = $("#medi_com").val();
+				if(medicom == ""){
+					alert("请选择中介机构!");
+					return false;
+				}
+			}
+			
+			if(userName=="") {
+				alert("必须输入用户名！");
+				return false;
+			}
+			if($("#j_password").val()=="") {
+				alert("密码不能为空！");
+				return false;
+			}
+			if($("#j_captcha").val()=="") {
+				alert("必须输入校验码！");
+				return false;
+			}
+			//当为中介公司时提交到独立action
+			if(company == "medi"){
+				$("#medi_com").attr("name", "partnerOrgId");
+				$("#username").attr("name", "partnerId");
+				$("#j_password").attr("name", "password");
+				$("#company").removeAttr("name");
+				action = "/mediagnt/mediagnt!checkLoginInfo?p="+Math.random();
+			}else{
+				$("#medi_com").removeAttr("name");
+			}
+			
+			$("#j_username").val(company+userName);
+			
+			$("#form_login").attr("action",action);
+			
+			return true;
+
+		});
+		
+		
+	});
+</script>
+</head>
+
+<body>
+
+
+<!-- 布局修改 -->
+<div id="con">
+	<h1><img src="images/weixin_img/mss_login_logo.jpg" alt="泰康人寿"></h1>
+	<div id="main">
+		<!-- 左侧部分 -->
+		<div class="left">
+			<div class="mss_tit"><img src="images/weixin_img/mss_login_tit.jpg" alt="销售支持系统"></div>
+			<div class="erwei">
+				
+			</div>
+			<p class="left_bottom"><span>专业</span><span>绩效</span><span>理想</span><span>价值</span></p>
+		</div>
+		<!-- 右侧部分 -->
+		<div class="right">
+			<div class="right_left"></div>
+			<div class="right_con">
+				<div class="login_tit">
+					<div class="login_tit_pic"></div>
+					<h2>用户登录<span>Login</span></h2>
+				</div>
+				<!-- 登录部分开始 -->
+				<form id="form_login" action="" method="post" name="form_login">
+					<div class="login_main">
+						<div class="login_main_left">
+							<p class="p1">分公司或渠道：</p>
+							<p id="medi_com_name_p" class="p1" style="display: none; ">中介公司：</p>
+							<p class="p1">用户名：</p>
+							<p class="p1">密码：</p>
+							<p class="p1">验证码：</p>
+						</div>
+						<div class="login_main_right">
+							<p>
+								<select id="company" name="select" title="请选择所属分公司">
+									<option value="1">北京分公司</option>
+									<option value="2">湖北分公司</option>
+									<option value="3">广东分公司</option>
+									<option value="4">上海分公司</option>
+									<option value="5">四川分公司</option>
+									<option value="6">辽宁分公司</option>
+									<option value="7">陕西分公司</option>
+									<option value="A">江苏分公司</option>
+									<option value="B">浙江分公司</option>
+									<option value="C">山东分公司</option>
+									<option value="D">河南分公司</option>
+									<option value="E">天津分公司</option>
+									<option value="F">重庆分公司</option>
+									<option value="G">福建分公司</option>
+									<option value="G">厦门分公司</option>
+									<option value="H">湖南分公司</option>
+									<option value="I">深圳分公司</option>
+									<option value="J">安徽分公司</option>
+									<option value="K">大连分公司</option>
+									<option value="L">青岛分公司</option>
+									<option value="M">宁波分公司</option>
+									<option value="N">河北分公司</option>
+									<option value="O">黑龙江分公</option>
+									<option value="P">云南分公司</option>
+									<option value="Q">吉林分公司</option>
+									<option value="R">山西分公司</option>
+									<option value="S">新疆分公司</option>
+									<option value="T">江西分公司</option>
+									<option value="U">广西分公司</option>
+									<option value="V">内蒙古分公司</option>
+									<option value="W">甘肃分公司</option>
+									<option value="Y">贵州分公司</option>
+									<option value="X">宁夏分公司</option>
+									<option value="8">海南分公司</option>
+									<option value="Z">青海分公司</option>
+									<option value="a">西藏分公司</option>
+									<option value="">----分割线-----</option>
+									<option value="$">银保外勤伙伴</option>
+									<option value="">----分割线-----</option>
+									<option value="medi">中介渠道</option>
+								</select>
+							</p>
+							<p id="medi_com_p" style="display: none; ">
+								<input id="medi_com" name="select" value="" type="text" title="请输入中介公司代码">
+							</p>
+							<p><input id="username" name="username" value="" type="text" title="用户名为您的八位工号"> 
+							   <input id="j_username" name="j_username" value="" type="hidden">
+						    </p>
+						    <p>
+						    	<input id="j_password" name="j_password" type="password" size="15" value=""> <a href="JavaScript:openRegainPwdWin();">找回密码</a>
+						    </p>
+						    <p class="yanzheng">
+						    	<input id="j_captcha" name="j_captcha" type="text" size="6" value="" title="请输入右侧图片中的数字">
+						    	<a href="JavaScript:reCaptcha();"><img title="看不清楚？换一张" id="captcha" src="login/jcaptcha!genImage.action"></a>
+								<img id="check_captcha_ok" src="images/ok.png" title="验证码正确"> 
+								<img id="check_captcha_error" src="images/error.png" title="验证码错误">
+						    </p>
+						    <p id="captcha_blank">验证码不能为空！</p>
+						    <p id="captcha_error">输入验证码不正确，请重新输入！</p>
+							<p id="login_error" style="display: none; ">用户名或者密码不正确，请确认！</p>
+						    <p class="anniu"><button type="submit" id="btn_login">登录</button> <button type="button">取消</button></p>
+						</div>
+					</div>
+				</form>
+				<!-- 登录部分结束 -->
+			</div>
+			<div class="right_right"></div>
+		</div>
+	</div>
+</div>
+<!-- 页面底部 -->
+<div id="footer">
+	泰康人寿 版权所有 Copyright Taikanglife.All Rights Reserved
+</div>
+<!-- 布局修改完成 -->
+
+<!-- 取回密码对话框（新） -->
+
+
+
+<div style="display: none; z-index: 1000; outline: 0px; position: absolute; " class="ui-dialog ui-widget ui-widget-content ui-corner-all ui-dialog ui-draggable ui-resizable" tabindex="-1" role="dialog" aria-labelledby="ui-dialog-title-regain_pwd_dialog"><div class="ui-dialog-titlebar ui-widget-header ui-corner-all ui-helper-clearfix"><span class="ui-dialog-title" id="ui-dialog-title-regain_pwd_dialog">MSS销售支持系统</span><a href="#" class="ui-dialog-titlebar-close ui-corner-all" role="button"><span class="ui-icon ui-icon-closethick">close</span></a></div><div id="regain_pwd_dialog" style="display: block; " class="ui-dialog-content ui-widget-content">
+<form id="retgain_password" name="retgain_password">
+	<div class="quhui">
+    	<div class="quhui_top"></div>
+        <div class="quhui_pic"><img src="images/mm_hq.jpg"></div>
+        <div class="quhui_con">
+        	<div class="quhui_conl">
+            	<div class="quhui_conl_con">
+                	<p><strong>目前您在系统内留存的联系方式如下：</strong></p>
+                    <div class="none"></div>
+                    <!--<div class="quhui_email">
+                    	<input id="sendmode" type="radio" name="sendmode" value="mail" checked="checked" />
+                        <strong>电子邮件</strong>
+                        <p class="none2"></p>
+                    </div>-->
+                    <!--<div id="email"><strong>电子邮件:</strong>获取中...</div>-->
+                    <div id="mobile"><strong>手机号码：</strong>获取中...</div>
+                    <div class="none3"></div>
+                </div>
+            </div>
+            <div class="quhui_conr"><img src="images/mm_tb.jpg"></div>
+        </div>
+    </div>
+    <div class="quhui_tishi">
+    	<div class="quhui_tit"><span class="STYLE1">提示：</span></div>
+	    <div class="quhui_one">1.如果您认为上述联系方式与您现用资料不一致，请在工作时间到个险人管处做个人资料更改，谢谢！</div>	
+	    <div class="quhui_two">2.密码重置短信在24小时之内最多只能发送<span>3</span>次，请注意。</div>
+	    <div class="quhui_three"></div>
+	</div>
+</form>
+</div><div class="ui-resizable-handle ui-resizable-n" style=""></div><div class="ui-resizable-handle ui-resizable-e" style=""></div><div class="ui-resizable-handle ui-resizable-s" style=""></div><div class="ui-resizable-handle ui-resizable-w" style=""></div><div class="ui-resizable-handle ui-resizable-se ui-icon ui-icon-gripsmall-diagonal-se ui-icon-grip-diagonal-se" style="z-index: 1001; "></div><div class="ui-resizable-handle ui-resizable-sw" style="z-index: 1002; "></div><div class="ui-resizable-handle ui-resizable-ne" style="z-index: 1003; "></div><div class="ui-resizable-handle ui-resizable-nw" style="z-index: 1004; "></div><div class="ui-dialog-buttonpane ui-widget-content ui-helper-clearfix"><div class="ui-dialog-buttonset"><button type="button" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button" aria-disabled="false"><span class="ui-button-text">确定</span></button><button type="button" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button" aria-disabled="false"><span class="ui-button-text">取消</span></button></div></div></div></body></html>

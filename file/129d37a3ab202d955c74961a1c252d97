@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="zh-CN" prefix="og: http://ogp.me/ns#">
+ <head> 
+  <meta charset="UTF-8" /> 
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" /> 
+  <title>AWS EBS创建快照和通过快照复旧的方法 - 运维一二三服务器代维工作室</title> 
+  <link rel="profile" href="http://gmpg.org/xfn/11" /> 
+  <link rel="pingback" href="http://www.yunwei123.com/xmlrpc.php" /> 
+  <!-- This site is optimized with the Yoast SEO plugin v2.3.2 - https://yoast.com/wordpress/plugins/seo/ --> 
+  <meta name="description" content="AWS EBS创建快照和通过快照复旧的方法" /> 
+  <link rel="canonical" href="http://www.yunwei123.com/aws-ebs%e5%88%9b%e5%bb%ba%e5%bf%ab%e7%85%a7%e5%92%8c%e9%80%9a%e8%bf%87%e5%bf%ab%e7%85%a7%e5%a4%8d%e6%97%a7%e7%9a%84%e6%96%b9%e6%b3%95/" /> 
+  <meta property="og:locale" content="zh_CN" /> 
+  <meta property="og:type" content="article" /> 
+  <meta property="og:title" content="AWS EBS创建快照和通过快照复旧的方法 - 运维一二三服务器代维工作室" /> 
+  <meta property="og:description" content="AWS EBS创建快照和通过快照复旧的方法" /> 
+  <meta property="og:url" content="http://www.yunwei123.com/aws-ebs%e5%88%9b%e5%bb%ba%e5%bf%ab%e7%85%a7%e5%92%8c%e9%80%9a%e8%bf%87%e5%bf%ab%e7%85%a7%e5%a4%8d%e6%97%a7%e7%9a%84%e6%96%b9%e6%b3%95/" /> 
+  <meta property="og:site_name" content="运维一二三服务器代维工作室" /> 
+  <meta property="article:tag" content="AWS EBS" /> 
+  <meta property="article:tag" content="AWS EBS创建快照和通过快照复旧的方法" /> 
+  <meta property="article:tag" content="aws服务器代维" /> 
+  <meta property="article:tag" content="服务器基础环境搭建" /> 
+  <meta property="article:section" content="Amazon AWS" /> 
+  <meta property="article:published_time" content="2015-08-01T08:55:33+00:00" /> 
+  <meta property="og:image" content="http://www.yunwei123.com/wp-content/uploads/2015/08/Create-Snapshot.png" /> 
+  <meta property="og:image" content="http://www.yunwei123.com/wp-content/uploads/2015/08/Create-Volume.png" /> 
+  <meta property="og:image" content="http://www.yunwei123.com/wp-content/uploads/2015/08/Volumes.png" /> 
+  <meta property="og:image" content="http://www.yunwei123.com/wp-content/uploads/2015/08/EC2-Instance-.png" /> 
+  <meta property="og:image" content="http://www.yunwei123.com/wp-content/uploads/2015/08/Detach-Volume.png" /> 
+  <meta property="og:image" content="http://www.yunwei123.com/wp-content/uploads/2015/08/Attach-Volume.png" /> 
+  <meta property="og:image" content="http://www.yunwei123.com/wp-content/uploads/2015/08/Attach-Instance.png" /> 
+  <meta name="twitter:card" content="summary" /> 
+  <meta name="twitter:description" content="AWS EBS创建快照和通过快照复旧的方法" /> 
+  <meta name="twitter:title" content="AWS EBS创建快照和通过快照复旧的方法 - 运维一二三服务器代维工作室" /> 
+  <meta name="twitter:domain" content="运维一二三服务器代维工作室" /> 
+  <meta name="twitter:image:src" content="http://www.yunwei123.com/wp-content/uploads/2015/08/Create-Snapshot.png" /> 
+  <!-- / Yoast SEO plugin. --> 
+  <link rel="alternate" type="application/rss+xml" title="运维一二三服务器代维工作室 &raquo; Feed" href="http://www.yunwei123.com/feed/" /> 
+  <link rel="alternate" type="application/rss+xml" title="运维一二三服务器代维工作室 &raquo; 评论Feed" href="http://www.yunwei123.com/comments/feed/" /> 
+  <script type="text/javascript">
+			window._wpemojiSettings = {"baseUrl":"http:\/\/s.w.org\/images\/core\/emoji\/72x72\/","ext":".png","source":{"concatemoji":"http:\/\/www.yunwei123.com\/wp-includes\/js\/wp-emoji-release.min.js?ver=4.2.10"}};
+			!function(a,b,c){function d(a){var c=b.createElement("canvas"),d=c.getContext&&c.getContext("2d");return d&&d.fillText?(d.textBaseline="top",d.font="600 32px Arial","flag"===a?(d.fillText(String.fromCharCode(55356,56812,55356,56807),0,0),c.toDataURL().length>3e3):(d.fillText(String.fromCharCode(55357,56835),0,0),0!==d.getImageData(16,16,1,1).data[0])):!1}function e(a){var c=b.createElement("script");c.src=a,c.type="text/javascript",b.getElementsByTagName("head")[0].appendChild(c)}var f,g;c.supports={simple:d("simple"),flag:d("flag")},c.DOMReady=!1,c.readyCallback=function(){c.DOMReady=!0},c.supports.simple&&c.supports.flag||(g=function(){c.readyCallback()},b.addEventListener?(b.addEventListener("DOMContentLoaded",g,!1),a.addEventListener("load",g,!1)):(a.attachEvent("onload",g),b.attachEvent("onreadystatechange",function(){"complete"===b.readyState&&c.readyCallback()})),f=c.source||{},f.concatemoji?e(f.concatemoji):f.wpemoji&&f.twemoji&&(e(f.twemoji),e(f.wpemoji)))}(window,document,window._wpemojiSettings);
+		</script> 
+  <style type="text/css">
+img.wp-smiley,
+img.emoji {
+	display: inline !important;
+	border: none !important;
+	box-shadow: none !important;
+	height: 1em !important;
+	width: 1em !important;
+	margin: 0 .07em !important;
+	vertical-align: -0.1em !important;
+	background: none !important;
+	padding: 0 !important;
+}
+</style> 
+  <link rel="stylesheet" id="layerslider_css-css" href="http://www.yunwei123.com/wp-content/plugins/LayerSlider/css/layerslider.css?ver=4.6.6" type="text/css" media="all" /> 
+  <link rel="stylesheet" id="woocommerce-layout-css" href="//www.yunwei123.com/wp-content/plugins/woocommerce/assets/css/woocommerce-layout.css?ver=2.1.10" type="text/css" media="all" /> 
+  <link rel="stylesheet" id="woocommerce-smallscreen-css" href="//www.yunwei123.com/wp-content/plugins/woocommerce/assets/css/woocommerce-smallscreen.css?ver=2.1.10" type="text/css" media="only screen and (max-width: 768px)" /> 
+  <link rel="stylesheet" id="woocommerce-general-css" href="//www.yunwei123.com/wp-content/plugins/woocommerce/assets/css/woocommerce.css?ver=2.1.10" type="text/css" media="all" /> 
+  <link rel="stylesheet" id="common-css" href="http://www.yunwei123.com/wp-content/themes/freehaoya/css/common.css?ver=1.1.1" type="text/css" media="all" /> 
+  <link rel="stylesheet" id="icon-fonts-css" href="http://www.yunwei123.com/wp-content/themes/freehaoya/css/icon-fonts.css?ver=1.1.1" type="text/css" media="all" /> 
+  <link rel="stylesheet" id="plugins-css" href="http://www.yunwei123.com/wp-content/themes/freehaoya/css/plugins.css?ver=1.1.1" type="text/css" media="all" /> 
+  <link rel="stylesheet" id="fancybox-css" href="http://www.yunwei123.com/wp-content/themes/freehaoya/css/jquery.fancybox.css?ver=1.1.1" type="text/css" media="all" /> 
+  <link rel="stylesheet" id="fancybox-thumbs-css" href="http://www.yunwei123.com/wp-content/themes/freehaoya/css/jquery.fancybox-thumbs.css?ver=1.1.1" type="text/css" media="all" /> 
+  <link rel="stylesheet" id="style-css" href="http://www.yunwei123.com/wp-content/themes/freehaoya/style.css?ver=1.1.1" type="text/css" media="all" /> 
+  <link rel="stylesheet" id="fonts-css" href="http://www.yunwei123.com/wp-content/themes/freehaoya/css/fonts.css?ver=1.1.1" type="text/css" media="all" /> 
+  <link rel="stylesheet" id="skin-css" href="http://www.yunwei123.com/wp-content/themes/freehaoya/css/skin-red.css?ver=1.1.1" type="text/css" media="all" /> 
+  <link rel="stylesheet" id="cache-css" href="http://www.yunwei123.com/wp-content/themes/freehaoya/cache/custom.css?ver=1.1.1" type="text/css" media="all" /> 
+  <link rel="stylesheet" id="responsive-css" href="http://www.yunwei123.com/wp-content/themes/freehaoya/css/responsive.css?ver=1.1.1" type="text/css" media="screen" /> 
+  <link rel="stylesheet" id="custom-css" href="http://www.yunwei123.com/wp-content/themes/freehaoya/custom.css?ver=1.1.1" type="text/css" media="all" /> 
+  <script type="text/javascript" src="http://www.yunwei123.com/wp-includes/js/jquery/jquery.js?ver=1.11.2"></script> 
+  <script type="text/javascript" src="http://www.yunwei123.com/wp-includes/js/jquery/jquery-migrate.min.js?ver=1.2.1"></script> 
+  <script type="text/javascript" src="http://www.yunwei123.com/wp-content/plugins/LayerSlider/js/layerslider.kreaturamedia.jquery.js?ver=4.6.6"></script> 
+  <script type="text/javascript" src="http://www.yunwei123.com/wp-content/plugins/LayerSlider/js/jquery-easing-1.3.js?ver=1.3.0"></script> 
+  <script type="text/javascript" src="http://www.yunwei123.com/wp-content/plugins/LayerSlider/js/jquerytransit.js?ver=0.9.9"></script> 
+  <script type="text/javascript" src="http://www.yunwei123.com/wp-content/plugins/LayerSlider/js/layerslider.transitions.js?ver=4.6.6"></script> 
+  <script type="text/javascript" src="http://www.yunwei123.com/wp-content/uploads/layerslider.custom.transitions.js?ver=4.6.6"></script> 
+  <link rel="EditURI" type="application/rsd+xml" title="RSD" href="http://www.yunwei123.com/xmlrpc.php?rsd" /> 
+  <link rel="wlwmanifest" type="application/wlwmanifest+xml" href="http://www.yunwei123.com/wp-includes/wlwmanifest.xml" /> 
+  <meta name="generator" content="WordPress 4.2.10" /> 
+  <meta name="generator" content="WooCommerce 2.1.10" /> 
+  <link rel="shortlink" href="http://www.yunwei123.com/?p=2357" /> 
+  <script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?b013a64f56852cbbdc030ab32bacab7b";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script> 
+ </head> 
+ <body class="single single-post postid-2357 single-format-standard chrome wide wpb-js-composer js-comp-ver-3.6.14.1 vc_responsive"> 
+  <div id="page" class="wrapper"> 
+   <div class="rows"> 
+    <header class="site-topbar"> 
+     <section class="container clearfix"> 
+      <div class="topbar-left"> 
+       <div class="inner clearfix">
+        <div class="top-text">
+         <span class="phone-number"><i class="icon icon-call"></i>+135 410 16684</span>
+         <span class="work-time"><i class="icon icon-clock"></i>Mon. - Fri. 10:00-22:00</span>
+        </div>
+       </div> 
+      </div> 
+      <div class="topbar-right"> 
+       <div class="inner topbar-right-inner clearfix">
+        <div class="top-search">
+         <a class="top-search-bt open" href="#"><i class="icon"></i></a>
+        </div>
+        <div class="top-search-wrapper hide">
+         <div id="searchform" class="container">
+          <form action="http://www.yunwei123.com/" method="get" class="inner">
+           <input type="text" class="text-field" name="s" size="24" value="" placeholder="Enter your keywords here..." />
+          </form>
+         </div>
+        </div>
+       </div> 
+      </div> 
+     </section> 
+    </header> 
+    <div class="clear"></div> 
+    <!--end #topbar--> 
+    <header class="site-header"> 
+     <section class="container"> 
+      <div class="inner clearfix"> 
+       <div id="logo">
+        <h1 class="title"><a href="http://www.yunwei123.com/" title="运维一二三服务器代维工作室" rel="nofollow"><img src="http://www.yunwei123.com/wp-content/themes/freehaoya/images/logo.png" class="standard-logo" /></a></h1>
+       </div> 
+       <nav id="top-menu">
+        <ul class="sf-menu clearfix">
+         <li class="page_item page-item-2"><a href="http://www.yunwei123.com/success/">代维案例</a></li> 
+         <li class="page_item page-item-5"><a href="http://www.yunwei123.com/">首页</a></li> 
+         <li class="page_item page-item-1877"><a href="http://www.yunwei123.com/faq/">常见问题</a></li> 
+         <li class="page_item page-item-1882"><a href="http://www.yunwei123.com/about/">关于我们</a></li> 
+         <li class="page_item page-item-1593 page_item_has_children"><a href="http://www.yunwei123.com/service/">代维项目</a> 
+          <ul class="children"> 
+           <li class="page_item page-item-1598"><a href="http://www.yunwei123.com/service/server-config/">服务器配置</a></li> 
+           <li class="page_item page-item-1326"><a href="http://www.yunwei123.com/service/server-migration/">服务器迁移</a></li> 
+           <li class="page_item page-item-2380"><a href="http://www.yunwei123.com/service/amazon-ec2%e8%b4%ad%e4%b9%b0/">Amazon EC2购买</a></li> 
+           <li class="page_item page-item-2060"><a href="http://www.yunwei123.com/service/server-management/">服务器代维</a></li> 
+           <li class="page_item page-item-2068"><a href="http://www.yunwei123.com/service/managed-cloud/">阿里云主机托管</a></li> 
+           <li class="page_item page-item-2097"><a href="http://www.yunwei123.com/service/managed-aliyun-server/">阿里云运维</a></li> 
+           <li class="page_item page-item-2118"><a href="http://www.yunwei123.com/service/troubleshooting/">服务器故障排查</a></li> 
+           <li class="page_item page-item-2383"><a href="http://www.yunwei123.com/service/aws%e8%bf%81%e7%a7%bb%e6%9c%8d%e5%8a%a1/">AWS迁移服务</a></li> 
+           <li class="page_item page-item-2392"><a href="http://www.yunwei123.com/service/aws%e7%8e%af%e5%a2%83%e9%85%8d%e7%bd%ae/">AWS环境配置</a></li> 
+           <li class="page_item page-item-2402"><a href="http://www.yunwei123.com/service/%e4%ba%91%e6%9c%8d%e5%8a%a1%e5%99%a8%e4%bb%a3%e7%bb%b4%e6%9c%8d%e5%8a%a1/">云服务器代维服务</a></li> 
+          </ul> </li> 
+         <li class="page_item page-item-2721"><a href="http://www.yunwei123.com/%e6%9c%8d%e5%8a%a1%e5%99%a8%e7%bd%91%e7%ab%99%e4%bb%a3%e7%bb%b4%e6%9c%8d%e5%8a%a1/">十年服务器网站代维服务</a></li> 
+         <li class="page_item page-item-2130"><a href="http://www.yunwei123.com/aws%e4%bb%a3%e7%bb%b4%e4%bb%a3%e4%bb%98/">AWS代维代付</a></li> 
+        </ul>
+       </nav> 
+       <div class="responsive-menu-switch-wrap">
+        <a href="#" class="responsive-menu-switch icon open" id="toggle-top-responsive-menu"></a>
+       </div> 
+      </div> 
+     </section> 
+    </header> 
+    <div class="responsive-menu top-responsive-menu hide">
+     <ul>
+      <li class="page_item page-item-2"><a href="http://www.yunwei123.com/success/">代维案例</a></li> 
+      <li class="page_item page-item-5"><a href="http://www.yunwei123.com/">首页</a></li> 
+      <li class="page_item page-item-1877"><a href="http://www.yunwei123.com/faq/">常见问题</a></li> 
+      <li class="page_item page-item-1882"><a href="http://www.yunwei123.com/about/">关于我们</a></li> 
+      <li class="page_item page-item-1593 page_item_has_children"><a href="http://www.yunwei123.com/service/">代维项目</a> 
+       <ul class="children"> 
+        <li class="page_item page-item-1598"><a href="http://www.yunwei123.com/service/server-config/">服务器配置</a></li> 
+        <li class="page_item page-item-1326"><a href="http://www.yunwei123.com/service/server-migration/">服务器迁移</a></li> 
+        <li class="page_item page-item-2380"><a href="http://www.yunwei123.com/service/amazon-ec2%e8%b4%ad%e4%b9%b0/">Amazon EC2购买</a></li> 
+        <li class="page_item page-item-2060"><a href="http://www.yunwei123.com/service/server-management/">服务器代维</a></li> 
+        <li class="page_item page-item-2068"><a href="http://www.yunwei123.com/service/managed-cloud/">阿里云主机托管</a></li> 
+        <li class="page_item page-item-2097"><a href="http://www.yunwei123.com/service/managed-aliyun-server/">阿里云运维</a></li> 
+        <li class="page_item page-item-2118"><a href="http://www.yunwei123.com/service/troubleshooting/">服务器故障排查</a></li> 
+        <li class="page_item page-item-2383"><a href="http://www.yunwei123.com/service/aws%e8%bf%81%e7%a7%bb%e6%9c%8d%e5%8a%a1/">AWS迁移服务</a></li> 
+        <li class="page_item page-item-2392"><a href="http://www.yunwei123.com/service/aws%e7%8e%af%e5%a2%83%e9%85%8d%e7%bd%ae/">AWS环境配置</a></li> 
+        <li class="page_item page-item-2402"><a href="http://www.yunwei123.com/service/%e4%ba%91%e6%9c%8d%e5%8a%a1%e5%99%a8%e4%bb%a3%e7%bb%b4%e6%9c%8d%e5%8a%a1/">云服务器代维服务</a></li> 
+       </ul> </li> 
+      <li class="page_item page-item-2721"><a href="http://www.yunwei123.com/%e6%9c%8d%e5%8a%a1%e5%99%a8%e7%bd%91%e7%ab%99%e4%bb%a3%e7%bb%b4%e6%9c%8d%e5%8a%a1/">十年服务器网站代维服务</a></li> 
+      <li class="page_item page-item-2130"><a href="http://www.yunwei123.com/aws%e4%bb%a3%e7%bb%b4%e4%bb%a3%e4%bb%98/">AWS代维代付</a></li> 
+     </ul>
+    </div>
+    <div class="clear"></div> 
+    <!--end #header--> 
+    <!--kefu代码开始--> 
+    <style>
+
+	/* 客服 */
+
+.contact {
+	top: 200px;
+	z-index: 10;
+	padding-bottom: 10px;
+	width: 120px;
+	background-color: #fff;
+	box-shadow: 0 0 4px rgba(0,0,0,.2);
+	position: fixed;
+}
+.contact.left-contact {
+	left: -1px;
+	border-top-right-radius: 4px;
+	border-bottom-right-radius: 4px;
+}
+.contact.right-contact {
+	right: -1px;
+	border-top-left-radius: 4px;
+	border-bottom-left-radius: 4px;
+}
+.contact-pic {
+	width: 60px;
+	height: 60px;
+	margin-top: -32px;
+	border: 2px solid #ff4e54;
+	background: #e4e2ef url(http://www.yunwei123.com/aws-ec2-s3-free_files/kefu.png) center no-repeat;
+	border-radius: 50%;
+	display: block;
+	    margin-left: auto;
+    margin-right: auto;
+}
+.contact-time {
+	margin-top: 10px;
+	margin-bottom: 10px;
+	font-size: 12px;
+	color: #aaa;
+}
+.contact-list > li {
+	margin-bottom: 10px;
+	text-align: center;
+}
+.contact-list > li > a {
+	display: inline-block;
+	width: 100px;
+	height: 30px;
+	line-height: 30px;
+	font-size: 14px;
+	text-align: center;
+	color: #fff;
+	background-color: #ff4e54;
+	border-radius: 2px;
+}
+.contact-list > li > a > img {
+	position: relative;
+	top: 3px;
+	display: inline-block;
+	width: 13px;
+	margin-right:5px;
+}
+.contact-wechat {
+	width: 120px;
+	height: 120px;
+}
+.wechat-text {
+	font-size: 12px;
+	color: #aaa;
+}
+    </style> 
+    <!--弹出窗口--> 
+    <div class=" contact right-contact hidden-xs"> 
+     <div class="db contact-pic text-center "></div> 
+     <p class="contact-time text-center"><i class="fa fa-phone red"></i>欢迎您的咨询</p> 
+     <ul class="contact-list"> 
+      <li><a href="http://wpa.qq.com/msgrd?v=3&amp;uin=285691605&amp;site=qq&amp;menu=yes" target="empty_iframe"><img src="http://www.yunwei123.com/aws-ec2-s3-free_files/qq.png" />QQ咨询</a></li> 
+      <li><a href="http://amos1.taobao.com/msg.ww?v=2&amp;uid=redhatfans=1" target="empty_iframe"><img src="http://www.yunwei123.com/aws-ec2-s3-free_files/wangwang.png" alt="点击这里给我发消息" />阿里旺旺</a></li> 
+      <li><a href="skype:bypat.com?call" onclick="return skypeCheck();" target="empty_iframe"><img src="http://www.yunwei123.com/aws-ec2-s3-free_files/skype.png" style="border: none;" alt="Call me!" />#skype#</a></li> 
+     </ul> 
+     <img class="db contact-wechat hCenter" src="http://www.yunwei123.com/aws-ec2-s3-free_files/weixin.jpg" alt="服务器代维" /> 
+     <p class="wechat-text text-center">扫码加微信服务号</p> 
+     <p class="wechat-text text-center">了解更多优惠</p> 
+    </div> 
+    <!--end--> 
+    <!--代码结束--> 
+    <header class="site-page-header">
+     <section class="entry-header">
+      <div class="container">
+       <div class="inner clearfix">
+        <h1 class="entry-title"><i class="icon icon-menu"></i>AWS EBS创建快照和通过快照复旧的方法</h1>
+        <div class="breadcrumbs">
+         <span class="breadcrumb-title">You are here:</span> 
+         <a href="http://www.yunwei123.com">Home</a>
+         <span class="sep"> - </span>
+         <a href="http://www.yunwei123.com/topics/amazon-aws/">Amazon AWS</a>
+         <span class="sep"> - </span>
+         <span class="trail-end">AWS EBS创建快照和通过快照复旧的方法 </span>
+        </div>
+       </div>
+      </div>
+     </section>
+     <section class="entry-desc" style="color:#555555;background-color:#F2F2F2;">
+      <div class="container">
+       <div class="inner">
+        AWS EBS创建快照和通过快照复旧的方法
+       </div>
+      </div>
+     </section>
+    </header> 
+    <div id="post-2357" class="post-2357 post type-post status-publish format-standard hentry category-amazon-aws category-8 tag-aws-ebs tag-aws tag-6"> 
+     <div class="site-content container pt pb clearfix"> 
+      <article id="primary-wrapper" class="column eight"> 
+       <div class="inner"> 
+        <div class="post-blog"> 
+         <div class="clearfix"> 
+          <section class="entry-meta"> 
+           <span class="date-link"> 2015年8月1日 </span> 
+           <span class="comments-link"> <span><span class="screen-reader-text">AWS EBS创建快照和通过快照复旧的方法</span>已关闭评论</span> </span> 
+          </section> 
+          <article class="entry-content clearfix"> 
+           <div class="cats-link">
+             Posted in: 
+            <a href="http://www.yunwei123.com/topics/amazon-aws/" rel="category tag">Amazon AWS</a>, 
+            <a href="http://www.yunwei123.com/topics/%e6%9c%8d%e5%8a%a1%e5%99%a8%e8%bf%81%e7%a7%bb/" rel="category tag">服务器迁移</a> 
+           </div> 
+           <h3 class="entry-title item-title">AWS EBS创建快照和通过快照复旧的方法</h3> 
+           <div class="entry-text clearfix"> 
+            <p>WS EC2实例，是使用Elastic Block Store（EBS）作为存储的，必要时可以通过EBS快照，进行数据的恢复。创建EBS快照和通过快照复旧的方法如下。</p> 
+            <h2>1. 创建快照（Snapshot）</h2> 
+            <p>创建快照的话，从EBS的「Volumes」或EBS的「Snapshots」画面进行操作。本文主要介绍通过EBS的「Volumes」画面来创建快照。</p> 
+            <p>选择创建快照的Volume（本文Volume ID为vol-acc03d89），点击右键，选择「Create Snapshot」。</p> 
+            <p><a href="http://www.yunwei123.com/wp-content/uploads/2015/08/Create-Snapshot.png"><img class="attachment-medium" src="http://www.yunwei123.com/wp-content/uploads/2015/08/Create-Snapshot.png" alt="Create-Snapshot" width="530" height="232" /></a></p> 
+            <p>「Name」填写为容易区别的快照名。然后点击「Yes,Create」创建快照。</p> 
+            <h2>2.通过创建的快照，进行EBS复旧。</h2> 
+            <p>通过快照恢复数据时，要按照一下步骤进行：</p> 
+            <ol> 
+             <li>利用之前创建的快照作成EBS卷</li> 
+             <li>停止EC2实例</li> 
+             <li>分离连接到EC2实例的卷</li> 
+             <li>把作成的卷连接到EC2实例</li> 
+             <li>起动EC2实例</li> 
+            </ol> 
+            <p><strong>2.1利用之前创建的快照作成EBS 卷。</strong></p> 
+            <p>从EBS的「Snapshots」画面选择该快照，点击右键，选择「Create Volume from Snapshot」</p> 
+            <p><a href="http://www.yunwei123.com/wp-content/uploads/2015/08/Create-Volume.png"><img class="attachment-medium" src="http://www.yunwei123.com/wp-content/uploads/2015/08/Create-Volume.png" alt="Create-Volume" width="521" height="310" /></a></p> 
+            <p>创建与EC2实例相同可用区域 (AZ)的Volume。</p> 
+            <p>确认Volumes画面，可利用的（available）卷被创建成功。</p> 
+            <p><a href="http://www.yunwei123.com/wp-content/uploads/2015/08/Volumes.png"><img class="attachment-medium" src="http://www.yunwei123.com/wp-content/uploads/2015/08/Volumes.png" alt="Volumes" width="524" height="78" /></a></p> 
+            <p><strong>2.2停止EC2实例。</strong></p> 
+            <p>下面为了更换Volume，需要停止EC2实例。</p> 
+            <p><a href="http://www.yunwei123.com/wp-content/uploads/2015/08/EC2-Instance-.png"><img class="attachment-medium" src="http://www.yunwei123.com/wp-content/uploads/2015/08/EC2-Instance-.png" alt="EC2-Instance-" width="523" height="76" /></a></p> 
+            <p>但是，使用竞价型实例的话，实例是不能停止的（参考竞价型实例特性的话就能明白）<br /> <strong>&nbsp;2.3分离连接到EC2实例的卷。</strong><br /> 分离与已停止的实例连接的卷。</p> 
+            <p>通过Volumes画面，选择连接的卷，点击右键，选择「Detach Volume」。</p> 
+            <p>如下，点击「Yes, Detach」。</p> 
+            <p><a href="http://www.yunwei123.com/wp-content/uploads/2015/08/Detach-Volume.png"><img class="attachment-medium" src="http://www.yunwei123.com/wp-content/uploads/2015/08/Detach-Volume.png" alt="Detach-Volume" width="526" height="181" /></a></p> 
+            <p>这样，连接EC2实例的Volume就分开了。</p> 
+            <p><strong>2.4把作成的Volume连接到EC2实例。</strong></p> 
+            <p>然后，把刚才通过快照作成的卷连接到EC2实例。</p> 
+            <p>从Volume画面，选择该Volume点击右键，选择「Attach Volume」，如下：</p> 
+            <p><a href="http://www.yunwei123.com/wp-content/uploads/2015/08/Attach-Volume.png"><img class="attachment-medium" src="http://www.yunwei123.com/wp-content/uploads/2015/08/Attach-Volume.png" alt="Attach-Volume" width="521" height="269" /></a></p> 
+            <p>从「Instances」选择停止的该EC2实例。</p> 
+            <p>「Device」输入指定的Linux启动硬盘「/dev/sda1」。</p> 
+            <p>点击「Yes, Attach」，卷立即就被连接上了。</p> 
+            <p><a href="http://www.yunwei123.com/wp-content/uploads/2015/08/Attach-Instance.png"><img class="attachment-medium" src="http://www.yunwei123.com/wp-content/uploads/2015/08/Attach-Instance.png" alt="Attach-Instance" width="525" height="75" /></a></p> 
+            <p><strong>2.5起动EC2实例。</strong></p> 
+            <p>最后，启动EC2的话，连接EBS卷的EC2实例也就正常启动了。</p> 
+           </div> 
+           <div class="tags-link"> 
+            <strong>Tags:</strong> 
+            <a href="http://www.yunwei123.com/tag/aws-ebs/" rel="tag">AWS EBS</a>, 
+            <a href="http://www.yunwei123.com/tag/aws-ebs%e5%88%9b%e5%bb%ba%e5%bf%ab%e7%85%a7%e5%92%8c%e9%80%9a%e8%bf%87%e5%bf%ab%e7%85%a7%e5%a4%8d%e6%97%a7%e7%9a%84%e6%96%b9%e6%b3%95/" rel="tag">AWS EBS创建快照和通过快照复旧的方法</a>, 
+            <a href="http://www.yunwei123.com/tag/aws/" rel="tag">aws服务器代维</a>, 
+            <a href="http://www.yunwei123.com/tag/%e6%9c%8d%e5%8a%a1%e5%99%a8%e5%9f%ba%e7%a1%80%e7%8e%af%e5%a2%83%e6%90%ad%e5%bb%ba/" rel="tag">服务器基础环境搭建</a> 
+           </div> 
+          </article> 
+         </div> 
+        </div> 
+        <!--end post blog--> 
+        <div class="related-posts mt">
+         <h5 class="section-title">Related Posts</h5>
+         <div class="outer">
+          <ul class="clearfix">
+           <li class="item column six">
+            <div class="inner clearfix"> 
+             <section class="entry-meta"> 
+              <div class="title">
+               <a href="http://www.yunwei123.com/aws-ec2-%e6%9e%b6ubuntu-14-04-lts-%e6%90%ad%e5%bb%ba-vpn/" title="AWS EC2 架Ubuntu 14.04 LTS 搭建 VPN">AWS EC2 架Ubuntu 14.04 LTS 搭建 VPN</a>
+              </div> 
+              <div class="date">
+               Posted on: 
+               <a href="http://www.yunwei123.com/aws-ec2-%e6%9e%b6ubuntu-14-04-lts-%e6%90%ad%e5%bb%ba-vpn/" title="下午10:11" rel="bookmark">2016年2月17日</a>
+              </div> 
+              <div class="cats">
+                Filed in: 
+               <a href="http://www.yunwei123.com/topics/amazon-aws/" rel="category tag">Amazon AWS</a>, 
+               <a href="http://www.yunwei123.com/topics/aws/" rel="category tag">AWS</a>, 
+               <a href="http://www.yunwei123.com/topics/linux%e4%bb%a3%e7%bb%b4/" rel="category tag">linux代维</a>, 
+               <a href="http://www.yunwei123.com/topics/linux%e7%b3%bb%e7%bb%9f%e4%bb%a3%e7%bb%b4/" rel="category tag">linux系统代维</a>, 
+               <a href="http://www.yunwei123.com/topics/%e4%bb%a3%e7%bb%b4/" rel="category tag">代维</a>, 
+               <a href="http://www.yunwei123.com/topics/%e6%9c%8d%e5%8a%a1%e5%99%a8%e4%bb%a3%e7%bb%b4/" rel="category tag">服务器代维</a> 
+              </div> 
+             </section>
+            </div></li>
+           <li class="item column six">
+            <div class="inner clearfix"> 
+             <section class="entry-meta"> 
+              <div class="title">
+               <a href="http://www.yunwei123.com/%e5%bc%80%e6%ba%90%e5%88%86%e5%b8%83%e5%bc%8f%e6%90%9c%e7%b4%a2%e5%b9%b3%e5%8f%b0elkelasticsearchlogstashkibanaredissyslog-ng%e5%ae%9e%e7%8e%b0%e6%97%a5%e5%bf%97%e5%ae%9e%e6%97%b6%e6%90%9c/" title="开源分布式搜索平台ELK(Elasticsearch+Logstash+Kibana)+Redis+Syslog-ng实现日志实时搜索">开源分布式搜索平台ELK(Elasticsearch+Logstash+Kibana)+Redis+Syslog-ng实现日志实时搜索</a>
+              </div> 
+              <div class="date">
+               Posted on: 
+               <a href="http://www.yunwei123.com/%e5%bc%80%e6%ba%90%e5%88%86%e5%b8%83%e5%bc%8f%e6%90%9c%e7%b4%a2%e5%b9%b3%e5%8f%b0elkelasticsearchlogstashkibanaredissyslog-ng%e5%ae%9e%e7%8e%b0%e6%97%a5%e5%bf%97%e5%ae%9e%e6%97%b6%e6%90%9c/" title="下午9:33" rel="bookmark">2016年1月10日</a>
+              </div> 
+              <div class="cats">
+                Filed in: 
+               <a href="http://www.yunwei123.com/topics/%e6%9c%8d%e5%8a%a1%e5%99%a8%e8%bf%81%e7%a7%bb/" rel="category tag">服务器迁移</a>, 
+               <a href="http://www.yunwei123.com/topics/web/" rel="category tag">网站代维</a>, 
+               <a href="http://www.yunwei123.com/topics/%e7%bd%91%e7%ab%99%e9%98%b2%e6%8c%82%e9%a9%ac/" rel="category tag">网站防挂马</a> 
+              </div> 
+             </section>
+            </div></li>
+           <li class="item column six">
+            <div class="inner clearfix"> 
+             <section class="entry-meta"> 
+              <div class="title">
+               <a href="http://www.yunwei123.com/%e5%ae%89%e8%a3%85mysql%e4%b8%ad%e9%97%b4%e5%b1%82-atlas%e5%ae%9e%e7%8e%b0%e4%b8%8d%e6%94%b9%e7%a8%8b%e5%ba%8f%e5%b0%b1%e8%83%bd%e8%af%bb%e5%86%99%e5%88%86%e7%a6%bb/" title="安装MySQL中间层 Atlas实现不改程序就能读写分离">安装MySQL中间层 Atlas实现不改程序就能读写分离</a>
+              </div> 
+              <div class="date">
+               Posted on: 
+               <a href="http://www.yunwei123.com/%e5%ae%89%e8%a3%85mysql%e4%b8%ad%e9%97%b4%e5%b1%82-atlas%e5%ae%9e%e7%8e%b0%e4%b8%8d%e6%94%b9%e7%a8%8b%e5%ba%8f%e5%b0%b1%e8%83%bd%e8%af%bb%e5%86%99%e5%88%86%e7%a6%bb/" title="下午9:29" rel="bookmark">2016年1月10日</a>
+              </div> 
+              <div class="cats">
+                Filed in: 
+               <a href="http://www.yunwei123.com/topics/%e6%9c%8d%e5%8a%a1%e5%99%a8%e8%bf%81%e7%a7%bb/" rel="category tag">服务器迁移</a>, 
+               <a href="http://www.yunwei123.com/topics/%e7%bd%91%e7%ab%99%e9%98%b2%e6%8c%82%e9%a9%ac/" rel="category tag">网站防挂马</a> 
+              </div> 
+             </section>
+            </div></li>
+           <li class="item column six">
+            <div class="inner clearfix"> 
+             <section class="entry-meta"> 
+              <div class="title">
+               <a href="http://www.yunwei123.com/%e9%98%bf%e9%87%8c%e4%ba%91ecs%e7%bc%96%e8%af%91%e5%8d%87%e7%ba%a7vm%e5%86%85%e6%a0%b8%e5%88%b04-x/" title="阿里云ECS编译升级VM内核到4.x">阿里云ECS编译升级VM内核到4.x</a>
+              </div> 
+              <div class="date">
+               Posted on: 
+               <a href="http://www.yunwei123.com/%e9%98%bf%e9%87%8c%e4%ba%91ecs%e7%bc%96%e8%af%91%e5%8d%87%e7%ba%a7vm%e5%86%85%e6%a0%b8%e5%88%b04-x/" title="下午9:14" rel="bookmark">2016年1月10日</a>
+              </div> 
+              <div class="cats">
+                Filed in: 
+               <a href="http://www.yunwei123.com/topics/%e6%9c%8d%e5%8a%a1%e5%99%a8%e8%bf%81%e7%a7%bb/" rel="category tag">服务器迁移</a>, 
+               <a href="http://www.yunwei123.com/topics/safe/" rel="category tag">系统安全代维</a>, 
+               <a href="http://www.yunwei123.com/topics/web/" rel="category tag">网站代维</a> 
+              </div> 
+             </section>
+            </div></li>
+           <li class="item column six">
+            <div class="inner clearfix"> 
+             <section class="entry-meta"> 
+              <div class="title">
+               <a href="http://www.yunwei123.com/%e9%98%bf%e9%87%8c%e4%ba%91%e4%b8%8b%e9%85%8d%e7%bd%aekeepalive%ef%bc%8c%e5%88%a9%e7%94%a8havip%e5%ae%9e%e7%8e%b0ha/" title="阿里云下配置keepalive，利用HAVIP实现HA">阿里云下配置keepalive，利用HAVIP实现HA</a>
+              </div> 
+              <div class="date">
+               Posted on: 
+               <a href="http://www.yunwei123.com/%e9%98%bf%e9%87%8c%e4%ba%91%e4%b8%8b%e9%85%8d%e7%bd%aekeepalive%ef%bc%8c%e5%88%a9%e7%94%a8havip%e5%ae%9e%e7%8e%b0ha/" title="下午9:11" rel="bookmark">2016年1月10日</a>
+              </div> 
+              <div class="cats">
+                Filed in: 
+               <a href="http://www.yunwei123.com/topics/%e6%9c%8d%e5%8a%a1%e5%99%a8%e8%bf%81%e7%a7%bb/" rel="category tag">服务器迁移</a> 
+              </div> 
+             </section>
+            </div></li>
+           <li class="item column six">
+            <div class="inner clearfix"> 
+             <section class="entry-meta"> 
+              <div class="title">
+               <a href="http://www.yunwei123.com/%e9%98%bf%e9%87%8c%e4%ba%91%e8%bf%90%e7%bb%b4%e9%83%a8%e7%bd%b2%e5%b7%a5%e5%85%b7appdeploy%e6%9c%80%e4%bd%b3%e5%ae%9e%e8%b7%b5/" title="阿里云运维部署工具AppDeploy最佳实践">阿里云运维部署工具AppDeploy最佳实践</a>
+              </div> 
+              <div class="date">
+               Posted on: 
+               <a href="http://www.yunwei123.com/%e9%98%bf%e9%87%8c%e4%ba%91%e8%bf%90%e7%bb%b4%e9%83%a8%e7%bd%b2%e5%b7%a5%e5%85%b7appdeploy%e6%9c%80%e4%bd%b3%e5%ae%9e%e8%b7%b5/" title="下午8:57" rel="bookmark">2016年1月10日</a>
+              </div> 
+              <div class="cats">
+                Filed in: 
+               <a href="http://www.yunwei123.com/topics/%e6%9c%8d%e5%8a%a1%e5%99%a8%e8%bf%81%e7%a7%bb/" rel="category tag">服务器迁移</a>, 
+               <a href="http://www.yunwei123.com/topics/web/" rel="category tag">网站代维</a> 
+              </div> 
+             </section>
+            </div></li>
+           <li class="item column six">
+            <div class="inner clearfix"> 
+             <section class="entry-meta"> 
+              <div class="title">
+               <a href="http://www.yunwei123.com/%e9%98%bf%e9%87%8c%e4%ba%91%e8%bf%90%e7%bb%b4%e9%83%a8%e7%bd%b2%e5%b7%a5%e5%85%b7appdeploy%e8%af%a6%e7%bb%86%e6%95%99%e7%a8%8b/" title="阿里云运维部署工具AppDeploy详细教程">阿里云运维部署工具AppDeploy详细教程</a>
+              </div> 
+              <div class="date">
+               Posted on: 
+               <a href="http://www.yunwei123.com/%e9%98%bf%e9%87%8c%e4%ba%91%e8%bf%90%e7%bb%b4%e9%83%a8%e7%bd%b2%e5%b7%a5%e5%85%b7appdeploy%e8%af%a6%e7%bb%86%e6%95%99%e7%a8%8b/" title="下午8:53" rel="bookmark">2016年1月10日</a>
+              </div> 
+              <div class="cats">
+                Filed in: 
+               <a href="http://www.yunwei123.com/topics/%e6%9c%8d%e5%8a%a1%e5%99%a8%e8%bf%81%e7%a7%bb/" rel="category tag">服务器迁移</a>, 
+               <a href="http://www.yunwei123.com/topics/web/" rel="category tag">网站代维</a>, 
+               <a href="http://www.yunwei123.com/topics/%e7%bd%91%e7%ab%99%e9%98%b2%e6%8c%82%e9%a9%ac/" rel="category tag">网站防挂马</a> 
+              </div> 
+             </section>
+            </div></li>
+           <li class="item column six">
+            <div class="inner clearfix"> 
+             <section class="entry-meta"> 
+              <div class="title">
+               <a href="http://www.yunwei123.com/%e4%bd%bf%e7%94%a8-shadowsocks-%e5%ae%9e%e7%8e%b0%e7%a7%91%e5%ad%a6%e4%b8%8a%e7%bd%91/" title="使用 shadowsocks 实现科学上网">使用 shadowsocks 实现科学上网</a>
+              </div> 
+              <div class="date">
+               Posted on: 
+               <a href="http://www.yunwei123.com/%e4%bd%bf%e7%94%a8-shadowsocks-%e5%ae%9e%e7%8e%b0%e7%a7%91%e5%ad%a6%e4%b8%8a%e7%bd%91/" title="下午10:06" rel="bookmark">2015年12月8日</a>
+              </div> 
+              <div class="cats">
+                Filed in: 
+               <a href="http://www.yunwei123.com/topics/%e6%9c%8d%e5%8a%a1%e5%99%a8%e8%bf%81%e7%a7%bb/" rel="category tag">服务器迁移</a>, 
+               <a href="http://www.yunwei123.com/topics/safe/" rel="category tag">系统安全代维</a>, 
+               <a href="http://www.yunwei123.com/topics/web/" rel="category tag">网站代维</a> 
+              </div> 
+             </section>
+            </div></li>
+           <li class="item column six">
+            <div class="inner clearfix"> 
+             <section class="entry-meta"> 
+              <div class="title">
+               <a href="http://www.yunwei123.com/%e9%87%8d%e7%94%a8-ssh-%e8%bf%9e%e6%8e%a5/" title="重用 SSH 连接">重用 SSH 连接</a>
+              </div> 
+              <div class="date">
+               Posted on: 
+               <a href="http://www.yunwei123.com/%e9%87%8d%e7%94%a8-ssh-%e8%bf%9e%e6%8e%a5/" title="下午10:04" rel="bookmark">2015年12月8日</a>
+              </div> 
+              <div class="cats">
+                Filed in: 
+               <a href="http://www.yunwei123.com/topics/aliyun/" rel="category tag">aliyun服务器代维</a>, 
+               <a href="http://www.yunwei123.com/topics/%e6%9c%8d%e5%8a%a1%e5%99%a8%e8%bf%81%e7%a7%bb/" rel="category tag">服务器迁移</a> 
+              </div> 
+             </section>
+            </div></li>
+           <li class="item column six">
+            <div class="inner clearfix"> 
+             <section class="entry-meta"> 
+              <div class="title">
+               <a href="http://www.yunwei123.com/%e7%bb%99nginx%e9%85%8d%e7%bd%ae%e4%b8%80%e4%b8%aa%e8%87%aa%e7%ad%be%e5%90%8d%e7%9a%84ssl%e8%af%81%e4%b9%a6/" title="给Nginx配置一个自签名的SSL证书">给Nginx配置一个自签名的SSL证书</a>
+              </div> 
+              <div class="date">
+               Posted on: 
+               <a href="http://www.yunwei123.com/%e7%bb%99nginx%e9%85%8d%e7%bd%ae%e4%b8%80%e4%b8%aa%e8%87%aa%e7%ad%be%e5%90%8d%e7%9a%84ssl%e8%af%81%e4%b9%a6/" title="下午9:44" rel="bookmark">2015年12月8日</a>
+              </div> 
+              <div class="cats">
+                Filed in: 
+               <a href="http://www.yunwei123.com/topics/%e6%9c%8d%e5%8a%a1%e5%99%a8%e8%bf%81%e7%a7%bb/" rel="category tag">服务器迁移</a> 
+              </div> 
+             </section>
+            </div></li>
+          </ul>
+         </div>
+        </div> 
+        <nav class="single-navigation clearfix"> 
+         <div class="nav-previous column six">
+          <a href="http://www.yunwei123.com/%e8%b4%ad%e4%b9%b0reserved-instance/" rel="prev"><span class="meta-nav">‹</span> Older post</a>
+         </div> 
+         <div class="nav-next column six">
+          <a href="http://www.yunwei123.com/%e6%9c%8d%e5%8a%a1%e5%99%a8%e7%9b%91%e6%8e%a7%e7%9a%84%e5%a4%9a%e6%a0%b7%e5%8c%96%e5%88%86%e6%9e%90/" rel="next">Newer post <span class="meta-nav">›</span></a>
+         </div> 
+        </nav>
+        <!-- # .navigation --> 
+       </div> 
+      </article> 
+      <!--end #primary--> 
+      <aside id="secondary" class="sidebar-right side-widgets-area column four">
+       <div class="inner">
+        <div class="widget widget_categories">
+         <h3 class="title">分类目录</h3> 
+         <ul> 
+          <li class="cat-item cat-item-3"><a href="http://www.yunwei123.com/topics/aliyun/">aliyun服务器代维</a> </li> 
+          <li class="cat-item cat-item-61"><a href="http://www.yunwei123.com/topics/amazon-aws/">Amazon AWS</a> </li> 
+          <li class="cat-item cat-item-70"><a href="http://www.yunwei123.com/topics/aws/">AWS</a> </li> 
+          <li class="cat-item cat-item-220"><a href="http://www.yunwei123.com/topics/linux%e4%bb%a3%e7%bb%b4/">linux代维</a> </li> 
+          <li class="cat-item cat-item-212"><a href="http://www.yunwei123.com/topics/linux%e6%9c%8d%e5%8a%a1%e5%99%a8%e4%bb%a3%e7%bb%b4/">linux服务器代维</a> </li> 
+          <li class="cat-item cat-item-218"><a href="http://www.yunwei123.com/topics/linux%e6%9c%8d%e5%8a%a1%e5%99%a8%e4%bb%a3%e7%bb%b4%e6%8a%a4/">linux服务器代维护</a> </li> 
+          <li class="cat-item cat-item-216"><a href="http://www.yunwei123.com/topics/linux%e6%9c%8d%e5%8a%a1%e5%99%a8%e7%bb%b4%e6%8a%a4/">linux服务器维护</a> </li> 
+          <li class="cat-item cat-item-219"><a href="http://www.yunwei123.com/topics/linux%e7%b3%bb%e7%bb%9f%e4%bb%a3%e7%bb%b4/">linux系统代维</a> </li> 
+          <li class="cat-item cat-item-214"><a href="http://www.yunwei123.com/topics/%e4%bb%a3%e7%bb%b4/">代维</a> </li> 
+          <li class="cat-item cat-item-217"><a href="http://www.yunwei123.com/topics/%e6%9c%8d%e5%8a%a1%e5%99%a8%e4%bb%a3%e7%bb%b4/">服务器代维</a> </li> 
+          <li class="cat-item cat-item-215"><a href="http://www.yunwei123.com/topics/%e6%9c%8d%e5%8a%a1%e5%99%a8%e4%bb%a3%e7%bb%b4%e6%8a%a4/">服务器代维护</a> </li> 
+          <li class="cat-item cat-item-221"><a href="http://www.yunwei123.com/topics/%e6%9c%8d%e5%8a%a1%e5%99%a8%e5%ae%89%e5%85%a8%e4%bb%a3%e7%bb%b4/">服务器安全代维</a> </li> 
+          <li class="cat-item cat-item-44"><a href="http://www.yunwei123.com/topics/%e6%9c%8d%e5%8a%a1%e5%99%a8%e5%ae%89%e5%85%a8%e8%ae%be%e7%bd%ae/">服务器安全设置</a> </li> 
+          <li class="cat-item cat-item-211"><a href="http://www.yunwei123.com/topics/%e6%9c%8d%e5%8a%a1%e5%99%a8%e7%bb%b4%e6%8a%a4/">服务器维护</a> </li> 
+          <li class="cat-item cat-item-8"><a href="http://www.yunwei123.com/topics/%e6%9c%8d%e5%8a%a1%e5%99%a8%e8%bf%81%e7%a7%bb/">服务器迁移</a> </li> 
+          <li class="cat-item cat-item-213"><a href="http://www.yunwei123.com/topics/%e6%9c%8d%e5%8a%a1%e5%99%a8%e8%bf%90%e7%bb%b4/">服务器运维</a> </li> 
+          <li class="cat-item cat-item-1"><a href="http://www.yunwei123.com/topics/uncategorized/">未分类</a> </li> 
+          <li class="cat-item cat-item-7"><a href="http://www.yunwei123.com/topics/safe/">系统安全代维</a> </li> 
+          <li class="cat-item cat-item-4"><a href="http://www.yunwei123.com/topics/web/">网站代维</a> </li> 
+          <li class="cat-item cat-item-9"><a href="http://www.yunwei123.com/topics/%e7%bd%91%e7%ab%99%e9%98%b2%e6%8c%82%e9%a9%ac/">网站防挂马</a> </li> 
+         </ul> 
+        </div>
+        <div class="widget widget_archive">
+         <h3 class="title">文章归档</h3> 
+         <ul> 
+          <li><a href="http://www.yunwei123.com/2017/03/">2017年三月</a></li> 
+          <li><a href="http://www.yunwei123.com/2016/03/">2016年三月</a></li> 
+          <li><a href="http://www.yunwei123.com/2016/02/">2016年二月</a></li> 
+          <li><a href="http://www.yunwei123.com/2016/01/">2016年一月</a></li> 
+          <li><a href="http://www.yunwei123.com/2015/12/">2015年十二月</a></li> 
+          <li><a href="http://www.yunwei123.com/2015/11/">2015年十一月</a></li> 
+          <li><a href="http://www.yunwei123.com/2015/10/">2015年十月</a></li> 
+          <li><a href="http://www.yunwei123.com/2015/09/">2015年九月</a></li> 
+          <li><a href="http://www.yunwei123.com/2015/08/">2015年八月</a></li> 
+          <li><a href="http://www.yunwei123.com/2015/07/">2015年七月</a></li> 
+          <li><a href="http://www.yunwei123.com/2015/05/">2015年五月</a></li> 
+         </ul> 
+        </div>
+        <div class="widget widget_tag_cloud">
+         <h3 class="title">标签</h3>
+         <div class="tagcloud">
+          <a href="http://www.yunwei123.com/tag/amazon-aws-iam/" class="tag-link-64" title="1个话题" style="font-size: 8pt;">Amazon AWS IAM</a> 
+          <a href="http://www.yunwei123.com/tag/amazon-aws-iam%e7%94%a8%e6%88%b7/" class="tag-link-63" title="1个话题" style="font-size: 8pt;">Amazon AWS IAM用户</a> 
+          <a href="http://www.yunwei123.com/tag/amazon-aws-%ef%bc%8cs3/" class="tag-link-82" title="1个话题" style="font-size: 8pt;">Amazon AWS ，S3</a> 
+          <a href="http://www.yunwei123.com/tag/amazon-s3%e7%9a%84bucket%e6%93%8d%e4%bd%9c/" class="tag-link-81" title="1个话题" style="font-size: 8pt;">Amazon S3的Bucket操作</a> 
+          <a href="http://www.yunwei123.com/tag/aws-ebs/" class="tag-link-57" title="3个话题" style="font-size: 11.529411764706pt;">AWS EBS</a> 
+          <a href="http://www.yunwei123.com/tag/aws-ec2/" class="tag-link-54" title="1个话题" style="font-size: 8pt;">AWS EC2</a> 
+          <a href="http://www.yunwei123.com/tag/aws-ec2%e4%b9%8bsecurity-group%ef%bc%88%e5%ae%89%e5%85%a8%e7%bb%84%ef%bc%89%e8%ae%be%e5%ae%9a/" class="tag-link-60" title="1个话题" style="font-size: 8pt;">AWS EC2之Security Group（安全组）设定</a> 
+          <a href="http://www.yunwei123.com/tag/aws-eip/" class="tag-link-50" title="1个话题" style="font-size: 8pt;">AWS EIP</a> 
+          <a href="http://www.yunwei123.com/tag/aws%e4%b9%8b%e5%88%9b%e5%bb%baec2%e5%ae%9e%e4%be%8b/" class="tag-link-53" title="1个话题" style="font-size: 8pt;">AWS之创建EC2实例</a> 
+          <a href="http://www.yunwei123.com/tag/aws%e4%bb%a3%e7%bb%b4/" class="tag-link-128" title="5个话题" style="font-size: 13.647058823529pt;">aws代维</a> 
+          <a href="http://www.yunwei123.com/tag/aws-%e5%85%ac%e7%bd%91ip%e6%9c%8d%e5%8a%a1/" class="tag-link-51" title="1个话题" style="font-size: 8pt;">AWS 公网IP服务</a> 
+          <a href="http://www.yunwei123.com/tag/aws-%e5%88%9b%e5%bb%bawindows-ec2%e5%ae%9e%e4%be%8b/" class="tag-link-67" title="1个话题" style="font-size: 8pt;">AWS 创建Windows-EC2实例</a> 
+          <a href="http://www.yunwei123.com/tag/aws%e5%a6%82%e4%bd%95%e5%88%9b%e5%bb%baec2/" class="tag-link-73" title="1个话题" style="font-size: 8pt;">AWS如何创建EC2</a> 
+          <a href="http://www.yunwei123.com/tag/aws/" class="tag-link-2" title="30个话题" style="font-size: 22pt;">aws服务器代维</a> 
+          <a href="http://www.yunwei123.com/tag/cloudberry/" class="tag-link-71" title="1个话题" style="font-size: 8pt;">cloudberry</a> 
+          <a href="http://www.yunwei123.com/tag/ebs-volumes/" class="tag-link-58" title="1个话题" style="font-size: 8pt;">EBS Volumes</a> 
+          <a href="http://www.yunwei123.com/tag/ec2/" class="tag-link-68" title="3个话题" style="font-size: 11.529411764706pt;">EC2</a> 
+          <a href="http://www.yunwei123.com/tag/ec2-ebs/" class="tag-link-59" title="1个话题" style="font-size: 8pt;">EC2 EBS</a> 
+          <a href="http://www.yunwei123.com/tag/fsck%e5%91%bd%e4%bb%a4/" class="tag-link-47" title="1个话题" style="font-size: 8pt;">fsck命令</a> 
+          <a href="http://www.yunwei123.com/tag/iam/" class="tag-link-65" title="1个话题" style="font-size: 8pt;">IAM</a> 
+          <a href="http://www.yunwei123.com/tag/linux%e5%91%bd%e4%bb%a4/" class="tag-link-46" title="1个话题" style="font-size: 8pt;">Linux命令</a> 
+          <a href="http://www.yunwei123.com/tag/s3-bucket/" class="tag-link-83" title="1个话题" style="font-size: 8pt;">S3 Bucket</a> 
+          <a href="http://www.yunwei123.com/tag/s3cmd/" class="tag-link-76" title="2个话题" style="font-size: 10.117647058824pt;">s3cmd</a> 
+          <a href="http://www.yunwei123.com/tag/security-group%ef%bc%8cinbound%ef%bc%8coutbound/" class="tag-link-62" title="1个话题" style="font-size: 8pt;">Security Group，Inbound，Outbound</a> 
+          <a href="http://www.yunwei123.com/tag/slb/" class="tag-link-138" title="2个话题" style="font-size: 10.117647058824pt;">slb</a> 
+          <a href="http://www.yunwei123.com/tag/%e5%88%9b%e5%bb%baamazon-ebs%e5%8d%b7%ef%bc%88%e7%bb%99%e5%ae%9e%e4%be%8b%e8%bf%bd%e5%8a%a0ebs%e5%8d%b7%ef%bc%89/" class="tag-link-56" title="1个话题" style="font-size: 8pt;">创建Amazon EBS卷（给实例追加EBS卷）</a> 
+          <a href="http://www.yunwei123.com/tag/%e5%88%9b%e5%bb%baec2/" class="tag-link-74" title="1个话题" style="font-size: 8pt;">创建EC2</a> 
+          <a href="http://www.yunwei123.com/tag/%e5%88%9b%e5%bb%baec2%e5%ae%9e%e4%be%8b/" class="tag-link-55" title="1个话题" style="font-size: 8pt;">创建EC2实例</a> 
+          <a href="http://www.yunwei123.com/tag/%e5%88%9b%e5%bb%ba%e5%8f%8a%e9%87%8a%e6%94%beelasticip/" class="tag-link-49" title="1个话题" style="font-size: 8pt;">创建及释放ElasticIP</a> 
+          <a href="http://www.yunwei123.com/tag/%e5%88%9b%e5%bb%ba%e5%92%8c%e7%bb%91%e5%ae%9a/" class="tag-link-52" title="1个话题" style="font-size: 8pt;">创建和绑定</a> 
+          <a href="http://www.yunwei123.com/tag/%e5%a6%82%e4%bd%95%e4%bd%bf%e7%94%a8s3cmd%e5%91%bd%e4%bb%a4%e4%b8%8a%e4%bc%a0%e4%b8%8b%e8%bd%bd%e6%96%87%e4%bb%b6/" class="tag-link-80" title="1个话题" style="font-size: 8pt;">如何使用s3cmd命令上传/下载文件</a> 
+          <a href="http://www.yunwei123.com/tag/%e5%a6%82%e4%bd%95%e5%88%9b%e5%bb%ba%e5%8f%8a%e8%bf%9e%e6%8e%a5amazon-rds/" class="tag-link-72" title="1个话题" style="font-size: 8pt;">如何创建及连接Amazon RDS</a> 
+          <a href="http://www.yunwei123.com/tag/%e5%ae%89%e8%a3%85aws-s3cmd%e5%91%bd%e4%bb%a4/" class="tag-link-75" title="1个话题" style="font-size: 8pt;">安装AWS s3cmd命令</a> 
+          <a href="http://www.yunwei123.com/tag/%e5%ae%89%e8%a3%85s3cmd/" class="tag-link-77" title="1个话题" style="font-size: 8pt;">安装s3cmd</a> 
+          <a href="http://www.yunwei123.com/tag/xiaoshuo/" class="tag-link-5" title="7个话题" style="font-size: 15.058823529412pt;">小说站代维</a> 
+          <a href="http://www.yunwei123.com/tag/%e6%9c%8d%e5%8a%a1%e5%99%a8%e5%9f%ba%e7%a1%80%e7%8e%af%e5%a2%83%e6%90%ad%e5%bb%ba/" class="tag-link-6" title="18个话题" style="font-size: 19.529411764706pt;">服务器基础环境搭建</a> 
+          <a href="http://www.yunwei123.com/tag/%e6%9c%8d%e5%8a%a1%e5%99%a8%e8%bf%90%e7%bb%b4%e5%b7%a5%e7%a8%8b%e5%b8%88%e3%80%82aws%ef%bc%8c%e9%98%bf%e9%87%8c%e4%ba%91%e7%ad%89%e6%9c%8d%e5%8a%a1%e5%99%a8%e9%85%8d%e7%bd%ae%e6%95%85%e9%9a%9c/" class="tag-link-48" title="1个话题" style="font-size: 8pt;">服务器运维工程师。AWS，阿里云等服务器配置&amp;故障排查的技术支持。</a> 
+          <a href="http://www.yunwei123.com/tag/%e6%af%94%e8%be%83%e7%89%a9%e7%90%86%e6%9c%ba%e5%92%8caws%e8%b4%b9%e7%94%a8/" class="tag-link-66" title="1个话题" style="font-size: 8pt;">比较物理机和AWS费用</a> 
+          <a href="http://www.yunwei123.com/tag/%e7%b3%bb%e7%bb%9f%e5%ae%89%e5%85%a8/" class="tag-link-157" title="13个话题" style="font-size: 18pt;">系统安全</a> 
+          <a href="http://www.yunwei123.com/tag/%e8%af%a6%e8%a7%a3amazon-s3%e4%b8%8a%e4%bc%a0%e4%b8%8b%e8%bd%bd%e6%95%b0%e6%8d%ae/" class="tag-link-69" title="2个话题" style="font-size: 10.117647058824pt;">详解Amazon S3上传/下载数据</a> 
+          <a href="http://www.yunwei123.com/tag/%e9%98%bf%e9%87%8c%e4%ba%91ecs%e7%b3%bb%e7%bb%9f%e7%a3%81%e7%9b%98%e6%89%a9%e5%ae%b9/" class="tag-link-45" title="1个话题" style="font-size: 8pt;">阿里云ECS系统磁盘扩容</a> 
+          <a href="http://www.yunwei123.com/tag/%e9%98%bf%e9%87%8c%e4%ba%91vpc%e7%bd%91%e7%bb%9c%e6%97%a0eip%e7%9a%84%e4%b8%bb%e6%9c%ba%e4%b8%8a%e7%bd%91/" class="tag-link-238" title="2个话题" style="font-size: 10.117647058824pt;">阿里云VPC网络无EIP的主机上网</a> 
+          <a href="http://www.yunwei123.com/tag/%e9%98%bf%e9%87%8c%e4%ba%91vpc%e9%85%8d%e7%bd%aesnat/" class="tag-link-240" title="2个话题" style="font-size: 10.117647058824pt;">阿里云VPC配置SNAT</a> 
+          <a href="http://www.yunwei123.com/tag/%e9%98%bf%e9%87%8c%e4%ba%91%e4%b8%8b%e9%85%8d%e7%bd%aekeepalive%ef%bc%8c%e5%88%a9%e7%94%a8havip%e5%ae%9e%e7%8e%b0ha/" class="tag-link-206" title="2个话题" style="font-size: 10.117647058824pt;">阿里云下配置keepalive，利用HAVIP实现HA</a> 
+          <a href="http://www.yunwei123.com/tag/%e9%98%bf%e9%87%8c%e4%ba%91%e4%bb%a3%e7%bb%b4/" class="tag-link-127" title="12个话题" style="font-size: 17.529411764706pt;">阿里云代维</a>
+         </div> 
+        </div> 
+        <div class="widget widget_recent_entries"> 
+         <h3 class="title">近期文章</h3> 
+         <ul> 
+          <li> <a href="http://www.yunwei123.com/%e9%98%bf%e9%87%8c%e4%ba%91oss%e5%86%85%e7%bd%91%e5%85%8d%e8%b4%b9%e6%b5%81%e9%87%8f%e5%a4%96%e7%bd%91%e7%94%a8%ef%bc%8c%e6%90%ad%e9%85%8dcdn%e9%95%9c%e5%83%8f%ef%bc%8c%e7%9c%81%e9%92%b1%e6%95%99/">阿里云OSS内网免费流量外网用，搭配CDN镜像，省钱教程</a> </li> 
+          <li> <a href="http://www.yunwei123.com/ros%e4%b8%80%e9%94%ae%e6%90%ad%e5%bb%ba-natgateway-%e8%ae%a9%e9%98%bf%e9%87%8c-vpc-%e4%b8%8e-internet-%e7%9a%84%e4%ba%92%e8%ae%bf%e6%95%99%e7%a8%8b/">ROS一键搭建 NatGateway 让阿里 VPC 与 Internet 的互访教程</a> </li> 
+          <li> <a href="http://www.yunwei123.com/ecs-vpc-api-%e4%ba%a7%e5%93%81%e5%92%8c%e4%b8%9a%e5%8a%a1%e9%99%90%e5%88%b6/">ECS &amp; VPC API 产品和业务限制</a> </li> 
+          <li> <a href="http://www.yunwei123.com/%e3%80%90%e7%ac%94%e8%ae%b0%e3%80%91%e9%98%bf%e9%87%8c%e4%ba%91slb-%e9%85%8d%e7%bd%ae%e6%95%99%e7%a8%8b/">【笔记】阿里云SLB 配置教程</a> </li> 
+          <li> <a href="http://www.yunwei123.com/%e3%80%90%e7%ac%94%e8%ae%b0%e3%80%91%e9%98%bf%e9%87%8c%e4%ba%91ecs-%e9%85%8d%e7%bd%ae%e6%95%99%e7%a8%8b/">【笔记】阿里云ECS 配置教程</a> </li> 
+         </ul> 
+        </div>
+       </div>
+      </aside>
+      <!--end #secondary--> 
+     </div> 
+    </div> 
+    <!--end #content--> 
+    <div class="site-footer clear-fixed"> 
+     <footer class="bottom-widgets-area">
+      <section class="container clearfix">
+       <div class="four column">
+        <div class="inner"> 
+         <div class="widget widget-contact-details"> 
+          <h3 class="title">联系信息</h3> 
+          <ul> 
+           <li class="clearfix"> <i class="address icon icon-location"></i> <p><strong>Address:</strong>四川省成都市高新区软件园C区C8</p> </li> 
+           <li class="clearfix"> <i class="phone icon icon-call"></i> <p><strong>Phone:</strong>+86 135-410-16684</p> </li> 
+           <li class="clearfix"> <i class="email icon icon-mail"></i> <p><strong>Email:</strong><a href="mailto:zeus911@foxmail.com">zeus911@foxmail.com</a></p> </li> 
+           <li class="clearfix"> <i class="skype icon icon-skype"></i> <p><strong>Skype:</strong>bypat.com</p> </li> 
+          </ul> 
+         </div> 
+        </div>
+       </div>
+       <div class="four column">
+        <div class="inner">
+         <div class="widget widget_text"> 
+          <div class="textwidget">
+           <div class="inner"> 
+            <div class="widget widget-blog widget-post"> 
+             <h3 class="title">运维一二三服务器代维工作室动态</h3> 
+             <ul> 
+              <li class="clearfix"> 
+               <figure class="featured-image img-preload img-hover post-image"> 
+                <a class="preloader" href="http://www.yunwei123.com/service/%e4%ba%91%e6%9c%8d%e5%8a%a1%e5%99%a8%e4%bb%a3%e7%bb%b4%e6%9c%8d%e5%8a%a1/" target="_blank"> <img style="display: block; visibility: visible; opacity: 1;" src="http://www.yunwei123.com/wp-content/uploads/2015/05/Aliyun.gif" class="attachment-thumbnail wp-post-image" alt="squarethang" height="150" width="150" /> 
+                 <div style="opacity: 0.5;" class="overlay"></div> </a> 
+               </figure> 
+               <section class="post-entry"> 
+                <div class="title"> 
+                 <a href="http://www.yunwei123.com/service/%e4%ba%91%e6%9c%8d%e5%8a%a1%e5%99%a8%e4%bb%a3%e7%bb%b4%e6%9c%8d%e5%8a%a1/" title="云服务代维" target="_blank">云服务代维！ </a> 
+                </div> 
+                <div class="date">
+                 2015年3月18日
+                </div> 
+               </section> </li> 
+             </ul> 
+             <ul> 
+              <li class="clearfix"> 
+               <figure class="featured-image img-preload img-hover post-image"> 
+                <a class="preloader" href="http://www.yunwei123.com/service/server-management/" target="_blank"> <img style="display: block; visibility: visible; opacity: 1;" src="http://www.yunwei123.com/wp-content/uploads/2015/05/Aliyun.gif" class="attachment-thumbnail wp-post-image" alt="squarethang" height="150" width="150" /> 
+                 <div style="opacity: 0.5;" class="overlay"></div> </a> 
+               </figure> 
+               <section class="post-entry"> 
+                <div class="title"> 
+                 <a href="http://www.yunwei123.com/service/server-management/" title="阿里云主机代维" target="_blank">阿里云主机代维！ </a> 
+                </div> 
+                <div class="date">
+                 2015年3月18日
+                </div> 
+               </section> </li> 
+             </ul> 
+             <ul> 
+              <li class="clearfix"> 
+               <figure class="featured-image img-preload img-hover post-image"> 
+                <a class="preloader" href="http://www.yunwei123.com/service/server-config/" target="_blank"> <img style="display: block; visibility: visible; opacity: 1;" src="http://www.yunwei123.com/wp-content/uploads/2015/05/Aliyun.gif" class="attachment-thumbnail wp-post-image" alt="squarethang" height="150" width="150" /> 
+                 <div style="opacity: 0.5;" class="overlay"></div> </a> 
+               </figure> 
+               <section class="post-entry"> 
+                <div class="title"> 
+                 <a href="http://www.yunwei123.com/service/server-config/" title="阿里云主机基础配置" target="_blank">阿里云主机基础配置！ </a> 
+                </div> 
+                <div class="date">
+                 2015年3月18日
+                </div> 
+               </section> </li> 
+             </ul> 
+             <ul> 
+              <li class="clearfix"> 
+               <figure class="featured-image img-preload img-hover post-image"> 
+                <a class="preloader" href="http://www.yunwei123.com/service/server-migration/" target="_blank"> <img style="display: block; visibility: visible; opacity: 1;" src="http://www.yunwei123.com/wp-content/uploads/2015/05/Aliyun.gif" class="attachment-thumbnail wp-post-image" alt="squarethang" height="150" width="150" /> 
+                 <div style="opacity: 0.5;" class="overlay"></div> </a> 
+               </figure> 
+               <section class="post-entry"> 
+                <div class="title"> 
+                 <a href="http://www.yunwei123.com/service/server-migration/" title="阿里云主机网站迁移" target="_blank">阿里云主机网站迁移！ </a> 
+                </div> 
+                <div class="date">
+                 2015年3月18日
+                </div> 
+               </section> </li> 
+             </ul> 
+            </div> 
+           </div> 
+          </div> 
+         </div>
+        </div>
+       </div>
+       <div class="four column">
+        <div class="inner">
+         <div class="widget widget_text">
+          <h3 class="title">微信关注运维一二三服务器代维工作室</h3> 
+          <div class="textwidget">
+           <div class="inner"> 
+            <img src="http://www.yunwei123.com/wp-content/uploads/2015/05/erweima.jpg" alt="专业的服务器代维工作室" /> 
+           </div>
+          </div> 
+         </div>
+        </div>
+       </div>
+      </section>
+     </footer> 
+     <div class="site-footer clear-fixed"> 
+      <footer class="bottom-widgets-area">
+       <section class="container clearfix">
+        <div class="three column">
+         <div class="inner"></div>
+        </div>
+        <div class="three column">
+         <div class="inner"></div>
+        </div>
+        <div class="three column">
+         <div class="inner"></div>
+        </div>
+        <div class="three column">
+         <div class="inner"></div>
+        </div>
+       </section>
+      </footer>
+      <footer class="site-bottom"> 
+       <section class="container"> 
+        <div class="inner clearfix">
+          　　　　　　　　　
+         <div id="bottom-copy">
+          Copyright &copy; 2017 运维一二三服务器代维工作室-主要提供云
+          <a href="http://www.yunwei123.com/">服务器代维护</a>,
+          <a href="http://www.yunwei123.com/">阿里云服务器代维护</a>,
+          <a href="http://www.yunwei123.com/">亚马逊AWS服务器代维护</a>,
+          <a href="http://www.yunwei123.com/">UCloud服务器代维护</a>,
+          <a href="http://www.yunwei123.com/">Linux服务器代维护</a>,国外服务器代维护,
+          <a href="http://www.yunwei123.com/">VPS服务器代维护</a>,
+          <a href="http://www.yunwei123.com/">网站安全代维护</a>、
+          <a href="http://www.yunwei123.com/">服务器代维护</a>,服务器安全代维护,
+          <a href="http://www.yunwei123.com/">服务器运维,云主机代维护,服务器兼职维护</a>,windows服务器代维护,vps代维护、aws代维护等服务。, All rights reserved.　
+          <a href="http://www.yunwei123.com/sitemap.html">网站地图</a>－－－
+          <a href="http://www.yunwei123.com/key.txt">阿里云服务器代维</a>－－－
+          <a href="http://www.yunwei123.com/yunwei.htm">服务器代维护</a> 
+         </div> 
+        </div> 
+       </section> 
+      </footer> 
+     </div> 
+     <!--end #footer--> 
+    </div> 
+   </div>
+   <!--end #warpper--> 
+   <div id="gotop">
+    <i class="icon-up-open-big"></i>
+   </div> 
+   <script type="text/javascript">
+/* <![CDATA[ */
+var wc_add_to_cart_params = {"ajax_url":"\/wp-admin\/admin-ajax.php","ajax_loader_url":"\/\/www.yunwei123.com\/wp-content\/plugins\/woocommerce\/assets\/images\/ajax-loader@2x.gif","i18n_view_cart":"\u67e5\u770b\u8d2d\u7269\u8f66","cart_url":"","is_cart":"","cart_redirect_after_add":"no"};
+/* ]]> */
+</script> 
+   <script type="text/javascript" src="//www.yunwei123.com/wp-content/plugins/woocommerce/assets/js/frontend/add-to-cart.min.js?ver=2.1.10"></script> 
+   <script type="text/javascript" src="//www.yunwei123.com/wp-content/plugins/woocommerce/assets/js/jquery-blockui/jquery.blockUI.min.js?ver=2.60"></script> 
+   <script type="text/javascript">
+/* <![CDATA[ */
+var woocommerce_params = {"ajax_url":"\/wp-admin\/admin-ajax.php","ajax_loader_url":"\/\/www.yunwei123.com\/wp-content\/plugins\/woocommerce\/assets\/images\/ajax-loader@2x.gif"};
+/* ]]> */
+</script> 
+   <script type="text/javascript" src="//www.yunwei123.com/wp-content/plugins/woocommerce/assets/js/frontend/woocommerce.min.js?ver=2.1.10"></script> 
+   <script type="text/javascript" src="//www.yunwei123.com/wp-content/plugins/woocommerce/assets/js/jquery-cookie/jquery.cookie.min.js?ver=1.3.1"></script> 
+   <script type="text/javascript">
+/* <![CDATA[ */
+var wc_cart_fragments_params = {"ajax_url":"\/wp-admin\/admin-ajax.php","fragment_name":"wc_fragments"};
+/* ]]> */
+</script> 
+   <script type="text/javascript" src="//www.yunwei123.com/wp-content/plugins/woocommerce/assets/js/frontend/cart-fragments.min.js?ver=2.1.10"></script> 
+   <script type="text/javascript" src="http://www.yunwei123.com/wp-content/themes/freehaoya/js/jquery.superfish.js?ver=1.7.3"></script> 
+   <script type="text/javascript" src="http://www.yunwei123.com/wp-content/themes/freehaoya/js/jquery.preload.js?ver=1.0"></script> 
+   <script type="text/javascript" src="http://www.yunwei123.com/wp-content/themes/freehaoya/js/jquery.fitvids.js?ver=1.0"></script> 
+   <script type="text/javascript" src="http://www.yunwei123.com/wp-content/themes/freehaoya/js/jquery.bxslider.js?ver=4.1"></script> 
+   <script type="text/javascript" src="http://www.yunwei123.com/wp-content/themes/freehaoya/js/jquery.isotope.min.js?ver=1.5.25"></script> 
+   <script type="text/javascript" src="http://www.yunwei123.com/wp-content/themes/freehaoya/js/jquery.placeholder.min.js?ver=1.0"></script> 
+   <script type="text/javascript" src="http://www.yunwei123.com/wp-content/themes/freehaoya/js/jquery.mousewheel.min.js?ver=3.0.6"></script> 
+   <script type="text/javascript" src="http://www.yunwei123.com/wp-content/themes/freehaoya/js/jquery.fancybox.pack.js?ver=2.1.5"></script> 
+   <script type="text/javascript" src="http://www.yunwei123.com/wp-content/themes/freehaoya/js/jquery.fancybox-media.js?ver=1.0.5"></script> 
+   <script type="text/javascript" src="http://www.yunwei123.com/wp-content/themes/freehaoya/js/jquery.fancybox-thumbs.js?ver=1.0.7"></script> 
+   <script type="text/javascript" src="http://www.yunwei123.com/wp-content/themes/freehaoya/js/jquery.sticky.js?ver=1.0"></script> 
+   <script type="text/javascript" src="http://www.yunwei123.com/wp-content/themes/freehaoya/js/theme-init.js?ver=1.1.1"></script>   
+   <!-- Dynamic page generated in 1.905 seconds. --> 
+   <!-- Cached page generated by WP-Super-Cache on 2017-03-26 10:59:42 --> 
+   <!-- super cache -->
+  </div>
+ </body>
+</html>

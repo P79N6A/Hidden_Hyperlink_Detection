@@ -1,0 +1,266 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8;">
+<title>MIT·智慧</title>
+<link href="css/main.css" rel="stylesheet" type="text/css">
+<link rel="apple-touch-icon-precomposed" href="/images/jinling.png">
+<link rel="shortcut icon" href="/images/favicon.ico">
+<script src="js/jquery-1.9.1.min.js" type="text/javascript"></script><script type="text/javascript">
+
+$().ready(
+		function(){
+			var agent = navigator.userAgent.toLowerCase();
+			var isFF = false;
+			var isChrom = false;
+			if(agent.indexOf("firefox") > 0){
+				//firefox
+				isFF = true;
+			}else if(agent.indexOf("chrome") > 0){
+				//chrome
+				isChrom = true;
+			}
+			if(isChrom || isFF){
+				$("#j_password").attr("type", "text");
+				$("#j_password").attr("onfocus", "this.type='password'");
+			}
+	 	}
+	);
+
+$(document).ready(function(){
+	var errLoginUser = "";
+	if ("" != errLoginUser && undefined != errLoginUser){
+		alert("用户名或密码错误！");
+	}
+});
+
+//加入收藏(兼容IE和FF)
+function favorite(URL, title) {
+	URL = "http://"+URL+"/";
+  try {
+    window.external.addFavorite(URL, title);
+  } catch (e) {
+    try {
+      window.sidebar.addPanel(title, URL, "");
+    } catch (e) {
+      alert("加入收藏失败，请使用Ctrl+D进行添加");
+    }
+  }
+}
+
+
+//设为主页(兼容IE和FF)
+function homePage(obj, val) {
+  val = "http://"+val+"/";
+  try {
+    obj.style.behavior='url(#default#homepage)';
+    obj.setHomePage(val);
+  } catch(e) {
+    if(window.netscape) {
+      try {
+        netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
+      } catch (e) {
+        alert("此操作被浏览器拒绝！");
+      }
+      var prefs = Components.classes['@mozilla.org/preferences-service;1'].getService(Components.interfaces.nsIPrefBranch);
+      prefs.setCharPref('browser.startup.homepage',val);
+    }
+  }
+}
+//刷新图片
+//updated by chenyujuan715 at 2014-10-20
+ function RefreshCode(){
+     document.getElementById("imgId").src="image.jsp?t="+(new Date()).getTime();
+  } 
+  function submitForm(){
+   var name=$("#j_username").val();
+   var password=$("#j_password").val();
+   var exceptionVerify=',1020191979,1150110800,';
+   if(name==""){
+   	alert("请输入用户名!");
+   	return ;
+   }
+   if(password==""){
+   	alert("请输入密码!");
+   	return ;
+   }
+   
+   if(exceptionVerify.indexOf(","+name+",") < 0){
+   var rand = $("#inputRand").val();
+   if(rand==""){
+   	alert("请输入验证码!");
+   	return ;
+   }
+   var flag=false;
+   try{
+	   $.ajax({
+			type   : "post", 
+			async  : false,  
+			url    : "verifyRand.do2", 
+			data   : "rand="+rand,
+			success: function (data) {
+			    	if (data=="N"){
+			    		alert("验证码输入错误!");
+			    		return;
+			    	}else{
+			    		if(data=="empty"){
+			    			alert("验证码已失效,请重新获取验证码!");
+			    			return;
+			    		}else{
+			    			if ("/login" == '/login' && $("#pubFlag").val() == "pub"  && 'on' != "on"){
+			    		    	document.getElementById('form1').action = 'https://sales.pa18.com' + "/login";	
+			    		    }
+			    			document.getElementById('form1').submit();
+			    		}
+			    	}
+			}
+			});
+    	}catch(e){}
+    	}else {
+    		if ("/login" == '/login' && $("#pubFlag").val() == "pub"  && 'on' != "on"){
+		    	document.getElementById('form1').action = 'https://sales.pa18.com' + "/login";	
+		    }
+		    document.getElementById('form1').submit();
+    	}
+    
+
+  }
+  //修改密码页面
+function gotoUrl(url){
+ if(url){
+   window.location = url;
+  }
+}
+function GetParam(name)
+	{
+  var start=location.search.indexOf("?"+name+"=");
+  if (start<0) start=location.search.indexOf("&"+name+"=");
+  if (start<0) return '';
+  start += name.length+2;
+  var end=location.search.indexOf("&",start)-1;
+  if (end<0) end=location.search.length;
+  var result=location.search.substring(start,end);
+  var result='';
+  for(var i=start;i<=end;i++) {
+    var c=location.search.charAt(i);
+    result=result+(c=='+'?' ':c);
+  }
+  $("#target_url").val(unescape(result));
+}
+  
+ //added by wangkai116 双向登陆验证
+ function setTarget(targetSystem){
+ 	var bidirectionalLoginSwitch='Y';
+ 	if(bidirectionalLoginSwitch=='Y'){
+	 	var targetUrl = '';
+	 	if(targetSystem == 'ics'){
+	 		targetUrl='https://jinling.pa18.com/pss-ics-ssologon/index.html?TARGET=https://jinling.pa18.com/logon.do';
+	 		$("#pubFlag").val("ics");
+	 	}else if(targetSystem == 'pub'){
+	 		targetUrl='http://sales.pa18.com/ssologon/index.html?TARGET=http://sales.pa18.com/logon.do';
+	 		$("#pubFlag").val("pub");
+	 	}
+	 	
+	 	if(targetUrl!=''){
+	 		$("#target_url").val(unescape(targetUrl));
+	 	}
+ 	}
+ }  
+ 
+</script></head>
+
+
+
+<body onload="GetParam('TARGET');">
+<div id="box">
+	<div class="login_top">
+		<img src="images/title_login.gif">
+		<span>
+			<a href="javascript:gotoUrl('https://sales.pa18.com');">E行销网</a> | 
+			<a href="javascript:favorite(document.domain,document.title);">收藏</a> | 
+			<a href="#" onclick="javascript:homePage(this,document.domain);">设为主页</a>
+		</span>
+	</div>
+	<div class="login_main">
+		<div class="login_main_1">
+			<div class="login_main_1_l">
+				<form onkeydown="javascript:if(event.keyCode==13) submitForm();" name="form1" id="form1" action="/login" method="post" autocomplete="off">
+					<table width="380" border="0" cellspacing="0" cellpadding="0" class="dlk">
+					  <tbody><tr>
+					    <td colspan="4" align="center"><img src="images/presales/tittle_03_presales.gif"></td>
+					  </tr>
+					  <tr>
+					    <td width="60" class="font_14 p_t_15">用户名</td>
+					    <td width="193" class="p_t_15"><input type="text" name="j_username" id="j_username" autocomplete="on" class="form_bd"></td>
+					    <td width="75">&nbsp;</td>
+					    <td width="52">&nbsp;</td>
+					  </tr>
+					  <tr>
+					    <td class="font_14">密码</td>
+					    <td><input style="display:none;" type="password"><input type="text" name="j_password" id="j_password" autocomplete="off" class="form_bd" onfocus="this.type='password'"></td>
+					    <td colspan="2"><a href="javascript:gotoUrl('https://sales.pa18.com')">忘记密码</a> | <a href="#">找人帮忙</a></td>
+					  </tr>
+					  
+						  <tr>
+						    <td class="font_14">验证码</td>
+						    <td colspan="3"><input id="inputRand" name="inputRand" type="text" value="" class="form_bd1">
+						      <span><img id="imgId" src="image.jsp" width="80" height="35" align="absmiddle" class="p_r_5"><a href="javascript:RefreshCode();">看不清楚，换一张</a></span></td>
+						  </tr>
+					  
+					  
+					  
+				 	 	   <tr>
+						    <td colspan="4" class="btn" align="center">
+						    	 <table width="100%" valign="middle" cellspacing="0" cellpadding="0">
+	                            	<tbody><tr>
+	                                    <td align="center">
+	                                    	<a href="#" onclick="submitForm();"><img src="images/presales/log_to_presales.gif"></a>
+	                                    </td>
+										<td align="center">
+											
+						    				<a href="#" onclick="setTarget('pub');submitForm();"><img src="images/log_to_sales_new.gif"></a>
+						    				
+										</td>
+										<td align="center">
+											<a href="javascript:gotoUrl('https://sales.pa18.com')"><img src="images/forget_pwd_new.gif"></a>
+										</td>
+										
+	         						</tr>
+								</tbody></table>
+						     </td>
+				   		  </tr>
+				 		  
+					   	
+					</tbody></table>
+					<input type="hidden" name="TARGET" id="target_url">
+					<input type="hidden" name="pubFlag" id="pubFlag" value="ics">
+				</form>
+			</div>
+			<div class="login_main_1_r">
+			
+			<span>重要声明:</span>
+              <br>
+              1、本网站为帮助平安业务伙伴工作学习之用的唯一官方网站需凭本人用户名(业务代码)和密码登录使用.
+              <br>
+          2、任何未经授权的尝试登录、破解等行为,将被记录、监控,并承担法律责任.			</div>
+		</div>
+	</div>
+	<div style="text-align:center">
+		如您未获授权使用这私人电脑系统，请立即离开。在未发通知或未获允许情况下，所有系统行为会受监控及记录。<br>
+			If you are not authorized to access this private computer system, disconnect now. All activities on<br> this system will be monitored and recorded without prior notification or permission.
+	</div>
+	<div class="login_footer">
+	版权所有 © 2000-2015 中国平安保险（集团）股份有限公司　未经许可不得复制、转载或摘编，违者必究!<br>
+Copyright © 2000-2015 PING AN INSURANCE (GROUP) COMPANY OF CHINA , LTD. All Rights Reserved	</div>
+
+<div style="display:none;">
+<iframe id="cleanSessionPub" src="https://sales.pa18.com/cleanSession.jsp" frameborder="0" align="center" height="94%" width="100%"></iframe>
+<iframe id="cleanSessionShop" src="https://jinling.pa18.com/ebusiness/cleanSession.jsp" frameborder="0" align="center" height="94%" width="100%"></iframe>
+<iframe id="cleanSessionIcs" src="https://jinling.pa18.com/cleanSession.jsp?exclude=,PSSP," frameborder="0" align="center" height="94%" width="100%"></iframe>
+<iframe id="cleanSessionAuto" src="https://auto.pa18.com/cleanSession.jsp" frameborder="0" align="center" height="94%" width="100%"></iframe>
+<iframe id="cleanSessionSws" src="https://sws.pa18.com/cleanSession.jsp" frameborder="0" align="center" height="94%" width="100%"></iframe>
+<iframe id="cleanSessionPfs" src="https://pfs.pa18.com/pfs/cleanSession.jsp" frameborder="0" align="center" height="94%" width="100%"></iframe>
+</div>
+
+</div>
+
+
+</body></html>

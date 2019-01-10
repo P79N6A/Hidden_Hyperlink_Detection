@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html>
+ <head> 
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8" /> 
+  <meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" /> 
+  <meta name="wap-font-scale" content="no" /> 
+  <meta name="renderer" content="webkit" /> 
+  <meta name="viewport" content="width=device-width, user-scalable=no" /> 
+  <meta name="description" content="小先生网是一家借助职场信用背书，营造高质量人才推荐的精英人才推荐平台" /> 
+  <meta name="keywords" content="求职,招聘,小先生,找工作,小先生网" /> 
+  <title>精彩分享 | 工程师文化的思考</title> 
+  <link rel="shortcut icon" href="/xiaoxiansheng.ico" /> 
+  <link rel="stylesheet" href="/page/css/reui.css" /> 
+  <!--[if lt IE 9]>
+                <script src="/page/js/ie/html5shiv.js"></script>favicon.ico
+                <script src="/page/js/ie/respond.js"></script>
+        <![endif]--> 
+  <!--[if(lt IE 8)]>
+                <script src="/page/js/ie/ie.js"></script>
+        <![endif]--> 
+  <script type="text/javascript">
+            function setCommentType(commentPostid, commenType) {
+                $("#commentPostid").val(commentPostid);
+//						 $("#commentType").val(commenType);
+            }
+            function addThreadCollection(threadid) {
+                $.ajax({
+                    type: 'GET',
+                    url: '/api/auth/favorite/add',
+                    data: {"threadid": threadid, "_csrf": "6497e70a-9f22-4a07-9d44-e92880a33173"},
+                    async: false,
+                    success: function (data) {
+                        $.MsgBox.Alert('小先生提示', '已加入收藏');
+                        $("#addcollection").hide();
+                        $("#deletecollection").show();
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        alert('系统错误，请联系管理员。');
+                    }
+                });
+            }
+            function deleteThreadCollection(threadid) {
+                $.ajax({
+                    type: 'GET',
+                    url: '/api/auth/favorite/delete',
+                    data: {"threadid": threadid, "_csrf": "6497e70a-9f22-4a07-9d44-e92880a33173"},
+                    async: false,
+                    success: function (data) {
+                        $.MsgBox.Alert('小先生提示', '已取消收藏');
+                        $("#addcollection").show();
+                        $("#deletecollection").hide();
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        alert('系统错误，请联系管理员。');
+                    }
+                });
+            }
+            function deleteConfirm() {
+                $.MsgBox.Confirm('小先生提示', '确定要删除吗？', function () {
+                    window.location = '/auth/talk/delete/5226'
+
+                });
+
+            }
+        </script> 
+ </head> 
+ <body> 
+  <header class="header"> 
+   <div class="container clearfix"> 
+    <div class="navbar-header"> 
+     <a href="/" class="navbar-logo left"> <img src="/page/img/logo.png" class="img-logo" /> </a> 
+     <button class="btn btn-toggle left navbar-toggle J-toggle" type="button"> <span class="toggle-bar"></span> <span class="toggle-bar"></span> <span class="toggle-bar"></span> </button> 
+    </div> 
+    <nav class="navbar-collapse left clearfix J-collapse"> 
+     <ul class="navbar-nav nav left clearfix"> 
+      <li class="nav-hover" id="home"> <a href="/">首页</a> </li> 
+      <li id="hunt"> <a href="/html/jobhunt/">推荐</a> </li> 
+      <li id="job"> <a href="/html/jobs/">招聘</a> </li> 
+      <li id="talk"> <a href="/html/talk/list">职场交流</a> </li> 
+     </ul> 
+    </nav> 
+    <div class="navbar-login right clearfix" role="link"> 
+     <ul class="nav clearfix"> 
+      <li><a href="/login">登录</a></li> 
+      <li><a href="/register">注册</a></li> 
+     </ul>
+    </div> 
+    <form class="navbar-search left" action="/logout" method="post" id="logoutForm"> 
+     <input type="hidden" id="avatar" name="avatar" value="" /> 
+     <input type="hidden" name="_csrf" value="6497e70a-9f22-4a07-9d44-e92880a33173" /> 
+    </form> 
+    <script src="/page/js/jquery.js"></script> 
+    <script type="text/javascript">
+                            jQuery(document).ready(function () {
+                                var avatarname = $("#avatar").val();
+                                if (avatarname.indexOf("/picture") >= 0) {
+                                    $("#headimg").attr("src", avatarname);
+                                } else {
+                                    var path = "/picture/avatar/"
+                                    if (avatarname.length > 0) {
+                                        path += "small/";
+                                        var n = avatarname.split(".")[0];
+                                        for (var i = 0; i < n.length; i++) {
+                                            path += n.substring(i, i + 1) + "/";
+                                        }
+                                        path += avatarname;
+                                    } else {
+                                        path += "default_small.jpg";
+                                    }
+                                    $("#headimg").attr("src", path);
+                                }
+                            });
+                            var url = window.location.href;
+                            if (/.*\/$/.test(url) || /.*\/index$/.test(url)) {
+                                $('.navbar-nav li').removeClass('nav-hover');
+                                $("#home").addClass('nav-hover');
+                            }
+                            if (url.indexOf("/jobhunt") > 0) {
+                                $('.navbar-nav li').removeClass('nav-hover');
+                                $("#hunt").addClass('nav-hover');
+                            }
+                            if (url.indexOf("/jobs") > 0) {
+                                $('.navbar-nav li').removeClass('nav-hover');
+                                $("#job").addClass('nav-hover');
+                            }
+                            if (url.indexOf("/talk") > 0) {
+                                $('.navbar-nav li').removeClass('nav-hover');
+                                $("#talk").addClass('nav-hover');
+                            }
+    </script> 
+   </div>
+  </header> 
+  <section class="section"> 
+   <div class="container clearfix"> 
+    <aside class="sidebar right J-sidebar"> 
+     <div class="sidebar-box"> 
+      <div class="widget"> 
+       <h3 class="widget-title"> <i class="font"></i> 作者信息 </h3> 
+       <div class="widget-box"> 
+        <div class="widget-box-hd"> 
+         <img src="/picture/avatar/medium/2/1/0/9/2109.png" class="mr-w-info-img radius" /> 
+         <h3 class="mr-w-info-name"> shansikai </h3> 
+        </div> 
+       </div> 
+      </div> 
+      <div class="widget"> 
+       <h3 class="widget-title"> <i class="font"></i> 作者其他话题 <a href="/html/talk/usertalklist?userid=2109" class="widget-title-more">更多</a> </h3> 
+       <div class="widget-box"> 
+        <ul class="widget-pen clearfix mr-w-pen"> 
+         <li> <a href="/html/talk/detail/5343?type=Best&amp;categoryId=" title="标题全称"> 【分享】如何通过 Vue＋Webpack 来做通用的前端组件化架构设计 </a> <span class="mr-w-pen-titme">02-12 16:27</span> </li> 
+         <li> <a href="/html/talk/detail/5342?type=Best&amp;categoryId=" title="标题全称"> 高性能移动 UI 框架-Canvas UI 框架：​为什么要用Canvas？ </a> <span class="mr-w-pen-titme">02-12 16:21</span> </li> 
+         <li> <a href="/html/talk/detail/5306?type=Best&amp;categoryId=" title="标题全称"> 精彩分享 | 作为前端需要了解的B/S架构 </a> <span class="mr-w-pen-titme">11-21 14:45</span> </li> 
+         <li> <a href="/html/talk/detail/5296?type=Best&amp;categoryId=" title="标题全称"> HR/开发/技术管理/boss必看 | 组织设计的基础：康威定律 </a> <span class="mr-w-pen-titme">10-29 18:04</span> </li> 
+         <li> <a href="/html/talk/detail/5226?type=Best&amp;categoryId=" title="标题全称"> 精彩分享 | 工程师文化的思考 </a> <span class="mr-w-pen-titme">08-19 22:15</span> </li> 
+        </ul> 
+       </div> 
+      </div> 
+      <div class="widget"> 
+       <h3 class="widget-title"> <i class="font"></i> 企业悬赏 </h3> 
+       <div class="widget-box"> 
+        <ul class="widget-pen clearfix mr-w-pen"> 
+         <li> <span class="table-news-area left btn btn-cl2">北京</span> <span class="table-news-area left btn btn-cl6">￥1500</span> <a href="/html/jobs/detail/2923" title="标题全称"> 大数据开发工程师 </a> <span class="mr-w-pen-titme"> <i class="font"></i> 北京搜狐新媒体信息技术有限公司 </span> </li> 
+         <li> <span class="table-news-area left btn btn-cl2">北京</span> <span class="table-news-area left btn btn-cl6">￥1500</span> <a href="/html/jobs/detail/2924" title="标题全称"> BI系统工程师 </a> <span class="mr-w-pen-titme"> <i class="font"></i> 北京搜狐新媒体信息技术有限公司 </span> </li> 
+         <li> <span class="table-news-area left btn btn-cl2">北京</span> <span class="table-news-area left btn btn-cl6">￥500</span> <a href="/html/jobs/detail/2919" title="标题全称"> 产品经理 </a> <span class="mr-w-pen-titme"> <i class="font"></i> 北京悠扬互动科技有限公司 </span> </li> 
+         <li> <span class="table-news-area left btn btn-cl2">北京</span> <span class="table-news-area left btn btn-cl6">￥1000</span> <a href="/html/jobs/detail/2877" title="标题全称"> 高级Android工程师 </a> <span class="mr-w-pen-titme"> <i class="font"></i> 北京悠扬互动科技有限公司 </span> </li> 
+         <li> <span class="table-news-area left btn btn-cl2">杭州</span> <span class="table-news-area left btn btn-cl6">￥600</span> <a href="/html/jobs/detail/2846" title="标题全称"> HRBP </a> <span class="mr-w-pen-titme"> <i class="font"></i> 杭州龙盈互联网金融信息技术有限公司 </span> </li> 
+        </ul> 
+       </div> 
+      </div> 
+      <div class="widget"> 
+       <h3 class="widget-title"> <i class="font"></i> 热门推荐 </h3> 
+       <ul class="widget-pen clearfix mr-w-pen"> 
+        <li> <span class="table-news-area left btn btn-cl2">北京</span> <span class="table-news-area left btn btn-cl6">￥2000</span> <a href="/html/jobhunt/detail?jobhuntid=1397" title="标题全称"> 市场副总 </a> <span class="mr-w-pen-titme"> <i class="font"></i> subrina </span> </li> 
+        <li> <span class="table-news-area left btn btn-cl2">北京</span> <span class="table-news-area left btn btn-cl6">￥666</span> <a href="/html/jobhunt/detail?jobhuntid=1410" title="标题全称"> 销售总监 </a> <span class="mr-w-pen-titme"> <i class="font"></i> subrina </span> </li> 
+        <li> <span class="table-news-area left btn btn-cl2">北京</span> <span class="table-news-area left btn btn-cl6">￥888</span> <a href="/html/jobhunt/detail?jobhuntid=1413" title="标题全称"> 品牌总监 </a> <span class="mr-w-pen-titme"> <i class="font"></i> subrina </span> </li> 
+        <li> <span class="table-news-area left btn btn-cl2">北京</span> <span class="table-news-area left btn btn-cl6">￥300</span> <a href="/html/jobhunt/detail?jobhuntid=1417" title="标题全称"> 市场推广 </a> <span class="mr-w-pen-titme"> <i class="font"></i> hope </span> </li> 
+        <li> <span class="table-news-area left btn btn-cl2">北京</span> <span class="table-news-area left btn btn-cl6">￥1000</span> <a href="/html/jobhunt/detail?jobhuntid=1326" title="标题全称"> 高级iOS工程师 </a> <span class="mr-w-pen-titme"> <i class="font"></i> 紫菲 </span> </li> 
+       </ul> 
+      </div> 
+     </div> 
+    </aside> 
+    <div class="main main-left"> 
+     <nav class="main-nav main-break"> 
+      <a href="/html/talk/list?type=Best&amp;page=0&amp;size=20">职场交流</a> 
+      <i class="font"></i> 
+      <a href="/html/talk/list?type=Best&amp;page=0&amp;size=20&amp;categoryId="></a> 
+      <!--						<i class="font">&#xe114;</i>
+                                                                        <a href="/html/talk/detail/5226?type=Best&categoryId=">话题详情</a>--> 
+     </nav> 
+     <div class="main-sing"> 
+      <div class="main-sing-box"> 
+       <div class="sing-hd"> 
+        <h2 class="sing-title">精彩分享 | 工程师文化的思考</h2> 
+        <div class="sing-meta"> 
+         <span><i class="font"></i>2016-08-19 22:15</span> 
+         <span><i class="font"></i>1315</span> 
+         <span><i class="font"></i>1</span> 
+        </div> 
+       </div> 
+       <div class="sing-bd"> 
+        <p><span><span><strong>杜传赢</strong></span></span></p>
+        <p><span><span>Google研发工程师。08年毕业于华中科技大学，硕士学位。毕业后加入百度，专注百度基础架构和云计算方向。2012年加入新浪微博，作为微博平台技术专家负责微博基础架构工作。2015年，肉身翻墙，加入Google。</span></span></p>
+        <p><img src="http://www.xiaoxiansheng.com/picture/upload/image/20160819/73151471615606257.jpg" _src="http://www.xiaoxiansheng.com/picture/upload/image/20160819/73151471615606257.jpg" /></p>
+        <p><strong>分享主要分为以下五个部分：</strong></p>
+        <p><span><span><strong>一：硅谷的工作环境和气氛</strong></span></span></p>
+        <p><span><span><strong>二：Google的开发工具体系介绍</strong></span></span></p>
+        <p><span><span><strong>三：工作流程：质量与效率的权衡</strong></span></span></p>
+        <p><span><span><strong>四：招聘制度对公司及团队的影响</strong></span></span></p>
+        <p><span><span><strong>五：工程师文化下的创新意识与员工心态</strong></span></span></p>
+        <p><span><span><strong>六：Q&amp;A（略）</strong></span></span></p>
+        <p><span><span style="color:#3ccf86"><strong>一：硅谷的工作环境和气氛</strong></span></span></p>
+        <p><span>入职Google后，听说我以前有不少工作经验，所以同事让在组内分享一下，可我的英语又非常差，所以唯一能做的事情就是各种列数字, 当列到1 million writes per second, 100 billion items之类的数字的时候，同事们就各种争起来，你肯定搞错了，连Google也没有几个系统有这么大的规模啊。我就很自豪地说，我们有十几亿人口啊，虽然大多是中国用户，那也是好几亿啊，不比你们少多少！</span></p>
+        <p><img src="http://www.xiaoxiansheng.com/picture/upload/image/20160819/53321471615668063.jpg" _src="http://www.xiaoxiansheng.com/picture/upload/image/20160819/53321471615668063.jpg" /></p>
+        <p>确实因为人口红利再加这几年的蓬勃发展，在用户、数据规模上，国内很多互联网公司，尤其是BAT，早已经是国际一流了。 上图中市值Top15的互联网公司中，美国10家，中国5家</p>
+        <p>虽然规模上，BAT已经几乎比肩GF / FLAG了，但是是不是和他们一样强呢？也许很多方面已经一样强了，但是在“软素质”方面，我感觉还有很大的努力空间！</p>
+        <p><span><span style="color:#f75a53;font-size:14px"><strong>内部沟通机制：</strong></span></span></p>
+        <p><img src="http://www.xiaoxiansheng.com/picture/upload/image/20160819/33901471615713203.jpg" _src="http://www.xiaoxiansheng.com/picture/upload/image/20160819/33901471615713203.jpg" /></p>
+        <p>这个图大家应该都看过，只是好玩，感受一下公司与公司之间的区别到底能有多大。现实中肯定没有这么极端，其他公司不了解，就G家来说，从这个图中还是能看出不少东西来的:<br /></p>
+        <p></p>
+        <ul>
+         <li><p><span style="color:#f75a53"><strong>公司最核心的由三架马车控制。</strong></span></p></li>
+         <li><p><span style="color:#f75a53"><strong>最高层下面分了好几个相对独立发展的PA, 类似国内的事业群。比如，Search，Android，YouTube等。</strong></span></p></li>
+         <li><p><span style="color:#f75a53"><strong>横向联系紧密，千丝万缕。尤其是大家都依赖相同的内部基础架构，业务上也各种合作，依赖。</strong></span></p></li>
+        </ul>
+        <p></p>
+        <p>因为现实的需要，不同时区，不同部门之间有非常多非常复杂的联系，所以在办公环境/内部沟通这一块很不一样：</p>
+        <p></p>
+        <ul>
+         <li><p>Memegen: 最“重要的公司级沟通平台”! 可能有点类似阿里的“阿里味”, 但是形式有点不一样，以搞笑图片配一些调侃，抱怨的文字为主。但是他有很多很好的作用: 简单好读，群众基础好，花的时间还少；很好的员工发泄情绪，消磨时间的地方；为了看懂某些笑话/段子，员工自觉不自觉的把公司的大新闻，新产品全部了解了; 最好的产品反馈(吐槽)平台；同事间茶余饭后增进感情的谈资。不敢贴图，但是可以自行搜索感受一下。</p></li>
+         <li><p>每个人都有一个自己的主页。只要知道你的内部id, 马上几乎你的所有信息都出来了，即使离职了，大部分的信息也都还在，再入职的时候还可以恢复。(国内某公司通讯录上竟然连手机号码都没有，据说是为了防猎头挖人!) 知道一个人的各种背景很重要吗？当然很重要，不然怎么八卦? 不同角色，不同背景的人他的关注点和解决问题的方式都完全不一样，需要对症下药。</p></li>
+         <li><p>日历: 这是另一个重要的八卦源头。因为很多同学连睡觉，坐班车，接小孩，这种事情都是写在日历上的。想约人开个会，或者了解某人的近况，看看日历基本全知道。想要免打扰的写码时间也很好办，给自己约一个会就行。比较有趣的是，所有会议室之类的公共资源也是日历上的一个机器人， 比如我有段时间就经常约公司的一辆自选车出去爬山，环湖之类的。</p></li>
+         <li><p>组织汇报关系：这个很重要，和你沟通的时候，一眼就知道你是哪个部门的，如果找不到你，也很方便的找到你的领导，同事。当然这也是了解一个组/部门的最好途径，他们的规模，人员构成，分工都一目了然。(硅谷应该是标配，但是国内好像不那么流行，级别，汇报关系都整得比较机密。)</p></li>
+         <li><p>公司内简历: 主要是讲你在公司内的项目和经历。帮助别人了解你，一个重要的使用场景就是换组时让新的老板快速知道你。内部有一个专门的招聘平台，帮员工在公司内换工作。(如果你当前的工作不满意，换去其他组，总比换到对面公司强吧。) 一个老员工，换过几个组，甚至几个PA是常有的事。</p></li>
+         <li><p><span>会议: 要沟通协作，除了邮件，可能还是会议，不能面对面，那就视频会议。各组风格完全不一样，但是主要的会议可以分两大类，一类是大会，All hands(比如著名的TGIF, 也有各部门的)，希望所有相关人都参加(时差原因，也可以看录像)，这种会一般都有很多好吃的，也不怎么讲特别具体的事情，主要内容: 大的信息通报，发展规划，财报分享，新产品介绍或者恭喜升职之类的。很多亮点在会后的提问，这些问题一般是会前征集，大家可以投票。另一类是小会, 这种一般讲具体的事情，1:1 是最常见的，也有三四个人的。比较特别的是: 开会默认是半个小时，一般就讨论一个主要议题。两个议题的话就开两个会，哪怕是同一拨人。每两周或者三周，至少要和经理1:1一次，关注你的工作生活，职业发展，相比之下国内很多公司可能有沟通，但是没有如此严肃的常规化。。。Individual Contributor其实没有多少会，但是Tech Leader尤其是Manager的会非常多。</span></p></li>
+         <li><p><span>Testing On The Toilet. 其实国内很多公司也有类似的措施，不过可惜完全不是用在技术上，基本都在讲公司领导人动态，或者喊口号。</span>http://uk.businessinsider.com/googles-famous-testing-on-the-toilet-2014-12</p></li>
+         <li><p><span>技术讨论/活动/培训/兴趣小组/内网新闻/邮件/邮件组: 五花八门，千奇百怪，好处是基本都有录像，所以时间冲突错过就错过，回头自己看。一个小的细节：几乎所有公司相关的新闻，也包括对外公开的产品，Paper，Keynotes都能够先在内网提前看到(有时提前几周，有时几分钟)，一是先Dogfood大家挑挑错，另外也是对员工的尊重。外面新闻满天飞，只有自己的员工蒙在鼓里，长此以往，谁还看内网的信息呢？员工的归属感会很打折扣。另外就是反馈机制，几乎参加所有稍微花时间长一点的活动都会建议你填反馈，帮助持续改进。</span></p></li>
+        </ul>
+        <p></p>
+        <p>每个公司都有打造XX文化的梦想，但是很多公司最重要的内部沟通机制却不怎么上心(有则改之，无则加勉):</p>
+        <p></p>
+        <ul>
+         <li><p><span>没有沟通机制。员工的情绪无处发泄，问题也没有反馈渠道，久而久之的结果自然是对公司产品，战略越来越不了解，文化越来越不认同，直到最后流失。</span></p></li>
+         <li><p>一个个小的沟通圈子。只关注本组/本部门的事情，部门的极端荣誉感暴强，深陷其中而不知，久而久之，一个一个山头就出来，形成内耗。</p></li>
+         <li><p>沟通效果不好。沟通应该是多向的，员工和公司，员工和管理层，员工之间。。。而不是简单的”新闻联播”式沟通。</p></li>
+         <li><p>内外沟通不分。有很多产品策略也包括技术方案算法细节(尤其是在早期阶段)，需要很多反馈，这些反馈最好的来源就是在公司内部充分的讨论，有问题改起来成本也不高，但是对外需要保密，因为不成熟，你再好的初衷也可能被外界理解成恶意，再改又变成了不守信用，朝令夕改。微博很多产品人员直接在微博上开会，非常早期的产品策略竟然会直接在私人微博上放工作PPT！然后你就一遍遍地看他们在跟用户解释，道歉或者吵架！</p></li>
+         <li><p>过渡骚扰。很多小公司的内部沟通竟然是拉一个QQ/微信群！完全没有靠谱的归档，搜索机制，频繁的无关信息不断骚扰。怎么工作啊？发发红包做Team Building确实不错，但是谈工作，还是算了吧。</p></li>
+        </ul>
+        <p></p>
+        <p><span style="color:#f75a53"><strong>工程师文化</strong></span></p>
+        <p></p>
+        <p><img src="http://www.xiaoxiansheng.com/picture/upload/image/20160819/4611471615861498.jpg" _src="http://www.xiaoxiansheng.com/picture/upload/image/20160819/4611471615861498.jpg" /></p>
+        <p><span>每个人理解的工程师文化都完全不一样，相对来说我比较看重的几个问题是:&nbsp;</span></p>
+        <p></p>
+        <ul>
+         <li><p><span style="color:#009cd9"><strong>工程师如何定位(怎么看待自己)?</strong></span></p></li>
+         <li><p><span style="color:#009cd9"><strong>工程师和产品、运营、销售等的关系?</strong></span></p></li>
+         <li><p><span style="color:#009cd9"><strong>谁/如何驱动公司前进?</strong></span></p></li>
+        </ul>
+        <p></p>
+        <p>“腾讯是产品主导的公司，百度是技术主导的公司，阿里是销售主导的公司，那新浪是谁主导呢？领导!”</p>
+        <p>08年的时候，百度是非常的”工程师文化”或者说”技术主导”(现在应该早不这样了)。简单回答上面的问题就是: 工程师是男神；一切以工程师为核心；技术(工程师)驱动一切。我一毕业就加入百度，而且是技术为核心的基础架构部，自然受影响(毒害)非常的深。有一段时间，我们竟然做过一个很大的”实验”，由纯技术人员(以高阶架构师为主)来主导一整个非常复杂的用户产品的开发，完全不要产品和运营，就是请了个UE同学帮忙(架构师在交互/美术方面表现出极其难得的谦虚啊)。Google早期也做过类似的事情，不过他们是想把经理们干掉！</p>
+        <p><span>在百度工作四年，除了最后一小段时间，我最喜欢的就是销售，产品，架构，开发和客服一肩挑，啥都干完不就结了嘛。到后面慢慢团队大了，不得不有各种分工之后才发现，自己(也包括很多其他技术出身的同学)和领导/产品沟通有很严重的问题</span><span>。</span></p>
+        <p></p>
+        <ul>
+         <li><p><span style="color:#009cd9"><strong>以产品们的智商，这些问题很难跟他们解释得清楚，所以懒得说了。</strong></span></p></li>
+         <li><p><span style="color:#009cd9"><strong>领导太老(或者太忙)，跟不上技术潮流，跟他们说个大概就行。</strong></span></p></li>
+         <li><p><span style="color:#009cd9"><strong>我的技术如此厉害，简直是”不言自明”啊，是领导”有眼无珠”。</strong></span></p></li>
+         <li><p><span style="color:#009cd9"><strong>技术架构如此简单, 新人/用户应该”一目了然”才对啊，是他们太“屌丝”了。</strong></span></p></li>
+        </ul>
+        <p></p>
+        <p><span>因为这种”过度自信”，和产品的关系自然可想而知。</span></p>
+        <p>当然，我并不是想为“产品”开脱，随着”人人都是产品经理”热销再加上很多公司”响应国家提高就业率的号召”基本阿猫阿狗摇身一变，都成了产品经理，据说有的公司产品经理和程序的比例能够直逼1:1。开发就那么多，产品能怎么办呢？肯定Micromanagement啊。</p>
+        <p><img src="http://www.xiaoxiansheng.com/picture/upload/image/20160819/99571471615921824.jpg" _src="http://www.xiaoxiansheng.com/picture/upload/image/20160819/99571471615921824.jpg" /></p>
+        <p>领导是最自信的产品经理，好的产品奇缺(Eg: 张小龙，俞军)还无价，但是工程师又不能和领导好好沟通，久而久之，公司就会招来越来越多挂着高级产品经理头衔的“产品助理”，或者说是领导的“传声筒”，负责向工程师宣传领导/公司的理念，以及手把手的教技术同学怎么做“产品”。有一次被产品同学气哭后我说：“老子不干了!”人家说：“这是XX领导的意思!” “这么蠢的决定，领导脑子进水到这种程度，我就辞职。” 领导出来安抚后，仔细一问，根本不是那么一回事。“传声筒”为了省事，去掉所有的中间环节(大的战略，背景，公司策略，产品演进路线，当前的规划..)直接说他理解的错误结果。 归根结底还是之前太不注意和同事们的沟通，让“传声筒”钻了空子。</p>
+        <p>这边分工类似，但是产品普遍更能受到工程师的尊重，合作起来也相对愉快一点, 我理解的主要原因有:</p>
+        <p></p>
+        <ul>
+         <li><p>产品的人员占比很低。没有宏观数字，但是我们大组20几个工程师就一个产品经理，很多组是没有产品经理的。好处在于不会限制工程师的发挥空间，很多事情需要工程师自己去想办法解决，并且决定如何做，所以对整个产品的归属感更强，而且因为深知一线所有情况，会避免做很多”愚蠢”的决定。</p></li>
+         <li><p>产品的招聘门槛很高，一般来说应该说高于工程师。所以他们很多人真的很优秀，在能力上深得工程师的认可和尊重。很多工程师和”产品”的关系不好，其实是因人而异的，产品的能力/历史的成绩能够证明他的想法的合理性，工程师接受的程度能够高很多。</p></li>
+         <li><p>时间更宽松一些。质量第一，所以项目的时间极少倒逼，所以冲突少了很多。</p></li>
+         <li><p>产品的压力比较大。他们主要的工作就是: “做梦”。说得好听点就是讲愿景，画大饼。但是他需要两头忽悠，既让工程师相信这个产品的重要性和影响力，也要说服老板继续投入资源。</p></li>
+         <li><p>大家都做好自己。到目前为止，还从来没有见过哪个人传过”圣旨”，谁主张谁解决。如果是老板希望我解决这个问题，他为什么不自己过来跟我说？</p></li>
+         <li><p>产品对技术的理解力。写点简单的统计脚本，小工具很多人不在话下，不懂也愿意去学。基本的技术概念清楚，不会完全的”缺乏常识，没有逻辑还不讲道理”。</p></li>
+        </ul>
+        <p></p>
+        <p>国内很多工程师的拿钱很多，但是待遇(想法受尊重的程度)却不高；产品待遇很高，但是拿钱却不多。所以经常出现公司每年花成百上千万成本养着的一个工程师团队被一个刚毕业拿着10万年薪的产品经理催着瞎转悠：老板说了，下周一定要上线，你们全给我加班去!</p>
+        <p>这样的悲剧下，其效率，产品的质量可想而知了，所以真心希望:</p>
+        <p></p>
+        <ul>
+         <li><p>领导们能够管住自己的手。可以讲战略，理念甚至情怀, 让大家朝一个方向努力; 觉得项目不好，可以决定解散，换人，或者追加资源；觉得产品不好你可以提Bug；当然也可以决定公司/部门/组努力的方向...但是不要轻易做具体的决定。谁决定，谁执行谁去承担后果。不然的话，整个公司/部门就会变成：几十双手，但只有一个脑袋在思考。</p></li>
+        </ul>
+        <p></p>
+        <p><img src="http://www.xiaoxiansheng.com/picture/upload/image/20160819/76431471615975202.jpg" _src="http://www.xiaoxiansheng.com/picture/upload/image/20160819/76431471615975202.jpg" /></p>
+        <p></p>
+        <ul>
+         <li><p>工程师掌握非技术的沟通。很多问题真的远不是那么地”显尔易见”。</p></li>
+         <li><p>突破”技术思维”。技术人的定位更多应该是工程师，而不是程序员，更不能只是PHP程序员。前者的定位是”解决问题”, 除了解决代码的问题，当然也要解决产品本身的问题，领导预期的问题。。。永远不能只做一个不需要思考的，”产品决策”到代码的翻译器。</p></li>
+         <li><p>留住好产品，别招”传声筒”。</p></li>
+        </ul>
+        <p></p>
+        <p><span style="text-indent: 2em; font-size: 1.6rem; line-height: 1.5;color:#3ccf86"><strong>二：Google的开发工具体系介绍</strong></span></p>
+        <p>工作环境</p>
+        <p><img src="http://www.xiaoxiansheng.com/picture/upload/image/20160819/55431471616062355.jpg" _src="http://www.xiaoxiansheng.com/picture/upload/image/20160819/55431471616062355.jpg" /></p>
+        <p>其实Google是非常开放的，对外积极的技术分享，Paper, 也非常积极地参与开源，并且把非常核心的基础库和工具都开源出来，尤其是云计算这一块更是开放，Cloud Bigtable都有了，https://cloud.google.com/bigtable/docs/ , Tensorflow昨天也开源了。之前非常火热的关于代码库的介绍&nbsp;http://www.wired.com/2015/09/google-2-billion-lines-codeand-one-place/ . 里面有视频，绝大部分的东西都已经讲得非常非常的详细清楚，可以说几乎没有任何的保留。真心想了解的话，其实还是非常容易的。</p>
+        <p>2008年的时候，我在百度的基础平台部(后来叫基础架构部)，当时我们部门的一个重要任务就是维护整个公司的基础库, 当时最大的问题(相信／希望这些问题现在都不是问题了)就是 :</p>
+        <p><span style="color:#009cd9"><strong>基础库开发难</strong></span></p>
+        <p></p>
+        <ul>
+         <li><p>为保证稳定，各种分支开发，非常难合并，风险也高。</p></li>
+         <li><p>兼容成本高，因为不知道多少人在用，所以只能继续兼容十几年前的Case.</p></li>
+         <li><p>编码规范执行难。低级错误/问题反复出现，没有有效的”上线前”检查。</p></li>
+        </ul>
+        <p></p>
+        <p><span style="color:#009cd9"><strong>基础库使用难</strong></span></p>
+        <p></p>
+        <ul>
+         <li><p>可用基础库少。只有专门的组才能贡献基础库。相对而言的，因为可能很多不小的公司连公司范围内的基础库都没有。</p></li>
+         <li><p>使用示例少。同样相对而言，只有测试的Case和官方的示例，找不到真实生产环境中大家怎么用的，更谈不上什么最佳实践的比较了。</p></li>
+         <li><p>版本升级难。因为”风险”高，自然大家默认不升级，一旦有需求或者安全漏洞要求升级的时候，会不得不做一个“大版本升级”, 测试压力大，还经常惊喜连连。</p></li>
+         <li><p>测试不到位，版本复杂，组合太多带来的副作用，所测代码和线上环境不一致。</p></li>
+        </ul>
+        <p></p>
+        <p><span style="color:#009cd9"><strong>影响力小／推广难</strong></span></p>
+        <p></p>
+        <ul>
+         <li><p>大的版本升级(eg: C++14, Linux kernel)异常困难，改动很大。</p></li>
+         <li><p>安全问题紧急响应慢。(记得当年Hash冲突的漏洞，涉及面广，几乎一整周全公司都鸡飞狗跳！)</p></li>
+         <li><p>除了代码和设计文档，还需要举办非常多的“宣传”和“培训”来让大家了解。效果很差。</p></li>
+         <li><p>部门间差异非常大，不少部门有各自不同的代码风格, 上线要求, 各自的知识分享积累环境甚至是基础库。</p></li>
+        </ul>
+        <p></p>
+        <p>所有的这些问题几乎都可以通过 “全公司统一代码仓库” + “主干开发” 解决。当然，解决的过程并不会那么简单，这里包括大量的基础设施需要去完善。先不考虑如何达到这一步，但是我们可以设想一下，如果做好了，我们的编程环境将会如何美好</p>
+        <p><span style="text-indent: 2em; font-size: 1.6rem; line-height: 1.5;">下面是以刚入职的同学，需要一点热身任务，通常是修点非常简单的Bug/Feature之类的为背景，编的故事:</span><br /></p>
+        <p>(纯属虚构，如有雷同，实属巧合)</p>
+        <p><span style="color:#009cd9"><strong>理解任务</strong></span></p>
+        <p></p>
+        <ul>
+         <li><p>被Manager/TL分配一个小的Bug/Feature, 一般会给个相关模块的文档(不需要太细，但是系统的需求，设计和核心的逻辑, 代码在哪肯定还是有的)</p></li>
+         <li><p>和TL同学约个1:1的小会，让再介绍下背景，讨论讨论决定个方案，注意记好笔记</p></li>
+        </ul>
+        <p></p>
+        <p><span style="color:#009cd9"><strong>写代码</strong></span><br /></p>
+        <p></p>
+        <ul>
+         <li><p>把笔记翻译成”中国式英语”输入到云端编辑器里</p></li>
+         <li><p>如果发现自己要写一段还蛮长的代码，就赶紧停下来</p></li>
+         <li><p><span>在公司的代码库里找找看，95%的可能性是已经有了，直接用那个现成的函数／库</span></p></li>
+         <li><p><span>不会用? 没关系，搜一下他的Code Lab, Unitest或者别的人怎么用的</span></p></li>
+         <li><p><span>然后就开始试着编译, 各种编译器和检查工具会各种折腾你:</span></p></li>
+         <li><p><span>啊，这里不对，那里也不对。</span></p></li>
+         <li><p><span>这个函数危险不让用，那个也不让用。</span></p></li>
+         <li><p><span>这个代码你写了但是没用，建议删除。</span></p></li>
+         <li><p><span>这样写好像更好一点，同意请按“确定”!</span></p></li>
+         <li><p><span></span><span>总之各种挑刺，你只要逐一安抚就好了。</span></p></li>
+        </ul>
+        <p></p>
+        <p><span></span></p>
+        <p><span></span></p>
+        <p><span style="color:#009cd9"><strong>测试</strong></span></p>
+        <p></p>
+        <ul>
+         <li><p><span>终于编译通过，然后单元测试</span></p></li>
+         <li><p><span>当然有工具会自动计算哪些受影响的测试需要跑</span></p></li>
+         <li><p><span>同样逐一安抚出问题的单元测试</span></p></li>
+         <li><p><span>这里可能不只是你的代码单元测试，还包括依赖你的其他代码库的单元测试出错，你要决定是修改你的代码行为，还是更新他们的测试代码</span></p></li>
+        </ul>
+        <p></p>
+        <p></p>
+        <ul>
+         <li><p><span>跑完单测，又有一个工具跳出来：</span></p></li>
+         <li><p><span>你新加的代码单元测试覆盖率不够哟。。。</span></p></li>
+         <li><p><span>如果覆盖率低于80%的话，你的名字会被飘红，并在Team的Dashboard上示众!</span></p></li>
+         <li><p><span>所以还得照猫画虎加几个单元测试</span></p></li>
+         <li><p>然后就是跑集成测试/End2End测试</p></li>
+         <li><p>和单测一样，也是分布式系统里去跑，并不是本机跑测试，但是一般时间要久很多的大型测试</p></li>
+        </ul>
+        <p></p>
+        <p><span style="color:#009cd9"><strong>Review</strong></span></p>
+        <p></p>
+        <ul>
+         <li><p><span>心急的也可以同步送给Owner去Review</span></p></li>
+         <li><p><span>需要拿到双重的Approval: Readability + Approval</span></p></li>
+         <li><p><span>一个是代表你的代码符合该语言的编程风格</span></p></li>
+         <li><p><span>另一个代表你的代码符合这个模块Owner的要求(一般是TL或者其他资深员工，在他看来符合当前的系统要求，设计和实现均没有问题)</span></p></li>
+         <li><p><span></span><span>当然通常一个人能同时给这两种Approval</span></p></li>
+         <li><p><span>Review当然没有那么容易通过，一堆鸡毛蒜皮的修改意见过来:</span></p></li>
+         <li><p><span>这个变量名取得不准确，应该用XX单词更好一点，这个应该是动词/复数...</span></p></li>
+         <li><p><span>可读性差了一点，简化逻辑，抽象抽象，再加点注释。。。</span></p></li>
+         <li><p><span>实现太复杂了，原来的实现不支持这种改动，先重构!</span></p></li>
+         <li><p><span>这个时候可能会需要先暂时搁置这个CL去做重构...</span></p></li>
+         <li><p>根据Review意见修改，也可以证明你的方法是更优的，这样的过程有可能会要来回几轮。</p></li>
+        </ul>
+        <p></p>
+        <p><span style="color:#009cd9"><strong>提交</strong></span></p>
+        <p></p>
+        <ul>
+         <li><p>同样逐一安抚Review后，终于可以开始提交了</p></li>
+         <li><p>当然是各种测试重新跑起!</p></li>
+         <li><p>然后被发现: 报歉，有冲突。。。需要合并！</p></li>
+         <li><p><span>因为是主干开发，所以大家都在写代码，都在快速的提交，你的CL太大了，或者拖的时间太长了，就越有可能需要合并，所以大家都非常倾向于小步快走，很多的小CL, Review起来快，出错机会也少，快速提交，尽可能避免合并。</span></p></li>
+         <li><p><span>当然即使是合并，因为你只改了很少几个文件，合并起来也非常的快。</span></p></li>
+        </ul>
+        <p></p>
+        <p>终于提交完成了，代码这个时候就进入到Trunk了。对所有人都可见，新的提交如果和你的CL有冲突，合并责任就到他那里了。</p>
+        <p><span style="color:#009cd9"><strong>上线</strong></span></p>
+        <p></p>
+        <ul>
+         <li><p>然后持续集成系统就会继续测试他，并开Release Branch</p></li>
+         <li><p><span>新的Release一般会慢慢发布到Prod环境中去</span></p></li>
+         <li><p><span>先在Dev环境里回归测试</span></p></li>
+         <li><p><span>通过后到Staging环境(准线上环境，甚至数据都是线上的，一般至少部分线上采样数据)</span></p></li>
+         <li><p><span>全部通过后正式部署到Prod环境上去</span></p></li>
+         <li><p><span>如果出现问题的话，就放弃这次上线，或者用Cherrypick紧急合并几个快速的补丁修复好后再上线</span></p></li>
+         <li><p><span>大部分时候是没啥问题，毕竟那么多的测试也不是吃干饭的。</span></p></li>
+         <li><p><span>代码上到线上后，就开始所谓的A/B测试了</span></p></li>
+         <li><p><span>通过开关放流量, 边观察对比数据来决定继续放量，还是继续改进。</span></p></li>
+         <li><p><span>这个过程可长可短，所有的A/B测试也都通过，数据喜人的话，就可以全流量了，这个项目就基本大功告成，后面持续观察数据并改进！</span></p></li>
+         <li><p><span>当然只是简单的Bug修复之类的，可能会直接跳过A/B测试全流量。</span></p></li>
+        </ul>
+        <p></p>
+        <p>这整个过程是有一点偏理想，偏简化的故事，真实情况下当然更复杂一点，尤其是越来越复杂的项目，系统越复杂，情况会越来越多。 再讲几个真实的故事:</p>
+        <p></p>
+        <ul>
+         <li><p>某次我的改动因为动了几个接口的定义，然后直接40W个测试跑起来，一个测试其实是一组测试点。</p></li>
+         <li><p>很多东西其实也没有办法量化，除了代码检查等”硬工具”外，其实还有一些小的”软工具”来帮助提升代码的质量, Eg: 前面提到的覆盖率不够飘红示众；重构代码后，可能会得到一个小红花。</p></li>
+         <li><p><span>百度当年的痛点基本从源头上解决了(成本就是任何时候都得保证代码的质量，否则越积越多，越没有办法收拾！):</span></p></li>
+         <li><p><span>分支合并？没有分支啊。如果最新的主干有问题，可以取“最近的”绿色版本发布。</span></p></li>
+         <li><p><span>这个Feature有没有人用，一搜就知道了。</span></p></li>
+         <li><p><span>有大的漏洞，一个人／组给出Patch, 把所有的代码都改了。</span></p></li>
+         <li><p><span>你依赖我，把你的测试挂在我的依赖下面，每次小的改动我都保证你的测试是OK的，这样的话，就不会等到我的大版本发布时，突然发现你的服务不可用了。</span></p></li>
+         <li><p><span>当然注重质量和注意自己的节操一样不是没有代价，著名的Spanner据说是一个做了7年快烂尾的项目，好在神牛们咬紧牙关，总算是熬过来了。类似的项目在某度做了两年多，老板觉得这帮人好像也没干出啥事来，关掉算了，省得白浪费钱。（应该很多人知道我在说啥）</span></p></li>
+        </ul>
+        <p></p>
+        <p><span style="color:#3ccf86"><strong>三：工作流程：质量与效率的权衡</strong></span></p>
+        <p><span>听完上面一系列的流程后，大家可能会发现，这”效率”也太差了，没有一两个星期，根本上不了线啊！对比国内公司，人家各种”敏捷”啊，线上调Bug, CXO 23:30提的问题/需求，也当天能上线解决！所以刚开始的时候，我也忧心忡忡，还和Manager来谈这个提升效率的问题, 要不这种小改动咱就直接过了，砍掉点测试？人家一听就火了，你竟然想牺牲质量要那点速度？</span></p>
+        <p></p>
+        <ul>
+         <li><p>所有前面说的代码风格类的检查其实大部分时候都只发生在新人身上，他就像牙齿矫正器一样，当你的牙矫正好了，就不需要他了。他其实还在，但是你已经感觉不到他了, 因为你极少会再犯同样的低级错误。</p></li>
+         <li><p>机器只会帮你，但是不占用你的时间。所有的测试/检查其实在你写代码的时候，已经并行在一个大的分布式集群上进行，即使几十万的测试也就是半个小时的事情，还有大量的依赖检查和缓存来跳过那些不需要的重复测试。</p></li>
+         <li><p>并行的工作: 干完你的工作，等别人Review的时候，赶紧切换到下一个工作，做别的事情。</p></li>
+        </ul>
+        <p></p>
+        <p>狭义上的”效率”就是只有”时间维度上的速度”, 即老板有这个想法后，多久之后能够看到结果。但是这是非常典型的单维优化思路。这确实是有效的，简单且暴力。但是从长期来看，并非最优。对于十万火急的线上灾情，所谓迭代快确实有用，但是为什么你家老是那么多”十万火急”的事情呢？根本还是质量不过关嘛。为什么质量不过关呢？技术储备，员工素质，业务挑战等等原因金确实很多，但是最重要的一条还是: 时间紧，倒排工期啊，封闭开发三个月，行不行的都必须得上线啊，单测是什么？灰度是什么？哪有时间管质量，重构？</p>
+        <p>并行工作优化的其实是”吞吐”而非”延迟”, 一个CL上线确实是需要一周，但是一周后，每个人都有5个甚至10个CL推上线，整个小组可能是50甚至100个CL上线，而且个个经过了严密的Review和充分测试，很大一部分还是跨洋协作下完成的，但是你再“敏捷”一周也不可能做100轮高质量的迭代吧，就算某一两周做到了，那下一周呢？是不是在修上周留下的Bug? “只做一次，一次做好”有时候可能比单纯强调“敏捷”靠谱得多。</p>
+        <p>工程这一块其实也很简单：一份付出一份回报。你不在乎质量，那自然可以简单，粗暴，快捷；但是真正在乎质量，就得忍受高付出。当然，好的工具，好的氛围能够尽可能的在可接受的代价范围内做出最好的东西来。</p>
+        <p><span style="color:#3ccf86"><strong>四：招聘制度对公司及团队的影响</strong></span></p>
+        <p>在国内的时候，看中一个同学，觉得不错，找下面的同事面一面，我再聊一聊，跟老板/HR打个招呼，要价不夸张，那下周就入职了。对于小公司来说，确实没啥好说的，就应该这样，但是对一个大型的公司，这里的问题还是非常的严重:</p>
+        <p></p>
+        <ul>
+         <li><p>每个人的标准，考核方法都完全不一样，直接导致招进来的人良莠不齐，很难协作。</p></li>
+         <li><p>每个人都有”急需人才”的时候，如果没有人才，那就随便拉几个会走的，几年下来，你再看看公司都混进来一帮什么人</p></li>
+         <li><p>小老板拍板就招进来的人，那自然是”他的人”，而不是公司的人，小山头就这么一座座地起来了</p></li>
+         <li><p>小老板走了，或者某个项目倒了，这些人也像洪水退潮一样散去，公司啥都没有留下!</p></li>
+         <li><p>很多公司所谓的奖金池是按”人头”来分的，小老板们很土很暴力的优化方法非常非常自然的变成了: ”拉壮丁”来领军饷，领到怎么分我说了算。当然也可以提高绩效来提高奖金系数，但是系数不那么好优化啊!</p></li>
+         <li><p>要价没参考，唯才是举，什么“倒挂”? 那就倒挂呗。更过分的事情是: 急着要人，但是人家要价高，公司有规定某级别待遇上限，怎么办？施压面试官，把级别拉上去呗!</p></li>
+         <li><p>面试官没考核，招人稀里糊涂。好的员工，好的领导和好的面试官真不是一回事，他们的技能树不一样啊!</p></li>
+         <li><p>面试员工也是撞大运，看碰到什么面试官了，看公司大环境了，大年有腿的都进来，小年真正的精英也不要!</p></li>
+         <li><p>招进来一个不靠谱的，一锅粥都糊了, 人才难得，再来个舍不得开除，这个公司就齐活了！！！</p></li>
+         <li><p>更绝的是，刚开除一个极不靠谱的人，人家第二天就在对面公司拿到一个极佳的Offer, 还官升一级!</p></li>
+        </ul>
+        <p></p>
+        <p>我也是工程师，我当然乐得大家都有个牛B的Offer，我也是潜在的受益者啊，但是这世界上没有任何可持续的指数增长! 从长远考虑，最终还是是毁掉整个市场，所有人一起为这种疯狂买单的。如果哪个公司愿意以10倍的价钱挖我，请立即马上拿起电话吧, 我现在就可以上班了(对不起，今天的分享提前结束了, ^_^)!</p>
+        <p>对不起，我等了半天，没有用10倍价钱挖我，看来大家还是都很理性啊。</p>
+        <p>之前Homebrew作者面试Google这个事情吵得非常热闹，连Homebrew的作者都给拒了，这简直瞎眼了。我不太了解当时的细节，所以不好评价，但是只是说说他被拒的各种可能性:</p>
+        <p></p>
+        <ul>
+         <li><p>傲慢不合作? Homebrew作者确实不错, 但是大神级的程序员, G家不缺啊，大家也不是供神的，过来要协作，要一起工作的。</p></li>
+         <li><p>invert a binary tree很难么? 你觉得牛你就证明你自己真的牛啊。不能说我有XX光环就OK，那不面直接发Offer能靠谱么。</p></li>
+         <li><p>面试官其他的顾虑，但是他自己不知道，以为是一个代码没写好而已。</p></li>
+         <li><p>要价不合理？(应该不是，好像没有到谈价钱的那一步就黄了)</p></li>
+        </ul>
+        <p></p>
+        <p>Google怎么招聘的官方解释在这里:https://www.google.ch/about/careers/lifeatgoogle/hiringprocess/ 我也并不认为这个有多合理，确实有很多水货混进来，也有很多优秀的人被拒绝了，但是谁有真正靠谱的测量办法呢？而且还要放到全球几万人的这么大规模来实施？说说我的理解, 他们花了多少心思来努力让这个过程相对更加合理(非官方解释，请勿相信，G也完全不需要我来背书做这个证明，我只是希望能够对各位设立自己公司的招聘体系的时候能够有一些参考价值):</p>
+        <p></p>
+        <ul>
+         <li><p><span>全公司统一的招聘标准(极个别的职位例外)。极强的推荐可以不用电面直接on-site，但是过不了面试，你啥也别想了。Larry的小舅子估计也只能当当董事当不了工程师。</span><span>选拨阶段远离需求方, 尽量不受非理性的”求贤若渴”所影响。</span></p></li>
+         <li><p><span>多轮对等的面试来校验。谁都有看走眼的时候，让”随机”性尽可能地降低。</span></p></li>
+         <li><p><span>重点考察当下的能力(比如对码农来说就是Coding)，减少受光环的影响。很多光环是会退色的!</span></p></li>
+         <li><p><span>对面试官的纪律要求和多轮的培训: 什么能问，什么不能问，问了什么，怎么回答都得如实的汇报。</span></p></li>
+         <li><p><span>对面试官的考核，过去面了多少，打分如何，最终多少人过了，什么样的人过了，什么样的没过? 综合这些一起考虑这个面试官的实力，不靠谱的面试官未必不是一个好员工，可能只是还没有掌握面试的技巧而已。</span></p></li>
+         <li><p><span>资深面试官配合新面试官，相互印证，一方面防止资深面试官思维僵化不合理，另一方面也防止新面试官尺度把握不够。</span></p></li>
+         <li><p><span>更资深的招聘委员会(类似法院合议庭之类的)根据所有面试官的记录和所有推荐人的推荐来决定是否录用，面试官没有最终的发言权。</span></p></li>
+         <li><p><span>在电面等初级阶段，表现实在太糟糕，可能会被直接拒绝。但是同样面试官需要出证明。</span></p></li>
+        </ul>
+        <p></p>
+        <p></p>
+        <ul>
+         <li><p><span>投诉/反馈的通道，确实有人投诉且有证据然后拿到新的面试机会的, 但好像极少。</span></p></li>
+         <li><p><span>人都是会成长的，一年过后，再给一次新的机会!</span></p></li>
+         <li><p><span></span><span>有时Google为了测试自己的招聘系统的可靠性，甚至会招几个本不合格的人进来，然后默默观察他们的表现。更不要说通过各种大数据优化招聘的来源渠道了。我们经常说: Google招聘最优秀的人和我，而我的贡献就是测试他们招聘系统的稳定性。</span></p></li>
+        </ul>
+        <p></p>
+        <p>网上应该还有很多文章讨论G家，或者湾区公司的招聘过程，这是一个非常非常成熟，信息非常完善的领域，如果你真的感兴趣的话。&nbsp;http://www.wired.com/2015/04/hire-like-google/ 在G家成为一个面试官其实不是那么容易，各种条件，各种培训后还要考核你的每一次面试表现，表现不好被劝退，我其实现在还不是面试官, 这些信息大部分是我做为被面试者的角度看到的。但是推荐了不少人过来面试，不少很优秀的人被拒(因为面试和国内的聊聊天式面试真的完全不一样啊)，有拿到Offer的，也有拿到Offer后拒了Google的。如果真有愿意放弃国内高薪出来体验体验墙外生活的，可以私信联系我。</p>
+        <p>面试官和一线经理对一个公司来说是最最重要的“门户”，一个不够好的面试官可能会让公司损失一次招进优秀人才的机会，更要命的是可能会给公司招来一个大麻烦！而一个不够好的经理能够指数级的提升一个公司好员工的离职率！但是恰恰是这两个关键岗位上的人经常完全无人监管，没有人知道他们做得到底好不好？(很多时候不是他们不想做好，只是不会，或者真的不合适而已)</p>
+        <p><span style="color:#3ccf86"><strong>五：工程师文化下的创新意识与员工心态</strong></span></p>
+        <p></p>
+        <p>我相信这个世界上没有任何一家完美的公司，前面吐槽里说的所有问题，G家或多或少也都有，只是程度轻重不同而已。鉴于还拿着人家的饭碗呢，不好的方面就简单说说了:</p>
+        <p></p>
+        <ul>
+         <li><p>再好，但那也是别人的公司啊。</p></li>
+         <li><p><span>Overqualified。但这可能是要做出远超“合格”水平的东西出来的必要条件之一吧。</span></p></li>
+         <li><p><span>牛人太多，有时候会有挫折感，因为你可能真的不再是”最聪明”的人了，当然乐观点看： 边上优秀的人多，你的进步自然也快啊。</span></p></li>
+         <li><p><span>个人影响力越来越有限。大家仔细观察会发现，像Chubby这样级别的论文/系统竟然是一个人完成的，但是近些年来的论文都是非常多的作者。比如昨天晚上开源的Tensorflow论文的作者就有40位。个人英雄主义已经越来越难了。</span></p></li>
+         <li><p><span>成熟一般就意味着稳定，也意味着机会已经没有那么多了。</span></p></li>
+        </ul>
+        <p></p>
+        <p>不同的公司在不同的阶段，肯定得用不同的策略和方法，我熟悉的情况更多是指中等偏大的技术型公司。我的分享就到这里了，更多时间希望能够和大家一起去讨论，我也能够学习更多 (真心不喜欢这种分享形式，完全没有互动，连个眼神都没有啊，也不知道大家感不感兴趣，也不知道分享是快了还是慢了。。。)</p>
+        <p>我想请教大家的问题：对于工程师来说，国内创业公司期权这一块为什么不提供更有效的退出机制? 我是说比如去创业公司工作四年后离职，不需要强制收回期权，急需钱的时候，甚至可以在二级市场上提前套现。这是我(也包括很多我的朋友)不敢轻易去创业公司的原因：我确实很看好你的未来，但是我也担心我万一没有足够的耐心陪你到老呢？而且公司在不同的时期需要完全不一样的人才，初期的“糟糠之妻”拿着足够多的经济回报离开，公司再找到合适的新鲜血液对公司来说绝对不是坏事哟。</p>
+        <p><strong>六：Q&amp;A（略）</strong></p>
+        <p><span style="font-size:14px;color:#3ccf86"><strong>分享自：高可用架构公众号ArchNotes</strong></span></p>
+        <p><span style="font-size:14px;color:#3ccf86"><strong>本文由杜传赢在高可用架构群所做的分享整理而来</strong></span></p> 
+        <div class="sing-edt-time">
+         <span>2016-08-19 22:15:28 再次编辑</span>
+        </div> 
+       </div> 
+       <div class="sing-copyright"> 
+        <p>本文独家授权小先生网独家发布，任何人都可以转载，转载时必须保留版权信息</p> 
+        <p>小先生网（www.xiaoxiansheng.com)是一家借助职场信用背书，营造高质量人才推荐的精英人才推荐平台</p> 
+       </div> 
+      </div> 
+      <div class="sing-share"> 
+       <div class="left"> 
+        <div class="bdsharebuttonbox"> 
+         <a class="bds_more share-a" data-cmd="more"> <i class="font"></i>一键分享 </a> 
+        </div> 
+       </div> 
+      </div> 
+      <div class="comment main-cont"> 
+       <ul class="comment-box J-commentbox"> 
+        <li> <img src="/picture/avatar/small/2/1/0/9/2109.png" class="comment-img radius" /> 
+         <div class="comment-group" data-comment="18643"> 
+          <div class="comment-info"> 
+           <span class="comment-name">shansikai</span> 
+           <span class="comment-time">2016-08-19 22:18</span> 
+           <span class="comment-num">1楼</span> 
+          </div> 
+          <div class="comment-text"> 
+           <p>一起领悟~~</p> 
+          </div> 
+          <i class="comment-bg font"></i> 
+         </div> </li> 
+       </ul> 
+      </div> 
+     </div> 
+    </div> 
+   </div> 
+  </section> 
+  <footer class="footer"> 
+   <div class="tool"> 
+    <ul> 
+     <li> <a href="javascript:;" class="clearfix tool-icon"> <i class="font"></i> </a> <a href="http://shang.qq.com/wpa/qunwpa?idkey=b2167e5de98a60288fa881f051c38bddea14269408cc6b2dec353836d6b9d1a5" target="_blank" class="clearfix tool-text"> 反馈问题 </a> </li> 
+     <li class="tool-sidebar"> <a href="javascript:;" class="clearfix tool-icon"> <i class="font"></i> </a> <a href="javascript:;" class="clearfix tool-text J-tool-s"> 显示侧边 </a> </li> 
+     <li class="J-li-top"> <a href="javascript:;" class="clearfix tool-icon"> <i class="font"></i> </a> <a href="javascript:;" class="clearfix tool-text J-top"> 回到顶部 </a> </li> 
+    </ul> 
+   </div> 
+   <div class="footer-box nocopy"> 
+    <a href="/html/connus"> <i class="font"></i> 联系我们 </a> 
+    <a href="http://weibo.com/p/1006065334361761" target="_blank"> <i class="font"></i> 官方微博 </a> 
+    <a href="javascript:;" data-wximg="/page/img/qr.png" class="J-wx"> <i class="font"></i> 官方微信 </a> 
+   </div> 
+   <div class="footer-copy">
+     &copy; 2014 xiaoxiansheng.com 
+    <br /> 京ICP备14051025号 京公安网安备11010802016348号 
+   </div> 
+   <script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?80d2862d577359aa1f7100fa05f14dab";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script> 
+  </footer> 
+  <script src="/page/js/sea.js"></script> 
+  <script>seajs.use('mod/reui');</script> 
+  <script>seajs.use('mod/comment');</script> 
+  <!--[if lt IE 10]>
+                <script>seajs.use(['jquery', 'ie/placeholder']);</script>
+        <![endif]-->   
+ </body>
+</html>

@@ -1,0 +1,507 @@
+<html>
+<head>
+<title>Ranch Story  - Harvest Moon & Rune Factory [ Harvest Moon: Connect to a New Land localization confirmed! ]</title>
+<meta name="keywords" content="Harvest Moon, Bokujo Monogatari, bokujou, sugar village, wind's bazaar, community, harvest moon ds, harvest moon forums, gallery, exciting animal march, welcome to the wind bazaar, island of happiness, magical melody, n64, release dates, rune factory, tips, tree of tranquility, videos, monogatari bokumono">
+<meta name="description" content="Harvest Moon & Rune Factory fan website with game coverage, community forum, gallery, release date information, and more! Featured games: Rune Factory: Frontier, Harvest Moon: Sugar Village, Tree of Tranquility, Exciting Animal March, Welcome to the Wind Bazaar, Shining Sun and Friends, and Island of Happiness.">
+<link rel="alternate" type="application/rss+xml" title="Ranch Story Updates - RSS" href="http://www.ranchstory.co.uk/ranchstory_rss.xml" />
+<link rel="stylesheet" type="text/css" href="css.css">
+<link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+
+<script language="javascript">
+<!--
+
+//Variables
+var cid = new Array(0, 0, 0, 0);
+var cidmax = new Array(2, 2, 2, 2); //last id of speech
+var talkid = 0; //can only continue talking if the id is okay
+var typing = -1; //id of which box is having text written to it
+
+//Rotating Affiliates
+var affi_img = new Array();
+var affi_url = new Array();
+var affi_current = 0;
+var affi_total = 2;
+
+//Preload images
+if (document.images)
+{
+	p0 = new Image(67,71);
+	p0.src = "dev/emy.gif";
+	p1 = new Image(67,71);
+	p1.src = "dev/emytalk.gif";
+	p2 = new Image(67,70);
+	p2.src = "dev/kyle.gif";
+	p3 = new Image(67,70);
+	p3.src = "dev/kyletalk.gif";
+	p4 = new Image(67,70);
+	p4.src = "dev/matt.gif";
+	p5 = new Image(67,70);
+	p5.src = "dev/matttalk.gif";
+	p6 = new Image(67,71);
+	p6.src = "dev/akie.gif";
+	p7 = new Image(67,71);
+	p7.src = "dev/akietalk.gif";
+
+	sr = new Image(432,65);
+	sr.src = "dev/speech.gif";
+	sl = new Image(432,65);
+	sl.src = "dev/speech2.gif";
+
+	tr = new Image(192,112);
+	tr.src = "dev/trainnosteam.gif";
+	tro = new Image(192,112);
+	tro.src = "dev/trainhover.gif";
+
+	//For Rotating Affiliates
+	affi_img[0] = new Image(88,31);
+	affi_img[0].src= "http://www.ranchstory.co.uk/images/hmfarm.gif";
+	affi_url[0] = "http://www.hmfarm.com/";
+
+	affi_img[1] = new Image(88,31);
+	affi_img[1].src= "http://www.ranchstory.co.uk/images/affi_unot.gif";
+	affi_url[1] = "http://www.fogu.com/hm/";
+}
+
+/* Code from http://blog.nemus.se/index.php/get-rid-of-ie-flickering/ - THANKS A BUNCH */
+try {
+	document.execCommand('BackgroundImageCache', false, true);
+} catch(e) {}
+
+//Messages
+var messages = new Array();
+messages[0] = new Array();
+messages[1] = new Array();
+messages[2] = new Array();
+messages[3] = new Array();
+
+messages[0][0] = "I'm Emy. Use the navigation links on the right or click the houses to visit the rest of the site! Click us to hear more. :3";
+messages[0][1] = "Click the train in the top right corner to visit the forums.";
+messages[0][2] = "Otherwise, I kind of do my own thing. :3";
+
+messages[1][0] = "I'm Kyle, and I guess you could say I pretty much designed the layout of the site and make all the graphics; I help out with content every now and then too.";
+messages[1][1] = "Welcome to Ranch Story! As you may have realized, we're back after a long time with many changes and hopefully here to stay!";
+messages[1][2] = "Did you check the updates yet?";
+
+messages[2][0] = "Hey, I'm Matt; I do the coding on the site.";
+messages[2][1] = "Currently I'm playing Harvest Moon DS and Magical Melody to pass the time...";
+messages[2][2] = "Why don't you go check out the forums?";
+
+messages[3][0] = "Hi, I抦 Marie! Welcome to Ranch Story!";
+messages[3][1] = "I write content and such. Perfect for someone who likes to write, right? Hehe.";
+messages[3][2] = "I also translate some data from Japanese to English. Muzukashii desu ga, ganbarimasu!";
+
+function showhide (id)
+{
+	//Get
+	itm = document.getElementById(id);
+
+	//Show or Hide
+	if (itm.style)
+	{
+		if (itm.style.display == "none")
+			itm.style.display = "block";
+		else
+			itm.style.display = "none";
+	}
+}
+
+function show (id)
+{
+	itm = document.getElementById(id);
+	if (itm.style) itm.style.display = "block";
+}
+
+function hide (id)
+{
+	itm = document.getElementById(id);
+	if (itm.style) itm.style.display = "none";
+}
+
+function speech (id)
+{
+	hide('s1');
+	hide('s2');
+	hide('s3');
+	hide('s4');
+
+	if (id != typing)
+	{
+		document.getElementById("s" + (id + 1)).innerHTML = "";
+		show("s" + (id + 1));
+		talkid++;
+		typing = id;
+
+		if (id == 0)
+			document.getElementById("p" + id).src = p1.src;
+		else if (id == 1)
+			document.getElementById("p" + id).src = p3.src;
+		else if (id == 2)
+			document.getElementById("p" + id).src = p5.src;
+		else if (id == 3)
+			document.getElementById("p" + id).src = p7.src;
+
+		speechwrite("s" + (id + 1), messages[id][cid[id]], 0, talkid);
+	}
+}
+
+function speechnext (id)
+{
+	speechoff(id);
+
+	if (cid[id] == cidmax[id])
+		cid[id] = 0;
+	else
+		cid[id]++;
+
+	speech(id);
+}
+
+function speechoff (id)
+{
+	//Stop talking
+	document.getElementById("s" + (id + 1)).innerHTML = "";
+	hide("s" + (id + 1));
+	talkid++;
+	typing = -1;
+
+	//Back to non-talking state
+	document.getElementById("p0").src = p0.src;
+	document.getElementById("p1").src = p2.src;
+	document.getElementById("p2").src = p4.src;
+	document.getElementById("p3").src = p6.src;
+}
+
+function speechwrite (id, message, a, tid)
+{
+	if (tid == talkid)
+	{
+		if (!a) a = 0;
+		var length = message.length - 1;
+
+		if (document.getElementById(id).innerHTML != message)
+		{
+			document.getElementById(id).innerHTML += message.charAt(a);
+
+			if (a < length)
+				setTimeout("speechwrite('" + id + "', \"" + message + "\", " + (a + 1) + ", " + tid + ")", 75);
+			else
+			{
+				document.getElementById("p0").src = p0.src;
+				document.getElementById("p1").src = p2.src;
+				document.getElementById("p2").src = p4.src;
+				document.getElementById("p3").src = p6.src;
+			}
+		}
+	}
+}
+
+function swap_image (id, src)
+{
+	document.getElementById(id).src = src;
+}
+
+
+//document.getElementById('container').scrollTop = 0;
+
+function affi_swap()
+{
+	if (affi_current == affi_total)
+		affi_current = 0;
+
+	swap_image("afficon", affi_img[affi_current].src);
+	document.getElementById("affi_url").href = affi_url[affi_current];
+
+	affi_current++;
+	setTimeout("affi_swap()", 15000);
+}
+
+function init ()
+{
+	hide('s1');
+	hide('s2');
+	hide('s3');
+	hide('s4');
+	document.getElementById('container').scrollTop = 0;
+
+	if (document.images)
+		affi_swap();
+}
+
+-->
+</script>
+</head>
+
+<body scroll="no" onLoad="init()" onclick="document.getElementById('container').scrollTop = 0;">
+<table align="center" height="100%" width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" valign="center">
+<!--Most of It-->
+<div id="container">
+  <!--Quick Links: Home and Forum-->
+  <div id="top">
+    <div id="banner"><a href="http://www.ranchstory.co.uk/"><img src="dev/wingit.png" width="100%" height="100%" alt="Ranch Story - A Harvest Moon Fan Website" /></a></div>
+    <div id="forum"><a href="http://www.ranchstory.co.uk/forums/"><img src="dev/trainnosteam.gif" alt="Harvest Moon Forums" title="Harvest Moon Forums" id="train" width="100%" height="100%" onMouseOver="swap_image('train', 'dev/trainhover.gif');" onMouseOut="swap_image('train', 'dev/trainnosteam.gif');" /></a></div>
+  </div>
+  <!--End Quick Links-->
+  <div id="spacer"></div>
+  <!--Content and Menu -->
+  <div id="bottom">
+    <div id="contentout">
+      <div id="contentspeech"> <img src="dev/emy.gif" id="p0" align="left" onMouseOver="speech(0);" onMouseOut="speechoff(0);" onClick="speechnext(0);" />
+          <div class="box"><b>Welcome to Ranch Story</b><br>We're a small Harvest Moon website dedicated to bring a warm and welcoming community to fellow fans.</div>
+        <img src="dev/kyle.gif" id="p1" align="right" onMouseOver="speech(1);" onMouseOut="speechoff(1);" onClick="speechnext(1);" /> </div>
+      <div id="content"> <div class="fullbox"><img src="images/exc.gif" width="11" height"12" align="absmiddle">&nbsp;<b>Ranch Story Events:</b>&nbsp;<span style='color:red'>NEW</span>&nbsp;Pre-Order <a href="https://www.amazon.com/dp/B00BAWXD88/ref=as_li_ss_til?tag=ransto0d-20&camp=0&creative=0&linkCode=as4&creativeASIN=B00BAWXD88&adid=08HVXN8H8DYHAZP4P0Y6&">RF4 (3DS)</a> | Order <a href="https://www.amazon.com/dp/B008A27UMG/ref=as_li_ss_til?tag=ransto0d-20&camp=0&creative=0&linkCode=as4&creativeASIN=B008A27UMG&adid=1DH5QJJ3VVVWQV9HHEMM&">HM: A New Beginning (3DS)</a></div><table width='90%' border='0' cellspacing='0' cellpadding='2' align='center'>
+  <tr>
+    <td colspan='2'><table width='100%' border='0' cellspacing='0' cellpadding='5'>
+      <tr>
+        <td width='100%'><b>Harvest Moon: Connect to a New Land localization confirmed!</b></td>
+        <td width='70' align='right'>Darth Paper Boy</td>
+      </tr>
+    </table></td>
+  </tr>
+  <tr>
+    <td colspan='2'><img src='dev/darthyava.gif' align='right' />... as Story of Seasons, by XSEED games. A little odd, but nevertheless, it seems the game will be published without Natsume's involvement here. The story was released by IGN, and you can see more information about it including our first look at some English screenshots at the source below. <br><br>Source: <a href="http://www.ign.com/articles/2014/05/28/harvest-moon-returns-in-story-of-seasons-on-3ds" target="_blank"> IGN</a></td>
+  </tr>
+  <tr>
+    <td width='50%'>28 May 2014, 10:42 am</td>
+    <td width='50%' align='right'><a href='?news/237/comments'>Comments (1)</a></td>
+  </tr>
+</table><p align="center"><img src="dev/divider.gif" /></p>        <table width="95%" cellpadding="2" cellspacing="0" align="center">
+            <tr>
+              <td><center>
+                  <script type="text/javascript"><!--
+google_ad_client = "pub-4991206618314127";
+/* RanchStoryFrontNewsAd */
+google_ad_slot = "6166232296";
+google_ad_width = 468;
+google_ad_height = 60;
+//-->
+</script>
+<script type="text/javascript"
+src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script>
+</center></td>
+            </tr>
+          </table>
+<p align="center"><img src="dev/divider.gif" /></p><table width='90%' border='0' cellspacing='0' cellpadding='2' align='center'>
+  <tr>
+    <td colspan='2'><table width='100%' border='0' cellspacing='0' cellpadding='5'>
+      <tr>
+        <td width='100%'><b>Ranch Story takes to Tumblr!</b></td>
+        <td width='70' align='right'>Darth Paper Boy</td>
+      </tr>
+    </table></td>
+  </tr>
+  <tr>
+    <td colspan='2'><img src='dev/darthyava.gif' align='right' />Lately, Ranch Story has branched out to Tumblr featuring character profiles, videos, high-res art scans, and music from Harvest Moon and Rune Factory! Check us out!<br><br><a href="http://ranchstoryblog.tumblr.com/" target="_blank"> http://ranchstoryblog.tumblr.com/ </a></td>
+  </tr>
+  <tr>
+    <td width='50%'>4 January 2014, 0:59 am</td>
+    <td width='50%' align='right'><a href='?news/236/comments'>Comments (0)</a></td>
+  </tr>
+</table><p align="center"><img src="dev/divider.gif" /></p><table width='90%' border='0' cellspacing='0' cellpadding='2' align='center'>
+  <tr>
+    <td colspan='2'><table width='100%' border='0' cellspacing='0' cellpadding='5'>
+      <tr>
+        <td width='100%'><b>New Trailer for Harvest Moon: Connect to a New Land!</b></td>
+        <td width='70' align='right'>Darth Paper Boy</td>
+      </tr>
+    </table></td>
+  </tr>
+  <tr>
+    <td colspan='2'><img src='dev/darthyava.gif' align='right' />Just posted today, the new trailer shows the game in action, including the return of character customization, animals, and most of the characters shown so far!<br><br><a href="http://www.youtube.com/watch?v=wlldRcn62Us&list=PLpb-tcbOHyP-zhndN09iO213WChmc-X-h&index=1" target="_blank"> Watch it here!</a><br><br>New features of note, is that it seems much easier to harvest your crops now, some new interactions with animals seen in action, and a little teaser of something interesting at the very end...</td>
+  </tr>
+  <tr>
+    <td width='50%'>18 December 2013, 21:43 pm</td>
+    <td width='50%' align='right'><a href='?news/235/comments'>Comments (1)</a></td>
+  </tr>
+</table><p align="center"><img src="dev/divider.gif" /></p><table width='90%' border='0' cellspacing='0' cellpadding='2' align='center'>
+  <tr>
+    <td colspan='2'><table width='100%' border='0' cellspacing='0' cellpadding='5'>
+      <tr>
+        <td width='100%'><b>A quick break from regularly scheduled progamming</b></td>
+        <td width='70' align='right'>Darth Paper Boy</td>
+      </tr>
+    </table></td>
+  </tr>
+  <tr>
+    <td colspan='2'><img src='dev/darthyava.gif' align='right' />Just taking a quick moment to let everyone know that ages past forum vet Sessy's book will be <a href="https://www.facebook.com/AlexandraMeyering/posts/395190243961134" target="_blank"> releasing soon. </a> Her old friends at Ranch Story wish her the best of luck!</td>
+  </tr>
+  <tr>
+    <td width='50%'>11 December 2013, 19:12 pm</td>
+    <td width='50%' align='right'><a href='?news/234/comments'>Comments (1)</a></td>
+  </tr>
+</table><p align="center"><img src="dev/divider.gif" /></p><table width='90%' border='0' cellspacing='0' cellpadding='2' align='center'>
+  <tr>
+    <td colspan='2'><table width='100%' border='0' cellspacing='0' cellpadding='5'>
+      <tr>
+        <td width='100%'><b>Harvest Moon: Connect to a New Land for 3DS announced!</b></td>
+        <td width='70' align='right'>Darth Paper Boy</td>
+      </tr>
+    </table></td>
+  </tr>
+  <tr>
+    <td colspan='2'><img src='dev/darthyava.gif' align='right' />Not too many details announced so far, but it's for the 3DS and will be making good use of the 3DS's connectivity features between players. Check out the early screenshots and character art work on <a href="http://www.famitsu.com/news/201310/10041313.html" target="_blank">Famitsu!</a><br><br>Continuing information, as always, will be present on our <a href="http://www.ranchstory.co.uk/forums/index.php?showtopic=5990&hl=" target="_blank">forum.</a></td>
+  </tr>
+  <tr>
+    <td width='50%'>10 October 2013, 14:08 pm</td>
+    <td width='50%' align='right'><a href='?news/233/comments'>Comments (1)</a></td>
+  </tr>
+</table><p align="center"><img src="dev/divider.gif" /></p><center><b>1</b> <a href="?news/2">2</a> <a href="?news/3">3</a> <a href="?news/4">4</a> <a href="?news/5">5</a> <a href="?news/43">&raquo;</a></center><p>  <!--[if IE]><div id="spacer"></div><![endif]-->
+          <!-- Google ads -->
+          <p align="center"><img src="dev/divider.gif" /></p>
+        <table width="90%" cellpadding="2" cellspacing="0" align="center">
+            <tr>
+              <td><center>
+<script type="text/javascript"><!--
+google_ad_client = "pub-4991206618314127";
+google_ad_width = 468;
+google_ad_height = 60;
+google_ad_format = "468x60_as";
+google_ad_type = "text_image";
+//2007-07-31: RanchStoryMain
+google_ad_channel = "6050541859";
+google_color_border = "A28066";
+google_color_bg = "DFD1B7";
+google_color_link = "000000";
+google_color_text = "000000";
+google_color_url = "000000";
+google_ui_features = "rc:0";
+//-->
+</script>
+<script type="text/javascript" src="http://pagead2.googlesyndication.com/pagead/show_ads.js"></script>
+              </center>
+			</td>
+            </tr>
+          </table>
+        <p align="center"><img src="dev/divider.gif" /></p>
+	<!-- content footer -->
+<table width="100%" border="0" cellspacing="1" cellpadding="2" style="fullbox">
+  <tr>
+    <td width="190" class="copyright" align="left">Copyright &copy; <script language="javascript" type="text/javascript">var currentTime = new Date(); var year = currentTime.getFullYear(); document.write(year);</script> Ranch Story.<br>
+<img src="imagers/spacer.gif" width="190" height="1"></td>
+    <td width="100%" class="copyright" align="right" nowrap="nowrap">Harvest Moon:&nbsp;<script language="javascript" type="text/javascript" src="gamejump.js"></script></td>
+  </tr>
+</table>
+     </div>
+      <div id="contentspeech"> <img src="dev/matt.gif" id="p2" align="left" onMouseOver="speech(2);" onMouseOut="speechoff(2);" onClick="speechnext(2);" />
+          <div class="box" id="menubox"><form action="?/login" method="post"><input type="hidden" name="login" value="1" /><center><b>User:</b> <input type="text" name="username" style="width: 128px" /> <b>Pass:</b> <input type="password" name="password" style="width: 128px" /> <input type="submit" value="Play!" /></center></form>Not a user? <a href="?user/register">Come join us</a>.</div>
+        <img src="dev/akie.gif" id="p3" align="right" onMouseOver="speech(3);" onMouseOut="speechoff(3);" onClick="speechnext(3);" /> </div>
+    </div>
+    <div id="menuout">
+      <div id="menu">
+       <div id="affi"><a href="http://www.hmotaku.net/" target="_blank"><img src="http://www.ranchstory.co.uk/images/hmobutton 1-1.png" /></a></div>
+        <ul>
+          <li><a href="./">Ranch Story?</a></li>
+          <li><a href="wiki/Harvest_Moon_%28Series%29">Harvest Moon?</a></li>
+          <li><a href="wiki/Rune_Factory_%28Series%29">Rune Factory?</a></li>
+          <li><a href="forums/">Forums?</a></li>
+          <li><a href="?faq">Questions/FAQ?</a></li>
+          <li><a href="?donate">Donate?</a></li>
+          <li><a href="?staff">Staff?</a></li>
+          <li><a href="?fanart">Fan Art?</a></li>
+          <li><a href="?link">Affiliate?</a></li>
+          <li><br /><center>
+                <a target="_top" href="http://extremetracking.com/open?login=hmegreen"> <img src="http://t1.extreme-dm.com/i.gif" height=38 border=0 width=41 alt=""></a>
+                <script language="javascript1.2"><!--
+		EXs=screen;EXw=EXs.width;navigator.appName!="Netscape"?
+		EXb=EXs.colorDepth:EXb=EXs.pixelDepth;//-->
+		</script>
+        <script language="javascript"><!--
+		EXd=document;EXw?"":EXw="na";EXb?"":EXb="na";
+		EXd.write("<img src=\"http://t0.extreme-dm.com",
+		"/c.g?tag=hmegreen&j=y&srw="+EXw+"&srb="+EXb+"&",
+		"l="+escape(EXd.referrer)+"\" height=1 width=1>");//-->
+		</script><noscript><img height=1 width=1 alt="" src="http://t0.extreme-dm.com/c.g?tag=hmegreen&j=n"></noscript></center></li></ul>
+        <div id="mini"><a href="?famousfans"><img src="dev/trophy.gif" alt="Awards" title="Awards" /></a><a href="?contact"><img src="dev/miniletter.gif" alt="Contact Ranch Story" title="Contact Ranch Story" /></a><a href="?search"><img src="dev/doggybark.gif" alt="Search" title="Search" /></a><a href="ranchstory_rss.xml"><img src="images/rss.gif" alt="Ranch Story RSS" title="Ranch Story RSS" /></a></div>
+        <div id="affi"><a href="http://www.hmotaku.net/" target="_blank" id="affi_url"><img src="http://www.ranchstory.co.uk/images/hmfarm.gif" id="afficon" /></a></div>
+      </div>
+    </div>
+  </div>
+  <!--End Content and Menu-->
+  <div id="spacer"></div>
+  <!--Uniquely Positioned-->
+  <a href="wiki/"><img id="town" src="dev/new.gif" style="left: 558px; top: -550px; _left: 562px; _top: -550px" /></a>
+  <!--[if IE]><div id="spacer"></div><![endif]-->
+  <a href="wiki/"><img id="town" src="dev/weed.gif" style="left: 416px; top: -494px; _left: 490px; _top: -558px" /></a>
+  <!--[if IE]><div id="spacer"></div><![endif]-->
+  <a href="wiki/"><img id="town" src="dev/mineral.gif" style="left: 608px; top: -494px; _left: 718px; _top: -618px" /></a>
+  <!--[if IE]><div id="spacer"></div><![endif]-->
+  <a href="wiki/"><img id="town" src="dev/flowerbud.gif" style="left: 426px; top: -430px; _left: 594px; _top: -614px" /></a>
+  <!--[if IE]><div id="spacer"></div><![endif]-->
+  <a href="wiki/"><img id="town" src="dev/old.gif" style="left: 370px; top: -92px; _left: 594px; _top: -340px" /></a>
+  <!--[if IE]><div id="spacer"></div><![endif]-->
+  <div class="speechl11" id="s1" style="top: -496px; left: 83px; _left: 83px; _top: -744px">Message one.</div>
+  <!--[if IE]><div id="spacer"></div><![endif]-->
+  <div class="speechr11" id="s2" style="top: -496px; left: 93px; _left: 93px; _top: -744px">Message two.</div>
+  <!--[if IE]><div id="spacer"></div><![endif]-->
+  <div class="speechl11" id="s3" style="top: -158px; left: 83px; _left: 83px; _top: -406px">Message three.</div>
+  <!--[if IE]><div id="spacer"></div><![endif]-->
+  <div class="speechr11" id="s4" style="top: -158px; left: 93px; _left: 93px; _top: -406px">Message four.</div>
+  <!--End Uniquely Positioned-->
+  <!--Try using clear, line-height, and spacers-->
+  <div id="spacer"></div>
+</div></td>
+</tr></table>
+</body>
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-4842330-1");
+pageTracker._initData();
+pageTracker._trackPageview();
+</script>
+</html>
+
+<script language="javascript">
+<!--
+
+//Fix #anchors in content div
+for (i = 0; document.links[i]; i++)
+{
+	if (document.links[i].href && document.links[i].href.indexOf('#') != -1)
+	{
+		document.links[i].onclick = function ()
+		{
+			//Find its corresponding link
+			anchor = this.href.substr(this.href.indexOf('#')+1);
+
+			var allLinks = document.getElementsByTagName('a');
+			var destinationLink = null;
+
+			for (var i = 0; i< allLinks.length; i++)
+			{
+				var lnk = allLinks[i];
+
+				if (lnk.name && (lnk.name == anchor))
+				{
+					destinationLink = lnk;
+					break;
+				}
+			}
+
+			//Abort if not found 
+			if (!destinationLink) return true;
+
+			//Send to the new position
+			var desty = destinationLink.offsetTop;
+			var thisNode = destinationLink;
+
+			while (thisNode.offsetParent && thisNode.offsetParent != document.getElementById('content'))
+			{
+				thisNode = thisNode.offsetParent;
+				desty += thisNode.offsetTop;
+			}
+
+			if (!window.event)
+				desty -= document.getElementById('contentout').offsetTop + document.getElementById('bottom').offsetTop + document.getElementById('container').offsetTop; //adjust for FireFox
+
+			document.getElementById('content').scrollTop = desty;
+			document.getElementById('container').scrollTop = 0;
+			return false;
+		}
+	}
+}
+
+-->
+</script>

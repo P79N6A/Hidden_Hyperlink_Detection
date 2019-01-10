@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>海外參展決策輔助平台</title>
+    <link href="/Content/layout.css" rel="stylesheet"/>
+<link href="/Content/jquerysctipttop.css" rel="stylesheet"/>
+<link href="/Content/vue-slider.css" rel="stylesheet"/>
+<link href="/Content/alertify.core.css" rel="stylesheet"/>
+<link href="/Content/alertify.default.css" rel="stylesheet"/>
+<link href="/Content/popup.css" rel="stylesheet"/>
+
+    <script src="/Scripts/modernizr-2.6.2.js"></script>
+
+    <script src="/Scripts/jquery-2.2.4.js"></script>
+
+
+    <script src="/Scripts/highcharts.js"></script>
+
+    <script src="/Scripts/vue.js"></script>
+
+    <script src="/Scripts/vue-validator.js"></script>
+<script src="/Scripts/vue-gesp.js"></script>
+<script src="/Scripts/vue-slider.js"></script>
+<script src="/Scripts/vue-highcharts.js"></script>
+
+    <script src="/Scripts/lodash.js"></script>
+<script src="/Scripts/moment.js"></script>
+
+    <!--[if lt IE 9]>
+         <script src="/Scripts/html5shiv.min.js"></script>
+
+    <![endif]-->
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDfzLCqAXpk_ZKd56J-5chHTh5xTSusmFI"></script>
+    <script src="/Scripts/markerclusterer.js"></script>
+
+    <script src="/Scripts/richmarker.js"></script>
+<script src="/Scripts/MapUtility.js"></script>
+
+    <script src="/Scripts/jquery.popup.min.js"></script>
+
+    
+	<script>
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+	ga('create', 'UA-90337508-1', 'auto');
+	ga('send', 'pageview');
+	</script>
+	
+</head>
+<body>
+    
+<header>
+    <h4 id="MENU"></h4>
+    <div id="SUBMENU">
+        <ul>
+            <li><a href="/">全球展覽搜尋</a></li>
+            <li>
+                <a>各國進出口情勢</a>
+                <ul>
+                    <li><a href="/Trade">各產業進出口國</a></li>
+                    <li><a href="/Trade/Country">各國進出口對象</a></li>
+                </ul>
+            </li>
+            <li>
+                <a>各國參展分布</a>
+                <ul>
+                    <li><a href="/Company">地區分析</a></li>
+                    <li><a href="/Company/Detail">展覽分析</a></li>
+                </ul>
+            </li>
+            <li>
+                <a>兩國參展比較</a>
+                <ul>
+                    <li><a href="/Compare">地區分析</a></li>
+                    <li><a href="/Compare/Detail">展覽分析</a></li>
+                </ul>
+            </li>
+            <li><a href="/Home/About">關於本站</a></li>
+
+        </ul>
+    </div>
+    <div id="LOGO">
+        <a href="/">
+            <img src="/Images/LOGO.png"></a>
+    </div>
+    <div id="navigation">
+        <nav>
+            <div class="container">
+                <ul>
+                    <li>
+                        <a href="/">全球展覽搜尋<i class='fa fa-angle-down'></i></a>
+                    </li>
+                    <li>
+                        <a href="#">各國進出口情勢<i class='fa fa-angle-down'></i></a>
+                        <ul>
+                            <li><a href="/Trade">各產業進出口國</a></li>
+                            <li><a href="/Trade/Country">各國進出口對象</a></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="#">各國參展分布<i class='fa fa-angle-down'></i></a>
+                        <ul>
+                            <li><a href="/Company">地區分析</a></li>
+                            <li><a href="/Company/Detail">展覽分析</a></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="#">兩國參展比較<i class='fa fa-angle-down'></i></a>
+                        <ul>
+                            <li><a href="/Compare">地區分析</a></li>
+                            <li><a href="/Compare/Detail">展覽分析</a></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a id="aboutus" href="/Home/About">關於本站<i class='fa fa-angle-down'></i></a>
+                    </li>
+
+
+
+                </ul>
+            </div>
+        </nav>
+    </div>
+    <div class="clear"></div>
+
+    
+
+<h1>全球展覽分析</h1>
+<!--桌機版搜尋區-->
+<div id="searchZone">
+    <select v-model="searchForm.industry">
+        <option value="">產業</option>
+            <option value="Agricultural &amp; Foods">Agricultural &amp; Foods</option>
+            <option value="Beauty &amp; Personal Care">Beauty &amp; Personal Care</option>
+            <option value="Bicycles &amp; Parts">Bicycles &amp; Parts</option>
+            <option value="Chemicals &amp; Products">Chemicals &amp; Products</option>
+            <option value="Consumer Electronics &amp; Home Appliances">Consumer Electronics &amp; Home Appliances</option>
+            <option value="Cultural and Creative,Services">Cultural and Creative,Services</option>
+            <option value="Electric,Electronics,Telecom Products &amp; Computer">Electric,Electronics,Telecom Products &amp; Computer</option>
+            <option value="Food &amp; Beverage Machinery">Food &amp; Beverage Machinery</option>
+            <option value="Furniture &amp; Construction">Furniture &amp; Construction</option>
+            <option value="Gifts &amp; Crafts">Gifts &amp; Crafts</option>
+            <option value="Green energy, renewable energy, solar panel, cell, battery">Green energy, renewable energy, solar panel, cell, battery</option>
+            <option value="Houseware">Houseware</option>
+            <option value="Leather,Furskin &amp; Footwear">Leather,Furskin &amp; Footwear</option>
+            <option value="Leisure, Education &amp; Sporting Goods(include bicycle)">Leisure, Education &amp; Sporting Goods(include bicycle)</option>
+            <option value="Machineries, Parts &amp; Accessories">Machineries, Parts &amp; Accessories</option>
+            <option value="Medical &amp; Health">Medical &amp; Health</option>
+            <option value="Medicines &amp; Pharmaceutical">Medicines &amp; Pharmaceutical</option>
+            <option value="Mineral,Metallurgy,Hardware &amp; Tools">Mineral,Metallurgy,Hardware &amp; Tools</option>
+            <option value="Paper,Printing &amp; Publications">Paper,Printing &amp; Publications</option>
+            <option value="Plastic,Rubber &amp; articles thereof">Plastic,Rubber &amp; articles thereof</option>
+            <option value="Precious stone,Jewelry &amp; Timepiece">Precious stone,Jewelry &amp; Timepiece</option>
+            <option value="Precision &amp; Musical Instruments">Precision &amp; Musical Instruments</option>
+            <option value="Security &amp; Protection">Security &amp; Protection</option>
+            <option value="Stationery,Office Supplies &amp; Equipment">Stationery,Office Supplies &amp; Equipment</option>
+            <option value="Textile,Apparel &amp; Accessories">Textile,Apparel &amp; Accessories</option>
+            <option value="Toys, Baby &amp; Pet Products">Toys, Baby &amp; Pet Products</option>
+            <option value="Transportation(not include bicycle)">Transportation(not include bicycle)</option>
+            <option value="Others">Others</option>
+    </select>
+    <select v-model="searchForm.country">
+        <option value="">國家</option>
+            <option value="Argentina">Argentina</option>
+            <option value="Australia">Australia</option>
+            <option value="Austria">Austria</option>
+            <option value="Azerbaijan">Azerbaijan</option>
+            <option value="Bahrain">Bahrain</option>
+            <option value="Bangladesh">Bangladesh</option>
+            <option value="Belgium">Belgium</option>
+            <option value="Brazil">Brazil</option>
+            <option value="Bulgaria">Bulgaria</option>
+            <option value="Cambodia">Cambodia</option>
+            <option value="Canada">Canada</option>
+            <option value="Chile">Chile</option>
+            <option value="China">China</option>
+            <option value="Colombia">Colombia</option>
+            <option value="Czech Republic">Czech Republic</option>
+            <option value="Denmark">Denmark</option>
+            <option value="Egypt">Egypt</option>
+            <option value="Estonia">Estonia</option>
+            <option value="Ethiopia">Ethiopia</option>
+            <option value="Finland">Finland</option>
+            <option value="France">France</option>
+            <option value="Germany">Germany</option>
+            <option value="Greece">Greece</option>
+            <option value="Hong Kong">Hong Kong</option>
+            <option value="Hungary">Hungary</option>
+            <option value="India">India</option>
+            <option value="Indonesia">Indonesia</option>
+            <option value="Iran">Iran</option>
+            <option value="Iraq">Iraq</option>
+            <option value="Israel">Israel</option>
+            <option value="Italy">Italy</option>
+            <option value="Japan">Japan</option>
+            <option value="Kazakhstan">Kazakhstan</option>
+            <option value="Kenya">Kenya</option>
+            <option value="Korea">Korea</option>
+            <option value="Kuwait">Kuwait</option>
+            <option value="Lebanon">Lebanon</option>
+            <option value="Lithuania">Lithuania</option>
+            <option value="Luxembourg">Luxembourg</option>
+            <option value="Malaysia">Malaysia</option>
+            <option value="Mexico">Mexico</option>
+            <option value="Morocco">Morocco</option>
+            <option value="Myanmar">Myanmar</option>
+            <option value="Netherlands">Netherlands</option>
+            <option value="New Zealand">New Zealand</option>
+            <option value="Nigeria">Nigeria</option>
+            <option value="Norway">Norway</option>
+            <option value="Oman">Oman</option>
+            <option value="Pakistan">Pakistan</option>
+            <option value="Panama">Panama</option>
+            <option value="Peru">Peru</option>
+            <option value="Philippines">Philippines</option>
+            <option value="Poland">Poland</option>
+            <option value="Portugal">Portugal</option>
+            <option value="Qatar">Qatar</option>
+            <option value="Republic of Cameroon">Republic of Cameroon</option>
+            <option value="Republic of Madagascar">Republic of Madagascar</option>
+            <option value="Republic of Serbia">Republic of Serbia</option>
+            <option value="Romania">Romania</option>
+            <option value="Russia">Russia</option>
+            <option value="Rwanda">Rwanda</option>
+            <option value="Saudi Arabia">Saudi Arabia</option>
+            <option value="Singapore">Singapore</option>
+            <option value="Slovakia Republic">Slovakia Republic</option>
+            <option value="Slovenia">Slovenia</option>
+            <option value="South Africa">South Africa</option>
+            <option value="Spain">Spain</option>
+            <option value="Sweden">Sweden</option>
+            <option value="Switzerland">Switzerland</option>
+            <option value="Taiwan">Taiwan</option>
+            <option value="Tanzania">Tanzania</option>
+            <option value="Thailand">Thailand</option>
+            <option value="Tunisia">Tunisia</option>
+            <option value="Turkey">Turkey</option>
+            <option value="Ukraine">Ukraine</option>
+            <option value="United Arab Emirates">United Arab Emirates</option>
+            <option value="United Kingdom">United Kingdom</option>
+            <option value="United States">United States</option>
+            <option value="Uzbekistan">Uzbekistan</option>
+            <option value="Vietnam">Vietnam</option>
+    </select>
+    <select v-model="searchForm.exhibitionYear">
+        <option value="">年度</option>
+            <option value="2013">2013</option>
+            <option value="2015">2015</option>
+            <option value="2016">2016</option>
+            <option value="2017">2017</option>
+            <option value="2018">2018</option>
+            <option value="2019">2019</option>
+            <option value="2020">2020</option>
+    </select>
+
+    <input v-model="searchForm.keywords" type="text" placeholder="請輸入展覽關鍵字">
+
+    <a href="#" class="searchMore" v-on:click.prevent="toggleAdvance" onClick="MM_showHideLayers('searchMore','','show')">更多篩選</a>
+    <input type="button" value="SEARCH" v-on:click.prevent="doSearch"><div class="clear"></div>
+</div>
+<div id="searchMore">
+    <a href="#" class="closemore" v-on:click.prevent="toggleAdvance" onClick="MM_showHideLayers('searchMore', '', 'hide')">CLOSE</a>
+    <ul>
+
+
+
+
+
+
+
+
+        <li>
+            <input type="checkbox" v-model="searchForm.visitors.checked" />
+            <b>參觀人數:</b>
+            <span class="barinfo">{{searchForm.visitors.value | formatRangeValue}}(人)</span>
+            <span class="bar">
+                <vue-slider v-ref:visitors-slider :max="1020000" :interval="5000" :value.sync="searchForm.visitors.value"></vue-slider>
+            </span>
+        </li>
+        <li>
+            <input type="checkbox" v-model="searchForm.lastCompanyCount.checked">
+            <b>參展廠商數:</b>
+            <span class="barinfo">{{searchForm.lastCompanyCount.value | formatRangeValue}}(家)</span>
+            <span class="bar">
+                <vue-slider v-ref:last-company-count-slider :max="24553" :interval="50" :value.sync="searchForm.lastCompanyCount.value"></vue-slider>
+            </span>
+        </li>
+        <li>
+            <input type="checkbox" v-model="searchForm.exhibitionArea.checked">
+            <b>展覽面積:</b>
+            <span class="barinfo">{{searchForm.exhibitionArea.value | formatRangeValue}}(sqm)</span>
+            <span class="bar">
+                <vue-slider v-ref:exhibition-area-slider :max="750000" :interval="500" :value.sync="searchForm.exhibitionArea.value"></vue-slider>
+            </span>
+        </li>
+    </ul>
+    <div class="btn">
+        <input type="button" value="重設" v-on:click="resetFormProp(null)" />
+        <input type="button" value="確認" v-on:click.prevent="doSearch" />
+    </div>
+</div>
+<div id="searchInfo">搜尋條件 │
+    <a v-for="(key, value) in searchForm | searchFormFilter" href="#" v-on:click="resetFormProp(key)">{{value}}</a>
+</div>
+
+<script>
+    $('#navigation nav div.container>ul>li:eq(0)>a').addClass('click');
+
+    Vue.filter('searchFormFilter', function (searchForm) {
+        var form = _.cloneDeep(searchForm);
+
+        if (!form.industry) delete form.industry;
+        if (!form.country) delete form.country;
+        if (!form.exhibitionYear) delete form.exhibitionYear;
+        delete form.keywords;
+
+        //        if (!form.exhibitionCount.checked) {
+        //            delete form.exhibitionCount;
+        //        } else {
+        //            form.exhibitionCount = formatRangeValue(form.exhibitionCount.value, '場');
+        //        }
+
+        if (!form.visitors.checked) {
+            delete form.visitors;
+        } else {
+            form.visitors = formatRangeValue(form.visitors.value, '人');
+        }
+
+        if (!form.lastCompanyCount.checked) {
+            delete form.lastCompanyCount;
+        } else {
+            form.lastCompanyCount = formatRangeValue(form.lastCompanyCount.value, '家');
+        }
+
+        if (!form.exhibitionArea.checked) {
+            delete form.exhibitionArea;
+        } else {
+            form.exhibitionArea = formatRangeValue(form.exhibitionArea.value, 'sqm');
+        }
+
+        return form;
+    });
+
+    var VueHeader = new Vue({
+        el: 'header',
+        data: {
+            searchForm: {
+                industry: '',
+                country: '',
+                exhibitionYear: '2017',
+                keywords: '',
+                //                exhibitionCount: {
+                //                    checked: true,
+                //                    value: [0, 50]
+                //                },
+                visitors: {
+                    checked: false,
+                    value: [0, 1020000]
+                },
+                lastCompanyCount: {
+                    checked: false,
+                    value: [0, 24553]
+                },
+                exhibitionArea: {
+                    checked: false,
+                    value: [0, 750000]
+                }
+            },
+            showAdvance: false
+        },
+        methods: {
+            resetFormProp: function (propName) {
+                if (!propName) {
+                    Object.keys(this.searchForm).forEach(this.resetFormProp);
+                } else {
+                    if (_.isPlainObject(this.searchForm[propName])) {
+                        this.searchForm[propName].checked = false;
+                    } else {
+                        this.searchForm[propName] = '';
+                    }
+                }
+            },
+            doSearch: function () {
+                VueApp.$emit('start-search', this.searchForm);
+            },
+            toggleAdvance: function () {
+                this.showAdvance = !this.showAdvance;
+            }
+        },
+        ready: function () {
+            var $this = this;
+
+            this.$refs.visitorsSlider.$on('callback', function () {
+                $this.searchForm.visitors.checked = true;
+            });
+
+            this.$refs.lastCompanyCountSlider.$on('callback', function () {
+                $this.searchForm.lastCompanyCount.checked = true;
+            });
+
+            this.$refs.exhibitionAreaSlider.$on('callback', function () {
+                $this.searchForm.exhibitionArea.checked = true;
+            });
+        }
+    });
+</script>
+
+</header>
+
+
+    
+
+
+<div id="vue-app">
+    <h3>
+        <div class="con">
+            <b>展覽分布地點</b>
+            <div id="mapSearch">
+                <div id="mapUnit">單位：展覽數</div>
+                泡泡顏色：
+                <select v-model="colorType">
+                    <option v-for="(val, label) in colorTypeOptions" :value="val">{{label}}</option>
+                </select>
+                泡泡大小：
+                <select v-model="circleSize">
+                    <option v-for="(val, label) in circleSizeOptions" :value="val">{{label}}</option>
+                </select>
+            </div>
+        </div>
+    </h3>
+    <div id="worldmap"></div>
+    <h3>
+        <div class="con"><b>展覽重要指標</b></div>
+    </h3>
+    <div id="chart">
+        <ul>
+            <li><b>上屆參觀人數</b> / 排名
+                <vue-chart chart-type="column" value-column="last_visitors" label-column="exhibition_name" :chart-data="searchResults | orderBy 'last_visitors' -1 | limitBy 10" background-color="#CF76A4" x-axis-label="展覽" y-axis-label="人數"></vue-chart>
+            </li>
+            <li><b>上屆參展廠商數</b> / 排名
+                <vue-chart chart-type="column" value-column="last_company_cnt" label-column="exhibition_name" :chart-data="searchResults | orderBy 'last_company_cnt' -1 | limitBy 10" background-color="#CF76A4" x-axis-label="展覽" y-axis-label="廠商數"></vue-chart>
+            </li>
+            <li class="right"><b>上屆展覽面積</b> / 排名
+                <vue-chart chart-type="column" value-column="exhibition_area" label-column="exhibition_name" :chart-data="searchResults | orderBy 'exhibition_area' -1 | limitBy 10" background-color="#CF76A4" x-axis-label="展覽" y-axis-label="sqm"></vue-chart>
+            </li>
+        </ul>
+        <div class="clear"></div>
+    </div>
+    <h3>
+        <div class="con"><b>各展覽詳細資訊</b></div>
+    </h3>
+    <div class="datainfo">
+        <b>共 {{numFound | numberWithCommas}} 筆</b>  / 排序
+        <select v-model="sortColumn">
+            <option value="exhibition_name">展覽名稱</option>
+            <option value="exhibition_industry_en">產業</option>
+            <option value="exhibition_country">國家</option>
+            <option value="exhibition_city">城市</option>
+            <option value="exhibition_date">展期</option>
+            <option value="last_visitors">上屆參觀人數</option>
+            <option value="last_company_cnt">上屆參展廠商數</option>
+            <option value="foreign_visitors_ratio">上屆國外參觀比例</option>
+            <option value="foreign_company_ratio">上屆國外參展比例</option>
+            <option value="frequency">頻率</option>
+            <option value="last_fair_year">上屆年度</option>
+            <option value="exhibition_area">展覽面積(sqm)</option>
+
+        </select>
+        <select v-model="sortOrder" number>
+            <option value="1">遞增</option>
+            <option value="-1">遞減</option>
+        </select>
+        <div class="page">
+            第{{currentPage + 1 | currency '' 0}}頁 / 共{{totalPage | currency '' 0}}頁
+            <a href="#" class="pre" v-on:click.prevent="prevPage">PREVIOUS</a>
+            <a href="#" class="next" v-on:click.prevent="nextPage">NEXT</a>
+        </div>
+    </div>
+    
+    <div id="no-more-tables">
+        <table>
+            <thead>
+            <tr>
+                <th class="list">項次</th>
+                <th style="width:500px">展覽名稱<br/>產業</th>
+                <th>國家<br/>城市</th>
+                <th>展期起<br/>展期迄</th>
+                <th>上屆參觀人數<br/>上屆參展廠商數</th>
+                <th>上屆國外參觀比例<br/>上屆國外參展比例</th>
+                <th>頻率<br/>上屆年度</th>
+                <th>展覽面積(sqm)<br/></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr v-for="result in searchResults | orderBy sortColumn sortOrder | limitBy perPage pageStart" track-by="id">
+                <td data-title="項次" class="list">{{currentPage * perPage + $index + 1}}</td>
+                <td data-title="展覽名稱/產業">
+                    <a :href="result.exhibition_website" target="_blank"><b>{{result.exhibition_name}}</b></a>
+                    <br/>
+                    {{result.exhibition_industry_en.join(' / ')}}
+                </td>
+                <td data-title="國家/城市">
+                    {{result.exhibition_country}}<br />
+                    {{result.exhibition_city}}
+                </td>
+                <td data-title="展期起/迄">
+                    {{result.exhibition_start_date | formatDate}}<br/>
+                    {{result.exhibition_end_date | formatDate}}
+                </td>
+                <td data-title="人數/廠商數" class="numeric">
+                    {{result.last_visitors | currency '' 0 | hyphenZeroOrNull}}<br/>
+                    {{result.last_company_cnt | currency '' 0 | hyphenZeroOrNull}}
+                </td>
+                <td data-title="國外參觀/參展比例"> 
+                    {{result.foreign_visitors_ratio | percentFormat 2}}<br/>
+                    {{result.foreign_company_ratio | percentFormat 2}}
+                </td>
+                <td data-title="頻率/上屆年度" class="numeric">
+                    {{result.frequency | hyphenZeroOrNull}}<br/>
+                    {{result.last_fair_year | hyphenZeroOrNull}}
+                </td>
+                <td data-title="面積(sqm)" class="numeric">
+                    {{result.exhibition_area | currency '' 0 | hyphenZeroOrNull}}
+                    <br/>
+                    
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    
+    <div class="datainfo">
+        <div class="page">
+            第{{currentPage + 1 | currency '' 0}}頁 / 共{{totalPage | currency '' 0}}頁
+            <a href="#" class="pre" v-on:click.prevent="prevPage">PREVIOUS</a>
+            <a href="#" class="next" v-on:click.prevent="nextPage">NEXT</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    var VueApp = new Vue({
+        el: '#vue-app',
+        data: {
+            searchResults: [],
+            currentPage: 0,
+            perPage: 10,
+            numFound: 0,
+            sortColumn: 'exhibition_name',
+            sortOrder: 1,
+            colorType: 'last_visitors',
+            circleSize: 'exhibition_area',
+            markerClusterer: null,
+            map: null,
+            richMarkers: [],
+            mapOptions: {
+                'last_visitors': '參觀人數',
+                'last_company_cnt': '參展廠商數',
+                'exhibition_area': '展覽面積'
+            }
+        },
+        filters: {
+            omitSelected: function (selectedValue) {
+                return _.omit(this.mapOptions, selectedValue);
+            }
+        },
+        computed: {
+            pageStart: function () {
+                return this.currentPage * this.perPage;
+            },
+            totalPage: function () {
+                return Math.ceil(this.numFound / this.perPage);
+            },
+            colorTypeOptions: function () {
+                return _.omit(this.mapOptions, this.circleSize);
+            },
+            circleSizeOptions: function () {
+                return _.omit(this.mapOptions, this.colorType);
+            }
+        },
+        watch: {
+            searchResults: function () {
+                this.refreshMap();
+            },
+            colorType: function (value) {
+                //                if (value === '') {
+                //                    this.colorType = _.keys(_.omit(this.mapOptions, this.circleSize))[0];
+                //                }
+                this.refreshMap();
+            },
+            circleSize: function (value) {
+                //                console.log(value)
+                //                if (value === '') {
+                //                    this.circleSize = _.keys(_.omit(this.mapOptions, this.colorType))[0];
+                //                }
+                this.refreshMap();
+            }
+        },
+        methods: {
+            prevPage: function () {
+                if (this.currentPage > 0) {
+                    this.currentPage--;
+                }
+            },
+            nextPage: function () {
+                if (this.currentPage < this.totalPage - 1) {
+                    this.currentPage++;
+                }
+            },
+            refreshMap: function () {
+                var $this = this;
+                _.each(this.richMarkers, function (item) {
+                    item.setMap(null);
+                });
+                $this.map.setZoom(2);
+                $this.map.setCenter(new google.maps.LatLng(0, 0));
+
+                var gespMarkers = [];
+
+                _.each(this.searchResults, function (result) {
+                    var title = '<a target="_blank" href="' + result['exhibition_website'] + '">' + result['exhibition_name'] + '</a>';
+                    var latLng = new google.maps.LatLng(result['EC_latitude'], result['EC_longtitude']);
+
+                    var gespMarkerIndex = _.findIndex(gespMarkers, function (m) { return m.position.equals(latLng); });
+                    var gespMarker;
+
+                    if (gespMarkerIndex >= 0) {
+                        gespMarker = gespMarkers[gespMarkerIndex];
+                        gespMarker.content += '<br/>' + title;
+                        gespMarker.sizeCount += result[$this.circleSize];
+                        gespMarker.colorCount += result[$this.colorType];
+                        gespMarker.overlapSize++;
+                    } else {
+                        gespMarkers.push(new GespMarker(latLng, title, result[$this.circleSize], result[$this.colorType]));
+                    }
+                });
+
+                var markers = [];
+
+                _.each(gespMarkers, function (gespMarker) {
+                    var marker = new RichMarker({
+                        position: gespMarker.position,
+                        map: $this.map,
+                        content: createDiv(numberWithCommas(gespMarker.overlapSize), gespMarker.sizeCount, gespMarker.colorCount)
+                    });
+                    attachSecretMessage(marker, gespMarker.content);
+                    markers.push(marker);
+                });
+
+                this.richMarkers = markers;
+            }
+        },
+        events: {
+            'start-search': function (searchForm) {
+                var $this = this;
+
+                this.searchResults = [];
+                this.currentPage = 0;
+
+                var searchFormData = {
+                    Industry: searchForm.industry,
+                    Country: searchForm.country,
+                    ExhibitionYear: searchForm.exhibitionYear,
+                    Keywords: searchForm.keywords
+                };
+
+                //                if (searchForm.exhibitionCount.checked) {
+                //                    searchFormData.ExhibitionCount = {
+                //                        Min: searchForm.exhibitionCount.value[0],
+                //                        Max: searchForm.exhibitionCount.value[1]
+                //                    }
+                //                }
+
+                if (searchForm.visitors.checked) {
+                    searchFormData.Visitors = {
+                        Min: searchForm.visitors.value[0],
+                        Max: searchForm.visitors.value[1]
+                    }
+                }
+
+                if (searchForm.lastCompanyCount.checked) {
+                    searchFormData.LastCompanyCount = {
+                        Min: searchForm.lastCompanyCount.value[0],
+                        Max: searchForm.lastCompanyCount.value[1]
+                    }
+                }
+
+                if (searchForm.exhibitionArea.checked) {
+                    searchFormData.ExhibitionArea = {
+                        Min: searchForm.exhibitionArea.value[0],
+                        Max: searchForm.exhibitionArea.value[1]
+                    }
+                }
+
+                $.ajax({
+                    url: '/Home/Solr',
+                    data: JSON.stringify(searchFormData),
+                    contentType: "application/json; charset=utf-8",
+                    type: 'post',
+                    dataType: 'json'
+                }).done(function (response) {
+                    var result = JSON.parse(response.Data);
+
+                    $this.numFound = result.numFound;
+                    $this.searchResults = result.docs;
+                });
+            }
+        },
+        ready: function () {
+            var center = new google.maps.LatLng(0, 0);
+            this.map = new google.maps.Map(document.getElementById('worldmap'), {
+                center: center,
+                zoom: 2,
+                minZoom: 2,
+                maxZoom: 15,
+                mapTypeId: google.maps.MapTypeId.ROADMAP
+            });
+        }
+    });
+        VueHeader.doSearch();
+</script>
+
+    
+    <div id="gotop">
+        <img src="/Images/TOP.png" />
+    </div>
+
+<footer>
+    <img src="/Images/footerLOGO.png" /><a target="_blank" href="http://www.trade.gov.tw/" class="trade">經濟部國際貿易局主辦</a>　／　<a target="_blank" href="http://www.taitra.org.tw/" class="taitra">中華民國對外貿易發展協會執行</a><br />
+    <br />
+    地址：台北市基隆路一段333號國貿大樓5-7樓<br />
+    電話：886-2-2725-5200 / E-Mail： <a href="mailto:taitra@taitra.org.tw">taitra@taitra.org.tw</a><br />
+    ©2016 版權所有 中華民國對外貿易發展協會　建議瀏覽器：Chrome，Firefox，IE10.0以上版本，最佳瀏覽解析度為1280*960
+</footer>
+
+
+    <script src="/Scripts/backtotop.js"></script>
+<script src="/Scripts/menu.js"></script>
+<script src="/Scripts/zebra_tooltips.js"></script>
+<script src="/Scripts/alertify.min.js"></script>
+
+    <script src="/Scripts/jquery.blockUI.js"></script>
+
+    
+
+    <script type="text/javascript">
+        function MM_showHideLayers() { //v9.0
+            var i, p, v, obj, args = MM_showHideLayers.arguments;
+            for (i = 0; i < (args.length - 2) ; i += 3)
+                with (document)
+                    if (getElementById && ((obj = getElementById(args[i])) != null)) {
+                        v = args[i + 2];
+                        if (obj.style) {
+                            obj = obj.style;
+                            v = (v == 'show') ? 'visible' : (v == 'hide') ? 'hidden' : v;
+                        }
+                        obj.visibility = v;
+                    }
+        }
+
+        function openLoading(obj) {
+            if (obj) {
+                obj.block({
+                    message: $('#searching'),
+                    css: {
+                        border: 'none',
+                        padding: '15px',
+                        backgroundColor: '#000',
+                        '-webkit-border-radius': '10px',
+                        '-moz-border-radius': '10px',
+                        //                    opacity: .5,
+                        color: '#fff'
+                    }
+                });
+            } else {
+                $.blockUI({
+                    message: $('#searching'),
+                    css: {
+                        border: 'none',
+                        //                        backgroundColor: '#000',
+                        backgroundColor: 'rgba(0, 0, 0, 0);',
+                        '-webkit-border-radius': '10px',
+                        '-moz-border-radius': '10px',
+                        width: '150px',
+                        top: '150px'
+                    }
+                });
+                $('.blockUI.blockMsg').center();
+            }
+
+        }
+
+        function closeLoading(obj) {
+            if (obj)
+                obj.unblock();
+            else
+                $.unblockUI();
+        }
+
+        $.fn.center = function () {
+            this.css("position", "absolute");
+            this.css("top", ($(window).height() - this.height()) / 2 + $(window).scrollTop() + "px");
+            this.css("left", ($(window).width() - this.width()) / 2 + $(window).scrollLeft() + "px");
+            return this;
+        }
+
+        $(function () {
+            $('nav li').hover(
+                function () {
+                    $('ul', this).stop().slideDown(200);
+                },
+                function () {
+                    $('ul', this).stop().slideUp(200);
+                }
+            );
+
+            $(document)
+                .ajaxStart(function () {
+                    openLoading();
+                })
+                .ajaxComplete(function () {
+                    closeLoading();
+                });
+        });
+    </script>
+    <div id="searching" style="display: none;">
+        <img src="/Images/balls.svg" />
+    </div>
+</body>
+</html>

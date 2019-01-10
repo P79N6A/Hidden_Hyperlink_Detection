@@ -1,0 +1,47 @@
+<!DOCTYPE html><html lang="en"><head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<script type="text/javascript">
+    (function(){
+        try{
+            function getParentURL() {
+                var isInIframe = (parent != window),
+                    parentURL = null;
+
+                if (isInIframe) parentURL = document.referrer;
+                return parentURL
+            }
+            var url = getParentURL();
+
+            if (/le\.com/.test(url)) {
+                document.domain="le.com";
+            } else {
+                document.domain = "letv.com";
+            }
+
+            var local={};
+            if(window.localStorage){
+                local.callAS=function(){ return true; }
+                local.read=function(key){
+                    var strValue=window.localStorage.getItem(key);
+                    var objValue=null;
+                    if(strValue&&strValue.length>0){ objValue=JSON.parse(strValue);}
+                    return objValue
+                }
+                local.write=function(key,objValue){
+                    var strValue="";
+                    if(objValue){ strValue=JSON.stringify(objValue);}
+                    window.localStorage.setItem(key,strValue);
+                }
+            }else{
+                local.callAS=function(){ return false; };
+            }
+            window.lookieLocal=local;
+            window.parent.Lookie.ifrReady();
+        }catch(e){;}
+    })();
+</script>
+
+</body></html>

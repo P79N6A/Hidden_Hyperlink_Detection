@@ -1,0 +1,457 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+ <head> 
+  <meta http-equiv="Content-Type" content="text/html; charset=gb2312" /> 
+  <title>PPP用户认证和IP地址分配_协议分析网</title> 
+  <meta name="keywords" content="" /> 
+  <meta name="description" content="当用户和接入服务器之间的PPPOE建立之后，就可以在上面建立PPP会话。PPP会话的建立分为三个阶段：LCP协商、认证、IPCP协商。 对于PPP终结和PPP续传，LCP协商阶段是相同的。认证和IPCP协商不同。 LCP协商 LCP协商主要完成某些链路路特性和认证方式的协商，LCP协商成功后" /> 
+  <link href="http://www.cnpaf.net/templets/style/dedecms.css" rel="stylesheet" media="screen" type="text/css" /> 
+  <script language="javascript" type="text/javascript" src="http://www.cnpaf.net/include/dedeajax2.js"></script> 
+  <script language="javascript" type="text/javascript">
+<!--
+	function CheckLogin(){
+	  var taget_obj = document.getElementById('_ajax_feedback');
+	  myajax = new DedeAjax(taget_obj,false,false,'','','');
+	  myajax.SendGet2("http://www.cnpaf.net/member/ajax_feedback.php");
+	  DedeXHTTP = null;
+	}
+	function checkSubmit(){
+		if(document.feedback.msg.value!='') document.feedback.submit();
+		else alert("评论内容不能为空！");
+	}
+function postBadGood(ftype,fid)
+{
+	var taget_obj = document.getElementById(ftype+fid);
+	var saveid = GetCookie('badgoodid');
+	if(saveid != null)
+	{
+		var saveids = saveid.split(',');
+		var hasid = false;
+		saveid = '';
+		j = 1;
+		for(i=saveids.length-1;i>=0;i--)
+		{
+			if(saveids[i]==fid && hasid) continue;
+			else {
+				if(saveids[i]==fid && !hasid) hasid = true;
+				saveid += (saveid=='' ? saveids[i] : ','+saveids[i]);
+				j++;
+				if(j==10 && hasid) break;
+				if(j==9 && !hasid) break;
+			}
+		}
+		if(hasid) { alert('您刚才已表决过了喔！'); return false;}
+		else saveid += ','+fid;
+		SetCookie('badgoodid',saveid,1);
+	}
+	else
+	{
+		SetCookie('badgoodid',fid,1);
+	}
+	myajax = new DedeAjax(taget_obj,false,false,'','','');
+	myajax.SendGet2("http://www.cnpaf.net/plus/feedback.php?aid="+fid+"&action="+ftype+"&fid="+fid);
+	DedeXHTTP = null;
+}
+function postDigg(ftype,aid)
+{
+	var taget_obj = document.getElementById('newdigg');
+	var saveid = GetCookie('diggid');
+	if(saveid != null)
+	{
+		var saveids = saveid.split(',');
+		var hasid = false;
+		saveid = '';
+		j = 1;
+		for(i=saveids.length-1;i>=0;i--)
+		{
+			if(saveids[i]==aid && hasid) continue;
+			else {
+				if(saveids[i]==aid && !hasid) hasid = true;
+				saveid += (saveid=='' ? saveids[i] : ','+saveids[i]);
+				j++;
+				if(j==20 && hasid) break;
+				if(j==19 && !hasid) break;
+			}
+		}
+		if(hasid) { alert("您已经顶过该文章，请不要重复操作 ！"); return; }
+		else saveid += ','+aid;
+		SetCookie('diggid',saveid,1);
+	}
+	else
+	{
+		SetCookie('diggid',aid,1);
+	}
+	myajax = new DedeAjax(taget_obj,false,false,'','','');
+	var url = "http://www.cnpaf.net/plus/digg_ajax.php?action="+ftype+"&id="+aid;
+	myajax.SendGet2(url);
+	DedeXHTTP = null;
+}
+function getDigg(aid)
+{
+	var taget_obj = document.getElementById('newdigg');
+	myajax = new DedeAjax(taget_obj,false,false,'','','');
+	myajax.SendGet2("http://www.cnpaf.net/plus/digg_ajax.php?id="+aid);
+	DedeXHTTP = null;
+}
+
+-->
+</script> 
+ </head> 
+ <body class="articleview"> 
+  <script type="text/javascript">
+document.body.oncopy = function () { setTimeout( function () { var text = clipboardData.getData("text"); if (text) { text = text + "\r\n本篇文章来源于 中国协议分析网|www.cnpaf.net 原文链接："+location.href; clipboardData.setData("text", text); } }, 100 ) }
+</script> 
+  <div class="header"> 
+   <div class="top w960 center"> 
+    <div class="title"> 
+     <h1> <a href="http://www.cnpaf.net">协议分析网</a> </h1> 
+    </div> 
+    <!-- /title --> 
+    <div class="banner"> 
+     <!-- <script src='/plus/ad_js.php?aid=6' language='javascript'></script> --> 
+    </div> 
+    <!-- /banner --> 
+    <div class="rlink"> 
+     <ul> 
+      <li class="r1"><a href="/forum/">技术论坛</a></li> 
+      <li class="r2"><a href="http://www.cnpaf.net/tags.php">TAG标签</a></li> 
+      <li class="r3"><a href="http://www.cnpaf.net/data/sitemap.html">网站地图</a></li> 
+      <li class="r4"><a href="http://www.cnpaf.net/data/rssmap.html">RSS订阅</a></li> 
+     </ul> 
+    </div> 
+    <!-- /banner --> 
+   </div> 
+   <!-- /top --> 
+   <div class="nav mt1"> 
+    <div class="w960 center"> 
+     <ul> 
+      <li><a href="http://www.cnpaf.net/">网站首页</a></li> 
+      <li><a href="http://www.cnpaf.net/Class/news/">业界新闻</a></li> 
+      <li><a href="http://www.cnpaf.net/Class/Analyze/">协议分析</a></li>
+      <li class="thisclass"><a href="http://www.cnpaf.net/Class/ProtocolAll/">协议大全</a> </li> 
+      <li><a href="http://www.cnpaf.net/class/rfcall/">RFC文档</a></li> 
+      <li><a href="http://www.cnpaf.net/Class/question/">问题解答</a></li> 
+      <li><a href="http://www.cnpaf.net/Class/security/">网络安全</a></li> 
+      <li><a href="http://www.cnpaf.net/Class/Manage/">网络管理</a></li> 
+      <li><a href="http://www.cnpaf.net/Class/download/">软件下载</a></li> 
+      <li><a href="/forum">技术论坛</a></li> 
+     </ul> 
+    </div> 
+   </div> 
+   <!-- /nav --> 
+   <div class="search"> 
+    <div class="w960 center"> 
+     <form action="http://www.cnpaf.net/plus/search.php" name="formsearch"> 
+      <div class="form"> 
+       <h4>搜索</h4> 
+       <input type="hidden" name="kwtype" value="0" /> 
+       <input name="keyword" type="text" class="search-keyword" id="search-keyword" /> 
+       <select name="searchtype" class="search-option" id="search-option"> <option value="titlekeyword" selected="1">智能模糊搜索</option> <option value="title">仅搜索标题</option> </select> 
+       <button type="submit" class="search-submit">搜索</button> 热门搜索：　
+       <a href="http://www.cnpaf.net/plus/search.php?keyword=++"> </a> 　
+       <a href="http://www.cnpaf.net/plus/search.php?keyword="></a> 　
+       <a href="http://www.cnpaf.net/plus/search.php?keyword="></a> 　
+       <a href="http://www.cnpaf.net/plus/search.php?keyword="></a> 　
+       <a href="http://www.cnpaf.net/plus/search.php?keyword="></a> 　
+       <a href="http://www.cnpaf.net/plus/search.php?keyword="></a> 　
+       <a href="http://www.cnpaf.net/plus/search.php?keyword=tcp">tcp</a> 　
+       <a href="http://www.cnpaf.net/plus/search.php?keyword=sniffer">sniffer</a> 
+      </div> 
+     </form> 
+     <!-- /form --> 
+    </div> 
+   </div> 
+   <!-- /search --> 
+  </div> 
+  <!-- /header --> 
+  <!-- /header --> 
+  <!-- <center><script src='/plus/ad_js.php?aid=13' language='javascript'></script></center> 通栏728X90--> 
+  <div class="channel-nav w960 center clear"> 
+   <ul> 
+    <li><a href="http://www.cnpaf.net/Class/arp/"><span>ARP协议</span></a></li> 
+    <li><a href="http://www.cnpaf.net/Class/ATM/"><span>ATM协议</span></a></li> 
+    <li><a href="http://www.cnpaf.net/Class/BGP/"><span>BGP协议</span></a></li> 
+    <li><a href="http://www.cnpaf.net/Class/DHCP/"><span>DHCP协议</span></a></li> 
+    <li><a href="http://www.cnpaf.net/Class/DNS/"><span>DNS协议</span></a></li> 
+    <li><a href="http://www.cnpaf.net/Class/DSL/"><span>DSL协议</span></a></li> 
+    <li><a href="http://www.cnpaf.net/Class/EIGRP/"><span>EIGRP协议</span></a></li> 
+    <li><a href="http://www.cnpaf.net/Class/FDDI/"><span>FDDI协议</span></a></li> 
+    <li><a href="http://www.cnpaf.net/Class/FTP/"><span>FTP协议</span></a></li> 
+    <li><a href="http://www.cnpaf.net/Class/HTTP/"><span>HTTP协议</span></a></li> 
+    <li><a href="http://www.cnpaf.net/Class/IGRP/"><span>IGRP协议</span></a></li> 
+    <li><a href="http://www.cnpaf.net/Class/iptv/"><span>IPTV协议</span></a></li> 
+    <li><a href="http://www.cnpaf.net/Class/IPV6/"><span>IPV6协议</span></a></li> 
+    <li><a href="http://www.cnpaf.net/Class/IPX/"><span>IPX协议</span></a></li> 
+    <li><a href="http://www.cnpaf.net/Class/MPLS/"><span>MPLS协议</span></a></li> 
+    <li><a href="http://www.cnpaf.net/Class/NAT/"><span>NAT协议</span></a></li> 
+    <li><a href="http://www.cnpaf.net/Class/OSPF/"><span>OSPF协议</span></a></li> 
+    <li><a href="http://www.cnpaf.net/Class/POP3/"><span>POP3协议</span></a></li>
+    <li class="thisclass"><a href="http://www.cnpaf.net/Class/PPP/"><span>PPP协议</span></a> </li> 
+    <li><a href="http://www.cnpaf.net/Class/RIP/"><span>RIP协议</span></a></li> 
+    <li><a href="http://www.cnpaf.net/Class/SMTP/"><span>SMTP协议</span></a></li> 
+    <li><a href="http://www.cnpaf.net/Class/SNMP/"><span>SNMP协议</span></a></li> 
+    <li><a href="http://www.cnpaf.net/Class/TCPANDIP/"><span>TCP/IP协议</span></a></li> 
+    <li><a href="http://www.cnpaf.net/Class/Telnet/"><span>TELNET协议</span></a></li> 
+    <li><a href="http://www.cnpaf.net/Class/TFTP/"><span>TFTP协议</span></a></li> 
+    <li><a href="http://www.cnpaf.net/Class/UDP/"><span>UDP协议</span></a></li> 
+    <li><a href="http://www.cnpaf.net/Class/VLAN/"><span>VLAN协议</span></a></li> 
+    <li><a href="http://www.cnpaf.net/Class/voip/"><span>VOIP协议</span></a></li> 
+    <li><a href="http://www.cnpaf.net/Class/WINS/"><span>WINS协议</span></a></li> 
+    <li><a href="http://www.cnpaf.net/Class/WLAN/"><span>WLAN协议</span></a></li> 
+    <li><a href="http://www.cnpaf.net/Class/Ethernet/"><span>以太网协议</span></a></li> 
+    <li><a href="http://www.cnpaf.net/Class/otherprotocol/"><span>其它协议</span></a></li> 
+   </ul> 
+   <span class="back"> <a href="http://www.cnpaf.net/">返回首页</a> </span> 
+  </div>
+  <!-- /channel-nav --> 
+  <div class="w960 center clear mt1"> 
+   <div class="pleft"> 
+    <div class="place"> 
+     <strong>当前位置:</strong> 
+     <a href="http://www.cnpaf.net/">网站首页</a>&gt;&gt;
+     <a href="http://www.cnpaf.net/Class/ProtocolAll/">协议大全</a>&gt;&gt;
+     <a href="http://www.cnpaf.net/Class/PPP/">PPP协议</a>&gt;&gt; 
+    </div>
+    <!-- /place --> 
+    <div class="viewbox"> 
+     <div class="title"> 
+      <h2>PPP用户认证和IP地址分配</h2> 
+     </div>
+     <!-- /title --> 
+     <div class="info"> 
+      <small>时间:</small>2004-08-05 
+      <small>来源:</small> 
+      <small>作者:</small> 
+      <small>点击:</small>
+      <script src="http://www.cnpaf.net/plus/count.php?view=yes&amp;aid=484&amp;mid=0" type="text/javascript" language="javascript"></script>次
+     </div>
+     <!-- /info --> 
+     <!--收藏--> 
+     <div class="shoucang">
+      <script src="/sc/sc.js"></script>
+     </div> 
+     <!--/收藏--> 
+     <div class="intro">
+      当用户和接入服务器之间的PPPOE建立之后，就可以在上面建立PPP会话。PPP会话的建立分为三个阶段：LCP协商、认证、IPCP协商。 对于PPP终结和PPP续传，LCP协商阶段是相同的。认证和IPCP协商不同。 LCP协商 LCP协商主要完成某些链路路特性和认证方式的协商，LCP协商成功后
+     </div> 
+     <div class="content">
+      <span style="FLOAT: left"> <script src="/plus/ad_js.php?aid=23" language="javascript"></script></span> 　　 
+      <p>　　当用户和接入服务器之间的PPPOE建立之后，就可以在上面建立PPP会话。PPP会话的建立分为三个阶段：LCP协商、认证、IPCP协商。<br /><br />　　对于PPP终结和PPP续传，LCP协商阶段是相同的。认证和IPCP协商不同。<br /><br /><br />LCP协商<br /><br />　　LCP协商主要完成某些链路路特性和认证方式的协商，LCP协商成功后，用户根据协商的认证方式向接入服务器发起认证请求，用户认证的方式采用PAP或CHAP方式<br /><br />PPP终结时的认证和IP地址分配<br /><br />　　PAP为两次握手认证，口令为明文。PAP认证过程如下：拨号用户发送用户名和口令到接入服务器，接入服务器通过RADIUS协议到RADIUS服务器上去查看是否有此用户，口令是否正确，然后发送相应的响应。<br />　　CHAP为三次握手认证，口令为密文。CHAP拨号用户发送用户名到接入服务器，接入服务器发送一些随机产生的报文，交给被拨号用户，拨号用户用自己的口令用MD5算法进行加密，传回密文，接入服务器用从RADIUS服务器取得的用户口令及随机报文用MD5算法加密，比较二者的密文，根据比较结果返回认证成功或失败的响应。<br />　　接入服务器和RADIUS服务器之间通过一个共享密钥以密文方式通信。<br />　　在认证阶段，如果在用户数据库中为该用户名配置了IP地址，则RADIUS服务器将这个IP地址返回给接入服务器，作为这个用户上网使用的IP地址。<br />　　如果用户在认证阶段还没有获得IP地址，就需要在IPCP阶段协商IP地址。一般来说，运营商为用户提供接入服务时，应该有一批IP地址，即IP地址池，用户上网所需要的IP地址就来自与此，当用户上网时，从IP地址池分配一个IP地址，当用户下网时，这个IP地址归还到地址池。在运营商开通接入服务时，将IP地址池配置到接入服务器中，在IPCP阶段，接入服务器从IP地址池分配一个空闲的IP地址给用户，作为用户上网的IP地址。如果已经没有可用的IP地址，则IPCP协商失败，关闭PPP连接，在用户看来，则是拨号失败，ISP暂时不能为他提供接入服务。<br /><br />PPP续传时的认证和IP地址分配<br /><br />　　LCP协商结束后，如果经RADIUS服务器检查这是一个VPN用户，则接入服务器为这个用户建立到LNS的会话，如果没有隧道还要建立隧道。认证分为两种情况：一次认证和两次认证。<br />　　一次认证是指只在LAC的RADIUS服务器上认证一次，LNS信任LAC的RADIUS服务器。用户的IP地址可以由LAC的RADIUS服务器指定，也可以由用户和LNS进行IPCP协商获得。<br />　　两次认证是指用户需要输入两次用户名和口令，一个是接入Internet的权限验证，一个是进入VPN的权限验证。认证的时候需要LAC的RADIUS服务器和LNS的RADIUS服务器共同配合。IP地址的可以由LNS的RADIUS服务器指定，也可以由用户和LNS进行IPCP协商获得。<br /><br />RADIUS协议扩展<br /><br />　　为实现对用户更全面的管理，在RADIUS协议中，至少应该扩展以下属性：用户的接入带宽、用户接入所使用的PVC，如果用户间希望互相通信，需要指明对方的用户名或IP地址。客户端和服务器端同时支持。<br /></p> 
+      <center> 
+       <script src="/plus/ad_js.php?aid=23" language="javascript"></script> 
+      </center> 
+     </div>
+     <!-- /content --> 
+     <div class="boxoff"> 
+      <strong>------分隔线----------------------------</strong> 
+     </div> 
+     <div class="dede_pages"> 
+      <ul class="pagelist"> 
+      </ul> 
+     </div>
+     <!-- /pages --> 
+     <div class="newdigg" id="newdigg"> 
+      <div class="diggbox digg_good" onmousemove="this.style.backgroundPosition='left bottom';" onmouseout="this.style.backgroundPosition='left top';" onclick="javascript:postDigg('good',484)"> 
+       <div class="digg_act">
+        顶一下
+       </div> 
+       <div class="digg_num">
+        (10)
+       </div> 
+       <div class="digg_percent"> 
+        <div class="digg_percent_bar">
+         <span style="width:76.9%"></span>
+        </div> 
+        <div class="digg_percent_num">
+         76.9%
+        </div> 
+       </div> 
+      </div> 
+      <div class="diggbox digg_bad" onmousemove="this.style.backgroundPosition='right bottom';" onmouseout="this.style.backgroundPosition='right top';" onclick="javascript:postDigg('bad',484)"> 
+       <div class="digg_act">
+        踩一下
+       </div> 
+       <div class="digg_num">
+        (3)
+       </div> 
+       <div class="digg_percent"> 
+        <div class="digg_percent_bar">
+         <span style="width:23.1%"></span>
+        </div> 
+        <div class="digg_percent_num">
+         23.1%
+        </div> 
+       </div> 
+      </div> 
+     </div> 
+     <script language="javascript" type="text/javascript">getDigg(484);</script> 
+     <div class="boxoff"> 
+      <strong>------分隔线----------------------------</strong> 
+     </div> 
+     <div class="handle"> 
+      <div class="context"> 
+       <ul> 
+        <li>上一篇：<a href="http://www.cnpaf.net/Class/PPP/200408/483.html">PPP会话终结</a> </li> 
+        <li>下一篇：<a href="http://www.cnpaf.net/Class/PPP/200408/485.html">AAL5层业务接口</a> </li> 
+       </ul> 
+      </div>
+      <!-- /context --> 
+      <div class="actbox"> 
+       <ul> 
+        <li id="act-fav"><a href="http://www.cnpaf.net/plus/stow.php?aid=484" target="_blank">收藏</a></li> 
+        <li id="act-err"><a href="http://www.cnpaf.net/plus/erraddsave.php?aid=484&amp;title=PPP用户认证和IP地址分配" target="_blank">挑错</a></li> 
+        <li id="act-pus"><a href="http://www.cnpaf.net/plus/recommend.php?aid=484" target="_blank">推荐</a></li> 
+        <li id="act-pnt"><a href="#" onclick="window.print();">打印</a></li> 
+       </ul> 
+      </div>
+      <!-- /actbox --> 
+     </div>
+     <!-- /handle --> 
+    </div>
+    <!-- /viewbox --> 
+    <div class="mt1"> 
+     <dl class="tbox"> 
+      <dt> 
+       <strong>最新评论</strong> 
+       <span class="more"><a href="http://www.cnpaf.net/plus/feedback.php?aid=484">查看所有评论</a></span> 
+      </dt> 
+      <dd> 
+       <div class="dede_comment"> 
+        <script language="javascript" type="text/javascript" src="http://www.cnpaf.net/plus/feedback_js.php?aid=484"></script> 
+       </div>
+       <!-- /dede_comment --> 
+      </dd> 
+     </dl> 
+    </div>
+    <!-- /comment --> 
+    <div class="mt1"> 
+     <dl class="tbox"> 
+      <dt> 
+       <strong>发表评论</strong> 
+       <span class="more"><a href="http://www.cnpaf.net/plus/feedback.php?aid=484">查看所有评论</a></span> 
+      </dt> 
+      <dd> 
+       <div class="dede_comment_post"> 
+        <form action="http://www.cnpaf.net/plus/feedback.php" method="post" name="feedback"> 
+         <input type="hidden" name="action" value="send" /> 
+         <input type="hidden" name="comtype" value="comments" /> 
+         <input type="hidden" name="aid" value="484" /> 
+         <input type="hidden" name="isconfirm" value="yes" /> 
+         <div class="dcmp-title"> 
+          <small>请自觉遵守互联网相关的政策法规，严禁发布色情、暴力、反动的言论。</small> 
+         </div>
+         <!-- /dcmp-title --> 
+         <div class="dcmp-stand"> 
+          <strong>评价:</strong> 
+          <input type="radio" name="feedbacktype" checked="1" value="feedback" id="dcmp-stand-neu" />
+          <label for="dcmp-stand-neu"><img src="http://www.cnpaf.net/templets/images/cmt-neu.gif" />中立</label> 
+          <input type="radio" name="feedbacktype" value="good" id="dcmp-stand-good" />
+          <label for="dcmp-stand-good"><img src="http://www.cnpaf.net/templets/images/cmt-good.gif" />好评</label> 
+          <input type="radio" name="feedbacktype" value="bad" id="dcmp-stand-bad" />
+          <label for="dcmp-stand-bad"><img src="http://www.cnpaf.net/templets/images/cmt-bad.gif" />差评</label> 
+         </div>
+         <!-- /dcmp-stand --> 
+         <div class="dcmp-content"> 
+          <textarea cols="60" name="msg" rows="5" class="ipt-txt"></textarea> 
+         </div>
+         <!-- /dcmp-content --> 
+         <div class="dcmp-mood"> 
+          <strong>表情:</strong> 
+          <ul> 
+           <li><input type="radio" name="face" value="6" checked="1" /><img src="http://www.cnpaf.net/templets/images/mood/ico-mood-6.gif" /></li> 
+           <li><input type="radio" name="face" value="4" /><img src="http://www.cnpaf.net/templets/images/mood/ico-mood-4.gif" /></li> 
+           <li><input type="radio" name="face" value="3" /><img src="http://www.cnpaf.net/templets/images/mood/ico-mood-3.gif" /></li> 
+           <li><input type="radio" name="face" value="5" /><img src="http://www.cnpaf.net/templets/images/mood/ico-mood-5.gif" /></li> 
+           <li><input type="radio" name="face" value="2" /><img src="http://www.cnpaf.net/templets/images/mood/ico-mood-2.gif" /></li> 
+           <li><input type="radio" name="face" value="1" /><img src="http://www.cnpaf.net/templets/images/mood/ico-mood-1.gif" /></li> 
+           <li><input type="radio" name="face" value="7" /><img src="http://www.cnpaf.net/templets/images/mood/ico-mood-7.gif" /></li> 
+          </ul> 
+         </div>
+         <!-- /dcmp-mood --> 
+         <div class="dcmp-post">
+          <!--未登陆--> 
+          <div class="dcmp-userinfo" id="_ajax_feedback">
+            用户名:
+           <input type="text" name="username" size="16" class="ipt-txt" /> 密码:
+           <input name="pwd" type="password" size="16" class="ipt-txt" /> 验证码:
+           <input type="text" name="validate" size="4" class="ipt-txt" />
+           <img src="http://www.cnpaf.net/include/vdimgck.php" /> 
+           <input type="checkbox" name="notuser" id="dcmp-submit-guest" />
+           <label for="dcmp-submit-guest"> 匿名? </label> 
+          </div> 
+          <script language="javascript" type="text/javascript">CheckLogin();</script> 
+          <div class="dcmp-submit"> 
+           <button type="button" onclick="checkSubmit()">发表评论</button> 
+          </div> 
+         </div> 
+        </form> 
+       </div>
+       <!-- /dede_comment_post --> 
+      </dd> 
+     </dl> 
+    </div> 
+   </div>
+   <!-- /pleft --> 
+   <div class="pright"> 
+    <div class="infos_userinfo"> 
+     <dl class="tbox"> 
+      <dt>
+       <strong>
+        <!--广告位--></strong>
+      </dt> 
+      <dd> 
+       <!--banner广告位-->
+       <center>
+        <script src="/plus/ad_js.php?aid=22" language="javascript"></script>
+       </center> 
+      </dd> 
+     </dl> 
+    </div> 
+    <div class="commend mt1"> 
+     <dl class="tbox"> 
+      <dt>
+       <strong>推荐内容</strong>
+      </dt> 
+      <dd> 
+       <ul class="d4"> 
+       </ul> 
+      </dd> 
+     </dl> 
+    </div>
+    <!-- /commend --> 
+    <div class="hot mt1"> 
+     <dl class="tbox"> 
+      <dt>
+       <strong>热点内容</strong>
+      </dt> 
+      <dd> 
+       <ul class="c1 ico2"> 
+        <li><a href="http://www.cnpaf.net/Class/PPP/200408/478.html">PPPOE协议简介</a></li> 
+        <li><a href="http://www.cnpaf.net/Class/PPP/200408/490.html">PPP协议：关于在点到点链路上进</a></li> 
+        <li><a href="http://www.cnpaf.net/Class/PPP/200408/482.html">PPPOE流程</a></li> 
+        <li><a href="http://www.cnpaf.net/Class/PPP/200408/479.html">PPP帧格式</a></li> 
+        <li><a href="http://www.cnpaf.net/Class/PPP/200408/484.html">PPP用户认证和IP地址分配</a></li> 
+        <li><a href="http://www.cnpaf.net/Class/PPP/200408/476.html">PPP协议规范</a></li> 
+        <li><a href="http://www.cnpaf.net/Class/PPP/200408/480.html">PPP链路工作过程</a></li> 
+        <li><a href="http://www.cnpaf.net/Class/PPP/200408/477.html">PPP链路操作</a></li> 
+        <li><a href="http://www.cnpaf.net/Class/PPP/200408/481.html">PPP应用举例</a></li> 
+        <li><a href="http://www.cnpaf.net/Class/PPP/200408/483.html">PPP会话终结</a></li> 
+       </ul> 
+      </dd> 
+     </dl> 
+    </div> 
+   </div>
+   <!-- /pright --> 
+  </div> 
+  <div class="footer w960 center mt1 clear"> 
+   <p> <a href="/about/aboutus.html">关于我们</a> - <a href="mailto:wayky@126.com">联系我们</a> - <a href="/about/hezuo.html">广告服务</a> - <a href="/plus/flink.php">友情链接</a> - <a href="/data/sitemap.html">网站地图</a> - <a href="/about/copyright.html">版权声明</a> - <a href="/abouthistory.html">网站历史</a> </p>
+   <br /> 
+   <p class="copyright"> </p>
+   <p>版权所有 <a href="http://www.cnpaf.net">协议分析网</a> 信箱:wayky#126.com(把&quot;#&quot;改成&quot;@&quot;)<br /> Copyright (C)<span style="FONT-WEIGHT: bold; FONT-SIZE: 8.5pt; FONT-STYLE: italic; FONT-FAMILY: Arial"> <span style="COLOR: #f26522">www.<span style="COLOR: #006699">Cnpaf.</span>N</span>et <span style="COLOR: #f26522">2004-2013</span> </span> All Rights Reserved.京公网安备110105010524<br />京ICP备05002225号 </p> 
+   <center>
+    <script src="http://s22.cnzz.com/stat.php?id=1185520&amp;web_id=1185520&amp;show=pic" language="JavaScript"></script> 
+   </center> 
+  </div> 
+  <!-- /footer -->   
+ </body>
+</html>

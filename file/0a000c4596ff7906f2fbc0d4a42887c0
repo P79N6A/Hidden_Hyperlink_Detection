@@ -1,0 +1,244 @@
+<html><head></head><body><pre style="word-wrap: break-word; white-space: pre-wrap;">(function ($) {
+    var EasyPass = EasyPass || {};
+    window.IsReplace = false;
+    EasyPass.Cookie = {
+        getCookie: function (objName) { //获取指定名称的cookie的值
+            var arrStr = document.cookie.split("; ");
+            for (var i = 0; i &lt; arrStr.length; i++) {
+                var temp = arrStr[i].split("=");
+                if (temp[0] == objName) return unescape(temp[1]);
+            }
+            return "";
+        },
+        setCookie: function (name, value)//两个参数，一个是cookie的名子，一个是值
+        {
+            document.cookie = name + "=" + escape(value) + ";path=/";
+        }
+    };
+
+    EasyPass.PopForm = {
+        submitOk: function (result) {
+            var message = "订单提交成功";
+            EasyPass.MultiOrder.ShowErrorMessage(message);
+        },
+        submitFail: function () {
+            var message = "订单提交失败";
+            EasyPass.MultiOrder.ShowErrorMessage(message);
+        }
+    };
+
+    EasyPass.MultiOrder = {
+        btnSubmit: null, // 提交按钮
+        orderInit: function () {
+            $("#submitOrder").unbind("click");
+            this.btnSubmit = $("#submitOrder");
+            this.btnSubmit.click(function () {
+                EasyPass.MultiOrder.submitOrder($("#submitOrder")); return false;
+            });
+
+            //$("#inName").keyup(function () {
+            //    var text = $("#inName").val();
+            //    var reg = /[^\u4e00-\u9fa5]+/g;
+            //    if (!reg.test(text)) {
+            //        return;
+            //    }
+            //    else {
+            //        $("#inName").val($("#inName").val().replace(reg, ''));
+            //    }
+            //});
+            $("#inName").mouseenter(function () {
+                $("#inName").addClass("current");
+
+            });
+            $("#inName").mouseleave(function () {
+                $("#inName").removeClass("current");
+
+            });
+            $("#inPhone").keyup(function () {
+
+                var text = $("#inPhone").val();
+                var reg = /[^\d]+/g;
+                if (!reg.test(text)) {
+                    return;
+                }
+                //else {
+                //    $("#inPhone").val($("#inPhone").val().replace(reg, ''));
+                //}
+            });
+            $("#inPhone").mouseenter(function () {
+                $("#inPhone").addClass("current");
+
+            });
+            $("#inPhone").mouseleave(function () {
+                $("#inPhone").removeClass("current");
+
+            });
+        },
+        IsMobile: function(telphone)
+        {
+            var reg = /^1[34578]\d{9}$/ ;
+            if (reg.test(telphone))
+                return true;
+            else
+                return false;
+        },
+        IsBackSpace:function(event)
+        {
+            var ev = event || window.event; //获取event对象   
+            var obj = ev.target || ev.srcElement; //获取事件源   
+            if (ev.keyCode == 8) {
+                return true;;
+            }
+        },
+        ShowErrorMessage:function(message) {
+            $(document.body).tip({
+                tempateName: '#tipTempate', //模板ID
+                msg: message //提示信息
+            });
+        },
+        GetCheckCode: function () {
+
+        },
+        isSubmiting: false,
+        submitOrder: function (obj) {
+
+            if (this.isSubmiting) {
+                return;
+            }
+
+            var name = $("#inName").val();
+            var phone = $("#inPhone").val();
+
+            var reg = /[^\u4e00-\u9fa5]+/g;
+            if (reg.test(name)) {
+                message = "最多输入五个汉字";
+                EasyPass.MultiOrder.ShowErrorMessage(message);
+                $("#inName").focus();
+                return;
+            }
+            if (!name) {
+                var message;
+                if (name == "") {
+                    message = "姓名不能为空";
+                }
+                else {
+                    message = "姓名输入错误";
+                }
+                EasyPass.MultiOrder.ShowErrorMessage(message);
+                $("#inName").focus();
+                return;
+            }
+            if (!phone) {
+                var message;
+                if (phone == "")
+                    message = "手机号不能为空";
+                else {
+                    message = "手机号输入错误";
+                }
+                EasyPass.MultiOrder.ShowErrorMessage(message);
+                $("#inPhone").focus();
+                return;
+            }
+            if (!EasyPass.MultiOrder.IsMobile(phone)) {
+                var message = "手机号输入格式错误";
+                EasyPass.MultiOrder.ShowErrorMessage(message);
+                $("#inPhone").focus();
+                return;
+            }
+            this.isSubmiting = true;
+            var dealers = new Array();
+            $(".leftbox i.checked").each(function () {
+                dealers.push($(this).attr("id"));
+            });
+            
+            var data = { c: current_city, car: currentCarId,  ds: dealers.join(","), t: phone, n: name };
+                // 地址需要改变已经改为https
+            var getUrl = "https://sec.bitauto.com/ordermobile/ashx/submitOrders.ashx";
+            //var getUrl = "http://sec.bitauto.com/ordermobile/ashx/submitOrders.ashx";
+          
+            //var getUrl = ("https:" == document.location.protocol ? "https://" : "http://") + "sec.bitauto.com/ordermobile/ashx/submitOrders.ashx";
+
+            if (typeof XCWEBLOG_ID != "undefined")
+                data = _.extend(data, { u: XCWEBLOG_ID });
+
+            
+
+            var cookieCon = "{\"name\": \"" + encodeURIComponent(data.n)
+                                + "\",\"phone\":" + data.t + " }";
+            EasyPass.Cookie.setCookie("H5MultiOrders", cookieCon);
+
+                //imgcode
+            var ikey = $.VerifiCodePopWin.getKey();
+            var icode = "";
+            var iid = 43;
+            if (ikey != null) {
+                icode = $.VerifiCodePopWin.getCode();
+            } else {
+                ikey = "";
+            }
+            data = _.extend(data, { ikey: ikey, icode: icode, iid: iid});
+                //$(".jump-pop").html("&lt;span&gt;正在提交...&lt;/span&gt;");
+                //$(".jump-pop").show();
+            $.ajax({
+                    type: "get",
+                    url: getUrl,
+                    timeout: 20000,
+                    data: data,
+                    dataType: "jsonp",
+                    jsonpCallback: "aa",
+                    success: function (data) {
+                        //请求成功
+                        if (data &amp;&amp; data != "") {
+                            if (data.res == -11) {
+                                this.btnSubmit = $("#submitOrder");
+                                $.VerifiCodePopWin.showCode(43, this.btnSubmit);
+                                return;
+                            }
+                            if (data.res == -12) {
+                                $.VerifiCodePopWin.showErr("验证码错误！");
+                                $.VerifiCodePopWin.bindClick();
+                                return;
+                            }
+                            $.VerifiCodePopWin.closeCode();
+                            var sourceparam = "";
+                            if (urlParam)
+                                urlParam = "&amp;" + urlParam;
+
+                            // -1表示客户端参数异常 -2订单插入有失败的-3 车款信息不存在-4订单插入全部失败1全部成功
+                            if (data.res == 1 || data.res == -2) {
+
+                                //EasyPass.PopForm.submitOk(data.res);
+                                // 统计订单
+                                var vJson = { "OT": 1, "ON": data.ids.join(",") };
+                                orderTracing.CommitOrder(vJson);
+
+                                var jzParam = "";
+                                if (isloadJZ) {
+                                    jzParam = "&amp;isjz=1&amp;modleid=" + currentCsId + '-' + current_province + '-' + current_city + "&amp;carid=" + currentCarId + "&amp;Oids=" + data.ids.join("|");
+                                }
+                                window.location.href = "/OrderSuccess/" + currentCsId + "?state=1" + jzParam + urlParam;
+                                
+
+
+                            } else {
+                                EasyPass.PopForm.submitFail();
+                            }
+
+                        }
+            },
+                    complete: function () {
+                    EasyPass.MultiOrder.isSubmiting = false;
+            },
+                    error: function (data, textStatus) {
+                    EasyPass.MultiOrder.isSubmiting = false;
+                        //请求出错处理
+                    $.VerifiCodePopWin.closeCode();
+                    EasyPass.PopForm.submitFail();
+            }
+            });
+        }
+    };
+
+    window.EasyPass = EasyPass;
+
+})(jQuery);</pre></body></html>

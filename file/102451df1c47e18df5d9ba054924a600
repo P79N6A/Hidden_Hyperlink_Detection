@@ -1,0 +1,1208 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="X-UA-Compatible" content="IE=8, IE=9, IE=10, chrome=1" />
+<meta name="renderer" content="webkit" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>首页</title>
+
+<script>
+window.localsForMebmer={
+		SiteID:21,
+		SiteLink:"/",
+		FrontAppContext:"http://www.historychina.net/history/"
+};
+</script>
+<link href="/css/common.css" rel="stylesheet" type="text/css"> 
+<script src="/js/zcms_require.js" contextpath="http://www.historychina.net/history/"></script>
+<script type="text/javascript" src="/js/common.js"></script>
+<script type="text/javascript" src="/js/ScrollPic.js"></script>
+
+
+
+<link href="/css/guide.css" type="text/css" rel="stylesheet" />
+<link href="/css/zl_style.css" type="text/css" rel="stylesheet" />
+<script type="text/javascript" src="/js/zl_js.js"></script>
+<script type="text/javascript" src="/js/jquery.SuperSlide.js" ></script>
+<script type="text/javascript" src="/js/guide.js" ></script>
+<script type="text/javascript">
+$(function(){
+	$("#search_gj > a").click(function(){
+		var value = $(this).attr("innercode");
+		$("#CatalogInnerCode").val(value);
+		adsubmitForm();
+	});		   
+})
+</script>
+</head>
+
+<body id="index">
+<!--**** 头部开始 ****-->
+
+<script>
+if(!window.localsForMebmer){
+	window.localsForMebmer={
+			SiteID:21,
+			SiteLink:"/",
+			FrontAppContext:"http://www.historychina.net/history/",
+			Request_Referer:""
+	};
+}
+
+document.onkeydown = function(event) {
+	var e = event || window.event || arguments.callee.caller.arguments[0];
+	if (e && e.keyCode == 13) { // enter 键
+		if (document.activeElement.id != 'UserName'&&document.activeElement.id != 'Password'
+				&&document.activeElement.id != 'AuthCode' ) {
+			return;
+		}
+		doLogin('loginForm');
+	}
+};
+
+//搜索效果
+function soClick(obj){
+	if(obj.value=="") obj.value =""; 
+}
+
+function soBlur(obj){
+	if(obj.value=="") obj.value =""; 
+}
+function submitForm(){
+	if($V("Query")=="" || $V("Query")=="null" || $V("Query")==null){
+		Dialog.alert("请输入搜索内容！");
+		return;
+	}
+	document.SearchForm.submit();
+}
+function adsubmitForm(){
+	document.AdvanceSearchForm.submit();
+}
+
+
+function AddFavorite(sURL, sTitle)
+{
+    try
+    {
+        window.external.addFavorite(sURL, sTitle);
+    }
+    catch (e)
+    {
+        try
+        {
+            window.sidebar.addPanel(sTitle, sURL, "");
+        }
+        catch (e)
+        {
+            alert("加入收藏失败，请使用Ctrl+D进行添加");
+        }
+    }
+}
+//设为首页 <a onclick="SetHome(this,window.location)">设为首页</a>
+function SetHome(obj,vrl){
+        try{
+                obj.style.behavior='url(#default#homepage)';obj.setHomePage(vrl);
+        }
+        catch(e){
+                if(window.netscape) {
+                        try {
+                                netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
+                        }
+                        catch (e) {
+                                alert("此操作被浏览器拒绝！\n请在浏览器地址栏输入“about:config”并回车\n然后将 [signed.applets.codebase_principal_support]的值设置为'true',双击即可。");
+                        }
+                        var prefs = Components.classes['@mozilla.org/preferences-service;1'].getService(Components.interfaces.nsIPrefBranch);
+                        prefs.setCharPref('browser.startup.homepage',vrl);
+                 }
+        }
+}
+<!--注册登录-->
+Page.onReady(function() {
+	try {
+	Server.sendRequest("member/logined",null, function(response) {	
+		if(response.IsLogin) {
+			$("#login_out").css("display", response.IsLogin ? "none" : "");
+			$("#login_in").css("display", response.IsLogin ? "" : "none");
+			$("a.login_username").html(response.UserName);
+		} else {
+			$("#login_out").css("display", "");
+			$("#login_in").css("display", "none");
+		  }
+	});
+	} catch(e) {
+		$("#login_out").css("display", "");
+		$("#login_in").css("display", "none");
+	}
+});
+
+function doLogin(loginForm) {
+	var data = Form.getData(loginForm);
+	var dc = {
+		UserName : data.UserName,
+		Password : data.Password
+	};
+	if ($("#"+loginForm+" #authTr").css("display") != "none") {
+		dc.AuthCode = data.AuthCode;
+		dc.IsVerifyCode = true;
+	}
+	Member.jsonpLogin(dc);
+	setTimeout("unnormaruser_act()",1000);
+}
+	
+Member.addEventListener('logined',function(response) {
+	Server.sendRequest("member/logined",null, function(response) {	
+		if(response.IsLogin) {
+			$("#login_out").css("display", response.IsLogin ? "none" : "");
+			$("#login_in").css("display", response.IsLogin ? "" : "none");
+			if(response.IsLogin){
+			  $("a.login_username").html(response.UserName);
+			} else {
+				$("#login_out").css("display", "");
+			$("#login_in").css("display", "none");
+				}
+		} else {
+			$("#login_out").css("display", "");
+			$("#login_in").css("display", "none");
+		  }
+	});
+}).addEventListener('loginerror',function(jsonpData){
+		$("#authTr").show();
+		Dialog.alert(jsonpData.error);
+});
+
+$(document).ready(function(){
+    $(".loginbox input[type=text]").focus(function(){
+    	$(this).addClass("focus")
+    }).blur(function(){$(this).removeClass("focus")});
+});
+
+function logout() {
+	var url = 'http://www.historychina.net/history/member/ajaxlogout?'+new Date().getTime();
+	loadJs(url, function(){
+			window.location.href = "http://www.historychina.net/";
+	});
+}
+
+//登录信息输入错误回调处理（假设服务器端不报错，此处的回调表示对服务器返回的错误信息进行处理）
+Member.addEventListener('authcodechange', function (imgUrl) {
+	$('#loginForm img.authCodeImg').css('background', 'url(http://www.historychina.net/history/authCode.zhtml?height=28&width=100&'+new Date().getTime()+') no-repeat center center');
+});
+
+//当用户改变用户名后，判断输入的用户名是否需要验证码，根据结果控制显示（此处不处理验证码的刷新）
+Member.addEventListener('needverify', function (userName) {
+	$("#authTr").show();
+}).addEventListener('notneedverify', function (userName) {
+	$("#authTr").hide();
+});
+$('#UserName').change(function () {
+	Member.needVerifyCode(this.value);
+});
+Page.onLoad(function(){
+	var prefix = "http://www.historychina.net/history/";
+	$.getScript("http://www.historychina.net/history/userbind/act_btn?SiteID=21&prefix="+prefix);
+});
+function unnormaruser_act(){
+	var prefix = "http://www.historychina.net/history/";
+	$.getScript("http://www.historychina.net/history/userbind/act_btn?pop=Y&SiteID=21&prefix="+prefix);
+}
+</script>
+<div class="bambool"></div>
+<div class="bamboor"></div>
+<div class="head">
+	<div class="head_top">
+    	<div class="headT_con pageWidth">
+            <div class="headT_lef fl"><a title="设为您浏览器的首页,您打开浏览器时默认打开此网站" onclick="SetHome('http://www.historychina.net');return false;" href="javascript:void(0);">设为首页</a>|<a onclick="AddFavorite('http://www.historychina.net/','中华文史网');return false;" href="javascript:void(0);">加入收藏</a></div>
+            <div class="headT_rig fr">
+                <div class="y_help fr">使用帮助</div>
+            	<div class="webNavCon fr">
+                    <div class="webNav">
+                        <div  class="webTit">
+                            <span>网站导航</span>
+                            <ul class="webList">
+                                <li><a href="http://www.historychina.net/">首页</a></li>
+                                
+                                     <li><a href="/xwzx/" target="_blank">新闻公告</a></li>
+                                
+                                
+                                     <li><a href="/jgzz/" target="_blank">清史纂修</a></li>
+                                
+                                
+                                     <li><a href="/qsyj/" target="_blank">清史研究</a></li>
+                                
+                                
+                                     <li><a href="/qsck/" target="_blank">清史参考</a></li>
+                                
+                                
+                                     <li><a href="/qsbk/" target="_blank">清史百科</a></li>
+                                
+                                 
+                                     <li><a href="/qswk/" target="_blank">清史文库</a></li>
+                                
+                                 
+                                     <li><a href="/cbxx/" target="_blank">著作·评论</a></li>
+                                
+                                
+                                     <li><a href="/ydtd/" target="_blank">舆地图典</a></li>
+                                
+                                
+                                     <li><a href="/yjjg/" target="_blank">学林漫步</a></li>
+                                
+                                
+                                     <li><a href="/qkhb/" target="_blank">期刊汇编</a></li>
+                                
+                                 
+                                     <li><a href="/xlxh/" target="_blank">文史综览</a></li>
+                                
+                                 
+                                     <li><a href="/zcfg/" target="_blank">政策法规</a></li>
+                                
+                                  
+                                     <li><a href="/wsdmt/" target="_blank">文史多媒体</a></li>
+                                
+								<li><a href="http://www.historychina.net/history/sztsg?SiteID=21" target="_blank">数字图书馆</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            	<div class="head_wel fr" id="login_in" style="display:none;">欢迎进入中华文史网&nbsp;&nbsp;&nbsp;<a class="login_username"  href="http://www.historychina.net/history/member/info?SiteID=21&Current=PersonalInfo">【会员中心】</a>&nbsp;&nbsp;|&nbsp;&nbsp;
+            	<a href="javascript:logout();">注销</a><span id="active"></span>
+            	<div class="tip_todo" id="active_pic" style="display:none"><div class="tip_close" onclick="$(this).parent().css('display','none');"></div><div class="doned" id="doned">0</div><div class="allow_do" id="allow">0</div></div>
+            	</div>
+                <div class="fr">
+                	<div id="login_out" style="display:none;">
+                   		<form id="loginForm">
+                        <table border="0" cellpadding="0" cellspacing="0" height="44">
+                            <tr>
+                                <td>用户名：</td>
+                                <td><input id="UserName" type="text" maxLength="20"  value="" class="head_text"/></td>
+                                <td>密码：</td>
+                                <td><input id="Password" type="password" maxLength="30" value="" class="head_text"/></td>
+                                <td id="authTr" style="display:none;">验证码：<input type="text" class="head_text" id="AuthCode" name="AuthCode" value="" /><img  class="authCodeImg" src="http://www.historychina.net/history/framework/images/blank.gif" 
+		                	alt="点击刷新验证码" 
+		                	style="cursor:pointer;" 
+		                	height="28" width="100" align="absmiddle" 
+		                	onClick="this.style.backgroundImage='url(http://www.historychina.net/history/authCode.zhtml?height=28&width=100&'+new Date().getTime()+')'" />
+		    					</td>
+                                <td><input type="button" value="登录" onclick="doLogin('loginForm')" class="head_but"/></td>
+                                <td><input type="button" value="注册" onclick="location.href='http://www.historychina.net/history/member/register?SiteID=21&Referer='" class="head_but"/></td>
+                            </tr>
+                        </table>
+                        </form>
+                    </div>
+                </div>
+                <div class="clear"></div>
+            </div>
+            <div class="clear"></div>
+        </div>
+    </div>
+    <div class="head_logo pageWidth clearself"><a href="http://www.historychina.net/"><img src="/images/zl_bg5.png" width="1000"/></a></div>
+    <ul class="head_nav pageWidth clearself">
+    	<li id="indexpage"><a href="http://www.historychina.net/">首页</a></li>
+        
+             <li  id="002492"><a href="/xwzx/" target="_blank">新闻公告</a></li>
+        
+        
+             <li  id="002204"><a href="/jgzz/" target="_blank">清史纂修</a></li>
+        
+        
+             <li  id="002205"><a href="/qsyj/" target="_blank">清史研究</a></li>
+        
+		
+             <li  id="002488"><a href="/qsck/" target="_blank">清史参考</a></li>
+        
+        
+             <li  id="002489"><a href="/qsbk/" target="_blank">清史百科</a></li>
+        
+         
+             <li  id="002484"><a href="/qswk/" target="_blank">清史文库</a></li>
+        
+         
+             <li  id="002490"><a href="/cbxx/" target="_blank">著作·评论</a></li>
+        
+        
+             <li  id="002494"><a href="/ydtd/" target="_blank">舆地图典</a></li>
+        
+		
+             <li  id="002487"><a href="/yjjg/" target="_blank">学林漫步</a></li>
+        
+        
+             <li  id="002208"><a href="/qkhb/" target="_blank">期刊汇编</a></li>
+        
+         
+             <li  id="002211"><a href="/xlxh/" target="_blank">文史综览</a></li>
+        
+         
+             <li  id="002491"><a href="/zcfg/" target="_blank">政策法规</a></li>
+        
+          
+             <li  id="002493"><a href="/wsdmt/" target="_blank">文史多媒体</a></li>
+        
+        <li><a href="http://www.historychina.net/history/sztsg?SiteID=21" target="_blank">数字图书馆</a></li>
+    </ul>
+</div>
+
+
+<!--**** 头部结束 ****-->
+
+<!--**** 主体开始 ****-->
+<div class="main pageWidth" id="guide-step">
+	<div class="main_top clearself">
+    	<div class="mainT_lef marTop20 fl">
+            <div class="search_box"  style="height:90px; padding-top:16px;">
+                <div class="sear_type" id="search_gj"><a href="javascript:adsubmitForm();">全部</a>|
+                <a href="#;" innercode="002205">清史研究</a>|
+                <a href="#;" innercode="002488">清史参考</a>|
+                <a href="#;" innercode="002489">清史百科</a>|
+                <a href="#;" innercode="002484">清史文库</a>|
+                <a href="#;" innercode="002492">新闻公告</a>|
+                <a href="#;" innercode="002487">学林漫步</a></div>
+                <div class="sear_box">
+                	<form id="SearchForm" name="SearchForm" style="padding:0px; margin:0px;" action="http://www.historychina.net/history/searchExt/result" method="get" target="_blank">
+                        <table border="0" cellpadding="0" cellspacing="0">
+                            <tr>
+                                <td><img src="/images/zk_searl.png" /></td>
+                                <td> <input type="hidden" id="SiteID" name="SiteID" value="21"><input type="text" id="Query" name="Query" maxLength="16" class="sear_text" style="width:448px;"/></td>
+                                <td><input type="button" value="" onClick="submitForm()" class="sear_btn"/></td>
+                                <td><a class="senior_sear" href="http://www.historychina.net/history//advanceSearchExt/result?SiteID=21">高级检索</a></td>
+                            </tr>
+                        </table>
+                    </form>
+                    <form id="AdvanceSearchForm" name="AdvanceSearchForm"  action="http://www.historychina.net/history/advanceSearchExt/result" method="get"  target="_blank">
+                       <input type="hidden" id="SiteID" name="SiteID" value="21" />
+                       <input type="hidden" id="CatalogInnerCode" name="CatalogInnerCode" value="" />
+                       <input type="hidden" id="Query" name="Query"  value=""/>
+                    </form>
+                </div>
+                <!--<div class="hot_word">热词推荐：<cms:searchword count="8">
+                                    <z:list>
+                                        <a href="#;" id="${SearchWord.ID}">${SearchWord.Word}</a>
+                                    </z:list>
+                                </cms:searchword>
+                </div>-->
+            </div>
+            <div class="imgPlayer marTop20">
+            	<div class="focus" id="slideBo">
+                    <div class="bd">
+                        <ul>
+                            
+                                
+                                    <li>
+                                        <a target="_blank" href="/xwzx/424320.shtml"><img src="/upload/resources/image/2016/06/30/7511_640x287.jpg" height="287" /></a>
+                                        <div class="imgPlay_bg"></div>
+                                        <div class="imgPlay_word"><a target="_blank" href="/xwzx/424320.shtml">国家清史编纂委员会召开第九次全体会议&#32;&#32;杨志今副部长到会讲话</a></div>
+                                    </li>
+                                    <li>
+                                        <a target="_blank" href="/xwzx/424144.shtml"><img src="/upload/resources/image/2016/03/28/7477_640x287.jpg" height="287" /></a>
+                                        <div class="imgPlay_bg"></div>
+                                        <div class="imgPlay_word"><a target="_blank" href="/xwzx/424144.shtml">卜键教授应邀赴香港中文大学讲演</a></div>
+                                    </li>
+                                    <li>
+                                        <a target="_blank" href="/ydtd/"><img src="/upload/resources/image/2016/03/22/7276_640x287.jpg" height="287" /></a>
+                                        <div class="imgPlay_bg"></div>
+                                        <div class="imgPlay_word"><a target="_blank" href="/ydtd/">舆地图典</a></div>
+                                    </li>
+                                    <li>
+                                        <a target="_blank" href="/xwzx/423305.shtml"><img src="/upload/resources/image/2015/10/08/7094_640x287.jpg" height="287" /></a>
+                                        <div class="imgPlay_bg"></div>
+                                        <div class="imgPlay_word"><a target="_blank" href="/xwzx/423305.shtml">卜键主任应邀出席中央纪委“《历史周刊》筹备研讨会”并作重要发言</a></div>
+                                    </li>
+                                    <li>
+                                        <a target="_blank" href="/xwzx/407491.shtml"><img src="/upload/resources/image/2015/06/17/6987_640x287.jpg" height="287" /></a>
+                                        <div class="imgPlay_bg"></div>
+                                        <div class="imgPlay_word"><a target="_blank" href="/xwzx/407491.shtml">《盛宣怀档案选编》上图首发</a></div>
+                                    </li>
+                                    <li>
+                                        <a target="_blank" href="/zt/rezz.shtml"><img src="/upload/resources/image/2015/04/08/6937_640x287.jpg" height="287" /></a>
+                                        <div class="imgPlay_bg"></div>
+                                        <div class="imgPlay_word"><a target="_blank" href="/zt/rezz.shtml">日俄战争</a></div>
+                                    </li>
+                                    <li>
+                                        <a target="_blank" href="http://124.207.8.2/ewm1.aspx"><img src="/upload/resources/image/2015/02/09/6476_640x287.jpg" height="287" /></a>
+                                        <div class="imgPlay_bg"></div>
+                                        <div class="imgPlay_word"><a target="_blank" href="http://124.207.8.2/ewm1.aspx">中华文史网微信公众号</a></div>
+                                    </li>
+                                    <li>
+                                        <a target="_blank" href="/ydtd/"><img src="/upload/resources/image/2015/02/09/6484_640x287.jpg" height="287" /></a>
+                                        <div class="imgPlay_bg"></div>
+                                        <div class="imgPlay_word"><a target="_blank" href="/ydtd/">舆地图典</a></div>
+                                    </li>
+                                    <li>
+                                        <a target="_blank" href="/xwzx/403065.shtml"><img src="/upload/resources/image/2015/02/09/6485_640x287.jpg" height="287" /></a>
+                                        <div class="imgPlay_bg"></div>
+                                        <div class="imgPlay_word"><a target="_blank" href="/xwzx/403065.shtml">国家清史办主任卜键出席“清代戏曲与宫廷文化”国际学术研讨会并致开幕辞</a></div>
+                                    </li>
+                                    <li>
+                                        <a target="_blank" href="http://www.historychina.net/cbxx/402742.shtml"><img src="/upload/resources/image/2015/02/09/6483_640x287.jpg" height="287" /></a>
+                                        <div class="imgPlay_bg"></div>
+                                        <div class="imgPlay_word"><a target="_blank" href="http://www.historychina.net/cbxx/402742.shtml">《清史镜鉴》第七辑出版</a></div>
+                                    </li>
+                                    <li>
+                                        <a target="_blank" href="/xwzx/"><img src="/upload/resources/image/2016/06/30/7510_640x287.jpg" height="287" /></a>
+                                        <div class="imgPlay_bg"></div>
+                                        <div class="imgPlay_word"><a target="_blank" href="/xwzx/">新闻中心·动态</a></div>
+                                    </li>
+                            
+                        </ul>
+                  </div>
+                  <div class="hd">
+                      <ul>
+                           
+                                
+                                    <li></li>
+                                    <li></li>
+                                    <li></li>
+                                    <li></li>
+                                    <li></li>
+                                    <li></li>
+                                    <li></li>
+                                    <li></li>
+                                    <li></li>
+                                    <li></li>
+                                    <li></li>
+                           
+                      </ul>
+                  </div>
+                  <a class="prev" id="focus_btn_left"></a>
+                  <a class="next" id="focus_btn_right"></a>
+                </div>
+				<script type="text/javascript">
+                jQuery(".focus").slide({mainCell:".bd ul",autoPlay:true});
+                </script>
+            </div>
+            <div class="hisCon clearself">
+            	<!--清史研究-->
+            	<div class="zl_history marTop20 fl">
+                	
+                    <div class="zl_top"><span><a href="/qsyj/" class="fr">+更多</a><i class="titleBg2"></i></span></div>
+                    
+                    <div class="zl_center">
+                        <div class="searTit">
+                            
+                                
+                                    
+                                    	<a class="cur" href="/ztyj/">
+                                    
+                                    
+                                       专题研究
+                                     </a>
+                                    
+                                    
+                                        <a href="/wxda/">
+                                    
+                                       文献档案
+                                     </a>
+                            
+                        </div>
+                        <div class="his_sear">
+                        	
+				  			
+                            <ul class="histList">
+								
+			  					
+                                <li>·<a href="/zz/424634.shtml">乾隆朝整饬社仓档案（上）</a></li>
+                                <li>·<a href="/zz/424624.shtml">乾隆朝整饬社仓档案（中）</a></li>
+                                <li>·<a href="/zz/424554.shtml">纪昀的殿试卷</a></li>
+                                <li>·<a href="/zz/424549.shtml">清代台湾教化档案选编</a></li>
+                                <li>·<a href="/zz/424541.shtml">乾隆年间曹锡宝参奏和珅家人刘全档案</a></li>
+                                <li>·<a href="/zz/424534.shtml">康熙朝鳌拜罪案辨析</a></li>
+                                <li>·<a href="/zz/424518.shtml">清朝丁忧制度研究</a></li>
+          							
+                            </ul>
+                            
+                            
+                            
+                            <ul class="histList">
+                                
+                                
+                                	<li>·<a href="/daly/407769.shtml">从家谱看清代驻防八旗族群社会及其变...</a></li>
+                                	<li>·<a href="/daly/424266.shtml">清史研究岂能无视满文文献</a></li>
+                                	<li>·<a href="/daly/424235.shtml">满文史料在清史研究中的局限</a></li>
+                                	<li>·<a href="/daly/402759.shtml">邯郸学院藏《京师大学堂伦理学讲义》...</a></li>
+                                	<li>·<a href="/daly/402779.shtml">清前史研究要瞻前顾后左右贯通</a></li>
+                                	<li>·<a href="/daly/402684.shtml">清代巴县档案中的54例犯奸案件分析</a></li>
+                                	<li>·<a href="/daly/402613.shtml">《清实录》的文献价值与文本解析</a></li>
+                                							
+                            </ul>
+                            
+                        </div>
+                    </div>
+                    <div class="zl_bottom"><span></span></div>	
+                </div>
+                <div class="zl_history marTop20 fr">
+                	<!--清史参考-->
+                	
+                	<div class="zl_top clearself"><span><a href="/qsck/" class="fr">+更多</a><i class="titleBg3"></i></span></div>
+                    <div class="zl_center">
+                        <ul class="histList">
+                        
+						 
+                        	<li>·<a href="/qsck/424745.shtml">汤若望笔下的明清之变（2016年第46期...</a></li> 
+                        	<li>·<a href="/qsck/424743.shtml">清代流民“闯关东”现象解读（2016年...</a></li> 
+                        	<li>·<a href="/qsck/424738.shtml">慈宁宫所见清帝孝治（2016年第44期）</a></li> 
+                        	<li>·<a href="/qsck/424735.shtml">太平天国的权力格局及其败亡（2016年...</a></li> 
+                        	<li>·<a href="/qsck/424730.shtml">清代的嫁妆（2016年第42期）</a></li> 
+                        	<li>·<a href="/qsck/424728.shtml">慈禧太后及其统治的是非功过（2016年...</a></li> 
+                        	<li>·<a href="/qsck/424726.shtml">《红楼梦》里的民风腐败（2016年第39...</a></li> 
+                        	<li>·<a href="/qsck/424719.shtml">禁酒制度与清代救灾（2016年第38期）</a></li>
+		  				
+                        </ul>
+                    </div>
+                    
+                    <div class="zl_bottom"><span></span></div>	
+                </div>
+            </div>
+        </div>
+        <div class="mainT_rig marTop20 fr">
+        	<div>
+            	<div class="zlT_border"><span></span></div>
+                <div class="zl_center">
+                	<div class="newUpdate clearself">
+                    	<span class="fl"><img src="/images/zl_bg19.png"/></span>
+                        <ul class="fr">
+                        
+		 				
+                        	<li><a href="/qsjj/qsjj_rw/424747.shtml">&#32;雍正帝整治陋规</a></li>
+                        	<li><a href="/qsjj/qsjj_rw/424746.shtml">&#32;雍正帝：“去庸人而用才干”</a></li>
+                        	<li><a href="/qsck/424745.shtml">汤若望笔下的明清之变（2016年第...</a></li>
+						
+                        </ul>
+                    </div>
+                </div>
+                <div class="zl_bottom"><span></span></div>	 
+            </div>
+        	<div class="rightHis">
+            
+            	<div class="zl_top clearself"><span><a href="/xwzx/" class="fr">+更多</a><i class="titleBg4"></i></span></div>
+                <div class="zl_center">
+                    <ul class="newsList">
+                    
+			   		
+                        <li>·<a href="/xwzx/424711.shtml">刘云山看望文化界知名人士</a></li>
+                        <li>·<a href="/xwzx/424647.shtml">国家清史编纂委员会已出版图书目录&#32;...</a></li>
+                        <li>·<a href="/xwzx/424459.shtml">国家清史纂修工程优秀出版成果介绍</a></li>
+                        <li>·<a href="/xwzx/424453.shtml">国家清史编纂委员会已出版图书目录（...</a></li>
+		  			
+                    </ul>
+                </div>
+            
+                <div class="zl_bottom"><span></span></div>	
+            </div>
+            <div class="marTop20">
+            
+            	<div class="zl_top clearself"><span><a href="/ggl/" class="fr">+更多</a><i class="titleBg5"></i></span></div>
+                <div class="zl_center">
+                    <ul class="newsList">
+                    
+                    
+                        <li>·<a href="/ggl/424466.shtml">档案图书中心新书书讯（2016-9-5）</a></li>
+                        <li>·<a href="/ggl/407406.shtml">“中华文史网”数字图书馆数字资源版...</a></li>
+                        <li>·<a href="/ggl/407373.shtml">“中华文史网”完成改版开发&#32;&#32;将于近...</a></li>
+                        <li>·<a href="/ggl/403096.shtml">档案图书中心新书书讯（2014-11-24）</a></li>
+		  			
+                    </ul>
+                </div>
+            
+                <div class="zl_bottom"><span></span></div>	
+            </div>
+            <div class="marTop20">
+            	<div class="zlT_border"><span></span></div>
+                <div class="zl_center" style="height:221px;">
+                	<div class="adLink clearself">
+                    	<div class="link">
+                    		<div id="ZCMSAP_174" style="width:278px; height:53px;">
+                              						<a target="_blank">
+                    				<img title="人物关系图" src="/images/renwuguanxitu.jpg" width="278" height="53" style="border:0px;">
+                    			</a>
+                    		</div>
+                    	</div>
+                        <div class="link marTop10"><span id='apjs_175'></span><script language='javascript' src='/upload/js/smcx/175.js'></script></div>
+                        <div class="link marTop10"><span id='apjs_176'></span><script language='javascript' src='/upload/js/qswk/176.js'></script></div>
+                    </div>
+                </div>
+                <div class="zl_bottom"><span></span></div>	 
+            </div>
+        </div>
+    </div>
+    <div class="index_ad marTop20"><a href="/qswk/"><img src="/images/zl_bg12.gif"/></a></div>
+    <div class="clearself">
+    	<div class="mainT_lef marTop20 fl">
+        	<!--出版信息-->
+        	<div>
+            	
+            	<div class="zl_top clearself"><span><a href="/cbxx/" class="fr">+更多</a><i class="titleBg6"></i></span></div>
+                <div class="zl_center">
+                    <div class="picScroLef">
+                        <div class="hd">
+                            <a class="prev"></a>
+                            <a class="next"></a>
+                        </div>
+                        <div class="bd">
+                            <ul class="picList">
+                            	
+		     					
+                                <li>
+                                    <div class="picbg"></div>
+                                    <div class="pic"><a href="/cbxx/424716.shtml"><img src="/upload/resources/image/2017/01/19/7535_96x136.png" /></a></div>
+                                    <div class="title"><a href="/cbxx/424716.shtml;">赵云田著《大</a><span>75阅读</span></div>
+                                </li>
+                                <li>
+                                    <div class="picbg"></div>
+                                    <div class="pic"><a href="/cbxx/424696.shtml"><img src="/upload/resources/image/2017/01/06/7533_96x136.jpg" /></a></div>
+                                    <div class="title"><a href="/cbxx/424696.shtml;">《乾嘉四大幕</a><span>390阅读</span></div>
+                                </li>
+                                <li>
+                                    <div class="picbg"></div>
+                                    <div class="pic"><a href="/cbxx/424377.shtml"><img src="/upload/resources/image/2016/08/12/7518_96x136.png" /></a></div>
+                                    <div class="title"><a href="/cbxx/424377.shtml;">《晚清日本驻</a><span>173阅读</span></div>
+                                </li>
+                                <li>
+                                    <div class="picbg"></div>
+                                    <div class="pic"><a href="/cbxx/424373.shtml"><img src="/upload/resources/image/2016/08/01/7517_96x136.jpg" /></a></div>
+                                    <div class="title"><a href="/cbxx/424373.shtml;">《科学在中国</a><span>108阅读</span></div>
+                                </li>
+                                <li>
+                                    <div class="picbg"></div>
+                                    <div class="pic"><a href="/cbxx/424368.shtml"><img src="/upload/resources/image/2016/07/26/7516_96x136.jpg" /></a></div>
+                                    <div class="title"><a href="/cbxx/424368.shtml;">《清代满族家</a><span>292阅读</span></div>
+                                </li>
+                                <li>
+                                    <div class="picbg"></div>
+                                    <div class="pic"><a href="/cbxx/424189.shtml"><img src="/upload/resources/image/2016/05/10/7481_96x136.jpg" /></a></div>
+                                    <div class="title"><a href="/cbxx/424189.shtml;">《皇权不下县</a><span>222阅读</span></div>
+                                </li>
+                                <li>
+                                    <div class="picbg"></div>
+                                    <div class="pic"><a href="/cbxx/423969.shtml"><img src="/upload/resources/image/2016/01/14/7137_96x136.jpg" /></a></div>
+                                    <div class="title"><a href="/cbxx/423969.shtml;">《桐城派名家</a><span>270阅读</span></div>
+                                </li>
+                                <li>
+                                    <div class="picbg"></div>
+                                    <div class="pic"><a href="/cbxx/423967.shtml"><img src="/upload/resources/image/2016/01/14/7135_96x136.jpg" /></a></div>
+                                    <div class="title"><a href="/cbxx/423967.shtml;">《吕留良全集</a><span>195阅读</span></div>
+                                </li>
+                                <li>
+                                    <div class="picbg"></div>
+                                    <div class="pic"><a href="/cbxx/423947.shtml"><img src="/upload/resources/image/2016/01/13/7134_96x136.jpg" /></a></div>
+                                    <div class="title"><a href="/cbxx/423947.shtml;">《晚清财政说</a><span>370阅读</span></div>
+                                </li>
+                                <li>
+                                    <div class="picbg"></div>
+                                    <div class="pic"><a href="/cbxx/423944.shtml"><img src="/upload/resources/image/2016/01/12/7131_96x136.jpg" /></a></div>
+                                    <div class="title"><a href="/cbxx/423944.shtml;">《皮锡瑞全集</a><span>265阅读</span></div>
+                                </li>
+                                <li>
+                                    <div class="picbg"></div>
+                                    <div class="pic"><a href="/cbxx/423739.shtml"><img src="/upload/resources/image/2015/12/02/7120_96x136.jpg" /></a></div>
+                                    <div class="title"><a href="/cbxx/423739.shtml;">《清史镜鉴》</a><span>343阅读</span></div>
+                                </li>
+                                <li>
+                                    <div class="picbg"></div>
+                                    <div class="pic"><a href="/cbxx/423527.shtml"><img src="/upload/resources/image/2015/11/30/7117_96x136.jpg" /></a></div>
+                                    <div class="title"><a href="/cbxx/423527.shtml;">《黃金圈住地</a><span>329阅读</span></div>
+                                </li>
+                                <li>
+                                    <div class="picbg"></div>
+                                    <div class="pic"><a href="/cbxx/423218.shtml"><img src="/upload/resources/image/2015/09/17/7073_96x136.jpg" /></a></div>
+                                    <div class="title"><a href="/cbxx/423218.shtml;">《清内秘书院</a><span>233阅读</span></div>
+                                </li>
+                                <li>
+                                    <div class="picbg"></div>
+                                    <div class="pic"><a href="/cbxx/423217.shtml"><img src="/upload/resources/image/2015/09/17/7072_96x136.jpg" /></a></div>
+                                    <div class="title"><a href="/cbxx/423217.shtml;">《陶楼诗文辑</a><span>150阅读</span></div>
+                                </li>
+                                <li>
+                                    <div class="picbg"></div>
+                                    <div class="pic"><a href="/cbxx/423048.shtml"><img src="/upload/resources/image/2015/08/12/7067_96x136.jpg" /></a></div>
+                                    <div class="title"><a href="/cbxx/423048.shtml;">《十九世纪中</a><span>226阅读</span></div>
+                                </li>
+                                <li>
+                                    <div class="picbg"></div>
+                                    <div class="pic"><a href="/cbxx/407793.shtml"><img src="/upload/resources/image/2015/06/11/6986_96x136.jpg" /></a></div>
+                                    <div class="title"><a href="/cbxx/407793.shtml;">《荆花馆日记</a><span>331阅读</span></div>
+                                </li>
+                                <li>
+                                    <div class="picbg"></div>
+                                    <div class="pic"><a href="/cbxx/407792.shtml"><img src="/upload/resources/image/2015/06/11/6985_96x136.jpg" /></a></div>
+                                    <div class="title"><a href="/cbxx/407792.shtml;">《治水政治：</a><span>304阅读</span></div>
+                                </li>
+                                <li>
+                                    <div class="picbg"></div>
+                                    <div class="pic"><a href="/cbxx/407494.shtml"><img src="/upload/resources/image/2015/06/01/6959_96x136.jpg" /></a></div>
+                                    <div class="title"><a href="/cbxx/407494.shtml;">《国之大臣—</a><span>307阅读</span></div>
+                                </li>
+                                <li>
+                                    <div class="picbg"></div>
+                                    <div class="pic"><a href="/cbxx/407452.shtml"><img src="/upload/resources/image/2015/05/27/6955_96x136.jpg" /></a></div>
+                                    <div class="title"><a href="/cbxx/407452.shtml;">《清代戏剧文</a><span>276阅读</span></div>
+                                </li>
+                                <li>
+                                    <div class="picbg"></div>
+                                    <div class="pic"><a href="/cbxx/407364.shtml"><img src="/upload/resources/image/2015/04/21/6938_96x136.jpg" /></a></div>
+                                    <div class="title"><a href="/cbxx/407364.shtml;">《万斯同全集</a><span>166阅读</span></div>
+                                </li>
+           						          
+                            </ul>
+                        </div>
+                    </div>
+					<script type="text/javascript">
+                    $(".picScroLef").slide({titCell:".hd ul",mainCell:".bd ul",autoPage:true,effect:"left",autoPlay:true,vis:5});
+                    </script>
+                </div>
+                
+                <div class="zl_bottom"><span></span></div>	
+            </div>
+            <div class="clearself">
+            	<!--文史多媒体-->
+            	<div class="zl_history marTop20 fl">
+                	
+                	<div class="zl_top clearself"><span><a href="/wsdmt/" class="fr">+更多</a><i class="titleBg11"></i></span></div>
+                    
+                    <div class="zl_center">
+                        <ul class="histList">
+                        
+                    		
+                        	<li>
+                            	<div class="videoImg fl"><a href="/wsdmt/422911.shtml"><img src="/upload/resources/image/2015/07/08/7041_100x100.jpg"/></a></div>
+                                <div class="videoTitle fl"><a href="/wsdmt/422911.shtml">近人曾国藩-10湘军落幕淮军崛起[高清]</a></div>
+                                <div class="clear"></div>
+                            </li>
+                        
+                        
+						 
+                        	<li>·<a href="/wsdmt/422909.shtml">近人曾国藩-09中国最早留学生[高清]</a></li> 
+                        	<li>·<a href="/wsdmt/422907.shtml">近人曾国藩-08李秀成被杀之谜[高清]</a></li> 
+                        	<li>·<a href="/wsdmt/422905.shtml">近人曾国藩-07信仰的意义[高清]</a></li> 
+                        	<li>·<a href="/wsdmt/422903.shtml">近人曾国藩-06英雄末路时[高清]</a></li>
+		  				
+                        </ul>
+                    </div>
+                    
+                    <div class="zl_bottom"><span></span></div>	
+                </div>
+                <!--著作评论-->
+            	<div class="zl_history marTop20 fr">
+                	
+                    <div class="zl_top"><span><a href="/cbxx/" class="fr">+更多</a><i class="titleBg12"></i></span></div>
+                    
+                    <div class="zl_center">
+                        <div class="workTit">
+                            
+                                
+                                    
+                                    	<a class="cur" href="/cbxx/">
+                                    
+                                    
+                                       出版信息
+                                     </a>
+                                    
+                                    
+                                        <a href="/tspl/">
+                                    
+                                       图书评论
+                                     </a>
+                                    
+                                    
+                                        <a href="/qszs/">
+                                    
+                                       史学著述
+                                     </a>
+                            
+                        </div>
+                        <div class="his_work">
+                        	
+				  			
+                            <ul class="histList">
+								
+			  					
+                                <li>·<a href="/qszs/424274.shtml">《俊义文存》（上下两册）出版</a></li>
+                                <li>·<a href="/qszs/424102.shtml">学术追求、人文情怀与大家风范——写...</a></li>
+                                <li>·<a href="/qszs/424101.shtml">《俊义文存》出版前言：我的学术生涯...</a></li>
+                                <li>·<a href="/qszs/401854.shtml">《悠远的书香——富厚堂藏书楼研究》...</a></li>
+                                <li>·<a href="/qszs/401384.shtml">《清代人物研究》出版</a></li>
+                                <li>·<a href="/qszs/401383.shtml">《清朝开国史研究》出版</a></li>
+                                <li>·<a href="/qszs/400029.shtml">《晚清中葡澳门水界争端探微》出版</a></li>
+          							
+                            </ul>
+                            
+                            
+                            
+                            <ul class="histList">
+                                
+                                
+                                	<li>·<a href="/tspl/424030.shtml">卅年中国政治史的文化审视——&#32;再读...</a></li>
+                                	<li>·<a href="/tspl/423458.shtml">《国之大臣》出版座谈会发言</a></li>
+                                	<li>·<a href="/tspl/423453.shtml">读《国之大臣》有感</a></li>
+                                	<li>·<a href="/tspl/423452.shtml">有些“死功夫”是省不去的&#32;有些“活...</a></li>
+                                	<li>·<a href="/tspl/423451.shtml">一本使人爱读耐读的史学著作&#32;——推...</a></li>
+                                	<li>·<a href="/tspl/423450.shtml">大臣与大政</a></li>
+                                	<li>·<a href="/tspl/414719.shtml">历史、纪念与自我重塑——读段志强著...</a></li>
+                                							
+                            </ul>
+                            
+                            
+                            
+                            <ul class="histList">
+                                
+                                
+                                	<li>·<a href="/cbxx/424716.shtml">赵云田著《大清帝国的得与失&#32;乾隆出...</a></li>
+                                	<li>·<a href="/cbxx/424696.shtml">《乾嘉四大幕府研究》出版</a></li>
+                                	<li>·<a href="/cbxx/424377.shtml">《晚清日本驻华领事报告编译》出版</a></li>
+                                	<li>·<a href="/cbxx/424373.shtml">《科学在中国（1550－1900）》出版</a></li>
+                                	<li>·<a href="/cbxx/424368.shtml">《清代满族家谱选辑》出版</a></li>
+                                	<li>·<a href="/cbxx/424189.shtml">《皇权不下县？&#32;清代县辖政区与基层...</a></li>
+                                	<li>·<a href="/cbxx/423969.shtml">《桐城派名家文集》出版</a></li>
+                                							
+                            </ul>
+                            
+                        </div>
+                    </div>
+                    <div class="zl_bottom"><span></span></div>	
+                </div>
+            </div>
+            <div class="clearself">
+            	<!--与地图典-->
+            	<div class="zl_history marTop20 fl">
+                	
+                	<div class="zl_top clearself"><span><a href="/ydtd/" class="fr">+更多</a><i class="titleBg13"></i></span></div>
+                    <div class="zl_center">
+                        <div class="his_atlas clearself">
+                        	
+							
+                        	<dl>
+                            	<dt><a href="/ydtd/424137.shtml"><img src="/upload/resources/image/2016/03/23/7459_130x85.jpg"/></a></dt>
+                                <dd class="atlas_bg"></dd>
+                                <dd class="atlas_intro"><a href="/ydtd/424137.shtml">造纸</a></dd>
+                            </dl>
+                        	<dl>
+                            	<dt><a href="/ydtd/424132.shtml"><img src="/upload/resources/image/2016/03/23/7433_130x85.jpg"/></a></dt>
+                                <dd class="atlas_bg"></dd>
+                                <dd class="atlas_intro"><a href="/ydtd/424132.shtml">采煤</a></dd>
+                            </dl>
+                        	<dl>
+                            	<dt><a href="/ydtd/424129.shtml"><img src="/upload/resources/image/2016/03/23/7420_130x85.jpg"/></a></dt>
+                                <dd class="atlas_bg"></dd>
+                                <dd class="atlas_intro"><a href="/ydtd/424129.shtml">玻璃制作</a></dd>
+                            </dl>
+                        	<dl>
+                            	<dt><a href="/ydtd/424127.shtml"><img src="/upload/resources/image/2016/03/23/7401_130x85.jpg"/></a></dt>
+                                <dd class="atlas_bg"></dd>
+                                <dd class="atlas_intro"><a href="/ydtd/424127.shtml">种棉制纱</a></dd>
+                            </dl>
+							
+                        </div>
+                    </div>
+                    
+                    <div class="zl_bottom"><span></span></div>	
+                </div>
+                <!--学林学海-->
+            	<div class="zl_history marTop20 fr">
+                	
+                    <div class="zl_top"><span><a href="/yjjg/" class="fr">+更多</a><i class="titleBg14"></i></span></div>
+                    
+                    <div class="zl_center">
+                        <div class="GakkaiTit">
+                            
+                                
+                                    
+                                    	<a class="cur" href="/yjjg/">
+                                    
+                                    
+                                       研究机构
+                                     </a>
+                                    
+                                    
+                                        <a href="/xzsl/">
+                                    
+                                       学者书林
+                                     </a>
+                                    
+                                    
+                                        <a href="/yjkw/">
+                                    
+                                       研究刊物
+                                     </a>
+                            
+                        </div>
+                        <div class="his_Gakkai">
+                            <ul class="histList">
+								
+			  					
+                                <li>·<a href="/gnyjjg/352188.shtml">北京市研究机构</a></li>
+                                <li>·<a href="/gnyjjg/352205.shtml">广东省研究机构</a></li>
+                                <li>·<a href="/gnyjjg/352213.shtml">广西壮族自治区研究机构</a></li>
+                                <li>·<a href="/gnyjjg/352221.shtml">澳门特别行政区研究机构</a></li>
+                                <li>·<a href="/hwyjjg/352223.shtml">欧洲研究机构</a></li>
+                                <li>·<a href="/hwyjjg/352225.shtml">非洲研究机构</a></li>
+                                <li>·<a href="/gnyjjg/352220.shtml">宁夏回族自治区研究机构</a></li>
+          							
+                            </ul>
+                            <div class="histList">
+                                <div class="picMarquee_top">
+                                    <div class="bd">
+                                        <ul class="picList">
+                                            
+                                            
+                                            <li>
+                                                <div class="pic fl" style="overflow:hidden;"><a href="/bg/"><img src="/upload/resources/image/2014/03/10/6054_120x120.jpg" height="80" style="margin:0 auto;" /></a></div>
+                                                <div class="title fr">
+                                                    <h3><a href="/bg/"></a></h3>
+                                                    <div class="intro">白钢&nbsp;&nbsp;中国社会科学院世界历史研究所研究员</div>
+                                                </div>
+                                                <div class="clear"></div>
+                                            </li>
+                                            <li>
+                                                <div class="pic fl" style="overflow:hidden;"><a href="/bujian/"><img src="/upload/resources/image/2013/09/11/4159_120x120.jpg" height="80" style="margin:0 auto;" /></a></div>
+                                                <div class="title fr">
+                                                    <h3><a href="/bujian/"></a></h3>
+                                                    <div class="intro">卜键&nbsp;&nbsp;中国社会科学院政治学研究所研究员</div>
+                                                </div>
+                                                <div class="clear"></div>
+                                            </li>
+                                            <li>
+                                                <div class="pic fl" style="overflow:hidden;"><a href="/bxl/"><img src="/upload/resources/image/2013/09/05/4066_120x120.jpg" height="80" style="margin:0 auto;" /></a></div>
+                                                <div class="title fr">
+                                                    <h3><a href="/bxl/"></a></h3>
+                                                    <div class="intro">白新良&nbsp;&nbsp;</div>
+                                                </div>
+                                                <div class="clear"></div>
+                                            </li>
+                                            <li>
+                                                <div class="pic fl" style="overflow:hidden;"><a href="/cc/"><img src="/uploadfiles/qsyj/xlmb/xzsl/cxzs/1258084913896_120x120.jpg" height="80" style="margin:0 auto;" /></a></div>
+                                                <div class="title fr">
+                                                    <h3><a href="/cc/"></a></h3>
+                                                    <div class="intro">程歗&nbsp;&nbsp;中国人民大学国际关系学院教授</div>
+                                                </div>
+                                                <div class="clear"></div>
+                                            </li>
+                                            <li>
+                                                <div class="pic fl" style="overflow:hidden;"><a href="/ccd/"><img src="/uploadfiles/qsyj/xlmb/xzsl/ccdzs/1258084968037_120x120.jpg" height="80" style="margin:0 auto;" /></a></div>
+                                                <div class="title fr">
+                                                    <h3><a href="/ccd/"></a></h3>
+                                                    <div class="intro">成崇德&nbsp;&nbsp;中国人民大学清史研究所所长、国家清史编纂委员会副主任</div>
+                                                </div>
+                                                <div class="clear"></div>
+                                            </li>
+                                            <li>
+                                                <div class="pic fl" style="overflow:hidden;"><a href="/ch/"><img src="/uploadfiles/qsyj/xlmb/xzsl/chzs/1258087061771_120x120.jpg" height="80" style="margin:0 auto;" /></a></div>
+                                                <div class="title fr">
+                                                    <h3><a href="/ch/"></a></h3>
+                                                    <div class="intro">陈怀&nbsp;&nbsp;原北京大学史学教授</div>
+                                                </div>
+                                                <div class="clear"></div>
+                                            </li>
+                                            <li>
+                                                <div class="pic fl" style="overflow:hidden;"><a href="/ch2/"><img src="/upload/resources/image/2013/09/06/4138_120x120.jpg" height="80" style="margin:0 auto;" /></a></div>
+                                                <div class="title fr">
+                                                    <h3><a href="/ch2/"></a></h3>
+                                                    <div class="intro">陈桦&nbsp;&nbsp;中国人民大学人文学院院长</div>
+                                                </div>
+                                                <div class="clear"></div>
+                                            </li>
+                                              
+                                        </ul>
+                                    </div>
+                                    <script type="text/javascript">
+                                        $(".picMarquee_top").parent().show() && $(".picMarquee_top").slide({mainCell:".bd ul",autoPlay:true,effect:"topMarquee",vis:2,interTime:50,});
+                                        $(".picMarquee_top").parent().hide();
+                                    </script>
+                                </div>
+                            </div>
+                            <ul class="histList">
+                                
+                                
+                                	<li>·<a href="/ggbwyyk/424578.shtml">《故宫博物院院刊》2016年第3期目录</a></li>
+                                	<li>·<a href="/sxyk/424573.shtml">《史学月刊》2016年第4期目录</a></li>
+                                	<li>·<a href="/zgbjsdyj/424566.shtml">《中国边疆史地研究》2016年第1期目...</a></li>
+                                	<li>·<a href="/zgbjsdyj/424410.shtml">《中国边疆史地研究》2016年第2期目...</a></li>
+                                	<li>·<a href="/sxjk/424405.shtml">《史学集刊》2016年第2期目录</a></li>
+                                	<li>·<a href="/ggbwyyk/424400.shtml">《故宫博物院院刊》2016年第1期目录</a></li>
+                                	<li>·<a href="/sxyk/424360.shtml">《史学月刊》2016年第3期目录</a></li>
+                                							
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="zl_bottom"><span></span></div>	
+                </div>
+            </div>
+        </div>
+        <div class="mainT_rig marTop20 fr">
+        	<!--清史百科-->
+        	<div>
+            	
+            	<div class="zl_top clearself"><span><a href="/qsbk/" class="fr">+更多</a><i class="titleBg7"></i></span></div>
+                
+                <div class="zl_center">
+                    <div class="hisClassical" style="height:189px;">
+                    
+            		
+                    	<a href="/qsbk/zz/">【政制】</a>
+                    	<a href="/qsbk/gz/">【官制】</a>
+                    	<a href="/qsbk/gm/">【官名】</a>
+                    	<a href="/qsbk/jg/">【机构】</a>
+                    	<a href="/qsbk/jwfh/">【爵位封号】</a>
+                    	<a href="/qsbk/mz/">【民族】</a>
+                    	<a href="/qsbk/mqbl/">【盟旗部落】</a>
+                    	<a href="/qsbk/zj/">【宗教】</a>
+                    	<a href="/qsbk/mz1/">【幕制】</a>
+                    	<a href="/qsbk/lj/">【里甲】</a>
+                    	<a href="/qsbk/ly/">【吏役】</a>
+                    	<a href="/qsbk/yx/">【印信】</a>
+                    	<a href="/qsbk/cw/">【称谓】</a>
+                    	<a href="/qsbk/wsda/">【文书档案】</a>
+                    	<a href="/qsbk/dmqh/">【地名区划】</a>
+                    	<a href="/qsbk/cz/">【财政】</a>
+                    	<a href="/qsbk/fy/">【赋役】</a>
+                    	<a href="/qsbk/hz/">【户政】</a>
+                    	<a href="/qsbk/dz/">【地政】</a>
+                    	<a href="/qsbk/tk/">【屯垦】</a>
+          			
+                    </div>
+                </div>
+                <div class="zl_bottom"><span></span></div>	
+            </div>
+            <!--期刊汇编-->
+            <div class="marTop20">
+            	
+            	<div class="zl_top clearself"><span><a href="/qkhb/" class="fr">+更多</a><i class="titleBg8"></i></span></div>
+                <div class="zl_center" style="height: 195px; padding-top: 22px;">
+                    <div class="picScroLef_con">
+                        <div class="hd">
+                            <a class="prev"></a>
+                            <a class="next"></a>
+                        </div>
+                        <div class="bd">
+                            <ul class="picList">
+         				
+		     					
+                                <li>
+                                    <div class="picbg"></div>
+                                    <div class="pic"><a href="/sy/"><img src="/upload/resources/image/2013/09/04/4065_120x120.bmp" /></a></div>
+                                    <div class="title"><a href="/sy/;">史苑</a></div>
+                                </li>
+                                <li>
+                                    <div class="picbg"></div>
+                                    <div class="pic"><a href="/qsjj/"><img src="/upload/resources/image/2015/02/09/6486_120x120.gif" /></a></div>
+                                    <div class="title"><a href="/qsjj/;">清史镜鉴</a></div>
+                                </li>
+                                <li>
+                                    <div class="picbg"></div>
+                                    <div class="pic"><a href="/qsxsyjzh/"><img src="/upload/resources/image/2013/07/29/3734_120x120.gif" /></a></div>
+                                    <div class="title"><a href="/qsxsyjzh/;">清史学术研究专号</a></div>
+                                </li>
+                                <li>
+                                    <div class="picbg"></div>
+                                    <div class="pic"><a href="/qslzsy/"><img src="/upload/resources/image/2013/07/29/3735_120x120.gif" /></a></div>
+                                    <div class="title"><a href="/qslzsy/;">清史论著索引</a></div>
+                                </li> 
+                        
+                            </ul>
+                        </div>
+                    </div>
+					<script type="text/javascript">
+                    $(".picScroLef_con").slide({titCell:".hd ul",mainCell:".bd ul",autoPage:true,effect:"left",autoPlay:true,vis:2});
+                    </script>
+                </div>
+                <div class="zl_bottom"><span></span></div>	
+            </div>
+            <div class="marTop20">
+            	<!--清史文库-->
+            	
+            	<div class="zl_top clearself"><span><a href="/qswk/" class="fr">+更多</a><i class="titleBg9"></i></span></div>
+                
+                <div class="zl_center">
+                    <div class="hisClassical" style="height:206px;">
+                    
+            		
+                    	<a href="/qswk/gdwx/">【古典文献】</a>
+                    	<a href="/qswk/xdwx/">【现代研究】</a>
+                    	<a href="/qswk/mgwx/">【民国文献】</a>
+                    	<a href="/qswk/cd/">【辞典】</a>
+                    	<a href="/qswk/hwhx/">【外文译著】</a>
+                    	<a href="/qswk/wwkg/">【文物考古】</a>
+                    	<a href="/qswk/zj/">【宗教】</a>
+                    	<a href="/qswk/zy/">【中医】</a>
+                    	<a href="/qswk/dfz/">【地方志】</a>
+                    	<a href="/qswk/lwj/">【论文集】</a>
+                    	<a href="/qswk/sy/">【索引】</a>
+                    	<a href="/qswk/tsml/">【图书目录】</a>
+                    	<a href="/qswk/szts/">【数字图书】</a>
+                    	<a href="/qswk/scts/">【收藏图书】</a>
+                    	<a href="/qswk/qk/">【期刊】</a>
+          			
+                    </div>
+                </div>
+                <div class="zl_bottom"><span></span></div>	
+            </div>
+        </div>
+    </div>
+</div>
+<!--**** 主体结束 ****-->
+
+<!--**** 尾部开始 ****-->
+
+<div class="friLink">
+  <div class="zl_top"><span><i class="titleBg1"></i></span></div>
+  <div class="zl_center">
+    <div class="friLink_con">
+      
+        <a href="http://www.mcprc.gov.cn/" target="_blank">文化部</a><a href="http://www.cssn.cn/" target="_blank">中国社会科学院</a><a href="http://www.ruc.edu.cn/" target="_blank">中国人民大学</a><a href="&#32;http://www.dpm.org.cn" target="_blank">故宫博物院</a><a href="http://www.nlc.gov.cn/" target="_blank">中国国家图书馆</a><a href="http://www.guoxue.com/" target="_blank">国学网</a><a href="http://www.xiangyata.net/" target="_blank">象牙塔</a><a href="http://jds.cass.cn" target="_blank">中国社会科学院近代史研究所</a><a href="http://www.pgm.org.cn/flash/flash.shtml" target="_blank">恭王府</a><a href="http://www.exuezhe.com/" target="_blank">学者在线</a>
+      
+    </div>
+  </div>
+  <div class="zl_bottom"><span></span></div>
+</div>
+<div class="foot">
+  <div class="footLink"><a href="mailto:zhenggao@historychina.net">电子信箱</a>|
+     <a href="/faq/352292.shtml" target="_blank">FAQ</a> 
+    |
+     <a href="/zxdc/" target="_blank">在线调查</a> 
+    |
+    <a target='_blank' href='http://www.historychina.net/history/message/list?boardId=19&SiteID=21'>我要留言 </a>
+    |
+     <a href="/wzdt/" target="_blank">网站地图</a> 
+    |
+     <a href="/gywm/352303.shtml" target="_blank">关于我们</a>
+    |
+    <a href="/html/showphoto/show.html" target="_blank">人物关系图谱</a>
+  </div>
+  <div>Copyright©2003-2009  HistoryChina.net， All Rights Reserved</div>
+  <div>京ICP备05067795号 京公网安备110402440008号 
+ 网站访问量：<span id="hitcount">0</span>次
+<script>$.getScript("http://www.historychina.net/history/counter/site?SiteID=21&DomID=hitcount");</script> 
+  技术支持：<a target="_blank" href="http://www.zving.com">泽元软件</a></div>
+</div>
+<script>
+  var ScrollbarWrap2 = $(".y_scrollbarWrap");
+  ScrollbarWrap2.hide();
+  var ContentWrap2 = $(".y_contentWrap");
+  ContentWrap2.css("height", "auto");
+  var ScrollbarWrap2 = $(".y_listscrollbarWrap");
+  ScrollbarWrap2.hide();
+  var yellowbox2 = $(".y_yellowbox");
+  if(yellowbox2){
+	  yellowbox2.css("height", "auto");
+  }
+  var ListWrap2 = $(".y_listWrap");
+  if(ListWrap2){
+  	ListWrap2.css("height", "auto");
+  }
+  var Listcon2 = $(".y_listcon");
+  if(Listcon2){
+	Listcon2.css("height", "auto");
+  }
+</script>
+
+<!--**** 尾部结束 ****-->
+<script type="text/javascript">
+document.getElementById("indexpage").className+=" current";
+</script>
+
+<script src="http://www.historychina.net/history/stat/front/stat.js" type="text/javascript"></script>
+<script>
+if(window._zcms_stat)_zcms_stat("SiteID=21&Dest=http://www.historychina.net/history/stat/dealer");
+</script>
+
+<!-- App=ZCMS(ZCMS中华文史网) 2.3.24866,CostTime=954,PublishDate=2017-02-13 10:26:07 -->
+</body>
+</html>

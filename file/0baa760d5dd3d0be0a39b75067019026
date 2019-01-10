@@ -1,0 +1,71 @@
+<!DOCTYPE html><html><head>
+		<meta http-equiv="Content-Type" content="text/html;charset=utf-8;">
+		<title>
+			proxy
+		</title>
+	</head>
+	<body>
+		<script type="text/javascript">
+		try{
+			document.domain = 'ntalker.com';
+		}catch(e){
+		}
+		var xmlhttp;
+		// 发送ajax请求的方法
+		function uploadFile(url, data, callback) {
+			var xmlhttp = null;
+			var url = url || null;
+			var method = 'POST';
+			var callback = callback ||
+			function() {};
+			var data = data || null;
+			var encoding = 'utf-8';
+			var async = true;
+
+			if (url == null) return false;
+
+			// create instance of request
+			xmlhttp = new XMLHttpRequest();
+			if (!xmlhttp) return false;
+
+	        xmlhttp.upload.addEventListener('progress', function (e) {
+                callback({
+                	status: 'uploading',
+                	event:  e
+                });
+            }, false);
+            xmlhttp.addEventListener('load', function (e) {
+            	var json = JSON.parse(this.response);
+                callback({
+                	status: 'success',
+                	event:   e,
+                	url:     json.url
+                });
+            }, false);
+            xmlhttp.addEventListener('error', function (e) {
+                callback({
+                	status: 'error',
+                	event:   e,
+                	url:     url
+                });
+            }, false);
+            xmlhttp.addEventListener('abort', function (e) {
+                callback({
+                	status: 'cancel',
+                	event:   e,
+                	url:     url
+                });
+            }, false);
+	        xmlhttp.open(method, url);
+	        //xmlhttp.setRequestHeader("Content-type", "text/xml; charset=" + encoding);
+	        xmlhttp.send(data);
+		}
+
+		function abort(xmlhttp) {
+			if (!xmlhttp) return;
+			xmlhttp.abort();
+		}
+
+	</script>
+
+</body></html>

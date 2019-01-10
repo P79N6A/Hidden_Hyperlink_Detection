@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+ <head> 
+  <meta charset="utf-8" /> 
+  <meta name="viewport" content="width=device-width, initial-scale=1" /> 
+  <title>Mac Aria2 使用Privoxy将socks代理转化为http代理 - eYeah - 博客园</title> 
+  <link type="text/css" rel="stylesheet" href="/bundles/blog-common.css?v=m_FXmwz3wxZoecUwNEK23PAzc-j9vbX_C6MblJ5ouMc1" /> 
+  <link id="MainCss" type="text/css" rel="stylesheet" href="/skins/arrow/bundle-arrow.css?v=pAFc9CTjQ3X6S6IlkhC7h-AHdfI56xopjvGTJOuYoNg1" /> 
+  <link id="mobile-style" media="only screen and (max-width: 768px)" type="text/css" rel="stylesheet" href="/skins/arrow/bundle-arrow-mobile.css?v=E29MtKNyRM3VBR9rpLchjPyE2uXjRufzfBGxXmqwels1" /> 
+  <link title="RSS" type="application/rss+xml" rel="alternate" href="http://www.cnblogs.com/eYeah/rss" /> 
+  <link title="RSD" type="application/rsd+xml" rel="EditURI" href="http://www.cnblogs.com/eYeah/rsd.xml" /> 
+  <link type="application/wlwmanifest+xml" rel="wlwmanifest" href="http://www.cnblogs.com/eYeah/wlwmanifest.xml" /> 
+  <script src="//common.cnblogs.com/script/jquery.js" type="text/javascript"></script> 
+  <script type="text/javascript">var currentBlogApp = 'eYeah', cb_enable_mathjax=false;var isLogined=false;</script> 
+  <script src="/bundles/blog-common.js?v=HjE8xh24aOra0V_HP38wxIHV3lfHC5polwLAK3mmjdg1" type="text/javascript"></script> 
+ </head> 
+ <body> 
+  <a name="top"></a> 
+  <!--done--> 
+  <div id="header"> 
+   <!--done--> 
+   <div class="header"> 
+    <div class="headerText"> 
+     <a id="Header1_HeaderTitle" class="headermaintitle" href="http://www.cnblogs.com/eYeah/">花落谁家</a>
+     <br /> 
+    </div> 
+   </div> 
+  </div> 
+  <div id="mylinks"> 
+   <!--done--> 
+   <a id="blog_nav_sitehome" class="menu" href="http://www.cnblogs.com/">博客园</a>&nbsp;&nbsp;&nbsp; 
+   <a id="blog_nav_myhome" class="menu" href="http://www.cnblogs.com/eYeah/">首页</a>&nbsp;&nbsp;&nbsp; 
+   <a id="blog_nav_newpost" class="menu" rel="nofollow" href="https://i.cnblogs.com/EditPosts.aspx?opt=1">新随笔</a>&nbsp;&nbsp;&nbsp; 
+   <a id="blog_nav_contact" accesskey="9" class="menu" rel="nofollow" href="https://msg.cnblogs.com/send/eYeah">联系</a>&nbsp;&nbsp;&nbsp; 
+   <a id="blog_nav_rss" class="menu" href="http://www.cnblogs.com/eYeah/rss">订阅</a>
+   <a id="blog_nav_rss_image" href="http://www.cnblogs.com/eYeah/rss"><img src="//www.cnblogs.com/images/xml.gif" alt="订阅" /></a>&nbsp;&nbsp;&nbsp; 
+   <a id="blog_nav_admin" class="menu" rel="nofollow" href="https://i.cnblogs.com/">管理</a> 
+  </div> 
+  <div id="mytopmenu"> 
+   <div id="blog_stats"> 
+    <div class="blogStats">
+     随笔 - 8&nbsp; 文章 - 0&nbsp;评论 - 0&nbsp;trackbacks - 0 
+    </div>
+   </div> 
+  </div> 
+  <div id="leftcontent"> 
+   <div id="leftcontentcontainer"> 
+    <div id="blog-calendar" style="display:none"></div>
+    <script type="text/javascript">loadBlogDefaultCalendar();</script>
+    <br /> 
+    <!--done--> 
+    <div class="newsItem"> 
+     <div id="blog-news"></div>
+     <script type="text/javascript">loadBlogNews();</script> 
+    </div> 
+    <div id="blog-sidecolumn"></div>
+    <script type="text/javascript">loadBlogSideColumn();</script>
+   </div> 
+  </div> 
+  <div id="centercontent"> 
+   <div id="post_detail"> 
+    <!--done--> 
+    <div class="post"> 
+     <div class="postTitle"> 
+      <h1><a id="cb_post_title_url" class="postTitle2" href="http://www.cnblogs.com/eYeah/p/6139720.html">Mac Aria2 使用Privoxy将socks代理转化为http代理</a></h1> 
+     </div> 
+     <div id="cnblogs_post_body">
+      <h3 id="toc_0">安装Privoxy</h3> 
+      <p>打开终端<br />安装privoxy来实现<br />这里我是通过brew来进行的安装</p> 
+      <pre>brew install privoxy<br /><br /></pre> 
+      <div class="blog-body"> 
+       <p>看到这行已经安装成功</p> 
+       <pre>==&gt; Caveats
+To have launchd start privoxy at login:
+    ln -sfv /usr/local/opt/privoxy/*.plist ~/Library/LaunchAgents
+Then to load privoxy now:
+    launchctl load ~/Library/LaunchAgents/homebrew.mxcl.privoxy.plist
+Or, if you don't want/need launchctl, you can just run:
+    privoxy /usr/local/etc/privoxy/config
+==&gt; Summary
+</pre> 
+       <p>编辑配置文件</p> 
+       <pre>echo 'listen-address 0.0.0.0:8118' &gt;&gt; /usr/local/etc/privoxy/config
+echo 'forward-socks5 / localhost:1080 .' &gt;&gt; /usr/local/etc/privoxy/config
+</pre> 
+       <p>Ps说明:<br />8118是要监听的http端口<br />1080 是我自己本地的shadowsocks监听端口。你可以修改为你自己的<br /><br />下面启用</p> 
+       <pre>/usr/local/Cellar/privoxy/3.0.23/sbin/privoxy /usr/local/etc/privoxy/config
+</pre> 
+       <p>然后使用下面2个命令检查是否启动成功和端口是否已经监听</p> 
+       <pre>ps aux  | grep privoxy
+Kim              8898   0.0  0.0  2432772    664 s000  S+    3:49下午   0:00.00 grep privoxy
+Kim              8892   0.0  0.0  2463696   1332   ??  Ss    3:49下午   0:00.03 /usr/local/Cellar/privoxy/3.0.23/sbin/privoxy /usr/local/etc/privoxy/config
+</pre> 
+       <p>证明已经启动</p> 
+       <pre>netstat -an | grep 8118
+</pre> 
+       <p>看到这个</p> 
+       <pre>netstat -an | grep 8118
+tcp4       0      0  *.8118                 *.*                    LISTEN
+</pre> 
+       <p>证明已经监听<br />使用 ifconfig 来查看自己的本地IP地址,我自己本地是192.168.1.240<br />然后在其他支持http代理当中填写&nbsp;<br />192.168.1.240:8118 就可以了、</p> 
+      </div> 
+      <div class="blog-tags">
+       none
+      </div> 
+      <div class="blog-tags">
+       &nbsp;
+      </div> 
+      <div class="blog-tags">
+       －－－－－－分割线－－－－－－－－－
+      </div> 
+      <p><br />配置<code>/etc/privoxy/config</code><br />比如我将socks5代理转化为http代理，我可以这样设置。</p> 
+      <pre><code>listen-address  localhost:8118
+forward-socks5 / 127.0.0.1:1080 .</code></pre> 
+      <p>然后<code>privoxy /etc/privoxy/config</code>启动即可，这样本地端口的8118端口就是http代理端口。<br />除此之外privoxy还可以屏蔽网站、去广告等功能，诸位各自摸索罢。</p> 
+      <h3 id="toc_1">设置Aria2代理</h3> 
+      <p>有些软件是不支持socks代理的，比如Aria2。<br />我们在启动Aria2的时候<code>aria2c --all-proxy='http://127.0.0.1:8118' -D</code>，就可以让Aria2走http代理了。</p>
+     </div>
+     <div id="MySignature"></div> 
+     <div class="clear"></div> 
+     <div id="blog_post_info_block"> 
+      <div id="BlogPostCategory"></div> 
+      <div id="EntryTag"></div> 
+      <div id="blog_post_info"> 
+      </div> 
+      <div class="clear"></div> 
+      <div id="post_next_prev"></div> 
+     </div> 
+     <div class="postDesc">
+      posted on 
+      <span id="post-date">2016-12-07 00:32</span> 
+      <a href="http://www.cnblogs.com/eYeah/">eYeah</a> 阅读(
+      <span id="post_view_count">...</span>) 评论(
+      <span id="post_comment_count">...</span>) 
+      <a href="https://i.cnblogs.com/EditPosts.aspx?postid=6139720" rel="nofollow">编辑</a> 
+      <a href="#" onclick="AddToWz(6139720);return false;">收藏</a>
+     </div> 
+    </div> 
+    <script type="text/javascript">var allowComments=true,cb_blogId=15508,cb_entryId=6139720,cb_blogApp=currentBlogApp,cb_blogUserGuid='0849360b-63cf-dd11-9e4d-001cf0cd104b',cb_entryCreatedDate='2016/12/7 0:32:00';loadViewCount(cb_entryId);</script> 
+   </div>
+   <a name="!comments"></a>
+   <div id="blog-comments-placeholder"></div>
+   <script type="text/javascript">var commentManager = new blogCommentManager();commentManager.renderComments(0);</script> 
+   <div id="comment_form" class="commentform"> 
+    <a name="commentform"></a> 
+    <div id="divCommentShow"></div> 
+    <div id="comment_nav">
+     <span id="span_refresh_tips"></span>
+     <a href="javascript:void(0);" onclick="return RefreshCommentList();" id="lnk_RefreshComments" runat="server" clientidmode="Static">刷新评论</a>
+     <a href="#" onclick="return RefreshPage();">刷新页面</a>
+     <a href="#top">返回顶部</a>
+    </div> 
+    <div id="comment_form_container"></div> 
+    <div class="ad_text_commentbox" id="ad_text_under_commentbox"></div> 
+    <div id="ad_t2"></div> 
+    <div id="opt_under_post"></div> 
+    <div id="ad_c1" class="c_ad_block"></div> 
+    <div id="under_post_news"></div> 
+    <div id="ad_c2" class="c_ad_block"></div> 
+    <div id="under_post_kb"></div> 
+    <div id="HistoryToday" class="c_ad_block"></div> 
+    <script type="text/javascript">
+    fixPostBody();
+    setTimeout(function () { incrementViewCount(cb_entryId); }, 50);
+    deliverAdT2();
+    deliverAdC1();
+    deliverAdC2();    
+    loadNewsAndKb();
+    loadBlogSignature();
+    LoadPostInfoBlock(cb_blogId, cb_entryId, cb_blogApp, cb_blogUserGuid);
+    GetPrevNextPost(cb_entryId, cb_blogId, cb_entryCreatedDate);
+    loadOptUnderPost();
+    GetHistoryToday(cb_blogId, cb_blogApp, cb_entryCreatedDate);   
+</script> 
+   </div> 
+   <!--done--> 
+   <div class="footer">
+     Copyright &copy;2017 eYeah Powered by: 
+    <a href="http://www.cnblogs.com" class="footerlink">博客园</a> 模板提供：
+    <a href="http://blog.hjenglish.com" class="footerlink">沪江博客</a>
+    <br /> 
+   </div> 
+  </div>   
+ </body>
+</html>

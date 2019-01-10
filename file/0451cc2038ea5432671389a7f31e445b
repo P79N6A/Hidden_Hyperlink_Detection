@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html class="no-js" lang="zh-CN">
+ <head> 
+  <link rel="profile" href="http://gmpg.org/xfn/11" /> 
+  <meta charset="UTF-8" /> 
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" /> 
+  <title>php file_get_contents 设置代理抓取页面 | Hugo Web前端开发</title> 
+  <!-- All in One SEO Pack 2.3.10.2 by Michael Torbert of Semper Fi Web Design[222,280] --> 
+  <meta name="description" content="主要用于 不能直接访问目标文件，或者不便直接访问的情况。 使用file_get_contents 和 stream_context_create 即可。 代码如下" /> 
+  <meta name="keywords" content="file_get_contents,php,proxy,代理" /> 
+  <link rel="canonical" href="http://www.ghugo.com/file-get-contents-behind-a-proxy/" /> 
+  <!-- /all in one seo pack --> 
+  <link rel="dns-prefetch" href="//s.w.org" /> 
+  <link rel="alternate" type="application/rss+xml" title="Hugo Web前端开发 &raquo; Feed" href="http://www.ghugo.com/feed/" /> 
+  <link rel="alternate" type="application/rss+xml" title="Hugo Web前端开发 &raquo; 评论Feed" href="http://www.ghugo.com/comments/feed/" /> 
+  <link rel="alternate" type="application/rss+xml" title="Hugo Web前端开发 &raquo; php file_get_contents 设置代理抓取页面评论Feed" href="http://www.ghugo.com/file-get-contents-behind-a-proxy/feed/" /> 
+  <script type="text/javascript">
+			window._wpemojiSettings = {"baseUrl":"https:\/\/s.w.org\/images\/core\/emoji\/2.2.1\/72x72\/","ext":".png","svgUrl":"https:\/\/s.w.org\/images\/core\/emoji\/2.2.1\/svg\/","svgExt":".svg","source":{"concatemoji":"http:\/\/www.ghugo.com\/wp-includes\/js\/wp-emoji-release.min.js?ver=4.7.3"}};
+			!function(a,b,c){function d(a){var b,c,d,e,f=String.fromCharCode;if(!k||!k.fillText)return!1;switch(k.clearRect(0,0,j.width,j.height),k.textBaseline="top",k.font="600 32px Arial",a){case"flag":return k.fillText(f(55356,56826,55356,56819),0,0),!(j.toDataURL().length<3e3)&&(k.clearRect(0,0,j.width,j.height),k.fillText(f(55356,57331,65039,8205,55356,57096),0,0),b=j.toDataURL(),k.clearRect(0,0,j.width,j.height),k.fillText(f(55356,57331,55356,57096),0,0),c=j.toDataURL(),b!==c);case"emoji4":return k.fillText(f(55357,56425,55356,57341,8205,55357,56507),0,0),d=j.toDataURL(),k.clearRect(0,0,j.width,j.height),k.fillText(f(55357,56425,55356,57341,55357,56507),0,0),e=j.toDataURL(),d!==e}return!1}function e(a){var c=b.createElement("script");c.src=a,c.defer=c.type="text/javascript",b.getElementsByTagName("head")[0].appendChild(c)}var f,g,h,i,j=b.createElement("canvas"),k=j.getContext&&j.getContext("2d");for(i=Array("flag","emoji4"),c.supports={everything:!0,everythingExceptFlag:!0},h=0;h<i.length;h++)c.supports[i[h]]=d(i[h]),c.supports.everything=c.supports.everything&&c.supports[i[h]],"flag"!==i[h]&&(c.supports.everythingExceptFlag=c.supports.everythingExceptFlag&&c.supports[i[h]]);c.supports.everythingExceptFlag=c.supports.everythingExceptFlag&&!c.supports.flag,c.DOMReady=!1,c.readyCallback=function(){c.DOMReady=!0},c.supports.everything||(g=function(){c.readyCallback()},b.addEventListener?(b.addEventListener("DOMContentLoaded",g,!1),a.addEventListener("load",g,!1)):(a.attachEvent("onload",g),b.attachEvent("onreadystatechange",function(){"complete"===b.readyState&&c.readyCallback()})),f=c.source||{},f.concatemoji?e(f.concatemoji):f.wpemoji&&f.twemoji&&(e(f.twemoji),e(f.wpemoji)))}(window,document,window._wpemojiSettings);
+		</script> 
+  <style type="text/css">
+img.wp-smiley,
+img.emoji {
+	display: inline !important;
+	border: none !important;
+	box-shadow: none !important;
+	height: 1em !important;
+	width: 1em !important;
+	margin: 0 .07em !important;
+	vertical-align: -0.1em !important;
+	background: none !important;
+	padding: 0 !important;
+}
+</style> 
+  <link rel="stylesheet" id="wp-pagenavi-css" href="http://7qnca0.com1.z0.glb.clouddn.com/wp-content/plugins/wp-pagenavi/pagenavi-css.css?ver=2.70" type="text/css" media="all" /> 
+  <link rel="stylesheet" id="tw-bootstrap-css" href="http://7qnca0.com1.z0.glb.clouddn.com/wp-content/themes/the-bootstrap/css/bootstrap.min.css?ver=2.0.3" type="text/css" media="all" /> 
+  <link rel="stylesheet" id="the-bootstrap-css" href="http://7qnca0.com1.z0.glb.clouddn.com/wp-content/themes/the-bootstrap/style.min.css?ver=2.0.1" type="text/css" media="all" /> 
+  <script type="text/javascript" src="http://www.ghugo.com/wp-includes/js/jquery/jquery.js?ver=1.12.4"></script> 
+  <script type="text/javascript" src="http://www.ghugo.com/wp-includes/js/jquery/jquery-migrate.min.js?ver=1.4.1"></script> 
+  <link rel="https://api.w.org/" href="http://www.ghugo.com/wp-json/" /> 
+  <link rel="EditURI" type="application/rsd+xml" title="RSD" href="http://www.ghugo.com/xmlrpc.php?rsd" /> 
+  <link rel="wlwmanifest" type="application/wlwmanifest+xml" href="http://www.ghugo.com/wp-includes/wlwmanifest.xml" /> 
+  <link rel="prev" title="浏览器打开docx、xlsx文件乱码，而不是直接下载的解决办法" href="http://www.ghugo.com/docx-xlsx-pptx-downloading/" /> 
+  <link rel="next" title="修改Hosts文件 不需要重启IE的方法" href="http://www.ghugo.com/edit-hosts-restart-ie/" /> 
+  <meta name="generator" content="WordPress 4.7.3" /> 
+  <link rel="shortlink" href="http://www.ghugo.com/?p=574" /> 
+  <link rel="alternate" type="application/json+oembed" href="http://www.ghugo.com/wp-json/oembed/1.0/embed?url=http%3A%2F%2Fwww.ghugo.com%2Ffile-get-contents-behind-a-proxy%2F" /> 
+  <link rel="alternate" type="text/xml+oembed" href="http://www.ghugo.com/wp-json/oembed/1.0/embed?url=http%3A%2F%2Fwww.ghugo.com%2Ffile-get-contents-behind-a-proxy%2F&amp;format=xml" /> 
+  <!--[if lt IE 9]>
+		<script src="http://www.ghugo.com/wp-content/themes/the-bootstrap/js/html5shiv.min.js" type="text/javascript"></script>
+		<script src="http://www.ghugo.com/wp-content/themes/the-bootstrap/js/respond.min.js" type="text/javascript"></script>
+	<![endif]--> 
+  <style type="text/css" id="syntaxhighlighteranchor"></style> 
+ </head> 
+ <body class="post-template-default single single-post postid-574 single-format-standard content-sidebar"> 
+  <div class="container"> 
+   <div id="page" class="hfeed row"> 
+    <header id="branding" role="banner" class="span12"> 
+     <nav class="subnav clearfix">
+      <ul id="menu-%e5%85%b7%e4%bd%93%e5%88%86%e7%b1%bb" class="nav nav-pills pull-right">
+       <li id="menu-item-923" class="menu-item menu-item-type-taxonomy menu-item-object-post_tag menu-item-923"><a href="http://www.ghugo.com/tag/javascript/">javascript</a></li> 
+       <li id="menu-item-924" class="menu-item menu-item-type-taxonomy menu-item-object-post_tag menu-item-924"><a href="http://www.ghugo.com/tag/jquery/">jquery</a></li> 
+       <li id="menu-item-926" class="menu-item menu-item-type-taxonomy menu-item-object-post_tag menu-item-926"><a href="http://www.ghugo.com/tag/css/">css</a></li> 
+       <li id="menu-item-927" class="menu-item menu-item-type-taxonomy menu-item-object-post_tag menu-item-927"><a href="http://www.ghugo.com/tag/seo/">seo</a></li> 
+       <li id="menu-item-925" class="menu-item menu-item-type-taxonomy menu-item-object-post_tag menu-item-925"><a href="http://www.ghugo.com/tag/php/">php</a></li> 
+       <li id="menu-item-928" class="menu-item menu-item-type-taxonomy menu-item-object-post_tag menu-item-928"><a href="http://www.ghugo.com/tag/mysql/">mysql</a></li> 
+      </ul>
+     </nav> 
+     <hgroup> 
+      <h1 id="site-title"> <a href="http://www.ghugo.com/" title="Hugo Web前端开发" rel="home"> <span>Hugo Web前端开发</span> </a> </h1> 
+      <h2 id="site-description">关注HTML5,CSS,JavaScript,jQuery,React等web前端开发技术</h2> 
+     </hgroup> 
+     <nav id="access" role="navigation"> 
+      <h3 class="assistive-text">Main menu</h3> 
+      <div class="skip-link">
+       <a class="assistive-text" href="#content" title="Skip to primary content">Skip to primary content</a>
+      </div> 
+      <div class="skip-link">
+       <a class="assistive-text" href="#secondary" title="Skip to secondary content">Skip to secondary content</a>
+      </div> 
+      <div class="navbar navbar-inverse"> 
+       <div class="navbar-inner"> 
+        <div class="container"> 
+         <!-- .btn-navbar is used as the toggle for collapsed navbar content --> 
+         <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse"> <span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span> </a> 
+         <div class="nav-collapse"> 
+          <div class="menu-hugo_nav-container">
+           <ul id="menu-hugo_nav" class="nav">
+            <li id="menu-item-396" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-has-children menu-item-396 dropdown" data-dropdown="dropdown"><a href="http://www.ghugo.com/category/web-front-end-develop/" class="dropdown-toggle" data-toggle="dropdown">WEB前端技术 <b class="caret"></b></a> 
+             <ul class="dropdown-menu"> 
+              <li id="menu-item-929" class="menu-item menu-item-type-taxonomy menu-item-object-post_tag menu-item-929"><a href="http://www.ghugo.com/tag/javascript/">javascript</a></li> 
+              <li id="menu-item-930" class="menu-item menu-item-type-taxonomy menu-item-object-post_tag menu-item-930"><a href="http://www.ghugo.com/tag/jquery/">jquery</a></li> 
+              <li id="menu-item-934" class="menu-item menu-item-type-taxonomy menu-item-object-post_tag menu-item-934"><a href="http://www.ghugo.com/tag/css/">css</a></li> 
+              <li id="menu-item-931" class="menu-item menu-item-type-taxonomy menu-item-object-post_tag menu-item-931"><a href="http://www.ghugo.com/tag/seo/">seo</a></li> 
+             </ul> </li> 
+            <li id="menu-item-846" class="menu-item menu-item-type-taxonomy menu-item-object-category current-post-ancestor current-menu-parent current-post-parent menu-item-has-children menu-item-846 dropdown" data-dropdown="dropdown"><a href="http://www.ghugo.com/category/php-nodejs-service/" class="dropdown-toggle" data-toggle="dropdown">WEB后端技术 <b class="caret"></b></a> 
+             <ul class="dropdown-menu"> 
+              <li id="menu-item-1067" class="menu-item menu-item-type-taxonomy menu-item-object-post_tag menu-item-1067"><a href="http://www.ghugo.com/tag/centos/">CentOS</a></li> 
+              <li id="menu-item-932" class="menu-item menu-item-type-taxonomy menu-item-object-post_tag menu-item-932"><a href="http://www.ghugo.com/tag/php/">php</a></li> 
+              <li id="menu-item-933" class="menu-item menu-item-type-taxonomy menu-item-object-post_tag menu-item-933"><a href="http://www.ghugo.com/tag/mysql/">mysql</a></li> 
+             </ul> </li> 
+            <li id="menu-item-1236" class="menu-item menu-item-type-taxonomy menu-item-object-post_tag menu-item-1236"><a href="http://www.ghugo.com/tag/react/">React Native</a></li> 
+            <li id="menu-item-1031" class="menu-item menu-item-type-taxonomy menu-item-object-post_tag menu-item-1031"><a href="http://www.ghugo.com/tag/%e6%b8%b2%e6%9f%93%e4%bc%98%e5%8c%96/">渲染优化</a></li> 
+            <li id="menu-item-1058" class="menu-item menu-item-type-taxonomy menu-item-object-post_tag menu-item-1058"><a href="http://www.ghugo.com/tag/%e6%ba%90%e7%a0%81%e9%98%85%e8%af%bb/">源码阅读</a></li> 
+            <li id="menu-item-397" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-397"><a href="http://www.ghugo.com/category/tools/">工具资源</a></li> 
+            <li id="menu-item-402" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-home menu-item-402"><a href="http://www.ghugo.com/about/">About</a></li> 
+           </ul>
+          </div> 
+          <form id="searchform" class="navbar-search pull-right" method="get" action="http://www.ghugo.com/"> 
+           <label for="s" class="assistive-text hidden">Search</label> 
+           <input type="search" class="search-query" name="s" id="s" placeholder="Search" /> 
+          </form> 
+         </div> 
+        </div> 
+       </div> 
+      </div> 
+     </nav>
+     <!-- #access --> 
+    </header>
+    <!-- #branding --> 
+    <section id="primary" class="span8"> 
+     <div id="content" role="main"> 
+      <article id="post-574" class="post-574 post type-post status-publish format-standard hentry category-php-nodejs-service tag-file_get_contents tag-php tag-proxy tag-132"> 
+       <header class="page-header"> 
+        <h1 class="entry-title">php file_get_contents 设置代理抓取页面</h1> 
+        <div class="entry-meta">
+         <span class="sep">Posted on </span>
+         <a href="http://www.ghugo.com/file-get-contents-behind-a-proxy/" title="5:10 下午" rel="bookmark"><time class="entry-date" datetime="2012-11-16T17:10:02+00:00" pubdate="">2012年11月16日</time></a>
+         <span class="by-author"> <span class="sep"> by </span> <span class="author vcard"><a class="url fn n" href="http://www.ghugo.com/author/admin/" title="View all posts by admin" rel="author">admin</a></span></span> 
+         <span class="sep"> | </span> 
+         <span class="comments-link"> <a href="http://www.ghugo.com/file-get-contents-behind-a-proxy/#respond"><span class="leave-reply">Leave a reply</span></a> </span> 
+        </div>
+        <!-- .entry-meta --> 
+       </header>
+       <!-- .entry-header --> 
+       <div class="entry-content clearfix"> 
+        <p>主要用于 不能直接访问目标文件，或者不便直接访问的情况。</p> 
+        <p>使用file_get_contents 和 stream_context_create 即可。</p> 
+        <p>代码如下:</p> 
+        <pre class="brush: php; title: ; notranslate" title="">
+$aContext = array(
+    'http' =&gt; array(
+        'proxy' =&gt; 'tcp://192.168.0.2:3128',  //这里设置你要使用的代理ip及端口号
+        'request_fulluri' =&gt; true,
+    ),
+);
+$cxContext = stream_context_create($aContext);
+
+$sFile = file_get_contents(&quot;http://www.google.com&quot;, False, $cxContext);
+
+echo $sFile;
+</pre> 
+        <p>以上代码适用于正常情况，但是如果目标页面需要登录或需要认证信息才能访问的话，可以加多一句代码。</p> 
+        <pre class="brush: php; title: ; notranslate" title="">
+$auth = base64_encode('LOGIN:PASSWORD');   //LOGIN:PASSWORD 这里是你的账户名及密码
+
+$aContext = array(
+    'http' =&gt; array(
+        'proxy' =&gt; 'tcp://192.168.0.2:3128',  //这里设置你要使用的代理ip及端口号
+        'request_fulluri' =&gt; true,
+        'header' =&gt; &quot;Proxy-Authorization: Basic $auth&quot;,
+    ),
+);
+$cxContext = stream_context_create($aContext);
+
+$sFile = file_get_contents(&quot;http://www.google.com&quot;, False, $cxContext);
+
+echo $sFile;
+</pre> 
+        <p>这样就可以使用代理来抓取页面或文件了</p> 
+       </div>
+       <!-- .entry-content --> 
+       <footer class="entry-footer"> 
+        <span class="cat-links block">Posted in <a href="http://www.ghugo.com/category/php-nodejs-service/" rel="category tag">WEB后端技术</a>.</span>
+        <span class="tag-links block">Tagged <a href="http://www.ghugo.com/tag/file_get_contents/" rel="tag">file_get_contents</a>, <a href="http://www.ghugo.com/tag/php/" rel="tag">php</a>, <a href="http://www.ghugo.com/tag/proxy/" rel="tag">proxy</a>, <a href="http://www.ghugo.com/tag/%e4%bb%a3%e7%90%86/" rel="tag">代理</a>.</span> 
+       </footer>
+       <!-- .entry-footer --> 
+      </article>
+      <!-- #post-574 --> 
+      <div id="respond" class="comment-respond"> 
+       <h3 id="reply-title" class="comment-reply-title"><legend>Leave a reply</legend> <small><a rel="nofollow" id="cancel-comment-reply-link" href="/file-get-contents-behind-a-proxy/#respond" style="display:none;">取消回复</a></small></h3> 
+       <form action="http://www.ghugo.com/wp-comments-post.php" method="post" id="commentform" class="comment-form"> 
+        <div class="form-horizontal">
+         <div class="comment-form-comment control-group">
+          <label class="control-label" for="comment">Comment</label>
+          <div class="controls">
+           <textarea class="span7" id="comment" name="comment" rows="8" aria-required="true"></textarea>
+          </div>
+         </div>
+         <div class="form-allowed-tags control-group">
+          <label class="control-label">You may use these <abbr title="HyperText Markup Language">HTML</abbr> tags and attributes: </label>
+          <div class="controls">
+           <pre>&lt;a href=&quot;&quot; title=&quot;&quot;&gt; &lt;abbr title=&quot;&quot;&gt; &lt;acronym title=&quot;&quot;&gt; &lt;b&gt; &lt;blockquote cite=&quot;&quot;&gt; &lt;cite&gt; &lt;code&gt; &lt;del datetime=&quot;&quot;&gt; &lt;em&gt; &lt;i&gt; &lt;q cite=&quot;&quot;&gt; &lt;s&gt; &lt;strike&gt; &lt;strong&gt; </pre>
+          </div>
+         </div> 
+         <div class="form-actions">
+          <div class="comment-form-author control-group"> 
+           <label for="author" class="control-label">Name</label> 
+           <div class="controls"> 
+            <input id="author" name="author" type="text" value="" size="30" aria-required="true" /> 
+            <p class="help-inline"><span class="required">required</span></p> 
+           </div> 
+          </div> 
+          <div class="comment-form-email control-group"> 
+           <label for="email" class="control-label">Email</label> 
+           <div class="controls"> 
+            <input id="email" name="email" type="email" value="" size="30" aria-required="true" /> 
+            <p class="help-inline"><span class="required">required</span>, will not be published</p> 
+           </div> 
+          </div> 
+          <div class="comment-form-url control-group"> 
+           <label for="url" class="control-label">Website</label> 
+           <div class="controls"> 
+            <input id="url" name="url" type="url" value="" size="30" /> 
+           </div> 
+          </div> 
+          <p class="form-submit"><input name="submit" type="submit" id="submit" class="submit" value="发表评论" /> <input type="hidden" name="comment_post_ID" value="574" id="comment_post_ID" /> <input type="hidden" name="comment_parent" id="comment_parent" value="0" /> </p>
+          <p style="display: none;"><input type="hidden" id="akismet_comment_nonce" name="akismet_comment_nonce" value="3b37886706" /></p>
+         </div>
+        </div>
+        <p style="display: none;"><input type="hidden" id="ak_js" name="ak_js" value="90" /></p> 
+       </form> 
+      </div>
+      <!-- #respond --> 
+      <nav id="nav-single" class="pager"> 
+       <h3 class="assistive-text">Post navigation</h3> 
+       <span class="next"><a href="http://www.ghugo.com/edit-hosts-restart-ie/" rel="next">Next Post <span class="meta-nav">→</span></a></span> 
+       <span class="previous"><a href="http://www.ghugo.com/docx-xlsx-pptx-downloading/" rel="prev"><span class="meta-nav">←</span> Previous Post</a></span> 
+      </nav>
+      <!-- #nav-single --> 
+     </div>
+     <!-- #content --> 
+    </section>
+    <!-- #primary --> 
+    <section id="secondary" class="widget-area span4" role="complementary"> 
+     <aside id="wkc_random_posts" class="widget well widget_wkc_random_posts">
+      <h2 class="widget-title">随机文章</h2>
+      <ul> 
+       <li> <a href="http://www.ghugo.com/chrome-rendering-tools-2/" rel="bookmark" title="距离这个专题的上一篇《Chrome渲染分析之Rendering工具使用(1)》已经隔了一年多了，迟迟没有下笔，囧！ 2.show composited layer borders   中文可翻译为：显示层的组合边界。  我们知道，在页面最终是由多个“图层”渲染而成。勾上这个选项，页面上的“layer(层)”会加上一个黄色的边框显示出来，如下图的天猫首页头部所示：    其中：......  2015.08.16">Chrome渲染分析之Rendering工具使用(2)</a></li> 
+       <li> <a href="http://www.ghugo.com/jquery-animate-body-scrolltop/" rel="bookmark" title="使用jquery的Animate 方法可以实现页面上下滑动，以往常用的写法是：  [js] $('html, body').animate({     scrollTop: '0px','fast', function(){             } }); [/js]  前几天在写页面滑动插件的时候，需要在animate后执行回调。如下：  [js] $('html,......  2014.06.21">jQuery使用 Animate + scrollTop 实现页面滑动效果</a></li> 
+       <li> <a href="http://www.ghugo.com/k-lower-site-solution/" rel="bookmark" title="网上很多这类文章，无非就是增加高质量外链和写原创文章。来来去去就是讲道理，大家都知道是这么回事，但却不知道如何去操作。  经过我实践，网站恢复收录和重新获得排名，最直接的办法就是海量发布网站外链，猛做核心关键词排名。  但假如你的站已经被K了，那还需要在乎外链稳定不稳定吗？这时已经没有任何顾虑的去做外链的，破罐子破摔。群发外链才是硬道理。  关于群发，很多人都有这误区，群发会被K站。而......  2011.01.9">网站被K或被降权的解决办法</a></li> 
+      </ul> 
+     </aside>
+     <aside id="dr-widget-2" class="widget well dr_widget">
+      <h2 class="widget-title">我看过的文章</h2>
+      <ul class="reading-list">
+       <li class="reading-list-li">There was a problem with your feed! The error is <code>WP HTTP Error: cURL error 6: Couldn't resolve host 'previous.delicious.com'</code></li>
+      </ul> 
+      <!-- Generated by Delicious Readings 2.4.2 --> 
+     </aside>
+     <aside id="wkc_recent_comments-3" class="widget well widget_wkc_recent_comments">
+      <h2 class="widget-title">最新评论</h2>
+      <ul> 
+       <li><a class="commentor" href="http://blog.antior.cn">antior</a> : <a class="comment_content" href="http://www.ghugo.com/stardock-fences-2-112-12-keygen/#comment-218171" title="View the entire comment by antior">这个方法并不能用，之前测试过的。</a></li> 
+       <li><a class="commentor" href="">高光宇</a> : <a class="comment_content" href="http://www.ghugo.com/requestanimationframe-best-practice/#comment-218143" title="View the entire comment by 高光宇">写得还不错，为什么一年前开始不更新了呢？是迁到别处了吗？</a></li> 
+       <li><a class="commentor" href="http://www.leixuesong.cn">PHP程序员雷雪松</a> : <a class="comment_content" href="http://www.ghugo.com/chrome-rendering-tools-3/#comment-217929" title="View the entire comment by PHP程序员雷雪松">看完收获很大！！！</a></li> 
+       <li><a class="commentor" href="">rick</a> : <a class="comment_content" href="http://www.ghugo.com/mysql-group-by-no-data-0/#comment-217811" title="View the entire comment by rick">谢谢谢谢</a></li> 
+       <li><a class="commentor" href="http://www.maoyumao.net">mamo</a> : <a class="comment_content" href="http://www.ghugo.com/about/#comment-217142" title="View the entire comment by mamo">在领英看到你的资料，觉得非常厉害，我也是正准备学前端，先观摩学习</a></li> 
+       <li><a class="commentor" href="">wangshengfei</a> : <a class="comment_content" href="http://www.ghugo.com/position-sticky-how-to-use/#comment-217033" title="View the entire comment by wangshengfei">用 PC chrome 看，所有DEMO都是失效的吧</a></li> 
+       <li><a class="commentor" href="https://www.404forest.com">jin5354</a> : <a class="comment_content" href="http://www.ghugo.com/requestanimationframe-best-practice/#comment-216928" title="View the entire comment by jin5354">用法2和用法4的写法出错的地方是一样的。拿用法4举例：ABCD4个模块，假设每个模块执行10ms，不...</a></li> 
+       <li><a class="commentor" href="">BlainPeng</a> : <a class="comment_content" href="http://www.ghugo.com/react-native-listview-stickyheaderindices/#comment-216696" title="View the entire comment by BlainPeng">你好，这个运行在Android端上没有出现sticky效果，请问是怎么回事？</a></li> 
+       <li><a class="commentor" href="">jin5354</a> : <a class="comment_content" href="http://www.ghugo.com/requestanimationframe-best-practice/#comment-216070" title="View the entire comment by jin5354">用法2中的实例代码是错的，这只是收集了一帧内的全部待执行函数，并归到下一帧重绘前一起执行，并没有阻止...</a></li> 
+       <li><a class="commentor" href="http://www.atool.org/">atool</a> : <a class="comment_content" href="http://www.ghugo.com/react-native-communicate/#comment-215798" title="View the entire comment by atool">轻量一点，直接使用事件即可。 https://github.com/hustcc/onfire.j...</a></li> 
+      </ul> 
+     </aside>
+     <aside id="tag_cloud-3" class="widget well widget_tag_cloud">
+      <h2 class="widget-title">标签</h2>
+      <div class="tagcloud">
+       <a href="http://www.ghugo.com/tag/301/" class="tag-link-12 tag-link-position-1" title="1个话题" style="font-size: 8pt;">301</a> 
+       <a href="http://www.ghugo.com/tag/ajax/" class="tag-link-76 tag-link-position-2" title="2个话题" style="font-size: 10.191304347826pt;">ajax</a> 
+       <a href="http://www.ghugo.com/tag/apache/" class="tag-link-127 tag-link-position-3" title="2个话题" style="font-size: 10.191304347826pt;">apache</a> 
+       <a href="http://www.ghugo.com/tag/aptana/" class="tag-link-116 tag-link-position-4" title="2个话题" style="font-size: 10.191304347826pt;">aptana</a> 
+       <a href="http://www.ghugo.com/tag/as3/" class="tag-link-152 tag-link-position-5" title="2个话题" style="font-size: 10.191304347826pt;">as3</a> 
+       <a href="http://www.ghugo.com/tag/backbone/" class="tag-link-122 tag-link-position-6" title="2个话题" style="font-size: 10.191304347826pt;">backbone</a> 
+       <a href="http://www.ghugo.com/tag/centos/" class="tag-link-182 tag-link-position-7" title="2个话题" style="font-size: 10.191304347826pt;">CentOS</a> 
+       <a href="http://www.ghugo.com/tag/chrome/" class="tag-link-142 tag-link-position-8" title="3个话题" style="font-size: 11.652173913043pt;">chrome</a> 
+       <a href="http://www.ghugo.com/tag/constructor/" class="tag-link-22 tag-link-position-9" title="2个话题" style="font-size: 10.191304347826pt;">constructor</a> 
+       <a href="http://www.ghugo.com/tag/css/" class="tag-link-5 tag-link-position-10" title="17个话题" style="font-size: 19.686956521739pt;">css</a> 
+       <a href="http://www.ghugo.com/tag/css3/" class="tag-link-46 tag-link-position-11" title="5个话题" style="font-size: 13.84347826087pt;">css3</a> 
+       <a href="http://www.ghugo.com/tag/ecshop/" class="tag-link-10 tag-link-position-12" title="1个话题" style="font-size: 8pt;">ecshop</a> 
+       <a href="http://www.ghugo.com/tag/fckeditor/" class="tag-link-15 tag-link-position-13" title="1个话题" style="font-size: 8pt;">FCKeditor</a> 
+       <a href="http://www.ghugo.com/tag/file_put_contents/" class="tag-link-107 tag-link-position-14" title="2个话题" style="font-size: 10.191304347826pt;">file_put_contents</a> 
+       <a href="http://www.ghugo.com/tag/firebug/" class="tag-link-41 tag-link-position-15" title="2个话题" style="font-size: 10.191304347826pt;">firebug</a> 
+       <a href="http://www.ghugo.com/tag/firefox/" class="tag-link-43 tag-link-position-16" title="2个话题" style="font-size: 10.191304347826pt;">firefox</a> 
+       <a href="http://www.ghugo.com/tag/flash/" class="tag-link-153 tag-link-position-17" title="2个话题" style="font-size: 10.191304347826pt;">flash</a> 
+       <a href="http://www.ghugo.com/tag/gae/" class="tag-link-4 tag-link-position-18" title="2个话题" style="font-size: 10.191304347826pt;">GAE</a> 
+       <a href="http://www.ghugo.com/tag/github/" class="tag-link-174 tag-link-position-19" title="3个话题" style="font-size: 11.652173913043pt;">github</a> 
+       <a href="http://www.ghugo.com/tag/google/" class="tag-link-3 tag-link-position-20" title="3个话题" style="font-size: 11.652173913043pt;">google</a> 
+       <a href="http://www.ghugo.com/tag/html/" class="tag-link-16 tag-link-position-21" title="2个话题" style="font-size: 10.191304347826pt;">html</a> 
+       <a href="http://www.ghugo.com/tag/html5/" class="tag-link-47 tag-link-position-22" title="8个话题" style="font-size: 15.913043478261pt;">html5</a> 
+       <a href="http://www.ghugo.com/tag/ie/" class="tag-link-56 tag-link-position-23" title="2个话题" style="font-size: 10.191304347826pt;">ie</a> 
+       <a href="http://www.ghugo.com/tag/javascript/" class="tag-link-9 tag-link-position-24" title="27个话题" style="font-size: 22pt;">javascript</a> 
+       <a href="http://www.ghugo.com/tag/jq/" class="tag-link-8 tag-link-position-25" title="3个话题" style="font-size: 11.652173913043pt;">jq</a> 
+       <a href="http://www.ghugo.com/tag/jquery/" class="tag-link-7 tag-link-position-26" title="21个话题" style="font-size: 20.660869565217pt;">jquery</a> 
+       <a href="http://www.ghugo.com/tag/js/" class="tag-link-20 tag-link-position-27" title="8个话题" style="font-size: 15.913043478261pt;">js</a> 
+       <a href="http://www.ghugo.com/tag/mysql/" class="tag-link-123 tag-link-position-28" title="4个话题" style="font-size: 12.869565217391pt;">mysql</a> 
+       <a href="http://www.ghugo.com/tag/php/" class="tag-link-14 tag-link-position-29" title="16个话题" style="font-size: 19.321739130435pt;">php</a> 
+       <a href="http://www.ghugo.com/tag/react/" class="tag-link-209 tag-link-position-30" title="9个话题" style="font-size: 16.521739130435pt;">react</a> 
+       <a href="http://www.ghugo.com/tag/react-native/" class="tag-link-210 tag-link-position-31" title="8个话题" style="font-size: 15.913043478261pt;">react-native</a> 
+       <a href="http://www.ghugo.com/tag/rel/" class="tag-link-17 tag-link-position-32" title="1个话题" style="font-size: 8pt;">rel</a> 
+       <a href="http://www.ghugo.com/tag/seo/" class="tag-link-24 tag-link-position-33" title="5个话题" style="font-size: 13.84347826087pt;">seo</a> 
+       <a href="http://www.ghugo.com/tag/vps/" class="tag-link-178 tag-link-position-34" title="3个话题" style="font-size: 11.652173913043pt;">vps</a> 
+       <a href="http://www.ghugo.com/tag/web/" class="tag-link-80 tag-link-position-35" title="2个话题" style="font-size: 10.191304347826pt;">Web</a> 
+       <a href="http://www.ghugo.com/tag/wordpress/" class="tag-link-42 tag-link-position-36" title="5个话题" style="font-size: 13.84347826087pt;">wordpress</a> 
+       <a href="http://www.ghugo.com/tag/%e5%8d%9a%e5%ae%a2/" class="tag-link-64 tag-link-position-37" title="2个话题" style="font-size: 10.191304347826pt;">博客</a> 
+       <a href="http://www.ghugo.com/tag/%e5%9e%82%e7%9b%b4%e5%b1%85%e4%b8%ad/" class="tag-link-11 tag-link-position-38" title="2个话题" style="font-size: 10.191304347826pt;">垂直居中</a> 
+       <a href="http://www.ghugo.com/tag/%e6%88%aa%e5%b1%8f/" class="tag-link-87 tag-link-position-39" title="2个话题" style="font-size: 10.191304347826pt;">截屏</a> 
+       <a href="http://www.ghugo.com/tag/%e6%8f%92%e4%bb%b6/" class="tag-link-38 tag-link-position-40" title="4个话题" style="font-size: 12.869565217391pt;">插件</a> 
+       <a href="http://www.ghugo.com/tag/%e6%b8%b2%e6%9f%93%e4%bc%98%e5%8c%96/" class="tag-link-196 tag-link-position-41" title="9个话题" style="font-size: 16.521739130435pt;">渲染优化</a> 
+       <a href="http://www.ghugo.com/tag/%e6%ba%90%e7%a0%81%e9%98%85%e8%af%bb/" class="tag-link-200 tag-link-position-42" title="3个话题" style="font-size: 11.652173913043pt;">源码阅读</a> 
+       <a href="http://www.ghugo.com/tag/%e8%99%9a%e7%ba%bf%e6%a1%86/" class="tag-link-6 tag-link-position-43" title="1个话题" style="font-size: 8pt;">虚线框</a> 
+       <a href="http://www.ghugo.com/tag/%e8%b7%a8%e5%9f%9f/" class="tag-link-92 tag-link-position-44" title="3个话题" style="font-size: 11.652173913043pt;">跨域</a> 
+       <a href="http://www.ghugo.com/tag/%e9%87%8d%e5%ae%9a%e5%90%91/" class="tag-link-13 tag-link-position-45" title="1个话题" style="font-size: 8pt;">重定向</a>
+      </div> 
+     </aside>
+     <aside id="archives-3" class="widget well widget_archive">
+      <h2 class="widget-title">文章归档</h2> 
+      <ul> 
+       <li><a href="http://www.ghugo.com/2016/01/">2016年一月</a></li> 
+       <li><a href="http://www.ghugo.com/2015/11/">2015年十一月</a></li> 
+       <li><a href="http://www.ghugo.com/2015/10/">2015年十月</a></li> 
+       <li><a href="http://www.ghugo.com/2015/09/">2015年九月</a></li> 
+       <li><a href="http://www.ghugo.com/2015/08/">2015年八月</a></li> 
+       <li><a href="http://www.ghugo.com/2015/07/">2015年七月</a></li> 
+       <li><a href="http://www.ghugo.com/2015/06/">2015年六月</a></li> 
+       <li><a href="http://www.ghugo.com/2015/05/">2015年五月</a></li> 
+       <li><a href="http://www.ghugo.com/2015/04/">2015年四月</a></li> 
+       <li><a href="http://www.ghugo.com/2015/03/">2015年三月</a></li> 
+       <li><a href="http://www.ghugo.com/2015/02/">2015年二月</a></li> 
+       <li><a href="http://www.ghugo.com/2015/01/">2015年一月</a></li> 
+       <li><a href="http://www.ghugo.com/2014/11/">2014年十一月</a></li> 
+       <li><a href="http://www.ghugo.com/2014/10/">2014年十月</a></li> 
+       <li><a href="http://www.ghugo.com/2014/09/">2014年九月</a></li> 
+       <li><a href="http://www.ghugo.com/2014/08/">2014年八月</a></li> 
+       <li><a href="http://www.ghugo.com/2014/07/">2014年七月</a></li> 
+       <li><a href="http://www.ghugo.com/2014/06/">2014年六月</a></li> 
+       <li><a href="http://www.ghugo.com/2014/05/">2014年五月</a></li> 
+       <li><a href="http://www.ghugo.com/2014/04/">2014年四月</a></li> 
+       <li><a href="http://www.ghugo.com/2014/03/">2014年三月</a></li> 
+       <li><a href="http://www.ghugo.com/2014/01/">2014年一月</a></li> 
+       <li><a href="http://www.ghugo.com/2013/11/">2013年十一月</a></li> 
+       <li><a href="http://www.ghugo.com/2013/10/">2013年十月</a></li> 
+       <li><a href="http://www.ghugo.com/2013/09/">2013年九月</a></li> 
+       <li><a href="http://www.ghugo.com/2013/07/">2013年七月</a></li> 
+       <li><a href="http://www.ghugo.com/2013/06/">2013年六月</a></li> 
+       <li><a href="http://www.ghugo.com/2013/05/">2013年五月</a></li> 
+       <li><a href="http://www.ghugo.com/2013/04/">2013年四月</a></li> 
+       <li><a href="http://www.ghugo.com/2013/02/">2013年二月</a></li> 
+       <li><a href="http://www.ghugo.com/2013/01/">2013年一月</a></li> 
+       <li><a href="http://www.ghugo.com/2012/11/">2012年十一月</a></li> 
+       <li><a href="http://www.ghugo.com/2012/10/">2012年十月</a></li> 
+       <li><a href="http://www.ghugo.com/2012/09/">2012年九月</a></li> 
+       <li><a href="http://www.ghugo.com/2012/08/">2012年八月</a></li> 
+       <li><a href="http://www.ghugo.com/2012/07/">2012年七月</a></li> 
+       <li><a href="http://www.ghugo.com/2012/05/">2012年五月</a></li> 
+       <li><a href="http://www.ghugo.com/2012/03/">2012年三月</a></li> 
+       <li><a href="http://www.ghugo.com/2012/02/">2012年二月</a></li> 
+       <li><a href="http://www.ghugo.com/2012/01/">2012年一月</a></li> 
+       <li><a href="http://www.ghugo.com/2011/12/">2011年十二月</a></li> 
+       <li><a href="http://www.ghugo.com/2011/11/">2011年十一月</a></li> 
+       <li><a href="http://www.ghugo.com/2011/09/">2011年九月</a></li> 
+       <li><a href="http://www.ghugo.com/2011/08/">2011年八月</a></li> 
+       <li><a href="http://www.ghugo.com/2011/07/">2011年七月</a></li> 
+       <li><a href="http://www.ghugo.com/2011/06/">2011年六月</a></li> 
+       <li><a href="http://www.ghugo.com/2011/05/">2011年五月</a></li> 
+       <li><a href="http://www.ghugo.com/2011/03/">2011年三月</a></li> 
+       <li><a href="http://www.ghugo.com/2011/02/">2011年二月</a></li> 
+       <li><a href="http://www.ghugo.com/2011/01/">2011年一月</a></li> 
+       <li><a href="http://www.ghugo.com/2010/12/">2010年十二月</a></li> 
+       <li><a href="http://www.ghugo.com/2010/11/">2010年十一月</a></li> 
+       <li><a href="http://www.ghugo.com/2010/10/">2010年十月</a></li> 
+       <li><a href="http://www.ghugo.com/2010/09/">2010年九月</a></li> 
+       <li><a href="http://www.ghugo.com/2010/08/">2010年八月</a></li> 
+       <li><a href="http://www.ghugo.com/2010/07/">2010年七月</a></li> 
+      </ul> 
+     </aside>
+     <aside id="linkcat-2" class="widget well widget_links">
+      <h2 class="widget-title">Blogroll</h2> 
+      <ul class="xoxo blogroll"> 
+       <li><a href="http://if2e.org">Jones 前端开发</a></li> 
+       <li><a href="http://www.ghugo.com/">web前端开发</a></li> 
+      </ul> 
+     </aside> 
+    </section>
+    <!-- #secondary .widget-area --> 
+    <footer id="colophon" role="contentinfo" class="span12"> 
+     <div id="page-footer" class="well clearfix"> 
+      <span class="credits alignleft">&copy; 2017 <a href="http://www.ghugo.com/">Hugo Web前端开发</a>, all rights reserved.</span> 
+      <div id="site-generator"> 
+       <a href="http://wordpress.org/" title="Semantic Personal Publishing Platform" target="_blank" rel="generator">Proudly powered by WordPress</a> 
+      </div> 
+     </div>
+     <!-- #page-footer .well .clearfix --> 
+    </footer>
+    <!-- #colophon --> 
+   </div>
+   <!-- #page --> 
+  </div>
+  <!-- .container --> 
+  <!-- 54 queries. 0.253 seconds. --> 
+  <script type="text/javascript" src="http://www.ghugo.com/wp-content/plugins/akismet/_inc/form.js?ver=3.2"></script> 
+  <script type="text/javascript" src="http://www.ghugo.com/wp-content/plugins/syntaxhighlighter/syntaxhighlighter3/scripts/shCore.js?ver=3.0.9b"></script> 
+  <script type="text/javascript" src="http://www.ghugo.com/wp-content/plugins/syntaxhighlighter/syntaxhighlighter3/scripts/shBrushPhp.js?ver=3.0.9b"></script> 
+  <script type="text/javascript">
+	(function(){
+		var corecss = document.createElement('link');
+		var themecss = document.createElement('link');
+		var corecssurl = "http://7qnca0.com1.z0.glb.clouddn.com/wp-content/plugins/syntaxhighlighter/syntaxhighlighter3/styles/shCore.css?ver=3.0.9b";
+		if ( corecss.setAttribute ) {
+				corecss.setAttribute( "rel", "stylesheet" );
+				corecss.setAttribute( "type", "text/css" );
+				corecss.setAttribute( "href", corecssurl );
+		} else {
+				corecss.rel = "stylesheet";
+				corecss.href = corecssurl;
+		}
+		document.getElementsByTagName("head")[0].insertBefore( corecss, document.getElementById("syntaxhighlighteranchor") );
+		var themecssurl = "http://7qnca0.com1.z0.glb.clouddn.com/wp-content/plugins/syntaxhighlighter/syntaxhighlighter3/styles/shThemeRDark.css?ver=3.0.9b";
+		if ( themecss.setAttribute ) {
+				themecss.setAttribute( "rel", "stylesheet" );
+				themecss.setAttribute( "type", "text/css" );
+				themecss.setAttribute( "href", themecssurl );
+		} else {
+				themecss.rel = "stylesheet";
+				themecss.href = themecssurl;
+		}
+		//document.getElementById("syntaxhighlighteranchor").appendChild(themecss);
+		document.getElementsByTagName("head")[0].insertBefore( themecss, document.getElementById("syntaxhighlighteranchor") );
+	})();
+	SyntaxHighlighter.config.strings.expandSource = '+ expand source';
+	SyntaxHighlighter.config.strings.help = '帮助';
+	SyntaxHighlighter.config.strings.alert = 'SyntaxHighlighter\n\n';
+	SyntaxHighlighter.config.strings.noBrush = '无法找到Brush：';
+	SyntaxHighlighter.config.strings.brushNotHtmlScript = 'Brush不能设置 html-script选项';
+	SyntaxHighlighter.defaults['pad-line-numbers'] = false;
+	SyntaxHighlighter.defaults['toolbar'] = false;
+	SyntaxHighlighter.all();
+</script> 
+  <script type="text/javascript" src="http://www.ghugo.com/wp-content/themes/the-bootstrap/js/bootstrap.min.js?ver=2.0.3"></script> 
+  <script type="text/javascript" src="http://www.ghugo.com/wp-content/themes/the-bootstrap/js/the-bootstrap.min.js?ver=2.0.1"></script> 
+  <script type="text/javascript" src="http://www.ghugo.com/wp-includes/js/wp-embed.min.js?ver=4.7.3"></script> 
+  <script type="text/javascript" src="http://www.ghugo.com/wp-includes/js/comment-reply.min.js?ver=4.7.3"></script> 
+  <div style="position:absolute; left:-999em; top:-999em">
+   <script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_2402778'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s4.cnzz.com/stat.php%3Fid%3D2402778' type='text/javascript'%3E%3C/script%3E"));</script>
+  </div> 
+  <a href="https://github.com/hugohua" target="_blank"><img style="position: absolute; top: -7px; right: 0; border: 0" src="https://i.alipayobjects.com/e/201211/1dbSqT9ykm.png" width="149" height="149" alt="Fork me on GitHub" /></a>   
+ </body>
+</html>

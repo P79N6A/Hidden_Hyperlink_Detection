@@ -1,0 +1,415 @@
+<html><head></head><body><pre style="word-wrap: break-word; white-space: pre-wrap;">//文件说明：该文件主要存放一些客户端使用的公共函数
+//创建者：lihd
+//文件依赖：jquery.js
+/********************************************************/
+
+function hideObject(permissionCodeCollection) {
+    var inputs = $("div,a,span");
+      
+    for (var i = 0; i &lt; inputs.length; i++) {
+
+        if ($(inputs[i]).attr("permission") != null) {
+          
+
+            var arr = $(inputs[i]).attr("permission").split(',');
+            
+            var isShow = false;
+            $.each(arr, function () {
+                if (permissionCodeCollection.indexOf(this) &gt; -1) {
+                    isShow = true;
+                    return;
+                }
+
+               
+
+            })
+            if (!isShow) { $(inputs[i]).hide(); }          
+            
+        }
+    }
+}
+
+
+Date.prototype.format = function (format) {
+    var o = {
+        "M+": this.getMonth() + 1, //month 
+        "d+": this.getDate(), //day 
+        "h+": this.getHours(), //hour 
+        "m+": this.getMinutes(), //minute 
+        "s+": this.getSeconds(), //second 
+        "q+": Math.floor((this.getMonth() + 3) / 3), //quarter 
+        "S": this.getMilliseconds() //millisecond 
+    }
+
+    if (/(y+)/.test(format)) {
+        format = format.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
+    }
+
+    for (var k in o) {
+        if (new RegExp("(" + k + ")").test(format)) {
+            format = format.replace(RegExp.$1, RegExp.$1.length == 1 ? o[k] : ("00" + o[k]).substr(("" + o[k]).length));
+        }
+    }
+    return format;
+}
+Date.prototype.formatJson = function (value) {
+    if (!value) { return; }
+    var re = /-?\d+/;
+    var m = re.exec(value);
+    return new Date(parseInt(m[0])).format("yyyy-MM-dd hh:mm:ss");
+}
+Date.prototype.formatJsonymd = function (value) {
+    if (!value) { return; }
+    var re = /-?\d+/;
+    var m = re.exec(value);
+    return new Date(parseInt(m[0])).format("yyyy-MM-dd");
+}
+Date.prototype.formatJsonymdhm = function (value) {
+    if (!value) { return; }
+    var re = /-?\d+/;
+    var m = re.exec(value);
+    return new Date(parseInt(m[0])).format("yyyy-MM-dd hh:mm");
+}
+
+Date.prototype.formatJsonhms = function (value) {
+    if (!value) { return; }
+    var re = /-?\d+/;
+    var m = re.exec(value);
+    return new Date(parseInt(m[0])).format("hh:mm:ss");
+}
+function setReturnValue() {
+    if (window.opener != undefined) {
+        //for chrome
+        window.opener.returnValue = "ok";
+    }
+    else {
+        window.returnValue = "ok";
+    }
+    window.close();
+
+
+}
+
+function getReturnValue(returnValue) {
+
+    //for chrome
+    if (returnValue == undefined) {
+        returnValue = window.returnValue;
+    }
+    return returnValue;
+
+
+}
+
+//function showBootstrapModalDialog(url, name, width, height, dialogArguments) {
+
+//    window.dialogArguments = dialogArguments;
+//    if (window.returnValue != null) return window.returnValue;
+
+//    var callerFunctionName = showBootstrapModalDialog.caller.toString().split(' ')[1].split('(')[0];
+//    var callerArguments = showBootstrapModalDialog.caller.arguments;
+//    $('#divTempDialog').remove();
+//    $('body').append("&lt;div id='divTempDialog'&gt;&lt;iframe  src="+url+" frameborder=0 style='width:100%;height:100%;'&gt; &lt;/div&gt;")
+//    $('#divTempDialog').dialog({
+//        title: name,
+//        width: width,
+//        height: height,
+//        closed: false,
+//        cache: false,
+
+//        modal: true,
+//        onClose: function () {
+//            debugger;
+//            if (window.returnValue) {
+
+//                var allArguments = "";
+//                for (var i = 0; i &lt; callerArguments.length; i++) {
+//                    var arg = callerArguments[i];
+//                    if (!isNaN(arg)) {//是否数字
+//                        allArguments += callerArguments[i] + ",";
+//                    } else {
+//                        allArguments += "'" + callerArguments[i] + "',";
+//                    }
+//                };
+
+//                if (allArguments.length &gt; 0) { allArguments = allArguments.substr(0, allArguments.length - 1); }
+
+
+//                eval(callerFunctionName + "(" + allArguments + ")")
+
+//            }
+//            window.returnValue = null;
+//        }
+
+//    });
+
+//}
+
+
+
+function showBootstrapModalDialog(url, width, height, dialogArguments) {
+    
+    window.dialogArguments = dialogArguments;
+    if (window.returnValue != null) return window.returnValue;
+    var callerFunctionName = showBootstrapModalDialog.caller.toString().split(' ')[1].split('(')[0];
+    var callerArguments = showBootstrapModalDialog.caller.arguments;
+     
+    if (url.indexOf('?') != -1) {
+        url = url + "&amp;number=" + Math.random();
+    } else {
+        url = url + "?number=" + Math.random();
+    }
+    //alert(url);
+    var tmpl = [
+     '&lt;div id="divTempDialog" class="modal   fade "  data-backdrop="static"  data-width="' + width + '"  aria-hidden="true" tabindex="-1" &gt;',
+
+         '&lt;iframe id="iframeTempDialog"   frameborder=0  style="width:100%;height:' + height + 'px; " /&gt;',
+       '&lt;/div&gt;',
+     '&lt;/div&gt;'
+    ].join('');   
+    $('body').append(tmpl);
+     
+    $('#divTempDialog').modal('show').modal("escape", url).one('hide', function () {
+         $("#iframeTempDialog").attr("src", "")
+        if (window.returnValue) {             
+            var allArguments = "";
+            for (var i = 0; i &lt; callerArguments.length; i++) {
+                var arg = callerArguments[i];
+                if (!isNaN(arg)) {//是否数字
+                    allArguments += callerArguments[i] + ",";
+                } else {
+                    allArguments += "'" + callerArguments[i] + "',";
+                }
+            };
+
+            if (allArguments.length &gt; 0) { allArguments = allArguments.substr(0, allArguments.length - 1); }
+            eval(callerFunctionName + "(" + allArguments + ")")
+        }
+        window.returnValue = null;
+    });
+
+
+
+    
+
+}
+
+
+function showBootstrapModalDialogAndCallback(url, width, height, funcCallback, para) {
+    if (url.indexOf('?') != -1) {
+        url = url + "&amp;number=" + Math.random();
+    } else {
+        url = url + "?number=" + Math.random();
+    }
+    var tmpl = [
+     '&lt;div id="divTempDialog" class="modal   fade "  data-backdrop="static"  data-width="' + width + '"  aria-hidden="true" tabindex="-1" &gt;',
+
+         '&lt;iframe id="iframeTempDialog" frameborder=0  style="width:100%;height:' + height + 'px; " /&gt;',
+       '&lt;/div&gt;',
+     '&lt;/div&gt;'
+    ].join('');
+
+    $('body').append(tmpl);
+
+    $('#divTempDialog').modal('show').modal("escape", url).one('hide', function () {
+        $("#iframeTempDialog").attr("src", "")
+        if(window.returnValue){
+            funcCallback(window.returnValue, para);
+            window.returnValue = null;
+        }
+
+    });
+
+}
+
+
+function closeModalDialog() {
+
+    $('#divTempDialog').modal('hide');
+    $("#divTempDialog").remove();
+    if ($('.modal-scrollable') != null) {
+        $(".modal-scrollable").remove();
+    }
+    if ($('.modal-backdrop') != null) {
+        $(".modal-backdrop").hide();
+        $(document).remove($(".modal-backdrop"));
+    }
+
+}
+//获取form 中input中的元素及元素值，并转化为json 字符串
+function formToJson(id) {
+    var jsonStr = "";
+    jsonStr += '{';
+    var hidList = $("#" + id + " input");
+    for (var i = 0; i &lt; hidList.length; i++) {
+        jsonStr += '"' + hidList[i].name + '":"' + hidList[i].value + '",'
+    }
+    jsonStr = jsonStr.substring(0, (jsonStr.length - 1));
+    jsonStr += '}'
+    var json = JSON.parse(jsonStr)
+    return json
+}
+
+
+//获得url的参数内容，传人参数名
+function getQueryString(name) {
+    var reg = new RegExp("(^|&amp;)" + name + "=([^&amp;]*)(&amp;|$)");
+    var r = window.location.search.substr(1).match(reg);
+    if (r != null) return unescape(r[2]); return null;
+}
+
+String.prototype.ReplaceAll = function (oldValue, newValue) {
+    var reg = new RegExp(oldValue, "g");
+    return this.replace(reg, newValue);
+}
+// 返回字符的长度，一个中文算2个
+String.prototype.ChineseLength = function () {
+    return this.replace(/[^\x00-\xff]/g, "**").length;
+    //return this.replace(/[^x00-xff]/g, '**').length;
+}
+//是否是全是中文  
+String.prototype.CheckChinese = function () {
+    var reg = /^([\u2E80-\uFE4F])+$/;
+    //     [\u0391-\uFFE5] ;   
+    return reg.test(this);
+}
+//是否全是数字和字母
+String.prototype.CheckNumAndChar = function () {
+    var reg = /^[0-9A-Za-z]+$/;
+    return reg.test(this);
+}
+//是否全是数字和字母、英文括号
+String.prototype.CheckNumAndCharAndBrackets = function () {
+    var reg = /^([0-9A-Za-z]|\(|\))+$/;
+    return reg.test(this);
+}
+//是否全是字母、空格
+String.prototype.CheckCharAndBlank = function () {
+    var reg = /^([A-Za-z]|\s)+$/;
+    return reg.test(this);
+}
+//是否全是字母、不在首尾的空格、-
+String.prototype.CheckCharAndBlankAndHR = function () {
+    var reg = /^[A-Za-z]+((-|\s)?[A-Za-z])*$/;
+    return reg.test(this);
+}
+//是否全是字母
+String.prototype.CheckChar = function () {
+    var reg = /^[A-Za-z]+$/;
+    return reg.test(this);
+}
+//是否全是数字
+String.prototype.CheckNum = function () {
+    var reg = /^[0-9]+$/;
+    return reg.test(this);
+}
+
+//是否是有效的身份证(中国)
+String.prototype.isIDCard = function () {
+    var iSum = 0;
+    var info = "";
+    var sId = this;
+
+    var aCity = { 11: "北京", 12: "天津", 13: "河北", 14: "山西", 15: "内蒙古", 21: "辽宁", 22: "吉林", 23: "黑龙江", 31: "上海", 32: "江苏", 33: "浙江", 34: "安徽", 35: "福建", 36: "江西", 37: "山东", 41: "河南", 42: "湖北", 43: "湖南", 44: "广东", 45: "广西", 46: "海南", 50: "重庆", 51: "四川", 52: "贵州", 53: "云南", 54: "西藏", 61: "陕西", 62: "甘肃", 63: "青海", 64: "宁夏", 65: "新疆", 71: "台湾", 81: "香港", 82: "澳门", 91: "国外" };
+
+    if (!/^\d{17}(\d|x)$/i.test(sId)) {
+        return false;
+    }
+    sId = sId.replace(/x$/i, "a");
+    //非法地区  
+    if (aCity[parseInt(sId.substr(0, 2))] == null) {
+        return false;
+    }
+
+    var sBirthday = sId.substr(6, 4) + "-" + Number(sId.substr(10, 2)) + "-" + Number(sId.substr(12, 2));
+
+    var d = new Date(sBirthday.replace(/-/g, "/"))
+
+    //非法生日  
+    if (sBirthday != (d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate())) {
+        return false;
+    }
+    for (var i = 17; i &gt;= 0; i--) {
+        iSum += (Math.pow(2, i) % 11) * parseInt(sId.charAt(17 - i), 11);
+    }
+
+    if (iSum % 11 != 1) {
+        return false;
+    }
+    return true;
+
+}
+//检测是否是正确的Email格式   
+String.prototype.isEmail = function () {
+    return /^\w+((-\w+)|(\.\w+))*\@[A-Za-z0-9]+((\.|-)[A-Za-z0-9]+)*\.[A-Za-z0-9]+$/.test(this);
+}
+//判断 字符串 是否符合 yyyy-mm-dd hh:mm:ss的日期格式, 格式正确而且闰年闰月等也要正确
+String.prototype.isDateTime = function () {
+    try {
+        var arr = (this.length == 19) ? this.split(/\D/) : []
+        --arr[1]
+        eval("var d=new Date(" + arr.join(",") + ")")
+        return Number(arr[0]) == d.getFullYear() &amp;&amp; Number(arr[1]) == d.getMonth()
+                      &amp;&amp; Number(arr[2]) == d.getDate() &amp;&amp; Number(arr[3]) == d.getHours()
+                    &amp;&amp; Number(arr[4]) == d.getMinutes() &amp;&amp; Number(arr[5]) == d.getSeconds()
+    } catch (x) { return false }
+}
+
+
+//序列化jquery对象
+$.fn.serializeObject = function () {
+    var obj = new Object();
+    $.each(this.serializeArray(), function (index, param) {
+        if (!(param.name in obj)) {
+            obj[param.name] = param.value;
+        }
+    });
+    return obj;
+}
+
+
+function getCount(msg) {
+    var regex = /(.+共)(\d+)(.+)/;
+    var match = msg.match(regex);
+    return RegExp.$2;
+}
+
+Date.prototype.Format = function (fmt) { 
+    var o = {
+        "M+": this.getMonth() + 1,                 //月份   
+        "d+": this.getDate(),                    //日   
+        "h+": this.getHours(),                   //小时   
+        "m+": this.getMinutes(),                 //分   
+        "s+": this.getSeconds(),                 //秒   
+        "q+": Math.floor((this.getMonth() + 3) / 3), //季度   
+        "S": this.getMilliseconds()             //毫秒   
+    };
+    if (/(y+)/.test(fmt))
+        fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
+    for (var k in o)
+        if (new RegExp("(" + k + ")").test(fmt))
+            fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+    return fmt;
+}
+
+//格式化货币，强制保留两位小数
+function formatCurrency(num) {
+    var f = parseFloat(num);
+    if (isNaN(f)) {
+        return "Error";
+    }
+    var f = Math.round(num * 100) / 100;
+    var s = f.toString();
+    var rs = s.indexOf('.');
+    if (rs &lt; 0) {
+        rs = s.length;
+        s += '.';
+    }
+    while (s.length &lt;= rs + 2) {
+        s += '0';
+    }
+    return ('￥' + s);
+}
+
+
+</pre></body></html>

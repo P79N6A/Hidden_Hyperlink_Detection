@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html>
+ <head>
+  <meta charset="UTF-8" /> 
+  <title>Typecho插件-蜘蛛来访日志插件 - 如何博客</title> 
+  <link rel="stylesheet" type="text/css" media="all" href="http://www.ruher.info/usr/themes/d3-typecho/style.css" /> 
+  <link rel="shorcut icon" type="image/x-ico" href="favicon.ico" /> 
+  <link rel="stylesheet" type="text/css" href="http://www.ruher.info/usr/plugins/TinyMCE/prettify/qnight.css" /> 
+  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script> 
+  <script type="text/javascript" src="http://www.ruher.info/usr/plugins/TinyMCE/prettify/prettify.js"></script> 
+  <meta name="description" content="蜘蛛来访日志插件，可识别主流的蜘蛛，如：百度、谷歌、雅虎、搜狗、搜搜、有道、必应!
+自定义日志分页数量，禁用插件删除日志表选项，清空日志及保留N天选项等功能!
+启动插件后，在控制台菜单下，即可看到..." /> 
+  <meta name="keywords" content="typecho插件" /> 
+  <meta name="generator" content="Typecho 0.8/10.8.15" /> 
+  <meta name="template" content="d3-typecho" /> 
+  <link rel="pingback" href="http://www.ruher.info/action/xmlrpc" /> 
+  <link rel="EditURI" type="application/rsd+xml" title="RSD" href="http://www.ruher.info/action/xmlrpc?rsd" /> 
+  <link rel="wlwmanifest" type="application/wlwmanifest+xml" href="http://www.ruher.info/action/xmlrpc?wlw" /> 
+  <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://www.ruher.info/feed/550.html" /> 
+  <link rel="alternate" type="application/rdf+xml" title="RSS 1.0" href="http://www.ruher.info/feed/rss/550.html" /> 
+  <link rel="alternate" type="application/atom+xml" title="ATOM 1.0" href="http://www.ruher.info/feed/atom/550.html" /> 
+  <script type="text/javascript">
+//<![CDATA[
+var TypechoComment = {
+    dom : function (id) {
+        return document.getElementById(id);
+    },
+    
+    create : function (tag, attr) {
+        var el = document.createElement(tag);
+        
+        for (var key in attr) {
+            el.setAttribute(key, attr[key]);
+        }
+        
+        return el;
+    },
+
+    reply : function (cid, coid) {
+        var comment = this.dom(cid), parent = comment.parentNode,
+            response = this.dom('respond-post-550'), input = this.dom('comment-parent'),
+            form = 'form' == response.tagName ? response : response.getElementsByTagName('form')[0],
+            textarea = response.getElementsByTagName('textarea')[0];
+
+        if (null == input) {
+            input = this.create('input', {
+                'type' : 'hidden',
+                'name' : 'parent',
+                'id'   : 'comment-parent'
+            });
+
+            form.appendChild(input);
+        }
+        
+        input.setAttribute('value', coid);
+
+        if (null == this.dom('comment-form-place-holder')) {
+            var holder = this.create('div', {
+                'id' : 'comment-form-place-holder'
+            });
+            
+            response.parentNode.insertBefore(holder, response);
+        }
+
+        comment.appendChild(response);
+        this.dom('cancel-comment-reply-link').style.display = '';
+        
+        if (null != textarea && 'text' == textarea.name) {
+            textarea.focus();
+        }
+        
+        return false;
+    },
+
+    cancelReply : function () {
+        var response = this.dom('respond-post-550'),
+        holder = this.dom('comment-form-place-holder'), input = this.dom('comment-parent');
+
+        if (null != input) {
+            input.parentNode.removeChild(input);
+        }
+
+        if (null == holder) {
+            return true;
+        }
+
+        this.dom('cancel-comment-reply-link').style.display = 'none';
+        holder.parentNode.insertBefore(response, holder);
+        return false;
+    }
+}
+//]]>
+</script> 
+  <!--[if lt IE 9]><script type="text/javascript" src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]--> 
+ </head> 
+ <body> 
+  <s class="hd"></s> 
+  <header class="header"> 
+   <!--logo--> 
+   <figure id="logo" class="logo"> 
+    <h1> <a href="http://www.ruher.info/" rel="bloghome">如何博客<img src="http://www.ruher.info/usr/themes/d3-typecho/img/bg.png" alt="如何博客" /></a> </h1> 
+   </figure> 
+   <!--nav--> 
+   <nav class="nav"> 
+    <a href="http://www.ruher.info/">首页</a> 
+    <a href="http://www.ruher.info/category/seo/">SEO优化</a> 
+    <a href="http://www.ruher.info/category/admin5/">网络推广</a> 
+    <a href="http://www.ruher.info/category/code/">代码分享</a> 
+    <a href="http://www.ruher.info/category/netaspect/">网络看点</a> 
+    <a href="http://www.ruher.info/category/typecho/">typecho</a> 
+    <a href="http://www.ruher.info/category/emlog/">emlog</a> 
+    <a href="http://www.ruher.info/category/bo-blog/">bo-blog</a> 
+   </nav>
+   <div id="top"></div> 
+   <!--menu--> 
+   <nav class="topmenu"> 
+    <a href="http://www.ruher.info/message.html" title="留言板">留言板</a> 
+    <a href="http://www.ruher.info/about.html" title="关于">关于</a> 
+   </nav> 
+   <!--eye--> 
+   <article class="eye"> 
+    <script type="text/javascript">/*580*90图文混排，创建于2011-8-31*/ var cpro_id = 'u594402';</script>
+    <script src="http://cpro.baidu.com/cpro/ui/c.js" type="text/javascript"></script> 
+   </article> 
+   <!--feed--> 
+   <aside class="hotmix"> 
+   </aside> 
+   <div class="addfeed">
+    <a class="btn" href="http://www.ruher.info/feed/" target="_blank"><s class="icorss"></s>订阅</a>
+   </div> 
+   <!--search--> 
+   <form method="get" class="searchform" action="/"> 
+    <input type="text" onfocus="if (this.value == '回车搜索 直接有效') {this.value = '';}" onblur="if (this.value == '') {this.value = '回车搜索 直接有效';}" value="回车搜索 直接有效" name="s" class="s" /> 
+    <input class="btn searchsubmit" type="submit" value="搜索" /> 
+   </form>
+  </header>
+  <section class="page"> 
+   <section class="content"> 
+    <!-- file="breadcrumbs.php" --> 
+    <div class="breadcrumbs">
+      您的位置：
+     <a href="http://www.ruher.info/">Home</a> &raquo; 
+     <a href="http://www.ruher.info/category/code/">代码分享</a> &raquo; Typecho插件-蜘蛛来访日志插件
+    </div> 
+    <article class="post"> 
+     <div class="excerpt"> 
+      <div class="excerptimg">
+       <a href="http://www.ruher.info/550.html"><img width="200" height="140" src="http://www.ruher.info/usr/uploads/2011/12/2434188030.png" class="attachment-post-thumbnail wp-post-image" alt="Typecho插件-蜘蛛来访日志插件" title="Typecho插件-蜘蛛来访日志插件" /></a>
+      </div> 
+      <div class="excerpttext"> 
+       <h1 class="excerpttit"><a href="http://www.ruher.info/550.html">Typecho插件-蜘蛛来访日志插件</a></h1> 
+       <!-- file="postmetadata.php" --> 
+       <div class="postmeta">
+        2011-12-11　由 如何博客 发布　
+        <br />属于：
+        <a href="http://www.ruher.info/category/code/">代码分享</a>　标签：
+        <a href="http://www.ruher.info/tag/typecho%E6%8F%92%E4%BB%B6/" rel="tag">typecho插件</a>　
+        <span><a href="http://www.ruher.info/550.html#comments">+1</a></span>
+       </div> 
+       <!-- file="post-cate-mail.php" --> 
+       <p> <a href="javascript:void(0)" onclick="postToWb();return false;" class="tmblog"><img src="/usr/themes/d3-typecho/img/b24.jpg" width="110" height="21" border="0" alt="转播到腾讯微博" /></a><script type="text/javascript">
+	function postToWb(){
+		var _url = encodeURIComponent(document.location);
+		var _assname = encodeURI("56362003");//你注册的帐号，不是昵称
+		var _appkey = encodeURI("cc7abcbe694d4e0682f80abee07dad42");//你从腾讯获得的appkey
+		var _pic = encodeURI('http://www.ruher.info/usr/uploads/2011/12/2434188030.png');//（例如：var _pic='图片url1|图片url2|图片url3....）
+		var _t = 'Typecho插件-蜘蛛来访日志插件';//标题和描述信息
+		var metainfo = document.getElementsByTagName("meta");
+		for(var metai = 0;metai < metainfo.length;metai++){
+			if((new RegExp('description','gi')).test(metainfo[metai].getAttribute("name"))){
+				_t = metainfo[metai].attributes["content"].value;
+			}
+		}
+		_t =  document.title+_t;//请在这里添加你自定义的分享内容
+		if(_t.length > 120){
+			_t= _t.substr(0,117)+'...';
+		}
+		_t = encodeURI(_t);
+
+		var _u = 'http://share.v.t.qq.com/index.php?c=share&a=index&url='+_url+'&appkey='+_appkey+'&pic='+_pic+'&assname='+_assname+'&title='+_t;
+		window.open( _u,'', 'width=700, height=680, top=0, left=0, toolbar=no, menubar=no, scrollbars=no, location=yes, resizable=no, status=no' );
+	}
+</script> <a href="javascript:void(0);" onclick="window.open('http://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?url='+encodeURIComponent(document.location.href));return false;" title="分享到QQ空间"><img src="http://img1.dnschina.net/files/96/icon/btn_share.png" alt="分享到QQ空间" /></a> <a href="javascript:void(0);" onclick="window.open('http://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?to=pengyou&amp;url='+encodeURIComponent(document.location.href));return false;" title="分享到腾讯朋友"><img src="http://img1.dnschina.net/files/96/icon/to-py.png" alt="分享到腾讯朋友" /></a></p> 
+       <div class="rssmail"> 
+        <form action="http://list.qq.com/cgi-bin/qf_compose_send" target="_blank" method="post"> 
+         <input type="hidden" name="t" value="qf_booked_feedback" /> 
+         <input type="hidden" name="id" value="28dd74710ce44d63b6977ffbc1ff5e5520cbbe50b9dcd57b" /> 
+         <input id="to" onfocus="if (this.value == '邮件订阅如何博客第一时间通知您') {this.value = '';}" onblur="if (this.value == '') {this.value = '邮件订阅如何博客第一时间通知您';}" value="邮件订阅如何博客第一时间通知您" name="to" type="text" class="rsstxt" />
+         <input class="btn" type="submit" value="订阅 [Enter]" /> 
+        </form> 
+       </div> 
+      </div> 
+     </div> 
+     <div class="entry"> 
+      <p>蜘蛛来访日志插件，可识别主流的蜘蛛，如：百度、谷歌、雅虎、搜狗、搜搜、有道、必应!</p> 
+      <p>自定义日志分页数量，禁用插件删除日志表选项，清空日志及保留N天选项等功能!</p> 
+      <p>启动插件后，在控制台菜单下，即可看到蜘蛛日志子菜单，已经实现了日志分页，按蜘蛛类型筛选等功能!</p> 
+      <center>
+       <img src="http://www.ruher.info/usr/uploads/2011/12/2434188030.png" alt="3912153403[1].png" width="460" height="203" />
+      </center> 
+      <p>&nbsp;</p> 
+      <p>插件转自 Shion Blog</p> 
+      <p>下载地址：http://www.shionco.com/usr/uploads/2011/11/656521336.zip</p> 
+     </div> 
+     <div class="postcr">
+      转载请注明：
+      <a href="http://www.ruher.info/">如何博客</a> &raquo; 
+      <a href="http://www.ruher.info/550.html">Typecho插件-蜘蛛来访日志插件</a> 
+      <br /> 本文地址：
+      <a href="http://www.ruher.info/550.html">http://www.ruher.info/550.html</a>
+     </div> 
+     <!-- file="post-share.php" --> 
+     <!-- file="post-author.php" --> 
+     <!-- file="post-related.php" --> 
+     <div class="wumii-hook"> 
+      <input type="hidden" name="wurl" value="http://www.ruher.info/550.html" /> 
+      <input type="hidden" name="wtitle" value="Typecho插件-蜘蛛来访日志插件" /> 
+     </div> 
+     <script>
+    var wumiiSitePrefix = "http://www.ruher.info/";
+</script> 
+    </article> 
+    <!-- file="comments.php" --> 
+    <link rel="stylesheet" type="text/css" media="all" href="http://www.ruher.info/usr/themes/d3-typecho/com.css" /> 
+    <div id="comments"> 
+     <h4>仅有一条看法 &raquo;</h4> 
+     <ol class="comment-list">
+      <li id="comment-26398" class="comment-body comment-parent comment-odd"> 
+       <div class="comment-author"> 
+        <img class="avatar" src="http://0.gravatar.com/avatar/2519f7facee018a230d1fce1a755b733?s=32&amp;r=G&amp;d=" alt="uk vpn" width="32" height="32" /> 
+        <cite class="fn"><a href="http://www.superbvpn.com/vpn-uk" rel="external nofollow">uk vpn</a></cite> 
+       </div> 
+       <div class="comment-meta"> 
+        <a href="http://www.ruher.info/550.html#comment-26398">July 13th, 2012 at 12:11 pm</a> 
+       </div> <p>谢谢你的分享。伟大的职位...</p> 
+       <div class="comment-reply"> 
+        <a href="http://www.ruher.info/550.html?replyTo=26398#respond-post-550" rel="nofollow" onclick="return TypechoComment.reply('comment-26398', 26398);">回复</a> 
+       </div> </li> 
+     </ol> 
+     <div id="respond-post-550" class="respond"> 
+      <div class="cancel-comment-reply"> 
+       <a id="cancel-comment-reply-link" href="http://www.ruher.info/550.html#respond-post-550" rel="nofollow" style="display:none" onclick="return TypechoComment.cancelReply();">取消回复</a> 
+      </div> 
+      <h4 id="response">添加新看法 &raquo;</h4> 
+      <form method="post" action="http://www.ruher.info/550.html/comment" id="comment_form"> 
+       <p> <input type="text" name="author" id="author" class="text" size="15" value="" /> <label for="author">称呼<span class="required">*</span></label> </p> 
+       <p> <input type="text" name="mail" id="mail" class="text" size="15" value="" /> <label for="mail">电子邮件<span class="required">*</span></label> </p> 
+       <p> <input type="text" name="url" id="url" class="text" size="15" value="" /> <label for="url">网站</label> </p> 
+       <p><textarea rows="5" cols="50" name="comment" class="textarea" onkeydown="if(event.ctrlKey&amp;&amp;event.keyCode==13){document.getElementById('comment_submit').click();return false};"></textarea><textarea name="text" cols="100%" rows="4" style="display:none">spam</textarea></p> 
+       <p>快速发布看法请使用[ Ctrl + Enter ],垃圾评论请免,绝对会删除的！<input type="submit" value="提交看法" class="submit" id="comment_submit" /></p> 
+      </form> 
+     </div> 
+    </div> 
+    <!-- #postcomments --> 
+   </section> 
+   <aside class="sidebar"> 
+    <script type="text/javascript">/*300*250，仅图片，创建于2011-1-22*/ var cpro_id = 'u360196';</script>
+    <script src="http://cpro.baidu.com/cpro/ui/c.js" type="text/javascript"></script> 
+    <div class="widget"> 
+     <h3>随便瞄瞄</h3> 
+     <ul class="sider"> 
+      <li><a href="http://www.ruher.info/wordpress-summary.html">WordPress首页只显示摘要的方法</a></li>
+      <li><a href="http://www.ruher.info/301-htaccess.html">通过.htaccess实现网站301永久重定向</a></li>
+      <li><a href="http://www.ruher.info/baidushuoba.html">百度说吧上线公测 第一时间发布邀请码</a></li>
+      <li><a href="http://www.ruher.info/clean-friendlinks.html">最近将要清理友情链接</a></li>
+      <li><a href="http://www.ruher.info/531.html">自己建了新站，谈谈页面优化</a></li>
+      <li><a href="http://www.ruher.info/535.html">sql多数据库批量备份恢复命令</a></li>
+      <li><a href="http://www.ruher.info/578.html">解密单页面淘宝客操作流程</a></li>
+      <li><a href="http://www.ruher.info/588.html">浅析新站SEO优化过程中的注意事项</a></li> 
+     </ul> 
+    </div> 
+    <div class="widget"> 
+     <h3>常用链接</h3> 
+     <ul class="sider"> 
+      <li><a href="http://www.ruher.info/go/godaddy799/" target="_blank">godaddy域名7.99刀注册 支持支付宝</a></li> 
+     </ul> 
+    </div> 
+    <!--
+        	    <div class="widget">
+			<h3>最新文章</h3>
+            <ul class="sider">
+                <li><a href="http://www.ruher.info/674.html">[转]揭露巨头收保护费的新工具——安全联盟</a></li>
+<li><a href="http://www.ruher.info/673.html"> 好文，值得一读。</a></li>
+<li><a href="http://www.ruher.info/672.html">FC2 刷路由教程</a></li>
+<li><a href="http://www.ruher.info/671.html">phpwind8.7首页调用{forumurl}【版块】静态化解决方案</a></li>
+<li><a href="http://www.ruher.info/670.html">童欣家居旗舰店的评价,附四件套脱线图片</a></li>
+<li><a href="http://www.ruher.info/661.html">透过百度蜘蛛123.125.71.想象看SEO优化</a></li>
+<li><a href="http://www.ruher.info/660.html">最新优酷去广告去黑屏办法</a></li>
+<li><a href="http://www.ruher.info/658.html">typecho主题:博客主题(WeidaoBlue2.5)</a></li>
+            </ul>
+	    </div>
+        --> 
+    <div class="widget"> 
+     <h3>最近回复</h3> 
+     <ul class="sider"> 
+      <li><a href="http://www.ruher.info/671.html#comment-129998">TannerOpilm</a>: Acai Berry - How Come Acai Berry Supplement Great ...</li> 
+      <li><a href="http://www.ruher.info/674.html#comment-78069">宁波PDM</a>: 这就是比较好的营销模式</li> 
+      <li><a href="http://www.ruher.info/dedecms-auto-changetime.html#comment-77672">摘抄吧</a>: 现在5.7的可以不了啊？</li> 
+      <li><a href="http://www.ruher.info/674.html#comment-71537">性爱姿势</a>: 都是变着花样收钱啊</li> 
+      <li><a href="http://www.ruher.info/528.html#comment-70136">arm</a>: 支持支持</li> 
+      <li><a href="http://www.ruher.info/671.html#comment-70135">arm</a>: 嗯，说得不错，www.veryarm.com准备用phpwind做论坛</li> 
+      <li><a href="http://www.ruher.info/host1free-10g-host.html#comment-67228">ARM Linux</a>: 好主机，有空试用一下</li> 
+      <li><a href="http://www.ruher.info/lesezhan.html#comment-66414">地铁线路图</a>: 在中国，啥事都比较难混啊~</li> 
+      <li><a href="http://www.ruher.info/574.html#comment-66413">铁线网</a>: 现在已经逐步走向正规时代咯</li> 
+      <li><a href="http://www.ruher.info/674.html#comment-66383">地铁线路图网</a>: 支持一下，我的网站地铁线路网www.tiexian.org，用的也是typecho</li> 
+     </ul> 
+    </div> 
+    <div class="widget"> 
+     <h3>标签云</h3> 
+     <ul> 
+      <a href="http://www.ruher.info/tag/SEO/" style="color:rgb(137,7,
+           179)" class="size-20">SEO</a>(16) 
+      <a href="http://www.ruher.info/tag/wordpress/" style="color:rgb(118,217,
+           135)" class="size-10">wordpress</a>(9) 
+      <a href="http://www.ruher.info/tag/%E5%85%8D%E8%B4%B9%E7%A9%BA%E9%97%B4/" style="color:rgb(224,232,
+           116)" class="size-10">免费空间</a>(8) 
+      <a href="http://www.ruher.info/tag/dedecms/" style="color:rgb(75,245,
+           67)" class="size-10">dedecms</a>(5) 
+      <a href="http://www.ruher.info/tag/godaddy%E5%9F%9F%E5%90%8D/" style="color:rgb(135,121,
+           35)" class="size-10">godaddy域名</a>(5) 
+      <a href="http://www.ruher.info/tag/%E4%BC%98%E6%83%A0%E7%A0%81/" style="color:rgb(130,76,
+           166)" class="size-10">优惠码</a>(5) 
+      <a href="http://www.ruher.info/tag/%E5%A4%96%E9%93%BE/" style="color:rgb(199,238,
+           189)" class="size-10">外链</a>(5) 
+      <a href="http://www.ruher.info/tag/%E5%9F%9F%E5%90%8D/" style="color:rgb(107,242,
+           114)" class="size-5">域名</a>(4) 
+      <a href="http://www.ruher.info/tag/linux/" style="color:rgb(154,8,
+           104)" class="size-5">linux</a>(4) 
+      <a href="http://www.ruher.info/tag/typecho%E4%B8%BB%E9%A2%98/" style="color:rgb(132,211,
+           105)" class="size-5">typecho主题</a>(4) 
+      <a href="http://www.ruher.info/tag/typecho%E6%A8%A1%E7%89%88/" style="color:rgb(166,92,
+           113)" class="size-5">typecho模版</a>(4) 
+      <a href="http://www.ruher.info/tag/%E5%8F%AF%E7%BB%91%E7%B1%B3/" style="color:rgb(89,210,
+           75)" class="size-5">可绑米</a>(3) 
+      <a href="http://www.ruher.info/tag/%E8%85%BE%E8%AE%AF%E5%BE%AE%E5%8D%9A/" style="color:rgb(224,179,
+           51)" class="size-5">腾讯微博</a>(3) 
+      <a href="http://www.ruher.info/tag/%E5%85%B3%E9%94%AE%E8%AF%8D/" style="color:rgb(84,254,
+           41)" class="size-5">关键词</a>(3) 
+      <a href="http://www.ruher.info/tag/jquery/" style="color:rgb(152,134,
+           162)" class="size-5">jquery</a>(3) 
+      <a href="http://www.ruher.info/tag/%E5%86%85%E9%93%BE/" style="color:rgb(187,8,
+           239)" class="size-5">内链</a>(3) 
+      <a href="http://www.ruher.info/tag/SQL/" style="color:rgb(98,207,
+           221)" class="size-5">SQL</a>(2) 
+      <a href="http://www.ruher.info/tag/%E9%87%87%E9%9B%86/" style="color:rgb(32,59,
+           208)" class="size-5">采集</a>(2) 
+      <a href="http://www.ruher.info/tag/wordpress%E6%8F%92%E4%BB%B6/" style="color:rgb(146,213,
+           216)" class="size-5">wordpress插件</a>(2) 
+      <a href="http://www.ruher.info/tag/000webhost/" style="color:rgb(251,89,
+           171)" class="size-5">000webhost</a>(2) 
+      <a href="http://www.ruher.info/tag/%E9%82%80%E8%AF%B7%E7%A0%81/" style="color:rgb(101,255,
+           8)" class="size-5">邀请码</a>(2) 
+      <a href="http://www.ruher.info/tag/%E6%95%B0%E6%8D%AE%E5%BA%93/" style="color:rgb(214,88,
+           218)" class="size-5">数据库</a>(2) 
+      <a href="http://www.ruher.info/tag/typecho/" style="color:rgb(33,57,
+           142)" class="size-5">typecho</a>(2) 
+      <a href="http://www.ruher.info/tag/dedecms%E6%95%99%E7%A8%8B/" style="color:rgb(85,141,
+           141)" class="size-5">dedecms教程</a>(2) 
+      <a href="http://www.ruher.info/tag/%E5%9E%83%E5%9C%BE%E7%AB%99/" style="color:rgb(126,38,
+           19)" class="size-5">垃圾站</a>(2) 
+      <a href="http://www.ruher.info/tag/%E7%99%BE%E5%BA%A6%E6%8C%87%E6%95%B0/" style="color:rgb(33,226,
+           27)" class="size-5">百度指数</a>(2) 
+      <a href="http://www.ruher.info/tag/%E7%99%BE%E5%BA%A6/" style="color:rgb(16,68,
+           234)" class="size-5">百度</a>(2) 
+      <a href="http://www.ruher.info/tag/360/" style="color:rgb(238,100,
+           38)" class="size-5">360</a>(2) 
+      <a href="http://www.ruher.info/tag/%E9%95%BF%E5%B0%BE%E8%AF%8D/" style="color:rgb(190,247,
+           251)" class="size-5">长尾词</a>(2) 
+      <a href="http://www.ruher.info/tag/qq%E7%BE%A4%E6%8E%A8%E5%B9%BF/" style="color:rgb(151,243,
+           85)" class="size-5">qq群推广</a>(2) 
+     </ul> 
+    </div> 
+    <div class="widget"> 
+     <h3>归档</h3> 
+     <ul class="sider data"> 
+      <li><a href="http://www.ruher.info/2014/02/">February 2014</a></li> 
+      <li><a href="http://www.ruher.info/2013/04/">April 2013</a></li> 
+      <li><a href="http://www.ruher.info/2013/01/">January 2013</a></li> 
+      <li><a href="http://www.ruher.info/2012/11/">November 2012</a></li> 
+      <li><a href="http://www.ruher.info/2012/10/">October 2012</a></li> 
+      <li><a href="http://www.ruher.info/2012/07/">July 2012</a></li> 
+      <li><a href="http://www.ruher.info/2012/06/">June 2012</a></li> 
+      <li><a href="http://www.ruher.info/2012/05/">May 2012</a></li> 
+      <li><a href="http://www.ruher.info/2012/03/">March 2012</a></li> 
+      <li><a href="http://www.ruher.info/2012/02/">February 2012</a></li> 
+      <li><a href="http://www.ruher.info/2012/01/">January 2012</a></li> 
+      <li><a href="http://www.ruher.info/2011/12/">December 2011</a></li> 
+      <li><a href="http://www.ruher.info/2011/11/">November 2011</a></li> 
+      <li><a href="http://www.ruher.info/2011/10/">October 2011</a></li> 
+      <li><a href="http://www.ruher.info/2011/09/">September 2011</a></li> 
+      <li><a href="http://www.ruher.info/2011/08/">August 2011</a></li> 
+      <li><a href="http://www.ruher.info/2011/07/">July 2011</a></li> 
+      <li><a href="http://www.ruher.info/2011/06/">June 2011</a></li> 
+      <li><a href="http://www.ruher.info/2011/05/">May 2011</a></li> 
+      <li><a href="http://www.ruher.info/2011/04/">April 2011</a></li> 
+      <li><a href="http://www.ruher.info/2011/03/">March 2011</a></li> 
+      <li><a href="http://www.ruher.info/2011/02/">February 2011</a></li> 
+      <li><a href="http://www.ruher.info/2011/01/">January 2011</a></li> 
+      <li><a href="http://www.ruher.info/2010/12/">December 2010</a></li> 
+      <li><a href="http://www.ruher.info/2010/11/">November 2010</a></li> 
+      <li><a href="http://www.ruher.info/2010/09/">September 2010</a></li> 
+      <li><a href="http://www.ruher.info/2010/08/">August 2010</a></li> 
+      <li><a href="http://www.ruher.info/2010/07/">July 2010</a></li> 
+      <li><a href="http://www.ruher.info/2010/06/">June 2010</a></li> 
+      <li><a href="http://www.ruher.info/2010/05/">May 2010</a></li> 
+      <li><a href="http://www.ruher.info/2010/04/">April 2010</a></li> 
+     </ul> 
+    </div> 
+    <div class="widget"> 
+     <h3>其它</h3> 
+     <ul class="sider"> 
+      <li class="last"><a href="http://www.ruher.info/admin/login.php">登录</a></li> 
+     </ul> 
+    </div> 
+   </aside>
+  </section> 
+  <!--
+<script type="text/javascript">
+$(document).ready(function(){
+  $(".entry br").remove();
+});
+</script>
+--> 
+  <footer id="footer" class="footer"> 
+   <section class="footermain"> 
+    <article class="ftmain"> 
+     <dl> 
+      <dt>
+       关于我们：
+      </dt> 
+      <dd>
+       <a href="http://www.ruher.info/about.html">关于如何博客</a>
+       <a target="_blank" href="http://mail.qq.com/cgi-bin/qm_share?t=qm_mailme&amp;email=g
+@ruher.info" rel="nofollow" style="text-decoration:none;">给我写信</a>
+       <a href="http://www.ruher.info/about.html">免责声明</a>
+      </dd> 
+     </dl> 
+     <dl> 
+      <dt>
+       本站相关：
+      </dt> 
+      <dd>
+       <a target="_blank" href="http://mail.qq.com/cgi-bin/qm_share?t=qm_mailme&amp;email=g@ruher.info" rel="nofollow" style="text-decoration:none;">投稿</a>
+       <a href="#">读者墙<s class="iconew"></s></a>
+       <a href="http://t.qq.com/chanelvs" rel="nofollow">站长微博</a>
+      </dd> 
+     </dl> 
+     <dl> 
+      <dt>
+       合作信息：
+      </dt> 
+      <dd>
+       <a href="http://qwea.com">返利网</a>
+       <a href="#">友情链接</a> 
+      </dd> 
+     </dl> 
+     <p class="copyright">声明：当使用本站时，代表您已接受了本站的 <a href="http://www.ruher.info/about.html">免责声明</a>，随之而来的风险与本站无关！<br /> 版权所有，保留一切权利！ &copy; 2011 Powered by <a href="http://www.typecho.org" rel="nofollow">Typecho</a>　Theme By <a href="http://www.daqianduan.com/" rel="nofollow">浩子</a> 修改 <a href="http://www.ruher.info">阿木</a> </p> 
+    </article> 
+    <aside class="ftside"> 
+     <dl class="blogroll"> 
+      <dt>
+       <span><a id="toTop" href="#top" title="回到顶部" class="internal" rel="nofollow"><span>回到顶部↑</span></a></span>
+      </dt> 
+      <script src="/demo/iframe.js" type="text/javascript"></script> 
+     </dl> 
+    </aside> 
+   </section> 
+  </footer> 
+  <script type="text/javascript">
+    var wumiiParams = "&num=8&mode=2&pf=Typecho";
+</script> 
+  <script type="text/javascript" id="wumiiRelatedItems" src="http://widget.wumii.com/ext/relatedItemsWidget.htm"></script> 
+  <a href="http://www.wumii.com/widget/relatedItems.htm" style="border:0;"> <img src="http://static.wumii.com/images/pixel.png" alt="无觅相关文章插件，快速提升流量" style="border:0;padding:0;margin:0;" /> </a> 
+  <!--
+<script type='text/javascript' src='http://ajax.googleapis.com/ajax/libs/jquery/1.5/jquery.min.js'></script> 
+--> 
+  <script type="text/javascript" src="http://www.ruher.info/usr/themes/d3-typecho/d.js"></script> 
+  <!-- Typecho Plugin TinyMCE by QFisH.me on Pluing.php Line 128 -->   
+  <p style="display:none;"><script language="javascript" src="http://count6.51yes.com/click.aspx?id=65198302&amp;logo=12" charset="gb2312"></script></p> 
+ </body>
+</html>

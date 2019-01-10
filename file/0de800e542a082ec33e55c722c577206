@@ -1,0 +1,98 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8;">
+<title>请输入验证码</title>
+<style type="text/css">
+body {MARGIN:0 AUTO;width:960px;}
+.mydiv{
+	margin:0 auto;   
+    width:400px;
+    padding:130px;
+}
+.w_990{ width:990px; margin:auto;}
+.cy{ text-align:center; border-top:solid #e1e1e1 1px; margin-top:140px; font-size:12px; color:#333; padding-top:16px; font-family:Arial, Helvetica, sans-serif;}
+.cy a ,.cy a:visited{ color:#0000ff;}
+</style>
+<link rel="stylesheet" type="text/css" href="/easyui/easyui.css">
+<script type="text/javascript" src="/jquery-1.5.2.min.js"></script>
+<script type="text/javascript" src="/easyui/jquery.easyui.min.js"></script>
+</head>
+
+<body>
+<div class="mydiv">
+	<div class="panel easyui-fluid" style="display: block; width: 400px; "><div class="panel-header" style="width: 388px; "><div class="panel-title">访问过于平频繁，本次访问需要输入验证码</div><div class="panel-tool"></div></div><div class="easyui-panel panel-body" title="" style="padding: 30px 60px; width: 278px; ">
+		<div style="margin-bottom:15px">
+	    	<table cellpadding="5">
+	         		<tbody><tr>
+	                    <td><label style="font-size:10px;"><img src="../code/3670894610/efa9ac7fb451450ca70cf0c44ee21b2a.do" id="verify_img" width="100" height="50" onclick="changeVerifyImage()" onmouseover="this.style.cursor='hand';">&nbsp;<a href="#" onclick="changeVerifyImage()">看不清？</a></label></td>
+	                    <td></td>
+	                </tr>
+	                <tr>
+	                    <td><input class="easyui-textbox textbox-f" id="verify_code" data-options="prompt:'输入上方图片所示验证码'" style="width: 100%; height: 32px; display: none; "><span class="textbox easyui-fluid" style="width: 156px; height: 30px; "><input type="text" class="textbox-text validatebox-text textbox-prompt" autocomplete="off" placeholder="输入上方图片所示验证码" style="margin-left: 0px; margin-right: 0px; padding-top: 0px; padding-bottom: 0px; height: 30px; line-height: 30px; width: 148px; "><input type="hidden" class="textbox-value" value=""></span></td>
+	                    <td><a href="#" class="easyui-linkbutton l-btn l-btn-small easyui-fluid" id="btnSubmit" style="width: 30px; height: 30px; text-align: center; " group=""><span class="l-btn-left" style="margin-top: 3px; "><span class="l-btn-text">&nbsp;提交&nbsp;</span></span></a></td>
+	                </tr>
+	                <tr>
+	                    <td colspan="1"><label style="font-size:12px;color:red" id="errmsg"></label></td>
+	                </tr>
+	        </tbody></table>
+	   	</div>
+	</div></div>
+</div>
+<div class="w_990 cy">©
+	<a href="http://www.58.com">58.COM</a>
+</div>
+	<input type="hidden" id="uuid" value="efa9ac7fb451450ca70cf0c44ee21b2a">
+	<input type="hidden" id="url" value="">
+	<input type="hidden" id="namespace" value="">
+	<input type="hidden" id="ip" value="3670894610">
+
+<script type="text/javascript">
+	function changeVerifyImage(){
+		var uuid = $("#uuid").val();
+		var ip = $("#ip").val();
+		$("#verify_img").attr("src","../code/"+ip+"/"+uuid+".do?"+new Date().getTime());//更换图片
+	}
+	
+	$(document).ready(function() {
+		$("#btnSubmit").click(function() {
+			var namespace = $("#namespace").val();
+			var uuid = $("#uuid").val();
+			var url = $("#url").val();
+			var verify_code = $("#verify_code").val();
+			var ip = $("#ip").val();
+			if (verify_code == '') {
+				alert("请输入验证码");
+				return;
+			}
+			if (verify_code.length!=4) {
+				$("#errmsg").html("验证码错误");
+				return;
+			}
+			respMessage = $.ajax({
+				url : "",
+				data : {
+					namespace : namespace,
+					uuid : uuid,
+					url : url,
+					verify_code : verify_code
+				},
+				type : "POST",
+				async : true,
+				success : function(results) {
+					var parsedJson = jQuery.parseJSON(results);
+					if (parsedJson.code === 0) {
+						var redLocation = parsedJson.msg;
+						if(redLocation.indexOf("http://")==-1 && redLocation.indexOf("https://")==-1){
+							redLocation = "http://"+redLocation;
+						}
+						window.location.href = redLocation;
+					} else {
+						$("#errmsg").html(parsedJson.msg);
+						$("#verify_code").attr("value","");//清空输入
+						$("#verify_img").attr("src","../code/"+ip+"/"+uuid+".do?"+new Date().getTime());//更换图片
+					}
+				}
+			});
+		});
+	});
+</script>
+</body></html>

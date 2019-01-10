@@ -1,0 +1,742 @@
+
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html style="background:rgb(168,246,255);">
+
+
+<head>
+<meta name="renderer" content="webkit">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+
+<title>实习工场</title>
+<!-- 新 Bootstrap 核心 CSS 文件 -->
+<link rel="shortcut icon" href="/img/icon//favicon.ico" type="image/x-icon"/>	
+
+<link rel="stylesheet"
+	href="/js-lib/bootstrap/css/bootstrap.min.css">
+<!-- jQuery文件。务必在bootstrap.min.js 之前引入 -->
+<script
+	src="/js-lib/bootstrap/js/jquery.js"></script>
+		<script
+	src="/js-lib/jquery/jquery.cookie.js"></script>
+<!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+<script
+	src="/js-lib/bootstrap/js/bootstrap.min.js"></script>
+<script
+	src="/js/md5.js"></script>	
+<link rel="stylesheet"
+	href="/css/common/wcmsIndex.css" />
+<link rel="stylesheet"
+	href="/css/common/common_ui.css" />
+<script>
+function myRemind(element,content){
+	var alert="<div id='myAlertOfBootStrap' class='alert alert-warning' style='position:absolute;'><a href='#' class='close' data-dismiss='alert' aria-hidden='true'>&times;</a> <strong>提醒：</strong>"+content+"&nbsp;&nbsp;</div>";		
+	element.append(alert);
+	var width=$('#myAlertOfBootStrap').width();
+	var height=$('#myAlertOfBootStrap').height();
+	var parentWidth=element.width();
+	var parentHeight=element.height();
+	var left=parentWidth/2-width/2;
+	var top=parentHeight/2-height/2;
+	$('#myAlertOfBootStrap').css({"left":left,"top":top});
+	setTimeout(function(){
+		$('#myAlertOfBootStrap').alert('close');
+	},1500); 
+}
+function myLoading(element,content){
+	var alert="<div id='myLoadOfBootStrap' class='alert alert-warning' style='position:absolute;z-index:1001;background:#00d29b;color:white;'><a href='#' class='close' data-dismiss='alert' aria-hidden='true'>&times;</a> <strong>"+content+"</strong>&nbsp;&nbsp;<img style='width:250px;height:10px;' src='/img/icon/back-up-loading.gif'/>&nbsp;&nbsp;</div>";		
+	element.append(alert);
+	var width=$('#myLoadOfBootStrap').width();
+	var height=$('#myLoadOfBootStrap').height();
+	var parentWidth=element.width();
+	var parentHeight=element.height();
+	var left=parentWidth/2-width/2;
+	var top=parentHeight/2-height/2;
+	$('#myLoadOfBootStrap').css({"left":left,"top":top});
+
+}
+</script>
+
+<style>
+* {
+	margin: 0px;
+	padding: 0px;
+}
+
+div.tab-content>div {
+	height: 270px;
+}
+
+.nav-tabs>li.active>a, .nav-tabs>li.active>a:hover, .nav-tabs>li.active>a:focus
+	{
+	/* background-color: rgb(216, 225, 233); */
+	background-color:white;
+}
+.nav-tabs>li.active{
+	background-color: rgb(216, 225, 233);
+}
+.nav-tabs>li:hover{
+	background-color: rgb(216, 225, 233);
+}
+
+.nav-tabs>li>a {
+	background: white;
+	font-size: 19px;
+	margin: 0px;
+}
+
+span.changeImgReg, span.changeImgLogin {
+	cursor: pointer;
+}
+
+form.form-horizontal p {
+	margin-bottom: 0px;
+}
+/* 选项卡没选中时的背景颜色 */
+.nav-tabs > li > a{
+	background:rgb(216, 225, 233);
+}
+
+.nav-tabs > li.active > a, .nav-tabs > li.active > a:hover, .nav-tabs > li.active > a:focus {
+	border:0px;
+}
+.nav-tabs > li {
+    background: rgb(216, 225, 233);
+    }
+    .nav-tabs{
+    border:0px;
+    }
+    
+     #blanks{
+  width:100%;
+  height:94%;
+  position:absolute;
+  top:60.45px;
+  left:0;
+  background-color:rgb(168,246,255);
+  z-index:1000;
+  -moz-opacity: 0.3;   
+  opacity:0.5;   
+  filter: alpha(opacity=30);  
+	display:none;
+ }
+</style>
+
+<script>
+
+$(function(){
+	
+	var oldLoginNameEnt="";
+	var oldLoginNameSch="";
+	var oldPwdEnt="";
+	var oldPwdSch="";
+	var oldIndex=0;//选项卡的原指向序列号
+	/* 记住密码 */
+	var lastLoginName =$.cookie('login');
+	var userType=$.cookie('userType');
+	var lastSchoolCode=$.cookie('schoolCode');
+	if (lastLoginName){
+		$("#loginName").val(lastLoginName);
+		$("#password").trigger("focus");
+	}
+	if(userType){
+		
+		oldIndex=userType-1;//原选项卡指向的位置
+		$("#userType").val(userType);
+	
+		if(userType==1){
+			oldLoginNameEnt=$("#loginName").val();
+			oldPwdEnt=$("#password").val();
+			$("#schoolP").hide();
+		}else{
+			oldLoginNameSch=$("#loginName").val();
+			oldPwdSch=$("#password").val();
+			$("#schoolCode").val(lastSchoolCode);
+			$("#schoolP").show();
+		}
+		var cookieIndex=userType-1;
+		$("#tabUl li").eq(cookieIndex).addClass("active");
+		$("#tabUl li").eq(cookieIndex).siblings().removeClass("active");
+	}
+	
+
+	
+	
+	//选项卡对应用户类型的变化
+	$("#tabUl li").click(function(){
+		var index=$(this).index("#tabUl li");
+		if(oldIndex!=index){
+	
+		//选项卡改变时清除所有验证提醒
+		$("#loginNameError").text("");
+		$("#passwordError").text("");
+		$("#veryCodeLoginError").text("");
+		
+		$("#regNameError").text("");
+		$("#regPasswordError").text("");
+		$("#veryCodeRegError").text("");
+		if($("#userType").val()==1){
+			oldLoginNameEnt=$("#loginName").val();
+			oldPwdEnt=$("#password").val();
+		}else{
+			oldLoginNameSch=$("#loginName").val();
+			oldPwdSch=$("#password").val();
+		}
+		if(index<2){
+			var userType=index+1;
+			if(userType==1){
+				$("#schoolP").hide();
+				$("#loginName").val(oldLoginNameEnt);
+				$("#password").val(oldPwdEnt);
+			}else{
+				$("#loginName").val(oldLoginNameSch);
+				$("#schoolP").show();
+				$("#password").val(oldPwdSch);
+			}
+			
+			$("#userType").val(userType);
+		}
+		}
+	
+	
+		oldIndex=index;
+	});
+	//浏览器提醒
+	var ismozilla= /firefox/.test(navigator.userAgent.toLowerCase());
+	var isWebkit = /webkit/.test(navigator.userAgent.toLowerCase());
+	var isOpera = /opera/.test(navigator.userAgent.toLowerCase());
+	var isMsie= /msie/.test(navigator.userAgent.toLowerCase()); 
+
+	 if(!$.support.leadingWhitespace||isMsie)
+	  {
+		 myRemind($("body"),"您当前使用的浏览器对于系统兼容性不强,建议使用以下浏览器以获得更好的体验：火狐,谷歌,360安全浏览器(极速模式).");
+	  }
+	if($(".loginNum").val()>2){
+		imgLogin();
+		$("#codeDiv").show();
+		$("#veryCodeLoginError").show();
+	}
+	imgReg();
+	$(".changeImgLogin").click(imgLogin);
+	$(".changeImgReg").click(imgReg);
+	
+	
+	$('#loginForm').submit(function(){
+		var c1=checkNull('#loginName','用户名不能为空！');
+		var c2=checkNull('#password','密码不能为空！');
+		var c3=true;
+		if($(".loginNum").val()>2){
+			c3=checkNull('#veryCodeLogin','验证码不能为空！');
+		}
+		if($(".rememberMe").is(":checked")){
+			rememberMe=true;
+		}else{
+			rememberMe=false;
+		}
+		if(c1&&c2&c3){
+			$("#blanks").show();
+			myLoading($("body"),"正在登录");
+			var loginName=$("#loginName").val();
+			var password=$("#password").val();
+			var veryCodeLogin=$("#veryCodeLogin").val();
+			var type=$('#userType').val();
+			var schoolCode=null;
+			if(type!=1){//如果是非企业用户
+				schoolCode=$('#schoolCode option:selected').val();
+			}
+		
+			$.ajax({
+				url: '/sys/login',
+				dataType:'json',
+				data:{type:type,schoolCode:schoolCode,loginName:loginName,password:password,veryCodeLogin:veryCodeLogin,rememberMe:rememberMe},
+				success: function(data){
+					//0--用户不存在,不能登陆
+					//1--用户验证成功,但没有完善信息        
+					//2--用户验证成功,信息已完善
+					
+					//增加远程连接顶岗系统的判断
+					//6为连接远程顶岗
+					
+					if(data.resultVal==-1){
+			 			setTimeout(function(){
+							$('#myLoadOfBootStrap').alert('close');
+							$("#blanks").hide();
+						},100); 
+
+						$("#veryCodeLoginError").text("验证码错误");
+					}
+					else if(data.resultVal==0){
+						setTimeout(function(){
+							$('#myLoadOfBootStrap').alert('close');
+							$("#blanks").hide();
+						},100); 
+						$("#passwordError").text("用户名或密码不正确！");
+					}
+					else if(data.resultVal==1){//进入完善信息界面
+						if(type==1){
+							location.href="/homepage/information";
+						}
+						else if(type==2){
+							location.href="/school/information";								
+						}
+					
+					}
+					else if(data.resultVal==2){//进入主界面
+						if(type==1){
+						location.href="/enterprise/index";
+						}else if(type==2){
+						location.href="/school/index";
+						}
+					
+					}
+					//进入顶岗系统
+					else if(data.resultVal==6){//
+						password=hex_md5(hex_md5(password));
+						var url=$(".urlParam").val()+"/sys/httpLogin?schoolCode="+schoolCode+"&loginName="+loginName+"&password="+password;
+						window.location.href=url;
+					}
+					else if(data.resultVal==5){//
+						$('#myLoadOfBootStrap').alert('close');
+						$("#blanks").hide();
+						$("#passwordError").text("连接错误");
+					}
+					else if(data.resultVal==3){//
+						$('#myLoadOfBootStrap').alert('close');
+						$("#blanks").hide();
+						$("#passwordError").text("产品过期");
+					}else if(data.resultVal==7){//
+						$('#myLoadOfBootStrap').alert('close');
+						$("#blanks").hide();
+						$("#passwordError").text("当前不能使用");
+					}else if(data.resultVal==8){//
+						$('#myLoadOfBootStrap').alert('close');
+						$("#blanks").hide();
+						$("#passwordError").text("找不到学校，无法登录");
+					}
+					if((data.resultVal==-1||data.resultVal==0||data.resultVal==5||data.resultVal==3||data.resultVal==7||data.resultVal==8)&data.loginNum>2){
+						$("#codeDiv").show();
+						$("#veryCodeLoginError").show();
+						imgLogin();
+					}
+					
+					//值赋进去
+					$(".loginNum").val(data.loginNum);
+				}
+			});
+		
+		}
+		return false;//不让表单提交
+	});
+	//注册选教师和学生时提示
+	$("#regType").change(function(){
+		if($(this).val()!="1"){
+			$("#regTypeDiv").text("若学校已购买系统，则无需注册，直接登陆即可使用！");
+		}else{
+			$("#regTypeDiv").text("");
+		}
+	});
+
+	//注册
+	$('#regForm').submit(function(){
+		var c1=validRegName();
+		var c2=vaildRegPassword();
+		var c3=checkNull('#veryCodeReg','验证码不能为空！');
+		if(c1&&c2&c3){
+			
+			var regName=$("#regName").val();
+			var regPassword=$("#regPassword").val();
+			var veryCodeReg=$("#veryCodeReg").val();
+			var regType=$('#regType option:selected').val();
+			 $.ajax({
+					url: '/sys/register',
+					dataType:'json',
+					data:{type:regType,loginName:regName,password:regPassword,veryCode:veryCodeReg},
+					success: function(resultVal){
+						//-1验证码错误,0-用户名已存在 ,1-注册成功
+						if(resultVal==-1){
+							$("#veryCodeRegError").text("验证码错误");
+							imgReg();
+						}
+						if(resultVal==0){
+							$("#veryCodeRegError").text("用户已存在！");
+							imgReg();
+						}
+						if(resultVal==1){
+							if(regType==1){
+								location.href="/homepage/information";
+							}
+							else if(regType==2){
+								location.href="/school/information";
+							}
+						}
+					}
+				});
+		}
+		return false;//不让表单提交
+		
+	});
+	$('#loginName').click(function(){
+		$("#loginNameError").text("");
+	});
+	$('#loginName').blur(function(){
+		checkNull('#loginName','用户名不能为空！') ;
+	});
+	
+	$('#password').click(function(){
+		$("#passwordError").text("");
+	});
+	$('#password').blur(function(){
+		checkNull('#password','密码不能为空！') ;
+	});
+	$('#veryCodeLogin').click(function(){
+		$("#veryCodeLoginError").text("");
+	});
+	$('#veryCodeLogin').blur(function(){
+		checkNull('#veryCodeLogin','验证码不能为空！') ;
+	});
+	
+	
+	
+	
+	//注册
+	$('#regName').blur(validRegName);
+	$('#regName').click(function(){
+		$("#regNameError").text("");
+	});
+	
+	$('#regPassword').click(function(){
+		$("#regPasswordError").text("");
+	});
+	$('#regPassword').blur(vaildRegPassword);
+	$('#veryCodeReg').click(function(){
+		$("#veryCodeRegError").text("");
+	});
+	$('#veryCodeReg').blur(function(){
+		checkNull('#veryCodeReg','验证码不能为空！') ;
+	});
+
+	/* 登陆验证码 */
+	function imgLogin(){
+		$("#imgObjLogin").attr('src', '/homepage/hr-login-verify-code?' + new Date().getTime());
+	}
+
+	/* 注册验证码 */
+	function imgReg(){
+		$("#imgObjReg").attr('src', '/homepage/hr-register-verify-code?'
+					+ new Date().getTime());
+}
+
+/* 	
+ * 判断输入框是否为空函数
+ * @param {Object} val 输入框id值
+ * @param {Object} tip 输入框为空的提示信息
+ */
+function checkNull(val, tip) {
+	var uName = $(val).val();
+	if (uName.length == 0) {//如果输入框为空，使用Bootstrap提示框组件显示相应提示信息
+		$(val + "Error").text(tip);
+		return false;
+	} else {//如果输入框不为空，设置Bootstrap提示框组件提示信息为''空字符串
+		$(val + "Error").text("");
+		return true;
+	}
+}
+//注册验证用户名
+function validRegName() {
+	var login = $('#regName').val();
+	//用户名不能为空
+	if (login == null || login == "") {
+		$("#regNameError").text("用户名不能为空 !");
+		return false;
+	}
+	//用户名正则表达式
+	var reg = /^[0-9A-Za-z]{4,12}$/;
+	if (!reg.test(login)) {
+		$("#regNameError").text("必须为数字或者英文字母,4-12位,不能包含空格!");
+		return false;
+	}
+	return true;
+}
+
+function vaildRegPassword() {
+	var password = $('#regPassword').val();
+	//密码不能为空
+	if (password == null || password == "") {
+		$("#regPasswordError").text("密码不能为空 !");
+		return false;
+	}
+
+	//密码正则表达式
+	var reg = /^[0-9A-Za-z]{6,16}$/;
+	if (!reg.test(password)) {
+
+		$("#regPasswordError").text("必须为数字或者英文字母,6-16位,不能包含空格!");
+		return false;
+	}
+	return true;
+}
+
+});
+	
+		
+</script>
+</head>
+<body style="background:rgb(168,246,255);">
+<div id="blanks"></div>
+	<input type="hidden" class="urlParam" value="http://www.yungangshixi.com/dinggang" /><!-- 记住顶岗系统的url -->
+
+	<input type="hidden" class="loginNum" value="" /><!-- 记住登陆次数，出现验证码 -->
+	<input type="hidden" id="userType" value="1"/>
+	<nav class="navbar navbar-default navbar-fixed-top"
+		style="background:#00d29b;margin-bottom:0px;padding:5px 0;">
+
+	<div class="container" style="color: white;position:absolute:z-index:999;">
+
+		<!-- Brand and toggle get grouped for better mobile display -->
+
+			<div class="navbar-header" style="margin-top:7.5px;margin-right:20px;">
+				<img src="/img/common/dg.png" />
+			</div>
+
+		<!-- Collect the nav links, forms, and other content for toggling -->
+		<div class="collapse navbar-collapse"
+			id="bs-example-navbar-collapse-1">
+
+
+			<ul class="nav navbar-nav navbar-right">
+				<li><a href="javascript:void(0)"><img
+						src="/img/login/qiye.png" />&nbsp;企业&nbsp;|</a>
+				</li>
+				<li><a href="javascript:void(0)"><img
+						src="/img/login/school.png" />&nbsp;学校&nbsp;|</a>
+				</li>
+				
+
+			</ul>
+
+		</div>
+		<!-- /.navbar-collapse -->
+	</div>
+	<!-- /.container-fluid --> </nav>
+
+	<div class="container"
+		style="height:94%;margin-top:60.45px;background:url('/img/login/login_bg.jpg') rgb(168,246,255) no-repeat;background-position:-50px 0px;">
+		
+		<div class="row" style="margin-top: 35px;">
+			<div class="col-sm-4 col-sm-offset-7"
+				style="padding: 0px; background:white;">
+				<ul class="nav nav-tabs" id="tabUl">
+					<li style="width: 33.3%; text-align: center;" class="active"><a
+						href="#tab1" data-toggle="tab">企业登录</a></li>
+					<li style="width: 33.3%; text-align: center;"><a
+						href="#tab1" data-toggle="tab">学校登录</a></li>
+					<li style="width: 33.4%; text-align: center;"><a href="#tab3"
+						data-toggle="tab">注册</a></li>
+				</ul>
+				<div class="tab-content">
+					<div class="active tab-pane" id="tab1" style="min-height:250px;height:auto;max-height:350px;">
+						<!-- 登陆 -->
+						<div class="panel-body">
+
+							<form class="form-horizontal" role="form" id="loginForm">
+				
+								<p style="margin-bottom:25px;display:none;" id="schoolP">
+									<select class="form-control" name="schoolCode" id="schoolCode">
+										
+											<option value="8800013">广东省华侨职业技术学校</option>
+										
+											<option value="22046">番职培训</option>
+										
+											<option value="12771">阳江职业技术学院</option>
+										
+											<option value="83201">增城市职业技术学校</option>
+										
+											<option value="13927">广州华南商贸职业学院</option>
+										
+											<option value="12325">广东新安职业技术学院</option>
+										
+											<option value="8800193">胡锦超职业技术学校</option>
+										
+											<option value="8800185">郑敬诒职业技术学校</option>
+										
+											<option value="9800073">广东岭南现代高级技工学校</option>
+										
+											<option value="8800515">肇庆市工业贸易学校</option>
+										
+											<option value="10558">中山大学</option>
+										
+											<option value="1001">轩辕演示学校1</option>
+										
+											<option value="1002">轩辕演示学校2</option>
+										
+											<option value="1003">轩辕演示学校3</option>
+										
+											<option value="1004">轩辕演示学校4</option>
+										
+											<option value="1005">轩辕演示学校5</option>
+										
+											<option value="1006">轩辕演示学校6</option>
+										
+											<option value="1007">轩辕演示学校7</option>
+										
+											<option value="1008">云岗测试</option>
+										
+									</select>
+								</p>
+								<p style="margin-bottom: 0px;">
+									<input type="text" id="loginName" name="loginName"
+										class="form-control" placeholder="请输入用户名" maxlength="20">
+								</p>
+								<div id="loginNameError"
+									style="height:25px; font-size: 14px;line-height:25px;color: rgb(255, 86, 22);">
+
+								</div>
+								<p style="margin-bottom: 0px;">
+								
+									<input type="password" id="password" name="password"
+										class="form-control" placeholder="请输入登录密码" maxlength="20">
+								</p>
+								<div id="passwordError"
+									style="height: 25px; font-size: 14px; line-height: 25px; color: rgb(255, 86, 22);">
+
+								</div>
+								<div class="row" style="margin-bottom: 0px;display:none;" id="codeDiv">
+									<div class="col-sm-5" style="padding-right: 0px;">
+										<input type="text" name="veryCodeLogin" id="veryCodeLogin"
+											class="form-control" placeholder="验证码">
+									</div>
+									<div class="col-sm-4">
+										<img id="imgObjLogin" height="34px" />
+
+									</div>
+									<div class="col-sm-3"
+										style="line-height: 34px; text-align: right;">
+										<span class="changeImgLogin">换一张</span>
+									</div>
+
+								</div>
+
+								<div id="veryCodeLoginError"
+									style="height: 25px; font-size: 14px; line-height: 25px; color: rgb(255, 86, 22);display:none;">
+
+								</div>
+								<div class="row" style="margin-top: 20px;">
+									<div class="col-sm-12">
+										<input type="submit" class="btn btn-primary" value="登&nbsp;录"
+											style="width: 100%; background:#00d29b; border: 0px; height: 35px;"
+											id="btLogin">
+									</div>
+								</div>
+
+								<div class="row" style="margin-top: 10px;">
+									<div class="col-sm-6">
+										<label class="checkbox-inline"> <input type="checkbox" class="rememberMe" name="rememberMe" checked/>记住账号
+										</label>
+
+									</div>
+									<div class="col-sm-6"
+										style="line-height: 34px; text-align: right;">
+										<a href="#">忘记密码</a>
+									</div>
+								</div>
+							</form>
+						</div>
+						<!-- 登陆 -->
+
+					</div>
+					
+					<div class="tab-pane" id="tab3" style="height:350px;">
+
+						<!-- 注册 -->
+						<div class="panel-body">
+
+							<form class="form-horizontal" role="form" id="regForm">
+								<p>
+									<select class="form-control" name="regType" id="regType">
+										<option value="1">我是企业</option>
+										<option value="2">我是教师</option>
+										<option value="3">我是学生</option>
+									</select>
+								</p>
+								<div id="regTypeDiv" style="height:25px;font-size: 14px; line-height:25px; color: rgb(255, 86, 22);">
+								</div>
+								<p>
+									<input type="text" id="regName" class="form-control"
+										placeholder="请填写用户名，用以登录网站" maxlength="20">
+								</p>
+									<div id="regNameError"
+									style="height: 25px; font-size: 14px; line-height: 25px; color: rgb(255, 86, 22);">
+
+								</div>
+								<p>
+									<input style="display:none">
+									<input type="password" id="regPassword" class="form-control"
+										placeholder="密码(6-16位字母、数字，无空格)" autocomplete="off" value="" maxlength="20">
+								</p>
+								<div id="regPasswordError"
+									style="height: 25px; font-size: 14px; line-height: 25px; color: rgb(255, 86, 22);">
+
+								</div>
+								<div class="row">
+									<div class="col-sm-5" style="padding-right: 0px;">
+										<input type="text" id="veryCodeReg" class="form-control"
+											placeholder="验证码">
+									</div>
+									<div class="col-sm-4">
+										<img id="imgObjReg" height="34px" />
+
+									</div>
+									<div class="col-sm-3"
+										style="line-height: 34px; text-align: right;">
+										<span class="changeImgReg">换一张</span>
+									</div>
+
+								</div>
+								<div id="veryCodeRegError"
+									style="height: 25px; font-size: 14px; line-height: 25px; color: rgb(255, 86, 22);">
+
+								</div>
+								<div class="row" style="margin-top: 20px;">
+									<div class="col-sm-12">
+									
+										<input type="submit" class="btn btn-primary" value="免费注册"
+											style="width: 100%; background:#00d29b; border: 0px; height: 35px;">
+									</div>
+								</div>
+
+
+							</form>
+							
+						</div>
+						<!-- 注册 -->
+
+
+
+					</div>
+				</div>
+
+
+
+
+			</div>
+		</div>
+	</div>
+	
+
+	
+		<footer id="divFooter" style="margin-top:0px;">
+		<div class="divCopyright" style="padding:10px 0;">
+			<div class="container">
+				<div class="row">
+					<div class="col-md-12" >
+						<center>Copyright©2016 轩辕云岗 All Rights Reserved</center>
+					</div>
+				</div>
+			</div>
+		</div>
+	</footer>
+
+
+</body>
+</html>

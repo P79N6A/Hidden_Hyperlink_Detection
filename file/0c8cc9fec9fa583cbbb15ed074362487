@@ -1,0 +1,738 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head>
+
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8;">
+<title>成功故事 - 卖家经验</title>
+<meta name="keywords" content="成功故事 - 卖家经验">
+<meta name="description" content="null">
+<!--TMS:1619858-->
+<link rel="stylesheet" type="text/css" href="//is.alicdn.com/css/4v/wholesale/seller/build/story_detail.css?ver=20101124">
+<script type="text/javascript" async="" src="//u.alicdn.com/js/5v/run/pool/monitor/beacon_async.js?e=1440"></script><script type="text/javascript" src="//is.alicdn.com/js/5v/run/intl_wseller/story.js" charset="utf-8"></script><script type="text/javascript" async="" src="//u.alicdn.com/js/5v/lib/_hozmod/addon/base-mod.js"></script><script type="text/javascript" src="//is.alicdn.com/js/5v/lib/ae/ae.js" charset="utf-8"></script>
+<script type="text/javascript" src="//is.alicdn.com/js/5v/app/over_show/over_show.js" charset="utf-8"></script>
+<script type="text/javascript">
+msgPlatForm = function(){
+		this.config = {
+			containerId         	: 'container',  // 外层容器ID
+			dimensionContentId  	: 'dimension',  // 维度分类外层容器ID
+			dimensionTagName    	: 'li',         // 维度分类响应事件标签名称
+			currentDMTClassName 	: 'current',    // 当前维度的
+			listContentId       	: 'message',    // 被筛选信息容器ID
+			listTagName         	: 'li',			// list信息标签名称
+			paginationId        	: 'pagination',	// 分页条容器ID
+			paginationClassName 	: 'pagination', // 分页条容器className
+			paginationItemClassName : 'num',		// 分页子元素的className
+			pageSize            	: 50,			// 每页显示信息条数
+			paginationSize          : 15            // 分页条每次显示的页码数
+		};
+		
+		this.temp = {
+			allMessages         : null,			//（数  组）所有信息存储容器、为分类筛选和分页备用
+			lastDemention       : null,			//（字符串）当前分类筛选所使用的className
+			currentLists        : null,			//（数  组）当前类别维度包含的所有数据
+			listGroups          : null,
+			currentTotalCounts  : 0,			//（正整数）当前维度包含的信息总条数、将要进行分页的参数
+			totalPageNum        : 0,			//（正整数）当前类别维度信息按配置的pagesize进行分页产生的总页数
+			totalPageObj        : null,
+			currentPageNum 		: 0,
+			currentPages        : null,
+			lastMonth           : '',
+			lastPage       		: null,
+			nextBtn        		: null,
+			preBtn         		: null,
+			paginationItems     : null,
+			paginationContainer : null			//（分页条对象）当前维度分页条容器
+		}
+	};
+	
+	msgPlatForm.prototype = {
+	
+		init: function(customConfig){
+			this.config = YL.merge(this.config, customConfig || {});
+			var _self = this, config = _self.config, temp = _self.temp;	
+			var tempMessages = get(config.listContentId).getElementsByTagName(config.listTagName),//取得所有的待处理信息
+				dementions = get(config.dimensionContentId).getElementsByTagName(config.dimensionTagName);//拿到所有类别维度标签
+			var allMessages = new Array();
+			
+			//将list容器里面的所有信息一一克隆后存入临时变量allMessages
+			for(var a=0; a<tempMessages.length; a++){
+				//临时添加，部署时删除
+				//tempMessages[a].innerHTML = tempMessages[a].innerHTML + '信息' + a;
+				allMessages.push(tempMessages[a].cloneNode(true));
+			}
+			
+			//将临时变量allMessages放入temp.allMessages里面以备调用
+			temp.allMessages = allMessages;
+			
+			//清空当前list容器里面的所有信息数据
+			get(config.listContentId).innerHTML = '';
+			
+			//给所有的维度标签绑定单击事件，显示当前维度的所有信息
+			for(var c=0; c<dementions.length; c++){
+				//alert(dementions[b].innerHTML + ' , ' + dementions.length);
+				YUE.on(dementions[c], 'click', _self.setCurrentDemention, {self:_self});
+			}
+			
+			//检查url是否携带分类维度的参数
+			if(window.location.href.indexOf('?') != -1 && _self.getParameter('category') != ''){
+				for(var b=0; b<dementions.length; b++){
+					if(dementions[b].className == _self.getParameter('category')){
+						YUD.addClass(dementions[b], 'current');
+						temp.lastDemention = dementions[b];
+						_self.showCurrentLists();
+					}
+				}
+			}else{
+				//调用显示当前维度信息的方法showCurrentLists, 维度为空则显示所有信息（页面初次加载默认是分页显示所有信息的）
+				_self.showCurrentLists();
+			}
+		},
+		
+		//取得符合当前类别维度的信息、如果当前维度不存在则表示显示所有信息
+		showCurrentLists: function(){
+			var _self = this, config = _self.config, temp = _self.temp;
+			var allMessages = temp.allMessages, currentDemention = _self.getCurrentDementionIndex(),
+				dementionList = new Array(), descByTimeLists = new Array(), tempPageSize = 0;
+				
+			if(currentDemention != ''){
+				/*
+				 * 如果维度名称不为空说明要按当前维度显示相关信息,
+				 * 在temp里面拿出所有信息进行一次遍历，拿出符合当前维度条件的所有信息
+				 * 放入临时容器dementionList里面
+				 */
+				for(var x=0; x<allMessages.length; x++){
+					if(allMessages[x].className.indexOf(currentDemention) != -1){
+						dementionList.push(temp.allMessages[x].cloneNode(true));
+					}
+				}
+				
+				//对当前维度的所有信息进行时间倒序排列，并存入 temp 备分页显示
+				temp.currentLists = _self.orderByTimeDESC(dementionList);
+				temp.currentTotalCounts = dementionList.length;
+				
+				_self.doPagination();
+				
+			}else{
+				temp.currentLists =  _self.orderByTimeDESC(temp.allMessages);
+				temp.currentTotalCounts = temp.allMessages.length;
+				_self.doPagination();
+			}
+		},
+		
+		//按时间维度倒序排列所有数据
+		orderByTimeDESC: function(dementionList){
+			var _self = this, config = _self.config, temp = _self.temp;
+			var listGroups = new Array(), timeOrder = new Array(), orderedList = new Array();
+			var item = "", time = "", cateTime;
+			
+			for(var o=0; o<dementionList.length; o++){
+				time = new Date(dementionList[o].className.split(' ')[1]).getTime();
+				item = dementionList[o].cloneNode(true);
+				if (typeof listGroups[time] == 'undefined'){
+					listGroups[time] = new Array();
+					timeOrder.push(time);
+				}
+				listGroups[time].push({'time':time, 'item':item});
+			}
+			
+			temp.listGroups = listGroups;
+			
+			var descOrder = timeOrder.sort(function(x,y){     
+				if (x > y){       
+					return -1;  //返回一个小于0 的数即可
+				}else{         
+					return 1;  //返回一个大于0 的数即可
+				}
+			});
+			
+			for(var p=0; p<descOrder.length; p++){
+				
+				cateTime = new Date(descOrder[p]);
+				
+				//插入月度标签
+				//elMonth = document.createTextNode(year + '年' + month + '月');
+				//存储月份字符串，作为是否插入月度标签的对比依据
+				/*strMonth = year + '年' + month + '月';
+				if((temp.lastMonth == '') || (strMonth != temp.lastMonth)){
+					monthLine = document.createElement('li');
+					monthLine.className = 'monthLine';
+					monthLine.appendChild(elMonth);
+					orderedList.push(monthLine);
+				}
+				temp.lastMonth = strMonth;
+				
+				dateLine = document.createElement('li');
+				dateLine.className = 'dateLine';
+				date = document.createTextNode(year + '-' + month + '-' + day);
+				dateLine.appendChild(date);
+				orderedList.push(dateLine);
+				*/
+				for(var q=0; q<listGroups[descOrder[p]].length; q++){
+					orderedList.push(listGroups[descOrder[p]][q].item);
+				}
+			}
+			
+			return orderedList;
+		},
+		
+		//将当前维度要显示的数据创建为一个文档碎片，返回文档碎片对象供显示容器调用
+		transactionArray: function(arrayData){
+			var tempData = document.createDocumentFragment();
+			for(var y = 0,len = arrayData.length; y < len; y++){
+				tempData.appendChild(arrayData[y].cloneNode(true));
+			}
+			return tempData;
+		},
+		
+		//数据分页
+		doPagination: function(){
+			var _self = this, config = _self.config, temp = _self.temp;
+			
+			//算出当前纬度所包含的信息分页数,只是一个临时变量，用作后面算出真实的页码
+			tempPageSize = Math.ceil(temp.currentLists.length / config.pageSize);
+			
+			//将临时容器dementionList里面的数据存入temp.currentLists
+			if((tempPageSize > 1) && (tempPageSize < Math.ceil(temp.currentLists.length / config.pageSize))){
+				temp.totalPageNum = Math.floor(tempPageSize) + 1;
+			}else if(tempPageSize < 1){
+				temp.totalPageNum = 1;
+			}else{
+				temp.totalPageNum = Math.floor(tempPageSize);	
+			}
+			
+			_self.createPagination();
+			//alert(temp.currentTotalCounts + ' ,' + temp.totalPageNum);
+		},
+		
+		//生成分页导航条
+		createPagination: function(){
+			var _self = this, config = _self.config, temp = _self.temp;
+			
+			//如果数据的总条数大于配置设定的每页显示总条数则进行分页
+			var paginationContainer = document.createElement('div'),
+				parentContainer = get(config.listContentId).parentNode,
+				paginationItems = new Array();
+				paginationContainer.id = config.paginationId;
+				paginationContainer.className = config.paginationClassName;
+				temp.paginationContainer = paginationContainer;
+			/*
+			 * 根据数据的页码数创建所有的分页元素按钮，添加显示当前页面相关信息的事件，
+			 * 并将所有页码存入一个数组对象temp.paginationItems
+			 */
+			for(var m=1; m<=temp.totalPageNum; m++){
+				var paginationItem = document.createElement('a');
+					paginationItem.innerHTML = m;
+					paginationItem.className = config.paginationItemClassName;
+				YUE.on(paginationItem, 'click', _self.showCureentPage, {self:_self});
+				paginationItems.push(paginationItem);
+			}
+			temp.paginationItems = paginationItems;
+			//每次进行分页前都要重置temp.currentPageNum的值为0
+			temp.currentPageNum = 0;
+			//alert(temp.paginationItems.length);
+			//默认显示当前维度的第一页数据
+			if(temp.currentPageNum < 1){
+				temp.currentPageNum = 1;
+				YUD.addClass(temp.paginationItems[0], 'current');
+				temp.lastPage = temp.paginationItems[0];
+				_self.getCurrentPageList();
+			}
+			
+			var pre = document.createElement('a'), next = document.createElement('a');
+				pre.innerHTML = '上一页'; next.innerHTML = '下一页';
+				pre.className = 'num pre'; next.className = 'num next';
+			var tempPages = document.createDocumentFragment();
+				
+			YUE.on(pre, 'click', _self.showNextPage, {self:_self, preOrNext:true});
+			YUE.on(next, 'click', _self.showNextPage, {self:_self, preOrNext:false});
+			temp.preBtn = pre; temp.nextBtn = next;
+			temp.paginationContainer.appendChild(temp.preBtn);
+			
+			//创建当前分页导航条应该显示的页码标签
+			temp.currentPaginationNum = 1;
+			temp.preBtn.style.display = 'none';
+			
+			if(config.paginationSize > Math.ceil(temp.currentLists.length / config.pageSize)){
+				config.paginationSize = Math.ceil(temp.currentLists.length / config.pageSize)
+			}
+			
+			for(var n=temp.currentPaginationNum - 1; n<(temp.currentPaginationNum*config.paginationSize); n++){
+				tempPages.appendChild(temp.paginationItems[n]);
+			}
+			temp.currentPages = tempPages;
+			temp.paginationContainer.appendChild(temp.currentPages);		
+			temp.paginationContainer.appendChild(temp.nextBtn);
+			
+			//判断当前页面是不是已经有了分页条，有则删除现有的并添加新生成的分页条；没有则直接添加分页条
+			if(get(config.paginationId)){
+				parentContainer.removeChild(get(config.paginationId));
+				parentContainer.appendChild(temp.paginationContainer);
+				//alert(get(config.paginationId).innerHTML);
+			}else{
+				parentContainer.appendChild(temp.paginationContainer);
+				//alert(get(config.paginationId).innerHTML);
+			}
+			
+			if(temp.totalPageNum <= 1){
+				get(config.paginationId).innerHTML = '';
+			}
+		},
+		
+		showCureentPage:function(e, args){
+			var _self = args.self, config = _self.config, temp = _self.temp;
+			var currentPageItem = this, currentPageNum = parseInt(currentPageItem.innerHTML);
+			 	temp.currentPageNum = currentPageNum;
+			YUD.addClass(currentPageItem, 'current');
+			YUD.removeClass(temp.lastPage, 'current');
+			temp.lastPage = currentPageItem;
+			if(temp.currentPageNum == 1){
+				temp.preBtn.style.display = 'none';
+			}else{
+				temp.preBtn.style.display = 'inline-block';	
+			}
+			
+			if(temp.currentPageNum == config.paginationSize){
+				temp.nextBtn.style.display = 'none';
+			}else{
+				temp.nextBtn.style.display = 'inline-block';
+			}
+			_self.getCurrentPageList();
+		},
+		
+		getCurrentPageList: function(){
+			var _self = this, config = _self.config, temp = _self.temp;
+			var currentPageNum = temp.currentPageNum;
+			var currentPageList = document.createDocumentFragment();
+			for(var k=0; k<currentPageNum*config.pageSize; k++){
+				
+				if(k >= (currentPageNum - 1)*config.pageSize && k < temp.currentLists.length){
+					//console.log(k);
+					currentPageList.appendChild(temp.currentLists[k].cloneNode(true));
+				}
+			}
+			
+			get(config.listContentId).innerHTML = '';
+			get(config.listContentId).appendChild(currentPageList);
+		},
+		
+		//上一页或下一页的按钮
+		showNextPage: function(e, args){
+			var _self = args.self, config = _self.config, temp = _self.temp;
+			var preOrNext = args.preOrNext;
+			
+			temp.preBtn.style.display = 'inline-block';
+			temp.nextBtn.style.display = 'inline-block';
+			
+			if(preOrNext){
+				temp.currentPageNum -= 1;
+				if(temp.currentPageNum <= 1){
+					temp.currentPageNum = 1;
+					temp.preBtn.style.display = 'none';
+					temp.nextBtn.style.display = 'inline-block';
+				}
+				
+				YUD.addClass(temp.paginationItems[temp.currentPageNum - 1], 'current');
+				YUD.removeClass(temp.lastPage, 'current');
+				temp.lastPage = temp.paginationItems[temp.currentPageNum - 1];
+				
+				_self.getCurrentPageList();
+			}else{
+				temp.currentPageNum += 1;
+				if(temp.currentPageNum >= temp.totalPageNum){
+					temp.currentPageNum = temp.totalPageNum;
+					temp.preBtn.style.display = 'inline-block';
+					temp.nextBtn.style.display = 'none';
+				}
+				
+				YUD.addClass(temp.paginationItems[temp.currentPageNum-1], 'current');
+				YUD.removeClass(temp.lastPage, 'current');
+				temp.lastPage = temp.paginationItems[temp.currentPageNum - 1];
+				_self.getCurrentPageList();
+			}
+			
+		},
+		
+		//取得当前分类维度的名称，没有状态为current的维度则返回空维度
+		getCurrentDementionIndex: function(){
+			var _self = this, config = _self.config,
+				dimensionLists = get(config.dimensionContentId).getElementsByTagName(config.dimensionTagName);
+			var currentDemention = '';
+			
+			for(var j=0; j<dimensionLists.length; j++){
+				if(dimensionLists[j].className.indexOf(config.currentDMTClassName) != -1){
+					currentDemention = dimensionLists[j].className.replace(' ' + config.currentDMTClassName, '');
+				}
+			}
+			
+			if(currentDemention != ''){
+				return currentDemention;
+			}else{
+				return '';
+			}
+		},
+		
+		/*
+		 *	响应被点击的维度菜单，将当前维度的状态设置为选中状态，
+		 *	并调用getCurrentDementionIndex方法取得当前维度的分类指标
+		*/
+		setCurrentDemention: function(e, args){
+			var self = args.self, config = self.config, temp = self.temp;
+			var e = e || window.event, currentDemention = e.target || e.srcElement;
+			var url = window.location.href;
+			
+			if(temp.lastDemention){
+				YUD.removeClass(temp.lastDemention, config.currentDMTClassName);
+			}
+			YUD.addClass(currentDemention, config.currentDMTClassName);
+			temp.lastDemention = currentDemention;
+
+                        if(currentDemention.className == 'current') {
+                               window.location.href = url.split('?')[0];
+                               return false;
+                        }
+			
+			if(url.indexOf('?') > -1){
+				window.location.href = url.split('?')[0] + '?category=' + currentDemention.className.split(' ')[0];
+			}else{
+				window.location.href = url + '?category=' + currentDemention.className.split(' ')[0];
+			}
+			
+			self.showCurrentLists();
+		},
+		
+		//获取url里面的指定的参数值
+		getParameter: function(paramName){
+			var Params = ((window.location.href).split('?')[1]).split('&');
+			var tempParam = new Array(), param = '';
+			
+			for(var i=0; i<Params.length; i++){
+				tempParam = Params[i].split('=');
+				if((tempParam[0].toString()) == paramName){
+					param = tempParam[1].toString();
+					return param;
+				}
+			}
+		}
+	}
+    YUE.onDOMReady(function(){
+        new msgPlatForm().init({
+            containerId             : 'container',  // 外层容器ID
+            dimensionContentId      : 'dimension',  // 维度分类外层容器ID
+            dimensionTagName        : 'li',         // 维度分类响应事件标签名称
+            currentDMTClassName     : 'current',    // 当前维度的
+            listContentId           : 'message',    // 被筛选信息容器ID
+            listTagName             : 'li',         // list信息标签名称
+            paginationId            : 'pagination', // 分页条容器ID
+            paginationClassName     : 'pagination', // 分页条容器className
+            paginationItemClassName : 'num',        // 分页子元素的className
+            pageSize                : 8,            // 每页显示信息条数
+            paginationSize          : 10            // 分页条每次显示的页码
+        });
+        
+        var overShowForMyaliexpressConfig = {
+            targetId:"myaliexpress",
+            contentId:"myaliexpress-content",
+            needMask:false,
+            showDelayTime:200,
+            hiddenDelayTime:200,
+            excursion:[1,23]
+        };
+        
+        var overShowForMyaliexpressInstance = new AE.widget.overShow();
+        overShowForMyaliexpressInstance.init(overShowForMyaliexpressConfig);
+            overShowForMyaliexpressInstance.afterShowDelay.subscribe(function(){
+            YUD.addClass('myaliexpress', 'onshow');
+        });
+        overShowForMyaliexpressInstance.afterHiddenDelay.subscribe(function(){
+            YUD.removeClass('myaliexpress', 'onshow');
+        });
+    });
+</script>
+
+<style type="text/css">
+.crumbs {color:#000000;margin:0 auto;width:950px;}
+.crumbs a {color:#0066CC;}
+.container{width:950px; margin:0 auto 10px; overflow:hidden; background:#fff;}
+.contrl{width:190px; float:left; position:relative; background:#fff;}
+.contrl ul{margin:0;}
+.contrl li,.see-all{height:34px; line-height:34px; color:#333; font-size:14px; font-weight:bold; border:1px solid #FFE49F ; border-top:none; padding-left:35px; cursor:pointer; overflow:hidden; background:#fff url(//is.alicdn.com/images/cms/upload/seller/story/newSkin/icon_arr.gif) no-repeat 15px -20px;}
+.contrl .category li{border-color:#ffe49f;}
+.contrl .timer{width:190px; padding-top:38px; background:url(//is.alicdn.com/images/cms/upload/seller/story/newSkin/sprite_skin.gif) no-repeat 0 0}
+.contrl .category{width:190px; padding-top:38px; margin-top:10px; background:url(//is.alicdn.com/images/cms/upload/seller/story/newSkin/category_title.png) no-repeat;}
+.contrl li.current{color:#3468CB; font-weight:bold;}
+.see-all{width:168px; position:absolute; top:145px; left:0;}
+
+.pagebody{width:750px; float:right; overflow:hidden; background:#fff;}
+.course-banner{overflow:hidden;}
+#message{border:1px solid #DFDFDF; border-bottom:none; padding:0 20px; overflow:hidden; background:#fff;}
+#message li{height:135px; margin:10px 0; border-bottom:1px solid #E2E2E2; font:normal 12px/18px Arial;  background:#fff;}
+.list-item dt{width:100px; height:100px; margin:10px; float:left;}
+.list-item dd{margin-top:5px;}
+.list-item .gray{color:#999;}
+.list-item dd a,.list-item dd a:link,.list-item dd a:visited{font:bold 14px/20px Arial; color:#3567ca;}
+.list-item dd a:hover{color:#ff6600;}
+.list-item dd .rate{width:200px; display:block; float:left;}
+.list-item dd .update{margin-top:10px;padding-left:15px; background:url(//is.alicdn.com/images/cms/upload/seller/story/newSkin/paper.gif) no-repeat 0 2px; display:inline-block; float: right;}
+
+
+.pagination{padding:10px 0 20px; border:1px solid #DFDFDF; display:block; text-align:center; border-top:none; background:#fff;}
+.pagination .pre,.pagination .next{width:60px;}
+.pagination .num{line-height:15px; text-align:center; cursor:pointer; margin:0 5px 0 0; padding:2px 5px; display:inline-block; border:1px solid #eee; background:#fff;}
+.pagination .current{cursor:auto; border:none; background:none;}
+</style>
+<script charset="utf-8" async="" src="http://style.aliunicorn.com/js/6v/biz/lego/runtime/runtime.js"></script></head>
+<body data-pageid="1641000"><script type="text/javascript">
+    var dmtrack_c='{-}'; 
+    var dmtrack_pageid='65c770350be2e6441491060529'; 
+    (function() {
+          var beacon = document.createElement('script'); 
+          beacon.type = 'text/javascript'; beacon.async = true;
+          beacon.src = '//u.alicdn.com/js/5v/run/pool/monitor/beacon_async.js?e=1440';
+          var s = document.getElementsByTagName('script')[0]; 
+          s.parentNode.insertBefore(beacon, s);
+     })();
+</script>
+<noscript>&lt;img src="//dmtracking2.alibaba.com/b.jpg?%cD01JnU9e2FjdGl2aXRpZXMuYWxpZXhwcmVzcy5jb20lMmZhZGNtcyUyZnNlbGxlci1hbGlleHByZXNzLWNvbSUyZnN0b3J5JTJmbGlzdCUyZmluZGV4JTJlcGhwfSZtPXtHRVR9JnM9ezIwMH0mcj17LX0mYT17LX0mYj0tJmM9ey19Cg==&amp;ver=40&amp;pageid=65c770350be2e6441491060529&amp;time=1491060529" width="1" height="1" style="display:none"&gt;</noscript>
+<script type="text/javascript">
+	var PAGE_TIMING = {pageType: 'aeactivity-page'};
+	PAGE_TIMING.startRenderImage = new Image();
+	PAGE_TIMING.startRenderImage.onload=function(){PAGE_TIMING.startRender = new Date().getTime()};
+	PAGE_TIMING.startRenderImage.src = '//ae01.alicdn.com/wimg/monitor/start-render.png';
+</script>
+
+<!--TMS:1619768-->
+<style type="text/css">
+#bulletin-top { display:block; }
+</style>
+<div id="bulletin-top">
+</div>
+<!-- start header -->
+<div class="head-wrap">
+  <div class="logo-wrap clearfix">
+        <div class="ws-logo"><a title="aliexpress.com" href="http://seller.aliexpress.com/"><img height="35" width="262" alt="AliExpress全球速卖通" src="//img.alicdn.com/tps/i1/TB1vgZ3HFXXXXbxaXXXG5hIKVXX-262-35.png"></a><a id="festival-link" href="http://seller.aliexpress.com/"></a></div>
+        <div class="hd-tool">
+            <span id="welcome_info"><span id="log-info"><a target="_blank" title="" href="http://www.aliexpress.com/"><strong>AliExpress</strong>买家首页</a> | <a target="_blank" title="" href="http://activities.aliexpress.com/introduction_tbpage/index.php">平台介绍</a></span></span> | <a target="_blank" title="" href="http://seller.aliexpress.com/escrow/index.html">支付服务</a> | <a target="_blank" title="" href="http://fuwu.aliexpress.com">第三方工具</a> | <a target="_blank" title="" href="http://www.aliloan.com/tms/5441/act/aligongyi/smtdk.html">速卖通贷款</a>| <a target="_blank" title="外贸圈" href="http://waimaoquan.alibaba.com/">外贸圈</a>| <a target="_blank" title="关注我们" href="http://weibo.com/u/2272395080?sudaref=activities.aliexpress.com">关注我们</a>
+        </div>
+    </div>
+  <div class="nav-wrap clearfix">
+    <div class="navgation clearfix">
+        <ul class="clearfix">
+            <li class="first" id="mhome"><a href="http://seller.aliexpress.com/index.html"><span>首页</span></a></li>
+            <li id="rule"><a href="http://seller.aliexpress.com/education/rules/home.html?tracelog=rule01"><span>速卖通规则</span></a></li>
+            <li id="mbusiness"><a href="http://seller.aliexpress.com/education/homepage.html"><span>速卖通大学</span></a></li>
+            <li id="mintro" class=" current"><a href="http://tp.aliexpress.com/"><span>官方代运营</span></a></li>
+             <li id="freihgt"><a href="http://seller.aliexpress.com/so/freight.php"><span>物流服务</span></a></li>
+            <li id="product"><a href="http://seller.aliexpress.com/product/marketing_tools.html
+"><span>营销工具</span></a></li>
+<!--        <li id="mpromotion"><a href="http://seller.aliexpress.com/agent/index.html"><span>活动报名</span></a>--><!--span id="free"></span--><!--</li>-->
+        <li id="bbs"><a href="http://bbs.seller.aliexpress.com/bbs"><span>卖家论坛</span></a></li>
+        <li id="intro"><a href="http://sale.aliexpress.com/seller/goodseller.htm" target="_self"><span>中国好卖家</span></a></li>
+        </ul>
+        <dl id="myaliexpress" class="myaliexpress">
+            <dt><a href="http://cn.ae.alibaba.com/index.htm">我的速卖通</a></dt>
+            <dd id="myaliexpress-content" style="visibility: visible; position: relative; left: 0; top: 0; display: none; ">
+                <ul>
+                    <li><a target="_self" rel="nofollow" href="http://cn.ae.alibaba.com/wsproduct/post_wholesale_product.htm">发布产品</a></li>
+                    <li><a target="_self" rel="nofollow" href="http://cn.ae.alibaba.com/wsproduct/manage_products_editing_required.htm">管理产品</a></li>
+                    <li><a target="_self" rel="nofollow" href="http://escrow.alibaba.com/order/business_order_seller_list.htm?all=all">管理订单</a></li>
+                </ul>
+            </dd>
+        </dl>
+    </div>
+  </div>
+</div>
+<script type="text/javascript" src="//is.alicdn.com/js/5v/run/intl_wseller/navigation.js"></script>
+
+
+<!-- style type="text/css">
+/* 节日logo */
+.logo-wrap{padding:0 0 0;}
+.ws-logo{width:473px; height:58px; background:url(//is.alicdn.com/images/cms/upload/seller/promotion/2011/logo_festival/473x58_20120921_gqj.jpg) no-repeat 0 0;}
+.ws-logo a{width:285px; height:100%; display:block; float:left; text-indent:-9999px;}
+.ws-logo #festival-link{width:185px;}
+.hd-tool{padding-top:18px;}
+</style -->
+<!-- end header --><div id="seller_crumbs" class="crumbs"><a href="http://seller.aliexpress.com/">首页</a> &gt; <span>成功故事</span></div>
+<div class="container" id="container">
+        <div class="contrl" id="dimension">
+            <ul class="category">
+                <li class="tmmj">天猫卖家</li>
+                <li class="ebay">ebay卖家</li>
+                <li class="tbmj">淘宝卖家</li>
+                <li class="wmywy">外贸业务员</li>
+                <li class="cyz">创业者</li>
+                <li class="zxxs">在校学生</li>
+                <li class="">显示全部</li>
+            </ul>
+            <!--TMS:1627495-->
+<style>
+.edu-weixin{ border: 1px solid #ddd; margin: 10px 0px; padding:10px 0px 12px 22px;}
+    .edu-weixin p{ margin-bottom: 10px;}
+    .edu-weixin img{ margin-left: 22px;}    
+    .icon-weixin{ display: inline-block; width: 18px; height: 18px; background: url(//is.alicdn.com/images/cms/upload/seller/picture/channel/laiwang/laiwang.jpg); margin-right: 2px;}
+</style>
+<div class="edu-weixin">
+			<p>&nbsp;&nbsp;&nbsp;&nbsp;<strong>速卖通卖家手机客户端</strong><br>&nbsp;&nbsp;安卓版全新升级，更好用啦！</p>
+		    <a href="http://activities.aliexpress.com/sellerappnew.php" target="_blank"><img src="//img.alicdn.com/tps/i1/TB1XYTYGXXXXXaeXVXX1TgoTFXX-120-120.jpeg" alt="速卖通卖家手机客户端" border="0"></a>
+			<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="http://activities.aliexpress.com/sellerappnew.php" target="_blank">点击下载</a></p> 
+    </div> 
+        </div>
+        <div class="pagebody">
+        <div class="banner">
+ <!--TMS:1620835-->
+<div style="margin-bottom: 10px;" class="course-banner">
+<!--a href="http://seller.aliexpress.com/promotion/2011/xiaobaoyure.html?tracelog=info_head" target="_blank">
+<img src="//is.alicdn.com/images/cms/upload/seller/banner/2011/05/xiaobao/xb_banner750x60.jpg" alt="ask" width="750" height="60" border="0"/></a-->
+</div>        </div>
+
+            <ol id="message"><li class="current ebay 2014/01/13">
+                    <dl class="list-item">
+                        <dt class="item-pic">
+                            <a href="http://bbs.seller.aliexpress.com/bbs/read.php?tid=190232" target="_blank"><img src="//is.alicdn.com/images/cms/upload/seller/picture/channel/story/2012/12/none.gif" width="100" height="100"></a>
+                        </dt>
+                        <dd>
+                            <a href="http://bbs.seller.aliexpress.com/bbs/read.php?tid=190232" target="_blank">Ebay转战速卖通，我行你也行！</a>
+                        </dd>
+                        <dd>关键词：<span class="gray">跨界 新品 服务</span></dd>
+                        <dd class="gray">ebay卖家转战速卖通，开发新品、维护客户一步步走来团队和店铺茁壮成长，月销近20万美金，实现在深圳扎根的梦想。</dd>
+                        <dd>
+                            <span class="update">更新日期：<span class="gray">2014/01/13</span></span>
+                        </dd>
+                    </dl>             
+                </li><li class="current tmmj 2014/01/02">
+                    <dl class="list-item">
+                        <dt class="item-pic">
+                            <a href="http://bbs.seller.aliexpress.com/bbs/read.php?tid=188956" target="_blank"><img src="//is.alicdn.com/images/cms/upload/seller/picture/channel/story/2012/12/none.gif" width="100" height="100"></a>
+                        </dt>
+                        <dd>
+                            <a href="http://bbs.seller.aliexpress.com/bbs/read.php?tid=188956" target="_blank">新光饰品打造海外爆款</a>
+                        </dd>
+                        <dd>关键词：<span class="gray">跨界 团购 爆款</span></dd>
+                        <dd class="gray">天猫新光饰品旗舰店，拥有专业的电子商务团队，积极开发俄语市场，参与俄罗斯团购，俄语化销售，实现新客户500%增长，轻松打造爆款。</dd>
+                        <dd>
+                            <span class="update">更新日期：<span class="gray">2014/01/02</span></span>
+                        </dd>
+                    </dl>             
+                </li><li class="current tmmj 2013/12/26">
+                    <dl class="list-item">
+                        <dt class="item-pic">
+                            <a href="http://bbs.seller.aliexpress.com/bbs/read.php?tid=188289" target="_blank"><img src="//is.alicdn.com/images/cms/upload/seller/picture/channel/story/2012/12/none.gif" width="100" height="100"></a>
+                        </dt>
+                        <dd>
+                            <a href="http://bbs.seller.aliexpress.com/bbs/read.php?tid=188289" target="_blank">2013年天猫卖家跨界速卖通，迈向国际化销售之旅</a>
+                        </dd>
+                        <dd>关键词：<span class="gray">跨界  品牌</span></dd>
+                        <dd class="gray">公司一贯坚持的战略目标就是“走国际化发展道路”，国内市场的热销，使我们终于做了一个艰难的决定——转战海外市场，第一站就是阿里速卖通</dd>
+                        <dd>
+                            <span class="update">更新日期：<span class="gray">2013/12/26</span></span>
+                        </dd>
+                    </dl>             
+                </li><li class="current ebay 2013/12/23">
+                    <dl class="list-item">
+                        <dt class="item-pic">
+                            <a href="http://bbs.seller.aliexpress.com/bbs/read.php?tid=187917" target="_blank"><img src="//is.alicdn.com/images/cms/upload/seller/picture/channel/story/2012/12/none.gif" width="100" height="100"></a>
+                        </dt>
+                        <dd>
+                            <a href="http://bbs.seller.aliexpress.com/bbs/read.php?tid=187917" target="_blank">eBay跨界速卖通-货通全球 销售倍增</a>
+                        </dd>
+                        <dd>关键词：<span class="gray">跨界  市场互补</span></dd>
+                        <dd class="gray">经过搜索速卖通的相关资料，我了解到速卖通主要面对的是俄罗斯、巴西、阿根廷这些新兴市场的买家，这正好是和我的现有市场互补</dd>
+                        <dd>
+                            <span class="update">更新日期：<span class="gray">2013/12/23</span></span>
+                        </dd>
+                    </dl>             
+                </li><li class="current cyz 2013/08/29">
+                    <dl class="list-item">
+                        <dt class="item-pic">
+                            <a href="http://bbs.seller.aliexpress.com/bbs/read.php?tid=166263" target="_blank"><img src="//is.alicdn.com/images/cms/upload/seller/picture/channel/story/2013/09/21215_133e13776701226b77db5ebdf82f8.png" width="100" height="100"></a>
+                        </dt>
+                        <dd>
+                            <a href="http://bbs.seller.aliexpress.com/bbs/read.php?tid=166263" target="_blank">六年开车经验，高端进阶解惑篇—且听手表行业TIMI道来</a>
+                        </dd>
+                        <dd>关键词：<span class="gray">钻研  坚持  创业</span></dd>
+                        <dd class="gray">直通车刚开始那会，查看数据，他的数据总是排名在上，非常明显，无论是点击转换率还是整体的健康度，都非常好，不免很是好奇，运营着这家店铺的，究竟是个什么样的人呢</dd>
+                        <dd>
+                            <span class="update">更新日期：<span class="gray">2013/08/29</span></span>
+                        </dd>
+                    </dl>             
+                </li><li class="current cyz 2013/07/23">
+                    <dl class="list-item">
+                        <dt class="item-pic">
+                            <a href="http://bbs.seller.aliexpress.com/bbs/read.php?tid=153969" target="_blank"><img src="//is.alicdn.com/images/cms/upload/seller/picture/channel/story/2012/12/none.gif" width="100" height="100"></a>
+                        </dt>
+                        <dd>
+                            <a href="http://bbs.seller.aliexpress.com/bbs/read.php?tid=153969" target="_blank">她是如何在“一夜之间”成为达人赛冠军的</a>
+                        </dd>
+                        <dd>关键词：<span class="gray">要性 坚持 诀窍</span></dd>
+                        <dd class="gray">她的故事，在珠宝群广为流传；她的秘籍，大家争相阅读；很多人很佩服这个小姑娘，店做的这么大，却经常教育大家注意身体，给大家分享直通车的技巧，为大家排忧解难</dd>
+                        <dd>
+                            <span class="update">更新日期：<span class="gray">2013/07/23</span></span>
+                        </dd>
+                    </dl>             
+                </li><li class="current tbmj 2013/07/10">
+                    <dl class="list-item">
+                        <dt class="item-pic">
+                            <a href="http://bbs.seller.aliexpress.com/bbs/read.php?tid=150317" target="_blank"><img src="http://bbs.seller.aliexpress.com/bbs/attachment/photo/Mon_1307/13629_76fc1374740500600bef4e63b4a00.jpg" width="100" height="100"></a>
+                        </dt>
+                        <dd>
+                            <a href="http://bbs.seller.aliexpress.com/bbs/read.php?tid=150317" target="_blank">兼职速卖通3个月，日均150单，月过5万刀！</a>
+                        </dd>
+                        <dd>关键词：<span class="gray">兼职 直通车 低纠纷 高收入</span></dd>
+                        <dd class="gray">背景介绍：拥有外贸，淘宝，国际站的经验，使用直通车拥有丰富心得，分享内容从如何选品，如何优化，如何选词，如何做数据分析，包括如何做到低纠纷这几个维度出发，详细讲解</dd>
+                        <dd>
+                            <span class="update">更新日期：<span class="gray">2013/07/10</span></span>
+                        </dd>
+                    </dl>             
+                </li><li class="current wmywy 2013/06/29">
+                    <dl class="list-item">
+                        <dt class="item-pic">
+                            <a href="http://bbs.seller.aliexpress.com/bbs/read.php?tid=147141" target="_blank"><img src="http://bbs.seller.aliexpress.com/bbs/attachment/upload/middle/76/2876.jpg" width="100" height="100"></a>
+                        </dt>
+                        <dd>
+                            <a href="http://bbs.seller.aliexpress.com/bbs/read.php?tid=147141" target="_blank">如何借用直通车让店铺排名闪电式从2千杀入行业30强</a>
+                        </dd>
+                        <dd>关键词：<span class="gray">直通车 流量 新品 活动品 销量品 低价引流</span></dd>
+                        <dd class="gray">背景介绍：开车重在引流，绝非简单的提升了曝光量就以为成功了，还要想想开车的目的，推活动品？推新品？推有销量品？资金不多，先更低价引流？Ella为你解密！</dd>
+                        <dd>
+                            <span class="update">更新日期：<span class="gray">2013/06/29</span></span>
+                        </dd>
+                    </dl>             
+                </li></ol>
+        <div id="pagination" class="pagination"><a class="num pre" style="display: none; ">上一页</a><a class="num current">1</a><a class="num">2</a><a class="num">3</a><a class="num">4</a><a class="num">5</a><a class="num">6</a><a class="num next">下一页</a></div></div>
+    </div>
+
+<!--TMS:1614632-->
+<!-- start footer -->
+
+<div id="ft">
+<p class="foot-nav"> 阿里巴巴版权所有　1999-2015  | <a href="http://info.china.alibaba.com/biznews/pages/alihome/js_zzq.html">著作权与商标声明</a> | <a href="http://info.china.alibaba.com/biznews/pages/alihome/js_fl.html">法律声明</a> | <a href="http://info.china.alibaba.com/biznews/pages/alihome/js_fw.html">服务条款</a> | <a href="http://info.china.alibaba.com/biznews/pages/alihome/js_ys.html">隐私声明</a> | <a href="http://www.alihz.com">阿里会展</a> | <a href="http://seller.aliexpress.com/contact_us/index.html" onmousedown="dmtrack.clickstat('http://tracelog.www.alibaba.com/null.gif',{'tracelog':'seller_bottom_contact_us'});">联系我们</a> | <a href="http://exporter.alibaba.com/sitemap.htm">网站地图</a> </p>
+
+    <div class="ali-group">
+			 <a href="http://page.china.alibaba.com/shtml/about/ali_group1.shtml">阿里巴巴集团</a>：阿里巴巴网络 - <a href="http://china.alibaba.com/">中国站</a> <a href="http://www.alibaba.com/">国际站</a> <a href="http://www.aliexpress.com/">全球速卖通</a> | <a href="http://www.alibaba.co.jp/">日文站</a> | <a href="http://www.taobao.com/">淘宝站</a> | <a href="http://www.alipay.com/">支付宝</a> | <a href="http://www.alimama.com/">阿里妈妈</a> | <a href="http://www.aliresearch.com">集团研究中心</a>
+
+		</div>
+</div>
+
+<div style="display:none;">
+<script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_1000083451'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s22.cnzz.com/z_stat.php%3Fid%3D1000083451' type='text/javascript'%3E%3C/script%3E"));</script><span id="cnzz_stat_icon_1000083451"><a href="http://www.cnzz.com/stat/website.php?web_id=1000083451" target="_blank" title="站长统计">站长统计</a></span><script src=" http://s22.cnzz.com/z_stat.php?id=1000083451" type="text/javascript"></script><script src="http://c.cnzz.com/core.php?web_id=1000083451&amp;t=z" charset="utf-8" type="text/javascript"></script>
+</div><iframe src="http://style.alibaba.com/js/beacon-cookie.html?v=20150204" style="width: 1px; height: 1px; position: absolute; top: -10000px; left: -10000px; visibility: hidden; "></iframe>
+
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script><script src="http://www.google-analytics.com/ga.js" type="text/javascript"></script>
+<script type="text/javascript">
+try {
+var pageTracker = _gat._getTracker("UA-12170881-1");
+pageTracker._trackPageview();
+} catch(err) {}</script> 
+<!-- end footer -->
+<!-- import aelego -->
+<script>
+  try{
+    seajs.use(['js/6v/biz/lego/runtime/runtime.js'],function(legoRuntime){
+        legoRuntime.init();
+    });
+  }catch(e){}
+</script> 
+
+
+<!--TMSPAGEID:1641000--></body></html>

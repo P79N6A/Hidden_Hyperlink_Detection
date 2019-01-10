@@ -1,0 +1,523 @@
+<!DOCTYPE html><html><head lang="en"><style type="text/css">@charset "UTF-8";[ng\:cloak],[ng-cloak],[data-ng-cloak],[x-ng-cloak],.ng-cloak,.x-ng-cloak,.ng-hide{display:none !important;}ng\:form{display:block;}</style>
+    <meta charset="UTF-8">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <script src="http://static.wiwide.com/app/user/js/jquery/2.1.4/jquery.min.js"></script>
+    <script src="http://static.wiwide.com/app/user/js/angularjs/angular.min.js"></script>
+    <script type="text/javascript">
+        var portal_auth = "";
+        var init_header = true;
+        var init_loginContent = true;
+        var init_loginRemind = false;
+        var init_loginButton = true;
+        var init_loginChange = true;
+        var init_loginBy = false;
+        var init_loginMask = false;
+        var init_loginAlert = false;
+
+        var checked = true;
+
+                        /**
+         * Created by Administrator on 2016/4/8.
+         */
+        var app = angular.module('app', []);
+        app.controller('loginCtrl', ['$scope', '$interval', function($scope,$interval) {
+            /**
+             * 登录页面dom状态  true:显示   false:隐藏
+             * @type {{header: boolean, loginContent: boolean, loginRemind: boolean, loginButton: boolean, loginChange: boolean, loginBy: boolean, loginMask: boolean, loginAlert: boolean}}
+             */
+            $scope.login = {
+                header: init_header,
+                loginContent: init_loginContent,
+                loginRemind: init_loginRemind,
+                loginButton: init_loginButton,
+                loginChange: init_loginChange,
+                loginBy: init_loginBy,
+                loginMask: init_loginMask,
+                loginAlert: init_loginAlert
+            };
+            /**
+             * 登录文本
+             * @type {string}
+             */
+            $scope.loginText = "登录";
+            /**
+             * 验证码文本
+             * @type {string}
+             */
+            $scope.codeText = "获取验证码";
+            /**
+             * 验证码显示
+             * @type {boolean}
+             */
+            $scope.codeStatus = true;
+            /**
+             * 登录背景颜色
+             * @type {boolean}
+             */
+            $scope.loginBackground = false;
+            /**
+             * 登录手机号
+             * @type {string}
+             */
+            $scope.loginPhone = "";
+            /**
+             * 登录验证码
+             * @type {string}
+             */
+            $scope.loginCode = "";
+            /**
+             * 提示文本
+             * @type {string}
+             */
+            $scope.alertText = "请输入正确的手机号";
+            /**
+             * 默认选择 下次上网继续使用这个手机号
+             * @type {boolean}
+             */
+            $scope.defaultCheck = true;
+            /**
+             * 勾选图片
+             * @type {string}
+             */
+            $scope.defaultCheckImg = "images/gouxuan2_icon.png";
+
+            /**
+             * 切换选择
+             */
+            $scope.switchCheck = function(){
+                $scope.defaultCheck = !$scope.defaultCheck;
+                checked = $scope.defaultCheck;
+            };
+
+            /**
+             * 更改账号
+             */
+            $scope.loginChange = function(){
+                $scope.login.loginContent = true;
+                $scope.login.loginRemind = true;
+                $scope.login.loginChange = false;
+                $('#login').css('display','block');
+                $('#freelogin').css('display','none');
+            };
+            /**
+             * 登录提交
+             */
+            $scope.loginConfirm = function(){
+                if( !$scope.loginPhone ) {
+                    $scope.alertText = "请输入正确的手机号";
+                    $scope.login.loginMask = true;
+                    $scope.login.loginAlert = true;
+                    return;
+                }
+                if( !$scope.loginCode ) {
+                    $scope.alertText = "请输入正确的验证码";
+                    $scope.login.loginMask = true;
+                    $scope.login.loginAlert = true;
+                    return;
+                }
+
+                $scope.loginBackground = true;
+                $scope.loginText = "登录中...";
+                $scope.defaultCheckImg = "images/gouxuan_icon.png";
+
+                location.href = "personalCenter.html";
+            };
+            /**
+             * 登录提示确认
+             */
+            $scope.loginAlertConfirm = function(){
+                $scope.login.loginMask = false;
+                $scope.login.loginAlert = false;
+                $scope.loginBackground = false;
+                $scope.loginText = "登录";
+                $scope.defaultCheckImg = "images/gouxuan2_icon.png";
+
+            };
+            /**
+             * 获取验证码
+             */
+            $scope.getCode = function(){
+                // if( !$scope.loginPhone ) {
+                //     $scope.alertText = "请输入正确的手机号";
+                //     $scope.login.loginMask = true;
+                //     $scope.login.loginAlert = true;
+                //     return;
+                // }
+                var phone = $('#phone').val();
+                if (phone == "") {
+                    showAlert("手机号不能为空");
+                    return false;
+                }
+
+                if (!isMobilephone(phone)) {
+                    showAlert("请输入正确的手机号");
+                    return false;
+                }
+
+                if (getLength(phone) < 11) {
+                    showAlert("请输入正确的手机号");
+                    return false;
+                }
+
+                if (getLength(phone) > 11) {
+                    showAlert("请输入正确的手机号");
+                    return false;
+                }
+                $scope.codeStatus = false;
+                $scope.time = 60;
+                $scope.codeText = $scope.time + "重新发送";
+                $scope.codeTime = $interval(function(){
+                    if( $scope.time > 0 ){
+                        $scope.time--;
+                        $scope.codeText = $scope.time + "重新发送";
+                    } else {
+                        $scope.codeStatus = true;
+                        $scope.codeText = "获取验证码";
+                        $interval.cancel($scope.codeTime);
+                    }
+                },1000);
+
+
+
+                $.ajax({
+                    type: 'GET',
+                    url: "http://wihome.wiwide.com//oauth/dosms?auth="+encodeURIComponent(portal_auth),
+                    data: {
+                        'mobile': phone
+                    },
+                    dataType: "json",
+                    success: function(res) {
+                        if(res.ret==1){
+                            //alert('发送短信成功');
+                        }else{
+                            showAlert('发送短信失败');
+                        }
+                    },
+                    error: function(e) {
+                        showAlert('发送短信失败');
+                    }
+                });
+
+            };
+
+
+        }]);
+    </script>
+    <!--    <script src="--><!--app/user/js/login.js?t=--><!--"></script>-->
+    <link rel="stylesheet" type="text/css" href="http://static.wiwide.com/app/user/css/reset.css">
+    <link rel="stylesheet" type="text/css" href="http://static.wiwide.com/app/user/css/login.css">
+    <title>账号登录</title>
+</head>
+<body ng-app="app" ng-controller="loginCtrl" class="ng-scope">
+    <header ng-show="login.header" class="">
+        <img class="login-header-img" id="login_redirect" alt="箭头" src="http://static.wiwide.com/app/user/images/jiantou_icon.png" onclick="portal_ting.eventClick('user','uc','personalLogin','clock10','return',0)">
+        <p class="login-header-title">账号登录</p>
+    </header>
+
+<div ng-hide="login.loginContent" class="login-content ng-hide">
+    <p class="login-content-p login-content-default clear">
+        <span class="l">手机号</span>
+        <span class="r"></span>
+    </p>
+</div>
+
+
+<div ng-show="login.loginContent" class="login-content" style="">
+    <p class="login-content-p">
+                    <input class="login-content-input ng-pristine ng-valid" ng-model="loginPhone" type="text" id="phone" placeholder="请输入您的手机号">
+        
+        <span ng-show="codeStatus" class="r login-content-get-code ng-binding" ng-click="getCode()" ng-bind="codeText" id="get_captcha" onclick="portal_ting.eventClick('user','uc','personalLogin','clock2','getCode',0)">获取验证码</span>
+        <span ng-hide="codeStatus" class="r login-content-get-code login-content-get-code-wait ng-binding ng-hide" ng-bind="codeText">获取验证码</span>
+    </p>
+    <p class="login-content-p">
+        <input class="login-content-input ng-pristine ng-valid" id="code" ng-model="loginCode" type="text" placeholder="请输入短信验证码">
+    </p>
+</div>
+
+<div ng-show="login.loginRemind" class="login-remind ng-hide" ng-click="switchCheck()">
+    <img ng-show="defaultCheck" class="login-remind-img" alt="勾选" src="http://static.wiwide.com/app/user/images/gouxuan2_icon.png">
+    <img ng-hide="defaultCheck" class="login-remind-img ng-hide" alt="勾选" src="http://static.wiwide.com/app/user/images/weixuan_icon.png">
+    <span class="login-remind-text">下次上网继续使用这个手机号</span>
+</div>
+<div ng-show="login.loginButton" class="login-button">
+
+    <div id="freelogin" style="display:none"><a class="login-button-btn ng-binding" ng-class="{'login-button-background':loginBackground}" ng-bind="loginText">登录</a></div>
+
+            <div id="login" style=""><a class="login-button-btn ng-binding" ng-class="{'login-button-background':loginBackground}" ng-bind="loginText" onclick="portal_ting.eventClick('user','uc','personalLogin','Middle','login',0)">登录</a></div>
+    
+</div>
+<!-- <span style='padding-left:5%;padding-top:12px;font-size: 0.9rem;color: #999999;float:left'>登录后，您将进入个人中心</span> -->
+<!-- <p ng-show="login.loginBy" class="login-by">
+    <span class="login-by-across"></span>
+    <span>Powered by Wiwide</span>
+    <span class="login-by-across"></span>
+</p> -->
+<img src="http://static.wiwide.com/app/user/images/login.png?t=3.0.6" style="width:100%;position:absolute;bottom:0;display:block">
+<div style="display: none; background: #333333; opacity: 0.3;" class="login-mask"></div>
+<div style="display: none;" class="login-alert">
+    <!--<p class="login-alert-title">提示</p>-->
+    <p class="login-alert-text" style="line-height: 90px; border-bottom: 1px solid #c1c1c1; font-size: 1.125rem; height: 82px; color: #333333;">确认退出登录&nbsp;？</p>
+    <a onclick="hideAlert()" style="width: 44%; line-height: 47px; color: #f36545; font-size: 1.0625rem;;" class="login-alert-confirm">确认</a>
+</div>
+
+<!--     <div style="display: none;" class="login-mask"></div>
+    <div style="display: none;" class="login-alert">
+        <P class="login-alert-text">确认退出登录?</P>
+        <a onclick="hideAlert()" class="login-alert-confirm">确认</a>
+    </div> -->
+
+
+<!--
+<div>
+    <input type="date" value="2016-04-11">
+</div>
+-->
+<script>
+    var showAlert = function(message){
+        $(".login-mask").css("display","block");
+        $(".login-alert").css("display","block");
+        if( message ) $(".login-alert-text").text(message);
+    };
+
+    var hideAlert = function(){
+        $(".login-mask").css("display","none");
+        $(".login-alert").css("display","none");
+    };
+</script>
+
+<script type="text/javascript">
+
+    $('#login').click(function(){
+        var code = $('#code').val();
+        phone = $('#phone').val();
+
+        if (phone == "") {
+            showAlert("手机号不能为空");
+            return false;
+        }
+
+        if (code == "") {
+            showAlert("验证码不能为空");
+            return false;
+        }
+
+        if(checked){
+            checked = 1;
+        }
+
+        $.ajax({
+            type: 'GET',
+            url: "/oauth/login?auth="+encodeURIComponent(''),
+            data: {
+                'mobile': phone,
+                'code':code,
+                'checked':checked
+            },
+            dataType: "json",
+            success: function(res) {
+                if(res.ret==1){
+                    location.href = 'http://webapp.wiwide.com/my/ord%E2%80%A6';
+
+                    //alert('登陆成功');
+
+                }else{
+                    if(res.ret=='-99'){
+                        showAlert('该手机号已绑定过其它微信号');
+                    }else{
+                        showAlert('登录失败');
+                    }
+                }
+            },
+            error: function(e) {
+                showAlert('登录失败');
+            }
+        });
+    })
+
+    $('#freelogin').click(function(){
+        location.href = "/oauth?auth="+encodeURIComponent('')+"&free=1";
+    })
+
+    $('#login_redirect').click(function(){
+//    var redirect_url = "http://wiportal.wiwide.com/home?auth="+encodeURIComponent('');
+        window.history.go(-1);
+    })
+
+    function getLength(rec) {
+        return $.trim(rec).length;
+    }
+
+    function isMobilephone(mobilephone) {
+        var myreg = /^(0\d{2,3}\-?\d{7,8}#?\d*|\d{8,11})$/
+        //var myreg = /^(13[0-9]|14[5|7]|15[0|1|2|3|5|6|7|8|9]|18[0|1|2|3|5|6|7|8|9])\d{8}$/g;
+        //var myreg = /^1(3[0-9])|(4[5|7])|(5\d)|(7\d)|(8\d)\d{8}$/g;
+        if(!myreg.test(mobilephone)){
+            return false;
+        }else{
+            return true;
+        }
+    }
+
+    function src_func(title,content){
+                var url = "/user?auth="+encodeURIComponent('');
+                //console.log("");
+        /*if(title){
+         url = url+'&title='+title;
+         }
+         if(content){
+         url = url+'&content='+content;
+         }*/
+        return url ;
+        //location.href = url;
+    }
+</script>
+
+<style type="text/css">
+    .douTips{
+        padding-left: 1.5em;
+        font-size: 1.3em;
+        font-weight: normal;
+        background:url(http://static.wiwide.com/app/user/images/dou.png) no-repeat 0;
+        background-size: 1.15em;
+    }
+
+    /*alert弹出框*/
+    #tipsScreenBox{
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,.4);
+        z-index: 100;
+        font-family: "SimHei";
+    }
+    #tipsScreenBox .tipsInfo{
+        position: relative;
+        left: 50%;
+        top: 32%;
+        width: 81%;
+        height: 21%;
+        margin-left: -40.5%;
+        margin-top: -10.5%;
+        border-radius: 1em;
+        overflow: hidden;
+        background-color: #FFF;
+        background-size:100%;
+        text-align: center;
+    }
+    #tipsScreenBox #ensureBtnx{
+        display: block;
+        height: 30%;
+        line-height: 2.5em;
+        font-size: 1em;
+        text-decoration: none;
+        border-top:1px solid #c1c1c1;
+        color: #f36545;
+    }
+    #tipsScreenBox .tipsMaincon{
+        height: 3.9em;
+        text-indent: .8em;
+        padding-right: 1.3em;
+        line-height: 1.4em;
+        color: #6b6a6a;
+        font-size: .7em;
+        letter-spacing: 1px;
+    }
+    #tipsScreenBox .tipsHeader{
+        height: 2.8em;
+        color: #333;
+        line-height: 2.6em;
+        font-size: 1.1em;
+        border-bottom: 0;
+    }
+
+    /**
+     *  iPhone 5/5s landscape
+     */
+    @media only screen
+    and (min-device-width: 414px)
+    and (max-device-width: 736px)
+    and (-webkit-min-device-pixel-ratio: 3)
+    and (orientation: landscape) {
+        #tipsScreenBox .tipsInfo{
+            position: relative;
+            left: 50%;
+            top: 32%;
+            width: 81%;
+            height: 17%;
+            margin-left: -40.5%;
+            margin-top: -8.5%;
+            border-radius: 1em;
+            overflow: hidden;
+            /* background:orange url(http://static.wiwide.com/app/user/images/logBg.png) no-repeat 0; */
+            background:#FFF;
+            background-size:100%;
+            text-align: center;
+        }
+    }
+</style>
+<script type="text/javascript">
+    var alertScreen = function (tipsInfo) {
+        data = {
+            'title'   : tipsInfo.title    || "标题",
+            'content' : tipsInfo.content  || "",
+            'url'     : tipsInfo.url
+        };
+
+        creatModel(data);
+
+        var oEnsureAtn   = document.getElementById('ensureBtnx'),
+            oTipsScreenx = document.getElementById('tipsScreenBox'),
+            goUrl = function (url) {
+                window.location.href = url;
+            };
+
+        oEnsureAtn.addEventListener("click",function () {
+
+            oTipsScreenx.style.display = "none";
+            document.body.removeChild(oTipsScreenx);
+            (data.url)&&(goUrl(data.url));
+
+        },false);
+
+    };
+
+    function creatModel(jsonData) {
+
+        var oAside = document.createElement('aside');
+        oAside.id  = "tipsScreenBox";
+
+        var oInfoBox = document.createElement('article');
+        oInfoBox.className = 'tipsInfo';
+
+        var oHeader = document.createElement('header');
+        oHeader.className = "tipsHeader";
+        oHeader.innerHTML = jsonData.title;
+
+        var oMainCon  = document.createElement('div');
+        oMainCon.className = "tipsMaincon";
+        oMainCon.innerHTML = jsonData.content;
+
+        var oEnsure  = document.createElement('a');
+        oEnsure.id   = "ensureBtnx";
+        oEnsure.href = "javascript:;";
+        oEnsure.innerHTML = "好的";
+
+        oInfoBox.appendChild(oHeader);
+        oInfoBox.appendChild(oMainCon);
+        oInfoBox.appendChild(oEnsure);
+        oAside.appendChild(oInfoBox);
+        document.body.appendChild(oAside);
+    }
+
+</script>
+<!-- 统计数据 -->
+
+<script type="text/javascript"> var PORTAL_TING_STR = "fHx8fHx8cGN8dWN8MXx8fHw="</script>
+<script>var PORTAL_TING_IS_START= 1</script>
+<script type="text/javascript" src="http://static.wiwide.com/portal/js/statistics.min.js?t=3.0.6"></script><img style="display: none; width: 1px; height: 1px; " id="PortalTingImg" src="http://stat.wiwide.com/a.gif?id=eb79d0d78cf7b8da06937187153fdb29&amp;challenge=&amp;shopId=&amp;nasid=&amp;mac=&amp;called=&amp;template=&amp;clientType=2&amp;language=0&amp;authLoginType=&amp;collectionObject=uc&amp;appId=&amp;wechatOpenId=&amp;wechatphone=&amp;isNewUser=0&amp;stayTime=1491024552129&amp;order=1">
+
+
+</body></html>

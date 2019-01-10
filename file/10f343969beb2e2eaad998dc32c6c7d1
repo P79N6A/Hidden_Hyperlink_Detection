@@ -1,0 +1,843 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+    <title>成华旅游</title><!--css/style.css-->
+    <link href="css/bootstrap.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="//cdn.bootcss.com/jquery/1.11.3/jquery.min.js"></script>
+    <!--<script src="jquery-1.8.3.min.js"></script>-->
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?b26f7a0bd669072eafc581f3c631ad8f";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+    
+	<script type="text/javascript">
+        //得到当天时间
+        function getTodayTime() {
+            var days = ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"];
+            var today = new Date();
+            var str = (today.getYear() < 1900 ? 1900 + today.getYear() : today.getYear()) + "年" + getDouble([today.getMonth() + 1]) + "月" + getDouble(today.getDate()) + "日 &nbsp;" + days[today.getDay()] + "&nbsp;" + getDouble(today.getHours()) + ":" + getDouble(today.getMinutes()) + ":" + getDouble(today.getSeconds());
+            document.getElementById('datetime').innerHTML = str;
+
+        }
+        //每隔一秒刷新一次
+        setInterval("getTodayTime()", 1000);
+	</script>
+
+	<script type="text/javascript" src="js/j.minisite.weather.js"></script>
+	<script type="text/javascript">
+		MiniSite.Weather.print(function (data) {
+			document.getElementById('wealth').innerHTML = data.city + " " + data.wealth + " " + data.range;
+		});
+	</script>
+	<script language="JavaScript">
+		$(function () {
+            $.ajax({
+                type: 'post',
+                url: 'Index.ashx',
+                async: false,
+                data: "",
+                success: function (data) {
+                    var dataArry = jQuery.parseJSON(data);
+                    //console.info(dataArry.move);
+                    //滚动新闻
+                    if (dataArry.move)
+                        $.each(dataArry.move, function (index, item) {
+                            var marqueecontent = "";
+                            marqueecontent += (index + 1) + "、" + item["news_title"] + "&nbsp;&nbsp;&nbsp;";
+                            $(".marquee").append(marqueecontent);
+                        });//end $.each
+                    //轮播图片
+                    console.info(dataArry.Imgs)
+                    if (dataArry.Imgs)
+                        $.each(dataArry.Imgs, function (index, item) {
+                            var imgcontent = "";
+                            var imgurl = "http://lyzw.cdchta.gov.cn/Manage" + item["news_img"];
+                            imgcontent += '<li>';
+                            imgcontent += '<div style="left:0; top:0; width:336px; height:220px;"><a href="http://lyzw.cdchta.gov.cn/xwdt.aspx?articleid=' + item["id"] + '&type='+item["type"]+'" target="_blank"><img src="' + imgurl + '" alt="" /></a></div>';
+                            imgcontent += '<p class="slide-title">' + item["news_title"] + '</p>';
+                            imgcontent += '</li>';
+                            $(".moveimg").append(imgcontent);
+
+                        });
+                    //var imgcontent = "";
+                    //imgcontent += '<li>';
+                    //imgcontent += '<div style="left:0; top:0; width:336px; height:220px"><a href="http://lyzw.cdchta.gov.cn/xwdt.aspx?articleid=1361&type=a_gzdt" target="_blank"><img src="images/slide_2.jpg" alt="" /></a></div>';
+                    //imgcontent += '<p class="slide-title">成华区旅体局积极组织参加四川省一级社体指导员培训</p>';
+                    //imgcontent += '</li>';
+                    //imgcontent += '<li>';
+                    //imgcontent += '<div style="left:0; top:0; width:336px; height:220px"><a href="http://lyzw.cdchta.gov.cn/xwdt.aspx?articleid=1362&type=a_tyxw" target="_blank"><img src="images/slide_3.jpg" alt="" /></a></div>';
+                    //imgcontent += '<p class="slide-title">全国第九届残运会暨第六届特奥会成华区筹委会实地勘查聋人足球比赛场地改造情况</p>';
+                    //imgcontent += '</li>';
+                    //$(".moveimg").appendTo(imgcontent);
+
+                    //最新动态
+                    //console.info(dataArry.recentnews);
+                    if (dataArry.recentnews)
+                        $.each(dataArry.recentnews, function (index, item) {
+                            var recentnewscontent = "";
+
+                            recentnewscontent += ' <li>';
+                            recentnewscontent += '<a href="http://lyzw.cdchta.gov.cn/xwdt.aspx?articleid=' + item["id"] + '&type='+item["type"]+'">';
+                            recentnewscontent += '<p>' + item["news_title"] + '</p>';
+                            recentnewscontent += '<span>' + ChangeDateFormat(item["news_add_time"]) + '</span>';
+                            recentnewscontent += '</a></li>';
+                            $(".recentnews").append(recentnewscontent);
+                        });
+
+                    //通知公告
+                    //console.info(dataArry.recentnews);
+                    if (dataArry.notice)
+                        $.each(dataArry.notice, function (index, item) {
+                            var noticecontent = "";
+                            noticecontent += ' <li>';
+                            noticecontent += '<a href="http://lyzw.cdchta.gov.cn/xwdt.aspx?articleid=' + item["id"] + '&type='+item["type"]+'">';
+                            noticecontent += '<p>' + item["news_title"] + '</p>';
+                            noticecontent += '<span>' + ChangeDateFormat(item["news_add_time"]) + '</span>';
+                            noticecontent += '</a></li>';
+                            $(".notice").append(noticecontent);
+                        });
+                    //旅游预告<li onclick="window.location.href='http://lyzw.cdchta.gov.cn/News.aspx?id=265'"><a>【交通预告】13日起 成都理工大学周边多条道路禁左</a></li>
+                    if (dataArry.traveltrailer)
+                        $.each(dataArry.traveltrailer, function (index, item) {
+                            var traveltrailercontent = "";
+                            traveltrailercontent += "<li onclick=\"window.location.href='http://lyzw.cdchta.gov.cn/News.aspx?id=" + item["id"] + "'\">";
+                            traveltrailercontent += "<a>【" + item["waring"] + "】" + item["Title"] + "</a></li>";
+                            $(".traveltrailer").append(traveltrailercontent);
+                        });
+                    //旅游咨询
+                    if (dataArry.traveladvisory)
+                        $.each(dataArry.traveladvisory, function (index, item) {
+                            var traveladvisorycontent = "";
+                            traveladvisorycontent += '<li>';
+                            traveladvisorycontent += '<a href="http://lyzw.cdchta.gov.cn/lydy.aspx?type=a_lyzx"> ';
+                            traveladvisorycontent += '<p>' + item["Title"] + '</p>';
+                            traveladvisorycontent += '<span>' + ChangeDateFormat(item["Date"]) + '<font style="color:red">[' + item["Status"] + ']</font></span>';
+                            traveladvisorycontent += '</a>';
+                            traveladvisorycontent += '</li>';
+
+                            $(".traveladvisory").append(traveladvisorycontent);
+                        });
+
+                    //新闻动态<li><a href="http://lyzw.cdchta.gov.cn/xwdt.aspx?articleid=1521&type=a_gzdt"><p>魅力保和 金秋寄情</p></a></li>
+                    if (dataArry.newsstate)
+                        $.each(dataArry.newsstate, function (index, item) {
+                            var newsstatecontent = "";
+                            newsstatecontent += '<li>';
+                            newsstatecontent += '<a href="http://lyzw.cdchta.gov.cn/xwdt.aspx?articleid=' + item["id"] + '&type='+item["type"]+'"> ';
+                            newsstatecontent += '<p>' + item["news_title"] + '</p>';
+                            newsstatecontent += '<span>' + ChangeDateFormat(item["news_add_time"]) + '</span>';
+                            newsstatecontent += '</a>';
+                            newsstatecontent += '</li>';
+
+                            $(".newsstate").append(newsstatecontent);
+                        });
+                    //政策法规
+                    if (dataArry.regulation)
+                        $.each(dataArry.regulation, function (index, item) {
+                            var regulationcontent = "";
+                            regulationcontent += '<li>';
+                            regulationcontent += '<a href="http://lyzw.cdchta.gov.cn/zcfg.aspx?articleid=' + item["id"] + '&type=a_gwyxzfg"><p>' + item["news_title"] + '</p></a>';
+                            regulationcontent += '</li>';
+                            $(".regulation").append(regulationcontent);
+                        });
+                    //旅游提示<li><a href="http://lyzw.cdchta.gov.cn/xwdt.aspx?articleid=1536&type=a_lyts"><p>10.3成都大熊猫繁育研究基地国庆入园人数发布表</p></a></li>
+                    if (dataArry.travelprompt)
+                        $.each(dataArry.travelprompt, function (index, item) {
+                            var travelpromptcontent = "";
+                            travelpromptcontent += '<li>';
+                            travelpromptcontent += '<a href="http://lyzw.cdchta.gov.cn/xwdt.aspx?articleid=' + item["id"] + '&type=a_lyts"><p>' + item["news_title"] + '</p></a>';
+                            travelpromptcontent += '</li>';
+                            $(".travelprompt").append(travelpromptcontent);
+                        });
+                    //买什么 怎么玩 吃什么 住哪儿
+                    if (dataArry.shops)
+                        $.each(dataArry.shops, function (index, item) {
+                            var tab = item["tab"];
+                            if (tab == "1") {
+                                var shops1content = "";
+                                var shops1img = "http://dsly.cdchta.gov.cn/" + item["imgpath"];
+                                shops1content += '<li>';
+                                shops1content += '<a href="http://dsly.cdchta.gov.cn/ShopInfo.aspx?shopId=' + item["id"] + '">';
+                                shops1content += '<img src="' + shops1img + '"><p>' + item["shopname"] + '</p></a>';
+                                shops1content += '</li>';
+                                $(".shop1").append(shops1content);
+                            } else if (tab == "2") {
+
+                                var shops2content = "";
+                                var shops2img = "http://dsly.cdchta.gov.cn/" + item["imgpath"];
+                                shops2content += '<li>';
+                                shops2content += '<a href="http://dsly.cdchta.gov.cn/ShopInfo.aspx?shopId=' + item["id"] + '">';
+                                shops2content += '<img src="' + shops2img + '"><p>' + item["shopname"] + '</p></a>';
+                                shops2content += '</li>';
+                                $(".shop2").append(shops2content);
+
+                            }
+                            else if (tab == "3") {
+
+                                var shops3content = "";
+                                var shops3img = "http://dsly.cdchta.gov.cn/" + item["imgpath"];
+                                shops3content += '<li>';
+                                shops3content += '<a href="http://dsly.cdchta.gov.cn/ShopInfo.aspx?shopId=' + item["id"] + '">';
+                                shops3content += '<img src="' + shops3img + '"><p>' + item["shopname"] + '</p></a>';
+                                shops3content += '</li>';
+                                $(".shop3").append(shops3content);
+
+                            }
+                            else if (tab == "4") {
+
+                                var shops4content = "";
+                                var shops4img = "http://dsly.cdchta.gov.cn/" + item["imgpath"];
+                                shops4content += '<li>';
+                                shops4content += '<a href="http://dsly.cdchta.gov.cn/ShopInfo.aspx?shopId=' + item["id"] + '">';
+                                shops4content += '<img src="' + shops4img + '"><p>' + item["shopname"] + '</p></a>';
+                                shops4content += '</li>';
+                                $(".shop4").append(shops4content);
+
+                            }
+
+                        });
+
+                    //品味成华
+                    //console.info(dataArry.tastech);
+                   // if (dataArry.tastech)
+                       // $.each(dataArry.tastech, function (index, item) {
+                           // var tastechcontent = "";
+                           // var tastechimg = item["ImgUrl"];
+                           // tastechcontent += '<li>';
+                           // tastechcontent += '<a>img src="' + tastechimg + '"><p>' + item["Title"] + '</p></a>';
+                           // tastechcontent += '</li>';
+                           // $(".tastech").append(tastechcontent);
+                      //  });
+
+                    //友情链接
+                    //console.info(dataArry.link);
+                    //if (dataArry.link)
+                       // $.each(dataArry.link, function (index, item) {
+                           // var linkcontent = "";
+                            //var linkimg = item["Img"];
+                            //linkcontent += '<li>';
+                            //linkcontent += ' <a href="' + item["Url"] + '" title="' + item["Title"] + '"><img src="' + linkimg + '"></a>';
+                           //linkcontent += '</li>';
+
+                            //$(".link").append(linkcontent);
+                        //});
+                }
+            });
+        });
+        //将json格式的时间转换成一般时间
+        function ChangeDateFormat(jsondate) {
+            jsondate = jsondate.replace("/Date(", "").replace(")/", "");
+            if (jsondate.indexOf("+") > 0) {
+                jsondate = jsondate.substring(0, jsondate.indexOf("+"));
+            } else if (jsondate.indexOf("-") > 0) {
+                jsondate = jsondate.substring(0, jsondate.indexOf("-"));
+            }
+            var date = new Date(parseInt(jsondate, 10));
+            var month = date.getMonth() + 1 < 10 ? "0" + (date.getMonth() + 1) : date.getMonth() + 1;
+            var currentDate = date.getDate() < 10 ? "0" + date.getDate() : date.getDate();
+            return date.getFullYear() + "-" + month + "-" + currentDate;
+        }
+        //单个数字配零
+        function getDouble(number) {
+            var numbers = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"];
+            for (var i = 0; i < numbers.length; i++) {
+                if (numbers[i] == number) {
+                    return "0" + numbers[i];
+                } else if (i == 9) {
+                    return number;
+                }
+            }
+        }
+
+
+
+    </script>
+<script src="js/slide.js"></script>
+</head>
+<body>
+    <div class="weixinTop">
+        <img src="images/top_weixin.png">
+    </div>
+    <div class="top-bg">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="box-top-left">
+						成华旅游网欢迎您！今天是<span id="datetime"></span><span id="wealth" > <iframe width="225px"  scrolling="no" height="18px" frameborder="0" allowtransparency="true"  src="http://i.tianqi.com/index.php?c=code&id=1&icon=5&py=chengdu&wind=1&num=1"></iframe> </span>
+                    </div>
+                    <div class="box-top-right">
+                        <ul class="list-inline">
+                            <li><a href="http://www.weibo.com"><img src="images/sina.png">新浪微博</a></li>
+                            <li id="weixinTop"><img src="images/weixin.png">微信平台</li>
+                            <!--<li onclick="SetHome(this,window.location)">设为首页</li>-->
+                            <!--<li onclick="shoucang(document.title,window.location)">加入收藏</li>-->
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12 banner-top">
+                <div id="wrapper">
+                    <!-- Slideshow 1 -->
+                    <ul class="rslides" id="slider1">
+                        <li><img src="images/ch__banner.gif" alt=""></li>
+                        <!-- 2016-04-05 delet by zhen <li><img src="images/ch__banner2.jpg" alt=""></li>-->
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="nav-box">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12 nav-list">
+                    <ul class="list-inline">
+                        <li><a href="index.html">网站首页</a></li>
+                        <li><a href="http://dsly.cdchta.gov.cn/ShopList.aspx?industry=0">走进成华</a></li>
+                        <li><a href="http://lyzw.cdchta.gov.cn/xwdt.aspx?action=getarticle&columnName=%E5%B7%A5%E4%BD%9C%E5%8A%A8%E6%80%81&t=a_gzdt">新闻动态</a></li>
+                        <li><a href="http://lyzw.cdchta.gov.cn/zwgk.aspx?type=a_nsjg">政务公开</a></li>
+                        <li><a href="http://lyzw.cdchta.gov.cn/zcfg.aspx?action=getarticle&columnName=%E6%B3%95%E5%BE%8B&t=a_fl">政策法规</a></li>
+                        <li><a href="http://lyzw.cdchta.gov.cn/xwdt.aspx?action=getarticle&columnName=%E6%97%85%E6%B8%B8%E6%8F%90%E7%A4%BA&t=a_lyts">旅游提示</a></li>
+                        <!--<li><a href="http://lyzw.cdchta.gov.cn/lydy.aspx?type=a_wjdc">旅游调研</a></li>-->
+                        <li><a href="http://www.cd96527.gov.cn/Complaint.aspx">旅游投诉</a></li>
+                        <li><a href="http://lyzw.cdchta.gov.cn/hygl.aspx?action=getarticle&columnName=%E6%97%85%E8%A1%8C%E7%A4%BE&t=a_lxs">行业管理</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="container" style="margin-top: 10px">
+        <div class="row">
+            <div class="col-md-9 activity">
+                <div class="clearfix realTime">
+                    <marquee scrollamount=4 direction=left style="height: 35px;" class="marquee">
+
+                    </marquee>
+                </div>
+                <div class="activity-box">
+                    <div class="activity-box-left">
+                        <div id="focus">
+                            <ul class="moveimg">
+                                <!--class="moveimg"-->
+                                <!--<li>
+                                    <div style="left:0; top:0; width:336px; height:220px;"><a href="http://lyzw.cdchta.gov.cn/xwdt.aspx?articleid=1270&type=a_lyxw" target="_blank"><img src="images/slide_1.png" alt="" /></a></div>
+                                    <p class="slide-title">四川旅游国际新形象和口号出炉</p>
+                                </li>
+                                <li>
+                                    <div style="left:0; top:0; width:336px; height:220px"><a href="http://lyzw.cdchta.gov.cn/xwdt.aspx?articleid=1361&type=a_gzdt" target="_blank"><img src="images/slide_2.jpg" alt="" /></a></div>
+                                    <p class="slide-title">成华区旅体局积极组织参加四川省一级社体指导员培训</p>
+                                </li>
+                                <li>
+                                    <div style="left:0; top:0; width:336px; height:220px"><a href="http://lyzw.cdchta.gov.cn/xwdt.aspx?articleid=1362&type=a_tyxw" target="_blank"><img src="images/slide_3.jpg" alt="" /></a></div>
+                                    <p class="slide-title">全国第九届残运会暨第六届特奥会成华区筹委会实地勘查聋人足球比赛场地改造情况</p>
+                                </li>
+                                <li>
+                                    <div style="left:0; top:0;width:336px; height:220px;"><a href="http://lyzw.cdchta.gov.cn/xwdt.aspx?articleid=1423&type=a_tyxw" target="_blank"><img src="images/slide_4.png" alt="" /></a></div>
+                                    <p class="slide-title">双桥子街道积极开展“全民健身日”宣传活动</p>
+                                </li>
+                                <li>
+                                    <div style="left:0; top:0;width:336px; height:220px"><a href="http://lyzw.cdchta.gov.cn/xwdt.aspx?articleid=1424&type=a_gzdt" target="_blank"><img src="images/slide_5.jpg" alt="" /></a></div>
+                                    <p class="slide-title">成华区文广新旅体局组织参加“运动成都”成都市第二届全民健身运动会篮球比赛</p>
+                                </li>-->
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="activity-box-right">
+                        <!-- Nav tabs -->
+                        <ul class="nav nav-tabs tab-title" role="tablist">
+                            <img class="more" src="images/ch__more.gif" onclick="window.location.href='http://lyzw.cdchta.gov.cn/xwdt.aspx?action=getarticle&columnName=%E5%B7%A5%E4%BD%9C%E5%8A%A8%E6%80%81&t=a_gzdt'" style="margin-top: 16px;">
+                            <li role="presentation" class="active"><a href="#zxdt" aria-controls="zxdt" role="tab" data-toggle="tab" style="border-left:0">最新动态</a></li>
+                            <li role="presentation"><a href="#tzgg" aria-controls="tzgg" role="tab" data-toggle="tab">通知公告</a></li>
+                        </ul>
+
+                        <!-- Tab panes -->
+                        <div class="tab-content">
+                            <div role="tabpanel" class="tab-pane table-list active" id="zxdt">
+                                <ul class="recentnews"></ul>
+                            </div>
+                            <div role="tabpanel" class="tab-pane table-list" id="tzgg">
+                                <ul class="notice"></ul>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3" style="padding-right: 0">
+                <!--<div class="search">
+                    <input type="text" placeholder="请输入关键字" id="searchstr"/>
+                    <div class="search-go" onclick="search_f(searchstr.value)">GO</div>
+                </div>-->
+                <div class="lyyg">
+                    <div class="lyyg-title">
+                        <span>旅游预告</span>
+                        <img class="more" onclick="window.location.href='http://lyzw.cdchta.gov.cn/News.aspx'" src="images/ch__more.gif" />
+                    </div>
+                    <div class="ygList">
+                        <ul class="traveltrailer"></ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div class="container">
+        <div class="row" style="margin-top:15px">
+            <div class="col-md-12 index-img" onclick="window.location.href = 'http://mp.weixin.qq.com/s?__biz=MzA5MDYyMTUxOQ==&mid=2746998355&idx=1&sn=32de6a225b937c03b288b808d8da4b39&chksm=b647ad73813024651e7afb9d16c749afbe11405d72a253fb0085a095c23e6a0df44323893727#rd'">
+                <img src="images/col-md-12 index-img.png">
+            </div>
+        </div>
+        <div class="row" style="margin-top:15px">
+            <div class="col-md-9" style="padding: 0">
+                <div class="category">
+                    <div class="category-color">
+                        <div class="category1 on">成华旅游景点</div>
+                        <div class="category2">成华酒店</div>
+                        <div class="category3" onclick="window.location.href='http://dsly.cdchta.gov.cn/ShopList.aspx?shotType=25&industry=43'">成华旅行社</div>
+                        <div class="category4">成华美食</div>
+                        <div class="category5">成华艺术馆</div>
+                        <div class="category6">成华休闲娱乐</div>
+                        <div class="category7" style="margin-right: 0">成华购物</div>
+                    </div>
+                    <div class="category-color-info" name="成华旅游景点">
+                        <span onclick="window.location.href='http://dsly.cdchta.gov.cn/ShopList.aspx?shopType=7&industry=41'">A级景区</span>
+                        <span onclick="window.location.href='http://dsly.cdchta.gov.cn/ShopList.aspx?shopType=9&industry=41'">特色景区</span>
+                        <span onclick="window.location.href='http://dsly.cdchta.gov.cn/ShopList.aspx?shopType=14&industry=41'">主题公园</span>
+                        <span onclick="window.location.href='http://dsly.cdchta.gov.cn/ShopList.aspx?industry=41'">全部</span>
+                    </div>
+                    <div class="category-color-info" name="成华酒店" style="display: none">
+                        <span onclick="window.location.href='http://dsly.cdchta.gov.cn/ShopList.aspx?shopType=27&industry=44'">星级酒店</span>
+                        <span onclick="window.location.href='http://dsly.cdchta.gov.cn/ShopList.aspx?shopType=28&industry=44'">商务酒店</span>
+                        <span onclick="window.location.href='http://dsly.cdchta.gov.cn/ShopList.aspx?shopType=61&industry=44'">主题酒店</span>
+                        <span onclick="window.location.href='http://dsly.cdchta.gov.cn/ShopList.aspx?shopType=29&industry=44'">连锁酒店</span>
+                        <span onclick="window.location.href='http://dsly.cdchta.gov.cn/ShopList.aspx?industry=44'">全部</span>
+                    </div>
+                    <div class="category-color-info" name="成华旅行社" style="display: none">
+                        <!--<span onclick="window.location.href='http://dsly.cdchta.gov.cn/ShopList.aspx?shopType=25&industry=43'">旅行社</span>
+                        <span onclick="window.location.href='http://dsly.cdchta.gov.cn/ShopList.aspx?shopType=22&industry=43'">周边游</span>
+                        <span onclick="window.location.href='http://dsly.cdchta.gov.cn/ShopList.aspx?shopType=23&industry=43'">国内游</span>
+                        <span onclick="window.location.href='http://dsly.cdchta.gov.cn/ShopList.aspx?shopType=24&industry=43'">出境游</span>
+                        <span onclick="window.location.href='http://dsly.cdchta.gov.cn/ShopList.aspx?shopType=26&industry=43'">旅游交通</span>
+                        <span onclick="window.location.href='http://dsly.cdchta.gov.cn/ShopList.aspx?industry=43'">全部</span>-->
+                    </div>
+                    <div class="category-color-info" name="成华美食" style="display: none">
+                        <span onclick="window.location.href='http://dsly.cdchta.gov.cn/ShopList.aspx?shopType=16&industry=42'">望平-天祥</span>
+                        <span onclick="window.location.href='http://dsly.cdchta.gov.cn/ShopList.aspx?shopType=13&industry=42'">玉双-祥和</span>
+                        <span onclick="window.location.href='http://dsly.cdchta.gov.cn/ShopList.aspx?shopType=15&industry=42'">新华公园</span>
+                        <span onclick="window.location.href='http://dsly.cdchta.gov.cn/ShopList.aspx?shopType=17&industry=42'">猛追湾</span>
+                        <span onclick="window.location.href='http://dsly.cdchta.gov.cn/ShopList.aspx?shopType=18&industry=42'">建设路</span>
+                        <span onclick="window.location.href='http://dsly.cdchta.gov.cn/ShopList.aspx?shopType=19&industry=42'">龙潭客家</span>
+                        <span onclick="window.location.href='http://dsly.cdchta.gov.cn/ShopList.aspx?shopType=104&industry=42'">其他</span>
+                        <span onclick="window.location.href='http://dsly.cdchta.gov.cn/ShopList.aspx?industry=42'">全部</span>
+                    </div>
+                    <div class="category-color-info" name="成华艺术馆" style="display: none">
+                        <span onclick="window.location.href='http://dsly.cdchta.gov.cn/ActivitiesFocus.aspx?ids=105'">歌剧《鸣凤》</span>
+                        <span onclick="window.location.href = 'http://dsly.cdchta.gov.cn/ShopInfo.aspx?shopId=431'">成都艺术超市</span>
+                        <span onclick="window.location.href = 'http://dsly.cdchta.gov.cn/ShopInfo.aspx?shopId=432'">川剧院</span>
+
+                    </div>
+                    <div class="category-color-info" name="成华休闲娱乐" style="display: none">
+                        <span onclick="window.location.href='http://dsly.cdchta.gov.cn/ShopList.aspx?shopType=32&industry=46'">KTV</span>
+                        <span onclick="window.location.href='http://dsly.cdchta.gov.cn/ShopList.aspx?shopType=79&industry=46'">电影</span>
+                        <span onclick="window.location.href='http://dsly.cdchta.gov.cn/ShopList.aspx?shopType=97&industry=46'">健身</span>
+                        <span onclick="window.location.href='http://dsly.cdchta.gov.cn/ShopList.aspx?shopType=31&industry=46'">演出</span>
+                        <span onclick="window.location.href='http://dsly.cdchta.gov.cn/ShopList.aspx?shopType=32&industry=46'">美容</span>
+                        <span onclick="window.location.href='http://dsly.cdchta.gov.cn/ShopList.aspx?shopType=98&industry=46'">按摩</span>
+                        <span onclick="window.location.href='http://dsly.cdchta.gov.cn/ShopList.aspx?shopType=96&industry=46'">沐浴</span>
+                        <span onclick="window.location.href='http://dsly.cdchta.gov.cn/ShopList.aspx?shopType=103&industry=46'">品茗</span>
+                        <span onclick="window.location.href='http://dsly.cdchta.gov.cn/ActivitiesFocus.aspx?ids=43'">熊猫嘉年华</span>
+                        <span onclick="window.location.href='http://dsly.cdchta.gov.cn/ActivitiesFocus.aspx?ids=50'">动漫节</span>
+                        <span onclick="window.location.href='http://dsly.cdchta.gov.cn/ActivitiesFocus.aspx?ids=51'">美食节</span>
+                    </div>
+                    <div class="category-color-info" name="成华购物" style="display: none">
+                        <span onclick="window.location.href='http://dsly.cdchta.gov.cn/ShopList.aspx?shopType=99&industry=47'">潮流时尚</span>
+                        <span onclick="window.location.href='http://dsly.cdchta.gov.cn/ShopList.aspx?shopType=100&industry=47'">购物中心</span>
+                        <span onclick="window.location.href='http://dsly.cdchta.gov.cn/ShopList.aspx?shopType=101&industry=47'">超市商场</span>
+                        <span onclick="window.location.href='http://dsly.cdchta.gov.cn/ShopList.aspx?industry=47'">全部</span>
+                    </div>
+                </div>
+                <div class="consult">
+                    <div class="consult-title">
+                        <b>旅游咨询</b>
+                    </div>
+                    <div class="consult-info clearfix">
+                        <div class="consult-left">
+                            <div class="consult1">
+                                <a href="http://lyzw.cdchta.gov.cn/lydy.aspx?ac=wyhs">
+                                    <p>我要咨询</p>
+                                    <p style="color:#999">Consultation</p>
+                                </a>
+                            </div>
+                            <div class="consult2" style="color:#6e6e6e">
+                                <p>旅游监督投诉</p>
+                                <p>86622065,6629858</p>
+                            </div>
+                        </div>
+                        <div class="consult-right table-list">
+                            <ul class="traveladvisory"></ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 category-other">
+                <div class="category-other-img">
+                    <img src="images/ch__other1.gif" onclick="window.location.href='http://lyzw.cdchta.gov.cn/zcfg.aspx?articleid=91&type=a_fl'" title="中华人名共和国旅游法">
+                </div>
+                <div class="category-other-img">
+                    <img src="images/ch__other2.gif" onclick="window.location.href='http://221.182.47.88/'" title="成都市旅行社管理平台">
+                </div>
+                <div class="category-other-title">
+                    <b>政务公开</b>
+                </div>
+                <div class="category-other-info">
+                    <div>
+                        <a href="http://lyzw.cdchta.gov.cn/zwgk.aspx?type=a_nsjg">
+                            <p>内设机构</p>
+                            <small>Internal Organs</small>
+                        </a>
+                    </div>
+                    <div class="on">
+                        <a href="http://lyzw.cdchta.gov.cn/zwgk.aspx?type=a_zyzn">
+                            <p>主要职能</p>
+                            <small>Department</small>
+                        </a>
+                    </div>
+                    <div>
+                        <a href="http://lyzw.cdchta.gov.cn/zwgk.aspx?action=getarticle&columnName=%E5%8A%9E%E4%BA%8B%E6%8C%87%E5%8D%97&t=a_bszn">
+                            <p>办事指南</p>
+                            <small>Law Guide</small>
+                        </a>
+                    </div>
+                    <div class="on">
+                        <a href="http://lyzw.cdchta.gov.cn/zwgk.aspx?action=getarticle&columnName=%E9%A2%86%E5%AF%BC%E4%BB%8B%E7%BB%8D&t=a_ldjs">
+                            <p>领导介绍</p>
+                            <small>Leadership</small>
+                        </a>
+                    </div>
+                    <div>
+                        <a href="http://lyzw.cdchta.gov.cn/lydy.aspx?type=a_wjdc">
+                            <p>旅游调研</p>
+                            <small>Tourism Research</small>
+                        </a>
+                    </div>
+                    <div class="on">
+                        <a href="http://lyzw.cdchta.gov.cn/hygl.aspx?action=getarticle&columnName=%E6%97%85%E8%A1%8C%E7%A4%BE&t=a_lxs">
+                            <p>行业管理</p>
+                            <small>Management</small>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row" style="margin-top:15px">
+            <div class="col-md-3" style="padding-left: 0">
+                <div class="video">
+                    <a href="http://www.panda.org.cn/ipanda/index.html">
+                        <img src="images/ch___video.gif">
+                    </a>
+                </div>
+                <div class="about">
+                    <div>
+                        <img src="images/sina_erweima.png">
+                        <p style="margin-bottom: 10px">微博号：cd-cdlv</p>
+                        <p onclick="window.location.href='http://www.weibo.com/'"><span><b>＋</b>加关注</span></p>
+                    </div>
+                    <div style="margin-left: 4%">
+                        <img src="images/weixin_erweima.png">
+                        <p style="margin-bottom: 10px">公众号：cd-cdlv<br>关注微信公众平台</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6" style="padding:0;border: 1px solid #ccc">
+                <div class="lyyg-title">
+                    <span>新闻动态</span>
+                    <img class="more" onclick="window.location.href='http://lyzw.cdchta.gov.cn/xwdt.aspx?action=getarticle&columnName=%E5%B7%A5%E4%BD%9C%E5%8A%A8%E6%80%81&t=a_gzdt'" src="images/ch__more.gif" />
+                </div>
+                <div class="table-list news">
+                    <ul class="newsstate"></ul>
+                </div>
+            </div>
+            <div class="col-md-3" style="padding-right: 0">
+                <div class="point table-list">
+                    <div class="lyyg-title">
+                        <span>政策法规</span>
+                        <img class="more" onclick="window.location.href='http://lyzw.cdchta.gov.cn/zcfg.aspx?action=getarticle&columnName=%E6%B3%95%E5%BE%8B&t=a_fl'" src="images/ch__more.gif" />
+                    </div>
+                    <ul class="regulation"></ul>
+                </div>
+                <div class="point table-list" style="margin-top: 15px">
+                    <div class="lyyg-title">
+                        <span>旅游提示</span>
+                        <img class="more" onclick="window.location.href='http://lyzw.cdchta.gov.cn/xwdt.aspx?action=getarticle&columnName=%E6%97%85%E6%B8%B8%E6%8F%90%E7%A4%BA&t=a_lyts'" src="images/ch__more.gif" />
+                    </div>
+                    <ul class="travelprompt"></ul>
+                </div>
+            </div>
+        </div>
+        <div class="row" style="margin-top:15px">
+            <div class="col-md-12" style="padding: 0">
+                <ul class="nav nav-tabs everthing" role="tablist">
+                    <li role="presentation" class="active"><a href="#home" aria-controls="home" role="tab" data-toggle="tab">买什么</a></li>
+                    <li role="presentation"><a href="#profile" aria-controls="profile" role="tab" data-toggle="tab">怎么玩</a></li>
+                    <li role="presentation"><a href="#messages" aria-controls="messages" role="tab" data-toggle="tab">吃什么</a></li>
+                    <li role="presentation"><a href="#settings" aria-controls="settings" role="tab" data-toggle="tab">住哪儿</a></li>
+                </ul>
+
+                <!-- Tab panes -->
+                <div class="tab-content">
+                    <div role="tabpanel" class="tab-pane imgList active" id="home">
+                        <ul class="shop1"></ul>
+                    </div>
+                    <div role="tabpanel" class="tab-pane imgList" id="profile">
+                        <ul class="shop2"></ul>
+                    </div>
+                    <div role="tabpanel" class="tab-pane imgList" id="messages">
+                        <ul class="shop3"></ul>
+                    </div>
+                    <div role="tabpanel" class="tab-pane imgList" id="settings">
+                        <ul class="shop4"></ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row" style="margin-top:15px">
+            <div class="col-md-12" style="padding: 0">
+                <ul class="nav nav-tabs everthing" role="tablist">
+                    <li role="presentation" class="active"><a href="#home1" aria-controls="home1" role="tab" data-toggle="tab">图说成华</a></li>
+                    <img class="more" src="images/ch__more.gif" onclick="window.location.href='http://lyzw.cdchta.gov.cn/pwch.aspx'" style="margin-top: 16px;">
+                </ul>
+
+                <!-- Tab panes -->
+                <div class="tab-content">
+                    <div role="tabpanel" class="tab-pane imgList photoSay active" id="home1">
+                        <ul class="tastech">
+                            <li>
+                                <a>
+                                    <img src="images/photo1.jpg">
+                                    <p>景区-龙潭水乡</p>
+                                </a>
+                            </li>
+                            <li>
+                                <a>
+                                    <img src="images/photo2.JPG">
+                                    <p>景区-大熊猫繁育研究基地</p>
+                                </a>
+                            </li>
+                            <li>
+                                <a>
+                                    <img src="images/photo3.jpg">
+                                    <p>景区-成华公园</p>
+                                </a>
+                            </li>
+                            <li>
+                                <a>
+                                    <img src="images/photo4.JPG">
+                                    <p>景区-博物之城</p>
+                                </a>
+                            </li>
+                            <li>
+                                <a>
+                                    <img src="images/photo5.jpg">
+                                    <p>景区-东郊记忆</p>
+                                </a>
+                            </li>
+                            <li>
+                                <a>
+                                    <img src="images/photo6.JPG">
+                                    <p>经济-上东潮流</p>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row" style="margin-top:15px">
+            <div class="col-md-12 link-other">
+                <ul class="link">
+                    <li>
+                        <a href="http://www.cnta.gov.cn/" title="中国国家旅游局">
+                            <img src="images/ch__bottom1.gif">
+                        </a>
+                    </li>
+                    <li>
+                        <a href="http://www.scta.gov.cn/sclyj/" title="四川旅游政务网">
+                            <img src="images/ch__bottom2.gif">
+                        </a>
+                    </li>
+                    <li>
+                        <a href="http://www.cdta.gov.cn" title="成都旅游政务网">
+                            <img src="images/ch__bottom3.gif">
+                        </a>
+                    </li>
+                    <li>
+                        <a href="http://www.ctrip.com" title="携程旅行网">
+                            <img src="images/ch__bottom4.gif">
+                        </a>
+                    </li>
+                    <li>
+                        <a href="http://www.tuniu.com" title="途牛旅游网">
+                            <img src="images/ch__bottom5.gif">
+                        </a>
+                    </li>
+
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="foot">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6 col-md-offset-3 footer">
+                    <p>主办：成都市成华区文化广电新闻旅游体育局&nbsp;&nbsp;&nbsp;&nbsp;承办：启动优势科技有限公司</p>
+                    <p>版权所有 Copyright ©2013 chenghua.gov.cn,ALL rights Reserved</p>
+                    <p>蜀ICP备10030455号&nbsp;技术支持：启动优势科技</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="imgPhoto">
+        <div class="imgPhoto-bg"></div>
+        <div class="imgPhoto"></div>
+        <div class="imgPhoto-content">
+            <div class="wrapper">
+                <div class="section4">
+                    <div class="banner">
+                        <ul></ul>
+                        <ol class="dots"></ol>
+                    </div>
+                    <div class="imgPhotoClear">
+                        <img src="images/imgPhotoClear-blue.png" />
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/responsiveslides.min.js"></script>
+
+    <script type="text/javascript">
+        $(function () {
+            $(".category-color>div").click(function () {
+                for (var i = 0; i < $(".category-color>div").length; i++) {
+                    $(".category-color>div").eq(i).removeClass("on");
+                }
+                $(this).addClass("on");
+                for (var j = 0; j < $(".category-color-info").length; j++) {
+                    $(".category-color-info").eq(j).hide();
+                    if ($(".category-color-info").eq(j).attr("name") == $(this).text()) {
+                        $(".category-color-info").eq(j).show();
+                    }
+                }
+
+            });
+        })
+        $("#weixinTop").hover(function () {
+            $(".weixinTop").show();
+        }, function () {
+            $(".weixinTop").hide();
+        });
+        var imgUrl = [["images/l1.JPG", "images/l2.JPG", "images/l3.JPG", "images/l4.jpg"], ["images/m1.JPG", "images/m2.jpg", "images/m3.JPG", "images/m4.jpg", "images/m5.jpg"], ["images/c1.JPG"], ["images/b1.jpg", "images/b2.JPG", "images/b3.JPG"], ["images/d1.jpg", "images/d2.JPG", "images/d3.JPG", "images/d4.JPG", "images/d5.JPG"], ["images/s1.JPG", "images/s2.JPG", "images/s3.JPG", "images/s4.JPG"]];
+
+
+        function viewCurentImg(ele) {
+            var src = $(ele).find("img:eq(0)").attr("src");
+            $(".banner>ul>li img:eq(0)").attr("src", src);
+
+        }
+        $("#home1>ul>li").click(function () {
+            var thisEle = $(this);
+            $.each($("#home1>ul>li"), function (index, item) {
+                if ($(item).text() == thisEle.text()) {
+
+                    var imgSource = imgUrl[index];
+                    var ulHtml = "", olHtml = "";
+                    $.each(imgSource, function (i, e) {
+                        if (i == 0) {
+                            ulHtml += '<li><img src="' + e + '" width="1000" height="600" /></li>';
+                        }
+                        olHtml += '<li onmousemove="javascript:viewCurentImg(this);" class="dot dot1"><img src="' + e + '" /></li>';
+                    });
+                    $(".banner>ul").empty().append(ulHtml);
+                    $(".banner>ol").empty().append(olHtml);
+                    $(".imgPhoto").show();
+                    return false;
+                }
+            });
+
+
+
+
+        })
+        $(".imgPhotoClear").click(function () {
+            $(".imgPhoto").fadeOut();
+
+        })
+    </script>
+    <script type="text/javascript">
+        // 设置为主页
+        function SetHome(obj, vrl) {
+            try {
+                obj.style.behavior = 'url(#default#homepage)'; obj.setHomePage(vrl);
+            }
+            catch (e) {
+                if (window.netscape) {
+                    try {
+                        netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
+                    }
+                    catch (e) {
+                        alert("此操作被浏览器拒绝！\n请在浏览器地址栏输入“about:config”并回车\n然后将 [signed.applets.codebase_principal_support]的值设置为'true',双击即可。");
+                    }
+                    var prefs = Components.classes['@mozilla.org/preferences-service;1'].getService(Components.interfaces.nsIPrefBranch);
+                    prefs.setCharPref('browser.startup.homepage', vrl);
+                } else {
+                    alert("您的浏览器不支持，请按照下面步骤操作：1.打开浏览器设置。2.点击设置网页。3.输入：" + vrl + "点击确定。");
+                }
+            }
+        }
+        // 加入收藏 兼容360和IE6
+        function shoucang(sTitle, sURL) {
+            try {
+                window.external.addFavorite(sURL, sTitle);
+            }
+            catch (e) {
+                try {
+                    window.sidebar.addPanel(sTitle, sURL, "");
+                }
+                catch (e) {
+                    alert("加入收藏失败，请使用Ctrl+D进行添加");
+                }
+            }
+        }
+    </script>
+    <script>
+        //顶部slide
+        $(function () {
+            // Slideshow 1
+            $("#slider1").responsiveSlides({
+                speed: 800
+            });
+        });
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,320 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link href="/Js/jquery-easyui/themes/default/easyui.css" rel="stylesheet" type="text/css"><link href="/Js/jquery-easyui/themes/icon.css" rel="stylesheet" type="text/css">
+    <script src="/Js/jquery-1.7.1.min.js" type="text/javascript"></script>
+    <script src="/Js/jquery-easyui/jquery.easyui.min.js" type="text/javascript"></script>
+    <script src="/Js/jquery-easyui/locale/easyui-lang-zh_CN.js" type="text/javascript"></script>
+    <script src="/Js/jquery-json/jquery.json-2.2.min.js" type="text/javascript"></script>
+    <script src="/scripts/common.js" type="text/javascript"></script>
+    <script src="/Js/jquery_blockui/jquery.blockUI.js" type="text/javascript"></script>
+    <script src="/js/My97DatePicker/WdatePicker.js" language="javascript" type="text/javascript"></script><link href="http://yhtms.yuhong.com.cn/js/My97DatePicker/skin/WdatePicker.css" rel="stylesheet" type="text/css">
+    <link href="/Styles/html.css" rel="stylesheet" type="text/css"><link href="/Js/ajaxfileupload.css" rel="stylesheet" type="text/css">
+    <script src="/Js/ajaxfileupload.js" type="text/javascript"></script>
+    <script src="/jBox/jquery.jBox.src.js" type="text/javascript"></script>
+    <script src="/jBox/jquery.jBox-2.3.min.js" type="text/javascript"></script>
+    <script src="/jBox/jquery-1.4.2.min.js" type="text/javascript"></script>
+    <link href="/jBox/Skins2/Blue/jbox.css" rel="stylesheet" type="text/css"><link href="/css/DialogBySHF.css" rel="stylesheet" type="text/css">
+    <script src="/Scripts/DialogBySHF.js" type="text/javascript"></script>
+    
+<script src="/Js/jquery-1.8.2.min.js" type="text/javascript"></script>
+    <link href="/Js/ajaxfileupload.css" rel="stylesheet" type="text/css">
+    <script src="/Js/ajaxfileupload.js" type="text/javascript"></script>
+    <script src="/Scripts/common.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        $(function () {
+            $("#ctl00_toolbar_txt_Stime,#ctl00_toolbar_txt_Etime").bind('focus', function () { WdatePicker() }).addClass("Wdate").attr("readonly", "readonly");
+
+
+        });
+    </script>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var color = "rgb(225, 240, 252)"
+            $("tr[class='OddItem']:odd td").css("background-color", color);  //改变偶数行背景色
+
+        });
+        $(function () {
+            $("a[par='cl']").live("click", function () {
+                $("#div_orderDetails").hide();
+            });
+            $(document).ready(function () {
+                var color = "rgb(225, 240, 252)"
+                $("tr[class='OddItem']:odd td").css("background-color", color);
+                $("tr[class='OddItem']:odd th").css("background-color", color);
+            })
+            $("a[par='OrderFeeMonths']").click(function () {
+                var d = $(this);
+                var obj = d.parents("tr");
+                var orderNo = d.attr("id");
+                var pos = d.offset();
+                var t = pos.top + d.height() + 5; // 弹出框的上边位置
+                var l = pos.left + d.width() - 60;  // 弹出框的左边位置
+                $("#div_OrderFeeMonth").css({ "top": t, "left": l }).show();
+                var Details = "";
+                var timeParam = Math.round(new Date().getTime() / 1000);
+                $.getJSON("/Handler/Handler.ashx", { method: "GetOrderFeeMonth", orderNo: orderNo, s: timeParam }, function (json) {
+                    if (json.model != null) {
+                        Details = "<table class='admin_tablecss' style=\"width:720px;\"> <thead> <tr><td>出库单号</td><td>SAP单号</td><td>工厂</td><td>承担方式</td><td>费用</td><td>考核状态</td><td>出库时间</td></tr></thead>";
+                        $.each(json.model, function (i, n) {
+                            Details += "<tr><td>" + n.RKCERTIFICATE + "</td><td>" + n.SAPORDERNO + "</td><td align='left;'>" + n.FROMPLANT + "</td><td>" + n.TRANSPORT + "</td><td>" + n.REALPRICE + "</td><td>" + n.sgtype + "</td><td>" + n.ENDTIME + "</td></tr>";
+                        });
+                        Details += "<tr><td colspan='7'><span style='float:right'><a href='javascript:void(0)' par='cls'>关闭</a></span></td></tr>"
+                        Details += "</table>";
+                        $("#div_OrderFeeMonth").html(Details);
+                    }
+                });
+
+            });
+
+            $("a[par='cls']").live("click", function () {
+                $("#div_OrderFeeMonth").hide();
+            });
+        });
+
+        var docEle = function () {
+            return document.getElementById(arguments[0]) || false;
+
+        }
+        function show_div() {
+            var m = "mask";
+            if (docEle(m)) document.body.removeChild(docEle(m));
+            //mask遮罩层
+            var newMask = document.createElement("div");
+            
+            newMask.id = m;
+            newMask.style.position = "absolute";
+            newMask.style.zIndex = "1";
+            _scrollWidth = Math.max(document.body.scrollWidth, document.documentElement.scrollWidth);
+            _scrollHeight = Math.max(document.body.scrollHeight, document.documentElement.scrollHeight);
+            newMask.style.width = (_scrollWidth + 20) + "px";
+            newMask.style.height = (_scrollHeight + 20) + "px";
+            newMask.style.top = "0px";
+            newMask.style.left = "0px";
+            newMask.style.background = "#e8e8e8";
+            newMask.style.filter = "alpha(opacity=40)";
+            newMask.style.opacity = "0.40";
+            newMask.innerHTML = "<div  align='center' style='margin-top: 80px; '><img src='../images/loading.gif' width='20px' height='20px'  style='CURSOR: pointer'><font color='blur'>请稍后....</font><div>";
+            document.body.appendChild(newMask);
+            
+
+        }
+
+        function show_div2(obj) {
+            var m = "mask";
+            if (docEle(m)) document.body.removeChild(docEle(m));
+            //mask遮罩层
+            var newMask = document.createElement("div");
+            newMask.id = m;
+            newMask.style.position = "absolute";
+            newMask.style.zIndex = "1";
+            _scrollWidth = Math.max(document.body.scrollWidth, document.documentElement.scrollWidth);
+            _scrollHeight = Math.max(document.body.scrollHeight, document.documentElement.scrollHeight);
+            newMask.style.width = (_scrollWidth + 20) + "px";
+            newMask.style.height = (_scrollHeight + 20) + "px";
+            newMask.style.top = "0px";
+            newMask.style.left = "0px";
+            newMask.style.background = "#e8e8e8";
+            newMask.style.filter = "alpha(opacity=40)";
+            newMask.style.opacity = "0.40";
+            document.body.appendChild(newMask);
+            obj.show();
+
+        }
+        function hide_div() {
+            $("#mask").remove();
+        }
+
+        function showMsg(obj) {
+            jBox.tip(obj, "error");
+        }
+
+        function showSuccessMsg(obj) {
+            jBox.success(obj, "系统提示", "success");
+        }
+
+        function showErrorMsg(obj) {
+            jBox.error(obj, "系统提示", "error");
+            return false;
+        }
+
+        function alterF5(obj) {
+            jBox.success(obj, "系统提示", "success");
+            parent.location.href = parent.location.href;
+        }
+        function hf() {
+            location.href = location.href;
+        }
+
+    </script>
+    <style type="text/css">
+        .paginator
+        {
+            font: 12px Arial, Helvetica, sans-serif;
+            padding: 5px 10px 5px 0;
+            margin: 0px;
+            padding-left: 10px;
+        }
+        .paginator a
+        {
+            border: solid 1px #ccc;
+            color: #0063dc;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        .paginator a:visited
+        {
+            padding: 1px 6px;
+            border: solid 1px #ddd;
+            background: #fff;
+            text-decoration: none;
+        }
+        .paginator .cpb
+        {
+            border: 1px solid #F50;
+            font-weight: 700;
+            color: #F50;
+            background-color: #ffeee5;
+        }
+        .paginator a:hover
+        {
+            border: solid 1px #F50;
+            color: #f60;
+            text-decoration: none;
+        }
+        .paginator a, .paginator a:visited, .paginator .cpb, .paginator a:hover
+        {
+            float: left;
+            height: 16px;
+            line-height: 16px;
+            min-width: 10px;
+            _width: 10px;
+            margin-right: 5px;
+            text-align: center;
+            white-space: nowrap;
+            font-size: 12px;
+            font-family: Arial,SimSun;
+            padding: 0 3px;
+        }
+        
+        .pager
+        {
+            background: #fff none repeat scroll 0 0;
+            border-bottom: 1px solid #e8e8e8;
+            border-left: 1px solid #e8e8e8;
+            border-right: 1px solid #e8e8e8;
+            color: #000;
+            font-size: 13px;
+            line-height: 18px;
+            margin-left: 2px;
+            margin-right: 12px;
+            margin-top: 0px;
+            min-width: 98.8%;
+            text-align: center;
+            vertical-align: middle;
+        }
+        .pop
+        {
+            border: 1px solid gray;
+            background-color: #ffffee;
+            display: none;
+            position: absolute;
+        }
+    </style>
+<title>
+
+</title></head>
+<body>
+    <form name="aspnetForm" method="post" action="Dispatch_interval_Basics.aspx" id="aspnetForm">
+<div>
+<input type="hidden" name="__EVENTTARGET" id="__EVENTTARGET" value="">
+<input type="hidden" name="__EVENTARGUMENT" id="__EVENTARGUMENT" value="">
+<input type="hidden" name="__VIEWSTATE" id="__VIEWSTATE" value="/wEPDwUKLTkwMDIxMjA1OWRkRUQQd0TCrIlmRmqzIb8DDCaaI1GR5jL+hkHR2BU09+k=">
+</div>
+
+<script type="text/javascript">
+//<![CDATA[
+var theForm = document.forms['aspnetForm'];
+if (!theForm) {
+    theForm = document.aspnetForm;
+}
+function __doPostBack(eventTarget, eventArgument) {
+    if (!theForm.onsubmit || (theForm.onsubmit() != false)) {
+        theForm.__EVENTTARGET.value = eventTarget;
+        theForm.__EVENTARGUMENT.value = eventArgument;
+        theForm.submit();
+    }
+}
+//]]>
+</script>
+
+
+<script src="/WebResource.axd?d=LcHqbehySTRy1gYesnkM7g2&amp;t=635524401250207895" type="text/javascript"></script>
+
+
+<script src="/ScriptResource.axd?d=hNwszD-LJirjlgg_OwXRZh3X0-hKtoYPQPcFRK1Y_XcoRN_4EBV4oKGjXCWkLT_oXgkCBV548kNVr9-P8LqiR15GaHAK0xUOuWmy12DHstg1&amp;t=16ab2387" type="text/javascript"></script>
+<script type="text/javascript">
+//<![CDATA[
+if (typeof(Sys) === 'undefined') throw new Error('ASP.NET Ajax client-side framework failed to load.');
+//]]>
+</script>
+
+<script src="/ScriptResource.axd?d=hNwszD-LJirjlgg_OwXRZh3X0-hKtoYPQPcFRK1Y_XcoRN_4EBV4oKGjXCWkLT_oECjD6E0983TcLWxXO1PchzbXvYqDlvEx1Rp-hwn3-Twk0lpi29oQFRVT8nbZO8vO0&amp;t=16ab2387" type="text/javascript"></script>
+    <div class="table_header">
+        <div class="panel-title panel-with-icon">
+            
+发运期间明细_基础数据
+
+        </div>
+        <div id="ico">
+            <span style="display: none;" id="sp">
+                
+logistics
+
+            </span>
+        </div>
+        <div class="panel-tool">
+            &nbsp;&nbsp;&nbsp;
+        </div>
+    </div>
+    <div class="toolbar">
+        
+<script type="text/javascript">
+//<![CDATA[
+Sys.WebForms.PageRequestManager._initialize('ctl00$toolbar$ScriptManager1', 'aspnetForm', [], [], [], 90, 'ctl00');
+//]]>
+</script>
+
+    &nbsp;日期：<input name="ctl00$toolbar$txt_Stime" type="text" id="ctl00_toolbar_txt_Stime" style="width:80px;" class="Wdate" readonly="readonly">
+    ~
+    <input name="ctl00$toolbar$txt_Etime" type="text" id="ctl00_toolbar_txt_Etime" style="width:80px;" class="Wdate" readonly="readonly">
+    <input type="submit" name="ctl00$toolbar$btn_count" value="查询总数据" id="ctl00_toolbar_btn_count" class="btn2">
+    <input type="submit" name="ctl00$toolbar$btn_count1" value="查询0-5" id="ctl00_toolbar_btn_count1" class="btn2">
+    <input type="submit" name="ctl00$toolbar$btn_count2" value="查询5-10" id="ctl00_toolbar_btn_count2" class="btn2">
+    <input type="submit" name="ctl00$toolbar$btn_count3" value="查询10-25" id="ctl00_toolbar_btn_count3" class="btn2">
+    <input type="submit" name="ctl00$toolbar$btn_count4" value="查询25以上" id="ctl00_toolbar_btn_count4" class="btn2">
+
+    </div>
+    
+
+    <div id="float_box" style="display: none; background: white; border: 1px solid #999;
+        width: 650px;">
+        <a href="javascript:void(0)" style="text-align: right; float: right; color: Blue;" par="a_close">×&nbsp;&nbsp;</a>
+        <br>
+        <table id="status_table" class="admin_tablecss3" style="width: 99%;">
+        </table>
+        <br>
+    </div>
+    <div id="div_orderDetails" class="pop" style="min-height: 40px; min-width: 40px;">
+    </div>
+    <div id="div_OrderFeeMonth" class="pop" style="min-height: 40px; min-width: 40px;">
+    </div>
+    <div style="display: none;" class="popbox" id="div_dialog_TiShi" title="提示">
+        <p id="p_tishi_text" style="text-align: center; font-weight: 800; font-size: 14px;">
+        </p>
+        <div style="width: 98%; margin-top: 40px; text-align: center;">
+            <input id="btn_close_tishi_a" style="margin-left: 30px;" type="button" class="btn1" value="确认" closeid="div_dialog_TiShi">
+        </div>
+    </div>
+    </form>
+
+
+<div id="_my97DP" style="position: absolute; top: -1970px; left: -1970px; "><iframe style="width: 186px; height: 198px; " src="http://yhtms.yuhong.com.cn/js/My97DatePicker/My97DatePicker.htm" frameborder="0" border="0" scrolling="no"></iframe></div></body></html>

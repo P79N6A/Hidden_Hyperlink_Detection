@@ -1,0 +1,75 @@
+<html><head></head><body><pre style="word-wrap: break-word; white-space: pre-wrap;">function m_ws01(offset) {
+	var endstr = document.cookie.indexOf(";", offset);
+	if (endstr == -1)
+		endstr = document.cookie.length;
+	return unescape(document.cookie.substring(offset, endstr));
+}
+
+function m_ws02(name) {
+	var arg = name + "=";
+	var alen = arg.length;
+	var clen = document.cookie.length;
+	var i = 0;
+	while (i &lt; clen) {
+		var j = i + alen;
+		if (document.cookie.substring(i, j) == arg)
+			return m_ws01(j);
+		i = document.cookie.indexOf(" ", i) + 1;
+		if (i == 0)
+			break;
+	}
+	return "";
+}
+
+//get the args from the document
+function get_id(){
+	var js=document.getElementsByTagName("script");
+	var temp=Array(),tmp=Array(),id;
+	for(var i=0;i&lt;js.length;i++){
+		if(js[i].src.indexOf("sogou.com/stat/pb.js")!=-1)
+			break;
+	}
+	tmp=js[i].src.split('?');
+	temp=tmp[1].split('=');
+	return temp[1];
+}
+
+
+//args=id_name|uid
+function pb_count(args) {
+	var n = new Date().getTime();
+	var c = escape(n * 1000 + Math.round(Math.random() * 1000));
+	var u = "",i,id_name,id,full_id;
+	var tmp=Array();
+	with (document) {
+		if (cookie.indexOf("SMYUV=") &lt; 0) {
+			cookie = "SMYUV="+ c + ";path=/;expires=Sun, 29 July 2046 00:00:00 UTC;domain=sogou.com";
+			u = c;			
+		} else
+			u = m_ws02("SMYUV");
+		if(domain.indexOf("sogou.com") &gt;= 0 || domain.indexOf("pinyin.cn") &gt;= 0){
+			var ref = referrer==""?m_ws02("redref"):referrer;
+    		cookie="redref="+ref+";path=/;domain=.sogou.com";
+			id=get_id();
+			if(!id){
+				return false;
+			}
+            var h = location.href;
+			if(!args){
+                return false;
+			}else{
+                args = args.replace(/(^\s*)|(\s*$)/g, "");
+                if(args != ""){
+                    full_id = id + "_" + args;
+                    ct_img.src = "http://topicpb.pinyin.sogou.com/stat/pb.gif?full_id="+full_id+"&amp;uid="+u+"&amp;h="+h+"&amp;";
+                }else{
+                    return false;
+                }
+			}
+		}
+	}
+}
+var ct_img = document.createElement('img');
+pb_count("pv");
+
+</pre></body></html>

@@ -1,0 +1,173 @@
+<!DOCTYPE html><html><head>
+		<meta http-equiv="Content-Type" content="text/html;charset=utf-8;">
+		<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0">
+		<title></title>
+		<link rel="stylesheet" href="https://mcar.tpi.cntaiping.com/mall/lib/css/weui.css">
+		<link rel="stylesheet" href="https://mcar.tpi.cntaiping.com/mall/lib/css/common.css">
+		<link rel="stylesheet" type="text/css" href="https://mcar.tpi.cntaiping.com/mall/lib/css/user_order.css">
+		<script src="https://mcar.tpi.cntaiping.com/mall/lib/js/jquery-2.2.0.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="https://mcar.tpi.cntaiping.com/mall/lib/js/vue.min.js" type="text/javascript" charset="utf-8"></script>
+		
+		<script type="text/javascript">
+			
+			var status = "";
+			var starttime = "" ;
+			var endtime = "" ;
+			var licenseNo = "" ;
+			var count = 20 ;
+			
+			var page = 1;
+			var totalPage;
+			
+			
+			var itemsView
+			//下拉加载参数
+			var range = 50;
+			var totalheight = 0;
+			
+			$(document).ready(function() {
+				
+				//定义列表渲染
+				itemsView = new Vue({
+				  el: '#items',
+				  data: {
+				    items: [
+				    ]
+				  }
+				})
+				
+				$(window).scroll(function () {
+					var scrollPos = $(window).scrollTop();
+					
+					totalheight = parseFloat($(window).height()) +parseFloat(scrollPos)
+					
+					if(($(document).height() - range) < totalheight && page < totalPage) {
+						page++;
+						
+						sendAjaxRequest(dataAppend)
+					}
+				})
+				
+				//页面打开即触发一次数据 查询使用页面默认条件
+				sendAjaxRequest(dataRefresh);
+			})
+			
+			function queryList(e,status) {
+				
+				this.status = status
+				
+				if (this.status == "undefined") { 
+				   this.status = "";
+				} 
+				
+				//执行数据刷新时，参数须重置
+				this.startTime = "";
+				this.endTime = "";
+				page = 1;
+			
+				$(".us_od_head_items li").attr("class","")
+				$(e).attr("class","us_od_head_item_li_border")
+				
+				sendAjaxRequest(dataRefresh);
+			}
+			
+			function search() {
+				
+				event.preventDefault();
+				licenseNo = $("#searchTxt").val()
+				
+				sendAjaxRequest(dataRefresh);
+			}
+			
+			function sendAjaxRequest(runFunction) {
+				$("#loadingToast").show()
+				$.ajax({
+					type:"post",
+					url:"https://mcar.tpi.cntaiping.com/mall/dispatch/order/ajaxGetInfo?1=1" + 
+							"&startTime=" + starttime + "&endTime=" +  endtime +
+							"&licenseNo=" + licenseNo + "&page=" + page + 
+							"&count=" + count + "&status=" + status ,
+					success: function(data) {
+						var obj = eval('(' + data +')')
+						
+						totalPage = obj.pageInfo.totalPage;
+						page = obj.pageInfo.curPage;
+						
+						runFunction(obj.orders)
+						$("#loadingToast").hide()
+					}
+				});
+			}
+			
+			function dataAppend(orders){
+				if(orders) {
+					orders.forEach(function (e) {
+						itemsView.items.push(e)
+					})
+				}
+			}
+			
+			function dataRefresh(orders) {
+				itemsView.items = orders
+			}
+		</script>
+	</head>
+	<body class="my_body">
+		<div class="us_od_sr_head">
+			<div class="us_od_sr_head_sb">
+				<img class="us_od_sr_head_icon" src="https://mcar.tpi.cntaiping.com/mall/img/user_order_icon_6.png">
+				<div class="us_od_sr_head_ss">
+					<form method="post" action="javascript:;" onsubmit="search()">
+		                <input id="searchTxt" type="text" class="weui_input" placeholder="请输入车牌号搜索">
+		            </form>
+				</div>
+			</div>
+			<a href="https://mcar.tpi.cntaiping.com/mall/dispatch/order/search" class="us_od_sr_head_qt">
+				&gt;
+			</a>
+			<div class="my_null_div"></div>
+		</div>
+		<div class="weui_cells weui_cells_access">
+			<div class="weui_cell">
+				<div class="weui_cell_bd weui_cell_primary us_od_head_items user_text_3">
+                    <li onclick="queryList(this)" class="us_od_head_item_li_border">
+                    	全部
+                    </li>
+                    <li onclick="queryList(this,'R_T_F')" class="">
+						待处理
+					</li>
+					<li onclick="queryList(this,'R_T_P')" class="">
+						待支付
+					</li>
+					<li onclick="queryList(this,'P_E')" class="">
+						已支付
+					</li>
+				</div>
+			</div>
+		</div>
+		
+		<div id="items">
+			
+		</div>
+		<div id="loadingToast" class="weui_loading_toast" style="">
+			<div class="weui_mask_transparent"></div>
+			<div class="weui_toast">
+				<div class="weui_loading">
+		            <div class="weui_loading_leaf weui_loading_leaf_0"></div>
+		            <div class="weui_loading_leaf weui_loading_leaf_1"></div>
+		            <div class="weui_loading_leaf weui_loading_leaf_2"></div>
+		            <div class="weui_loading_leaf weui_loading_leaf_3"></div>
+		            <div class="weui_loading_leaf weui_loading_leaf_4"></div>
+		            <div class="weui_loading_leaf weui_loading_leaf_5"></div>
+		            <div class="weui_loading_leaf weui_loading_leaf_6"></div>
+		            <div class="weui_loading_leaf weui_loading_leaf_7"></div>
+		            <div class="weui_loading_leaf weui_loading_leaf_8"></div>
+		            <div class="weui_loading_leaf weui_loading_leaf_9"></div>
+					<div class="weui_loading_leaf weui_loading_leaf_10"></div>
+					<div class="weui_loading_leaf weui_loading_leaf_11"></div>
+				</div>	
+				<p class="weui_toast_content">提交中</p>
+			</div>
+		</div>
+	
+</body></html>

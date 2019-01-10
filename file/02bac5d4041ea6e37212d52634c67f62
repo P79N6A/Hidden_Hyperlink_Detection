@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html>
+ <head> 
+  <meta charset="UTF-8" /> 
+  <meta http-equiv="X-UA-Compatible" content="IE=10,IE=9,IE=8" /> 
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimum-scale=1.0, maximum-scale=1.0" /> 
+  <meta name="description" content="关注互联网最新动态,关注前端开发,前端工程师,前端技术分享" /> 
+  <meta name="keywords" content="web前端开发, 前端开发工程师, 前端资源, CSS, JavaScript, Ajax, jQuery, html,html5,css3,浏览器兼容, 前端开发工具" /> 
+  <title>Javascript继承机制的设计思想 – Ocsen-因上努力，果上随缘</title> 
+  <link rel="shortcut icon" href="http://www.ocsen.wang/img/favicon.ico" type="image/x-icon" /> 
+  <script>
+window._deel = {
+    name: 'Ocsen-因上努力，果上随缘',
+    url: 'http://www.ocsen.wang/wp-content/themes/ocsen',
+    rss: '',
+    ajaxpager: '',
+    maillist: '',
+    maillistCode: '',
+    commenton: 0,
+    roll: [1,2]
+}
+</script> 
+  <link rel="stylesheet" id="style-css" href="http://www.ocsen.wang/wp-content/themes/ocsen/style.css?ver=3.0" type="text/css" media="all" /> 
+  <link rel="prev" title="前端一些面试题" href="http://www.ocsen.wang/2014/08/25/fn-interview/" /> 
+  <link rel="next" title="js中this的用法" href="http://www.ocsen.wang/2014/09/28/js-this/" /> 
+  <link rel="canonical" href="http://www.ocsen.wang/2014/09/28/javascript-prototype/" /> 
+  <link rel="shortlink" href="http://www.ocsen.wang/?p=68" /> 
+  <!--[if lt IE 9]><script src="http://www.ocsen.wang/wp-content/themes/ocsen/js/html5.js"></script><![endif]--> 
+ </head> 
+ <body class="single single-post postid-68 single-format-standard"> 
+  <div class="allWrap-head"> 
+   <header class="header"> 
+    <div class="navbar"> 
+     <div class="logo">
+      <a href="http://www.ocsen.wang" title="Ocsen-因上努力，果上随缘-专注前端开发，关注互联网动态，记录生活点滴">Ocsen-因上努力，果上随缘</a>
+     </div> 
+     <ul class="nav"> 
+      <li id="menu-item-24" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-24"><a href="http://www.ocsen.wang/category/html-css/">Html-Css</a></li> 
+      <li id="menu-item-25" class="menu-item menu-item-type-taxonomy menu-item-object-category current-post-ancestor current-menu-parent current-post-parent menu-item-25"><a href="http://www.ocsen.wang/category/js/">JavaScript</a></li> 
+      <li id="menu-item-28" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-28"><a href="http://www.ocsen.wang/category/web-tool/">Web-Tool</a></li> 
+      <li id="menu-item-26" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-26"><a href="http://www.ocsen.wang/category/life/">Media-Life</a></li> 
+      <li id="menu-item-29" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-29"><a href="http://www.ocsen.wang/about-me/">About Me</a></li> 
+     </ul> 
+     <div class="menu pull-right"> 
+      <form method="get" class="dropdown search-form" action="http://www.ocsen.wang/"> 
+       <input class="search-input" name="s" type="text" placeholder="输入关键字搜索" autofocus="" x-webkit-speech="" />
+       <input class="btn btn-success search-submit" type="submit" value="搜索" /> 
+       <ul class="dropdown-menu search-suggest"></ul> 
+      </form> 
+      <div class="btn-group pull-left"> 
+       <button class="btn btn-primary" data-toggle="modal" data-target="#feed">订阅</button> 
+       <button class="btn btn-primary dropdown-toggle" data-toggle="dropdown">关注 <i class="caret"></i></button> 
+       <ul class="dropdown-menu pull-right"> 
+        <li><a href="http://t.qq.com/wangxiongbing1228" target="_blank">腾讯微博</a></li> 
+        <li><a href="http://weibo.com/ocsen" target="_blank">新浪微博</a></li> 
+        <li><a href="https://www.facebook.com/xiongbing.wang" target="_blank">Facebook</a></li> 
+       </ul> 
+      </div> 
+     </div> 
+    </div> 
+   </header> 
+  </div> 
+  <div class="speedbar"> 
+   <div class="toptip">
+    <strong class="text-success">最新消息：</strong>ocsen.wang域名正式启用了！
+   </div> 
+  </div> 
+  <section class="container"> 
+   <div class="content-wrap"> 
+    <div class="content"> 
+     <div class="breadcrumbs">
+      你的位置：
+      <a href="http://www.ocsen.wang">Ocsen-因上努力，果上随缘</a> 
+      <small>&gt;</small> 
+      <a href="http://www.ocsen.wang/category/js/">JavaScript</a> 
+      <small>&gt;</small> 
+      <span class="muted">Javascript继承机制的设计思想</span>
+     </div> 
+     <header class="article-header"> 
+      <h1 class="article-title"><a href="http://www.ocsen.wang/2014/09/28/javascript-prototype/">Javascript继承机制的设计思想</a></h1> 
+      <div class="meta"> 
+       <span class="muted"><a href="http://www.ocsen.wang/category/js/"><i class="icon-list-alt icon12"></i> JavaScript</a></span> 
+       <span class="muted"><i class="icon-user icon12"></i> <a href="http://www.ocsen.wang/author/ocsen/">ocsen</a></span> 
+       <time class="muted"><i class="ico icon-time icon12"></i> 3年前 (2014-09-28)</time> 
+       <span class="muted"><i class="ico icon-eye-open icon12"></i> 839浏览</span> 
+      </div> 
+     </header> 
+     <article class="article-content"> 
+      <p style="color: #111111;">1.&nbsp;&nbsp;&nbsp;对象冒充（构造函数等方式） 2.call()方法 &nbsp; 3.apply()方法 &nbsp; 4.原型链（prototype）</p> 
+      <p style="color: #111111;"><span style="font-weight: 800;">一、从古代说起</span></p> 
+      <p style="color: #111111;">要理解Javascript的设计思想，必须从它的诞生说起。</p> 
+      <p style="color: #111111;">1994年，网景公司（Netscape）发布了Navigator浏览器0.9版。这是历史上第一个比较成熟的网络浏览器，轰动一时。但是，这个版本的浏览器只能用来浏览，不具备与访问者互动的能力。比如，如果网页上有一栏”用户名”要求填写，浏览器就无法判断访问者是否真的填写了，只有让服务器端判断。如果没有填写，服务器端就返回错误，要求用户重新填写，这太浪费时间和服务器资源了。</p> 
+      <p style="color: #111111;"><img src="http://image.beekka.com/blog/201106/bg2011060502.png" alt="" /></p> 
+      <p style="color: #111111;">因此，网景公司急需一种网页脚本语言，使得浏览器可以与网页互动。工程师<a style="color: #112233;" href="http://brendaneich.com/" target="_blank">Brendan Eich</a>负责开发这种新语言。他觉得，没必要设计得很复杂，这种语言只要能够完成一些简单操作就够了，比如判断用户有没有填写表单。</p> 
+      <p style="color: #111111;"><img src="http://image.beekka.com/blog/201106/bg2011060503.jpg" alt="" /></p> 
+      <p style="color: #111111;">1994年正是面向对象编程（object-oriented programming）最兴盛的时期，C++是当时最流行的语言，而Java语言的1.0版即将于第二年推出，Sun公司正在大肆造势。</p> 
+      <p style="color: #111111;">Brendan Eich无疑受到了影响，Javascript里面所有的数据类型都是对象（object），这一点与Java非常相似。但是，他随即就遇到了一个难题，到底要不要设计”继承”机制呢？</p> 
+      <p style="color: #111111;"><span style="font-weight: 800;">二、Brendan Eich的选择</span></p> 
+      <p style="color: #111111;">如果真的是一种简易的脚本语言，其实不需要有”继承”机制。但是，Javascript里面都是对象，必须有一种机制，将所有对象联系起来。所以，Brendan Eich最后还是设计了”继承”。</p> 
+      <p style="color: #111111;">但是，他不打算引入”类”（class）的概念，因为一旦有了”类”，Javascript就是一种完整的面向对象编程语言了，这好像有点太正式了，而且增加了初学者的入门难度。</p> 
+      <p style="color: #111111;">他考虑到，C++和Java语言都使用new命令，生成实例。</p> 
+      <p style="color: #111111;">C++的写法是：</p> 
+      <blockquote style="color: #111111;">
+       <p>　　ClassName *object = new ClassName(param);</p>
+      </blockquote> 
+      <p style="color: #111111;">Java的写法是：</p> 
+      <blockquote style="color: #111111;">
+       <p>　　Foo foo = new Foo();</p>
+      </blockquote> 
+      <p style="color: #111111;">因此，他就把new命令引入了Javascript，用来从原型对象生成一个实例对象。但是，Javascript没有”类”，怎么来表示原型对象呢？</p> 
+      <p style="color: #111111;">这时，他想到C++和Java使用new命令时，都会调用”类”的构造函数（constructor）。他就做了一个简化的设计，在Javascript语言中，new命令后面跟的不是类，而是构造函数。</p> 
+      <p style="color: #111111;">举例来说，现在有一个叫做DOG的构造函数，表示狗对象的原型。</p> 
+      <blockquote style="color: #111111;">
+       <p>　　function DOG(name){</p> 
+       <p>this.name = name;</p> 
+       <p>}</p>
+      </blockquote> 
+      <p style="color: #111111;">对这个构造函数使用new，就会生成一个狗对象的实例。</p> 
+      <blockquote style="color: #111111;">
+       <p>　　<span style="font-weight: 800;">var dogA = new DOG(‘大毛’);</span></p> 
+       <p>alert(dogA.name); // 大毛</p>
+      </blockquote> 
+      <p style="color: #111111;">注意构造函数中的<a style="color: #112233;" href="http://www.ruanyifeng.com/blog/2010/04/using_this_keyword_in_javascript.html" target="_blank">this关键字</a>，它就代表了新创建的实例对象。</p> 
+      <p style="color: #111111;"><span style="font-weight: 800;">三、new运算符的缺点</span></p> 
+      <p style="color: #111111;">用构造函数生成实例对象，有一个缺点，那就是无法共享属性和方法。</p> 
+      <p style="color: #111111;">比如，在DOG对象的构造函数中，设置一个实例对象的共有属性species。</p> 
+      <blockquote style="color: #111111;">
+       <p>　　function DOG(name){</p> 
+       <p>this.name = name;</p> 
+       <p><span style="font-weight: 800;">this.species = ‘犬科';</span></p> 
+       <p>}</p>
+      </blockquote> 
+      <p style="color: #111111;">然后，生成两个实例对象：</p> 
+      <blockquote style="color: #111111;">
+       <p>　　var dogA = new DOG(‘大毛’);</p> 
+       <p>var dogB = new DOG(‘二毛’);</p>
+      </blockquote> 
+      <p style="color: #111111;">这两个对象的species属性是独立的，修改其中一个，不会影响到另一个。</p> 
+      <blockquote style="color: #111111;">
+       <p>　　<span style="font-weight: 800;">dogA.species = ‘猫科';</span></p> 
+       <p>alert(dogB.species); // 显示”犬科”，不受dogA的影响</p>
+      </blockquote> 
+      <p style="color: #111111;">每一个实例对象，都有自己的属性和方法的副本。这不仅无法做到数据共享，也是极大的资源浪费。</p> 
+      <p style="color: #111111;"><span style="font-weight: 800;">四、prototype属性的引入</span></p> 
+      <p style="color: #111111;">考虑到这一点，Brendan Eich决定为构造函数设置一个prototype属性。</p> 
+      <p style="color: #111111;">这个属性包含一个对象（以下简称”prototype对象”），所有实例对象需要共享的属性和方法，都放在这个对象里面；那些不需要共享的属性和方法，就放在构造函数里面。</p> 
+      <p style="color: #111111;">实例对象一旦创建，将自动引用prototype对象的属性和方法。也就是说，实例对象的属性和方法，分成两种，一种是本地的，另一种是引用的。</p> 
+      <p style="color: #111111;">还是以DOG构造函数为例，现在用prototype属性进行改写：</p> 
+      <blockquote style="color: #111111;">
+       <p>　　function DOG(name){</p> 
+       <p>this.name = name;</p> 
+       <p>}</p> 
+       <p><span style="font-weight: 800;">DOG.prototype = { species : ‘犬科’ };</span><br /> var dogA = new DOG(‘大毛’);</p> 
+       <p>var dogB = new DOG(‘二毛’);<br /> alert(dogA.species); // 犬科</p> 
+       <p>alert(dogB.species); // 犬科</p>
+      </blockquote> 
+      <p style="color: #111111;">现在，species属性放在prototype对象里，是两个实例对象共享的。只要修改了prototype对象，就会同时影响到两个实例对象。</p> 
+      <blockquote style="color: #111111;">
+       <p>　　<span style="font-weight: 800;">DOG.prototype.species = ‘猫科';</span><br /> alert(dogA.species); // 猫科</p> 
+       <p>alert(dogB.species); // 猫科</p>
+      </blockquote> 
+      <p style="color: #111111;"><span style="font-weight: 800;">五、总结</span></p> 
+      <p style="color: #111111;">由于所有的实例对象共享同一个prototype对象，那么从外界看起来，prototype对象就好像是实例对象的原型，而实例对象则好像”继承”了prototype对象一样。</p> 
+      <p style="color: #111111;">转载自：http://www.ruanyifeng.com/blog/2011/06/designing_ideas_of_inheritance_mechanism_in_javascript.html</p> 
+      <p>转载请注明：<a href="http://www.ocsen.wang">Ocsen-因上努力，果上随缘</a> &raquo; <a href="http://www.ocsen.wang/2014/09/28/javascript-prototype/">Javascript继承机制的设计思想</a></p> 
+     </article> 
+     <footer class="article-footer"> 
+      <div class="article-tags">
+       继续浏览有关 
+       <a href="http://www.ocsen.wang/tag/js-%e7%bb%a7%e6%89%bf/" rel="tag">js 继承</a> 的文章
+      </div> 
+     </footer> 
+     <nav class="article-nav"> 
+      <span class="article-nav-prev">上一篇 <a href="http://www.ocsen.wang/2014/08/25/fn-interview/" rel="prev">前端一些面试题</a></span> 
+      <span class="article-nav-next"><a href="http://www.ocsen.wang/2014/09/28/js-this/" rel="next">js中this的用法</a> 下一篇</span> 
+     </nav> 
+     <div class="relates"> 
+      <h3>与本文相关的文章</h3> 
+      <ul> 
+       <li><a href="http://www.ocsen.wang/2016/03/31/reactjs-dangerouslysetinnerhtml/">Reactjs-让React正常显示你的html代码</a></li>
+       <li><a href="http://www.ocsen.wang/2016/03/10/es6-let/">JavaScript ES6解构赋值指南</a></li>
+       <li><a href="http://www.ocsen.wang/2016/02/03/requirejs/">模块化工具-requirejs</a></li>
+       <li><a href="http://www.ocsen.wang/2016/02/01/mockjs/">数据模拟 mockjs</a></li>
+       <li><a href="http://www.ocsen.wang/2016/02/01/sublimetext-jshint/">在Sublime Text 3上集成JSHint检查</a></li>
+       <li><a href="http://www.ocsen.wang/2016/01/05/defineproperty/">JS中的双向数据绑定及Object.defineProperty方法</a></li>
+       <li><a href="http://www.ocsen.wang/2016/01/05/commonjs-amd-cmd/">CommonJS，AMD，CMD</a></li>
+       <li><a href="http://www.ocsen.wang/2015/12/30/safari-no-localstorage/">safari 无痕模式 localStorage 无效</a></li>
+       <li><a href="http://www.ocsen.wang/2015/12/29/js-shuangfou/">JS中的“！！”</a></li>
+       <li><a href="http://www.ocsen.wang/2015/12/14/constructor-prototype/">转-深入分析js中的constructor 和prototype</a></li>
+       <li><a href="http://www.ocsen.wang/2015/12/14/ajax/">ajax 、ajax的交互模型、如何解决跨域问题</a></li>
+       <li><a href="http://www.ocsen.wang/2015/12/14/typeof-str/">判断一个变量是string类型</a></li>
+      </ul> 
+     </div> 
+    </div> 
+   </div> 
+   <aside class="sidebar"> 
+    <div class="widget d_slidebanner">
+     <div class="slider-wrap" style="height:120px;">
+      <ul class="slider-roll">
+       <li class="item"><a href="http://www.ocsen.wang/2015/01/29/upyun/"><img src="http://www.ocsen.wang/wp-content/uploads/2015/01/1896de504d1d1a1d829c038af7937199.png" /></a></li>
+       <li class="item"><a href="http://www.ocsen.wang/2015/01/26/project-ara/"><img src="http://www.ocsen.wang/wp-content/uploads/2015/01/4.png" /></a></li>
+      </ul>
+     </div>
+     <ol class="slider-ctrl">
+      <li>1</li>
+      <li>2</li>
+     </ol>
+     <span class="slider-prev">&lt;</span>
+     <span class="slider-next">&gt;</span>
+    </div>
+    <div class="widget d_postlist">
+     <h3 class="widget_tit">最热文章</h3>
+     <ul class="nopic">
+      <li><a href="http://www.ocsen.wang/2014/10/24/clear-css/"><span class="text">那些年我们一起清除过的浮动</span><span class="muted">2014-10-24</span><span class="muted">8评论</span></a></li> 
+      <li><a href="http://www.ocsen.wang/2014/08/06/github-course/"><span class="text">新手使用github并初步了解git相关的操作</span><span class="muted">2014-08-06</span><span class="muted">6评论</span></a></li> 
+      <li><a href="http://www.ocsen.wang/2014/12/04/validatebox/"><span class="text">Jquery easyui的validatebox控件和正则表达式</span><span class="muted">2014-12-04</span><span class="muted">5评论</span></a></li> 
+      <li><a href="http://www.ocsen.wang/2014/09/28/javascript-prototype/"><span class="text">Javascript继承机制的设计思想</span><span class="muted">2014-09-28</span><span class="muted">5评论</span></a></li> 
+      <li><a href="http://www.ocsen.wang/2014/08/14/zeroclipboard/"><span class="text">Zero Clipboard js+swf实现的复制功能使用方法</span><span class="muted">2014-08-14</span><span class="muted">3评论</span></a></li> 
+      <li><a href="http://www.ocsen.wang/2014/08/14/css-bfc/"><span class="text">CSS定位规则之BFC</span><span class="muted">2014-08-14</span><span class="muted">3评论</span></a></li> 
+      <li><a href="http://www.ocsen.wang/2014/08/24/goagent/"><span class="text">Mac -goagent</span><span class="muted">2014-08-24</span><span class="muted">3评论</span></a></li> 
+      <li><a href="http://www.ocsen.wang/2015/01/08/ar-vr/"><span class="text">增强现实与虚拟现实</span><span class="muted">2015-01-08</span><span class="muted">3评论</span></a></li> 
+     </ul>
+    </div>
+    <div class="widget d_tag">
+     <h3 class="widget_tit">热卖标签</h3>
+     <div class="d_tags">
+      <a href="http://www.ocsen.wang/tag/html5/">html5 (3)</a>
+      <a href="http://www.ocsen.wang/tag/css/">css (2)</a>
+      <a href="http://www.ocsen.wang/tag/grunt/">grunt (2)</a>
+      <a href="http://www.ocsen.wang/tag/css3%e5%8a%a8%e7%94%bb/">CSS3动画 (2)</a>
+      <a href="http://www.ocsen.wang/tag/node/">node (2)</a>
+      <a href="http://www.ocsen.wang/tag/%e6%ad%a3%e5%88%99/">正则 (2)</a>
+      <a href="http://www.ocsen.wang/tag/regexp/">RegExp (2)</a>
+      <a href="http://www.ocsen.wang/tag/amd/">AMD (2)</a>
+      <a href="http://www.ocsen.wang/tag/cmd/">CMD (2)</a>
+      <a href="http://www.ocsen.wang/tag/mobile/">mobile (2)</a>
+      <a href="http://www.ocsen.wang/tag/ajax/">ajax (2)</a>
+      <a href="http://www.ocsen.wang/tag/zeroclipboard/">ZeroClipboard (1)</a>
+      <a href="http://www.ocsen.wang/tag/bfc/">bfc (1)</a>
+      <a href="http://www.ocsen.wang/tag/css-hack/">css hack (1)</a>
+      <a href="http://www.ocsen.wang/tag/localstorage/">localStorage (1)</a>
+      <a href="http://www.ocsen.wang/tag/%e6%9c%ac%e5%9c%b0%e5%ad%98%e5%82%a8/">本地存储 (1)</a>
+      <a href="http://www.ocsen.wang/tag/%e7%bf%bb%e5%a2%99/">翻墙 (1)</a>
+      <a href="http://www.ocsen.wang/tag/js-%e7%bb%a7%e6%89%bf/">js 继承 (1)</a>
+      <a href="http://www.ocsen.wang/tag/this/">this (1)</a>
+      <a href="http://www.ocsen.wang/tag/%e9%97%ad%e5%8c%85/">闭包 (1)</a>
+      <a href="http://www.ocsen.wang/tag/jqueryui/">jqueryui (1)</a>
+      <a href="http://www.ocsen.wang/tag/cdn/">cdn (1)</a>
+      <a href="http://www.ocsen.wang/tag/%e9%9d%99%e6%80%81%e8%b5%84%e6%ba%90/">静态资源 (1)</a>
+      <a href="http://www.ocsen.wang/tag/clear/">clear (1)</a>
+      <a href="http://www.ocsen.wang/tag/%e6%b8%85%e9%99%a4%e6%b5%ae%e5%8a%a8/">清除浮动 (1)</a>
+      <a href="http://www.ocsen.wang/tag/html/">html (1)</a>
+      <a href="http://www.ocsen.wang/tag/android/">android (1)</a>
+      <a href="http://www.ocsen.wang/tag/android5-0/">android5.0 (1)</a>
+      <a href="http://www.ocsen.wang/tag/console-log/">console.log (1)</a>
+      <a href="http://www.ocsen.wang/tag/event/">event (1)</a>
+      <a href="http://www.ocsen.wang/tag/canvas/">canvas (1)</a>
+      <a href="http://www.ocsen.wang/tag/web/">Web (1)</a>
+      <a href="http://www.ocsen.wang/tag/%e5%a4%9a%e7%bb%88%e7%ab%af/">多终端 (1)</a>
+      <a href="http://www.ocsen.wang/tag/manifest/">manifest (1)</a>
+      <a href="http://www.ocsen.wang/tag/workers/">Workers (1)</a>
+      <a href="http://www.ocsen.wang/tag/eventsource/">EventSource (1)</a>
+     </div>
+    </div>
+    <div class="widget widget_categories">
+     <h3 class="widget_tit">分类目录</h3> 
+     <ul> 
+      <li class="cat-item cat-item-4"><a href="http://www.ocsen.wang/category/aliexpress/" title="介绍速卖通相关的知识">Aliexpress</a> (1) </li> 
+      <li class="cat-item cat-item-2"><a href="http://www.ocsen.wang/category/html-css/" title="前端基础知识">Html-Css</a> (33) </li> 
+      <li class="cat-item cat-item-3"><a href="http://www.ocsen.wang/category/js/" title="JavaScript jquery kissy">JavaScript</a> (72) </li> 
+      <li class="cat-item cat-item-6"><a href="http://www.ocsen.wang/category/life/" title="生活记录">Media-Life</a> (24) </li> 
+      <li class="cat-item cat-item-5"><a href="http://www.ocsen.wang/category/site-nav/" title="常用的一些网站导航">Site-Nav</a> (1) </li> 
+      <li class="cat-item cat-item-1"><a href="http://www.ocsen.wang/category/web-tool/" title="收集网络工具">Web-Tool</a> (12) </li> 
+     </ul> 
+    </div>
+    <div class="widget widget_calendar">
+     <div id="calendar_wrap">
+      <table id="wp-calendar"> 
+       <caption>
+        2014年九月
+       </caption> 
+       <thead> 
+        <tr> 
+         <th scope="col" title="星期一">一</th> 
+         <th scope="col" title="星期二">二</th> 
+         <th scope="col" title="星期三">三</th> 
+         <th scope="col" title="星期四">四</th> 
+         <th scope="col" title="星期五">五</th> 
+         <th scope="col" title="星期六">六</th> 
+         <th scope="col" title="星期日">日</th> 
+        </tr> 
+       </thead> 
+       <tfoot> 
+        <tr> 
+         <td colspan="3" id="prev"><a href="http://www.ocsen.wang/2014/08/">&laquo; 八</a></td> 
+         <td class="pad">&nbsp;</td> 
+         <td colspan="3" id="next"><a href="http://www.ocsen.wang/2014/10/">十 &raquo;</a></td> 
+        </tr> 
+       </tfoot> 
+       <tbody> 
+        <tr>
+         <td>1</td>
+         <td>2</td>
+         <td>3</td>
+         <td>4</td>
+         <td>5</td>
+         <td>6</td>
+         <td>7</td> 
+        </tr> 
+        <tr> 
+         <td>8</td>
+         <td>9</td>
+         <td>10</td>
+         <td>11</td>
+         <td>12</td>
+         <td>13</td>
+         <td>14</td> 
+        </tr> 
+        <tr> 
+         <td>15</td>
+         <td>16</td>
+         <td>17</td>
+         <td>18</td>
+         <td>19</td>
+         <td>20</td>
+         <td>21</td> 
+        </tr> 
+        <tr> 
+         <td>22</td>
+         <td>23</td>
+         <td>24</td>
+         <td>25</td>
+         <td>26</td>
+         <td>27</td>
+         <td><a href="http://www.ocsen.wang/2014/09/28/" title="Javascript继承机制的设计思想, js中this的用法">28</a></td> 
+        </tr> 
+        <tr> 
+         <td><a href="http://www.ocsen.wang/2014/09/29/" title="CSS 单行溢出文本显示省略号…的方法, js 闭包">29</a></td>
+         <td>30</td> 
+         <td class="pad" colspan="5">&nbsp;</td> 
+        </tr> 
+       </tbody> 
+      </table>
+     </div>
+    </div> 
+    <div class="widget widget_recent_entries"> 
+     <h3 class="widget_tit">近期文章</h3> 
+     <ul> 
+      <li> <a href="http://www.ocsen.wang/2016/03/31/reactjs-dangerouslysetinnerhtml/">Reactjs-让React正常显示你的html代码</a> </li> 
+      <li> <a href="http://www.ocsen.wang/2016/03/10/es6-let/">JavaScript ES6解构赋值指南</a> </li> 
+      <li> <a href="http://www.ocsen.wang/2016/03/04/anniu/">按钮</a> </li> 
+      <li> <a href="http://www.ocsen.wang/2016/02/20/jquery-ui-sortable/">jquery ui 拖动排序 sortable</a> </li> 
+      <li> <a href="http://www.ocsen.wang/2016/02/03/requirejs/">模块化工具-requirejs</a> </li> 
+     </ul> 
+    </div>
+    <div class="widget widget_text"> 
+     <div class="textwidget"></div> 
+    </div>
+   </aside>
+  </section> 
+  <div class="allWrap-foot"> 
+   <div class="ruleIcon">
+    111
+   </div> 
+   <footer class="footer"> 
+    <div class="footer-inner"> 
+     <div class="copyright pull-left"> 
+      <h3>友情链接：</h3> 
+      <a href="http://wangxiongbing.cn/" target="_blank">Ocsen</a> 
+      <a href="http://www.nbkyzl.com/" target="_blank">考研资料</a> 
+      <a href="http://div.io/digg" target="_blank">Div.Io</a> 
+      <a href="http://www.bootcss.com/" target="_blank">Bootstrap中文网</a> 
+      <a href="http://ued.taobao.com/blog/" target="_blank">淘宝UED</a> 
+      <a href="http://sentsin.com/" target="_blank">贤心博客</a> 
+      <a href="http://cdc.tencent.com/" target="_blank">腾讯CDC</a> 
+      <a href="http://www.qianduan.net/" target="_blank">前端观察</a> 
+      <a href="http://www.zhangxinxu.com/wordpress/" target="_blank">鑫空间</a> 
+      <a href="http://wtser.com/" target="_blank">铁匠铺</a> 
+     </div> 
+     <div class="trackcode pull-right text-right"> 
+      <a href="https://www.upyun.com/" class="pill-right"><img src="http://www.ocsen.wang/wp-content/uploads/2015/09/upyun.jpg" alt="UPYUN" width="78" /> </a> 
+      <br /> &copy; copyright 2015 
+      <a href="http://www.wangxiongbing.cn">2017</a>
+      <a href="http://www.ocsen.wang">Ocsen-因上努力，果上随缘</a> &nbsp;&nbsp;
+      <a href="http://www.miitbeian.gov.cn/" target="_blank">浙ICP备14016192-1号</a> 
+      <script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_1254123313'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s4.cnzz.com/stat.php%3Fid%3D1254123313%26show%3Dpic' type='text/javascript'%3E%3C/script%3E"));</script> 
+     </div> 
+    </div> 
+   </footer> 
+  </div> 
+  <script type="text/javascript" src="http://www.ocsen.wang/wp-content/themes/ocsen/js/jquery.js?ver=3.0"></script>  
+ </body>
+</html>

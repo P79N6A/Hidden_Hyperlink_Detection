@@ -1,0 +1,128 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script type="text/javascript">
+(function(FUN, undefined){
+	var list = []; 
+	
+	FUN.run = function(){
+		if(arguments.length < 1){
+			throw new Error("jzUtils.run 参数错误");
+			return;
+		}
+		
+		var name = arguments[0].name, 
+			callMethod = arguments[0].callMethod || false, 
+			prompt = arguments[0].prompt || false, 
+			promptMsg = arguments[0].promptMsg || "功能还在加载中，请稍候", 
+			base = arguments[0].base || (window.Fai && Fai.top.Site) || top.Site || window, 
+			
+			args = Array.prototype.slice.call(arguments), 
+			funcArgs = args.slice(1), 
+			callbackFunc = {}, 
+			result; 
+
+		result = checkMethod(name, base);
+		if(result.success){
+			callMethod = false;
+			try{
+				result.func.apply(result.func, funcArgs); 
+			}catch(e){
+				console && console.log && console.log("错误:name="+ e.name +"; message="+ e.message);
+			}
+		}else{
+			if(prompt){
+				window.Fai && Fai.ing(promptMsg, true);
+			}
+		}
+		
+		
+		if(callMethod){
+			callbackFunc.name = name;
+			callbackFunc.base = base;
+			callbackFunc.args = funcArgs;
+			list.push(callbackFunc);
+		}
+	};
+	
+	
+	FUN.trigger = function(option){
+		if(typeof option !== "object"){
+			throw new Error("jzUtils.trigger 参数错误");
+			return;
+		}
+		
+		var funcName = option.name || "", 
+			base = option.base || (window.Fai && Fai.top.Site) || top.Site || window, 
+			newList = [], 
+			result, 
+			func, 
+			i, 
+			param; 
+		
+		if(funcName.length < 1){
+			return;
+		}
+		
+		
+		for(i = 0; i < list.length; i++){
+			param = list[i];
+			if(param.name == funcName){
+				result = checkMethod(funcName, base);
+				if( result.success ){
+					try{
+						result.func.apply(result.func, param.args);
+					}catch(e){
+						console && console.log && console.log("错误:name="+ e.name +"; message="+ e.message);
+					}
+				}
+			}else{
+				newList.push(param);
+			}
+		}
+		
+		list = newList;
+	};
+	
+	
+	function checkMethod(funcName, base){
+		var methodList = funcName.split("."), 
+			readyFunc = base, 
+			result = {
+				"success":true,
+				"func":function(){}
+			}, 
+			methodName, 
+			i;
+			
+		for(i = 0; i < methodList.length; i++){
+			methodName = methodList[i];
+			if(methodName in readyFunc){
+				readyFunc = readyFunc[methodName];
+			}else{
+				result.success = false;
+				return result;
+			}
+		}
+		
+		result.func = readyFunc;
+		return result; 
+	}
+})(window.jzUtils || (window.jzUtils = {}));
+</script>
+
+<!DOCTYPE HTML><html><head><meta charset='utf-8'><meta http-equiv='X-UA-Compatible' content='IE=edge' /><meta name='keywords' content='-'/><meta name='description' content='-'/><title>墨洋信息科技有限公司_墨洋科技</title><style type='text/css' media='screen,print'>body{ background:#F9F9F9;margin: 0px;font-family:'微软雅黑','宋体'; font-size:12px;}.box{width: 100%;margin: 0 auto;height: auto}.box .titleContent { width: 100%;border-bottom-color: #e3e3e3;line-height:50px; background-color: #FFF;border-bottom-style: solid;border-bottom-width: 1px;}.box .titleContent .title{width:300px;height:50px;margin-left:15%;padding-top:20px; padding:2px;  font-family:'微软雅黑'; font-size:20px;color: #4266b2;}.box .content{width:700px;height:auto;margin:0 auto; border-top-color: #fff;background-color: #f9f9f9;border-top-style: solid;border-top-width: 1px; }.box .content .errorImg{width:230px;height:150px; margin:30px auto 0px; background: url("http://jz.faisys.com/image/error/err_img_bg.png") no-repeat 0px -30px;}.content .msg{ width: 670px;height: 120px; padding:10px; background-color:  #F0F5FE ;border: 1px solid #CDDCF4;}.msg .img{width: 50px;height: 50px; margin-left:20px;margin-top:30px;  background: url("http://jz.faisys.com/image/error/err_img_bg.png") no-repeat 0px -190px;height:35px;display:inline;float: left;}.msg .info {width: 500px;padding-left:5px;padding-top:30px; vertical-align:middle; text-align:left;display: inline;float: left;font-family:'Arial','宋体'; font-size:14px;color: #333333}.msg .info a{color:#0000FF;}.content .errorButton{width:300px;height:30px; margin-top: 20px;}.errorButton .refresh{width: 140px; border:1px solid #BBB;height:28px;background:url("http://jz.faisys.com/image/error/err_img_bg.png") repeat 0px 0px; display: inline;float: left;cursor:pointer; }.refresh .refreshImg{background: url("http://jz.faisys.com/image/error/err_img_bg.png") no-repeat 0px -230px; margin-top:8px; height:15px;padding-left:17px;;margin-left:10px; display: inline;float: left;}.refresh .refreshTxt{margin-left:6px; display: inline;float: left;margin-top: 6px;}.errorButton .back{width: 100px; border:1px solid #BBB;height:28px;background:url("http://jz.faisys.com/image/error/err_img_bg.png") repeat 0px 0px; display: inline;float: left;cursor:pointer; }.back .backImg{ background:  url("http://jz.faisys.com/image/error/err_img_bg.png") no-repeat 0px -250px;height:15px;padding-left:17px;margin-left:10px; margin-top:8px; display: inline;float: left;}.back .backTxt{ color: #333;display: inline;float: left;margin-top: 6px;margin-left:6px;}.errorButton a{text-decoration:none; color:#000; }.errorButton .backIndex{display:inline;float: left;margin-left: 20px;}</style></head><body><div class='box'><div class='titleContent'><div class='title'>系统提示</div></div><div class='content'><div class='errorImg'></div><div class='msg'><div class='img'> </div><div class='info'>您好,网站数据迁移暂时无法访问,给您带来的不便敬请谅解,感谢您对我们的支持。</div> </div> <div class='errorButton' id='errorBtn'></div></div></div></div></body></html>

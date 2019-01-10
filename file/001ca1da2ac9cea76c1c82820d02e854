@@ -1,0 +1,299 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv=Content-Type content="text/html;charset=utf-8">
+<title>会员登录-利得金融</title>
+<meta name="keywords" content="利得金融">
+<meta name="description" content="利得金融">
+<meta http-equiv="X-UA-Compatible" content="chrome=1"/>
+<link rel="shortcut icon" href="/images/favicon.ico" /> 
+<link rel="stylesheet" type="text/css" href="../css/public/reset.css">
+<link rel="stylesheet" type="text/css" href="../css/module.css">
+<link rel="stylesheet" type="text/css" href="../css/public/accountNav.css">
+<link rel="stylesheet" type="text/css" href="../../css/font-awesome.min.css" />
+<link rel="stylesheet" type="text/css" href="../../css/accountCenter.css" />
+<link rel="stylesheet" type="text/css" href="../css/login.css">
+<script src="../js2_2/public/jquery1.8.2.js"></script>
+<script type="text/javascript">
+	$(".shandowBig").css('opacity', 0.5);
+
+		$(".agree #promise").click(function(event) {
+			
+	    	$('.shandowBig,.square').css('display','block');
+
+		});
+		$('.closeBtn').click(function(event) {
+
+	      	$('.shandowBig,.square').css('display','none');
+
+	    });
+	    $('.shandowI .agreeCount').click(function(event) {
+
+	      	$('.shandowBig,.square').css('display','none');
+
+	    });
+	var codeBtnUsable=true;
+	$(function() {
+		
+		$('#codeBtn').click(function (){
+			if(codeBtnUsable){
+				var phone = $('#phoneNum').val();
+				$('.activateUl li .cont .phoneNumber').attr("disabled","disabled");
+				_getSmsCode(phone);
+			}
+		});
+
+		$('.activateUl li .cont .short').keyup(function(){
+			var reg = new RegExp(/^\d{6}$/);
+			var _smsCode = $('.activateUl li .cont .short').val();
+			if(reg.test(_smsCode)) {
+				_verifyCode(_smsCode);
+			}
+		});
+		
+	});
+	
+	function smsCode_check(txt){
+		var reg = new RegExp(/^\d{6}$/);
+	    if(($(this).val()==""||$(this).val()==txt)&&$(".activateUl li .cont .trueBtn").is(":visible")){
+	    	$(".activate .errorMes").text("请输入验证码");
+	     }else if(!reg.test($(this).val())&&$(".activateUl li .cont .trueBtn").is(":visible")) {
+			$(".activate .errorMes").text("短信验证码输入不正确");
+		}else{
+			//_verifyCode(_smsCode);
+		}
+	}
+	
+   //获取手机验证码
+   function _getSmsCode(phone) {
+	   if(!$(".activateUl li .cont .trueBtn").is(":visible")){
+		   //$(".activate .errorMes").html("只有未激活的CRM老客户才需要使用会员激活");
+		   return;
+	   }
+	   $(".activate .membersed").show();
+  	   var tempdomain = window.location.host;
+  	   var encryptPhone = LeadBase.encrypts(phone);
+	   $.ajax({
+			url: 'http://'+tempdomain+'/pews-gw/member/sendSmsCode?smsType=10006&encryptPhone=' + encryptPhone,
+			type: 'POST',
+			dataType: 'json',
+			timeout: 1000,
+			cache: false,
+			success: function(data) {
+				var code = data.code;
+ 				var obj = $('#codeBtn');
+				if(code == 0) {
+					$('#codeBtn').text("验证码发送成功");
+					codeBtnUsable=false;
+					$('#codeBtn').css("background-color","#666666");
+					_setClock(obj);
+				}else {
+					$(".activate .errorMes").text("验证码发送失败，请联系管理员");
+				}
+			}
+		});   
+   	};
+   	
+    //校验验证码
+    function _verifyCode(smsCode) {
+   	   var tempdomain = window.location.host;
+ 	   $.ajax({
+ 			url: 'http://'+tempdomain+'/pews-gw/member/verifySmsCode?smsType=10006&smsCode=' + smsCode,
+ 			type: 'POST',
+ 			dataType: 'json',
+ 			timeout: 1000,
+ 			cache: false,
+ 			success: function(data) {
+ 				var code = data.code;
+ 				if(code == 0) {
+ 					$(".activate .errorMes").text("");
+ 					//$('#codeBtn').hide();
+ 					$('.activateUl li .cont .trueBtnSms').show();
+ 					clearTimeout(t);
+ 					codeBtnUsable=false;
+ 		    		$('#codeBtn').text("获取验证码 ");
+ 					$('#codeBtn').css("background-color","#666666");
+ 					$('.activateUl li .cont .short').attr("disabled","disabled");
+ 				}else if(code == 4){
+ 	           		$(".activate .errorMes").html('您已是我们尊贵的会员，<a onClick="changeDiv(1)" style="color:#c89b55;text-decoration:underline;cursor:pointer;">立即登录</a>');
+ 	          		phoneACheck = false;
+ 					$(".activateUl li .cont .trueBtn").hide();
+ 					var phoneNum = $('#phoneNum').val();
+ 	          		$("#phone").val(phoneNum);
+ 					clearTimeout(t);
+ 					codeBtnUsable=false;
+ 		    		$('#codeBtn').text("获取验证码 ");
+ 					$('#codeBtn').css("background-color","#666666");
+ 				}else if(code == 3){
+ 					$(".activate .errorMes").html("手机号码还未注册，<a href='regist.html' target='_self' style='color:#c89b55;text-decoration:underline;cursor:pointer;'>立即注册</a>");
+ 	          		phoneACheck = false;
+ 					$(".activateUl li .cont .trueBtn").hide();
+ 					clearTimeout(t);
+ 					codeBtnUsable=false;
+ 		    		$('#codeBtn').text("获取验证码 ");
+ 					$('#codeBtn').css("background-color","#666666");
+ 				}else {
+ 					$(".activate .errorMes").text("短信验证码输入不正确");
+ 					//codeBtnUsable=false;
+ 				}
+ 			}
+ 		});   
+    };
+    
+    var t ;
+    
+    var _clockTime = 60;
+    
+    function _setClock(obj){
+    	
+    	if(_clockTime == 0) {
+    		codeBtnUsable=true;
+			$('#codeBtn').css("background-color","#c89b55");
+    		$('#codeBtn').text("获取验证码");
+    		_clockTime = 60; 
+            return;
+    	}else {
+    		codeBtnUsable=false;
+			$('#codeBtn').css("background-color","#666666");
+    		$('#codeBtn').text(_clockTime + " 秒后重试 ");
+    		_clockTime--; 
+    	}
+    	
+    	t = setTimeout(function() { _setClock(obj) },1000);
+    }
+</script>
+</head>
+<body ms-controller="body" class="ms-controller">
+<div ms-include-src="'accountNavS.html'"></div>
+<div class="shandowBig"></div>          
+<div class="square">
+    <div class="closeBtn">
+    </div>
+    <div class="shandowI">
+    	<!-- <input type="checkbox" class="shandowInput" checked="checked" />
+		<p class="agreeInput">记住选择，不再提醒<i id="agreePromise" class="invest"></i></p> -->
+		<a class="agreeCount">同意并继续</a>
+    </div>
+</div>
+<!--b:logo-->
+<div class="logo">
+
+	<div class="logoCont pr">
+		<p class="pa">利得基金交易平台</p>
+	</div>
+
+</div>
+<!--e:logo-->
+
+<!--b:login-->
+<div class="login">
+
+	<div class="loginCont cf" ms-controller="loginCont">
+
+		<div class="loginMain fr pr">
+
+			<div class="hd pa">
+				<span class="sp1 fl on" ms-click="switchDiv(1)">会员登录</span>				
+				<span class="sp3 fr" ms-click="switchDiv(2)">会员激活</span>
+				<!--<span class="sp2 fr">WELCOME BACK</span>-->
+			</div>
+
+			<!--b:激活-->
+			<div class="activate pa">
+				<p class="errorMes"></p>
+				<ul class="activateUl cf">
+					<li class="cf">						
+						<div class="cont fl pr">
+							<input type="text" id="phoneNum" class="long phoneNumber" value="请输入您的手机号" maxlength="11" ms-focus="inputFocus('请输入您的手机号')" ms-blur="phoneA_check('请输入您的手机号')" ms-keyup="phoneA_keyup('请输入您的手机号')" ms-duplex="phoneA">
+							<span class="trueBtn pa"></span>						
+						</div>
+					</li>
+					<li class="cf">						
+						<div class="cont fl pr">
+							<span class="trueBtnSms pa"></span>
+							<div class="cf">
+								<input type="text" class="short fl verifNumber" value="请输入短信验证码" maxlength="6" ms-focus="inputFocus('请输入短信验证码')" ms-blur="smsCode_check('请输入短信验证码')" ms-duplex="smsCode">
+								
+								<p class="verif fl" id="codeBtn">获取验证码</p>
+							</div>							
+						</div>
+					</li>
+					<p class="membersed" style="display:none;">收不到动态码，请致电<span style="color:#c89b55;">400-921-7733</span></p>
+					<li class="cf">						
+						<div class="cont fl">
+							<input type="text" class="long passNumber" value="请输入6-20位数字字母组合" ms-focus="inputFocusPsw('请输入6-20位数字字母组合')" ms-blur="inputBlur('请输入6-20位数字字母组合')">
+							<input type="password" id="password1" class="long passNumber" value="请输入6-20位数字字母组合" maxlength="20" ms-focus="inputFocus('请输入6-20位数字字母组合')" ms-blur="password1_check('请输入6-20位数字字母组合')" ms-duplex="password1" style="display:none">							
+						</div>
+					</li>
+					<li class="cf">						
+						<div class="cont fl">
+							<input type="text" class="long passNumber" value="请再次输入登录密码" ms-focus="inputFocusPsw('请再次输入登录密码')" ms-blur="inputBlur('请再次输入登录密码')">
+							<input type="password" class="long passNumber" value="请再次输入登录密码" maxlength="20" ms-focus="inputFocus('请再次输入登录密码')" ms-blur="password2_check('请再次输入登录密码')" ms-duplex="password2" style="display:none">						
+						</div>
+					</li>
+					<li style="margin-bottom:5px;width: 238px;">
+						<input type="checkbox" class="agreeInput" checked="checked"/><label for="agree" class="agree">我已阅读并同意<a href="agreement.html" target="_blank" style="color:#c89b55;">《利得财富注册协议》</a><p style="color:#c89b55; line-height:22px;" id="promise">《合格投资者承诺函》</p></label>
+					</li>
+				</ul>
+				<a class="activateBtn" ms-click="activate()">激活并登录</a>
+
+			</div>
+			<!--e:激活-->
+
+			<div class="bd pa">
+
+				<p class="errorMes" id="errorMes"></p>
+
+				<div class="phone">
+					
+					<input type="text" id="phone" value="请输入您的手机号" maxlength="11" ms-focus="inputFocus('请输入您的手机号')" ms-blur="phone_check('请输入您的手机号')" ms-duplex="phone">
+
+				</div>
+				<div class="password">
+					<input type="text" id="passwordView" value="请输入登录密码" ms-focus="inputFocusPsw('请输入登录密码')" ms-blur="inputBlur('请输入登录密码')">
+					<input type="password" id="password" value="请输入登录密码" maxlength="20" ms-focus="inputFocus('请输入登录密码')" ms-blur="password_check('请输入登录密码')" ms-duplex="password" style="display:none">
+				</div>
+				<div class="verification cf">
+
+					<input type="text" class="fl" value="请输入右侧验证码" maxlength="5" ms-focus="inputFocus('请输入右侧验证码')" ms-blur="imgCode_check('请输入右侧验证码')" ms-duplex="verificationImg">
+					<a ms-click="imgCodeAgain()"><img src="../images/loginImg_05.jpg" width="86" height="40" class="fr" id="verifyCodeImage" /></a>
+
+				</div>
+			
+				<a class="btn" ms-click="login()">登录</a>
+				<p class="noAccount">没有账号?</p>
+				<p class="link"><a href="regist.html" target="_self" class="a1">立即注册</a>  |  <a href="findPsw.html" target="_self" class="a2">忘记密码</a></p>
+
+			</div>
+
+			<div class="ft pa">
+
+				<p class="exit"><a href="#" target="_self"  onclick="loginOut()">退出>></a></p>
+				<p class="tit">您好,xxx<br>您的账户已登录,您可以进入账户：</p>
+				<!--
+				<p class="txt"><span></span><a href="optional.html" target="_self">自选基金</a></p>
+				-->
+				<p class="txt"><span></span><a href="javascript:void(0);" target="_self">申请专属理财师或看理财师履历</a></p>
+				<a class="btn" href="javascript:void(0);" data-url1="/html/my-account-index/my-chicang.html" data-url2="/html/my-account-index/Identity-authentication.html" target="_self">进入我的账户</a>
+
+			</div>
+
+			
+			<div class="transparent pa"></div>
+
+		</div>
+
+	</div>
+
+</div>
+	<div ms-include-src="'publicBot.html'"></div>
+<!--e:login-->
+  <script type="text/javascript" src="../js2_2/public/require.js"></script>
+  <script type="text/javascript" src="../js2_2/jquery-1.11.2.min.js"></script>
+  <script type="text/javascript" src="../js2_2/public/main.js"></script>
+  <script src="../js2_2/public/main.js"></script>
+  <script src="../js2_2/account/login.js"></script>
+  <script src="../js2_2/leadbase-encrypts.js"></script>
+
+</body>
+</html>

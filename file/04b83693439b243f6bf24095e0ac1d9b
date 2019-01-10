@@ -1,0 +1,1125 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+ <head> 
+  <meta charset="UTF-8" /> 
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" /> 
+  <title>OpenWRT固件编译 | WRTnode Blog</title> 
+  <link rel="profile" href="http://gmpg.org/xfn/11" /> 
+  <link rel="pingback" href="http://www.wrtnode.cc/blog/xmlrpc.php" /> 
+  <link rel="alternate" type="application/rss+xml" title="WRTnode Blog &raquo; Feed" href="http://www.wrtnode.cc/blog/?feed=rss2" /> 
+  <link rel="alternate" type="application/rss+xml" title="WRTnode Blog &raquo; 评论Feed" href="http://www.wrtnode.cc/blog/?feed=comments-rss2" /> 
+  <link rel="alternate" type="application/rss+xml" title="WRTnode Blog &raquo; OpenWRT固件编译评论Feed" href="http://www.wrtnode.cc/blog/?feed=rss2&amp;p=172" /> 
+  <link rel="stylesheet" id="theme-my-login-css" href="http://www.wrtnode.cc/blog/wp-content/plugins/theme-my-login/theme-my-login.css?ver=6.3.8" type="text/css" media="all" /> 
+  <link rel="stylesheet" id="generate-fonts-css" href="//fonts.googleapis.com/css?family=Open+Sans:300,300italic,regular,italic,600,600italic,700,700italic,800,800italic" type="text/css" media="all" /> 
+  <link rel="stylesheet" id="bbp-default-bbpress-css" href="http://www.wrtnode.cc/blog/wp-content/plugins/bbpress/templates/default/css/bbpress.css?ver=2.4.1" type="text/css" media="screen" /> 
+  <link rel="stylesheet" id="botdetect-captcha-style-css" href="http://www.wrtnode.cc/blog/wp-content/plugins/botdetect-wp-captcha/lib/botdetect/public/lbd_layout.css?ver=3.9.9" type="text/css" media="all" /> 
+  <link rel="stylesheet" id="generate-style-grid-css" href="http://www.wrtnode.cc/blog/wp-content/themes/generatepress/css/unsemantic-grid.min.css?ver=1.3.08" type="text/css" media="all" /> 
+  <link rel="stylesheet" id="generate-style-css" href="http://www.wrtnode.cc/blog/wp-content/themes/generatepress/style.css?ver=1.3.08" type="text/css" media="all" /> 
+  <style type="text/css">
+body {background-color: #efefef; color: #3a3a3a; }a, a:visited {color: #1e73be; text-decoration: none; }a:hover, a:focus, a:active {color: #000000; }body .grid-container {max-width: 1100px; }
+body, button, input, select, textarea {font-family: "Open Sans", sans-serif; font-weight: normal; text-transform: none; font-size: 17px; }.main-title {font-family: inherit; font-weight: bold; text-transform: none; font-size: 45px; }.site-description {font-family: inherit; font-weight: normal; text-transform: none; font-size: 15px; }.main-navigation a, .menu-toggle {font-family: inherit; font-weight: normal; text-transform: none; font-size: 15px; }.main-navigation .main-nav ul ul li a {font-size: 14px; }.widget-title {font-family: inherit; font-weight: normal; text-transform: none; font-size: 20px; }.sidebar .widget, .footer-widgets .widget {font-size: 17px; }h1 {font-family: inherit; font-weight: 300; text-transform: none; font-size: 40px; }h2 {font-family: inherit; font-weight: 300; text-transform: none; font-size: 30px; }h3 {font-family: inherit; font-weight: normal; text-transform: none; font-size: 20px; }
+.site-header {background-color: #FFFFFF; color: #3a3a3a; }.site-header a,.site-header a:visited {color: #3a3a3a; }.main-title a,.main-title a:hover,.main-title a:visited {color: #222222; }.site-description {color: #999999; }.main-navigation,  .main-navigation ul ul {background-color: #222222; }.navigation-search input[type="search"],.navigation-search input[type="search"]:active {color: #3f3f3f; background-color: #3f3f3f; }.navigation-search input[type="search"]:focus {color: #FFFFFF; background-color: #3f3f3f; }.main-navigation ul ul {background-color: #3f3f3f; }.main-navigation .main-nav ul li a,.menu-toggle {color: #FFFFFF; }.main-navigation .main-nav ul ul li a {color: #FFFFFF; }.main-navigation .main-nav ul li > a:hover, .main-navigation .main-nav ul li.sfHover > a {color: #FFFFFF; background-color: #3f3f3f; }.main-navigation .main-nav ul ul li > a:hover, .main-navigation .main-nav ul ul li.sfHover > a {color: #FFFFFF; background-color: #4f4f4f; }.main-navigation .main-nav ul .current-menu-item > a, .main-navigation .main-nav ul .current-menu-parent > a, .main-navigation .main-nav ul .current-menu-ancestor > a, .main-navigation .main-nav ul .current_page_item > a, .main-navigation .main-nav ul .current_page_parent > a, .main-navigation .main-nav ul .current_page_ancestor > a {color: #FFFFFF; background-color: #3f3f3f; }.main-navigation .main-nav ul .current-menu-item > a:hover, .main-navigation .main-nav ul .current-menu-parent > a:hover, .main-navigation .main-nav ul .current-menu-ancestor > a:hover, .main-navigation .main-nav ul .current_page_item > a:hover, .main-navigation .main-nav ul .current_page_parent > a:hover, .main-navigation .main-nav ul .current_page_ancestor > a:hover, .main-navigation .main-nav ul .current-menu-item.sfHover > a, .main-navigation .main-nav ul .current-menu-parent.sfHover > a, .main-navigation .main-nav ul .current-menu-ancestor.sfHover > a, .main-navigation .main-nav ul .current_page_item.sfHover > a, .main-navigation .main-nav ul .current_page_parent.sfHover > a, .main-navigation .main-nav ul .current_page_ancestor.sfHover > a {color: #FFFFFF; background-color: #3f3f3f; }.main-navigation .main-nav ul ul .current-menu-item > a, .main-navigation .main-nav ul ul .current-menu-parent > a, .main-navigation .main-nav ul ul .current-menu-ancestor > a, .main-navigation .main-nav ul ul .current_page_item > a, .main-navigation .main-nav ul ul .current_page_parent > a, .main-navigation .main-nav ul ul .current_page_ancestor > a {color: #FFFFFF; background-color: #4f4f4f; }.main-navigation .main-nav ul ul .current-menu-item > a:hover, .main-navigation .main-nav ul ul .current-menu-parent > a:hover, .main-navigation .main-nav ul ul .current-menu-ancestor > a:hover, .main-navigation .main-nav ul ul .current_page_item > a:hover, .main-navigation .main-nav ul ul .current_page_parent > a:hover, .main-navigation .main-nav ul ul .current_page_ancestor > a:hover,.main-navigation .main-nav ul ul .current-menu-item.sfHover > a, .main-navigation .main-nav ul ul .current-menu-parent.sfHover > a, .main-navigation .main-nav ul ul .current-menu-ancestor.sfHover > a, .main-navigation .main-nav ul ul .current_page_item.sfHover > a, .main-navigation .main-nav ul ul .current_page_parent.sfHover > a, .main-navigation .main-nav ul ul .current_page_ancestor.sfHover > a {color: #FFFFFF; background-color: #4f4f4f; }.inside-article, .comments-area, .page-header,.one-container .container,.paging-navigation,.inside-page-header {background-color: #FFFFFF; }.entry-meta {color: #888888; }.entry-meta a, .entry-meta a:visited {color: #666666; }.entry-meta a:hover {color: #1E73BE; }.sidebar .widget {background-color: #FFFFFF; }.sidebar .widget .widget-title {color: #000000; }.footer-widgets {background-color: #FFFFFF; }.footer-widgets a, .footer-widgets a:visited {color: #1e73be; }.footer-widgets a:hover {color: #000000; }.footer-widgets .widget-title {color: #000000; }.site-info {background-color: #222222; color: #ffffff; }.site-info a, .site-info a:visited {color: #ffffff; }.site-info a:hover {color: #606060; }input[type="text"], input[type="email"], input[type="url"], input[type="password"], input[type="search"], textarea {background-color: #FAFAFA; border-color: #CCCCCC; color: #666666; }input[type="text"]:focus, input[type="email"]:focus, input[type="url"]:focus, input[type="password"]:focus, input[type="search"]:focus, textarea:focus {background-color: #FFFFFF; color: #666666; border-color: #BFBFBF; }button, html input[type="button"], input[type="reset"], input[type="submit"],.button,.button:visited {background-color: #666666; color: #FFFFFF; }button:hover, html input[type="button"]:hover, input[type="reset"]:hover, input[type="submit"]:hover,.button:hover,button:focus, html input[type="button"]:focus, input[type="reset"]:focus, input[type="submit"]:focus,.button:focus,button:active, html input[type="button"]:active, input[type="reset"]:active, input[type="submit"]:active,.button:active {background-color: #3F3F3F; color: #FFFFFF; }
+.inside-header {padding-top: 40px; padding-right: 40px; padding-bottom: 40px; padding-left: 40px; }.separate-containers .inside-article, .separate-containers .comments-area, .separate-containers .page-header, .separate-containers .paging-navigation, .one-container .site-content {padding-top: 40px; padding-right: 40px; padding-bottom: 40px; padding-left: 40px; }.ignore-x-spacing {margin-right: -40px; margin-bottom: 40px; margin-left: -40px; }.ignore-xy-spacing {margin-top: -40px; margin-right: -40px; margin-bottom: 40px; margin-left: -40px; }.main-navigation .main-nav ul li a,			.menu-toggle {padding-left: 20px; padding-right: 20px; line-height: 60px; }.nav-float-right .main-navigation .main-nav ul li a {line-height: 60px; }.main-navigation .main-nav ul ul li a {padding-left: 20px; padding-right: 20px; padding-top: 10px; padding-bottom: 10px; }.main-navigation ul ul {top: 60px; }.navigation-search {height: 60px; line-height: 0px; }.navigation-search input {height: 60px; line-height: 0px; }.separate-containers .widget-area .widget {padding-top: 40px; padding-right: 40px; padding-bottom: 40px; padding-left: 40px; }.footer-widgets {padding-top: 40px; padding-right: 0px; padding-bottom: 40px; padding-left: 0px; }.site-info {padding-top: 20px; padding-right: 0px; padding-bottom: 20px; padding-left: 0px; }.right-sidebar.separate-containers .site-main {margin-top: 20px; margin-right: 20px; margin-bottom: 20px; margin-left: 0px; padding: 0px; }.left-sidebar.separate-containers .site-main {margin-top: 20px; margin-right: 0px; margin-bottom: 20px; margin-left: 20px; padding: 0px; }.both-sidebars.separate-containers .site-main {margin: 20px; padding: 0px; }.both-right.separate-containers .site-main {margin-top: 20px; margin-right: 20px; margin-bottom: 20px; margin-left: 0px; padding: 0px; }.separate-containers .site-main {margin-top: 20px; margin-bottom: 20px; padding: 0px; }.separate-containers .page-header-image, .separate-containers .page-header-content, .separate-containers .page-header-image-single, .separate-containers .page-header-content-single {margin-top: 20px; }.both-left.separate-containers .site-main {margin-top: 20px; margin-right: 0px; margin-bottom: 20px; margin-left: 20px; padding: 0px; }.separate-containers .inside-right-sidebar, .inside-left-sidebar {margin-top: 20px; margin-bottom: 20px; padding-top: 0px; padding-bottom: 0px; }.separate-containers .widget, .separate-containers .hentry, .separate-containers .page-header, .widget-area .main-navigation {margin-bottom: 20px; }.both-left.separate-containers .inside-left-sidebar {margin-right: 10px; padding-right: 0px; }.both-left.separate-containers .inside-right-sidebar {margin-left: 10px; padding-left: 0px; }.both-right.separate-containers .inside-left-sidebar {margin-right: 10px; padding-right: 0px; }.both-right.separate-containers .inside-right-sidebar {margin-left: 10px; padding-left: 0px; }
+</style> 
+  <link rel="stylesheet" id="generate-mobile-style-css" href="http://www.wrtnode.cc/blog/wp-content/themes/generatepress/css/mobile.css?ver=1.3.08" type="text/css" media="all" /> 
+  <link rel="stylesheet" id="superfish-css" href="http://www.wrtnode.cc/blog/wp-content/themes/generatepress/css/superfish.css?ver=1.3.08" type="text/css" media="all" /> 
+  <link rel="stylesheet" id="fontawesome-css" href="http://www.wrtnode.cc/blog/wp-content/themes/generatepress/css/font-awesome.min.css?ver=4.4.0" type="text/css" media="all" /> 
+  <script type="text/javascript" src="http://www.wrtnode.cc/blog/wp-includes/js/jquery/jquery.js?ver=1.11.0"></script> 
+  <script type="text/javascript" src="http://www.wrtnode.cc/blog/wp-includes/js/jquery/jquery-migrate.min.js?ver=1.2.1"></script> 
+  <link rel="EditURI" type="application/rsd+xml" title="RSD" href="http://www.wrtnode.cc/blog/xmlrpc.php?rsd" /> 
+  <link rel="wlwmanifest" type="application/wlwmanifest+xml" href="http://www.wrtnode.cc/blog/wp-includes/wlwmanifest.xml" /> 
+  <link rel="prev" title="OpenWrt.org正式支持WRTnode，首次连接开源硬件" href="http://www.wrtnode.cc/blog/?p=164" /> 
+  <link rel="next" title="WRTNODE玩OpenCV+自动化+uARM在深圳Maker Faire 2014" href="http://www.wrtnode.cc/blog/?p=207" /> 
+  <meta name="generator" content="WordPress 3.9.9" /> 
+  <link rel="canonical" href="http://www.wrtnode.cc/blog/?p=172" /> 
+  <link rel="shortlink" href="http://www.wrtnode.cc/blog/?p=172" /> 
+  <meta name="robots" content="noindex,follow" /> 
+  <script type="text/javascript">
+			/* <![CDATA[ */
+			
+						jQuery(document).ready( function() {
+
+				/* Use backticks instead of <code> for the Code button in the editor */
+				if ( typeof( edButtons ) !== 'undefined' ) {
+					edButtons[110] = new QTags.TagButton( 'code', 'code', '`', '`', 'c' );
+					QTags._buttonsInit();
+				}
+
+				/* Tab from topic title */
+				jQuery( '#bbp_topic_title' ).bind( 'keydown.editor-focus', function(e) {
+					if ( e.which !== 9 )
+						return;
+
+					if ( !e.ctrlKey && !e.altKey && !e.shiftKey ) {
+						if ( typeof( tinymce ) !== 'undefined' ) {
+							if ( ! tinymce.activeEditor.isHidden() ) {
+								var editor = tinymce.activeEditor.editorContainer;
+								jQuery( '#' + editor + ' td.mceToolbar > a' ).focus();
+							} else {
+								jQuery( 'textarea.bbp-the-content' ).focus();
+							}
+						} else {
+							jQuery( 'textarea.bbp-the-content' ).focus();
+						}
+
+						e.preventDefault();
+					}
+				});
+
+				/* Shift + tab from topic tags */
+				jQuery( '#bbp_topic_tags' ).bind( 'keydown.editor-focus', function(e) {
+					if ( e.which !== 9 )
+						return;
+
+					if ( e.shiftKey && !e.ctrlKey && !e.altKey ) {
+						if ( typeof( tinymce ) !== 'undefined' ) {
+							if ( ! tinymce.activeEditor.isHidden() ) {
+								var editor = tinymce.activeEditor.editorContainer;
+								jQuery( '#' + editor + ' td.mceToolbar > a' ).focus();
+							} else {
+								jQuery( 'textarea.bbp-the-content' ).focus();
+							}
+						} else {
+							jQuery( 'textarea.bbp-the-content' ).focus();
+						}
+
+						e.preventDefault();
+					}
+				});
+			});
+						/* ]]> */
+		</script> 
+  <!-- platinum seo pack 1.3.8 --> 
+  <meta name="robots" content="index,follow,noodp,noydir" /> 
+  <link rel="canonical" href="http://www.wrtnode.cc/blog/?p=172" /> 
+  <!-- /platinum one seo pack --> 
+  <link rel="stylesheet" type="text/css" href="http://www.wrtnode.cc/blog/wp-content/plugins/wp-code-highlight/css/wp-code-highlight.css" media="screen" /> 
+  <meta name="viewport" content="width=device-width, initial-scale=1" /> 
+  <!--[if lt IE 9]>
+		<script src="http://www.wrtnode.cc/blog/wp-content/themes/generatepress/js/html5shiv.js"></script>
+		<link rel="stylesheet" href="http://www.wrtnode.cc/blog/wp-content/themes/generatepress/css/ie.min.css" />
+	<![endif]--> 
+ </head> 
+ <body itemtype="http://schema.org/WebPage" itemscope="itemscope" class="single single-post postid-172 single-format-standard featured-image-active right-sidebar nav-below-header fluid-header separate-containers active-footer-widgets-1 nav-aligned-left header-aligned-left group-blog"> 
+  <header itemtype="http://schema.org/WPHeader" itemscope="itemscope" id="masthead" role="banner" class="site-header"> 
+   <div class="inside-header grid-container grid-parent"> 
+    <div class="site-branding"> 
+     <p class="main-title" itemprop="headline"><a href="http://www.wrtnode.cc/blog/" title="WRTnode Blog" rel="home">WRTnode Blog</a></p> 
+    </div> 
+   </div>
+   <!-- .inside-header --> 
+  </header>
+  <!-- #masthead --> 
+  <nav itemtype="http://schema.org/SiteNavigationElement" itemscope="itemscope" id="site-navigation" role="navigation" class="main-navigation"> 
+   <div class="inside-navigation grid-container grid-parent"> 
+    <h3 class="menu-toggle"> <span class="mobile-menu">Menu</span> </h3> 
+    <div class="screen-reader-text skip-link">
+     <a href="#content" title="Skip to content">Skip to content</a>
+    </div> 
+    <div class="main-nav">
+     <ul id="menu-%e6%96%b0%e8%8f%9c%e5%8d%95" class=" menu sf-menu">
+      <li id="menu-item-667" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-667"><a href="http://wrtnode.cc">回到主站</a></li> 
+      <li id="menu-item-666" class="menu-item menu-item-type-post_type menu-item-object-forum menu-item-666"><a title="原cn.wrtnode.com论坛任然保留" href="http://www.wrtnode.cc/blog/?forum=%e8%ae%ba%e5%9d%9b">到老论坛</a></li> 
+     </ul>
+    </div> 
+   </div>
+   <!-- .inside-navigation --> 
+  </nav>
+  <!-- #site-navigation --> 
+  <div id="page" class="hfeed site grid-container container grid-parent"> 
+   <div id="content" class="site-content"> 
+    <div id="primary" class="content-area grid-parent grid-75 tablet-grid-75" itemprop="mainContentOfPage"> 
+     <main id="main" class="site-main" itemtype="http://schema.org/Blog" itemscope="itemscope" role="main"> 
+      <article id="post-172" class="post-172 post type-post status-publish format-standard has-post-thumbnail hentry category-3 tag-8" itemprop="blogPost" itemtype="http://schema.org/BlogPosting" itemscope="itemscope"> 
+       <div class="inside-article"> 
+        <div class="page-header-image-single grid-container grid-parent"> 
+         <img width="367" height="300" src="http://www.wrtnode.cc/blog/wp-content/uploads/2013/11/oh-367x300.jpg" class="attachment-full wp-post-image" alt="oh-367x300" itemprop="image" /> 
+        </div> 
+        <header class="entry-header"> 
+         <h1 class="entry-title" itemprop="headline">OpenWRT固件编译</h1> 
+         <div class="entry-meta"> 
+          <span class="posted-on"><a href="http://www.wrtnode.cc/blog/?p=172" title="12:19" rel="bookmark"><time class="entry-date published" datetime="2014-04-01T12:19:28+00:00" itemprop="datePublished">2014年4月1日</time><time class="updated" datetime="2014-07-23T18:46:33+00:00" itemprop="dateModified">2014年7月23日</time></a></span> 
+          <span class="byline"><span class="author vcard" itemtype="http://schema.org/Person" itemscope="itemscope" itemprop="author">by <a class="url fn n" href="http://www.wrtnode.cc/blog/?author=26" title="View all posts by xiaowp" rel="author" itemprop="url"><span class="author-name" itemprop="name">xiaowp</span></a></span></span> 
+         </div>
+         <!-- .entry-meta --> 
+        </header>
+        <!-- .entry-header --> 
+        <div class="entry-content" itemprop="text"> 
+         <p>从某种意义上讲，我们可以认为WRTnode就是为OpenWRT而生的，这块小小的无线路由开发板从筹划那天开始，就将能够运行OpenWRT固件作为其一个重要的里程碑。为此，WRTnode团队与OpenWRT团队进行了紧密的合作，才终于有了对WRTnode来讲具有划时代意义的<a href="https://dev.openwrt.org/changeset/39786" target="_blank">39786</a>这一版本，它标志着OpenWRT代码库开始直接支持WRTnode。下面介绍如何为WRTnode编译OpenWRT的固件。</p> 
+         <p><span id="more-172"></span></p> 
+         <h2>下载源码</h2> 
+         <p>首先创建一个名为openwrt的工作目录：<br /> <code><br /> $ mkdir openwrt<br /> $ cd openwrt</code></p> 
+         <p><code> $ svn co svn://svn.openwrt.org/openwrt/trunk</code></p> 
+         <p><code> $ cd trunk<br /> </code></p> 
+         <h2>加入WRTnode相关feed</h2> 
+         <p>取出源码之后执行下面的命令，对OpenWRT的feeds进行更新和安装：</p> 
+         <p><code>$ cp feeds.conf.default feeds.conf<br /> $ echo 'src-git wrtnode https://github.com/WRTnode/openwrt-packages.git' &gt;&gt; ./feeds.conf<br /> $ ./scripts/feeds update -a<br /> $ ./scripts/feeds install -a</code></p> 
+         <p>在OpenWrt提供的标准feeds之外，我们加入了了WRTnode所需要的一些额外的软件包，这些都放在<a title="https://github.com/WRTnode" href="https://github.com/WRTnode" target="_blank">WRTnode项目的github服务器</a>上。</p> 
+         <h2>配置源码</h2> 
+         <p>OpenWRT源码的编译过程是由源码根目录下的.config文件进行控制的，你可以使用make menuconfig命令来对最终编译出来的固件进行配置。不过刚入手的时候建议先使用WRTnode提供的标准.config文件作为开始：<br /> <code><br /> $ wget --no-check-certificate https://raw.githubusercontent.com/WRTnode/openwrt-patches/master/R39786/wrtnode_standard.config<br /> $ cp wrtnode_standard.config .config<br /> $ make oldconfig<br /> </code><br /> 在执行make oldconfig命令时如果出现提示信息，一路回车用默认选项就可以。</p> 
+         <h2>编译固件</h2> 
+         <p>此时在OpenWRT源码的根目录下执行下面的命令就可以开始固件的编译了，整个编译过程所持续的时间较长，请一定耐心等待。<br /> <code><br /> $ make V=s<br /> </code><br /> 如果一切正常，你最终可以在bin/ramips目录下找到WRTnode所需要的固件文件openwrt-ramips-mt7620n-wrtnode-squashfs-sysupgrade.bin。</p> 
+        </div>
+        <!-- .entry-content --> 
+        <footer class="entry-meta"> 
+         <span class="cat-links"><span class="screen-reader-text">Categories </span><a href="http://www.wrtnode.cc/blog/?cat=3" title="查看文档教程中的全部文章" rel="category">文档教程</a></span>
+         <span class="tags-links"><span class="screen-reader-text">Tags </span><a href="http://www.wrtnode.cc/blog/?tag=%e5%bc%80%e5%8f%91%e6%8c%87%e5%8d%97" rel="tag">开发指南</a></span> 
+         <nav role="navigation" id="nav-below" class="post-navigation"> 
+          <h6 class="screen-reader-text">Post navigation</h6> 
+          <div class="nav-previous">
+           <span class="prev" title="Previous"><a href="http://www.wrtnode.cc/blog/?p=164" rel="prev">OpenWrt.org正式支持WRTnode，首次连接开源硬件</a></span>
+          </div> 
+          <div class="nav-next">
+           <span class="next" title="Next"><a href="http://www.wrtnode.cc/blog/?p=207" rel="next">WRTNODE玩OpenCV+自动化+uARM在深圳Maker Faire 2014</a></span>
+          </div> 
+         </nav>
+         <!-- #nav-below --> 
+        </footer>
+        <!-- .entry-meta --> 
+       </div>
+       <!-- .inside-article --> 
+      </article>
+      <!-- #post-## --> 
+      <div class="comments-area"> 
+       <div id="comments"> 
+        <h3 class="comments-title"> 30 thoughts on “<span>OpenWRT固件编译</span>” </h3> 
+        <ol class="comment-list"> 
+         <li id="comment-40" class="comment even thread-even depth-1 parent"> 
+          <article id="div-comment-40" class="comment-body"> 
+           <footer class="comment-meta"> 
+            <img alt="" src="http://1.gravatar.com/avatar/37dab4e7961e83fb767688927eeac9a7?s=50&amp;d=http%3A%2F%2F1.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D50&amp;r=G" class="avatar avatar-50 photo" height="50" width="50" /> 
+            <div class="comment-author-info"> 
+             <div class="comment-author vcard"> 
+              <cite class="fn">Peter Lee</cite> 
+             </div>
+             <!-- .comment-author --> 
+             <div class="entry-meta comment-metadata"> 
+              <a href="http://www.wrtnode.cc/blog/?p=172#comment-40"> <time datetime="2014-05-09T13:41:02+00:00"> 2014年5月9日 at 13:41 </time> </a> 
+              <span class="reply">| <a class="comment-reply-link" href="/blog/?p=172&amp;replytocom=40#respond" onclick="return addComment.moveForm(&quot;div-comment-40&quot;, &quot;40&quot;, &quot;respond&quot;, &quot;172&quot;)">回复</a></span> 
+             </div>
+             <!-- .comment-metadata --> 
+            </div>
+            <!-- .comment-author-info --> 
+           </footer>
+           <!-- .comment-meta --> 
+           <div class="comment-content"> 
+            <p>这些编译是在Linux下进行的吧？有没有能在Windows下进行的教程？</p> 
+            <p>另外编译的过程需要联网吧？能不能先下载下来直接进行以避免编译过程中联网出现问题。</p> 
+            <p>谢谢了先。</p> 
+           </div>
+           <!-- .comment-content --> 
+          </article>
+          <!-- .comment-body --> 
+          <ul class="children"> 
+           <li id="comment-44" class="comment byuser comment-author-admin odd alt depth-2"> 
+            <article id="div-comment-44" class="comment-body"> 
+             <footer class="comment-meta"> 
+              <img alt="" src="http://1.gravatar.com/avatar/fb0d69d647017f0afce4e79f00487184?s=50&amp;d=http%3A%2F%2F1.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D50&amp;r=G" class="avatar avatar-50 photo" height="50" width="50" /> 
+              <div class="comment-author-info"> 
+               <div class="comment-author vcard"> 
+                <cite class="fn"><a href="http://www.wrtnode.cc/blog" rel="external nofollow" class="url">WRTnode</a></cite> 
+               </div>
+               <!-- .comment-author --> 
+               <div class="entry-meta comment-metadata"> 
+                <a href="http://www.wrtnode.cc/blog/?p=172#comment-44"> <time datetime="2014-05-09T18:24:25+00:00"> 2014年5月9日 at 18:24 </time> </a> 
+                <span class="reply">| <a class="comment-reply-link" href="/blog/?p=172&amp;replytocom=44#respond" onclick="return addComment.moveForm(&quot;div-comment-44&quot;, &quot;44&quot;, &quot;respond&quot;, &quot;172&quot;)">回复</a></span> 
+               </div>
+               <!-- .comment-metadata --> 
+              </div>
+              <!-- .comment-author-info --> 
+             </footer>
+             <!-- .comment-meta --> 
+             <div class="comment-content"> 
+              <p>在windows下编译不可行，因为不支持文件名大小写。</p> 
+             </div>
+             <!-- .comment-content --> 
+            </article>
+            <!-- .comment-body --> </li>
+           <!-- #comment-## --> 
+           <li id="comment-48" class="comment byuser comment-author-admin even depth-2"> 
+            <article id="div-comment-48" class="comment-body"> 
+             <footer class="comment-meta"> 
+              <img alt="" src="http://1.gravatar.com/avatar/fb0d69d647017f0afce4e79f00487184?s=50&amp;d=http%3A%2F%2F1.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D50&amp;r=G" class="avatar avatar-50 photo" height="50" width="50" /> 
+              <div class="comment-author-info"> 
+               <div class="comment-author vcard"> 
+                <cite class="fn"><a href="http://www.wrtnode.cc/blog" rel="external nofollow" class="url">WRTnode</a></cite> 
+               </div>
+               <!-- .comment-author --> 
+               <div class="entry-meta comment-metadata"> 
+                <a href="http://www.wrtnode.cc/blog/?p=172#comment-48"> <time datetime="2014-05-12T23:34:52+00:00"> 2014年5月12日 at 23:34 </time> </a> 
+                <span class="reply">| <a class="comment-reply-link" href="/blog/?p=172&amp;replytocom=48#respond" onclick="return addComment.moveForm(&quot;div-comment-48&quot;, &quot;48&quot;, &quot;respond&quot;, &quot;172&quot;)">回复</a></span> 
+               </div>
+               <!-- .comment-metadata --> 
+              </div>
+              <!-- .comment-author-info --> 
+             </footer>
+             <!-- .comment-meta --> 
+             <div class="comment-content"> 
+              <p>可以自行下载所需要的文件（保证版本和文件名）放到buildroot的dl文件夹下。</p> 
+              <p>我个人一般采用科学上网的方式手工去找美国的源</p> 
+             </div>
+             <!-- .comment-content --> 
+            </article>
+            <!-- .comment-body --> </li>
+           <!-- #comment-## --> 
+           <li id="comment-65" class="comment odd alt depth-2"> 
+            <article id="div-comment-65" class="comment-body"> 
+             <footer class="comment-meta"> 
+              <img alt="" src="http://0.gravatar.com/avatar/0e219de839d956a73c589a3dd276e1c8?s=50&amp;d=http%3A%2F%2F0.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D50&amp;r=G" class="avatar avatar-50 photo" height="50" width="50" /> 
+              <div class="comment-author-info"> 
+               <div class="comment-author vcard"> 
+                <cite class="fn">wangeq</cite> 
+               </div>
+               <!-- .comment-author --> 
+               <div class="entry-meta comment-metadata"> 
+                <a href="http://www.wrtnode.cc/blog/?p=172#comment-65"> <time datetime="2014-05-20T08:05:18+00:00"> 2014年5月20日 at 08:05 </time> </a> 
+                <span class="reply">| <a class="comment-reply-link" href="/blog/?p=172&amp;replytocom=65#respond" onclick="return addComment.moveForm(&quot;div-comment-65&quot;, &quot;65&quot;, &quot;respond&quot;, &quot;172&quot;)">回复</a></span> 
+               </div>
+               <!-- .comment-metadata --> 
+              </div>
+              <!-- .comment-author-info --> 
+             </footer>
+             <!-- .comment-meta --> 
+             <div class="comment-content"> 
+              <p>使用VirtualBox建个虚拟机，在上面编译。兼容性好，非常灵活，占用资源也少，不用了删掉。不同版本有要求的话，可以建立多个虚拟机，想要那个起那个。</p> 
+             </div>
+             <!-- .comment-content --> 
+            </article>
+            <!-- .comment-body --> </li>
+           <!-- #comment-## --> 
+          </ul>
+          <!-- .children --> </li>
+         <!-- #comment-## --> 
+         <li id="comment-46" class="comment byuser comment-author-farmerlee even thread-odd thread-alt depth-1 parent"> 
+          <article id="div-comment-46" class="comment-body"> 
+           <footer class="comment-meta"> 
+            <img alt="" src="http://0.gravatar.com/avatar/8e5c0d22a793e5f53ce5a79cad9f1a74?s=50&amp;d=http%3A%2F%2F0.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D50&amp;r=G" class="avatar avatar-50 photo" height="50" width="50" /> 
+            <div class="comment-author-info"> 
+             <div class="comment-author vcard"> 
+              <cite class="fn">farmerlee</cite> 
+             </div>
+             <!-- .comment-author --> 
+             <div class="entry-meta comment-metadata"> 
+              <a href="http://www.wrtnode.cc/blog/?p=172#comment-46"> <time datetime="2014-05-12T23:20:13+00:00"> 2014年5月12日 at 23:20 </time> </a> 
+              <span class="reply">| <a class="comment-reply-link" href="/blog/?p=172&amp;replytocom=46#respond" onclick="return addComment.moveForm(&quot;div-comment-46&quot;, &quot;46&quot;, &quot;respond&quot;, &quot;172&quot;)">回复</a></span> 
+             </div>
+             <!-- .comment-metadata --> 
+            </div>
+            <!-- .comment-author-info --> 
+           </footer>
+           <!-- .comment-meta --> 
+           <div class="comment-content"> 
+            <p>编译了怎么加载到板上呢？只能烧录器么？:-)</p> 
+           </div>
+           <!-- .comment-content --> 
+          </article>
+          <!-- .comment-body --> 
+          <ul class="children"> 
+           <li id="comment-47" class="comment byuser comment-author-admin odd alt depth-2 parent"> 
+            <article id="div-comment-47" class="comment-body"> 
+             <footer class="comment-meta"> 
+              <img alt="" src="http://1.gravatar.com/avatar/fb0d69d647017f0afce4e79f00487184?s=50&amp;d=http%3A%2F%2F1.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D50&amp;r=G" class="avatar avatar-50 photo" height="50" width="50" /> 
+              <div class="comment-author-info"> 
+               <div class="comment-author vcard"> 
+                <cite class="fn"><a href="http://www.wrtnode.cc/blog" rel="external nofollow" class="url">WRTnode</a></cite> 
+               </div>
+               <!-- .comment-author --> 
+               <div class="entry-meta comment-metadata"> 
+                <a href="http://www.wrtnode.cc/blog/?p=172#comment-47"> <time datetime="2014-05-12T23:32:06+00:00"> 2014年5月12日 at 23:32 </time> </a> 
+                <span class="reply">| <a class="comment-reply-link" href="/blog/?p=172&amp;replytocom=47#respond" onclick="return addComment.moveForm(&quot;div-comment-47&quot;, &quot;47&quot;, &quot;respond&quot;, &quot;172&quot;)">回复</a></span> 
+               </div>
+               <!-- .comment-metadata --> 
+              </div>
+              <!-- .comment-author-info --> 
+             </footer>
+             <!-- .comment-meta --> 
+             <div class="comment-content"> 
+              <p>严格说应该有4种<br /> 第一是跟uboot，uboot参数，eeprom区，及OpenWrt固件混装成一个二进制流用编程器烧进去<br /> 第二是在uboot里用tftp下载OpenWrt固件由uboot刷写<br /> 第三是在OpenWrt里直接使用mtd write刷写<br /> 第四是用luci在页面上更新系统</p> 
+              <p>在OpenWrt一般用户那里基本都使用第三种和第四种方法。跟刷手机似的。</p> 
+             </div>
+             <!-- .comment-content --> 
+            </article>
+            <!-- .comment-body --> 
+            <ul class="children"> 
+             <li id="comment-52" class="comment byuser comment-author-farmerlee even depth-3"> 
+              <article id="div-comment-52" class="comment-body"> 
+               <footer class="comment-meta"> 
+                <img alt="" src="http://0.gravatar.com/avatar/8e5c0d22a793e5f53ce5a79cad9f1a74?s=50&amp;d=http%3A%2F%2F0.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D50&amp;r=G" class="avatar avatar-50 photo" height="50" width="50" /> 
+                <div class="comment-author-info"> 
+                 <div class="comment-author vcard"> 
+                  <cite class="fn">farmerlee</cite> 
+                 </div>
+                 <!-- .comment-author --> 
+                 <div class="entry-meta comment-metadata"> 
+                  <a href="http://www.wrtnode.cc/blog/?p=172#comment-52"> <time datetime="2014-05-14T22:45:19+00:00"> 2014年5月14日 at 22:45 </time> </a> 
+                  <span class="reply">| <a class="comment-reply-link" href="/blog/?p=172&amp;replytocom=52#respond" onclick="return addComment.moveForm(&quot;div-comment-52&quot;, &quot;52&quot;, &quot;respond&quot;, &quot;172&quot;)">回复</a></span> 
+                 </div>
+                 <!-- .comment-metadata --> 
+                </div>
+                <!-- .comment-author-info --> 
+               </footer>
+               <!-- .comment-meta --> 
+               <div class="comment-content"> 
+                <p>谢了，拿到板板再试试~感觉openwrt现在的资料太少，不好找</p> 
+               </div>
+               <!-- .comment-content --> 
+              </article>
+              <!-- .comment-body --> </li>
+             <!-- #comment-## --> 
+            </ul>
+            <!-- .children --> </li>
+           <!-- #comment-## --> 
+          </ul>
+          <!-- .children --> </li>
+         <!-- #comment-## --> 
+         <li id="comment-64" class="comment odd alt thread-even depth-1"> 
+          <article id="div-comment-64" class="comment-body"> 
+           <footer class="comment-meta"> 
+            <img alt="" src="http://0.gravatar.com/avatar/0e219de839d956a73c589a3dd276e1c8?s=50&amp;d=http%3A%2F%2F0.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D50&amp;r=G" class="avatar avatar-50 photo" height="50" width="50" /> 
+            <div class="comment-author-info"> 
+             <div class="comment-author vcard"> 
+              <cite class="fn">wangeq</cite> 
+             </div>
+             <!-- .comment-author --> 
+             <div class="entry-meta comment-metadata"> 
+              <a href="http://www.wrtnode.cc/blog/?p=172#comment-64"> <time datetime="2014-05-20T08:01:57+00:00"> 2014年5月20日 at 08:01 </time> </a> 
+              <span class="reply">| <a class="comment-reply-link" href="/blog/?p=172&amp;replytocom=64#respond" onclick="return addComment.moveForm(&quot;div-comment-64&quot;, &quot;64&quot;, &quot;respond&quot;, &quot;172&quot;)">回复</a></span> 
+             </div>
+             <!-- .comment-metadata --> 
+            </div>
+            <!-- .comment-author-info --> 
+           </footer>
+           <!-- .comment-meta --> 
+           <div class="comment-content"> 
+            <p>编译不过，缺少fetchmail-6.3.26.tar.xz文件，因为：The BerliOS developer’s website has shut down in the week following 2014 May 12th.大家到http://www.fetchmail.info/下载后放入dl目录即可。那个同学维护的后续版本的openwrt编译文件应该更新一下了。</p> 
+           </div>
+           <!-- .comment-content --> 
+          </article>
+          <!-- .comment-body --> </li>
+         <!-- #comment-## --> 
+         <li id="comment-66" class="comment even thread-odd thread-alt depth-1 parent"> 
+          <article id="div-comment-66" class="comment-body"> 
+           <footer class="comment-meta"> 
+            <img alt="" src="http://0.gravatar.com/avatar/0e219de839d956a73c589a3dd276e1c8?s=50&amp;d=http%3A%2F%2F0.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D50&amp;r=G" class="avatar avatar-50 photo" height="50" width="50" /> 
+            <div class="comment-author-info"> 
+             <div class="comment-author vcard"> 
+              <cite class="fn">wangeq</cite> 
+             </div>
+             <!-- .comment-author --> 
+             <div class="entry-meta comment-metadata"> 
+              <a href="http://www.wrtnode.cc/blog/?p=172#comment-66"> <time datetime="2014-05-20T08:15:35+00:00"> 2014年5月20日 at 08:15 </time> </a> 
+              <span class="reply">| <a class="comment-reply-link" href="/blog/?p=172&amp;replytocom=66#respond" onclick="return addComment.moveForm(&quot;div-comment-66&quot;, &quot;66&quot;, &quot;respond&quot;, &quot;172&quot;)">回复</a></span> 
+             </div>
+             <!-- .comment-metadata --> 
+            </div>
+            <!-- .comment-author-info --> 
+           </footer>
+           <!-- .comment-meta --> 
+           <div class="comment-content"> 
+            <p>最好的方式是分为几个层，每个层由不同的牛人去维护，大家可以专注一些或做的更好。小白可以从最简单的层开始，一步步深入。我设想的有几层：1、基础的Uboot层，实现LinuxCore的载入;2、LinuxCore，实现操作系统级的支援;3、OpenWRT的服务层，如LUA/LUCI/OPKG，实现网络配置与服务、软件包管理;4、应用层，只需编译、安装应用软件，不用管其他的，可以是C/C++/LUA/Python的代码，大部分都是在这一层上工作，相当于Android上的虚拟机之上的东西。不同层之间要建立规范化的接口，越往底层越要保持稳定性，越向上层升级更新越快。只有大版本才进行跨层的升级。</p> 
+           </div>
+           <!-- .comment-content --> 
+          </article>
+          <!-- .comment-body --> 
+          <ul class="children"> 
+           <li id="comment-68" class="comment byuser comment-author-admin odd alt depth-2"> 
+            <article id="div-comment-68" class="comment-body"> 
+             <footer class="comment-meta"> 
+              <img alt="" src="http://1.gravatar.com/avatar/fb0d69d647017f0afce4e79f00487184?s=50&amp;d=http%3A%2F%2F1.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D50&amp;r=G" class="avatar avatar-50 photo" height="50" width="50" /> 
+              <div class="comment-author-info"> 
+               <div class="comment-author vcard"> 
+                <cite class="fn"><a href="http://www.wrtnode.cc/blog" rel="external nofollow" class="url">WRTnode</a></cite> 
+               </div>
+               <!-- .comment-author --> 
+               <div class="entry-meta comment-metadata"> 
+                <a href="http://www.wrtnode.cc/blog/?p=172#comment-68"> <time datetime="2014-05-20T13:12:40+00:00"> 2014年5月20日 at 13:12 </time> </a> 
+                <span class="reply">| <a class="comment-reply-link" href="/blog/?p=172&amp;replytocom=68#respond" onclick="return addComment.moveForm(&quot;div-comment-68&quot;, &quot;68&quot;, &quot;respond&quot;, &quot;172&quot;)">回复</a></span> 
+               </div>
+               <!-- .comment-metadata --> 
+              </div>
+              <!-- .comment-author-info --> 
+             </footer>
+             <!-- .comment-meta --> 
+             <div class="comment-content"> 
+              <p>非常好的建议，敢问您在公测群里的账号是？</p> 
+             </div>
+             <!-- .comment-content --> 
+            </article>
+            <!-- .comment-body --> </li>
+           <!-- #comment-## --> 
+          </ul>
+          <!-- .children --> </li>
+         <!-- #comment-## --> 
+         <li id="comment-83" class="comment even thread-even depth-1 parent"> 
+          <article id="div-comment-83" class="comment-body"> 
+           <footer class="comment-meta"> 
+            <img alt="" src="http://1.gravatar.com/avatar/7bfc0203d0f3d0a151c01ec475449f20?s=50&amp;d=http%3A%2F%2F1.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D50&amp;r=G" class="avatar avatar-50 photo" height="50" width="50" /> 
+            <div class="comment-author-info"> 
+             <div class="comment-author vcard"> 
+              <cite class="fn"><a href="http://none" rel="external nofollow" class="url">oliver</a></cite> 
+             </div>
+             <!-- .comment-author --> 
+             <div class="entry-meta comment-metadata"> 
+              <a href="http://www.wrtnode.cc/blog/?p=172#comment-83"> <time datetime="2014-05-27T18:53:18+00:00"> 2014年5月27日 at 18:53 </time> </a> 
+              <span class="reply">| <a class="comment-reply-link" href="/blog/?p=172&amp;replytocom=83#respond" onclick="return addComment.moveForm(&quot;div-comment-83&quot;, &quot;83&quot;, &quot;respond&quot;, &quot;172&quot;)">回复</a></span> 
+             </div>
+             <!-- .comment-metadata --> 
+            </div>
+            <!-- .comment-author-info --> 
+           </footer>
+           <!-- .comment-meta --> 
+           <div class="comment-content"> 
+            <p>i got some problems when i build the openwrt image.<br /> wget: unable to resolve host address ‘lanuchpad.net’<br /> something like that.<br /> any idea to fix this?</p> 
+           </div>
+           <!-- .comment-content --> 
+          </article>
+          <!-- .comment-body --> 
+          <ul class="children"> 
+           <li id="comment-97" class="comment byuser comment-author-admin odd alt depth-2"> 
+            <article id="div-comment-97" class="comment-body"> 
+             <footer class="comment-meta"> 
+              <img alt="" src="http://1.gravatar.com/avatar/fb0d69d647017f0afce4e79f00487184?s=50&amp;d=http%3A%2F%2F1.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D50&amp;r=G" class="avatar avatar-50 photo" height="50" width="50" /> 
+              <div class="comment-author-info"> 
+               <div class="comment-author vcard"> 
+                <cite class="fn"><a href="http://www.wrtnode.cc/blog" rel="external nofollow" class="url">WRTnode</a></cite> 
+               </div>
+               <!-- .comment-author --> 
+               <div class="entry-meta comment-metadata"> 
+                <a href="http://www.wrtnode.cc/blog/?p=172#comment-97"> <time datetime="2014-05-30T11:10:19+00:00"> 2014年5月30日 at 11:10 </time> </a> 
+                <span class="reply">| <a class="comment-reply-link" href="/blog/?p=172&amp;replytocom=97#respond" onclick="return addComment.moveForm(&quot;div-comment-97&quot;, &quot;97&quot;, &quot;respond&quot;, &quot;172&quot;)">回复</a></span> 
+               </div>
+               <!-- .comment-metadata --> 
+              </div>
+              <!-- .comment-author-info --> 
+             </footer>
+             <!-- .comment-meta --> 
+             <div class="comment-content"> 
+              <p><code>We also meet some network access problem, so do what this post tells will work: <a href="http://www.wrtnode.cc/blog/?p=369" title="http://www.wrtnode.cc/blog/?p=369" rel="nofollow">http://www.wrtnode.cc/blog/?p=369</a></code></p> 
+             </div>
+             <!-- .comment-content --> 
+            </article>
+            <!-- .comment-body --> </li>
+           <!-- #comment-## --> 
+          </ul>
+          <!-- .children --> </li>
+         <!-- #comment-## --> 
+         <li id="comment-146" class="comment even thread-odd thread-alt depth-1 parent"> 
+          <article id="div-comment-146" class="comment-body"> 
+           <footer class="comment-meta"> 
+            <img alt="" src="http://0.gravatar.com/avatar/4b1d8cd602dda09130772eb9d53774e9?s=50&amp;d=http%3A%2F%2F0.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D50&amp;r=G" class="avatar avatar-50 photo" height="50" width="50" /> 
+            <div class="comment-author-info"> 
+             <div class="comment-author vcard"> 
+              <cite class="fn"><a href="http://支持mt7620n的wifi驱动吗" rel="external nofollow" class="url">chenliang</a></cite> 
+             </div>
+             <!-- .comment-author --> 
+             <div class="entry-meta comment-metadata"> 
+              <a href="http://www.wrtnode.cc/blog/?p=172#comment-146"> <time datetime="2014-06-12T10:02:54+00:00"> 2014年6月12日 at 10:02 </time> </a> 
+              <span class="reply">| <a class="comment-reply-link" href="/blog/?p=172&amp;replytocom=146#respond" onclick="return addComment.moveForm(&quot;div-comment-146&quot;, &quot;146&quot;, &quot;respond&quot;, &quot;172&quot;)">回复</a></span> 
+             </div>
+             <!-- .comment-metadata --> 
+            </div>
+            <!-- .comment-author-info --> 
+           </footer>
+           <!-- .comment-meta --> 
+           <div class="comment-content"> 
+            <p>wrtnode这个固件支持mt7620n固件吗？并且wifi驱动也能支持，ap中继模式也支持吗？</p> 
+           </div>
+           <!-- .comment-content --> 
+          </article>
+          <!-- .comment-body --> 
+          <ul class="children"> 
+           <li id="comment-147" class="comment byuser comment-author-admin odd alt depth-2 parent"> 
+            <article id="div-comment-147" class="comment-body"> 
+             <footer class="comment-meta"> 
+              <img alt="" src="http://1.gravatar.com/avatar/fb0d69d647017f0afce4e79f00487184?s=50&amp;d=http%3A%2F%2F1.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D50&amp;r=G" class="avatar avatar-50 photo" height="50" width="50" /> 
+              <div class="comment-author-info"> 
+               <div class="comment-author vcard"> 
+                <cite class="fn"><a href="http://www.wrtnode.cc/blog" rel="external nofollow" class="url">WRTnode</a></cite> 
+               </div>
+               <!-- .comment-author --> 
+               <div class="entry-meta comment-metadata"> 
+                <a href="http://www.wrtnode.cc/blog/?p=172#comment-147"> <time datetime="2014-06-12T10:07:50+00:00"> 2014年6月12日 at 10:07 </time> </a> 
+                <span class="reply">| <a class="comment-reply-link" href="/blog/?p=172&amp;replytocom=147#respond" onclick="return addComment.moveForm(&quot;div-comment-147&quot;, &quot;147&quot;, &quot;respond&quot;, &quot;172&quot;)">回复</a></span> 
+               </div>
+               <!-- .comment-metadata --> 
+              </div>
+              <!-- .comment-author-info --> 
+             </footer>
+             <!-- .comment-meta --> 
+             <div class="comment-content"> 
+              <p>回答是确认，确认以及确认。</p> 
+             </div>
+             <!-- .comment-content --> 
+            </article>
+            <!-- .comment-body --> 
+            <ul class="children"> 
+             <li id="comment-148" class="comment even depth-3 parent"> 
+              <article id="div-comment-148" class="comment-body"> 
+               <footer class="comment-meta"> 
+                <img alt="" src="http://0.gravatar.com/avatar/4b1d8cd602dda09130772eb9d53774e9?s=50&amp;d=http%3A%2F%2F0.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D50&amp;r=G" class="avatar avatar-50 photo" height="50" width="50" /> 
+                <div class="comment-author-info"> 
+                 <div class="comment-author vcard"> 
+                  <cite class="fn"><a href="http://支持mt7620n的wifi驱动吗" rel="external nofollow" class="url">chenliang</a></cite> 
+                 </div>
+                 <!-- .comment-author --> 
+                 <div class="entry-meta comment-metadata"> 
+                  <a href="http://www.wrtnode.cc/blog/?p=172#comment-148"> <time datetime="2014-06-12T10:57:46+00:00"> 2014年6月12日 at 10:57 </time> </a> 
+                  <span class="reply">| <a class="comment-reply-link" href="/blog/?p=172&amp;replytocom=148#respond" onclick="return addComment.moveForm(&quot;div-comment-148&quot;, &quot;148&quot;, &quot;respond&quot;, &quot;172&quot;)">回复</a></span> 
+                 </div>
+                 <!-- .comment-metadata --> 
+                </div>
+                <!-- .comment-author-info --> 
+               </footer>
+               <!-- .comment-meta --> 
+               <div class="comment-content"> 
+                <p>方便留个qq或者通讯工具吗？我这块弄了好久没弄好，麻烦了！</p> 
+               </div>
+               <!-- .comment-content --> 
+              </article>
+              <!-- .comment-body --> 
+              <ul class="children"> 
+               <li id="comment-160" class="comment odd alt depth-4"> 
+                <article id="div-comment-160" class="comment-body"> 
+                 <footer class="comment-meta"> 
+                  <img alt="" src="http://0.gravatar.com/avatar/a4eca63689f6408ed16bda7214a7cc8f?s=50&amp;d=http%3A%2F%2F0.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D50&amp;r=G" class="avatar avatar-50 photo" height="50" width="50" /> 
+                  <div class="comment-author-info"> 
+                   <div class="comment-author vcard"> 
+                    <cite class="fn">fans</cite> 
+                   </div>
+                   <!-- .comment-author --> 
+                   <div class="entry-meta comment-metadata"> 
+                    <a href="http://www.wrtnode.cc/blog/?p=172#comment-160"> <time datetime="2014-06-16T16:11:40+00:00"> 2014年6月16日 at 16:11 </time> </a> 
+                    <span class="reply">| <a class="comment-reply-link" href="/blog/?p=172&amp;replytocom=160#respond" onclick="return addComment.moveForm(&quot;div-comment-160&quot;, &quot;160&quot;, &quot;respond&quot;, &quot;172&quot;)">回复</a></span> 
+                   </div>
+                   <!-- .comment-metadata --> 
+                  </div>
+                  <!-- .comment-author-info --> 
+                 </footer>
+                 <!-- .comment-meta --> 
+                 <div class="comment-content"> 
+                  <p>公测群里裙煮一直在解答类似的问题啊，你不在里面么？</p> 
+                 </div>
+                 <!-- .comment-content --> 
+                </article>
+                <!-- .comment-body --> </li>
+               <!-- #comment-## --> 
+              </ul>
+              <!-- .children --> </li>
+             <!-- #comment-## --> 
+            </ul>
+            <!-- .children --> </li>
+           <!-- #comment-## --> 
+          </ul>
+          <!-- .children --> </li>
+         <!-- #comment-## --> 
+         <li id="comment-156" class="comment even thread-even depth-1 parent"> 
+          <article id="div-comment-156" class="comment-body"> 
+           <footer class="comment-meta"> 
+            <img alt="" src="http://0.gravatar.com/avatar/e5e173e62b267d4e94a838db8359a16b?s=50&amp;d=http%3A%2F%2F0.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D50&amp;r=G" class="avatar avatar-50 photo" height="50" width="50" /> 
+            <div class="comment-author-info"> 
+             <div class="comment-author vcard"> 
+              <cite class="fn"><a href="http://www.wrtnode.cc/blog/?p=172" rel="external nofollow" class="url">merafour</a></cite> 
+             </div>
+             <!-- .comment-author --> 
+             <div class="entry-meta comment-metadata"> 
+              <a href="http://www.wrtnode.cc/blog/?p=172#comment-156"> <time datetime="2014-06-15T08:56:26+00:00"> 2014年6月15日 at 08:56 </time> </a> 
+              <span class="reply">| <a class="comment-reply-link" href="/blog/?p=172&amp;replytocom=156#respond" onclick="return addComment.moveForm(&quot;div-comment-156&quot;, &quot;156&quot;, &quot;respond&quot;, &quot;172&quot;)">回复</a></span> 
+             </div>
+             <!-- .comment-metadata --> 
+            </div>
+            <!-- .comment-author-info --> 
+           </footer>
+           <!-- .comment-meta --> 
+           <div class="comment-content"> 
+            <p>我按照教程编译，却总是说找不到libcurl库，我自己把这个选项加上了都还这么提示，错误信息在下面，想请教一下这个问题该怎么解决：<br /> checking for LIBCURL… configure: error: Package requirements (libcurl &gt;= 7.15.4) were not met:</p> 
+            <p>No package ‘libcurl’ found</p> 
+            <p>Consider adjusting the PKG_CONFIG_PATH environment variable if you<br /> installed software in a non-standard prefix.</p> 
+            <p>Alternatively, you may set the environment variables LIBCURL_CFLAGS<br /> and LIBCURL_LIBS to avoid the need to call pkg-config.<br /> See the pkg-config man page for more details.</p> 
+            <p>make[3]: *** [/home/erareco/openwrt/WRTnode/trunk/build_dir/target-mipsel_24kec+dsp_uClibc-0.9.33.2/transmission-2.83/.configured_] Error 1<br /> make[3]: Leaving directory `/home/erareco/openwrt/WRTnode/trunk/feeds/packages/net/transmission’<br /> make[2]: *** [package/feeds/packages/transmission/compile] Error 2<br /> make[2]: Leaving directory `/home/erareco/openwrt/WRTnode/trunk’<br /> make[1]: *** [/home/erareco/openwrt/WRTnode/trunk/staging_dir/target-mipsel_24kec+dsp_uClibc-0.9.33.2/stamp/.package_compile] Error 2<br /> make[1]: Leaving directory `/home/erareco/openwrt/WRTnode/trunk’<br /> make: *** [world] Error 2</p> 
+           </div>
+           <!-- .comment-content --> 
+          </article>
+          <!-- .comment-body --> 
+          <ul class="children"> 
+           <li id="comment-161" class="comment odd alt depth-2 parent"> 
+            <article id="div-comment-161" class="comment-body"> 
+             <footer class="comment-meta"> 
+              <img alt="" src="http://0.gravatar.com/avatar/a4eca63689f6408ed16bda7214a7cc8f?s=50&amp;d=http%3A%2F%2F0.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D50&amp;r=G" class="avatar avatar-50 photo" height="50" width="50" /> 
+              <div class="comment-author-info"> 
+               <div class="comment-author vcard"> 
+                <cite class="fn">fans</cite> 
+               </div>
+               <!-- .comment-author --> 
+               <div class="entry-meta comment-metadata"> 
+                <a href="http://www.wrtnode.cc/blog/?p=172#comment-161"> <time datetime="2014-06-16T19:26:21+00:00"> 2014年6月16日 at 19:26 </time> </a> 
+                <span class="reply">| <a class="comment-reply-link" href="/blog/?p=172&amp;replytocom=161#respond" onclick="return addComment.moveForm(&quot;div-comment-161&quot;, &quot;161&quot;, &quot;respond&quot;, &quot;172&quot;)">回复</a></span> 
+               </div>
+               <!-- .comment-metadata --> 
+              </div>
+              <!-- .comment-author-info --> 
+             </footer>
+             <!-- .comment-meta --> 
+             <div class="comment-content"> 
+              <p>回楼上，今天照做了一遍都很ok啊，估计跟大墙有点关系。</p> 
+             </div>
+             <!-- .comment-content --> 
+            </article>
+            <!-- .comment-body --> 
+            <ul class="children"> 
+             <li id="comment-189" class="comment even depth-3"> 
+              <article id="div-comment-189" class="comment-body"> 
+               <footer class="comment-meta"> 
+                <img alt="" src="http://0.gravatar.com/avatar/831f137241e910647f1bc5b6c9a5f9e5?s=50&amp;d=http%3A%2F%2F0.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D50&amp;r=G" class="avatar avatar-50 photo" height="50" width="50" /> 
+                <div class="comment-author-info"> 
+                 <div class="comment-author vcard"> 
+                  <cite class="fn">Merafour</cite> 
+                 </div>
+                 <!-- .comment-author --> 
+                 <div class="entry-meta comment-metadata"> 
+                  <a href="http://www.wrtnode.cc/blog/?p=172#comment-189"> <time datetime="2014-06-28T00:56:13+00:00"> 2014年6月28日 at 00:56 </time> </a> 
+                  <span class="reply">| <a class="comment-reply-link" href="/blog/?p=172&amp;replytocom=189#respond" onclick="return addComment.moveForm(&quot;div-comment-189&quot;, &quot;189&quot;, &quot;respond&quot;, &quot;172&quot;)">回复</a></span> 
+                 </div>
+                 <!-- .comment-metadata --> 
+                </div>
+                <!-- .comment-author-info --> 
+               </footer>
+               <!-- .comment-meta --> 
+               <div class="comment-content"> 
+                <p>这段时间我按照上面的教程试了好多次，有时是像libcurl 这样有些包编译不过，有时是一些包下载不了。你真的一遍就能够通过吗？</p> 
+               </div>
+               <!-- .comment-content --> 
+              </article>
+              <!-- .comment-body --> </li>
+             <!-- #comment-## --> 
+            </ul>
+            <!-- .children --> </li>
+           <!-- #comment-## --> 
+          </ul>
+          <!-- .children --> </li>
+         <!-- #comment-## --> 
+         <li id="comment-181" class="comment byuser comment-author-lucasdai odd alt thread-odd thread-alt depth-1"> 
+          <article id="div-comment-181" class="comment-body"> 
+           <footer class="comment-meta"> 
+            <img alt="" src="http://0.gravatar.com/avatar/085b56ff40097732f5319264088474ad?s=50&amp;d=http%3A%2F%2F0.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D50&amp;r=G" class="avatar avatar-50 photo" height="50" width="50" /> 
+            <div class="comment-author-info"> 
+             <div class="comment-author vcard"> 
+              <cite class="fn">lucasdai</cite> 
+             </div>
+             <!-- .comment-author --> 
+             <div class="entry-meta comment-metadata"> 
+              <a href="http://www.wrtnode.cc/blog/?p=172#comment-181"> <time datetime="2014-06-24T20:55:54+00:00"> 2014年6月24日 at 20:55 </time> </a> 
+              <span class="reply">| <a class="comment-reply-link" href="/blog/?p=172&amp;replytocom=181#respond" onclick="return addComment.moveForm(&quot;div-comment-181&quot;, &quot;181&quot;, &quot;respond&quot;, &quot;172&quot;)">回复</a></span> 
+             </div>
+             <!-- .comment-metadata --> 
+            </div>
+            <!-- .comment-author-info --> 
+           </footer>
+           <!-- .comment-meta --> 
+           <div class="comment-content"> 
+            <p>在make V=s 的时候，会因为下载一个文件失败导致编译中止，<br /> –2014-06-24 17:32:30– <a href="http://mirror2.openwrt.org/sources/transmission-2.83.tar.xz" rel="nofollow">http://mirror2.openwrt.org/sources/transmission-2.83.tar.xz</a><br /> Resolving mirror2.openwrt.org (mirror2.openwrt.org)… 46.4.11.11<br /> Connecting to mirror2.openwrt.org (mirror2.openwrt.org)|46.4.11.11|:80… connected.<br /> HTTP request sent, awaiting response… 404 Not Found<br /> 2014-06-24 17:32:30 ERROR 404: Not Found.</p> 
+            <p>Download failed.<br /> –2014-06-24 17:32:31– <a href="http://downloads.openwrt.org/sources/transmission-2.83.tar.xz" rel="nofollow">http://downloads.openwrt.org/sources/transmission-2.83.tar.xz</a><br /> Resolving downloads.openwrt.org (downloads.openwrt.org)… 78.24.191.177<br /> Connecting to downloads.openwrt.org (downloads.openwrt.org)|78.24.191.177|:80… connected.<br /> HTTP request sent, awaiting response… 404 Not Found<br /> 2014-06-24 17:32:31 ERROR 404: Not Found.</p> 
+            <p>麻烦确认下，本人已经在墙外</p> 
+           </div>
+           <!-- .comment-content --> 
+          </article>
+          <!-- .comment-body --> </li>
+         <!-- #comment-## --> 
+         <li id="comment-254" class="comment byuser comment-author-dj_shu even thread-even depth-1 parent"> 
+          <article id="div-comment-254" class="comment-body"> 
+           <footer class="comment-meta"> 
+            <img alt="" src="http://0.gravatar.com/avatar/e1d48f6dbb2f3e7a22957f422082217b?s=50&amp;d=http%3A%2F%2F0.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D50&amp;r=G" class="avatar avatar-50 photo" height="50" width="50" /> 
+            <div class="comment-author-info"> 
+             <div class="comment-author vcard"> 
+              <cite class="fn">dj_shu</cite> 
+             </div>
+             <!-- .comment-author --> 
+             <div class="entry-meta comment-metadata"> 
+              <a href="http://www.wrtnode.cc/blog/?p=172#comment-254"> <time datetime="2014-07-16T11:55:44+00:00"> 2014年7月16日 at 11:55 </time> </a> 
+              <span class="reply">| <a class="comment-reply-link" href="/blog/?p=172&amp;replytocom=254#respond" onclick="return addComment.moveForm(&quot;div-comment-254&quot;, &quot;254&quot;, &quot;respond&quot;, &quot;172&quot;)">回复</a></span> 
+             </div>
+             <!-- .comment-metadata --> 
+            </div>
+            <!-- .comment-author-info --> 
+           </footer>
+           <!-- .comment-meta --> 
+           <div class="comment-content"> 
+            <p>我想问下我编译出来的固件LED不会亮，是配置问题吗？</p> 
+           </div>
+           <!-- .comment-content --> 
+          </article>
+          <!-- .comment-body --> 
+          <ul class="children"> 
+           <li id="comment-255" class="comment byuser comment-author-admin odd alt depth-2 parent"> 
+            <article id="div-comment-255" class="comment-body"> 
+             <footer class="comment-meta"> 
+              <img alt="" src="http://1.gravatar.com/avatar/fb0d69d647017f0afce4e79f00487184?s=50&amp;d=http%3A%2F%2F1.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D50&amp;r=G" class="avatar avatar-50 photo" height="50" width="50" /> 
+              <div class="comment-author-info"> 
+               <div class="comment-author vcard"> 
+                <cite class="fn"><a href="http://www.wrtnode.cc/blog" rel="external nofollow" class="url">WRTnode</a></cite> 
+               </div>
+               <!-- .comment-author --> 
+               <div class="entry-meta comment-metadata"> 
+                <a href="http://www.wrtnode.cc/blog/?p=172#comment-255"> <time datetime="2014-07-16T13:00:36+00:00"> 2014年7月16日 at 13:00 </time> </a> 
+                <span class="reply">| <a class="comment-reply-link" href="/blog/?p=172&amp;replytocom=255#respond" onclick="return addComment.moveForm(&quot;div-comment-255&quot;, &quot;255&quot;, &quot;respond&quot;, &quot;172&quot;)">回复</a></span> 
+               </div>
+               <!-- .comment-metadata --> 
+              </div>
+              <!-- .comment-author-info --> 
+             </footer>
+             <!-- .comment-meta --> 
+             <div class="comment-content"> 
+              <p>那个led只作为了电源灯，也可定义为其他功能但我们没弄。</p> 
+             </div>
+             <!-- .comment-content --> 
+            </article>
+            <!-- .comment-body --> 
+            <ul class="children"> 
+             <li id="comment-256" class="comment byuser comment-author-dj_shu even depth-3"> 
+              <article id="div-comment-256" class="comment-body"> 
+               <footer class="comment-meta"> 
+                <img alt="" src="http://0.gravatar.com/avatar/e1d48f6dbb2f3e7a22957f422082217b?s=50&amp;d=http%3A%2F%2F0.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D50&amp;r=G" class="avatar avatar-50 photo" height="50" width="50" /> 
+                <div class="comment-author-info"> 
+                 <div class="comment-author vcard"> 
+                  <cite class="fn">dj_shu</cite> 
+                 </div>
+                 <!-- .comment-author --> 
+                 <div class="entry-meta comment-metadata"> 
+                  <a href="http://www.wrtnode.cc/blog/?p=172#comment-256"> <time datetime="2014-07-16T13:13:00+00:00"> 2014年7月16日 at 13:13 </time> </a> 
+                  <span class="reply">| <a class="comment-reply-link" href="/blog/?p=172&amp;replytocom=256#respond" onclick="return addComment.moveForm(&quot;div-comment-256&quot;, &quot;256&quot;, &quot;respond&quot;, &quot;172&quot;)">回复</a></span> 
+                 </div>
+                 <!-- .comment-metadata --> 
+                </div>
+                <!-- .comment-author-info --> 
+               </footer>
+               <!-- .comment-meta --> 
+               <div class="comment-content"> 
+                <p>是的，我的板子内核起来后，只有pwr灯点亮了，那其它的是不是我需要自己开发？</p> 
+               </div>
+               <!-- .comment-content --> 
+              </article>
+              <!-- .comment-body --> </li>
+             <!-- #comment-## --> 
+            </ul>
+            <!-- .children --> </li>
+           <!-- #comment-## --> 
+          </ul>
+          <!-- .children --> </li>
+         <!-- #comment-## --> 
+         <li id="comment-261" class="comment odd alt thread-odd thread-alt depth-1 parent"> 
+          <article id="div-comment-261" class="comment-body"> 
+           <footer class="comment-meta"> 
+            <img alt="" src="http://0.gravatar.com/avatar/69a461890bb5d788dcee93a8b67314db?s=50&amp;d=http%3A%2F%2F0.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D50&amp;r=G" class="avatar avatar-50 photo" height="50" width="50" /> 
+            <div class="comment-author-info"> 
+             <div class="comment-author vcard"> 
+              <cite class="fn">daixiangjun</cite> 
+             </div>
+             <!-- .comment-author --> 
+             <div class="entry-meta comment-metadata"> 
+              <a href="http://www.wrtnode.cc/blog/?p=172#comment-261"> <time datetime="2014-07-22T16:26:17+00:00"> 2014年7月22日 at 16:26 </time> </a> 
+              <span class="reply">| <a class="comment-reply-link" href="/blog/?p=172&amp;replytocom=261#respond" onclick="return addComment.moveForm(&quot;div-comment-261&quot;, &quot;261&quot;, &quot;respond&quot;, &quot;172&quot;)">回复</a></span> 
+             </div>
+             <!-- .comment-metadata --> 
+            </div>
+            <!-- .comment-author-info --> 
+           </footer>
+           <!-- .comment-meta --> 
+           <div class="comment-content"> 
+            <p>svn我没有用过，请问下怎么下载39786分支的代码，然后执行./scripts/feeds update -a 出现以下结果是什么原因。ERROR: please fix feeds/oldpackages/lang/perl-www-curl/Makefile – see logs/feeds/oldpackages/lang/perl-www-curl/dump.txt for details<br /> ERROR: please fix feeds/oldpackages/lang/perl-html-tree/Makefile – see logs/feeds/oldpackages/lang/perl-html-tree/dump.txt for details<br /> ERROR: please fix feeds/oldpackages/lang/perl-uri/Makefile – see logs/feeds/oldpackages/lang/perl-uri/dump.txt for details<br /> ERROR: please fix feeds/oldpackages/lang/perl-www/Makefile – see logs/feeds/oldpackages/lang/perl-www/dump.txt for details<br /> ERROR: please fix feeds/oldpackages/lang/perl-test-harness/Makefile – see logs/feeds/oldpackages/lang/perl-test-harness/dump.txt for details<br /> ERROR: please fix feeds/oldpackages/lang/perl-html-tagset/Makefile – see logs/feeds/oldpackages/lang/perl-html-tagset/dump.txt for details<br /> ERROR: please fix feeds/oldpackages/lang/perl-lockfile-simple/Makefile – see logs/feeds/oldpackages/lang/perl-lockfile-simple/dump.txt for details<br /> ERROR: please fix feeds/oldpackages/lang/perl-dbi/Makefile – see logs/feeds/oldpackages/lang/perl-dbi/dump.txt for details<br /> ERROR: please fix feeds/oldpackages/lang/perl-html-parser/Makefile – see logs/feeds/oldpackages/lang/perl-html-parser/dump.txt for details<br /> ERROR: please fix feeds/oldpackages/lang/perl-www-mechanize/Makefile – see logs/feeds/oldpackages/lang/perl-www-mechanize/dump.txt for details<br /> ERROR: please fix feeds/oldpackages/lang/perl-net-telnet/Makefile – see logs/feeds/oldpackages/lang/perl-net-telnet/dump.txt for details<br /> Collecting package info: done。麻烦解决下。谢谢</p> 
+           </div>
+           <!-- .comment-content --> 
+          </article>
+          <!-- .comment-body --> 
+          <ul class="children"> 
+           <li id="comment-262" class="comment byuser comment-author-admin even depth-2 parent"> 
+            <article id="div-comment-262" class="comment-body"> 
+             <footer class="comment-meta"> 
+              <img alt="" src="http://1.gravatar.com/avatar/fb0d69d647017f0afce4e79f00487184?s=50&amp;d=http%3A%2F%2F1.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D50&amp;r=G" class="avatar avatar-50 photo" height="50" width="50" /> 
+              <div class="comment-author-info"> 
+               <div class="comment-author vcard"> 
+                <cite class="fn"><a href="http://www.wrtnode.cc/blog" rel="external nofollow" class="url">WRTnode</a></cite> 
+               </div>
+               <!-- .comment-author --> 
+               <div class="entry-meta comment-metadata"> 
+                <a href="http://www.wrtnode.cc/blog/?p=172#comment-262"> <time datetime="2014-07-23T20:55:16+00:00"> 2014年7月23日 at 20:55 </time> </a> 
+                <span class="reply">| <a class="comment-reply-link" href="/blog/?p=172&amp;replytocom=262#respond" onclick="return addComment.moveForm(&quot;div-comment-262&quot;, &quot;262&quot;, &quot;respond&quot;, &quot;172&quot;)">回复</a></span> 
+               </div>
+               <!-- .comment-metadata --> 
+              </div>
+              <!-- .comment-author-info --> 
+             </footer>
+             <!-- .comment-meta --> 
+             <div class="comment-content"> 
+              <p>我们刚刚更新了编译流程，其中很多步骤都有了变化，请按照最新版的流程做。：）</p> 
+             </div>
+             <!-- .comment-content --> 
+            </article>
+            <!-- .comment-body --> 
+            <ul class="children"> 
+             <li id="comment-268" class="comment byuser comment-author-leo3331 odd alt depth-3"> 
+              <article id="div-comment-268" class="comment-body"> 
+               <footer class="comment-meta"> 
+                <img alt="" src="http://1.gravatar.com/avatar/16b7f94c8d2cbf0383216cb92717b8b6?s=50&amp;d=http%3A%2F%2F1.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D50&amp;r=G" class="avatar avatar-50 photo" height="50" width="50" /> 
+                <div class="comment-author-info"> 
+                 <div class="comment-author vcard"> 
+                  <cite class="fn">leo3331</cite> 
+                 </div>
+                 <!-- .comment-author --> 
+                 <div class="entry-meta comment-metadata"> 
+                  <a href="http://www.wrtnode.cc/blog/?p=172#comment-268"> <time datetime="2014-08-03T00:17:42+00:00"> 2014年8月3日 at 00:17 </time> </a> 
+                  <span class="reply">| <a class="comment-reply-link" href="/blog/?p=172&amp;replytocom=268#respond" onclick="return addComment.moveForm(&quot;div-comment-268&quot;, &quot;268&quot;, &quot;respond&quot;, &quot;172&quot;)">回复</a></span> 
+                 </div>
+                 <!-- .comment-metadata --> 
+                </div>
+                <!-- .comment-author-info --> 
+               </footer>
+               <!-- .comment-meta --> 
+               <div class="comment-content"> 
+                <p>新版的流程在哪里，也经过了很多次的编译，就是不成功</p> 
+               </div>
+               <!-- .comment-content --> 
+              </article>
+              <!-- .comment-body --> </li>
+             <!-- #comment-## --> 
+             <li id="comment-273" class="comment byuser comment-author-leo3331 even depth-3"> 
+              <article id="div-comment-273" class="comment-body"> 
+               <footer class="comment-meta"> 
+                <img alt="" src="http://1.gravatar.com/avatar/16b7f94c8d2cbf0383216cb92717b8b6?s=50&amp;d=http%3A%2F%2F1.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D50&amp;r=G" class="avatar avatar-50 photo" height="50" width="50" /> 
+                <div class="comment-author-info"> 
+                 <div class="comment-author vcard"> 
+                  <cite class="fn">leo3331</cite> 
+                 </div>
+                 <!-- .comment-author --> 
+                 <div class="entry-meta comment-metadata"> 
+                  <a href="http://www.wrtnode.cc/blog/?p=172#comment-273"> <time datetime="2014-08-09T14:27:20+00:00"> 2014年8月9日 at 14:27 </time> </a> 
+                  <span class="reply">| <a class="comment-reply-link" href="/blog/?p=172&amp;replytocom=273#respond" onclick="return addComment.moveForm(&quot;div-comment-273&quot;, &quot;273&quot;, &quot;respond&quot;, &quot;172&quot;)">回复</a></span> 
+                 </div>
+                 <!-- .comment-metadata --> 
+                </div>
+                <!-- .comment-author-info --> 
+               </footer>
+               <!-- .comment-meta --> 
+               <div class="comment-content"> 
+                <p>请问更新的留程在哪里口可以找到，麻烦提供一下相关的信息</p> 
+               </div>
+               <!-- .comment-content --> 
+              </article>
+              <!-- .comment-body --> </li>
+             <!-- #comment-## --> 
+            </ul>
+            <!-- .children --> </li>
+           <!-- #comment-## --> 
+          </ul>
+          <!-- .children --> </li>
+         <!-- #comment-## --> 
+         <li id="comment-266" class="comment byuser comment-author-farmerlee odd alt thread-even depth-1"> 
+          <article id="div-comment-266" class="comment-body"> 
+           <footer class="comment-meta"> 
+            <img alt="" src="http://0.gravatar.com/avatar/8e5c0d22a793e5f53ce5a79cad9f1a74?s=50&amp;d=http%3A%2F%2F0.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D50&amp;r=G" class="avatar avatar-50 photo" height="50" width="50" /> 
+            <div class="comment-author-info"> 
+             <div class="comment-author vcard"> 
+              <cite class="fn">码农008</cite> 
+             </div>
+             <!-- .comment-author --> 
+             <div class="entry-meta comment-metadata"> 
+              <a href="http://www.wrtnode.cc/blog/?p=172#comment-266"> <time datetime="2014-08-02T08:08:04+00:00"> 2014年8月2日 at 08:08 </time> </a> 
+              <span class="reply">| <a class="comment-reply-link" href="/blog/?p=172&amp;replytocom=266#respond" onclick="return addComment.moveForm(&quot;div-comment-266&quot;, &quot;266&quot;, &quot;respond&quot;, &quot;172&quot;)">回复</a></span> 
+             </div>
+             <!-- .comment-metadata --> 
+            </div>
+            <!-- .comment-author-info --> 
+           </footer>
+           <!-- .comment-meta --> 
+           <div class="comment-content"> 
+            <p>据说最新版的openwrt版本barrier_breaker已经支持wrtnode，能否出一个针对这个版本的编译环境搭建介绍？摸了半天，没摸出来。:-)</p> 
+           </div>
+           <!-- .comment-content --> 
+          </article>
+          <!-- .comment-body --> </li>
+         <!-- #comment-## --> 
+         <li id="comment-292" class="comment even thread-odd thread-alt depth-1 parent"> 
+          <article id="div-comment-292" class="comment-body"> 
+           <footer class="comment-meta"> 
+            <img alt="" src="http://0.gravatar.com/avatar/c0d874987b33a347026a2397af80bb5a?s=50&amp;d=http%3A%2F%2F0.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D50&amp;r=G" class="avatar avatar-50 photo" height="50" width="50" /> 
+            <div class="comment-author-info"> 
+             <div class="comment-author vcard"> 
+              <cite class="fn">bixiaopeng</cite> 
+             </div>
+             <!-- .comment-author --> 
+             <div class="entry-meta comment-metadata"> 
+              <a href="http://www.wrtnode.cc/blog/?p=172#comment-292"> <time datetime="2015-01-12T14:46:35+00:00"> 2015年1月12日 at 14:46 </time> </a> 
+              <span class="reply">| <a class="comment-reply-link" href="/blog/?p=172&amp;replytocom=292#respond" onclick="return addComment.moveForm(&quot;div-comment-292&quot;, &quot;292&quot;, &quot;respond&quot;, &quot;172&quot;)">回复</a></span> 
+             </div>
+             <!-- .comment-metadata --> 
+            </div>
+            <!-- .comment-author-info --> 
+           </footer>
+           <!-- .comment-meta --> 
+           <div class="comment-content"> 
+            <p>根据本文尝试编译时报错<br /> 出错文件夹<br /> trunk/build_dir/toolchain-mipsel_24kec+dsp_gcc-4.8-linaro_uClibc-0.9.33.2/gcc-linaro-4.8-2014.04-final/gcc<br /> 执行命令i686-redhat-linux-gcc -g -O2 -DIN_GCC -DCROSS_DIRECTORY_STRUCTURE -fno-exceptions -fno-rtti -fasynchronous-unwind-tables -W -Wall -Wwrite-strings -Wcast-qual -Wmissing-format-attribute -pedantic -Wno-long-long -Wno-variadic-macros -Wno-overlength-strings -DHAVE_CONFIG_H -o cc1plus cp/cp-lang.o c-family/stub-objc.o cp/call.o cp/decl.o cp/expr.o cp/pt.o cp/typeck2.o cp/class.o cp/decl2.o cp/error.o cp/lex.o cp/parser.o cp/ptree.o cp/rtti.o cp/typeck.o cp/cvt.o cp/except.o cp/friend.o cp/init.o cp/method.o cp/search.o cp/semantics.o cp/tree.o cp/repo.o cp/dump.o cp/optimize.o cp/mangle.o cp/cp-objcp-common.o cp/name-lookup.o cp/cxx-pretty-print.o cp/cp-gimplify.o attribs.o incpath.o c-family/c-common.o c-family/c-cppbuiltin.o c-family/c-dump.o c-family/c-format.o c-family/c-gimplify.o c-family/c-lex.o c-family/c-omp.o c-family/c-opts.o c-family/c-pch.o c-family/c-ppoutput.o c-family/c-pragma.o c-family/c-pretty-print.o c-family/c-semantics.o c-family/c-ada-spec.o tree-mudflap.o glibc-c.o cc1plus-checksum.o libbackend.a main.o libcommon-target.a libcommon.a ../libcpp/libcpp.a ../libdecnumber/libdecnumber.a libcommon.a ../libcpp/libcpp.a -liconv ../libbacktrace/.libs/libbacktrace.a ../libiberty/libiberty.a ../libdecnumber/libdecnumber.a -lstdc++ -L/root/openwrt/trunk/staging_dir/host/lib -L/root/openwrt/trunk/staging_dir/host/lib -L/root/openwrt/trunk/staging_dir/host/lib -lmpc -lmpfr -lgmp -rdynamic -ldl -lstdc++ -L../zlib -lz<br /> 错误提示<br /> collect2: ld returned 1 exit status</p> 
+            <p>求各位提示一下如何解决，。谢谢各位了。</p> 
+           </div>
+           <!-- .comment-content --> 
+          </article>
+          <!-- .comment-body --> 
+          <ul class="children"> 
+           <li id="comment-294" class="comment byuser comment-author-admin odd alt depth-2"> 
+            <article id="div-comment-294" class="comment-body"> 
+             <footer class="comment-meta"> 
+              <img alt="" src="http://1.gravatar.com/avatar/fb0d69d647017f0afce4e79f00487184?s=50&amp;d=http%3A%2F%2F1.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D50&amp;r=G" class="avatar avatar-50 photo" height="50" width="50" /> 
+              <div class="comment-author-info"> 
+               <div class="comment-author vcard"> 
+                <cite class="fn"><a href="http://www.wrtnode.cc/blog" rel="external nofollow" class="url">WRTnode</a></cite> 
+               </div>
+               <!-- .comment-author --> 
+               <div class="entry-meta comment-metadata"> 
+                <a href="http://www.wrtnode.cc/blog/?p=172#comment-294"> <time datetime="2015-01-20T02:47:41+00:00"> 2015年1月20日 at 02:47 </time> </a> 
+                <span class="reply">| <a class="comment-reply-link" href="/blog/?p=172&amp;replytocom=294#respond" onclick="return addComment.moveForm(&quot;div-comment-294&quot;, &quot;294&quot;, &quot;respond&quot;, &quot;172&quot;)">回复</a></span> 
+               </div>
+               <!-- .comment-metadata --> 
+              </div>
+              <!-- .comment-author-info --> 
+             </footer>
+             <!-- .comment-meta --> 
+             <div class="comment-content"> 
+              <p>请到WRTnode QQ群里来解决，WRTnode开发者社区 群号：331983270</p> 
+             </div>
+             <!-- .comment-content --> 
+            </article>
+            <!-- .comment-body --> </li>
+           <!-- #comment-## --> 
+          </ul>
+          <!-- .children --> </li>
+         <!-- #comment-## --> 
+        </ol>
+        <!-- .comment-list --> 
+        <div id="respond" class="comment-respond"> 
+         <h3 id="reply-title" class="comment-reply-title">Leave a Reply to <a href="#comment-148">chenliang</a> <small><a rel="nofollow" id="cancel-comment-reply-link" href="/blog/?p=172#respond">Cancel reply</a></small></h3> 
+         <form action="http://www.wrtnode.cc/blog/wp-comments-post.php" method="post" id="commentform" class="comment-form" novalidate=""> 
+          <input placeholder="Name *" id="author" name="author" type="text" value="" size="30" /> 
+          <input placeholder="Email *" id="email" name="email" type="text" value="" size="30" /> 
+          <input placeholder="Website" id="url" name="url" type="text" value="" size="30" /> 
+          <div class="LBD_CaptchaDiv" id="comment_captcha_CaptchaDiv" style="width:265px; height:50px;">
+           <!--
+ -->
+           <div class="LBD_CaptchaImageDiv" id="comment_captcha_CaptchaImageDiv" style="width:235px !important; height:50px !important;">
+            <!--
+   -->
+            <a target="_blank" href="http://captcha.com/wordpress-captcha-info.html" title="What is the WordPress CAPTCHA Plugin?" onclick="comment_captcha.OnHelpLinkClick(); return comment_captcha.FollowHelpLink;"><img class="LBD_CaptchaImage" id="comment_captcha_CaptchaImage" src="http://www.wrtnode.cc/blog/index.php?botdetect_request=1&amp;get=image&amp;c=comment_captcha&amp;t=3476d2f412bee9e1feb7a43e5a48d60c" alt="CAPTCHA" /></a>
+            <!--
+ -->
+           </div>
+           <!--
+ -->
+           <div class="LBD_CaptchaIconsDiv" id="comment_captcha_CaptchaIconsDiv" style="width: 24px !important;">
+            <!--
+   -->
+            <a class="LBD_ReloadLink" id="comment_captcha_ReloadLink" href="#" onclick="comment_captcha.ReloadImage(); this.blur(); return false;" title="Change the CAPTCHA code"><img class="LBD_ReloadIcon" id="comment_captcha_ReloadIcon" src="http://www.wrtnode.cc/blog/wp-content/plugins/botdetect-wp-captcha/lib/botdetect/public/lbd_reload_icon.gif" alt="Change the CAPTCHA code" /></a>
+            <!--
+   -->
+            <a class="LBD_SoundLink" id="comment_captcha_SoundLink" href="http://www.wrtnode.cc/blog/index.php?botdetect_request=1&amp;get=sound&amp;c=comment_captcha&amp;t=3476d2f412bee9e1feb7a43e5a48d60c" onclick="comment_captcha.PlaySound(); this.blur(); return false;" title="Speak the CAPTCHA code" target="_blank"><img class="LBD_SoundIcon" id="comment_captcha_SoundIcon" src="http://www.wrtnode.cc/blog/wp-content/plugins/botdetect-wp-captcha/lib/botdetect/public/lbd_sound_icon.gif" alt="Speak the CAPTCHA code" /></a>
+            <!--
+   -->
+            <div class="LBD_Placeholder" id="comment_captcha_AudioPlaceholder">
+             &nbsp;
+            </div>
+            <!--
+ -->
+           </div> 
+           <script src="http://www.wrtnode.cc/blog/wp-content/plugins/botdetect-wp-captcha/lib/botdetect/public/lbd_scripts.js" type="text/javascript"></script> 
+           <script type="text/javascript">//<![CDATA[
+      BotDetect.Init('comment_captcha', '3476d2f412bee9e1feb7a43e5a48d60c', 'comment_captcha_field', true, true, true, true, 1200, 7200, 0, true);
+    //]]></script> 
+           <input type="hidden" name="LBD_VCID_comment_captcha" id="LBD_VCID_comment_captcha" value="3476d2f412bee9e1feb7a43e5a48d60c" /> 
+           <input type="hidden" name="LBD_BackWorkaround_comment_captcha" id="LBD_BackWorkaround_comment_captcha" value="0" /> 
+           <script type="text/javascript">//<![CDATA[
+try{(function(){var bdrsn = document.createElement('script'); bdrsn.type = 'text/javascript'; bdrsn.async = true; bdrsn.src = document.location.protocol + '//remote.captcha.com/include.js?i=ATABMgEwATMBMAJCMxRyN1ManB6OHBAf9IfC0HRn48T3bQ'; var fsn = document.getElementsByTagName('script')[0]; fsn.parentNode.insertBefore(bdrsn, fsn);})();} catch(err){}
+    //]]></script> 
+          </div> 
+          <input name="comment_captcha_field" type="text" id="comment_captcha_field" /> 
+          <p class="comment-form-comment"><textarea id="comment" name="comment" cols="45" rows="8" aria-required="true"></textarea></p> 
+          <p class="form-submit"> <input name="submit" type="submit" id="submit" value="Post Comment" /> <input type="hidden" name="comment_post_ID" value="172" id="comment_post_ID" /> <input type="hidden" name="comment_parent" id="comment_parent" value="148" /> </p> 
+         </form> 
+        </div>
+        <!-- #respond --> 
+       </div>
+       <!-- #comments --> 
+      </div> 
+     </main>
+     <!-- #main --> 
+    </div>
+    <!-- #primary --> 
+    <div id="right-sidebar" itemtype="http://schema.org/WPSideBar" itemscope="itemscope" role="complementary" class="widget-area grid-25 tablet-grid-25 grid-parent sidebar"> 
+     <div class="inside-right-sidebar"> 
+      <aside id="recent-posts-2" class="widget inner-padding widget_recent_entries"> 
+       <h4 class="widget-title">近期文章</h4> 
+       <ul> 
+        <li> <a href="http://www.wrtnode.cc/blog/?p=671">大家好，WRTnode2P/2R已上线销售，ask.wrtnode.cc社区人气开始旺起来了。</a> </li> 
+        <li> <a href="http://www.wrtnode.cc/blog/?p=668">WRTnode新网站开放，新产品及服务开放</a> </li> 
+        <li> <a href="http://www.wrtnode.cc/blog/?p=651">WRTnode QQ群欢迎你，以及WRTnode2进度</a> </li> 
+        <li> <a href="http://www.wrtnode.cc/blog/?p=566">WRTnode软件发版说明v2014.8.10</a> </li> 
+        <li> <a href="http://www.wrtnode.cc/blog/?p=534">WRTnode参与发起的OpenWrt开发者活动接受免费报名</a> </li> 
+       </ul> 
+      </aside> 
+     </div>
+     <!-- .inside-right-sidebar --> 
+    </div>
+    <!-- #secondary --> 
+    <!--WP Code Highlight_start--> 
+    <script type="text/javascript">
+		window.onload = function(){prettyPrint();};
+	</script> 
+    <script type="text/javascript" src="http://www.wrtnode.cc/blog/wp-content/plugins/wp-code-highlight/js/wp-code-highlight.js"></script> 
+    <!--WP Code Highlight_end--> 
+   </div>
+   <!-- #content --> 
+  </div>
+  <!-- #page --> 
+  <div class="site-footer"> 
+   <div id="footer-widgets" class="site footer-widgets"> 
+    <div class="inside-footer-widgets grid-container grid-parent"> 
+     <div class="footer-widget-1 grid-parent grid-100 tablet-grid-50"> 
+      <aside id="text-3" class="widget inner-padding widget_text"> 
+       <div class="textwidget">
+        备案号：京ICP备14057095号-2
+       </div> 
+      </aside> 
+     </div> 
+    </div> 
+   </div> 
+   <footer class="site-info" itemtype="http://schema.org/WPFooter" itemscope="itemscope" role="contentinfo"> 
+    <div class="inside-site-info grid-container grid-parent"> 
+     <span class="copyright">Copyright &copy; 2017</span> &middot; 
+     <a href="http://generatepress.com" target="_blank" title="GeneratePress" itemprop="url">GeneratePress</a> &middot; 
+     <a href="http://wordpress.org" target="_blank" title="Proudly powered by WordPress">WordPress</a> 
+    </div> 
+   </footer>
+   <!-- .site-info --> 
+  </div>
+  <!-- .site-footer --> 
+  <script type="text/javascript">
+var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3F63b2f2ef014465e513f00c5682d99555' type='text/javascript'%3E%3C/script%3E"));
+</script>
+  <script type="text/javascript" src="http://www.wrtnode.cc/blog/wp-content/themes/generatepress/js/navigation.js?ver=1.3.08"></script> 
+  <script type="text/javascript" src="http://www.wrtnode.cc/blog/wp-content/themes/generatepress/js/superfish.min.js?ver=1.3.08"></script> 
+  <script type="text/javascript" src="http://www.wrtnode.cc/blog/wp-includes/js/hoverIntent.min.js?ver=r7"></script> 
+  <script type="text/javascript" src="http://www.wrtnode.cc/blog/wp-includes/js/comment-reply.min.js?ver=3.9.9"></script> 
+  <!-- 
+			Plugin: Super Simple Google Analytics 
+	Plugin URL: Super Simple Google Analytics
+
+
+	--> 
+  <script type="text/javascript">
+	  var _gaq = _gaq || [];
+	  _gaq.push(['_setAccount', 'UA-45670814-1']);
+	  _gaq.push(['_trackPageview']);
+	
+	  (function() {
+		var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+	  })();
+	</script>  
+ </body>
+</html>

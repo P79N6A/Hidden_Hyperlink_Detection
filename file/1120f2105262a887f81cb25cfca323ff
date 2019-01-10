@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+ <head> 
+  <meta charset="UTF-8" /> 
+  <meta name="viewport" content="width=device-width, initial-scale=1" /> 
+  <link rel="profile" href="http://gmpg.org/xfn/11" /> 
+  <link rel="pingback" href="http://www.52ml.net/xmlrpc.php" /> 
+  <title>hadoop解析序列文件并可视化输出 – 我爱机器学习</title> 
+  <link rel="alternate" type="application/rss+xml" title="我爱机器学习 &raquo; Feed" href="https://www.52ml.net/feed" /> 
+  <link rel="alternate" type="application/rss+xml" title="我爱机器学习 &raquo; 评论Feed" href="https://www.52ml.net/comments/feed" /> 
+  <link rel="alternate" type="application/rss+xml" title="我爱机器学习 &raquo; hadoop解析序列文件并可视化输出评论Feed" href="https://www.52ml.net/1689.html/feed" /> 
+  <link rel="stylesheet" id="toc-screen-css" href="http://www.52ml.net/wp-content/plugins/table-of-contents-plus/screen.min.css?ver=1509" type="text/css" media="all" /> 
+  <link rel="stylesheet" id="wpctc_wpctc-css" href="http://www.52ml.net/wp-content/plugins/wp-category-tag-could/css/wpctc.min.css?ver=1.7.1" type="text/css" media="all" /> 
+  <link rel="stylesheet" id="wp-syntax-css-css" href="http://www.52ml.net/wp-content/plugins/wp-syntax/css/wp-syntax.css?ver=1.0" type="text/css" media="all" /> 
+  <link rel="stylesheet" id="codilight-lite-google-fonts-css" href="https://fonts.geekzu.org/css?family=Raleway%3A300%2C400%2C500%2C600%7CMerriweather&amp;subset=latin%2Clatin-ext" type="text/css" media="all" /> 
+  <link rel="stylesheet" id="codilight-lite-fontawesome-css" href="http://www.52ml.net/wp-content/themes/WordPressThemeWordPressLeaf_cn/assets/css/font-awesome.min.css?ver=4.4.0" type="text/css" media="all" /> 
+  <link rel="stylesheet" id="codilight-lite-style-css" href="http://www.52ml.net/wp-content/themes/WordPressThemeWordPressLeaf_cn/style.css?ver=12" type="text/css" media="all" /> 
+  <link rel="stylesheet" id="codilight-lite-prettify-css" href="http://www.52ml.net/wp-content/themes/WordPressThemeWordPressLeaf_cn/assets/google-code-prettify/prettify.css?ver=20160531" type="text/css" media="all" /> 
+  <script type="text/javascript" src="http://www.52ml.net/wp-includes/js/jquery/jquery.js?ver=1.11.3"></script> 
+  <script type="text/javascript" src="http://www.52ml.net/wp-includes/js/jquery/jquery-migrate.min.js?ver=1.2.1"></script> 
+  <script type="text/javascript" src="http://www.52ml.net/wp-content/themes/WordPressThemeWordPressLeaf_cn/assets/google-code-prettify/prettify.js?ver=20120531"></script> 
+  <script type="text/javascript" src="http://www.52ml.net/wp-content/themes/WordPressThemeWordPressLeaf_cn/assets/js/theia-sticky-sidebar.js?ver=20160803"></script> 
+  <link rel="EditURI" type="application/rsd+xml" title="RSD" href="http://www.52ml.net/xmlrpc.php?rsd" /> 
+  <link rel="wlwmanifest" type="application/wlwmanifest+xml" href="http://www.52ml.net/wp-includes/wlwmanifest.xml" /> 
+  <link rel="prev" title="苹果新专利：人脸识别控制设备输出 小孩子看不了成人电影" href="https://www.52ml.net/740.html" /> 
+  <link rel="next" title="人人网陈弢：从RecSys2013看大数据和移动给推荐系统带来的挑战" href="https://www.52ml.net/317.html" /> 
+  <link rel="canonical" href="https://www.52ml.net/1689.html" /> 
+  <link rel="shortlink" href="https://www.52ml.net/?p=1689" /> 
+  <meta name="keywords" content="Hadoop, mahout, 机器学习" /> 
+  <meta name="description" content="..." /> 
+  <link rel="icon" href="http://www.52ml.net/wp-content/uploads/2016/09/cropped-52ml-32x32.png" sizes="32x32" /> 
+  <link rel="icon" href="http://www.52ml.net/wp-content/uploads/2016/09/cropped-52ml-192x192.png" sizes="192x192" /> 
+  <link rel="apple-touch-icon-precomposed" href="http://www.52ml.net/wp-content/uploads/2016/09/cropped-52ml-180x180.png" /> 
+  <meta name="msapplication-TileImage" content="http://www.52ml.net/wp-content/uploads/2016/09/cropped-52ml-270x270.png" /> 
+  <script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?34759056a50ec034359d7d5becc7fcf7";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script> 
+ </head> 
+ <body class="single single-post postid-1689 single-format-standard topbar-sticky group-blog"> 
+  <script>
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https'){
+   bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+  }
+  else{
+  bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+  }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script> 
+  <div id="page" class="hfeed site"> 
+   <a class="skip-link screen-reader-text" href="#content">跳转到内容</a> 
+   <div id="topbar" class="site-topbar"> 
+    <div class="container"> 
+     <div class="topbar-left pull-left"> 
+      <nav id="site-navigation" class="main-navigation" role="navigation"> 
+       <span class="home-menu"> <a href="https://www.52ml.net/" rel="home"><i class="fa fa-home"></i></a></span> 
+       <span class="nav-toggle"><a href="#0" id="nav-toggle">菜单<span></span></a></span> 
+       <ul class="ft-menu"> 
+        <li id="menu-item-148" class="menu-item menu-item-type-taxonomy menu-item-object-category current-post-ancestor current-menu-parent current-post-parent menu-item-148"><a href="https://www.52ml.net/categories/machinelearning">机器学习</a></li> 
+        <li id="menu-item-22" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-22"><a href="https://www.52ml.net/categories/deeplearning">Deep Learning</a></li> 
+        <li id="menu-item-21295" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-21295"><a href="https://www.52ml.net/categories/mldaily">机器学习日报</a></li> 
+        <li id="menu-item-19466" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-19466"><a href="https://www.52ml.net/categories/arxiv">arXiv Paper Daily</a></li> 
+        <li id="menu-item-8274" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children menu-item-8274"><a href="http://www.52ml.net">其他类别</a> 
+         <ul class="sub-menu"> 
+          <li id="menu-item-5018" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-5018"><a href="https://www.52ml.net/categories/nlp">NLP</a></li> 
+          <li id="menu-item-1681" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-1681"><a href="https://www.52ml.net/categories/massdata">大数据</a></li> 
+          <li id="menu-item-3952" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-3952"><a href="https://www.52ml.net/categories/search">搜索引擎</a></li> 
+          <li id="menu-item-1490" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-1490"><a href="https://www.52ml.net/categories/tech">科技速递</a></li> 
+         </ul> </li> 
+        <li id="menu-item-18867" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-18867"><a href="https://www.52ml.net/list">文章列表</a></li> 
+        <li id="menu-item-7776" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-7776"><a href="https://www.52ml.net/appwx">关注我们</a></li> 
+       </ul> 
+      </nav>
+      <!-- #site-navigation --> 
+     </div> 
+     <div class="topbar-right pull-right"> 
+      <ul class="topbar-elements"> 
+       <li class="topbar-social"> 
+        <!-- <a href="javascript:void(0)">
+									<i class="fa fa-share-alt">
+									</i>
+									<span class="menu-text">关注我们</span>
+								</a> --> 
+        <div class="dropdown-content dropdown-search"> 
+         <div id="menu-social-items" class="menu-items">
+          <ul>
+           <li class="page_item page-item-7760"><a href="https://www.52ml.net/appwx"><span class="screen-reader-text">关注我们</span></a></li>
+           <li class="page_item page-item-18862"><a href="https://www.52ml.net/list"><span class="screen-reader-text">文章列表</span></a></li>
+           <li class="page_item page-item-11960"><a href="https://www.52ml.net/star"><span class="screen-reader-text">机器学习资料大汇总</span></a></li>
+           <li class="page_item page-item-15938"><a href="https://www.52ml.net/jobs"><span class="screen-reader-text">猿辅导研究团队招聘</span></a></li>
+           <li class="page_item page-item-382"><a href="https://www.52ml.net/contactus"><span class="screen-reader-text">联系我们</span></a></li>
+          </ul>
+         </div> 
+        </div> </li> 
+       <li class="topbar-search"> <a href="javascript:void(0)"><i class="search-icon fa fa-search"></i><span>Search</span></a> 
+        <div class="dropdown-content dropdown-search"> 
+         <form role="search" method="get" class="search-form" action="https://www.52ml.net/"> 
+          <label> <span class="screen-reader-text">搜索：</span> <input type="search" class="search-field" placeholder="搜索…" value="" name="s" title="搜索：" /> </label> 
+          <input type="submit" class="search-submit" value="搜索" /> 
+         </form> 
+        </div> </li> 
+       <div class="clear"></div> 
+      </ul> 
+     </div> 
+    </div> 
+   </div>
+   <!--#topbar--> 
+   <div class="mobile-navigation"> 
+    <ul> 
+     <li class="menu-item menu-item-type-taxonomy menu-item-object-category current-post-ancestor current-menu-parent current-post-parent menu-item-148"><a href="https://www.52ml.net/categories/machinelearning">机器学习</a></li> 
+     <li class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-22"><a href="https://www.52ml.net/categories/deeplearning">Deep Learning</a></li> 
+     <li class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-21295"><a href="https://www.52ml.net/categories/mldaily">机器学习日报</a></li> 
+     <li class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-19466"><a href="https://www.52ml.net/categories/arxiv">arXiv Paper Daily</a></li> 
+     <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children menu-item-8274"><a href="http://www.52ml.net">其他类别</a> 
+      <ul class="sub-menu"> 
+       <li class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-5018"><a href="https://www.52ml.net/categories/nlp">NLP</a></li> 
+       <li class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-1681"><a href="https://www.52ml.net/categories/massdata">大数据</a></li> 
+       <li class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-3952"><a href="https://www.52ml.net/categories/search">搜索引擎</a></li> 
+       <li class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-1490"><a href="https://www.52ml.net/categories/tech">科技速递</a></li> 
+      </ul> </li> 
+     <li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-18867"><a href="https://www.52ml.net/list">文章列表</a></li> 
+     <li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-7776"><a href="https://www.52ml.net/appwx">关注我们</a></li> 
+    </ul> 
+   </div> 
+   <header id="masthead" class="site-header" role="banner"> 
+    <div class="container"> 
+     <div class="site-branding"> 
+      <p class="site-title"><a href="https://www.52ml.net/" rel="home">我爱机器学习</a></p>
+      <p class="site-description">机器学习干货站</p> 
+     </div>
+     <!-- .site-branding --> 
+    </div> 
+   </header>
+   <!-- #masthead --> 
+   <!--	 --> 
+   <div id="content" class="site-content container left-sidebar"> 
+    <div class="home-sidebar-1"> 
+     <aside id="ft_trending_now-1" class="home-widget trending_widget"> 
+      <div class="treding_wrapper"> 
+       <div class="trending_text"> 
+        <a itemprop="breadcrumb" href="https://www.52ml.net/">首页</a> &gt; 
+        <a itemprop="breadcrumb" href="https://www.52ml.net/categories/machinelearning">机器学习</a> &gt; hadoop解析序列文件并可视化输出 
+       </div> 
+      </div> 
+     </aside> 
+     <div class="clear"> 
+     </div> 
+    </div>
+    <script async="" src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script> 
+    <!-- 52ml --> 
+    <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-5881346158323403" data-ad-slot="7900767571" data-ad-format="auto"></ins> 
+    <script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script> 
+    <div class="content-inside"> 
+     <div id="primary" class="content-area"> 
+      <main id="main" class="site-main" role="main"> 
+       <article id="post-1689" class="post-1689 post type-post status-publish format-standard has-post-thumbnail hentry category-machinelearning tag-Hadoop tag-mahout"> 
+        <header class="entry-header entry-header-single"> 
+         <h1 class="entry-title">hadoop解析序列文件并可视化输出</h1> 
+         <div class="entry-meta entry-meta-1">
+          <span class="author vcard"><a class="url fn n" href="https://www.52ml.net/author/smallroof">smallroof</a></span>
+          <span class="entry-date"><time class="entry-date published updated" datetime="2013-10-25T16:19:02+00:00">2013年10月25日</time></span>
+          <span class="comments-link"><i class="fa fa-comments-o"></i><a href="https://www.52ml.net/1689.html#respond">0</a></span>
+         </div> 
+        </header>
+        <!-- .entry-header --> 
+        <!--   --> 
+        <!-- <div class="entry-thumb"> --> 
+        <!--	<img width="236" height="155" src="http://www.52ml.net/wp-content/uploads/2013/04/18.jpg" class="attachment-codilight_lite_single_medium size-codilight_lite_single_medium wp-post-image" alt="18" /> --> 
+        <!-- </div> --> 
+        <!--  --> 
+        <script async="" src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script> 
+        <!-- 52ml --> 
+        <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-5881346158323403" data-ad-slot="7900767571" data-ad-format="auto"></ins> 
+        <script>
+    (adsbygoogle = window.adsbygoogle || []).push({});
+    </script> 
+        <div class="entry-content"> 
+         <p>hadoop版本：1.0.4，jdk：1.7.0_25 64bit。</p> 
+         <p> 在进行mahout算法分析的时候有时会遇到算法最后的输出文件是序列文件的情况下，这样就不能直接通过HDFS文件系统看到最终的结果了（乱码，因为是序列文件）。以前编写过一个可以直接把序列文件&lt;key,value&gt;读入到一个map变量中的java文件，叫做ReadArbiKV ，可以在 <a target="_blank" href="http://download.csdn.net/detail/fansy1990/6453527" rel="nofollow">http://download.csdn.net/detail/fansy1990/6453527</a> 看到。 </p> 
+         <p>但是上面的有个问题，就是当数据很大的时候，如果读不到一个map变量里面怎么办？</p> 
+         <p>所以就可以使用下面的思路：一边读一边写。怎么个意思？直接读取序列文件的&lt;key,value&gt;，然后对key和value分别进行解析，最后直接进行输出。即每读取一行记录，解析一行，然后再输出一行。这样就不会有上面的问题了。</p> 
+         <p>主程序是ReadAndWritePatterns，其中需要实现IKVRegex接口，这个接口是解析key和value的标准。给出的代码中的AKVRegex、ImplAKVRegex是这个接口的两个实现，可以参考，其中AKVRegex是什么都不做的，只是把原始的类.toString()而已，ImplAKVRegex是有一些操作的，原来是针对fpg算法的最后输出的解析的，但是好像有点不是很对。</p> 
+         <p>下面给出一个调用demo：</p> 
+         <pre class="prettyprint">package mahout.fansy.fpg;import java.io.IOException;import junit.framework.TestCase;import mahout.fansy.utils.fpg.AKVRegex;import mahout.fansy.utils.fpg.ImplAKVRegex;import mahout.fansy.utils.fpg.ReadAndWritePatterns ;public class TestReadAndWritePatterns extends TestCase {	public void testReadAndWrite() throws IOException{		String input=&quot;hdfs://ubuntu:9000/user/mahout/fp/output/frequentpatterns/part-r-00000&quot;;		String output=&quot;hdfs://ubuntu:9000/user/mahout/fp/output_/01.txt&quot;;		String jobtracker=&quot;ubuntu:9001&quot;;	//	AKVRegex regex=; 		ReadAndWritePatterns.readAndWritePatterns(input, output, jobtracker, new AKVRegex());		}}</pre> 
+         <p> </p>
+         <p> <span style="text-indent:28px;">分享，成长，快乐</span> </p> 
+         <p> <span style="text-indent:28px;">转载请注明blog地址：</span> <a target="_blank" href="http://blog.csdn.net/fansy1990" style="text-indent:28px;" rel="nofollow">http://blog.csdn.net/fansy1990</a> </p> 
+         <p> </p>
+         <div class="src">
+          <span>本文转载自：<a rel="nofollow" title="CSDN博客" href="http://blog.csdn.net/fansy1990/article/details/13021293" target="_blank">CSDN博客</a></span>
+         </div> 
+         <!--p>本文地址：<a rel="external nofollow" href="https://www.52ml.net/1689.html">https://www.52ml.net/1689.html</a></p--> 
+         <blockquote> 
+          <div class="qr_code_pc"> 
+           <p><strong>欢迎加入我爱机器学习QQ10群：596476196</strong></p> 
+           <img id="js_pc_qr_code_img" class="qr_code_pc_img" src="https://www.52ml.net/wp-content/uploads/2014/03/getqrcode.jpg" width="150" height="150" /> 
+           <p>微信扫一扫，关注我爱机器学习公众号</p> 
+          </div> 
+          <p>微博：<a href="http://weibo.com/52mlnet" target="_blank">我爱机器学习</a></p> 
+          <!--<p>转载请注明：</p>--> 
+          <!--<p>作者：<a href="https://www.52ml.net" target="_blank">我爱机器学习</a></p>--> 
+          <!--<p>原文链接：<a href="https://www.52ml.net/1689.html">hadoop解析序列文件并可视化输出</a></p>--> 
+         </blockquote> 
+        </div>
+        <!-- .entry-content --> 
+        <footer class="entry-footer"> 
+         <div class="entry-taxonomies">
+          <div class="entry-categories">
+           <span>分类</span>
+           <ul class="post-categories"> 
+            <li><a href="https://www.52ml.net/categories/machinelearning" rel="category tag">机器学习</a></li>
+           </ul>
+          </div>
+          <div class="entry-tags">
+           <span>标签</span>
+           <ul class="post-tags">
+            <li><a href="https://www.52ml.net/tags/Hadoop" rel="tag">Hadoop</a></li> 
+            <li><a href="https://www.52ml.net/tags/mahout" rel="tag">mahout</a></li>
+           </ul>
+          </div>
+         </div> 
+         <div class="post-navigation row"> 
+          <div class="col-md-6"> 
+           <span>上一篇文章</span> 
+           <h2 class="h5"><a href="https://www.52ml.net/740.html" rel="prev">苹果新专利：人脸识别控制设备输出 小孩子看不了成人电影</a></h2> 
+          </div> 
+          <div class="col-md-6 post-navi-next"> 
+           <span>下一篇文章</span> 
+           <h2 class="h5"><a href="https://www.52ml.net/317.html" rel="next">人人网陈弢：从RecSys2013看大数据和移动给推荐系统带来的挑战</a></h2> 
+          </div> 
+         </div> 
+         <div class="entry-related-articles"> 
+          <h3>或许您还喜欢这些文章</h3> 
+          <div class="related-articles row clearfix"> 
+           <article class="col-md-4 col-sm-12 post-3837 post type-post status-publish format-standard has-post-thumbnail hentry category-search tag-Hadoop tag-457"> 
+            <div class="related-thumb"> 
+             <a href="https://www.52ml.net/3837.html" title="hadoop学习笔记-6-倒排索引InverseIndex"> <img width="236" height="155" src="http://www.52ml.net/wp-content/uploads/2013/04/10.jpg" class="attachment-codilight_lite_block_2_medium size-codilight_lite_block_2_medium wp-post-image" alt="10" /> </a> 
+             <a class="entry-category" href="https://www.52ml.net/categories/search">搜索引擎</a> 
+            </div> 
+            <div class="entry-detail"> 
+             <header class="entry-header"> 
+              <h2 class="entry-title h5"><a href="https://www.52ml.net/3837.html" rel="bookmark">hadoop学习笔记-6-倒排索引InverseIndex</a></h2> 
+             </header> 
+            </div> 
+           </article> 
+           <article class="col-md-4 col-sm-12 post-300 post type-post status-publish format-standard has-post-thumbnail hentry category-machinelearning tag-Hadoop tag-129 tag-128 tag-56"> 
+            <div class="related-thumb"> 
+             <a href="https://www.52ml.net/300.html" title="优酷土豆单明辉—基于Hadoop平台下的视频推荐系统"> <img width="236" height="155" src="http://www.52ml.net/wp-content/uploads/2013/04/15.jpg" class="attachment-codilight_lite_block_2_medium size-codilight_lite_block_2_medium wp-post-image" alt="15" /> </a> 
+             <a class="entry-category" href="https://www.52ml.net/categories/machinelearning">机器学习</a> 
+            </div> 
+            <div class="entry-detail"> 
+             <header class="entry-header"> 
+              <h2 class="entry-title h5"><a href="https://www.52ml.net/300.html" rel="bookmark">优酷土豆单明辉—基于Hadoop平台下的视频推荐系统</a></h2> 
+             </header> 
+            </div> 
+           </article> 
+           <article class="col-md-4 col-sm-12 post-1775 post type-post status-publish format-standard has-post-thumbnail hentry category-machinelearning tag-Hadoop tag-K-means tag-mahout tag-22"> 
+            <div class="related-thumb"> 
+             <a href="https://www.52ml.net/1775.html" title="hadoop上执行mahout的kmeans算法"> <img width="236" height="155" src="http://www.52ml.net/wp-content/uploads/2013/04/16.jpg" class="attachment-codilight_lite_block_2_medium size-codilight_lite_block_2_medium wp-post-image" alt="16" /> </a> 
+             <a class="entry-category" href="https://www.52ml.net/categories/machinelearning">机器学习</a> 
+            </div> 
+            <div class="entry-detail"> 
+             <header class="entry-header"> 
+              <h2 class="entry-title h5"><a href="https://www.52ml.net/1775.html" rel="bookmark">hadoop上执行mahout的kmeans算法</a></h2> 
+             </header> 
+            </div> 
+           </article> 
+          </div>
+          <div class="related-articles row clearfix"> 
+           <article class="col-md-4 col-sm-12 post-9117 post type-post status-publish format-standard has-post-thumbnail hentry category-massdata tag-Hadoop tag-101"> 
+            <div class="related-thumb"> 
+             <a href="https://www.52ml.net/9117.html" title="企业大数据领域成为焦点，Hadoop二次开发投融资火爆"> <img width="236" height="155" src="http://www.52ml.net/wp-content/uploads/2013/04/10.jpg" class="attachment-codilight_lite_block_2_medium size-codilight_lite_block_2_medium wp-post-image" alt="10" /> </a> 
+             <a class="entry-category" href="https://www.52ml.net/categories/massdata">大数据</a> 
+            </div> 
+            <div class="entry-detail"> 
+             <header class="entry-header"> 
+              <h2 class="entry-title h5"><a href="https://www.52ml.net/9117.html" rel="bookmark">企业大数据领域成为焦点，Hadoop二次开发投融资火爆</a></h2> 
+             </header> 
+            </div> 
+           </article> 
+           <article class="col-md-4 col-sm-12 post-8554 post type-post status-publish format-standard has-post-thumbnail hentry category-massdata category-machinelearning tag-Hadoop tag-45"> 
+            <div class="related-thumb"> 
+             <a href="https://www.52ml.net/8554.html" title="新一代的Hadoop大数据挖掘平台和生态介绍zz"> <img width="236" height="155" src="http://www.52ml.net/wp-content/uploads/2013/04/19.jpg" class="attachment-codilight_lite_block_2_medium size-codilight_lite_block_2_medium wp-post-image" alt="19" /> </a> 
+             <a class="entry-category" href="https://www.52ml.net/categories/massdata">大数据</a> 
+            </div> 
+            <div class="entry-detail"> 
+             <header class="entry-header"> 
+              <h2 class="entry-title h5"><a href="https://www.52ml.net/8554.html" rel="bookmark">新一代的Hadoop大数据挖掘平台和生态介绍zz</a></h2> 
+             </header> 
+            </div> 
+           </article> 
+           <article class="col-md-4 col-sm-12 post-2801 post type-post status-publish format-standard has-post-thumbnail hentry category-massdata tag-Hadoop tag-127 tag-67 tag-466"> 
+            <div class="related-thumb"> 
+             <a href="https://www.52ml.net/2801.html" title="30美元一小时，数据科学家的收入是否太低？"> <img width="236" height="155" src="http://www.52ml.net/wp-content/uploads/2013/04/8.jpg" class="attachment-codilight_lite_block_2_medium size-codilight_lite_block_2_medium wp-post-image" alt="8" /> </a> 
+             <a class="entry-category" href="https://www.52ml.net/categories/massdata">大数据</a> 
+            </div> 
+            <div class="entry-detail"> 
+             <header class="entry-header"> 
+              <h2 class="entry-title h5"><a href="https://www.52ml.net/2801.html" rel="bookmark">30美元一小时，数据科学家的收入是否太低？</a></h2> 
+             </header> 
+            </div> 
+           </article> 
+          </div>
+          <div class="related-articles row clearfix"> 
+          </div> 
+         </div> 
+        </footer>
+        <!-- .entry-footer --> 
+       </article>
+       <!-- #post-## --> 
+       <div id="comments" class="comments-area"> 
+        <div id="respond" class="comment-respond"> 
+         <h3 id="reply-title" class="comment-reply-title">发表评论 <small><a rel="nofollow" id="cancel-comment-reply-link" href="/1689.html#respond" style="display:none;">取消回复</a></small></h3> 
+         <form action="http://www.52ml.net/wp-comments-post.php" method="post" id="commentform" class="comment-form" novalidate=""> 
+          <p class="comment-notes"><span id="email-notes">电子邮件地址不会被公开。</span> 必填项已用<span class="required">*</span>标注</p>
+          <p class="comment-form-comment"><label for="comment">评论</label> <textarea id="comment" name="comment-e3d4d9db47142b3286dad07538f3" cols="45" rows="8" aria-required="true" required="required"></textarea><textarea name="comment" rows="1" cols="1" style="display:none"></textarea></p>
+          <input type="hidden" name="comment-replaced" value="true" />
+          <p class="comment-form-author"><label for="author">姓名 <span class="required">*</span></label> <input id="author" name="author" type="text" value="" size="30" aria-required="true" required="required" /></p> 
+          <p class="comment-form-email"><label for="email">电子邮件 <span class="required">*</span></label> <input id="email" name="email" type="email" value="" size="30" aria-describedby="email-notes" aria-required="true" required="required" /></p> 
+          <p class="comment-form-url"><label for="url">站点</label> <input id="url" name="url" type="url" value="" size="30" /></p> 
+          <p class="form-submit"><input name="submit" type="submit" id="submit" class="submit" value="发表评论" /> <input type="hidden" name="comment_post_ID" value="1689" id="comment_post_ID" /> <input type="hidden" name="comment_parent" id="comment_parent" value="0" /> </p>
+          <p style="display: none;"><input type="hidden" id="akismet_comment_nonce" name="akismet_comment_nonce" value="200aea448e" /></p>
+          <p style="display:none;"><input type="text" name="nxts" value="1490820893" /><input type="text" name="nxts_signed" value="82d9e92f54b113a8a8a5bebf44b91edae997438a" /><input type="text" name="68cfc983d99bb829f0c4b240" value="" /><input type="text" name="80ba8e97a275527acf0d1" value="6eeebea1bf1f334d317d00" /></p>
+          <p style="display: none;"><input type="hidden" id="ak_js" name="ak_js" value="154" /></p> 
+         </form> 
+        </div>
+        <!-- #respond --> 
+       </div>
+       <!-- #comments --> 
+      </main>
+      <!-- #main --> 
+     </div>
+     <!-- #primary --> 
+     <div id="secondary" class="widget-area sidebar" role="complementary"> 
+      <p>欢迎关注我爱机器学习微信公众号:<br /> <a href="https://www.52ml.net/wp-content/uploads/2014/03/getqrcode.jpg"><img align="middle" class="alignnone size-medium wp-image-8268" src="https://www.52ml.net/wp-content/uploads/2014/03/getqrcode-300x300.jpg" alt="getqrcode" width="145" height="145" srcset="https://www.52ml.net/wp-content/uploads/2014/03/getqrcode-300x300.jpg 300w, https://www.52ml.net/wp-content/uploads/2014/03/getqrcode.jpg 430w" sizes="(max-width: 145px) 100vw, 145px" /><br /> </a></p> 
+      <aside id="ft_notice-2" class="widget notice_widget">
+       <h2 class="widget-title"><span>公告栏</span></h2> 
+       <div class="sidebar-notice"> 
+        <div class="notice-title"> 
+         <a rel="nofollow" href="https://www.52ml.net/appwx" title="期待您的加入"> 
+          <div class="title"> 
+           <i class="fa fa-volume-up"></i> 期待您的加入 
+          </div> </a> 
+        </div> 
+        <div class="notice-content"> 
+         <div class="muted"> 
+          <i class="fa fa-thumb-tack"></i> 欢迎加入我爱机器学习QQ10群：596476196 
+         </div> 
+        </div> 
+       </div> 
+      </aside> 
+      <aside id="ft_block3-2" class="widget block3_widget"> 
+       <h2 class="widget-title"><span>最新文章列表</span></h2> 
+       <div class="block3_widget_content"> 
+        <article class="block-item-large"> 
+         <div class="entry-thumb"> 
+          <a href="https://www.52ml.net/21406.html" title="NIPS 2016 — Daily Highlights"> <img width="325" height="170" src="http://www.52ml.net/wp-content/uploads/2016/12/1-Y-5-qr0wJBcWS5eFnOd1DQ-325x170.png" class="attachment-codilight_lite_block_2_medium size-codilight_lite_block_2_medium wp-post-image" alt="1-y-5-qr0wjbcws5efnod1dq" /> </a> 
+         </div> 
+         <div class="entry-detail"> 
+          <header class="entry-header"> 
+           <h2 class="entry-title"><a href="https://www.52ml.net/21406.html" rel="bookmark">NIPS 2016 — Daily Highlights</a></h2> 
+           <div class="entry-meta entry-meta-1">
+            <span class="author vcard"><a class="url fn n" href="https://www.52ml.net/author/dengsj">我爱机器学习(52ml.net)</a></span>
+            <span class="entry-date"><time class="entry-date published" datetime="2016-12-13T08:37:20+00:00">2016年12月13日</time></span>
+            <span class="comments-link"><i class="fa fa-comments-o"></i><a href="https://www.52ml.net/21406.html#respond">0</a></span>
+           </div> 
+          </header>
+          <!-- .entry-header --> 
+          <div class="entry-excerpt"> 
+           <div class="ft-excerpt">
+            NIPS 2016 — Day 1 Highlights NIPS 2016 — Day 2 Highlights:...
+           </div> 
+          </div>
+          <!-- .entry-content --> 
+         </div> 
+        </article>
+        <!-- #post-## --> 
+        <article class="block-item"> 
+         <div class="block-thumb"> 
+          <a href="https://www.52ml.net/21402.html"> <img width="90" height="60" src="http://www.52ml.net/wp-content/uploads/2016/12/dlexp.6-1-90x60.png" class="attachment-codilight_lite_block_small size-codilight_lite_block_small wp-post-image" alt="dlexp-6" /> </a> 
+         </div> 
+         <div class="block-content"> 
+          <h2 class="h5 block-title"> <a href="https://www.52ml.net/21402.html"> 图说2016深度学习十大指数级增长 </a> </h2> 
+          <div class="block-meta"> 
+           <span class="entry-date"> <time class="entry-date published" datetime="2016-12-12T19:30:41+00:00">2016年12月12日</time> </span> 
+          </div> 
+         </div> 
+        </article> 
+        <article class="block-item"> 
+         <div class="block-thumb"> 
+          <a href="https://www.52ml.net/21395.html"> <img width="90" height="60" src="http://www.52ml.net/wp-content/uploads/2016/12/dlstep-90x60.jpeg" class="attachment-codilight_lite_block_small size-codilight_lite_block_small wp-post-image" alt="dlstep" /> </a> 
+         </div> 
+         <div class="block-content"> 
+          <h2 class="h5 block-title"> <a href="https://www.52ml.net/21395.html"> 深度学习零基础进阶 </a> </h2> 
+          <div class="block-meta"> 
+           <span class="entry-date"> <time class="entry-date published" datetime="2016-12-11T11:15:45+00:00">2016年12月11日</time> </span> 
+          </div> 
+         </div> 
+        </article> 
+        <article class="block-item"> 
+         <div class="block-thumb"> 
+          <a href="https://www.52ml.net/21371.html"> <img width="90" height="60" src="http://www.52ml.net/wp-content/uploads/2016/12/dl-book-bengio-90x60.png" class="attachment-codilight_lite_block_small size-codilight_lite_block_small wp-post-image" alt="dl-book-bengio" /> </a> 
+         </div> 
+         <div class="block-content"> 
+          <h2 class="h5 block-title"> <a href="https://www.52ml.net/21371.html"> Yoshua Bengio《Deep Learning》英文版及中文翻译 </a> </h2> 
+          <div class="block-meta"> 
+           <span class="entry-date"> <time class="entry-date published" datetime="2016-12-08T07:41:12+00:00">2016年12月8日</time> </span> 
+          </div> 
+         </div> 
+        </article> 
+       </div> 
+       <!-- .block2_widget_content --> 
+      </aside> 
+      <aside id="archives-6" class="widget widget_archive">
+       <h2 class="widget-title"><span>文章归档</span></h2> 
+       <label class="screen-reader-text" for="archives-dropdown-6">文章归档</label> 
+       <select id="archives-dropdown-6" name="archive-dropdown" onchange="document.location.href=this.options[this.selectedIndex].value;"> <option value="">选择月份</option> <option value="https://www.52ml.net/date/2017/03"> 2017年三月 &nbsp;(49)</option> <option value="https://www.52ml.net/date/2017/02"> 2017年二月 &nbsp;(48)</option> <option value="https://www.52ml.net/date/2017/01"> 2017年一月 &nbsp;(54)</option> <option value="https://www.52ml.net/date/2016/12"> 2016年十二月 &nbsp;(62)</option> <option value="https://www.52ml.net/date/2016/11"> 2016年十一月 &nbsp;(97)</option> <option value="https://www.52ml.net/date/2016/10"> 2016年十月 &nbsp;(97)</option> <option value="https://www.52ml.net/date/2016/09"> 2016年九月 &nbsp;(124)</option> <option value="https://www.52ml.net/date/2016/08"> 2016年八月 &nbsp;(83)</option> <option value="https://www.52ml.net/date/2016/07"> 2016年七月 &nbsp;(13)</option> <option value="https://www.52ml.net/date/2016/06"> 2016年六月 &nbsp;(10)</option> <option value="https://www.52ml.net/date/2016/05"> 2016年五月 &nbsp;(6)</option> <option value="https://www.52ml.net/date/2016/04"> 2016年四月 &nbsp;(9)</option> <option value="https://www.52ml.net/date/2016/03"> 2016年三月 &nbsp;(7)</option> <option value="https://www.52ml.net/date/2016/02"> 2016年二月 &nbsp;(2)</option> <option value="https://www.52ml.net/date/2016/01"> 2016年一月 &nbsp;(3)</option> <option value="https://www.52ml.net/date/2015/12"> 2015年十二月 &nbsp;(5)</option> <option value="https://www.52ml.net/date/2015/11"> 2015年十一月 &nbsp;(4)</option> <option value="https://www.52ml.net/date/2015/10"> 2015年十月 &nbsp;(2)</option> <option value="https://www.52ml.net/date/2015/09"> 2015年九月 &nbsp;(2)</option> <option value="https://www.52ml.net/date/2015/08"> 2015年八月 &nbsp;(3)</option> <option value="https://www.52ml.net/date/2015/07"> 2015年七月 &nbsp;(6)</option> <option value="https://www.52ml.net/date/2015/06"> 2015年六月 &nbsp;(8)</option> <option value="https://www.52ml.net/date/2015/05"> 2015年五月 &nbsp;(4)</option> <option value="https://www.52ml.net/date/2015/04"> 2015年四月 &nbsp;(1)</option> <option value="https://www.52ml.net/date/2015/03"> 2015年三月 &nbsp;(3)</option> <option value="https://www.52ml.net/date/2015/02"> 2015年二月 &nbsp;(1)</option> <option value="https://www.52ml.net/date/2015/01"> 2015年一月 &nbsp;(2)</option> <option value="https://www.52ml.net/date/2014/12"> 2014年十二月 &nbsp;(4)</option> <option value="https://www.52ml.net/date/2014/11"> 2014年十一月 &nbsp;(2)</option> <option value="https://www.52ml.net/date/2014/10"> 2014年十月 &nbsp;(3)</option> <option value="https://www.52ml.net/date/2014/09"> 2014年九月 &nbsp;(4)</option> <option value="https://www.52ml.net/date/2014/08"> 2014年八月 &nbsp;(22)</option> <option value="https://www.52ml.net/date/2014/07"> 2014年七月 &nbsp;(40)</option> <option value="https://www.52ml.net/date/2014/06"> 2014年六月 &nbsp;(61)</option> <option value="https://www.52ml.net/date/2014/05"> 2014年五月 &nbsp;(63)</option> <option value="https://www.52ml.net/date/2014/04"> 2014年四月 &nbsp;(187)</option> <option value="https://www.52ml.net/date/2014/03"> 2014年三月 &nbsp;(4799)</option> <option value="https://www.52ml.net/date/2014/02"> 2014年二月 &nbsp;(764)</option> <option value="https://www.52ml.net/date/2014/01"> 2014年一月 &nbsp;(330)</option> <option value="https://www.52ml.net/date/2013/12"> 2013年十二月 &nbsp;(145)</option> <option value="https://www.52ml.net/date/2013/11"> 2013年十一月 &nbsp;(126)</option> <option value="https://www.52ml.net/date/2013/10"> 2013年十月 &nbsp;(216)</option> <option value="https://www.52ml.net/date/2013/09"> 2013年九月 &nbsp;(284)</option> <option value="https://www.52ml.net/date/2013/08"> 2013年八月 &nbsp;(327)</option> <option value="https://www.52ml.net/date/2013/07"> 2013年七月 &nbsp;(275)</option> <option value="https://www.52ml.net/date/2013/06"> 2013年六月 &nbsp;(315)</option> <option value="https://www.52ml.net/date/2013/05"> 2013年五月 &nbsp;(228)</option> <option value="https://www.52ml.net/date/2013/04"> 2013年四月 &nbsp;(175)</option> <option value="https://www.52ml.net/date/2013/03"> 2013年三月 &nbsp;(186)</option> <option value="https://www.52ml.net/date/2013/02"> 2013年二月 &nbsp;(118)</option> <option value="https://www.52ml.net/date/2013/01"> 2013年一月 &nbsp;(210)</option> <option value="https://www.52ml.net/date/2012/12"> 2012年十二月 &nbsp;(221)</option> <option value="https://www.52ml.net/date/2012/11"> 2012年十一月 &nbsp;(155)</option> <option value="https://www.52ml.net/date/2012/10"> 2012年十月 &nbsp;(144)</option> <option value="https://www.52ml.net/date/2012/09"> 2012年九月 &nbsp;(98)</option> <option value="https://www.52ml.net/date/2012/08"> 2012年八月 &nbsp;(99)</option> <option value="https://www.52ml.net/date/2012/07"> 2012年七月 &nbsp;(109)</option> <option value="https://www.52ml.net/date/2012/06"> 2012年六月 &nbsp;(75)</option> <option value="https://www.52ml.net/date/2012/05"> 2012年五月 &nbsp;(88)</option> <option value="https://www.52ml.net/date/2012/04"> 2012年四月 &nbsp;(78)</option> <option value="https://www.52ml.net/date/2012/03"> 2012年三月 &nbsp;(78)</option> <option value="https://www.52ml.net/date/2012/02"> 2012年二月 &nbsp;(50)</option> <option value="https://www.52ml.net/date/2012/01"> 2012年一月 &nbsp;(17)</option> <option value="https://www.52ml.net/date/2011/12"> 2011年十二月 &nbsp;(27)</option> <option value="https://www.52ml.net/date/2011/11"> 2011年十一月 &nbsp;(6)</option> <option value="https://www.52ml.net/date/2011/10"> 2011年十月 &nbsp;(11)</option> <option value="https://www.52ml.net/date/2011/09"> 2011年九月 &nbsp;(13)</option> <option value="https://www.52ml.net/date/2011/08"> 2011年八月 &nbsp;(13)</option> <option value="https://www.52ml.net/date/2011/07"> 2011年七月 &nbsp;(19)</option> <option value="https://www.52ml.net/date/2011/06"> 2011年六月 &nbsp;(18)</option> <option value="https://www.52ml.net/date/2011/05"> 2011年五月 &nbsp;(6)</option> <option value="https://www.52ml.net/date/2011/04"> 2011年四月 &nbsp;(12)</option> <option value="https://www.52ml.net/date/2011/03"> 2011年三月 &nbsp;(15)</option> <option value="https://www.52ml.net/date/2011/02"> 2011年二月 &nbsp;(6)</option> <option value="https://www.52ml.net/date/2011/01"> 2011年一月 &nbsp;(9)</option> <option value="https://www.52ml.net/date/2010/12"> 2010年十二月 &nbsp;(6)</option> <option value="https://www.52ml.net/date/2010/11"> 2010年十一月 &nbsp;(11)</option> <option value="https://www.52ml.net/date/2010/10"> 2010年十月 &nbsp;(5)</option> <option value="https://www.52ml.net/date/2010/09"> 2010年九月 &nbsp;(8)</option> <option value="https://www.52ml.net/date/2010/08"> 2010年八月 &nbsp;(5)</option> <option value="https://www.52ml.net/date/2010/07"> 2010年七月 &nbsp;(12)</option> <option value="https://www.52ml.net/date/2010/06"> 2010年六月 &nbsp;(4)</option> <option value="https://www.52ml.net/date/2010/05"> 2010年五月 &nbsp;(7)</option> <option value="https://www.52ml.net/date/2010/04"> 2010年四月 &nbsp;(6)</option> <option value="https://www.52ml.net/date/2010/03"> 2010年三月 &nbsp;(12)</option> <option value="https://www.52ml.net/date/2010/02"> 2010年二月 &nbsp;(7)</option> <option value="https://www.52ml.net/date/2010/01"> 2010年一月 &nbsp;(2)</option> <option value="https://www.52ml.net/date/2009/12"> 2009年十二月 &nbsp;(5)</option> <option value="https://www.52ml.net/date/2009/11"> 2009年十一月 &nbsp;(16)</option> <option value="https://www.52ml.net/date/2009/10"> 2009年十月 &nbsp;(6)</option> <option value="https://www.52ml.net/date/2009/09"> 2009年九月 &nbsp;(7)</option> <option value="https://www.52ml.net/date/2009/08"> 2009年八月 &nbsp;(7)</option> <option value="https://www.52ml.net/date/2009/07"> 2009年七月 &nbsp;(5)</option> <option value="https://www.52ml.net/date/2009/06"> 2009年六月 &nbsp;(6)</option> <option value="https://www.52ml.net/date/2009/05"> 2009年五月 &nbsp;(6)</option> <option value="https://www.52ml.net/date/2009/04"> 2009年四月 &nbsp;(4)</option> <option value="https://www.52ml.net/date/2009/03"> 2009年三月 &nbsp;(7)</option> <option value="https://www.52ml.net/date/2009/02"> 2009年二月 &nbsp;(6)</option> <option value="https://www.52ml.net/date/2009/01"> 2009年一月 &nbsp;(1)</option> <option value="https://www.52ml.net/date/2008/12"> 2008年十二月 &nbsp;(4)</option> <option value="https://www.52ml.net/date/2008/11"> 2008年十一月 &nbsp;(5)</option> <option value="https://www.52ml.net/date/2008/10"> 2008年十月 &nbsp;(1)</option> <option value="https://www.52ml.net/date/2008/08"> 2008年八月 &nbsp;(1)</option> <option value="https://www.52ml.net/date/2008/07"> 2008年七月 &nbsp;(3)</option> <option value="https://www.52ml.net/date/2008/06"> 2008年六月 &nbsp;(3)</option> <option value="https://www.52ml.net/date/2008/05"> 2008年五月 &nbsp;(3)</option> <option value="https://www.52ml.net/date/2008/03"> 2008年三月 &nbsp;(1)</option> <option value="https://www.52ml.net/date/2007/12"> 2007年十二月 &nbsp;(1)</option> <option value="https://www.52ml.net/date/2007/10"> 2007年十月 &nbsp;(1)</option> <option value="https://www.52ml.net/date/2007/08"> 2007年八月 &nbsp;(4)</option> <option value="https://www.52ml.net/date/2007/07"> 2007年七月 &nbsp;(1)</option> </select> 
+      </aside> 
+      <script async="" src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script> 
+      <!-- 52ml --> 
+      <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-5881346158323403" data-ad-slot="7900767571" data-ad-format="auto"></ins> 
+      <script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script> 
+     </div>
+     <!-- #secondary --> 
+    </div> 
+    <!--#content-inside--> 
+   </div>
+   <!-- #content --> 
+   <div class="footer-shadow container"> 
+    <div class="row"> 
+     <div class="col-md-12"> 
+      <img src="http://www.52ml.net/wp-content/themes/WordPressThemeWordPressLeaf_cn/assets/images/footer-shadow.png" alt="" /> 
+     </div> 
+    </div> 
+   </div> 
+   <footer id="colophon" class="site-footer" role="contentinfo"> 
+    <div class="container"> 
+     <div class="site-info"> 
+      <p> 版权所有 &copy; 2017 我爱机器学习 保留所有权利 </p> WordPressLeaf 主题 由 
+      <a rel="nofollow" target="_blank" href="http://www.wordpressleaf.com">WordPress Leaf</a> 荣誉出品 
+     </div>
+     <!-- .site-info --> 
+    </div> 
+   </footer>
+   <!-- #colophon --> 
+  </div>
+  <!-- #page --> 
+  <!-- MathJax Latex Plugin installed -->
+  <script type="text/javascript" src="http://www.52ml.net/wp-content/plugins/akismet/_inc/form.js?ver=3.2"></script> 
+  <script type="text/javascript">
+/* <![CDATA[ */
+var tocplus = {"smooth_scroll":"1","visibility_show":"\u663e\u793a","visibility_hide":"\u9690\u85cf","visibility_hide_by_default":"1","width":"Auto"};
+/* ]]> */
+</script> 
+  <script type="text/javascript" src="http://www.52ml.net/wp-content/plugins/table-of-contents-plus/front.min.js?ver=1509"></script> 
+  <script type="text/javascript" src="http://www.52ml.net/wp-content/plugins/wp-category-tag-could/javascript/jquery.tagcanvas.min.js?ver=1.7.1"></script> 
+  <script type="text/javascript" src="http://www.52ml.net/wp-content/plugins/wp-category-tag-could/javascript/wpctc.tagcanvas.min.js?ver=1.7.1"></script> 
+  <script type="text/javascript" src="http://www.52ml.net/wp-content/plugins/wp-category-tag-could/javascript/jquery.style.min.js?ver=1.7.1"></script> 
+  <script type="text/javascript" src="http://www.52ml.net/wp-content/plugins/wp-category-tag-could/javascript/wp-category-tag-cloud.min.js?ver=1.7.1"></script> 
+  <script type="text/javascript" src="http://www.52ml.net/wp-content/themes/WordPressThemeWordPressLeaf_cn/assets/js/libs.js?ver=20120206"></script> 
+  <script type="text/javascript" src="http://www.52ml.net/wp-content/themes/WordPressThemeWordPressLeaf_cn/assets/js/theme.js?ver=20120206"></script> 
+  <script type="text/javascript" src="http://www.52ml.net/wp-content/themes/WordPressThemeWordPressLeaf_cn/assets/js/rrssb.js?ver=20160206"></script> 
+  <script type="text/javascript" src="http://www.52ml.net/wp-content/themes/WordPressThemeWordPressLeaf_cn/assets/js/cnrrssb.js?ver=20160606"></script> 
+  <script type="text/javascript" src="http://www.52ml.net/wp-content/themes/WordPressThemeWordPressLeaf_cn/assets/js/weixin.js?ver=20160613"></script> 
+  <script type="text/javascript" src="http://www.52ml.net/wp-includes/js/comment-reply.min.js?ver=12"></script> 
+  <script type="text/javascript" src="http://www.52ml.net/wp-includes/js/wp-embed.min.js?ver=12"></script> 
+  <script type="text/javascript" src="http://52ml.net/mathjax/MathJax.js?config=default&amp;ver=1.2.1"></script>   
+  <!-- Dynamic page generated in 0.379 seconds. --> 
+  <!-- Cached page generated by WP-Super-Cache on 2017-03-30 04:54:53 --> 
+  <!-- super cache -->
+ </body>
+</html>

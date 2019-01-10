@@ -1,0 +1,200 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head>
+<meta http-equiv="content-type" content="text/html;charset=utf-8;">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>会员登录 - Powered By BHG</title>
+<meta name="author" content="BHG Team">
+<meta name="copyright" content="BHG">
+<link href="/resources/shop/default/css/common.css" rel="stylesheet" type="text/css">
+<link href="/resources/shop/default/css/login.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="/resources/shop/default/js/jquery.js"></script>
+<script type="text/javascript" src="/resources/shop/default/js/jquery.validate.js"></script>
+<script type="text/javascript" src="/resources/shop/default/js/jsbn.js"></script>
+<script type="text/javascript" src="/resources/shop/default/js/prng4.js"></script>
+<script type="text/javascript" src="/resources/shop/default/js/rng.js"></script>
+<script type="text/javascript" src="/resources/shop/default/js/rsa.js"></script>
+<script type="text/javascript" src="/resources/shop/default/js/base64.js"></script>
+<script type="text/javascript" src="/resources/shop/default/js/common.js"></script>
+<script type="text/javascript">
+function clickIE4(){
+        if (event.button==2){
+                return false;
+        }
+}
+ 
+function clickNS4(e){
+        if (document.layers||document.getElementById&&!document.all){
+                if (e.which==2||e.which==3){
+                        return false;
+                }
+        }
+}
+ 
+function OnDeny(){
+        if(event.ctrlKey || event.keyCode==78 && event.ctrlKey || event.altKey || event.altKey && event.keyCode==115){
+                return false;
+        }
+}
+ 
+if (document.layers){
+        document.captureEvents(Event.MOUSEDOWN);
+        document.onmousedown=clickNS4;
+        document.onkeydown=OnDeny();
+}else if (document.all&&!document.getElementById){
+        document.onmousedown=clickIE4;
+        document.onkeydown=OnDeny();
+}
+document.oncontextmenu=new Function("return false");
+
+$().ready(function() {
+
+	var $loginForm = $("#loginForm");
+	var $username = $("#username");
+	var $password = $("#password");
+	var $captcha = $("#captcha");
+	var $captchaImage = $("#captchaImage");
+	var $isRememberUsername = $("#isRememberUsername");
+	var $submit = $(":submit");
+	
+	// 记住用户名
+	if (getCookie("memberUsername") != null) {
+		$isRememberUsername.prop("checked", true);
+		$username.val(getCookie("memberUsername"));
+		$password.focus();
+	} else {
+		$isRememberUsername.prop("checked", false);
+		$username.focus();
+	}
+	
+	// 更换验证码
+	$captchaImage.click(function() {
+		$captchaImage.attr("src", "/common/captcha.jhtml?captchaId=0a75fae1-d57c-412f-b172-1395b3229e0f&timestamp=" + (new Date()).valueOf());
+	});
+	
+	// 表单验证、记住用户名
+	$loginForm.validate({
+		rules: {
+			username: "required",
+			password: "required"
+				,captcha: "required"
+		},
+		submitHandler: function(form) {
+			$.ajax({
+				url: "/common/public_key.jhtml",
+				type: "GET",
+				dataType: "json",
+				cache: false,
+				beforeSend: function() {
+					$submit.prop("disabled", true);
+				},
+				success: function(data) {
+					var rsaKey = new RSAKey();
+					rsaKey.setPublic(b64tohex(data.modulus), b64tohex(data.exponent));
+					var enPassword = hex2b64(rsaKey.encrypt($password.val()));
+					$.ajax({
+						url: $loginForm.attr("action"),
+						type: "POST",
+						data: {
+							username: $username.val(),
+							enPassword: enPassword
+								,captchaId: "0a75fae1-d57c-412f-b172-1395b3229e0f",
+								captcha: $captcha.val()
+						},
+						dataType: "json",
+						cache: false,
+						success: function(message) {
+							if ($isRememberUsername.prop("checked")) {
+								addCookie("memberUsername", $username.val(), {expires: 7 * 24 * 60 * 60});
+							} else {
+								removeCookie("memberUsername");
+							}
+							$submit.prop("disabled", false);
+							if (message.type == "success") {
+									location.href = "/";
+							} else {
+								$.message(message);
+									$captcha.val("");
+									$captchaImage.attr("src", "/common/captcha.jhtml?captchaId=0a75fae1-d57c-412f-b172-1395b3229e0f&timestamp=" + (new Date()).valueOf());
+							}
+						}
+					});
+				}
+			});
+		}
+	});
+
+});
+</script>
+</head>
+<body>
+	<br>	<br><br>	<br>
+	<div class="container login">
+		<div class="span12 last" style="margin-left: 250px;">
+			<div class="wrap">
+				<div class="main">
+					<div class="title">
+						<strong>会员登录</strong>USER LOGIN
+					</div>
+					<form id="loginForm" action="/login/submit.jhtml" method="post" novalidate="novalidate">
+						<table>
+							<tbody><tr>
+								<th>
+										用户名/E-mail:
+								</th>
+								<td>
+									<input type="text" id="username" name="username" class="text" maxlength="20">
+								</td>
+							</tr>
+							<tr>
+								<th>
+									密&nbsp;&nbsp;码:
+								</th>
+								<td>
+									<input type="password" id="password" name="password" class="text" maxlength="20" autocomplete="off">
+								</td>
+							</tr>
+								<tr>
+									<th>
+										验证码:
+									</th>
+									<td>
+										<span class="fieldSet">
+											<input type="text" id="captcha" name="captcha" class="text captcha" maxlength="4" autocomplete="off"><img id="captchaImage" class="captchaImage" src="/common/captcha.jhtml?captchaId=0a75fae1-d57c-412f-b172-1395b3229e0f" title="点击更换验证码">
+										</span>
+									</td>
+								</tr>
+							<tr>
+								<th>
+									&nbsp;
+								</th>
+								<td>
+									<label>
+										<input type="checkbox" id="isRememberUsername" name="isRememberUsername" value="true">记住用户名
+									</label>
+									<label>
+										&nbsp;&nbsp;<a href="/password/find.jhtml">找回密码</a>
+									</label>
+								</td>
+							</tr>
+							<tr>
+								<th>
+									&nbsp;
+								</th>
+								<td>
+									<input type="submit" class="submit" value="登 录">
+								</td>
+							</tr>
+						</tbody></table>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+<div class="container footer"> 
+	<div class="span24">
+	</div>
+	<span style="display: none;">
+		<script type="text/javascript" src="http://pw.cnzz.com/c.php?id=1250000958&amp;l=2" charset="gb2312"></script><script src="http://c.cnzz.com/core.php?web_id=1250000958&amp;l=2&amp;t=q" charset="utf-8" type="text/javascript"></script><a href="http://quanjing.cnzz.com" target="_blank" title="全景统计"><img border="0" hspace="0" vspace="0" src="http://icon.cnzz.com/img/2.gif"></a>
+	</span>
+</div>
+
+</body></html>

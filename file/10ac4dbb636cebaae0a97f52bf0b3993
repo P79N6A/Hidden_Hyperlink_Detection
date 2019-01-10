@@ -1,0 +1,402 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+ <head> 
+  <meta http-equiv="Content-Type" content="text/html; charset=gb2312" /> 
+  <title>高效维护局域网网络的能力</title> 
+  <meta name="keywords" content="局域网, 网络维护, 网卡, 应用技巧, 学院" /> 
+  <meta name="description" content="★★ 高效维护局域网收集的技巧 玩家去网吧上网不只是由于网吧电脑设置是专为网游设置的，更大的身分是收集速率快，可是网吧局域网收集速率受到影响，玩游戏也卡" /> 
+  <link href="/templets/default/style/dedecms.css" rel="stylesheet" media="screen" type="text/css" /> 
+  <link rel="stylesheet" href="/templets/default/style/dedecms_skins_0.css" type="text/css" id="cssfile" /> 
+  <script language="javascript" type="text/javascript" src="/images/js/j.js"></script> 
+  <script language="javascript" type="text/javascript" src="/templets/default/js/jquery.cookie.js"></script> 
+  <script language="javascript" type="text/javascript" src="/templets/default/js/changeSkin.js"></script> 
+  <script language="javascript" type="text/javascript" src="/include/dedeajax2.js"></script> 
+  <script language="javascript" type="text/javascript">
+<!--
+function CheckLogin(){
+	  var taget_obj = document.getElementById('_ajax_feedback');
+	  myajax = new DedeAjax(taget_obj,false,false,'','','');
+	  myajax.SendGet2("/member/ajax_feedback.php");
+	  DedeXHTTP = null;
+}
+function postBadGood(ftype,fid)
+{
+	var taget_obj = document.getElementById(ftype+fid);
+	var saveid = GetCookie('badgoodid');
+	if(saveid != null)
+	{
+		var saveids = saveid.split(',');
+		var hasid = false;
+		saveid = '';
+		j = 1;
+		for(i=saveids.length-1;i>=0;i--)
+		{
+			if(saveids[i]==fid && hasid) continue;
+			else {
+				if(saveids[i]==fid && !hasid) hasid = true;
+				saveid += (saveid=='' ? saveids[i] : ','+saveids[i]);
+				j++;
+				if(j==10 && hasid) break;
+				if(j==9 && !hasid) break;
+			}
+		}
+		if(hasid) { alert('您刚才已表决过了喔！'); return false;}
+		else saveid += ','+fid;
+		SetCookie('badgoodid',saveid,1);
+	}
+	else
+	{
+		SetCookie('badgoodid',fid,1);
+	}
+	myajax = new DedeAjax(taget_obj,false,false,'','','');
+	myajax.SendGet2("/plus/feedback.php?aid="+fid+"&action="+ftype+"&fid="+fid);
+}
+function postDigg(ftype,aid)
+{
+	var taget_obj = document.getElementById('newdigg');
+	var saveid = GetCookie('diggid');
+	if(saveid != null)
+	{
+		var saveids = saveid.split(',');
+		var hasid = false;
+		saveid = '';
+		j = 1;
+		for(i=saveids.length-1;i>=0;i--)
+		{
+			if(saveids[i]==aid && hasid) continue;
+			else {
+				if(saveids[i]==aid && !hasid) hasid = true;
+				saveid += (saveid=='' ? saveids[i] : ','+saveids[i]);
+				j++;
+				if(j==20 && hasid) break;
+				if(j==19 && !hasid) break;
+			}
+		}
+		if(hasid) { alert("您已经顶过该帖，请不要重复顶帖 ！"); return; }
+		else saveid += ','+aid;
+		SetCookie('diggid',saveid,1);
+	}
+	else
+	{
+		SetCookie('diggid',aid,1);
+	}
+	myajax = new DedeAjax(taget_obj,false,false,'','','');
+	var url = "/plus/digg_ajax.php?action="+ftype+"&id="+aid;
+	myajax.SendGet2(url);
+}
+function getDigg(aid)
+{
+	var taget_obj = document.getElementById('newdigg');
+	myajax = new DedeAjax(taget_obj,false,false,'','','');
+	myajax.SendGet2("/plus/digg_ajax.php?id="+aid);
+	DedeXHTTP = null;
+}
+function check(){
+		if(document.formsearch.searchtype.value=="")
+		document.formsearch.action="http://www.google.cn/custom"
+		else
+		document.formsearch.action="/plus/search.php"
+	} 
+-->
+</script> 
+  <style type="text/css">
+<!--
+.style2 {font-size: 16px}
+.style3 {
+	color: red;
+	font-weight: bold;
+}
+-->
+</style> 
+ </head> 
+ <body class="articleview"> 
+  <!-- 请置于所有广告位代码之前 --> 
+  <script type="text/javascript" src="http://cbjs.baidu.com/js/s.js"></script> 
+  <div class="header"> 
+   <script language="javascript" type="text/javascript">
+	window.onload=function (){
+		setInterval("document.getElementById('time').innerHTML=new Date().toLocaleString()+' 星期'+'日一二三四五六'.charAt(new Date().getDay());",1000);
+	}
+  </script> 
+   <div class="header_top w960"> 
+    <span id="time" class="time"></span> 
+    <div class="toplinks">
+     <a href="/data/sitemap.html" target="_blank">网站地图</a>|【
+     <a href="" onclick="this.style.behavior='url(#default#homepage)';this.setHomePage('http://www.150588.cn');">设为首页</a>】【
+     <a href="javascript:window.external.AddFavorite('http://www.150588.cn','精英学习网')">加入收藏</a>】
+    </div> 
+   </div> 
+   <div class="top w960 center"> 
+    <script type="text/javascript">/*960*90，创建于2010-12-13*/ var cpro_id = 'u313427';</script>
+    <script src="http://cpro.baidu.com/cpro/ui/c.js" type="text/javascript"></script> 
+   </div>
+   <!-- //top --> 
+   <!-- //菜单 --> 
+   <div class="module blue mT10 wrapper w963"> 
+    <div class="top"> 
+     <!-- //如果不使用currentstyle，可以在channel标签加入 cacheid='channeltoplist' 属性提升性能 --> 
+     <div id="navMenu"> 
+      <ul> 
+       <li><a href="/"><span>主页</span></a></li> 
+       <li><a href="/html/lunwen/"><span>论文</span></a></li> 
+       <li><a href="/html/xitongjingying/"><span>系统</span></a></li> 
+       <li class="hover"><a href="/html/wangluojingying/"><span>网络</span></a></li> 
+       <li><a href="/html/jiaoyujingying/"><span>演讲</span></a></li> 
+       <li><a href="/html/shejijingying/"><span>设计</span></a></li> 
+       <li><a href="/html/kaoshijingying/"><span>考试</span></a></li> 
+       <li><a href="/html/shenghuojingying/"><span>总结</span></a></li> 
+       <li><a href="/html/ruanjianjingying/"><span>软件</span></a></li> 
+       <li><a href="/html/jianli/"><span>简历</span></a></li> 
+       <li><a href="/zhishiwenda/"><span>问答</span></a></li> 
+      </ul> 
+     </div> 
+     <div class="search"> 
+      <form name="formsearch" action="/plus/search.php"> 
+       <div class="form"> 
+        <h4>搜索</h4> 
+        <input type="hidden" name="kwtype" value="0" /> 
+        <input name="q" type="text" class="search-keyword" id="search-keyword" value="在这里搜索..." onfocus="if(this.value=='在这里搜索...'){this.value='';}" onblur="if(this.value==''){this.value='在这里搜索...';}" /> 
+        <select name="searchtype" class="search-option" id="search-option"> <option value="title" selected="1">检索标题</option> <option value="titlekeyword">智能模糊</option> </select> 
+        <button type="submit" class="search-submit">搜索</button> 
+       </div> 
+      </form> 
+      <div class="tags"> 
+       <h4>热门标签:</h4> 
+       <ul> 
+        <li><a href="/tags.php?/%CF%C2%D4%D8/">下载</a></li> 
+        <li><a href="/tags.php?/%D0%B4/">写</a></li> 
+        <li><a href="/tags.php?/%D7%DC%BD%E1/">总结</a></li> 
+        <li><a href="/tags.php?/%D1%A7%C9%FA/">学生</a></li> 
+        <li><a href="/tags.php?/%D5%FE%CE%F1/">政务</a></li> 
+        <li><a href="/tags.php?/%D4%F5%C3%B4/">怎么</a></li> 
+        <li><a href="/tags.php?/%C9%FA%BB%EE/">生活</a></li> 
+        <li><a href="/tags.php?/%D0%C2%BB%AA%CD%F8/">新华网</a></li> 
+        <li><a href="/tags.php?/%D2%AA%CE%C5/">要闻</a></li> 
+        <li><a href="/tags.php?/1/">1</a></li> 
+       </ul> 
+      </div> 
+     </div>
+     <!-- //search --> 
+    </div> 
+   </div> 
+  </div>
+  <!-- //header --> 
+  <!-- /header --> 
+  <div class="w960 center clear mt1"> 
+   <div class="pleft"> 
+    <div class="place"> 
+     <strong>当前位置:</strong> 
+     <a href="http://www.150588.cn/">主页</a> &gt; 
+     <a href="/html/wangluojingying/">网络</a> &gt; 
+    </div>
+    <!-- /place --> 
+    <div class="viewbox"> 
+     <div class="title"> 
+      <h2>高效维护局域网网络的能力</h2> 
+     </div>
+     <!-- /title --> 
+     <div class="info"> 
+      <small>时间:</small>2015-12-11 05:42
+      <small>来源:</small>网络整理 
+      <small>作者:</small>charorentice 
+      <small>点击:</small>
+      <script src="/plus/count.php?view=yes&amp;aid=22473&amp;mid=1" type="text/javascript" language="javascript"></script>次
+     </div>
+     <!-- /info --> 
+     <div class="intro">
+      ★★ 高效维护局域网收集的技巧 玩家去网吧上网不只是由于网吧电脑设置是专为网游设置的，更大的身分是收集速率快，可是网吧局域网收集速率受到影响，玩游戏也卡
+     </div> 
+     <div class="content"> 
+      <table width="100%"> 
+       <tbody>
+        <tr>
+         <td> <script type="text/javascript">/*728*90，创建于2010-12-13*/ var cpro_id = 'u313422';</script><script src="http://cpro.baidu.com/cpro/ui/c.js" type="text/javascript"></script> <style> .Icm503 { display:none; } </style> <p>【文章摘要】玩家去网吧上网不只是由于网吧电脑设置是专为网游设置的，更大的身分是收集速率快，可是网吧<a href="/html/wangluojingying/20151028/14557.html">局域网</a>收集速率受到影响，玩游戏也卡，影响网吧的买卖。网管要做好<a href="http://www.150588.cn/" target="_blank"><u>维护</u></a>网吧<a href="/html/wangluojingying/20151028/14557.html">局域网</a>收集的事变。 </p>
+          <div class="Icm503">
+           精英学习网就是好啊
+          </div> <p></p> <span> 　　玩家去网吧上网不只是由于网吧电脑设置是专为网游设置的，更大的身分是收集速率快，可是网吧<a href="http://www.150588.cn/" target="_blank"><u>局域网</u></a>收集速率受到影响，玩游戏也卡，影响网吧的买卖。网管要做好维护网吧<a href="http://www.150588.cn/" target="_blank"><u>局域网</u></a>收集的事变。 <p class="Icm503">内容来自精英学习网</p> <p></p><p>　　1，行使质量好、速率快的新式网卡　　在网吧局域网中，计较机之间不能通讯是很正常的工作，引起的妨碍缘故起因也许有许多。笔者曾经统计，，局域网中呈现的妨碍大部门与网卡有关，可能是网卡没有正确<a href="http://www.150588.cn/" target="_blank"><u>安装</u></a>好，可能是收集线打仗不良，也有也许是网卡较量旧，不能被计较机正确辨认，其它也有的网卡<a href="http://www.150588.cn/" target="_blank"><u>安装</u></a>在处事器中，担当不住大容量<a href="http://www.150588.cn/" target="_blank"><u>数据</u></a>的攻击，最终报废等。 </p><p class="Icm503">150588.cn</p> <p></p><p>　　为了停止上述的征象产生，我们必然要舍得投资，假如网卡是安装在处事器中，必然要行使质量好的网卡，由于处事器一样平常都是不中断运行，只有质量好的网卡才气长时刻举办“事变”，其它因为处事器传输数据的容量较大，因此我们购置的网卡容量必需与之匹配。 <span class="Icm503">copyright www.150588.cn</span> </p><p>　　2，公道<a href="http://www.150588.cn/" target="_blank"><u>配置</u></a>网吧互换机　　互换机是局域网中的一个重要的数据互换装备，正确公道地行使互换机也能很好地改进收集中的数据传输机能。笔者曾经将互换机端口设置为100M全双工，而处事器上安装了一块型号为Intel100MEISA网卡，安装往后统统正常，但在大流量负荷数据传输时，速率变得极慢，最后发明这款网卡不支持全双工。 <font color="#FFFFFF">好内容都是精英网</font> </p><p>　　将互换机端口改为半双工往后，妨碍消散了。这声名互换机的端口与网卡的速度和双工<a href="http://www.150588.cn/" target="_blank"><u>方法</u></a>必需同等。今朝有很多自顺应的网卡和互换机，凭证道理，应能正确顺应速度和双工<a href="http://www.150588.cn/" target="_blank"><u>方法</u></a>，因为品牌的纷歧致，每每不能正确实现全双工方法。网管在配置收集装备<a href="http://www.150588.cn/" target="_blank"><u>参数</u></a>时，必然要<a href="http://www.150588.cn/" target="_blank"><u>参考</u></a>处事器可能其他事变站上的收集装备<a href="http://www.150588.cn/" target="_blank"><u>参数</u></a>，只管能使个装备匹配事变。 </p><p class="Icm503">内容来自精英学习网</p> <p></p><p>　　维护网吧局域网收集是很重要的，尤其是对以网游为首要营业的网吧来说，收集的速率尚有收集的不变直接影响到网吧的上网体验。</p><p align="center"><img alt="高效维护局域网网络的能力" src="http://images.enet.com.cn/end.gif" target="_blank" /> </p><p class="Icm503">好内容都是精英网</p> <p></p> <script type="text/javascript">/*728*15，创建于2010-12-16*/ var cpro_id = 'u316782';</script><script src="http://cpro.baidu.com/cpro/ui/c.js" type="text/javascript"></script> <br /> 
+           <ul class="c1 ico2"> 
+            <li><a href="/html/wangluojingying/20151211/22472.html">设置局域网中的TCP/IP协议</a></li> 
+            <li><a href="/html/wangluojingying/20151206/20062.html">局域网优化之流量控制</a></li> 
+            <li><a href="/html/wangluojingying/20151205/19361.html">北京军区某机械化师以军事训练局域网提升战斗力</a></li> 
+            <li><a href="/html/wangluojingying/20151205/19123.html">天易成局域网打点软件跨网段监控方案</a></li> 
+            <li><a href="/html/wangluojingying/20151203/18224.html">福州华腾招标有限公司关于福建农林大学无线局域网建设项目结果公告9月4日</a></li> 
+           </ul> <a href="http://www.150588.cn/readme.htm">点击此处可以查看与文此文相关的详细介绍 </a> <script>
+document.body.oncopy=function(){
+ event.returnValue=false;
+ var t=document.selection.createRange().text;
+ var s="本文章转自精英学习网(http://www.150588.cn),详细出处参考："+location.href;
+ clipboardData.setData('Text','\r\n'+t+'\r\n'+s+'\r\n');
+}
+</script> <br /> <br /> 
+           <!-- Baidu Button BEGIN --> 
+           <div id="bdshare" class="bdshare_t bds_tools get-codes-bdshare"> 
+            <span class="bds_more">分享到：</span> 
+            <a class="bds_qzone">QQ空间</a> 
+            <a class="bds_tsina">新浪微博</a> 
+            <a class="bds_tqq">腾讯微博</a> 
+            <a class="bds_renren">人人网</a> 
+            <a class="bds_t163">网易微博</a> 
+            <a class="shareCount"></a> 
+           </div> <script type="text/javascript" id="bdshare_js" data="type=tools&amp;uid=6559189"></script> <script type="text/javascript" id="bdshell_js"></script> <script type="text/javascript">
+document.getElementById("bdshell_js").src = "http://bdimg.share.baidu.com/static/js/shell_v2.js?cdnversion=" + Math.ceil(new Date()/3600000);
+</script> 
+           <!-- Baidu Button END --> <br /> <br /> <span class="STYLE">声明：本站只提供相关文章介绍！！</span> <br /> 来源于网络与本站立场无关 ( <a target="_blank" href="http://wpa.qq.com/msgrd?v=3&amp;uin=25272518&amp;site=qq&amp;menu=yes"><img border="0" src="http://wpa.qq.com/pa?p=2:25272518:50" alt="点击这里给我发消息" title="点击这里给我发消息" /></a> ) </span></td> 
+        </tr>
+       </tbody>
+      </table> 
+     </div>
+     <!-- /content --> 
+     <div class="dede_pages"> 
+      <ul class="pagelist"> 
+      </ul> 
+     </div>
+     <!-- /pages --> 
+     <!-- //顶踩 --> 
+     <!-- //顶踩部份的源码结束 --> 
+     <script type="text/javascript">
+/*700*22，588相关文章上方创建于2012-12-23*/
+var cpro_id = "u1170734";
+</script> 
+     <script src="http://cpro.baidustatic.com/cpro/ui/c.js" type="text/javascript"></script> 
+     <div class="handle"> 
+      <div class="context"> 
+       <ul> 
+        <li>上一篇：<a href="/html/wangluojingying/20151211/22472.html">设置局域网中的TCP/IP协议</a> </li> 
+        <li>下一篇：<a href="/html/wangluojingying/20151211/22607.html">偷袭56只涨停个股：收集软件个股抢眼 6股望连板</a> </li> 
+       </ul> 
+      </div>
+      <!-- /context --> 
+      <div class="actbox"> 
+       <ul> 
+        <li id="act-pus"><a href="/plus/recommend.php?aid=22473" target="_blank">与此文相似的文章</a></li> 
+        <script type="text/javascript">
+/*150*22，推荐创建于2012-12-23*/
+var cpro_id = "u1170746";
+</script> 
+        <script src="http://cpro.baidustatic.com/cpro/ui/c.js" type="text/javascript"></script>  
+       </ul> 
+      </div>
+      <!-- /actbox --> 
+     </div>
+     <!-- /handle --> 
+    </div>
+    <!-- /viewbox --> 
+    <div class="hot mt1"> 
+     <dl class="tbox"> 
+      <dt>
+       <strong>___________________</strong>
+      </dt> 
+      <dd> 
+      </dd> 
+     </dl> 
+    </div> 
+    <!-- //AJAX评区 --> 
+   </div>
+   <!-- //左边内容结束 --> 
+   <!-- //右边内容开始 --> 
+   <div class="pright"> 
+    <div class="pright"> 
+     <div class="hot mt1"> 
+      <dl class="tbox light"> 
+       <dt class="light">
+        <strong>热评文章列表</strong>
+       </dt> 
+       <dd class="light"> 
+        <ul class="c1 ico2"> 
+         <li><a href="/html/wangluojingying/20151211/22472.html">设置局域网中的TCP/IP协议</a></li> 
+         <li><a href="/html/wangluojingying/20151206/20062.html">局域网优化之流量控制</a></li> 
+         <li><a href="/html/wangluojingying/20151205/19361.html">北京军区某机械化师以军事训练局域网提升</a></li> 
+         <li><a href="/html/wangluojingying/20151205/19123.html">天易成局域网打点软件跨网段监控方案</a></li> 
+         <li><a href="/html/wangluojingying/20151203/18224.html">福州华腾招标有限公司关于福建农林大学无</a></li> 
+         <li><a href="/html/wangluojingying/20151202/18008.html">索尼条记本: 索尼推出我无线局域网尺度WA</a></li> 
+         <li><a href="/html/wangluojingying/20151128/17583.html">《守望前锋》在专属处事器运行 不支持局</a></li> 
+         <li><a href="/html/wangluojingying/20151128/17510.html">河南财经政法大学图书馆局域网装备项目果</a></li> 
+         <li><a href="/html/wangluojingying/20151127/17410.html">国航航班测试空中无线局域网 本周验证航</a></li> 
+         <li><a href="/html/wangluojingying/20151120/16698.html">局域网监控 手机窃听软件下载=手机窃听器</a></li> 
+         <li><a href="/html/wangluojingying/20151119/16636.html">无线局域网建树合肥按下“快进键”</a></li> 
+         <li><a href="/html/wangluojingying/20151117/16493.html">中山市安详出产监视打点局局域网打点装备</a></li> 
+         <li><a href="/html/wangluojingying/20151116/16337.html">莱阳公安局在局域网设立违规违纪曝光台</a></li> 
+         <li><a href="/html/wangluojingying/20151111/15913.html">太原首批无线局域网开始测试</a></li> 
+         <li><a href="/html/wangluojingying/20151111/15881.html">鹤壁市中级人民法院局域网改革项目招标通</a></li> 
+        </ul> 
+       </dd> 
+      </dl> 
+     </div> 
+     <div> 
+      <dl class="tbox"> 
+       <dd>
+        <!-- 广告位：轮播广告 --> 
+        <script type="text/javascript">BAIDU_CLB_singleFillSlot("119709");</script> 
+       </dd> 
+      </dl> 
+     </div> 
+     <div> 
+     </div> 
+     <div> 
+      <dl class="tbox"> 
+       <dd></dd> 
+      </dl> 
+     </div> 
+     <!-- /commend --> 
+     <div class="hot mt1"> 
+      <dl class="tbox light"> 
+       <dt class="light">
+        <strong>最近更新</strong>
+       </dt> 
+       <dd class="light"> 
+        <ul class="c1 ico2"> 
+         <li><a href="/html/wangluojingying/20100907/150.html"> 无网蹭网的方法是什么,如何免费</a></li> 
+         <li><a href="/html/wangluojingying/20100907/152.html">路由器默许密码是什么</a></li> 
+         <li><a href="/html/wangluojingying/20100829/29.html">处理 ROS外网攻击的好办法</a></li> 
+         <li><a href="/html/wangluojingying/20130206/5726.html">初识Brocade SAN Switch的Access</a></li> 
+         <li><a href="/html/wangluojingying/20100907/154.html">如何配置路由器,让计算机完跨网</a></li> 
+         <li><a href="/html/wangluojingying/20100907/149.html">优化路由器的方法　扫除毛病确保</a></li> 
+         <li><a href="/html/wangluojingying/20100829/23.html">笔记本计算机不花钱如何上网</a></li> 
+         <li><a href="/html/wangluojingying/20100907/159.html">Cisco路由器配置教学录相与教学</a></li> 
+         <li><a href="/html/wangluojingying/20100829/24.html">如何获取电脑的IP地址</a></li> 
+         <li><a href="/html/wangluojingying/20100829/27.html">网速变慢的解决方法</a></li> 
+         <li><a href="/html/wangluojingying/20130206/5727.html">Navicat――图形化的MySQL客户端</a></li> 
+         <li><a href="/html/wangluojingying/20130206/5730.html">中国电信WIFI上网体验</a></li> 
+        </ul> 
+       </dd> 
+      </dl> 
+     </div> 
+    </div>
+    <!-- /pright --> 
+   </div> 
+   <script type="text/javascript">/*左悬浮120*270，创建于2011-3-13*/ var cpro_id = 'u408158';</script>
+   <script src="http://cpro.baidu.com/cpro/ui/f.js" type="text/javascript"></script> 
+   <!-- //底部模板 --> 
+   <div class="footer w960 center mt1 clear"> 
+    <!-- 精英学习网欢迎您!--> 
+    <div class="footer_body"> 
+     <p class="powered"> </p>
+     <table cellspacing="0" cellpadding="0"> 
+      <tbody>
+       <tr> 
+       </tr> 
+       <tr> 
+        <td align="middle"><a href="http://www.150588.cn/" target="_blank">关于我们 </a> &#xfffd;&#xfffd; <a href="http://www.150588.cn" target="_blank">会员须知 </a> &#xfffd;&#xfffd; <a href="http://www.150588.cn" target="_blank">会员注册 </a> &#xfffd;&#xfffd; <a href="http://www.150588.cn" target="_blank">建站服务 </a> &#xfffd;&#xfffd; <a href="http://www.150588.cn" target="_blank">广告服务 </a> &#xfffd;&#xfffd; <a href="http://www.150588.cn" target="_blank">招聘信息 </a> &#xfffd;&#xfffd; <a href="http://www.150588.cn" target="_blank">联系我们 </a> &#xfffd;&#xfffd; <a href="http://www.150588.cn/about/about2.html" target="_blank">网站免责 </a>&#xfffd;&#xfffd; <a href="http://www.150588.cn/data/sitemap.html" target="_blank">网站地图 </a>&#xfffd;&#xfffd; <a href="http://www.150588.cn/data/rssmap.html" target="_blank">Rss订阅 </a></td> 
+       </tr> 
+      </tbody>
+     </table> 声明:本网站尊重并保护知识产权，根据《信息网络传播权保护条例》，如果我们转载或引用的作品侵犯了您的权利,请通知我们，我们会及时删除! 
+     <br /> 
+     <p>Copyright 2008 jing ying xue xi wang China All Rights Reserved 技术支持：祥坤科技 联系电话：15</p> 
+     <p>地址:河南省 联系电话:400-6666888 传真:6666888 广告垂询qq:25272518</p> 
+     <a href="http://www.miibeian.gov.cn/" target="_blank">豫ICP备08100202号 </a> 
+     <font size="2" color="#000000"> <script language="JavaScript" src="http://s126.cnzz.com/stat.php?id=888062&amp;web_id=888062&amp;show=pic1" type="text/javascript" charset="gb2312"></script> </font> 
+     <!-- /powered --> 
+    </div> 
+    <div class="footer_right"></div> 
+   </div> 
+   <!-- Baidu Button BEGIN --> 
+   <script type="text/javascript" id="bdshare_js" data="type=slide&amp;img=7&amp;pos=left&amp;uid=0"></script> 
+   <script type="text/javascript" id="bdshell_js"></script> 
+   <script type="text/javascript">
+document.getElementById("bdshell_js").src = "http://bdimg.share.baidu.com/static/js/shell_v2.js?cdnversion=" + Math.ceil(new Date()/3600000);
+</script> 
+   <!-- Baidu Button END --> 
+   <!-- /footer -->   
+  </div>
+ </body>
+</html>

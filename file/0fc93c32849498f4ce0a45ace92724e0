@@ -1,0 +1,238 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head>
+   <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
+    <meta name="format-detection" content="telephone=no">
+    <title>下载爆米花视频客户端</title>
+    <style type="text/css">
+    *{
+        margin: 0;
+        padding: 0;
+    }
+    body{
+        background-color: #1a1a1b;
+        height: 1000px;
+        position: relative;
+    }
+    .portrait #dl_background{
+        background-repeat:no-repeat;
+        background-position: 50% 30%;
+        background-size: cover;
+    }
+    .landscape #dl_background{
+        background-repeat:no-repeat;
+        background-position: 50% 50%;
+        background-size: cover;
+    }
+    #dl_background{
+        position: absolute;
+        height: 100%;
+        width: 100%;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 10;
+        -webkit-animation: picshow 2s ease-in-out;
+    }
+    @-webkit-keyframes picshow{
+        from {
+            opacity: 0;
+        }
+        to{
+            opacity: 1;
+        }
+    }
+    #downloadbtn_v{
+        position: absolute;
+        color: white;
+    }
+    #downloadbtn_v{
+        width: 100%;
+        top: 0;
+        left: 0;
+        height: 100%;
+    }
+    .hidden{
+        display: none;
+    }
+    header{
+        width: 100%;
+        background-color: gray;
+        height: 30px;
+        position: absolute;
+        z-index:222;
+    }
+    header div{
+        width: 50px;
+        height: 100%;
+    }
+    header div span{
+        display: block;
+        width: 100%;
+        height: 13px;
+        width: 13px;
+        border-left: 2px solid #fff;
+        border-top: 2px solid #fff;
+        position: absolute;
+        left: 13px;
+        top: 8px;
+        -webkit-transform: rotate(-45deg);
+    }
+    </style>
+  
+</head>
+<body class="portrait" style="height: 0px; ">
+    <header><div><span></span></div></header>
+    <div id="dl_background" style="background-image: url(http://29293.pic.baomihua.com/pic/201507/4913084286581944410.png); ">
+        <!--<img src="http://list.video.baidu.com/r/image/2014-05-07/cc3d52d27f2336fe0b474f2c1afb0116.png" id="top_template"/>-->
+        <div id="downloadbtn_v"></div>
+        
+    </div>
+
+
+    <script type="text/javascript" src="http://list.video.baidu.com/webapp/zepto.min-1.1.3.js"></script>
+    <script type="text/javascript" src="http://youxi.baomihua.com/dlvideoplayapp.js"></script>
+    <script type="text/javascript">
+        (function () {
+            var dlapp = {};
+            dlapp.methods = {
+                getQueryValue: function (url, key) {
+                    function escapeReg(source) {
+                        return String(source).replace(new RegExp("([.*+?^=!:\x24{}()|[\\]\/\\\\])", "g"), '\\\x241');
+                    }
+                    var reg = new RegExp(
+                                    "(^|&|\\?|#)"
+                                    + escapeReg(key)
+                                    + "=([^&#\\?]*)(\\?|&|\x24|#)",
+                                "");
+                    var match = url.match(reg);
+                    if (match) {
+                        return match[2];
+                    }
+
+                    return null;
+                },
+                getOrient: function () {
+                    if (window.orientation != undefined) {
+                        return window.orientation % 180 == 0 ? 'portrait' : 'landscape';
+                    } else {
+                        return (window.innerWidth > window.innerHeight) ? "landscape" : "portrait";
+                    }
+                }
+            };
+            var isIPad = navigator.userAgent.match(/iPad/i) != null,
+            isIphone = !isIPad && ((navigator.userAgent.match(/iPhone/i) != null) || (navigator.userAgent.match(/iPod/i) != null)),
+            isIOS = isIPad || isIphone,
+            isAndroid = !isIOS && navigator.userAgent.match(/android/i) != null,
+            isMobile = isIOS || isAndroid,
+            lochref = location.href,
+            playurlValue = dlapp.methods.getQueryValue(lochref, "play") || dlapp.methods.getQueryValue(lochref, "site"),
+            playurl = playurlValue ? decodeURIComponent(playurlValue) : "",
+            frValue = dlapp.methods.getQueryValue(lochref, "fr") || "",
+            frpageValue = decodeURIComponent(dlapp.methods.getQueryValue(lochref, "frpage") || ""),
+            template = decodeURIComponent(dlapp.methods.getQueryValue(lochref, "template") || ""),
+            frpageValue = template || frpageValue,
+            videoID = dlapp.methods.getQueryValue(lochref, "videoid") || "",
+            videoplayURL = videoID == "" ? "" : "http://m.video.baomihua.com/m/" + videoID,
+            ly = dlapp.methods.getQueryValue(lochref, "ly") || "",
+            videoplayURL = videoplayURL == "" ? "" : videoplayURL + (ly == "" ? "" : "_ly=" + ly),
+            mk = dlapp.methods.getQueryValue(lochref, "mk") || "",
+            videoplayURL = videoplayURL == "" ? "" : videoplayURL + (mk == "" ? "?myd1" : "?" + mk),
+            channelid = dlapp.methods.getQueryValue(lochref, "channelid") || "1",
+            channelid = channelid == 1 ? 11 : channelid,
+            appid = dlapp.methods.getQueryValue(lochref, "appid") || "1",
+            appid=isAndroid?1:appid ,
+            dlurl = isAndroid ? mobileAppInstall.getAndroidDownUrlByAppid(appid) : mobileAppInstall.getIOSDownUrlByAppid(appid),
+            downloadbtn_v = document.getElementById("downloadbtn_v"),
+            background = document.getElementById("dl_background"),
+            from = isAndroid ? "android" : "ios",
+            commonStat = { "product_name": 'dlvideoapp', "from": from, "fr": frValue, "frpage": frpageValue },
+            oldquery = "";
+
+            function requestConfig() {
+
+                setBackgroundImg(mobileAppInstall.imagesConfigDefault, mobileAppInstall.getAppNameByAppid(appid,isAndroid));
+            }
+            function setBackgroundImg(imagesConfig, appName) {
+                //if(isAndroid || (frpageValue.indexOf("ticket") !== -1)){
+                var curImages = imagesConfig[appName] || imagesConfig["default"],
+                    imglength = curImages.length;
+                randnum = Math.floor(Math.random() * imglength * 2) % imglength,
+                    curImg = curImages[randnum];
+                $("#dl_background").css("background-image", "url(" + curImg.portrait + ")");
+                if (curImg.btn) $("#downloadbtn_v").attr("src", curImg.btn);
+                //}else{
+                //    var imagesConfigDefaultIphone = "http://d.hiphotos.baidu.com/video/pic/item/8644ebf81a4c510f3da7b1406359252dd42aa50d.jpg";
+                //    $("#dl_background").css("background-image", "url(" + imagesConfigDefaultIphone + ")");
+                //}
+            }
+            function toTop() {
+                $(document.body).height(window.innerHeight + 200);
+                window.scrollTo(0, 1);
+                $(document.body).height(window.innerHeight);
+            }
+            function updateStyle() {
+                document.body.setAttribute("class", dlapp.methods.getOrient());
+                toTop();
+            }
+            function init() {
+                updateStyle();
+                $(downloadbtn_v).on("click", function () {
+                    window.location = dlurl;
+                }, false);
+
+                $("header>div").on("click", function () {
+                    history.back();
+                }, false);
+
+                if (videoplayURL != "") {
+                    var playbtn = $('<a href="#">跳过</a>');
+                    $('#dl_background').append(playbtn);
+
+                    playbtn.css({
+                        'font-size': '19px',
+                        'line-height': '20px',
+                        'color': '#3294FE',
+                        'position': 'absolute',
+                        'right': '15px',
+                        'bottom': '15px',
+                        'text-decoration': 'none'
+
+                    });
+
+                    playbtn.on("click", function () {
+                        window.location.replace(videoplayURL);
+                        return false;
+                    }, false);
+                }
+                requestConfig();
+            }
+            //window.addEventListener("resize", updateStyle, false);
+            window.addEventListener("orientationchange", updateStyle, false);
+            window.addEventListener("load", init);
+        })();
+    </script>
+    &lt;%--百度统计代码 START --%&gt;
+    <div style="display: none">
+        <script type="text/javascript">
+            var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+            document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3F243292647fac21a08f8c0ee91eda272f' type='text/javascript'%3E%3C/script%3E"));
+        </script><script src=" http://hm.baidu.com/h.js?243292647fac21a08f8c0ee91eda272f" type="text/javascript"></script>
+    </div>
+    &lt;%--百度统计代码 END --%&gt;
+   
+    &lt;%--数据中心统计代码 START --%&gt;
+    <script type="text/javascript">
+        var sc = "http://pvstat.baomihua.com/datagather.aspx?siteId=1&bcode=appdownlad&ext=1";
+        var ref = document.referrer;
+        if (ref == "")
+            ref = "";
+        else if (ref.length > 256)
+            ref = ref.substr(0, 256);
+        sc = sc.replace('&refurl=', '&refurl=' + ref + "|");
+        document.write(unescape("%3Cscript src='" + sc + "' type='text/javascript'%3E%3C/script%3E"));
+    </script><script src="http://pvstat.baomihua.com/datagather.aspx?siteId=1&amp;bcode=appdownlad&amp;ext=1" type="text/javascript"></script>    
+    &lt;%--数据中心统计代码 END --%&gt;
+
+
+</body></html>

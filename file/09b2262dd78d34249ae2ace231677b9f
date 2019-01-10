@@ -1,0 +1,783 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+ <head id="Head">
+  <title>
+	微信协议简单调研笔记 - 聂永的博客 - BlogJava
+</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta id="metaKeywords" name="keywords" content="微信协议简单调研笔记" />
+  <link type="text/css" rel="stylesheet" href="/css/common.css" />
+  <link id="MainCss" type="text/css" rel="stylesheet" href="http://www.blogjava.net/Skins/ClearGertrude/style.css" />
+  <link id="SecondaryCss" type="text/css" rel="stylesheet" href="http://www.blogjava.net/yongboy/customcss.aspx" />
+  <link id="RSSLink" title="RSS" type="application/rss+xml" rel="alternate" href="http://www.blogjava.net/yongboy/rss.aspx" />
+ </head> 
+ <body> 
+  <form name="Form1" method="post" action="410636.html?opt=admin" id="Form1"> 
+   <input type="hidden" name="__VIEWSTATE" id="
+__VIEWSTATE" value="" /> 
+   <script language="JavaScript">
+									function ctlent(evt,id)
+											{
+												if(evt.ctrlKey && evt.keyCode == 13)
+												{	
+													try
+													{
+														TempSave(id);
+													}
+													catch(ex)
+													{
+													}
+													finally
+													{
+													    __doPostBack('AjaxHolder$PostComment$btnSubmit','')
+													}
+												}
+		
+												}</script> 
+   <script language="JavaScript">function SetReplyAuhor(author){document.getElementById('AjaxHolder_PostComment_tbComment').value+="@"+author+"\n";document.getElementById('AjaxHolder_PostComment_tbComment').focus();return false}</script> 
+   <script src="/ScriptResource.axd?d=-BecoVNwDVCZ4TW3gB_ZzPWfgjCQ_C64O4hNc3pweA4UGq0B-lWFnUMMAtqURN0AZF_f7fxk9s5U1gsq0foUhwHdXezBbn_OgCN5EL300MOu7Jb-c7WU_a2OCK01&amp;t=634979389729873750" type="text/javascript"></script> 
+   <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.5.0/styles/default.min.css" /> 
+   <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.5.0/highlight.min.js"></script> 
+   <script>hljs.initHighlightingOnLoad();</script> 
+   <h1><a id="Header1_HeaderTitle" class="headermaintitle" href="http://www.blogjava.net/yongboy/">聂永的博客</a></h1> 
+   <p id="tagline">记录工作/学习的点点滴滴。</p> 
+   <div id="main"> 
+    <div class="post"> 
+     <h2> <a id="viewpost1_TitleUrl" href="http://www.blogjava.net/yongboy/archive/2014/03/05/410636.html">微信协议简单调研笔记</a> </h2> 
+     <div class="postText">
+      <h3>前言</h3> 
+      <p>微信可调研点很多，这里仅仅从协议角度进行调研，会涉及到微信协议交换、消息收发等。所谓“弱水三千，只取一瓢”吧。</p> 
+      <p>杂七杂八的，有些长，可直接拉到最后看结论好了。</p> 
+      <h3>一。微信协议概览</h3> 
+      <p>微信传输协议，官方公布甚少，在微信技术总监所透漏PPT《微信之道—至简》文档中，有所体现。</p> 
+      <p>纯个人理解：</p>
+      <pre><code>因张小龙做邮箱Foxmail起家，继而又做了QQ Mail等，QQ Mail是国内第一个支持Exchange ActiveSync协议的免费邮箱，基于其从业背景，微信从一开始就采取基于ActiveSync的修改版状态同步协议Sync，也就再自然不过了。
+</code></pre> 
+      <p>一句话：增量式、按序、可靠的状态同步传输的微信协议。</p> 
+      <p>大致交换简图如下：</p> 
+      <p><a href="http://www.blogjava.net/images/blogjava_net/yongboy/Windows-Live-Writer/215cc736c7b0_A31F/Image(9)_2.png"><img title="Image(9)" style="border-top: 0px; border-right: 0px; background-image: none; border-bottom: 0px; padding-top: 0px; padding-left: 0px; border-left: 0px; display: inline; padding-right: 0px" alt="Image(9)" src="http://www.blogjava.net/images/blogjava_net/yongboy/Windows-Live-Writer/215cc736c7b0_A31F/Image(9)_thumb.png" border="0" height="772" width="690" /></a></p> 
+      <p>如何获取新数据呢：</p> 
+      <ol> 
+       <li>服务器端通知，客户端获取 </li>
+       <li>客户端携带最新的SyncKey，发起数据请求 </li>
+       <li>服务器端生成最新的SyncKey连同最新数据发送给客户端 </li>
+       <li>基于版本号机制同步协议，可确保数据增量、有序传输 </li>
+       <li>SyncKey，由服务器端序列号生成器生成，一旦有新消息产生，将会产生最新的SyncKey。类似于版本号 </li>
+      </ol> 
+      <p>服务器端通知有状态更新，客户端主动获取自从上次更新之后有变动的状态数据，增量式，顺序式。</p> 
+      <h3>二。微信Web端简单调试</h3> 
+      <p>在线版本微信：</p> 
+      <p><a href="https://webpush.weixin.qq.com/">https://webpush.weixin.qq.com/</a></p> 
+      <p>通过Firefox + Firebug组合调试，也能证实了微信大致通过交换SyncKey方式获取新数据的论述。</p> 
+      <h4>1. 发起GET长连接检测是否存在新的需要同步的数据</h4> 
+      <p>会携带上最新SyncKey</p>
+      <pre><code>https://webpush.weixin.qq.com/cgi-bin/mmwebwx-bin/synccheck?callback=jQuery18306073923335455973_1393208247730&amp;r=1393209241862&amp;sid=s7c%2FsxpGRSihgZAA&amp;uin=937355&amp;deviceid=e542565508353877&amp;synckey=1_620943725%7C2_620943769%7C3_620943770%7C11_620942796%7C201_1393208420%7C202_1393209127%7C1000_1393203219&amp;_=1393209241865
+</code></pre> 
+      <p>返回内容：</p>
+      <pre><code> window.synccheck={retcode:&quot;0&quot;,selector:&quot;2&quot;}
+</code></pre> 
+      <p>selector值大于0，表示有新的消息需要同步。</p> 
+      <p>据目测，心跳周期为27秒左右。</p> 
+      <h4>2. 一旦有新数据，客户端POST请求主动获取同步的数据</h4>
+      <pre><code>https://webpush.weixin.qq.com/cgi-bin/mmwebwx-bin/webwxsync?sid=s7c%2FsxpGRSihgZAA&amp;r=1393208447375
+</code></pre> 
+      <p>携带消息体：</p>
+      <pre><code>{&quot;BaseRequest&quot;:{&quot;Uin&quot;:937355,&quot;Sid&quot;:&quot;s7c/sxpGRSihgZAA&quot;},&quot;SyncKey&quot;:{&quot;Count&quot;:6,&quot;List&quot;:[{&quot;Key&quot;:1,&quot;Val&quot;:620943725},{&quot;Key&quot;:2,&quot;Val&quot;:620943767},{&quot;Key&quot;:3,&quot;Val&quot;:620943760},{&quot;Key&quot;:11,&quot;Val&quot;:620942796},{&quot;Key&quot;:201,&quot;Val&quot;:1393208365},{&quot;Key&quot;:1000,&quot;Val&quot;:1393203219}]},&quot;rr&quot;:1393208447374}
+</code></pre> 
+      <p>会携带上最新的SyncKey，会返回复杂结构体JSON内容。</p> 
+      <p>但浏览端收取到消息之后，如何通知服务器端已确认收到了？Web版本微信，没有去做。</p> 
+      <p>在以往使用过程中，曾发现WEB端有丢失消息的现象，但属于偶尔现象。但Android微信客户端（只要登陆连接上来之后）貌似就没有丢失过。</p> 
+      <h4>3. 发送消息流程</h4> 
+      <ol> 
+       <li> <p>发起一个POST提交，用于提交用户需要发送的消息</p> <p>https://webpush.weixin.qq.com/cgi-bin/mmwebwx-bin/webwxsendmsg?sid=lQ95vHR52DiaLVqo&amp;r=1393988414386</p></li>
+      </ol> 
+      <p>发送内容：</p>
+      <pre><code>{&quot;BaseRequest&quot;:{&quot;Uin&quot;:937355,&quot;Sid&quot;:&quot;lQ95vHR52DiaLVqo&quot;,&quot;Skey&quot;:&quot;A6A1ECC6A7DE59DEFF6A05F226AA334DECBA457887B25BC6&quot;,&quot;DeviceID&quot;:&quot;e937227863752975&quot;},&quot;Msg&quot;:{&quot;FromUserName&quot;:&quot;yongboy&quot;,&quot;ToUserName&quot;:&quot;hehe057854&quot;,&quot;Type&quot;:1,&quot;Content&quot;:&quot;hello&quot;,&quot;ClientMsgId&quot;:1393988414380,&quot;LocalID&quot;:1393988414380}}
+</code></pre> 
+      <p>相应内容：</p>
+      <pre><code>{
+&quot;BaseResponse&quot;: {
+&quot;Ret&quot;: 0,
+&quot;ErrMsg&quot;: &quot;&quot;
+}
+,
+&quot;MsgID&quot;: 1020944348,
+&quot;LocalID&quot;: &quot;1393988414380&quot;
+}
+</code></pre> 
+      <ol> 
+       <li> <p>再次发起一个POST请求，用于申请最新SyncKey</p> <p>https://webpush.weixin.qq.com/cgi-bin/mmwebwx-bin/webwxsync?sid=lQ95vHR52DiaLVqo&amp;r=1393988414756</p></li>
+      </ol> 
+      <p>发送内容：</p>
+      <pre><code>{&quot;BaseRequest&quot;:{&quot;Uin&quot;:937355,&quot;Sid&quot;:&quot;lQ95vHR52DiaLVqo&quot;},&quot;SyncKey&quot;:{&quot;Count&quot;:6,&quot;List&quot;:[{&quot;Key&quot;:1,&quot;Val&quot;:620944310},{&quot;Key&quot;:2,&quot;Val&quot;:620944346},{&quot;Key&quot;:3,&quot;Val&quot;:620944344},{&quot;Key&quot;:11,&quot;Val&quot;:620942796},{&quot;Key&quot;:201,&quot;Val&quot;:1393988357},{&quot;Key&quot;:1000,&quot;Val&quot;:1393930108}]},&quot;rr&quot;:1393988414756}
+</code></pre> 
+      <p>响应的（部分）内容：</p>
+      <pre><code>&quot;SKey&quot;: &quot;8F8C6A03489E85E9FDF727ACB95C93C2CDCE9FB9532FC15B&quot;  
+</code></pre> 
+      <ol> 
+       <li> <p>终止GET长连接，使用最新SyncKey再次发起一个新的GET长连接</p> <p>https://webpush.weixin.qq.com/cgi-bin/mmwebwx-bin/synccheck?callback=jQuery183024581008965208218<em>1393988305564&amp;r=1393988415015&amp;sid=lQ95vHR52DiaLVqo&amp;uin=937355&amp;deviceid=e937227863752975&amp;synckey=1</em>620944310%7C2<em>620944348%7C3<em>620944344%7C11</em>620942796%7C201</em>1393988357%7C1000<em>1393930108&amp;</em>=1393988415016</p></li>
+      </ol> 
+      <h3>三。微信Android简单分析</h3> 
+      <p>Windows桌面端Android虚拟机中运行最新版微信(5.2)，通过tcpdump/Wireshark组合封包分析，以下为分析结果。</p> 
+      <h4>0. 初始连接记录</h4> 
+      <p>简单记录微信启动之后请求：</p>
+      <pre><code>11:20:35 dns查询 
+dns.weixin.qq.com
+返回一组IP地址
+
+11:20:35 DNS查询
+long.weixin.qq.com
+返回一组IP地址，本次通信中，微信使用了最后一个IP作为TCP长连接的连接地址。
+
+11:20:35
+http://dns.weixin.qq.com/cgi-bin/micromsg-bin/newgetdns?uin=0&amp;clientversion=620888113&amp;scene=0&amp;net=1
+用于请求服务器获得最优IP路径。服务器通过结算返回一个xml定义了域名:IP对应列表。仔细阅读，可看到微信已经开始了国际化的步伐：香港、加拿大、韩国等。
+具体文本，请参考：https://gist.github.com/yongboy/9341884
+
+11:20:35
+获取到long.weixin.qq.com最优IP，然后建立到101.227.131.105的TCP长连接
+
+11:21:25
+POST http://short.weixin.qq.com/cgi-bin/micromsg-bin/getprofile HTTP/1.1  (application/octet-stream)
+返回一个名为“micromsgresp.dat”的附件，估计是未阅读的离线消息
+
+11:21:31
+POST http://short.weixin.qq.com/cgi-bin/micromsg-bin/whatsnews HTTP/1.1  (application/octet-stream)
+大概是资讯、订阅更新等
+
+中间进行一些资源请求等，类似于
+GET http://wx.qlogo.cn/mmhead/Q3auHgzwzM7NR4TYFcoNjbxZpfO9aiaE7RU5lXGUw13SMicL6iacWIf2A/96
+图片等一些静态资源都会被分配到wx.qlogo.cn域名下面
+
+不明白做什么用途
+POST http://short.weixin.qq.com/cgi-bin/micromsg-bin/downloadpackage HTTP/1.1  (application/octet-stream)
+输出为micromsgresp.dat文件
+
+11:21:47
+GET http://support.weixin.qq.com/cgi-bin/mmsupport-bin/reportdevice?channel=34&amp;deviceid=A952001f7a840c2a&amp;clientversion=620888113&amp;platform=0&amp;lang=zh_CN&amp;installtype=0 HTTP/1.1 
+返回chunked分块数据
+
+11:21:49
+POST http://short.weixin.qq.com/cgi-bin/micromsg-bin/reportstrategy HTTP/1.1  (application/octet-stream)
+</code></pre> 
+      <h4>1. 心跳频率约为5分钟</h4> 
+      <p>上次使用Wireshark分析有误（得出18分钟结论），再次重新分析，心跳频率在5分钟左右。</p> 
+      <h4>2. 登陆之后，会建立一个长连接，端口号为8080</h4> 
+      <p>简单目测为HTTP，初始以为是双通道HTTP，难道是自定义的用于双通道通信的HTTP协议吗，网络上可见资料都是模棱两可、语焉不详。</p> 
+      <p>具体查看长连接初始数据通信，没有发现任何包含&quot;HTTP&quot;字样的数据，以为是微信自定义的TCP/HTTP通信格式。据分析，用于可能用于获取数据、心跳交换消息等用途吧。这个后面会详谈微信是如何做到的。</p> 
+      <h5>2.0 初始消息传输</h5> 
+      <p>个人资料、离线未阅读消息部分等通过 POST HTTP短连接单独获取。</p> 
+      <h5>2.1 二进制简单分析</h5> 
+      <p>抽取微信某次HTTP协议方式通信数据，16进制表示，每两个靠近的数字为一个byte字节：</p> 
+      <p><a href="http://www.blogjava.net/images/blogjava_net/yongboy/Windows-Live-Writer/215cc736c7b0_A31F/2014-03-03_15h07_30_2.png"><img title="2014-03-03_15h07_30" style="border-top: 0px; border-right: 0px; background-image: none; border-bottom: 0px; padding-top: 0px; padding-left: 0px; border-left: 0px; display: inline; padding-right: 0px" alt="2014-03-03_15h07_30" src="http://www.blogjava.net/images/blogjava_net/yongboy/Windows-Live-Writer/215cc736c7b0_A31F/2014-03-03_15h07_30_thumb.png" border="0" height="342" width="625" /></a></p> 
+      <p>微信协议可能如下：</p>
+      <pre><code>一个消息包 = 消息头 + 消息体
+</code></pre> 
+      <p>消息头固定16字节长度，消息包长度定义在消息头前4个字节中。</p> 
+      <p>单纯摘取第0000行为例，共16个字节的头部:</p>
+      <pre><code>00 00 00 10 00 10 00 01 00 00 00 06 00 00 00 0f
+</code></pre> 
+      <p>16进制表示，每两个紧挨着数字代表一个byte字节。</p> 
+      <p>微信消息包格式： 1. 前4字节表示数据包长度，可变 值为16时，意味着一个仅仅包含头部的完整的数据包（可能表示着预先定义好的业务意义），后面可能还有会别的消息包 2. 2个字节表示头部长度，固定值，0x10 = 16 3. 2个字节表示谢意版本，固定值，0x01 = 1 4. 4个字节操作说明数字，可变 5. 序列号，可变 6. 头部后面紧跟着消息体，非明文，加密形式 7. 一个消息包，最小16 byte字节</p> 
+      <p>通过上图（以及其它数据多次采样）分析：</p> 
+      <ol> 
+       <li>0000 - 0040为单独的数据包 </li>
+       <li>0050行为下一个数据包的头部，前四个字节值为0xca = 202，表示包含了从0050-0110共202个字节数据 </li>
+       <li>一次数据发送，可能包含若干子数据包 </li>
+       <li>换行符\n，16进制表示为0x0a，在00f0行，包含了两个换行符号 </li>
+       <li>一个数据体换行符号用于更细粒度的业务数据分割 是否蒙对，需要问问做微信协议的同学 </li>
+       <li>所有被标记为HTTP协议通信所发送数据都包含换行符号 </li>
+      </ol> 
+      <h5>2.2 动手试试猜想，模拟微信TCP长连接</h5> 
+      <p>开始很不解为什么会出现如此怪异的HTTP双通道长连接请求，难道基于TCP通信，然后做了一些手脚？很常规的TCP长连接，传输数据时(不是所有数据传输)，被wireshark误认为HTTP长连接。这个需要做一个实验证实一下自己想法，设想如下：</p> 
+      <p>写一个Ping-Pong客户端、服务器端程序，然后使用Wireshark看一下结果，是否符合判断。</p> 
+      <p>Java版本的请求端，默认请求8080端口： <script src="https://gist.github.com/yongboy/9319660.js"></script></p> 
+      <p>C语言版本的服务器程序，收到什么发送什么，没有任何逻辑，默认绑定8080端口： <script src="https://gist.github.com/yongboy/9341037.js"></script></p> 
+      <p>这里有一个现场图：</p> 
+      <p><a href="http://www.blogjava.net/images/blogjava_net/yongboy/Windows-Live-Writer/215cc736c7b0_A31F/2014-03-03_14h53_19_2.png"><img title="2014-03-03_14h53_19" style="border-top: 0px; border-right: 0px; background-image: none; border-bottom: 0px; padding-top: 0px; padding-left: 0px; border-left: 0px; display: inline; padding-right: 0px" alt="2014-03-03_14h53_19" src="http://www.blogjava.net/images/blogjava_net/yongboy/Windows-Live-Writer/215cc736c7b0_A31F/2014-03-03_14h53_19_thumb.png" border="0" height="702" width="1052" /></a></p> 
+      <p>可以尝试稍微改变输出内容，去除换行符“\n”，把端口换成9000，试试看，就会发现Wireshark输出不同的结果来。</p> 
+      <h5>2.3 结论是什么呢？</h5> 
+      <p>若使用原始TCP进行双向通信，则需要满足以下条件，可以被类似于Wireshark协议拦截器误认为是HTTP长连接：</p> 
+      <ol> 
+       <li>使用80/8080端口（81/3128/8000经测试无效） 也许8080一般被作为WEB代理服务端口，微信才会享用这个红利吧。 </li>
+       <li>输出的内容中，一定要包含换行字符&quot;\n&quot; </li>
+      </ol> 
+      <p>因此，可以定性为微信使用了基于8080端口TCP长连接，一旦数据包中含有换行&quot;\n&quot;符号，就会被Wireshark误认为HTTP协议。可能微信是无心为之吧。</p> 
+      <h4>3. 新消息获取方式</h4> 
+      <ol> 
+       <li>TCP长连接接收到服务器通知有新消息需要获取 </li>
+       <li>APP发起一个HTTP POST请求获取新状态消息，会带上当前SyncKey 地址为：http://short.weixin.qq.com/cgi-bin/micromsg-bin/reportstrategy HTTP/1.1，看不到明文 </li>
+       <li>APP获取到新的消息，会再次发起一次HTTP POST请求，告诉服务器已确认收到，同时获取最新SyncKey 地址为：http://short.weixin.qq.com/cgi-bin/micromsg-bin/kvreport，看不到明文 </li>
+       <li>接受一个消息，TCP长连接至少交互两次，客户端发起两次HTTP POST请求 <br />具体每次交互内容是什么，有些模糊<br /></li>
+       <li>服务器需要支持：状态消息获取标记，状态消息确认收取标记。只有被确认收到，此状态消息才算是被正确消费掉 </li>
+       <li>多个不同设备同一账号同时使用微信，同一个状态消息会会被同时分发到多个设备上 </li>
+      </ol> 
+      <p>此时消息请求截图如下：</p> 
+      <p><a href="http://www.blogjava.net/images/blogjava_net/yongboy/Windows-Live-Writer/215cc736c7b0_A31F/2014-03-03_15h58_15_2.png"><img title="2014-03-03_15h58_15" style="border-top: 0px; border-right: 0px; background-image: none; border-bottom: 0px; padding-top: 0px; padding-left: 0px; border-left: 0px; display: inline; padding-right: 0px" alt="2014-03-03_15h58_15" src="http://www.blogjava.net/images/blogjava_net/yongboy/Windows-Live-Writer/215cc736c7b0_A31F/2014-03-03_15h58_15_thumb.png" border="0" height="371" width="1422" /></a></p> 
+      <h4>4. 发送消息方式</h4> 
+      <p>发送消息走已经建立的TCP长连接通道，发送消息到服务器，然后接受确认信息等，产生一次交互。</p> 
+      <p>小伙伴接收到信息阅读也都会收到服务器端通知，产生一次交互等。</p>
+      <!--![](wg/2014-03-03_16h19_14.png)--> 
+      <p>可以确定，微信发送消息走TCP长连接方式，因为不对自身状态数据产生影响，应该不交换SyncKey。</p> 
+      <ul> 
+       <li>在低速网络下，大概会看到消息发送中的提示，属于消息重发机制 </li>
+       <li>网络不好有时客户端会出现发送失败的红色感叹号 </li>
+       <li>已发送到服务器但未收到确认的消息，客户端显示红色感叹号，再次重发，服务器作为重复消息处理，反馈确认</li>
+       <li>上传图片，会根据图片大小，分割成若干部分（大概1.5K被划分为一部分），同一时间点，客户端会发起若干次POST请求，各自上传成功之后，服务器大概会合并成一个完整图片，返回一个缩略图，显示在APP聊天窗口内。APP作为常规的文字消息发送到服务器端</li>
+       <li>上传音频，则单独走TCP通道，一个两秒的录制音频，客户端录制完毕，分为两块传输，一块最大1.5K左右，服务端响应一条数据通知确认收到。共三次数据传输。<br />音频和纯文字信息一致，都是走TCP长连接，客户端发送，服务器端确认。</li>
+      </ul> 
+      <h3>四。微信协议小结</h3> 
+      <ol> 
+       <li>发布的消息对应一个ID（只要单个方向唯一即可，服务器端可能会根ID判断重复接收），消息重传机制确保有限次的重试，重试失败给予用户提示，发送成功会反馈确认，客户端只有收到确认信息才知道发送成功。发送消息可能不会产生新SyncKey。 </li>
+       <li>基于版本号（SynKey）的状态消息同步机制，增量、有序传输需求水到渠成。长连接通知/短连接获取、确认等，交互方式简单，确保了消息可靠谱、准确无误到达。 </li>
+       <li>客户端/服务器端都会存储消息ID处理记录，避免被重复消费客户端获取最新消息，但未确认，服务器端不会认为该消息被消费掉。下次客户端会重新获取，会查询当前消息是否被处理过。根据一些现象猜测。 </li>
+       <li>总体上看，微信协议跨平台（TCP或HTPP都可呈现，处理方式可统一），通过“握手”同步，很可靠，无论哪一个平台都可以支持的很好 </li>
+       <li>微信协议最小成本为16字节，大部分时间若干个消息包和在一起，批量传输。微信协议说不上最简洁，也不是最节省流量，但是非常成功的。 </li>
+       <li>
+        <div>
+         若服务器检测到一些不确定因素，可能会导致微启用安全套接层SSL协议进行常规的TCP长连接传输。短连接都没有发生变化
+        </div><br /></li>
+      </ol> 
+      <p>以上，根据有限资料和数据拦截观察总结得出，啰啰嗦嗦，勉强凑成一篇，会存在一些不正确之处，欢迎给予纠正。在多次</p> 
+      <h3>五。附录</h3> 
+      <p>Microsoft Exchange Active Sync协议，简称EAS，分为folderrsync(同步文件夹目录，即邮箱内有哪几个文件夹)和sync（每个文件夹内有哪些文档）两部分。</p> 
+      <p>某网友总结的协议一次回话大致示范：</p>
+      <pre><code>Client:   synckey=0 //第一次key为0
+Server:  newsynckey=1235434    //第一次返回新key
+Client:   synckey=1235434   //使用新key查询
+Server:  newsynckey=1647645,data=*****//第一次查询，得到新key和数据
+Client:   synckey=1647645
+Server:  newsynckey=5637535,data=null //第二次查询，无新消息
+Client:   synckey=5637535
+Server: newsynckey=8654542, data=****//第三次查询，增量同步
+</code></pre> 
+      <ul> 
+       <li>上页中的相邻请求都是隔固定时间的，如两分钟 </li>
+       <li>客户端每次使用旧key标记自己的状态，服务端每次将新key和增量数据一起返回。 </li>
+       <li>key是递增的，但不要求连续 </li>
+       <li>请求的某个参数决定服务器是否立即返回 </li>
+      </ul>
+      <br />
+      <br />
+      <div>
+       <span style="color: #008000;">----------------------------------------------------------------------------<br /> 广而告之，让您自由畅游网络~</span>
+      </div> 
+      <div>
+       <a target="_blank" href="http://gjsq.me/1034269">推荐一个我一直使用的VPN 翻*墙利器，平常正常谷歌搜索，登陆Gmail，闲时观看youtube等高清视频一点都不卡！</a>
+      </div> 
+      <div>
+       再超值提供一个近期2015年有效的9折优惠码：
+       <u><strong>10off2015</strong></u>
+       <br /> 
+       <br />作为码农，严重推荐！
+      </div>
+     </div> 
+     <p class="postfoot"> posted on 2014-03-05 14:15 <a href="http://www.blogjava.net/yongboy/">nieyong</a> 阅读(60355) <a href="#Post">评论(22)</a> &nbsp;<a href="http://www.blogjava.net/yongboy/admin/EditPosts.aspx?postid=410636">编辑</a> &nbsp;<a href="http://www.blogjava.net/yongboy/AddToFavorite.aspx?id=410636">收藏</a> 所属分类: <a href="http://www.blogjava.net/yongboy/category/54840.html">移动后端</a> </p> 
+    </div> 
+    <img src="http://www.blogjava.net/yongboy/aggbug/410636.html?webview=1" width="1" height="1" /> 
+    <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+xmlns:dc="http://purl.org/dc/elements/1.1/"
+xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/">
+<rdf:Description
+rdf:about="http://www.blogjava.net/yongboy/archive/2014/03/05/410636.html"
+dc:identifier="http://www.blogjava.net/yongboy/archive/2014/03/05/410636.html"
+dc:title="微信协议简单调研笔记"
+trackback:ping="http://www.blogjava.net/yongboy/services/trackbacks/410636.aspx" />
+</rdf:RDF>
+--> 
+    <div id="AjaxHolder_UpdatePanel1"> 
+     <a name="pagedcomment"></a> 
+     <a name="评论"></a> 
+     <div id="comments"> 
+      <h3>评论</h3> 
+      <h4> <a title="permalink: re: 微信协议简单调研笔记" href="/yongboy/archive/2015/03/11/410636.html?opt=admin#410680">#</a>&nbsp;<a name="410680"></a>re: 微信协议简单调研笔记 <span> 2014-03-06 11:55 </span> <a id="AjaxHolder_Comments_CommentList_ctl00_NameLink" href="http://www.qqjianli.com" target="_blank">简历制作</a> </h4> 
+      <p> 好长的代码啊！&nbsp;&nbsp;<a onclick="return SetReplyAuhor(&quot;简历制作&quot;)" href="/yongboy/archive/2015/03/11/410636.html?opt=admin#post">回复</a>&nbsp;&nbsp;<a title="查看该作者发表过的评论" href="http://www.blogjava.net/comment?author=%e7%ae%80%e5%8e%86%e5%88%b6%e4%bd%9c" target="_blank">更多评论</a> <a id="AjaxHolder_Comments_CommentList_ctl00_DeleteLink" href="javascript:__doPostBack('AjaxHolder$Comments$CommentList$ctl00$DeleteLink','')"></a>&nbsp;&nbsp;<a id="AjaxHolder_Comments_CommentList_ctl00_EditLink"></a> </p> 
+      <h4> <a title="permalink: re: 微信协议简单调研笔记" href="/yongboy/archive/2015/03/11/410636.html?opt=admin#410708">#</a>&nbsp;<a name="410708"></a>re: 微信协议简单调研笔记 <span> 2014-03-07 07:08 </span> <a id="AjaxHolder_Comments_CommentList_ctl01_NameLink" href="http://www.blogjava.net/youxia/" target="_blank">海边沫沫</a> </h4> 
+      <p> 学习了&nbsp;&nbsp;<a onclick="return SetReplyAuhor(&quot;海边沫沫&quot;)" href="/yongboy/archive/2015/03/11/410636.html?opt=admin#post">回复</a>&nbsp;&nbsp;<a title="查看该作者发表过的评论" href="http://www.blogjava.net/comment?author=%e6%b5%b7%e8%be%b9%e6%b2%ab%e6%b2%ab" target="_blank">更多评论</a> <a id="AjaxHolder_Comments_CommentList_ctl01_DeleteLink" href="javascript:__doPostBack('AjaxHolder$Comments$CommentList$ctl01$DeleteLink','')"></a>&nbsp;&nbsp;<a id="AjaxHolder_Comments_CommentList_ctl01_EditLink"></a> </p> 
+      <h4> <a title="permalink: re: 微信协议简单调研笔记" href="/yongboy/archive/2015/03/11/410636.html?opt=admin#415874">#</a>&nbsp;<a name="415874"></a>re: 微信协议简单调研笔记 <span> 2014-07-16 09:21 </span> <a id="AjaxHolder_Comments_CommentList_ctl02_NameLink" target="_blank">bobocai</a> </h4> 
+      <p> 谢谢博主！&nbsp;&nbsp;<a onclick="return SetReplyAuhor(&quot;bobocai&quot;)" href="/yongboy/archive/2015/03/11/410636.html?opt=admin#post">回复</a>&nbsp;&nbsp;<a title="查看该作者发表过的评论" href="http://www.blogjava.net/comment?author=bobocai" target="_blank">更多评论</a> <a id="AjaxHolder_Comments_CommentList_ctl02_DeleteLink" href="javascript:__doPostBack('AjaxHolder$Comments$CommentList$ctl02$DeleteLink','')"></a>&nbsp;&nbsp;<a id="AjaxHolder_Comments_CommentList_ctl02_EditLink"></a> </p> 
+      <h4> <a title="permalink: re: 微信协议简单调研笔记[未登录]" href="/yongboy/archive/2015/03/11/410636.html?opt=admin#416142">#</a>&nbsp;<a name="416142"></a>re: 微信协议简单调研笔记[未登录] <span> 2014-07-23 17:40 </span> <a id="AjaxHolder_Comments_CommentList_ctl03_NameLink" target="_blank">felix</a> </h4> 
+      <p> wireshark 是通过端口号来辨识协议类型，8080是http的常用端口，wireshark就把消息标识为http，这个功能可以禁止掉。<br />另外，微信使用8080端口，跟http没有关系，也不是冒充http，主要在于有些公司会封掉端口，但是8080 80 这些常用端口是打开的。&nbsp;&nbsp;<a onclick="return SetReplyAuhor(&quot;felix&quot;)" href="/yongboy/archive/2015/03/11/410636.html?opt=admin#post">回复</a>&nbsp;&nbsp;<a title="查看该作者发表过的评论" href="http://www.blogjava.net/comment?author=felix" target="_blank">更多评论</a> <a id="AjaxHolder_Comments_CommentList_ctl03_DeleteLink" href="javascript:__doPostBack('AjaxHolder$Comments$CommentList$ctl03$DeleteLink','')"></a>&nbsp;&nbsp;<a id="AjaxHolder_Comments_CommentList_ctl03_EditLink"></a> </p> 
+      <h4> <a title="permalink: re: 微信协议简单调研笔记" href="/yongboy/archive/2015/03/11/410636.html?opt=admin#417447">#</a>&nbsp;<a name="417447"></a>re: 微信协议简单调研笔记 <span> 2014-08-28 13:27 </span> <a id="AjaxHolder_Comments_CommentList_ctl04_NameLink" href="http://www.jianliw.com/" target="_blank">简历网</a> </h4> 
+      <p> 好长的代码啊。不过还是很受用。谢谢啦&nbsp;&nbsp;<a onclick="return SetReplyAuhor(&quot;简历网&quot;)" href="/yongboy/archive/2015/03/11/410636.html?opt=admin#post">回复</a>&nbsp;&nbsp;<a title="查看该作者发表过的评论" href="http://www.blogjava.net/comment?author=%e7%ae%80%e5%8e%86%e7%bd%91" target="_blank">更多评论</a> <a id="AjaxHolder_Comments_CommentList_ctl04_DeleteLink" href="javascript:__doPostBack('AjaxHolder$Comments$CommentList$ctl04$DeleteLink','')"></a>&nbsp;&nbsp;<a id="AjaxHolder_Comments_CommentList_ctl04_EditLink"></a> </p> 
+      <h4> <a title="permalink: re: 微信协议简单调研笔记" href="/yongboy/archive/2015/03/11/410636.html?opt=admin#417448">#</a>&nbsp;<a name="417448"></a>re: 微信协议简单调研笔记 <span> 2014-08-28 13:29 </span> <a id="AjaxHolder_Comments_CommentList_ctl05_NameLink" href="http://www.jianliw.com/" target="_blank">简历网</a> </h4> 
+      <p> 不错不错&nbsp;&nbsp;<a onclick="return SetReplyAuhor(&quot;简历网&quot;)" href="/yongboy/archive/2015/03/11/410636.html?opt=admin#post">回复</a>&nbsp;&nbsp;<a title="查看该作者发表过的评论" href="http://www.blogjava.net/comment?author=%e7%ae%80%e5%8e%86%e7%bd%91" target="_blank">更多评论</a> <a id="AjaxHolder_Comments_CommentList_ctl05_DeleteLink" href="javascript:__doPostBack('AjaxHolder$Comments$CommentList$ctl05$DeleteLink','')"></a>&nbsp;&nbsp;<a id="AjaxHolder_Comments_CommentList_ctl05_EditLink"></a> </p> 
+      <h4> <a title="permalink: re: 微信协议简单调研笔记" href="/yongboy/archive/2015/03/11/410636.html?opt=admin#418281">#</a>&nbsp;<a name="418281"></a>re: 微信协议简单调研笔记 <span> 2014-09-26 01:26 </span> <a id="AjaxHolder_Comments_CommentList_ctl06_NameLink" target="_blank">小小年纪</a> </h4> 
+      <p> 博主。。有个软件请你开发可以吗啊，关于微信的。。重金酬谢！请联系我QQ:412609534&nbsp;&nbsp;<a onclick="return SetReplyAuhor(&quot;小小年纪&quot;)" href="/yongboy/archive/2015/03/11/410636.html?opt=admin#post">回复</a>&nbsp;&nbsp;<a title="查看该作者发表过的评论" href="http://www.blogjava.net/comment?author=%e5%b0%8f%e5%b0%8f%e5%b9%b4%e7%ba%aa" target="_blank">更多评论</a> <a id="AjaxHolder_Comments_CommentList_ctl06_DeleteLink" href="javascript:__doPostBack('AjaxHolder$Comments$CommentList$ctl06$DeleteLink','')"></a>&nbsp;&nbsp;<a id="AjaxHolder_Comments_CommentList_ctl06_EditLink"></a> </p> 
+      <h4> <a title="permalink: re: 微信协议简单调研笔记" href="/yongboy/archive/2015/03/11/410636.html?opt=admin#418575">#</a>&nbsp;<a name="418575"></a>re: 微信协议简单调研笔记 <span> 2014-10-10 10:52 </span> <a id="AjaxHolder_Comments_CommentList_ctl07_NameLink" target="_blank">wangnewton</a> </h4> 
+      <p> 写的真不错，总结起来，web版本就是采用的长轮询方案，轮询timeout时间大概是27s。<br />客户端版，使用8080端口做长连接，主要是用于是否有新消息的检测，以及消息发送。新消息的获取和收到确认过程依旧是采用http的方式。有一个问题是，8080端口被公司封掉的话，是否就会有问题了？&nbsp;&nbsp;<a onclick="return SetReplyAuhor(&quot;wangnewton&quot;)" href="/yongboy/archive/2015/03/11/410636.html?opt=admin#post">回复</a>&nbsp;&nbsp;<a title="查看该作者发表过的评论" href="http://www.blogjava.net/comment?author=wangnewton" target="_blank">更多评论</a> <a id="AjaxHolder_Comments_CommentList_ctl07_DeleteLink" href="javascript:__doPostBack('AjaxHolder$Comments$CommentList$ctl07$DeleteLink','')"></a>&nbsp;&nbsp;<a id="AjaxHolder_Comments_CommentList_ctl07_EditLink"></a> </p> 
+      <h4> <a title="permalink: re: 微信协议简单调研笔记" href="/yongboy/archive/2015/03/11/410636.html?opt=admin#420177">#</a>&nbsp;<a name="420177"></a>re: 微信协议简单调研笔记 <span> 2014-11-17 13:49 </span> <a id="AjaxHolder_Comments_CommentList_ctl08_NameLink" target="_blank">hellix</a> </h4> 
+      <p> 博主，tcpdump的命令是什么样的？&nbsp;&nbsp;<a onclick="return SetReplyAuhor(&quot;hellix&quot;)" href="/yongboy/archive/2015/03/11/410636.html?opt=admin#post">回复</a>&nbsp;&nbsp;<a title="查看该作者发表过的评论" href="http://www.blogjava.net/comment?author=hellix" target="_blank">更多评论</a> <a id="AjaxHolder_Comments_CommentList_ctl08_DeleteLink" href="javascript:__doPostBack('AjaxHolder$Comments$CommentList$ctl08$DeleteLink','')"></a>&nbsp;&nbsp;<a id="AjaxHolder_Comments_CommentList_ctl08_EditLink"></a> </p> 
+      <h4> <a title="permalink: re: 微信协议简单调研笔记" href="/yongboy/archive/2015/03/11/410636.html?opt=admin#422150">#</a>&nbsp;<a name="422150"></a>re: 微信协议简单调研笔记 <span> 2015-01-09 10:32 </span> <a id="AjaxHolder_Comments_CommentList_ctl09_NameLink" target="_blank">涩兔子leslie</a> </h4> 
+      <p> Hi 某个人的碎碎念，<br /><br />*微信Web协议SyncKey遭遇1100的BUG*<br /><br />我把详细讨论放在 <a href="https://github.com/xiangzhai/qwx/blob/master/doc/synckey.md" target="_new" rel="nofollow">https://github.com/xiangzhai/qwx/blob/master/doc/synckey.md</a><br /><br />以下是BUG概述：<br /><br />用“微信同步心跳”做为关键词Google，可以发现<br /><a href="http://freezingsky.iteye.com/blog/2055502" target="_new" rel="nofollow">http://freezingsky.iteye.com/blog/2055502</a><br />当其返回不是window.synccheck={retcode:&quot;0&quot;,selector:&quot;0&quot;}就需要再次回到第二步， 重新获得SyncKey！ 但是POST的json内容中用到的SyncKey只有4个元素，即第一步的InitSyncKey， 我现在用的是5个SyncKey，弃掉Key值为11的元素。<br /><br />不幸运的是我会得到window.synccheck={retcode:&quot;1100&quot;,selector:&quot;0&quot;}一旦出现1100 心跳同步就失败了！无法接收、发送微信！BUG提交在<a href="https://github.com/xiangzhai/qwx/issues/8" target="_new" rel="nofollow">https://github.com/xiangzhai/qwx/issues/8</a><br /><br />敬礼<br /><br />涩兔子leslie&nbsp;&nbsp;<a onclick="return SetReplyAuhor(&quot;涩兔子leslie&quot;)" href="/yongboy/archive/2015/03/11/410636.html?opt=admin#post">回复</a>&nbsp;&nbsp;<a title="查看该作者发表过的评论" href="http://www.blogjava.net/comment?author=%e6%b6%a9%e5%85%94%e5%ad%90leslie" target="_blank">更多评论</a> <a id="AjaxHolder_Comments_CommentList_ctl09_DeleteLink" href="javascript:__doPostBack('AjaxHolder$Comments$CommentList$ctl09$DeleteLink','')"></a>&nbsp;&nbsp;<a id="AjaxHolder_Comments_CommentList_ctl09_EditLink"></a> </p> 
+      <h4> <a title="permalink: re: 微信协议简单调研笔记" href="/yongboy/archive/2015/03/11/410636.html?opt=admin#422154">#</a>&nbsp;<a name="422154"></a>re: 微信协议简单调研笔记 <span> 2015-01-09 16:08 </span> <a id="AjaxHolder_Comments_CommentList_ctl10_NameLink" target="_blank">涩兔子leslie</a> </h4> 
+      <p> @涩兔子leslie<br />fix咯 <a href="https://github.com/xiangzhai/qwx/issues/8" target="_new" rel="nofollow">https://github.com/xiangzhai/qwx/issues/8</a>&nbsp;&nbsp;<a onclick="return SetReplyAuhor(&quot;涩兔子leslie&quot;)" href="/yongboy/archive/2015/03/11/410636.html?opt=admin#post">回复</a>&nbsp;&nbsp;<a title="查看该作者发表过的评论" href="http://www.blogjava.net/comment?author=%e6%b6%a9%e5%85%94%e5%ad%90leslie" target="_blank">更多评论</a> <a id="AjaxHolder_Comments_CommentList_ctl10_DeleteLink" href="javascript:__doPostBack('AjaxHolder$Comments$CommentList$ctl10$DeleteLink','')"></a>&nbsp;&nbsp;<a id="AjaxHolder_Comments_CommentList_ctl10_EditLink"></a> </p> 
+      <h4> <a title="permalink: re: 微信协议简单调研笔记" href="/yongboy/archive/2015/03/11/410636.html?opt=admin#423351">#</a>&nbsp;<a name="423351"></a>re: 微信协议简单调研笔记 <span> 2015-03-10 17:26 </span> <a id="AjaxHolder_Comments_CommentList_ctl11_NameLink" href="http://%e6%97%a0" target="_blank">杨树</a> </h4> 
+      <p> 害人不浅啊。。。。<br />1.TCP长连接接收到服务器通知有新消息需要获取<br />2.APP发起一个HTTP POST请求获取新状态消息，会带上当前SyncKey 地址为：<a href="http://short.weixin.qq.com/cgi-bin/micromsg-bin/reportstrategy" target="_new" rel="nofollow">http://short.weixin.qq.com/cgi-bin/micromsg-bin/reportstrategy</a> HTTP/1.1，看不到明文<br /><br />你确定微信发http请求了????你用Charles只抓http。<br />别人给你发消息。。你看是否有http<br /><br />这样的文章，最好还事调研清楚，，害人不浅&nbsp;&nbsp;<a onclick="return SetReplyAuhor(&quot;杨树&quot;)" href="/yongboy/archive/2015/03/11/410636.html?opt=admin#post">回复</a>&nbsp;&nbsp;<a title="查看该作者发表过的评论" href="http://www.blogjava.net/comment?author=%e6%9d%a8%e6%a0%91" target="_blank">更多评论</a> <a id="AjaxHolder_Comments_CommentList_ctl11_DeleteLink" href="javascript:__doPostBack('AjaxHolder$Comments$CommentList$ctl11$DeleteLink','')"></a>&nbsp;&nbsp;<a id="AjaxHolder_Comments_CommentList_ctl11_EditLink"></a> </p> 
+      <h4> <a title="permalink: re: 微信协议简单调研笔记[未登录]" href="/yongboy/archive/2015/03/11/410636.html?opt=admin#423359">#</a>&nbsp;<a name="423359"></a>re: 微信协议简单调研笔记[未登录] <span> 2015-03-11 08:41 </span> <a id="AjaxHolder_Comments_CommentList_ctl12_NameLink" target="_blank">scott</a> </h4> 
+      <p> 弄清楚什么是HTTP协议和长连接再说吧。&nbsp;&nbsp;<a onclick="return SetReplyAuhor(&quot;scott&quot;)" href="/yongboy/archive/2015/03/11/410636.html?opt=admin#post">回复</a>&nbsp;&nbsp;<a title="查看该作者发表过的评论" href="http://www.blogjava.net/comment?author=scott" target="_blank">更多评论</a> <a id="AjaxHolder_Comments_CommentList_ctl12_DeleteLink" href="javascript:__doPostBack('AjaxHolder$Comments$CommentList$ctl12$DeleteLink','')"></a>&nbsp;&nbsp;<a id="AjaxHolder_Comments_CommentList_ctl12_EditLink"></a> </p> 
+      <h4> <a title="permalink: re: 微信协议简单调研笔记[未登录]" href="/yongboy/archive/2015/03/11/410636.html?opt=admin#423360">#</a>&nbsp;<a name="423360"></a>re: 微信协议简单调研笔记[未登录] <span> 2015-03-11 08:43 </span> <a id="AjaxHolder_Comments_CommentList_ctl13_NameLink" target="_blank">scott</a> </h4> 
+      <p> &gt;&gt; 2.3 结论是什么呢？<br />&gt;&gt; 若使用原始TCP进行双向通信，则需要满足以下条件，可以被类似于Wireshark协议拦截器误认为是HTTP长连接：<br /><br />&gt;&gt;使用80/8080端口（81/3128/8000经测试无效） 也许8080一般被作为WEB代理服务端口，微信才会享用这个红利吧。<br />&gt;&gt; 输出的内容中，一定要包含换行字符&quot;\n&quot;<br />&gt;&gt; 因此，可以定性为微信使用了基于8080端口TCP长连接，一旦数据包中含有换行&quot;\n&quot;符号，就会被Wireshark误认为HTTP协议。可能微信是无心为之吧。<br /><br />你这误人子弟了吧。&nbsp;&nbsp;<a onclick="return SetReplyAuhor(&quot;scott&quot;)" href="/yongboy/archive/2015/03/11/410636.html?opt=admin#post">回复</a>&nbsp;&nbsp;<a title="查看该作者发表过的评论" href="http://www.blogjava.net/comment?author=scott" target="_blank">更多评论</a> <a id="AjaxHolder_Comments_CommentList_ctl13_DeleteLink" href="javascript:__doPostBack('AjaxHolder$Comments$CommentList$ctl13$DeleteLink','')"></a>&nbsp;&nbsp;<a id="AjaxHolder_Comments_CommentList_ctl13_EditLink"></a> </p> 
+      <h4> <a title="permalink: re: 微信协议简单调研笔记[未登录]" href="/yongboy/archive/2015/03/11/410636.html?opt=admin#424483">#</a>&nbsp;<a name="424483"></a>re: 微信协议简单调研笔记[未登录] <span> 2015-04-16 22:47 </span> <a id="AjaxHolder_Comments_CommentList_ctl14_NameLink" target="_blank">Leo</a> </h4> 
+      <p> 谢谢博主的分享。<br />请教一个问题关于微信开发的，是否可以把MQTT协议的客户端程序加入微信中，使之能够接收MQTT的订阅信息？谢谢&nbsp;&nbsp;<a onclick="return SetReplyAuhor(&quot;Leo&quot;)" href="/yongboy/archive/2015/03/11/410636.html?opt=admin#post">回复</a>&nbsp;&nbsp;<a title="查看该作者发表过的评论" href="http://www.blogjava.net/comment?author=Leo" target="_blank">更多评论</a> <a id="AjaxHolder_Comments_CommentList_ctl14_DeleteLink" href="javascript:__doPostBack('AjaxHolder$Comments$CommentList$ctl14$DeleteLink','')"></a>&nbsp;&nbsp;<a id="AjaxHolder_Comments_CommentList_ctl14_EditLink"></a> </p> 
+      <h4> <a title="permalink: re: 微信协议简单调研笔记" href="/yongboy/archive/2015/03/11/410636.html?opt=admin#424485">#</a>&nbsp;<a name="424485"></a>re: 微信协议简单调研笔记 <span> 2015-04-17 10:05 </span> <a id="AjaxHolder_Comments_CommentList_ctl15_NameLink" href="http://www.blogjava.net/yongboy/" target="_blank">nieyong</a> </h4> 
+      <p> @Leo 理论上是可以的，不同线程/不同组件处理不同事宜，只要不混杂在一起就行。&nbsp;&nbsp;<a onclick="return SetReplyAuhor(&quot;nieyong&quot;)" href="/yongboy/archive/2015/03/11/410636.html?opt=admin#post">回复</a>&nbsp;&nbsp;<a title="查看该作者发表过的评论" href="http://www.blogjava.net/comment?author=nieyong" target="_blank">更多评论</a> <a id="AjaxHolder_Comments_CommentList_ctl15_DeleteLink" href="javascript:__doPostBack('AjaxHolder$Comments$CommentList$ctl15$DeleteLink','')"></a>&nbsp;&nbsp;<a id="AjaxHolder_Comments_CommentList_ctl15_EditLink"></a> </p> 
+      <h4> <a title="permalink: re: 微信协议简单调研笔记[未登录]" href="/yongboy/archive/2015/03/11/410636.html?opt=admin#424502">#</a>&nbsp;<a name="424502"></a>re: 微信协议简单调研笔记[未登录] <span> 2015-04-17 18:03 </span> <a id="AjaxHolder_Comments_CommentList_ctl16_NameLink" target="_blank">Leo</a> </h4> 
+      <p> @nieyong<br />谢谢，有机会再请教&nbsp;&nbsp;<a onclick="return SetReplyAuhor(&quot;Leo&quot;)" href="/yongboy/archive/2015/03/11/410636.html?opt=admin#post">回复</a>&nbsp;&nbsp;<a title="查看该作者发表过的评论" href="http://www.blogjava.net/comment?author=Leo" target="_blank">更多评论</a> <a id="AjaxHolder_Comments_CommentList_ctl16_DeleteLink" href="javascript:__doPostBack('AjaxHolder$Comments$CommentList$ctl16$DeleteLink','')"></a>&nbsp;&nbsp;<a id="AjaxHolder_Comments_CommentList_ctl16_EditLink"></a> </p> 
+      <h4> <a title="permalink: re: 微信协议简单调研笔记[未登录]" href="/yongboy/archive/2015/03/11/410636.html?opt=admin#424558">#</a>&nbsp;<a name="424558"></a>re: 微信协议简单调研笔记[未登录] <span> 2015-04-20 23:00 </span> <a id="AjaxHolder_Comments_CommentList_ctl17_NameLink" href="http://1" target="_blank">1</a> </h4> 
+      <p> 可以联系我下嘛 QQ758660&nbsp;&nbsp;<a onclick="return SetReplyAuhor(&quot;1&quot;)" href="/yongboy/archive/2015/03/11/410636.html?opt=admin#post">回复</a>&nbsp;&nbsp;<a title="查看该作者发表过的评论" href="http://www.blogjava.net/comment?author=1" target="_blank">更多评论</a> <a id="AjaxHolder_Comments_CommentList_ctl17_DeleteLink" href="javascript:__doPostBack('AjaxHolder$Comments$CommentList$ctl17$DeleteLink','')"></a>&nbsp;&nbsp;<a id="AjaxHolder_Comments_CommentList_ctl17_EditLink"></a> </p> 
+      <h4> <a title="permalink: re: 微信协议简单调研笔记" href="/yongboy/archive/2015/03/11/410636.html?opt=admin#424764">#</a>&nbsp;<a name="424764"></a>re: 微信协议简单调研笔记 <span> 2015-04-29 17:53 </span> <a id="AjaxHolder_Comments_CommentList_ctl18_NameLink" href="http://xxx" target="_blank">水哥</a> </h4> 
+      <p> 楼主，很高兴你能分享自己所得，但是有些地方我不认同，就是收取新的消息，根据wireshark抓包分析出来的结果，服务器 通过tcp长连接 发送APP 一个数据包，app是通过 tcp 长连接 请求服务器，然后服务器 还是通过tcp的长连接 返回消息数据吧。。。。。 还有那个语音消息，依然是这条tcp连接，没有新建连接吧&nbsp;&nbsp;<a onclick="return SetReplyAuhor(&quot;水哥&quot;)" href="/yongboy/archive/2015/03/11/410636.html?opt=admin#post">回复</a>&nbsp;&nbsp;<a title="查看该作者发表过的评论" href="http://www.blogjava.net/comment?author=%e6%b0%b4%e5%93%a5" target="_blank">更多评论</a> <a id="AjaxHolder_Comments_CommentList_ctl18_DeleteLink" href="javascript:__doPostBack('AjaxHolder$Comments$CommentList$ctl18$DeleteLink','')"></a>&nbsp;&nbsp;<a id="AjaxHolder_Comments_CommentList_ctl18_EditLink"></a> </p> 
+      <h4> <a title="permalink: re: 微信协议简单调研笔记" href="/yongboy/archive/2015/03/11/410636.html?opt=admin#424825">#</a>&nbsp;<a name="424825"></a>re: 微信协议简单调研笔记 <span> 2015-05-04 10:22 </span> <a id="AjaxHolder_Comments_CommentList_ctl19_NameLink" href="http://%e5%be%ae%e4%bf%a1%ef%bc%9aoxdaijiao" target="_blank">微信：oxdaijiao</a> </h4> 
+      <p> weixin://协议&nbsp;&nbsp;<a onclick="return SetReplyAuhor(&quot;微信：oxdaijiao&quot;)" href="/yongboy/archive/2015/03/11/410636.html?opt=admin#post">回复</a>&nbsp;&nbsp;<a title="查看该作者发表过的评论" href="http://www.blogjava.net/comment?author=%e5%be%ae%e4%bf%a1%ef%bc%9aoxdaijiao" target="_blank">更多评论</a> <a id="AjaxHolder_Comments_CommentList_ctl19_DeleteLink" href="javascript:__doPostBack('AjaxHolder$Comments$CommentList$ctl19$DeleteLink','')"></a>&nbsp;&nbsp;<a id="AjaxHolder_Comments_CommentList_ctl19_EditLink"></a> </p> 
+      <h4> <a title="permalink: re: 微信协议简单调研笔记" href="/yongboy/archive/2015/03/11/410636.html?opt=admin#428049">#</a>&nbsp;<a name="428049"></a>re: 微信协议简单调研笔记 <span> 2015-11-05 11:56 </span> <a id="AjaxHolder_Comments_CommentList_ctl20_NameLink" href="http://360%e5%ae%89%e5%85%a8%e6%b5%8f%e8%a7%88%e5%99%a87.1" target="_blank">闵中娥</a> </h4> 
+      <p> 很感谢腾迅帮助我走困惑、多年、多少网友没能找到终结、我从内心配服、你们的为客服解难之心、天天关注你们徵信、新闻没错、希望傻乌能飞出井底、谢谢大家&nbsp;&nbsp;<a onclick="return SetReplyAuhor(&quot;闵中娥&quot;)" href="/yongboy/archive/2015/03/11/410636.html?opt=admin#post">回复</a>&nbsp;&nbsp;<a title="查看该作者发表过的评论" href="http://www.blogjava.net/comment?author=%e9%97%b5%e4%b8%ad%e5%a8%a5" target="_blank">更多评论</a> <a id="AjaxHolder_Comments_CommentList_ctl20_DeleteLink" href="javascript:__doPostBack('AjaxHolder$Comments$CommentList$ctl20$DeleteLink','')"></a>&nbsp;&nbsp;<a id="AjaxHolder_Comments_CommentList_ctl20_EditLink"></a> </p> 
+      <h4> <a title="permalink: re: 微信协议简单调研笔记[未登录]" href="/yongboy/archive/2015/03/11/410636.html?opt=admin#430871">#</a>&nbsp;<a name="430871"></a>re: 微信协议简单调研笔记[未登录]<a name="Post"></a> <span> 2016-06-13 16:03 </span> <a id="AjaxHolder_Comments_CommentList_ctl21_NameLink" target="_blank">Lee</a> </h4> 
+      <p> 楼主<br />你知道群红包详情的接口是哪个吗。。如有。请告知。<br /><br />我QQ：147171718 QQ邮箱也行。。<br />如成功了。红包答谢。&nbsp;&nbsp;<a onclick="return SetReplyAuhor(&quot;Lee&quot;)" href="/yongboy/archive/2015/03/11/410636.html?opt=admin#post">回复</a>&nbsp;&nbsp;<a title="查看该作者发表过的评论" href="http://www.blogjava.net/comment?author=Lee" target="_blank">更多评论</a> <a id="AjaxHolder_Comments_CommentList_ctl21_DeleteLink" href="javascript:__doPostBack('AjaxHolder$Comments$CommentList$ctl21$DeleteLink','')"></a>&nbsp;&nbsp;<a id="AjaxHolder_Comments_CommentList_ctl21_EditLink"></a> </p> 
+     </div> 
+     <style>
+td { font-size: 12px }
+.commentTextBox 
+{ 
+    font-family : Verdana; 
+    font-size: 13px;
+ }
+</style> 
+     <!--Beging Temp Save--> 
+     <style>.userData { BEHAVIOR: url(#default#userdata) }
+	</style> 
+     <div class="userData" id="CommentsPersistDiv"></div> 
+     <script type="text/javascript">
+function pageLoad()
+{
+    Sys.WebForms.PageRequestManager.getInstance().add_initializeRequest(handleInitializeRequest);
+    //Sys.WebForms.PageRequestManager.getInstance().add_endRequest(handleEndRequest);
+}
+
+function handleInitializeRequest(sender, args)
+{
+    var prm = Sys.WebForms.PageRequestManager.getInstance();
+    var eid = args.get_postBackElement().id;
+    if (eid.indexOf("DeleteLink")>0) 
+    {
+       args.get_postBackElement().innerHTML = "<font color='red'>正在删除...</font>";         
+    }    
+    else if (eid.indexOf("btnSubmit")>0) 
+    {
+       document.getElementById("AjaxHolder_PostComment_ltSubmitMsg").innerHTML="正在提交...";
+       document.getElementById("AjaxHolder_PostComment_btnSubmit").disabled = true;       
+    }   
+    else if(eid.indexOf("refreshList")>0)
+    {
+        document.getElementById("AjaxHolder_PostComment_refreshList").innerHTML="<font color='red'>正在刷新...</font>";
+    }
+   
+}	
+
+function TempSave(ElementID)
+{
+	try
+	{
+	CommentsPersistDiv.setAttribute("CommentContent",document.getElementById(ElementID).value);
+	CommentsPersistDiv.save("CommentXMLStore");
+	}
+	catch(ex)
+	{
+	}
+	
+}
+function Restore(ElementID)
+{
+	CommentsPersistDiv.load("CommentXMLStore");
+	document.getElementById(ElementID).value=CommentsPersistDiv.getAttribute("CommentContent");
+}	
+			
+			
+</script> 
+     <!--Ene TempSave--> 
+     <div id="divRefreshComments" style="text-align:right;margin-right:10px;margin-bottom:5px;font-size:12px">
+      <a href="/RequireRegister.aspx">新用户注册</a>&nbsp;&nbsp;
+      <a id="AjaxHolder_PostComment_refreshList" href="javascript:__doPostBack('AjaxHolder$PostComment$refreshList','')">刷新评论列表</a>&nbsp;&nbsp;
+     </div> 
+     <div class="commentform"> 
+      <span id="AjaxHolder_PostComment_ltSubmitMsg"><font color="Red"></font></span> 
+      <br /> 
+      <a name="Feedback"></a> 
+      <table cellspacing="1" cellpadding="1" border="0"> 
+       <tbody>
+        <tr> 
+         <td id="AjaxHolder_PostComment_tdOnCommentForm" colspan="3" style="line-height:1.5"> </td> 
+        </tr> 
+        <tr>
+         <td colspan="3">只有注册用户<a href="http://www.blogjava.net/login.aspx?ReturnUrl=/yongboy/archive/2015/03/11/410636.html?opt=admin">登录</a>后才能发表评论。</td>
+        </tr> 
+        <tr> 
+         <td colspan="3">
+          <!--该文被作者在 2015-06-01 11:32 编辑过--></td> 
+        </tr> 
+        <!--
+		<TR>
+			<TD colSpan="3" height="5"></TD>
+		</TR>	
+		--> 
+        <tr> 
+         <td colspan="3"> <br /> <script type="text/javascript">
+var googletag = googletag || {};
+googletag.cmd = googletag.cmd || [];
+(function() {
+var gads = document.createElement('script');
+gads.async = true;
+gads.type = 'text/javascript';
+var useSSL = 'https:' == document.location.protocol;
+gads.src = (useSSL ? 'https:' : 'http:') + 
+'//www.googletagservices.com/tag/js/gpt.js';
+var node = document.getElementsByTagName('script')[0];
+node.parentNode.insertBefore(gads, node);
+})();
+</script> <script type="text/javascript">
+googletag.cmd.push(function() {
+googletag.defineSlot('/1090369/blogjava_blogpost_bottom', [300, 250], 'div-gpt-ad-1364133350381-0').addService(googletag.pubads());
+googletag.pubads().enableSingleRequest();
+googletag.enableServices();
+});
+</script> 
+          <!-- blogjava_blogpost_bottom --> 
+          <div id="div-gpt-ad-1364133350381-0" style="width:300px; height:250px;"> 
+           <script type="text/javascript">
+googletag.cmd.push(function() { googletag.display('div-gpt-ad-1364133350381-0'); });
+</script> 
+          </div> <br /> </td> 
+        </tr> 
+        <tr> 
+         <td colspan="3"> </td> 
+        </tr> 
+        <tr> 
+         <td colspan="3"></td> 
+        </tr> 
+        <tr> 
+         <td colspan="3" height="1">网站导航:
+          <div id="blogsite"> 
+           <a href="http://www.cnblogs.com" title="开发者的网上家园">博客园</a>&nbsp;&nbsp; 
+           <a href="https://news.cnblogs.com">IT新闻</a>&nbsp;&nbsp; 
+           <a href="http://kb.cnblogs.com">知识库</a>&nbsp;&nbsp; 
+           <a href="http://www.cppblog.com">C++博客</a>&nbsp;&nbsp; 
+           <a href="https://q.cnblogs.com">博问</a>&nbsp;&nbsp; 
+           <a href="/yongboy/archive/2015/03/11/410636.html?opt=admin">管理</a> 
+          </div> </td> 
+        </tr> 
+        <tr> 
+         <td colspan="3" height="5"> 
+          <div id="divRelativePosts">
+            相关文章: 
+           <ul style="margin-top:0px;padding-left:0px;"> 
+            <li style="list-style:none;"> <a id="AjaxHolder_PostComment_ctl07_RelativePostsList_ctl01_Hyperlink1" href="http://www.blogjava.net/yongboy/archive/2014/10/30/419289.html">《环信支持千万并发即使通讯的技术要点》阅读摘要</a> </li> 
+            <li style="list-style:none;display:none"> <a id="AjaxHolder_PostComment_ctl07_RelativePostsList_ctl02_Hyperlink1" href="http://www.blogjava.net/yongboy/archive/2014/03/05/410636.html">微信协议简单调研笔记</a> </li> 
+           </ul> 
+          </div> </td> 
+        </tr> 
+        <tr> 
+         <td colspan="3">&nbsp;</td> 
+        </tr> 
+        <tr> 
+         <td colspan="3" height="5"></td> 
+        </tr> 
+        <tr> 
+         <td colspan="3"> </td> 
+        </tr> 
+       </tbody>
+      </table> 
+     </div> 
+    </div> 
+   </div> 
+   <div id="rightmenu"> 
+    <h3>公告</h3> 
+    <div>
+     所有文章皆为原创，若转载请标明出处，谢谢~ 
+    </div> 
+    <br /> 新浪微博，欢迎关注：
+    <br /> 
+    <a href="http://weibo.com/u/1639071877?s=6uyXnP" target="_blank"><img src="http://service.t.sina.com.cn/widget/qmd/1639071877/e3de2f22/1.png" alt="" border="0" width="270" /></a> 
+    <h3>导航</h3> 
+    <ul> 
+     <li><a id="MyLinks1_HomeLink" href="http://www.blogjava.net/">BlogJava</a></li> 
+     <li><a id="MyLinks1_MyHomeLink" href="http://www.blogjava.net/yongboy/">首页</a></li> 
+     <li><a id="MyLinks1_NewPostLink" href="http://www.blogjava.net/yongboy/admin/EditPosts.aspx?opt=1">新随笔</a></li> 
+     <li><a id="MyLinks1_ContactLink" accesskey="9" href="http://www.blogjava.net/yongboy/contact.aspx?id=1">联系</a></li> 
+     <li><a id="MyLinks1_Syndication" href="http://www.blogjava.net/yongboy/rss">聚合</a><a id="MyLinks1_XMLLink" href="http://www.blogjava.net/yongboy/rss"><img src="http://www.blogjava.net/images/xml.gif" border="0" /></a> </li>
+     <li><a id="MyLinks1_Admin" href="http://www.blogjava.net/yongboy/admin/EditPosts.aspx">管理</a></li> 
+    </ul> 
+    <table id="Calendar1_entryCal" class="Cal" cellspacing="0" cellpadding="0" title="日历" border="0"> 
+     <tbody>
+      <tr>
+       <td colspan="7" bgcolor="Silver">
+        <table class="CalTitle" cellspacing="0" border="0" width="100%"> 
+         <tbody>
+          <tr>
+           <td class="CalNextPrev" width="15%"><a href="javascript:__doPostBack('Calendar1$entryCal','V5510')" style="color:Black" title="转到上一个月">&lt;</a></td>
+           <td align="center" width="70%">2015年3月</td>
+           <td class="CalNextPrev" align="right" width="15%"><a href="javascript:__doPostBack('Calendar1$entryCal','V5569')" style="color:Black" title="转到下一个月">&gt;</a></td>
+          </tr> 
+         </tbody>
+        </table></td>
+      </tr>
+      <tr>
+       <th class="CalDayHeader" align="center" abbr="日" scope="col">日</th>
+       <th class="CalDayHeader" align="center" abbr="一" scope="col">一</th>
+       <th class="CalDayHeader" align="center" abbr="二" scope="col">二</th>
+       <th class="CalDayHeader" align="center" abbr="三" scope="col">三</th>
+       <th class="CalDayHeader" align="center" abbr="四" scope="col">四</th>
+       <th class="CalDayHeader" align="center" abbr="五" scope="col">五</th>
+       <th class="CalDayHeader" align="center" abbr="六" scope="col">六</th>
+      </tr>
+      <tr>
+       <td class="CalOtherMonthDay" align="center" width="14%">22</td>
+       <td class="CalOtherMonthDay" align="center" width="14%">23</td>
+       <td class="CalOtherMonthDay" align="center" width="14%">24</td>
+       <td class="CalOtherMonthDay" align="center" width="14%">25</td>
+       <td class="CalOtherMonthDay" align="center" width="14%">26</td>
+       <td class="CalOtherMonthDay" align="center" width="14%">27</td>
+       <td class="CalOtherMonthDay" align="center" width="14%">28</td>
+      </tr>
+      <tr>
+       <td class="CalWeekendDay" align="center" width="14%">1</td>
+       <td align="center" width="14%">2</td>
+       <td align="center" width="14%">3</td>
+       <td align="center" width="14%">4</td>
+       <td align="center" width="14%">5</td>
+       <td align="center" width="14%">6</td>
+       <td class="CalWeekendDay" align="center" width="14%">7</td>
+      </tr>
+      <tr>
+       <td class="CalWeekendDay" align="center" width="14%">8</td>
+       <td align="center" width="14%">9</td>
+       <td align="center" width="14%">10</td>
+       <td align="center" width="14%">11</td>
+       <td align="center" width="14%">12</td>
+       <td align="center" width="14%">13</td>
+       <td class="CalWeekendDay" align="center" width="14%">14</td>
+      </tr>
+      <tr>
+       <td class="CalWeekendDay" align="center" width="14%">15</td>
+       <td align="center" width="14%">16</td>
+       <td align="center" width="14%"><a href="http://www.blogjava.net/yongboy/archive/2015/03/17.html"><u>17</u></a></td>
+       <td align="center" width="14%"><a href="http://www.blogjava.net/yongboy/archive/2015/03/18.html"><u>18</u></a></td>
+       <td align="center" width="14%"><a href="http://www.blogjava.net/yongboy/archive/2015/03/19.html"><u>19</u></a></td>
+       <td align="center" width="14%"><a href="http://www.blogjava.net/yongboy/archive/2015/03/20.html"><u>20</u></a></td>
+       <td class="CalWeekendDay" align="center" width="14%">21</td>
+      </tr>
+      <tr>
+       <td class="CalWeekendDay" align="center" width="14%">22</td>
+       <td align="center" width="14%"><a href="http://www.blogjava.net/yongboy/archive/2015/03/23.html"><u>23</u></a></td>
+       <td align="center" width="14%"><a href="http://www.blogjava.net/yongboy/archive/2015/03/24.html"><u>24</u></a></td>
+       <td align="center" width="14%">25</td>
+       <td align="center" width="14%">26</td>
+       <td align="center" width="14%">27</td>
+       <td class="CalWeekendDay" align="center" width="14%">28</td>
+      </tr>
+      <tr>
+       <td class="CalWeekendDay" align="center" width="14%">29</td>
+       <td align="center" width="14%"><a href="http://www.blogjava.net/yongboy/archive/2015/03/30.html"><u>30</u></a></td>
+       <td align="center" width="14%">31</td>
+       <td class="CalOtherMonthDay" align="center" width="14%">1</td>
+       <td class="CalOtherMonthDay" align="center" width="14%">2</td>
+       <td class="CalOtherMonthDay" align="center" width="14%">3</td>
+       <td class="CalOtherMonthDay" align="center" width="14%">4</td>
+      </tr> 
+     </tbody>
+    </table> 
+    <h3>统计</h3> 
+    <ul> 
+     <li>随笔 - 147 </li>
+     <li>文章 - 0 </li>
+     <li>评论 - 309 </li>
+     <li>引用 - 0 </li> 
+    </ul> 
+    <h3>常用链接</h3> 
+    <ul> 
+     <li><a id="SingleColumn1_ctl00_repeaterLinks_ctl01_lnkLinkItem" href="http://www.blogjava.net/yongboy/MyPosts.html">我的随笔</a></li> 
+     <li><a id="SingleColumn1_ctl00_repeaterLinks_ctl02_lnkLinkItem" href="http://www.blogjava.net/yongboy/MyComments.html">我的评论</a></li> 
+     <li><a id="SingleColumn1_ctl00_repeaterLinks_ctl03_lnkLinkItem" href="http://www.blogjava.net/yongboy/OtherPosts.html">我的参与</a></li> 
+     <li><a id="SingleColumn1_ctl00_repeaterLinks_ctl04_lnkLinkItem" href="http://www.blogjava.net/yongboy/RecentComments.html">最新评论</a></li> 
+    </ul> 
+    <h3>留言簿<span style="font-size:11px;font-weight:normal;">(41)</span></h3> 
+    <ul> 
+     <li> <a id="SingleColumn1_ctl01_lnkMessages" href="http://www.blogjava.net/yongboy/Contact.aspx?id=1">给我留言</a> </li>
+     <li> <a id="SingleColumn1_ctl01_lnkPublicMsgView" href="http://www.blogjava.net/yongboy/default.aspx?opt=msg">查看公开留言</a> </li>
+     <li> <a id="SingleColumn1_ctl01_lnkPrivateMsgView" href="http://www.blogjava.net/yongboy/admin/MyMessages.aspx">查看私人留言</a> </li> 
+    </ul> 
+    <h3>随笔分类<span style="font-size:11px;font-weight:normal">(123)</span></h3> 
+    <ul> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl01_Link" href="http://www.blogjava.net/yongboy/category/54842.html">C1M(6)</a> <a id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl01_RssLink" title="Subscribe to C1M(6)" href="http://www.blogjava.net/yongboy/category/54842.html/rss">(rss)</a></li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl02_Link" href="http://www.blogjava.net/yongboy/category/54836.html">HTTP(6)</a> <a id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl02_RssLink" title="Subscribe to HTTP(6)" href="http://www.blogjava.net/yongboy/category/54836.html/rss">(rss)</a></li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl03_Link" href="http://www.blogjava.net/yongboy/category/54839.html">Java(20)</a> <a id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl03_RssLink" title="Subscribe to Java(20)" href="http://www.blogjava.net/yongboy/category/54839.html/rss">(rss)</a></li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl04_Link" href="http://www.blogjava.net/yongboy/category/54835.html">MQTT(15)</a> <a id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl04_RssLink" title="Subscribe to MQTT(15)" href="http://www.blogjava.net/yongboy/category/54835.html/rss">(rss)</a></li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl05_Link" href="http://www.blogjava.net/yongboy/category/48044.html">Servlet3(26)</a> <a id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl05_RssLink" title="Subscribe to Servlet3(26)" href="http://www.blogjava.net/yongboy/category/48044.html/rss">(rss)</a></li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl06_Link" href="http://www.blogjava.net/yongboy/category/54837.html">Socket(19)</a> <a id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl06_RssLink" title="Subscribe to Socket(19)" href="http://www.blogjava.net/yongboy/category/54837.html/rss">(rss)</a></li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl07_Link" href="http://www.blogjava.net/yongboy/category/54838.html">socket.io(12)</a> <a id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl07_RssLink" title="Subscribe to socket.io(12)" href="http://www.blogjava.net/yongboy/category/54838.html/rss">(rss)</a></li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl08_Link" href="http://www.blogjava.net/yongboy/category/55089.html">压测(10)</a> <a id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl08_RssLink" title="Subscribe to 压测(10)" href="http://www.blogjava.net/yongboy/category/55089.html/rss">(rss)</a></li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl09_Link" href="http://www.blogjava.net/yongboy/category/54841.html">容器(7)</a> <a id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl09_RssLink" title="Subscribe to 容器(7)" href="http://www.blogjava.net/yongboy/category/54841.html/rss">(rss)</a></li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl10_Link" href="http://www.blogjava.net/yongboy/category/54840.html">移动后端(2)</a> <a id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl10_RssLink" title="Subscribe to 移动后端(2)" href="http://www.blogjava.net/yongboy/category/54840.html/rss">(rss)</a></li> 
+    </ul> 
+    <h3>随笔档案<span style="font-size:11px;font-weight:normal">(146)</span></h3> 
+    <ul> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl01_Link" href="http://www.blogjava.net/yongboy/archive/2016/08.html">2016年8月 (2)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl02_Link" href="http://www.blogjava.net/yongboy/archive/2016/07.html">2016年7月 (8)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl03_Link" href="http://www.blogjava.net/yongboy/archive/2015/05.html">2015年5月 (1)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl04_Link" href="http://www.blogjava.net/yongboy/archive/2015/04.html">2015年4月 (1)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl05_Link" href="http://www.blogjava.net/yongboy/archive/2015/03.html">2015年3月 (7)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl06_Link" href="http://www.blogjava.net/yongboy/archive/2015/02.html">2015年2月 (6)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl07_Link" href="http://www.blogjava.net/yongboy/archive/2015/01.html">2015年1月 (9)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl08_Link" href="http://www.blogjava.net/yongboy/archive/2014/12.html">2014年12月 (3)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl09_Link" href="http://www.blogjava.net/yongboy/archive/2014/11.html">2014年11月 (2)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl10_Link" href="http://www.blogjava.net/yongboy/archive/2014/10.html">2014年10月 (1)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl11_Link" href="http://www.blogjava.net/yongboy/archive/2014/09.html">2014年9月 (1)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl12_Link" href="http://www.blogjava.net/yongboy/archive/2014/08.html">2014年8月 (2)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl13_Link" href="http://www.blogjava.net/yongboy/archive/2014/07.html">2014年7月 (2)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl14_Link" href="http://www.blogjava.net/yongboy/archive/2014/06.html">2014年6月 (2)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl15_Link" href="http://www.blogjava.net/yongboy/archive/2014/05.html">2014年5月 (2)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl16_Link" href="http://www.blogjava.net/yongboy/archive/2014/04.html">2014年4月 (1)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl17_Link" href="http://www.blogjava.net/yongboy/archive/2014/03.html">2014年3月 (1)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl18_Link" href="http://www.blogjava.net/yongboy/archive/2014/02.html">2014年2月 (4)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl19_Link" href="http://www.blogjava.net/yongboy/archive/2013/12.html">2013年12月 (4)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl20_Link" href="http://www.blogjava.net/yongboy/archive/2013/08.html">2013年8月 (1)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl21_Link" href="http://www.blogjava.net/yongboy/archive/2013/06.html">2013年6月 (1)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl22_Link" href="http://www.blogjava.net/yongboy/archive/2013/05.html">2013年5月 (1)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl23_Link" href="http://www.blogjava.net/yongboy/archive/2013/04.html">2013年4月 (5)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl24_Link" href="http://www.blogjava.net/yongboy/archive/2013/03.html">2013年3月 (5)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl25_Link" href="http://www.blogjava.net/yongboy/archive/2012/10.html">2012年10月 (2)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl26_Link" href="http://www.blogjava.net/yongboy/archive/2012/08.html">2012年8月 (2)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl27_Link" href="http://www.blogjava.net/yongboy/archive/2012/06.html">2012年6月 (2)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl28_Link" href="http://www.blogjava.net/yongboy/archive/2012/05.html">2012年5月 (3)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl29_Link" href="http://www.blogjava.net/yongboy/archive/2012/04.html">2012年4月 (4)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl30_Link" href="http://www.blogjava.net/yongboy/archive/2012/03.html">2012年3月 (1)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl31_Link" href="http://www.blogjava.net/yongboy/archive/2012/02.html">2012年2月 (7)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl32_Link" href="http://www.blogjava.net/yongboy/archive/2012/01.html">2012年1月 (2)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl33_Link" href="http://www.blogjava.net/yongboy/archive/2011/04.html">2011年4月 (1)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl34_Link" href="http://www.blogjava.net/yongboy/archive/2011/03.html">2011年3月 (1)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl35_Link" href="http://www.blogjava.net/yongboy/archive/2011/02.html">2011年2月 (4)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl36_Link" href="http://www.blogjava.net/yongboy/archive/2011/01.html">2011年1月 (10)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl37_Link" href="http://www.blogjava.net/yongboy/archive/2010/12.html">2010年12月 (5)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl38_Link" href="http://www.blogjava.net/yongboy/archive/2010/11.html">2010年11月 (1)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl39_Link" href="http://www.blogjava.net/yongboy/archive/2010/10.html">2010年10月 (10)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl40_Link" href="http://www.blogjava.net/yongboy/archive/2010/07.html">2010年7月 (4)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl41_Link" href="http://www.blogjava.net/yongboy/archive/2009/11.html">2009年11月 (1)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl42_Link" href="http://www.blogjava.net/yongboy/archive/2009/09.html">2009年9月 (3)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl43_Link" href="http://www.blogjava.net/yongboy/archive/2009/08.html">2009年8月 (4)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl44_Link" href="http://www.blogjava.net/yongboy/archive/2009/05.html">2009年5月 (1)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl45_Link" href="http://www.blogjava.net/yongboy/archive/2009/02.html">2009年2月 (1)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl46_Link" href="http://www.blogjava.net/yongboy/archive/2009/01.html">2009年1月 (1)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl47_Link" href="http://www.blogjava.net/yongboy/archive/2008/12.html">2008年12月 (4)</a> </li> 
+    </ul> 
+    <h3>个人收藏</h3> 
+    <ul> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl02_LinkList_ctl01_Link" href="http://gjsq.me/1034269" target="_blank">国内老牌GreenVPN，翻墙速度确实杠杠的！</a> </li> 
+     <li style="margin-top:2px;">个人一直在使用中，在线观看www.youtube.com上高清视频一点都不卡。 每个月才18块钱，一个季度48，再超值提供一个9折优惠码：freevpnssh。 我平常在Linux下安装/更新软件，压根不用担心GFW阻挠了， 更不用提windows 7了。</li> 
+    </ul> 
+    <h3>最新随笔</h3> 
+    <div class="RecentComment"> 
+     <ul style="word-break:break-all"> 
+      <li><a id="SingleColumn1_ctl03_RecentPostsList_ctl00_RecentPostsList2_ctl00_Hyperlink1" href="http://www.blogjava.net/yongboy/archive/2016/08/16/431601.html">1.&nbsp;Tsung笔记之IP地址和端口限制突破篇</a></li> 
+      <li><a id="SingleColumn1_ctl03_RecentPostsList_ctl01_RecentPostsList2_ctl00_Hyperlink1" href="http://www.blogjava.net/yongboy/archive/2016/08/08/431498.html">2.&nbsp;Tsung笔记之100万用户压测执行步骤篇</a></li> 
+      <li><a id="SingleColumn1_ctl03_RecentPostsList_ctl02_RecentPostsList2_ctl00_Hyperlink1" href="http://www.blogjava.net/yongboy/archive/2016/07/30/431396.html">3.&nbsp;Tsung笔记之插件编写篇</a></li> 
+      <li><a id="SingleColumn1_ctl03_RecentPostsList_ctl03_RecentPostsList2_ctl00_Hyperlink1" href="http://www.blogjava.net/yongboy/archive/2016/07/29/431367.html">4.&nbsp;Tsung笔记之监控数据收集篇</a></li> 
+      <li><a id="SingleColumn1_ctl03_RecentPostsList_ctl04_RecentPostsList2_ctl00_Hyperlink1" href="http://www.blogjava.net/yongboy/archive/2016/07/28/431354.html">5.&nbsp;Tsung笔记之IP直连支持篇</a></li> 
+      <li><a id="SingleColumn1_ctl03_RecentPostsList_ctl05_RecentPostsList2_ctl00_Hyperlink1" href="http://www.blogjava.net/yongboy/archive/2016/07/27/431340.html">6.&nbsp;Tsung笔记之分布式增强跳出SSH羁绊篇</a></li> 
+      <li><a id="SingleColumn1_ctl03_RecentPostsList_ctl06_RecentPostsList2_ctl00_Hyperlink1" href="http://www.blogjava.net/yongboy/archive/2016/07/26/431322.html">7.&nbsp;Tsung笔记之压测端资源限制篇</a></li> 
+      <li><a id="SingleColumn1_ctl03_RecentPostsList_ctl07_RecentPostsList2_ctl00_Hyperlink1" href="http://www.blogjava.net/yongboy/archive/2016/07/25/431310.html">8.&nbsp;Tsung笔记之主从资源协调篇</a></li> 
+      <li><a id="SingleColumn1_ctl03_RecentPostsList_ctl08_RecentPostsList2_ctl00_Hyperlink1" href="http://www.blogjava.net/yongboy/archive/2016/07/23/431294.html">9.&nbsp;Tsung笔记之主从模型篇</a></li> 
+      <li><a id="SingleColumn1_ctl03_RecentPostsList_ctl09_RecentPostsList2_ctl00_Hyperlink1" href="http://www.blogjava.net/yongboy/archive/2016/07/22/431291.html">10.&nbsp;Tsung笔记之开篇</a></li> 
+      <li><a id="SingleColumn1_ctl03_RecentPostsList_ctl10_RecentPostsList2_ctl00_Hyperlink1" href="http://www.blogjava.net/yongboy/archive/2015/05/07/424917.html">11.&nbsp;TCP协议缺陷不完全记录</a></li> 
+      <li><a id="SingleColumn1_ctl03_RecentPostsList_ctl11_RecentPostsList2_ctl00_Hyperlink1" href="http://www.blogjava.net/yongboy/archive/2015/04/14/424413.html">12.&nbsp;随手记之TCP Keepalive笔记</a></li> 
+      <li><a id="SingleColumn1_ctl03_RecentPostsList_ctl12_RecentPostsList2_ctl00_Hyperlink1" href="http://www.blogjava.net/yongboy/archive/2015/03/30/423963.html">13.&nbsp;移动APP后端网络处理一些问题记录</a></li> 
+      <li><a id="SingleColumn1_ctl03_RecentPostsList_ctl13_RecentPostsList2_ctl00_Hyperlink1" href="http://www.blogjava.net/yongboy/archive/2015/03/24/423791.html">14.&nbsp;HTTP/2笔记之错误处理和安全</a></li> 
+      <li><a id="SingleColumn1_ctl03_RecentPostsList_ctl14_RecentPostsList2_ctl00_Hyperlink1" href="http://www.blogjava.net/yongboy/archive/2015/03/23/423751.html">15.&nbsp;HTTP/2笔记之消息交换</a></li> 
+     </ul> 
+    </div> 
+    <script language="JavaScript">
+function SearchGoogle(key,evt,site)
+		{
+			if(evt.keyCode==13 || evt.keyCode==0 || evt.type =='click')
+			{
+				key.focus();
+				var keystr = encodeURIComponent(key.value);
+				url = "http://www.google.com/search?q=";
+				url = url+keystr;
+				url += "&ie=UTF-8&oe=GB2312&hl=zh-CN&domains="+site+"&sitesearch="+site;
+				window.location=url;
+				return false;
+			}
+		}
+</script> 
+    <h3>搜索</h3> 
+    <ul> 
+     <li> </li>
+     <li><input style="WIDTH: 130px" type="text" name="q" id="q" onkeydown="return SearchGoogle(document.getElementById('q'),event,'www.blogjava.net/yongboy')" />&nbsp;<input onclick="SearchGoogle(document.getElementById('q'),event,'www.blogjava.net/yongboy')" type="button" value="搜索" name="sa" /> </li> 
+    </ul> 
+    <h3>最新评论 <a id="SingleColumn1__2729bce_RSSHyperlink1" href="http://www.blogjava.net/yongboy/CommentsRSS.aspx"><img src="/images/xml.gif" border="0" /></a></h3> 
+    <div class="RecentComment"> 
+     <ul> 
+      <li style="word-break:break-all"> <a id="SingleColumn1__2729bce_CommentList_ctl01_Hyperlink1" href="http://www.blogjava.net/yongboy/archive/2017/01/10/409689.html#432258">1.&nbsp;re: MQTT协议笔记之发布流程</a> </li> 
+      <li style="word-break:break-all"> 评论内容较长,点击标题查看 </li> 
+      <li style="text-align:right;margin-right:4px"> --Haven</li> 
+      <li style="word-break:break-all"> <a id="SingleColumn1__2729bce_CommentList_ctl02_Hyperlink1" href="http://www.blogjava.net/yongboy/archive/2017/01/05/409689.html#432243">2.&nbsp;re: MQTT协议笔记之发布流程</a> </li> 
+      <li style="word-break:break-all"> 评论内容较长,点击标题查看 </li> 
+      <li style="text-align:right;margin-right:4px"> --nieyong</li> 
+      <li style="word-break:break-all"> <a id="SingleColumn1__2729bce_CommentList_ctl03_Hyperlink1" href="http://www.blogjava.net/yongboy/archive/2016/12/27/409689.html#432184">3.&nbsp;re: MQTT协议笔记之发布流程</a> </li> 
+      <li style="word-break:break-all"> 博主牛人呀，有一个QoS2的问题请教，为什么QoS2需要4次包，2次不就可以了吗？还望回复。 </li> 
+      <li style="text-align:right;margin-right:4px"> --Haven</li> 
+      <li style="word-break:break-all"> <a id="SingleColumn1__2729bce_CommentList_ctl04_Hyperlink1" href="http://www.blogjava.net/yongboy/archive/2016/08/19/431601.html#431642">4.&nbsp;re: Tsung笔记之IP地址和端口限制突破篇</a> </li> 
+      <li style="word-break:break-all"> 评论内容较长,点击标题查看 </li> 
+      <li style="text-align:right;margin-right:4px"> --nieyong</li> 
+      <li style="word-break:break-all"> <a id="SingleColumn1__2729bce_CommentList_ctl05_Hyperlink1" href="http://www.blogjava.net/yongboy/archive/2016/08/18/431601.html#431628">5.&nbsp;re: Tsung笔记之IP地址和端口限制突破篇</a> </li> 
+      <li style="word-break:break-all"> 博主，请问下<br />最新版1.6.1版本什么时候发布啊，最近工作需要对TCP协议做性能测试 </li> 
+      <li style="text-align:right;margin-right:4px"> --王大</li> 
+     </ul> 
+    </div> 
+    <h3>阅读排行榜</h3> 
+    <div class="RecentComment"> 
+     <ul style="word-break:break-all"> 
+      <li> <a id="SingleColumn1__1262ed9_TopList_ctl01_Hyperlink1" href="http://www.blogjava.net/yongboy/archive/2013/12/12/407498.html">1.&nbsp;Docker学习笔记之一，搭建一个JAVA Tomcat运行环境(91874)</a> </li> 
+      <li> <a id="SingleColumn1__1262ed9_TopList_ctl02_Hyperlink1" href="http://www.blogjava.net/yongboy/archive/2009/09/04/293900.html">2.&nbsp;java war 打包、解压命令(74705)</a> </li> 
+      <li> <a id="SingleColumn1__1262ed9_TopList_ctl03_Hyperlink1" href="http://www.blogjava.net/yongboy/archive/2014/03/05/410636.html">3.&nbsp;微信协议简单调研笔记(60355)</a> </li> 
+      <li> <a id="SingleColumn1__1262ed9_TopList_ctl04_Hyperlink1" href="http://www.blogjava.net/yongboy/archive/2013/05/13/399203.html">4.&nbsp;100万并发连接服务器笔记之Java Netty处理1M连接会怎么样(51185)</a> </li> 
+      <li> <a id="SingleColumn1__1262ed9_TopList_ctl05_Hyperlink1" href="http://www.blogjava.net/yongboy/archive/2013/08/26/403325.html">5.&nbsp;服务器操作系统CoreOS初体验(46819)</a> </li> 
+     </ul> 
+    </div> 
+    <h3>评论排行榜</h3> 
+    <div class="RecentComment"> 
+     <ul style="word-break:break-all"> 
+      <li> <a id="SingleColumn1__1eab524_TopList_ctl01_Hyperlink1" href="http://www.blogjava.net/yongboy/archive/2014/03/05/410636.html">1.&nbsp;微信协议简单调研笔记(22)</a> </li> 
+      <li> <a id="SingleColumn1__1eab524_TopList_ctl02_Hyperlink1" href="http://www.blogjava.net/yongboy/archive/2013/12/12/407498.html">2.&nbsp;Docker学习笔记之一，搭建一个JAVA Tomcat运行环境(19)</a> </li> 
+      <li> <a id="SingleColumn1__1eab524_TopList_ctl03_Hyperlink1" href="http://www.blogjava.net/yongboy/archive/2014/12/12/421331.html">3.&nbsp;MQTT 3.1协议非严肃反思录(17)</a> </li> 
+      <li> <a id="SingleColumn1__1eab524_TopList_ctl04_Hyperlink1" href="http://www.blogjava.net/yongboy/archive/2014/11/09/419829.html">4.&nbsp;为什么批量请求要尽可能的合并操作(17)</a> </li> 
+      <li> <a id="SingleColumn1__1eab524_TopList_ctl05_Hyperlink1" href="http://www.blogjava.net/yongboy/archive/2014/04/12/412351.html">5.&nbsp;MQTT协议笔记之订阅(16)</a> </li> 
+     </ul> 
+    </div> 
+    <div id="footer">
+      Powered by: 
+     <br /> 
+     <a id="Footer1_Hyperlink3" name="Hyperlink1" href="http://www.blogjava.net/"><font face="Verdana">BlogJava</font></a> 
+     <br /> Copyright &copy; nieyong 
+    </div> 
+   </div> 
+   <script type="text/javascript">
+//<![CDATA[
+Sys.Application.initialize();
+//]]>
+</script> 
+  </form> 
+  <script type="text/javascript" src="/script/ShowHidden.js"></script> 
+  <script type="text/javascript">
+	  var _gaq = _gaq || [];
+	  _gaq.push(['_setAccount', 'UA-476124-3']);
+	  _gaq.push(['_trackPageview']);
+
+	  (function() {
+		var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+	  })();
+	</script>   
+ </body>
+</html>

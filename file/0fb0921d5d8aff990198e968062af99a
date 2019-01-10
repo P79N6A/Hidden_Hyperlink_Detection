@@ -1,0 +1,472 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8;">
+	<title>WebPOD Application
+	</title>
+	<link rel="stylesheet" href="/webPOD/css/webcontent.css" type="text/css">
+	<script type="text/javascript" src="/webPOD/js/webcontent.js"></script>
+
+<style type="text/css">
+#content_cross_reference {
+	WIDTH: 24em
+}
+.col1 { width: 105px; }
+.col2 { width: 165px; }
+.col3 { width: 165px; }
+.col4 { width: 105px; }
+
+#toolTip {
+    position:relative;
+}
+
+#toolTipInner {
+    background: #F2F2ED;
+    border: 1px solid #666;
+    border-radius: 5px;
+    color: #666;
+    position: absolute;
+    left: 270px;
+    padding: 5px 15px;
+    z-index: 1;
+    width: 370px;
+    FONT-SIZE: 1.2em;
+}
+</style>
+	<script type="text/javascript">	
+	window.onload = function() { 
+		//var deliveryMethod = '';
+		
+		var deliveryMethod = getDeliveryMethod();
+	
+		if(deliveryMethod == '1') {
+			showEmail();
+		} else {
+			hideEmail();
+		}
+	}
+	
+	function popupTermCondition() {
+		var url = '/webPOD/jsp/termcondition.jsf';
+		window.open(url ,"","location=yes,menubar=yes,resizable=yes,scrollbars=yes,status=yes,toolbar=yes,copyhistory=no,directories=yes,width=730,height=580,top=100,left=100");
+	}
+	function confirmCheckBox() {
+	}
+
+	function clickSubmit(){
+		document.getElementById('messageId').style.display = 'none';
+		set_check();
+        return true;	
+	}
+
+	function disableSubmit(){
+	}
+	
+	function removeErrorMessage() {
+		var msg = document.getElementById('frmWebPOD:epod_messages');
+		if(msg != null) {
+			msg.parentNode.removeChild(msg);
+		}
+	}  
+	function getDeliveryMethod() {
+		var checked = document.frmWebPOD.elements["frmWebPOD:deliveryMethod"][0].checked;
+		if( checked == true) {
+			return 2;
+		} else {
+			return 1;
+		}
+
+	}
+	function onDeliveryChange() {
+		var msg = document.getElementById('frmWebPOD:epod_messages');
+		var deliveryMethod = getDeliveryMethod(); 
+		
+		removeErrorMessage();
+		
+		if(msg != null) {
+			msg.style.display  = (deliveryMethod == 1) ? "none" : "inline";
+		}
+		if(deliveryMethod == 1) {
+			showEmail();
+		} else {
+			hideEmail();
+		}
+	}
+	function hideEmail() {
+			document.getElementById('myDiv').style.display = "none";
+	}
+	
+	function showEmail(){
+		document.getElementById('myDiv').style.display = "inline";
+        	// Clear the existing Email(s) entered
+        		document.getElementById('frmWebPOD:emailTable:0:email0').value = '';
+				document.getElementById('frmWebPOD:emailTable:1:email0').value = '';
+				document.getElementById('frmWebPOD:emailTable:2:email0').value = '';
+				document.getElementById('frmWebPOD:emailTable:3:email0').value = '';
+				document.getElementById('frmWebPOD:emailTable:4:email0').value = '';
+	}
+	
+	function applyAll(size,start) {
+		var val = document.getElementById('frmWebPOD:validationTable:' + start + ':validation0').value;
+		var valTypeText = document.getElementById('frmWebPOD:validationTable:' + start + ':validationType1').value;
+		for (i=1;i<size;i++) {
+			if(document.getElementById('frmWebPOD:validationTable:' + i + ':validation0') != null) {
+				if(document.getElementById('frmWebPOD:validationTable:' + i + ':validation0').disabled == false) { 
+					document.getElementById('frmWebPOD:validationTable:' + i + ':validation0').value = val;
+					//document.getElementById('frmWebPOD:validationTable:' + i + ':validation0').style.color='#000'
+					if(valTypeText==4) {
+						document.getElementById('frmWebPOD:validationTable:' + i + ':validation0').disabled=true;
+					} 
+				} else {
+					document.getElementById('frmWebPOD:validationTable:' + i + ':validation0').disabled=false;
+					document.getElementById('frmWebPOD:validationTable:' + i + ':validation0').value = val;
+					//document.getElementById('frmWebPOD:validationTable:' + i + ':validation0').style.color='#000'
+						if(valTypeText==4) {
+							document.getElementById('frmWebPOD:validationTable:' + i + ':validation0').disabled=true;
+						} 
+				}
+			}
+		}
+		
+		var valType = document.getElementById('frmWebPOD:validationTable:' + start + ':validationType1').value;
+		for (j=1;j<size;j++) {
+			if(document.getElementById('frmWebPOD:validationTable:' + j + ':validationType1') != null) {
+				if(document.getElementById('frmWebPOD:validationTable:' + j + ':validationType1').disabled == false) {
+					document.getElementById('frmWebPOD:validationTable:' + j + ':validationType1').value = valType;
+					document.getElementById('frmWebPOD:validationTable:' + j + ':validationType1').selected = true;
+				}
+			}
+		}
+	}
+	
+	function displayOld() {
+		document.getElementById('frmWebPOD:validation_value').value=false;
+		document.getElementById("frmWebPOD").submit();
+	}
+	
+	function setCookieTime(val) {
+		var now = new Date();
+		var time = now.getTime();
+		time += val * 1000;
+		now.setTime(time);
+		document.cookie = 'validationLockedWebpod=' + now.toUTCString() + '; expires=' + now.toUTCString() + '; path=/';
+		return now.toUTCString();
+	}
+	
+	function setCookieAgreement() {
+		var now = new Date();
+		now.setDate(now.getDate()+100);
+		document.cookie = 'agreementCheckBox=' + now.toUTCString() + '; expires=' + now.toUTCString() + '; path=/';
+	}
+
+    function getCookie(c_name) {
+        if (document.cookie.length>0) {
+            c_start=document.cookie.indexOf(c_name + "=")
+            if (c_start!=-1) { 
+                c_start=c_start + c_name.length+1 
+                c_end=document.cookie.indexOf(";",c_start)
+                if (c_end==-1) c_end=document.cookie.length
+                    return unescape(document.cookie.substring(c_start,c_end))
+            } 
+    	}
+        return null
+    }
+    
+    function set_check() {
+    	if(document.getElementById('frmWebPOD:agreementCheckBox').checked) {
+    		setCookieAgreement();
+    	}
+    }
+    
+    function applyDisabled(row) {
+    	document.getElementById('frmWebPOD:validationTable:' + row + ':validationType1').disabled = true;
+		document.getElementById('frmWebPOD:validationTable:' + row + ':validationType1').style.backgroundColor='#D3D3D3'; //whatever color or hex.
+		document.getElementById('frmWebPOD:validationTable:' + row + ':validation0').disabled = true;
+		document.getElementById('frmWebPOD:validationTable:' + row + ':validation0').style.backgroundColor='#D3D3D3'; //whatever color or hex.
+    }
+	</script></head><body onload="getCookie('frmWebPOD:agreementCheckBox')">	
+	<div class="main">
+
+		<div class="content_main_shadow"></div>
+
+		<div id="header" class="header">
+			<table border="0" style="padding-left: 0px; padding-right: 0px; padding-top: 0px; padding-bottom: 0px;">
+				<tbody><tr>
+					<td width="100px">
+						<div class="image">
+							<img id="logo" class="logo" alt="backtohomepage" src="/webPOD/img/dhl_logo.gif" width="134" height="42">
+						</div></td>
+				</tr>
+			</tbody></table>
+		</div>
+
+		<div class="navigation_main" style="display: block;">
+			<div class="mainnav" style="height: 20px;">
+				<a id="navigation_main"></a>
+			</div>
+		</div>
+
+		<div class="main_area">
+
+			
+			<div class="content_main_container" style="padding-left: 8em; padding-top: 3.3em;">
+				<div class="content_main_container">
+					<a id="content_main"></a>
+					<div class="container_title" style="width:555px;">
+					<table width="100%">
+						<tbody><tr>
+							<td width="90%">
+								<h1 style="margin-left: 8px">Electronic Proof of Delivery
+								</h1>							
+							</td>
+							<td width="10%" align="right">
+							</td>
+						</tr>
+						</tbody></table>
+						<div id="toolTip" style="display: none;">
+							<div id="toolTipInner">
+    											<b>Please provide an Account Number, Contact Telephone Number, or Zip/Post Code associated with your shipment(s).</b>
+    											<br>
+    											<br>
+    											<ol type="1" style="margin-left: 16px;">
+    												<li>Account No. You may use the Shipper, Receiver, or Payer Account Number.</li><br>
+    												<li>Contact Phone No. You may use the Shipper or Receiver Contact Phone Number.</li><br>
+    												<li>Zip/Post Code. You may use the Shipper or Receiver Zip / Post Code.</li><br>
+    												<li>No Signature. Select this option to download ePOD without signature.</li>
+    											</ol>
+							</div>
+						</div>
+						<div class="container">
+							<div class="containerpar parsys">
+									<a style="visibility: hidden;" name="containerpar_richtexteditor_0"></a>
+	 						
+								<a style="visibility: hidden;" name="containerpar_shipmenttracking"></a>
+								<div>								
+									<div class="dhl shipment_tracking_container" style="width:540px">
+										<div class="wrap1">
+											<div class="wrap2">
+												<div class="wrap3">
+													<div class="wrap4">
+														<div class="wrap5">
+															<div class="wrap6">
+																<div class="wrap7">
+																	<div class="wrap8">
+																		<div class="shipment_tracking">
+<form id="frmWebPOD" name="frmWebPOD" method="post" action="/webPOD/jsp/agreement.xhtml;jsessionid=7yMLYg5bgTNk2BfYSQT2v653TncY1kFPz5PRlx47TZByGD2BtQkN!1487075230" enctype="application/x-www-form-urlencoded">
+<input type="hidden" name="frmWebPOD" value="frmWebPOD">
+
+																				<fieldset>
+																					<div id="messageId" style="display: block;">
+																					</div>
+																					<div class="epod_radios">
+																					<table border="0"> 
+																						<tbody><tr>
+																							<td style="padding-top: 20px; border-bottom: 0; width: 105px;"><label>
+Format (PDF)</label>
+																							</td>
+																							
+																							<td style="padding-top: 20px; width: 435px;"><table id="frmWebPOD:epodTypeSelect" class="epodRadio">
+	<tbody><tr>
+<td>
+<input type="radio" checked="checked" name="frmWebPOD:epodTypeSelect" id="frmWebPOD:epodTypeSelect:0" value="1"><label for="frmWebPOD:epodTypeSelect:0"> Letter  </label></td>
+	</tr>
+</tbody></table>	
+																							</td>
+																						</tr>
+
+																						<tr>
+																							<td style="padding-top: 5px; border-bottom: 0; width: 105px;"><label>
+Download</label>
+																							</td>
+																							<td style="padding-top: 5px; border-bottom: 0; width: 435px;" class="radio"><table id="frmWebPOD:deliveryMethod" class="epodRadio">
+	<tbody><tr>
+<td>
+<input type="radio" checked="checked" name="frmWebPOD:deliveryMethod" id="frmWebPOD:deliveryMethod:0" value="2" onclick="onDeliveryChange();"><label for="frmWebPOD:deliveryMethod:0"> View</label></td>
+<td>
+<input type="radio" name="frmWebPOD:deliveryMethod" id="frmWebPOD:deliveryMethod:1" value="1" onclick="onDeliveryChange();"><label for="frmWebPOD:deliveryMethod:1"> Email</label></td>
+	</tr>
+</tbody></table></td>
+																						</tr>
+																						<tr>
+																							<td style="border-bottom: 0;"></td>
+																							<td style="border-bottom: 0;">
+																								<div id="myDiv" style="display: none;"><table id="frmWebPOD:emailTable">
+<tbody>
+<tr>
+<td>
+																											</td><td style="border-bottom: 0;" width="75px"><label style="display: block; color: #666; font-size: 1em;">1. Email</label>
+																											</td>
+																											<td style="border-bottom: 0;" width="3%"></td>
+																											<td style="border-bottom: 0;"><input id="frmWebPOD:emailTable:0:email0" type="text" name="frmWebPOD:emailTable:0:email0"></td>
+</tr>
+<tr>
+<td>
+																											</td><td style="border-bottom: 0;" width="75px"><label style="display: block; color: #666; font-size: 1em;">2. Email</label>
+																											</td>
+																											<td style="border-bottom: 0;" width="3%"></td>
+																											<td style="border-bottom: 0;"><input id="frmWebPOD:emailTable:1:email0" type="text" name="frmWebPOD:emailTable:1:email0"></td>
+</tr>
+<tr>
+<td>
+																											</td><td style="border-bottom: 0;" width="75px"><label style="display: block; color: #666; font-size: 1em;">3. Email</label>
+																											</td>
+																											<td style="border-bottom: 0;" width="3%"></td>
+																											<td style="border-bottom: 0;"><input id="frmWebPOD:emailTable:2:email0" type="text" name="frmWebPOD:emailTable:2:email0"></td>
+</tr>
+<tr>
+<td>
+																											</td><td style="border-bottom: 0;" width="75px"><label style="display: block; color: #666; font-size: 1em;">4. Email</label>
+																											</td>
+																											<td style="border-bottom: 0;" width="3%"></td>
+																											<td style="border-bottom: 0;"><input id="frmWebPOD:emailTable:3:email0" type="text" name="frmWebPOD:emailTable:3:email0"></td>
+</tr>
+<tr>
+<td>
+																											</td><td style="border-bottom: 0;" width="75px"><label style="display: block; color: #666; font-size: 1em;">5. Email</label>
+																											</td>
+																											<td style="border-bottom: 0;" width="3%"></td>
+																											<td style="border-bottom: 0;"><input id="frmWebPOD:emailTable:4:email0" type="text" name="frmWebPOD:emailTable:4:email0"></td>
+</tr>
+</tbody>
+</table>
+
+																								</div></td>
+																						</tr>
+	
+																					</tbody></table>
+																					</div>
+																					<br>
+																					<table>
+																						<tbody><tr>
+																							<td width="20px" valign="middle" align="center"><input id="frmWebPOD:agreementCheckBox" type="checkbox" name="frmWebPOD:agreementCheckBox" onclick="confirmCheckBox()">
+																							</td>
+																							<td>
+																							<div class="richtext_sith" style="padding-left:2px;font-size:12px;">I have read and agree to the Electronic Proof of Delivery Terms and Conditions. </div>
+																							</td>
+																						</tr>
+																						<tr>
+																							<td></td>
+																							<td>
+																							<div class="container" style="margin-left:-20px">
+																							<div class="richtext_sith" style="font-size:12px;padding-top:0px;_overflow:display">
+																								Click <a class="arrowLink" onclick="popupTermCondition();">here</a>&nbsp;to view the Electronic Proof of Delivery Terms and Conditions.
+																							</div>
+																							</div>
+																							</td>
+																						</tr>
+																						</tbody></table>
+																						<div style="display:block;float:right;">
+																						<table>
+																						<tbody><tr>
+																						<td></td>
+																							<td style="border-bottom: 0em;"><br><input id="frmWebPOD:submit" type="submit" name="frmWebPOD:submit" value="Submit" style="border-bottom: #cc0201 1px solid; border-left: #cc0201 1px solid; padding-bottom: 0.2em; margin: 0px; background:  #cc0202 0px 0px; float: right; height: 1.7em; color: #fff; font-size: 0.9em; border-top: #cc0201 1px solid; cursor: pointer; border-right: #cc0201 1px solid;" onclick="return clickSubmit();">
+																							</td>
+
+																						</tr>
+																					</tbody></table>
+																					</div>
+																				</fieldset><input id="frmWebPOD:ePODRetrieved" type="hidden" name="frmWebPOD:ePODRetrieved" value="false"><input id="frmWebPOD:pageLocked" type="hidden" name="frmWebPOD:pageLocked" value="false"><input id="frmWebPOD:cookieExpiration" type="hidden" name="frmWebPOD:cookieExpiration"><input id="frmWebPOD:pageLockedDate" type="hidden" name="frmWebPOD:pageLockedDate"><input type="hidden" name="javax.faces.ViewState" id="javax.faces.ViewState" value="-1320531813093539539:-1681544175279142706">
+</form>
+																		</div>
+																	</div>
+																</div>
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+										</div>
+										
+									</div>
+								</div>
+								<a style="visibility: hidden;" name="containerpar_componentseparator"></a>
+
+							</div>
+						</div>
+					</div>
+					
+					
+					
+				</div>
+			</div>
+
+
+
+			<div class="standardtemplatefooter">
+				<div class="footer">
+					<a id="footer"></a>
+					<div class="container">
+						<div class="logo">
+							<a title="Deutsche Post DHL" href="http://www.dp-dhl.com/" target="_blank"> <img class="cq-dd-image" title="Deutsche Post DHL" alt="Deutsche Post DHL Logo" src="/webPOD/img/image.img.gif" width="139" height="34"> <img alt="External Link / New Window: Deutsche Post DHL" src="/webPOD/img/blank.gif">
+							</a>
+						</div>
+						<div class="footer_navigation">
+							<div class="standardtemplatefooterlinks">
+								<ul>
+									<li class="firstItem"><a title="Sitemap" href="http://www.dhl.com/en/sitemap.html" target="_self">Sitemap
+									</a></li>|
+									<li><a title="Accessibility" href="http://www.dhl.com/en/accessibility.html" target="_self">Accessibility
+									</a></li>|
+									<li><a title="Legal" href="http://www.dhl.com/en/legal.html" target="_self">Legal
+									</a></li>|
+									<li class="last"><a title="Using DHL Websites" href="http://www.dhl.com/en/using_dhl_websites.html" target="_self">Using DHL Websites <img alt="Using DHL Websites" src="/webPOD/img/blank.gif">
+									</a></li>
+								</ul>
+							</div>
+							<p>
+								<a href="http://www.dhl.com/en/legal.html" target="_self">2016
+									© DHL International GmbH. All rights reserved. </a>
+							</p>
+						</div>
+						<div class="clearAll"></div>
+					</div>
+				</div>
+			</div>
+
+
+
+		</div>
+
+		<div class="navigation_main_shadow"></div>
+
+
+
+	</div>
+<script type="text/javascript">
+	var tries = 0;
+	if(getCookie('validationLockedWebpod') != null) {
+		document.getElementById('frmWebPOD:pageLocked').value = true;
+		document.getElementById('frmWebPOD:pageLockedDate').value = getCookie('validationLockedWebpod');
+	} else if (tries > 2) {
+		var cookieExpiration = setCookieTime();
+		document.getElementById('frmWebPOD:cookieExpiration').value = cookieExpiration;
+		document.getElementById('frmWebPOD:pageLocked').value = true;
+	} else {
+		document.getElementById('frmWebPOD:pageLocked').value = false;
+	}
+	document.getElementById('frmWebPOD:agreementCheckBox').checked = getCookie('agreementCheckBox')!=null? true : false;
+	var size= "0";
+	for(var j=0; j < size; j++) {
+		if(document.getElementById("frmWebPOD:validationTable:" + j + ":validationType1") == null) continue;
+		var options = document.getElementById("frmWebPOD:validationTable:" + j + ":validationType1").options;
+		if(options.length > 0) {
+		    for(var i = 0; i < options.length; i++) {
+		    	if(options[i].value=="1") {
+		    		options[i].title = "Shipper or Receiver or Payer Account Number";	 
+		    	} else if (options[i].value=="2") {
+		    		options[i].title = "Shipper or Receiver Contact Telephone Number";	
+		    	} else if (options[i].value=="3") {
+		    		options[i].title = "Shipper or Receiver Zip/Post Code";
+		    	} else if (options[i].value=="4") {
+		    		options[i].title = "Select this option to download ePOD without signature.";
+		    	}
+		    }
+		}
+		document.getElementById('frmWebPOD:validationTable:' + j + ':validation0').value = document.getElementById('frmWebPOD:validationTable:' + j + ':validationType1').options[document.getElementById('frmWebPOD:validationTable:' + j + ':validationType1').selectedIndex].text;
+    	if(document.getElementById('frmWebPOD:validationTable:' + j + ':validationType1').value==4) {
+    		document.getElementById('frmWebPOD:validationTable:' + j + ':validation0').disabled=true;
+    	}
+    	document.getElementById('frmWebPOD:validationTable:' + j + ':validation0').style.color='#555'
+	}
+	
+</script>
+
+</body></html>

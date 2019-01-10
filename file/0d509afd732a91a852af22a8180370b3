@@ -1,0 +1,199 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head>
+	<meta http-equiv="Content-Language" content="zh-cn">
+	<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE8">
+	<meta http-equiv="Content-Type" content="text/html;charset=utf-8;">
+	<link rel="shortcut icon" href="../Images/enableq.ico" type="image/x-icon">
+	<title>欢迎使用EnableQ在线问卷调查引擎</title>
+	<style>
+		body{background-color:#405a7d;height:100%;overflow:hidden;}
+		.wrap{background:url(../Images/loginbg.jpg) center no-repeat;min-height:600px;overflow:hidden;}
+		.header{position:absolute;top:10px;right:30px;height: 30px;}
+		.header .check{background:url(../Images/check.png); display: block; width:29px; height:30px;text-indent:-9999px;margin-right:30px;float:left;}
+		.header .deal{background:url(../Images/deal.png);display: block; width:29px; height:30px;text-indent:-9999px;float:left;}
+		.login{margin-top:12%;}
+		form{margin:0 auto;width:412px;}
+		.login_top,.login_btn{}
+		.login_top h1{text-indent:-9999px;background: url(../Images/logo.png) no-repeat;width:172px;height:53px;}
+		/*.login_top h1{height:80px;line-height:70px;font-size:24px;FONT-FAMILY: "微软雅黑", Calibri,"黑体";color:#fff;margin:0 auto;padding:0px}*/
+		.form_ipt{font-size:14px;font-weight:bold;color:#41597b;margin:10px 0 20px 0;padding:10px 0px;background-color:#d7dee8;border:1px solid #41597b;}
+		.form_ipt input{background-color:#d7dee8;border:0px;margin-left:20px;width:275px;display:inline;font-size:14px;font-family:Calibri;}
+		.form_ipt label{margin-left:20px;padding-right:20px;border-right:1px solid #41597b;display:inline;font-family: Calibri,sans-serif;}
+
+		.form_pas{font-size:14px;font-weight:bold;color:#7698c8;margin:10px 0 20px 0;padding:10px 0px;background-color:#3d5e91;border:1px solid #7698c8;}
+		.form_pas input{background-color:#3d5e91;border:0px;margin-left:20px;width:275px;display:inline;font-size:14px;font-family:Calibri;}
+		.form_pas label{margin-left:20px;padding-right:20px;border-right:1px solid #7698c8;display:inline;font-family: Calibri,sans-serif;}
+
+		.login_btn{color:#fff;font-size:12px;}
+		.login_btn .submit{float:right;width:102px;height:43px;background: url(../Images/login.png);border: 0px;}
+	</style>
+	<script type="text/javascript" src="../JS/Jquery.min.js.php"></script>
+	<script type="text/javascript" src="../JS/Jquery.notification.js.php"></script>
+	<link type="text/css" rel="stylesheet" href="../CSS/Notification.css">
+	<script language="javascript" src="../JS/CheckQuestion.js.php"></script>
+	<script language="javascript" src="../JS/Md5.js.php"></script>
+	<script language="JavaScript" type="text/Javascript">
+	function _GetCookies(){
+	  var administratorsName = getCookie("administratorsName");
+	  if (administratorsName != null)
+	  {
+		  document.loginform.administratorsName.value = unescape(administratorsName);
+		  document.loginform.remberme.checked=true;
+	  }
+	}
+
+	function getCookie(name) {
+		var dc = document.cookie;
+		var prefix = name + "=";
+		var begin = dc.indexOf("; " + prefix);
+		if (begin == -1) {
+			begin = dc.indexOf(prefix);
+			if (begin != 0) return null;
+		} else {
+			begin += 2;
+		}
+		var end = document.cookie.indexOf(";", begin);
+		if (end == -1) {
+			end = dc.length;
+		}
+		return unescape(dc.substring(begin + prefix.length, end));
+	}
+
+	function Check_Form_Validator()
+	{
+		if (!CheckNotNull(document.loginform.administratorsName, "用户名")) {return false;}
+		if (!CheckNotNull(document.loginform.pass, "密码")) {return false;}
+	}
+	function submitLoginForm()
+	{
+		if( Check_Form_Validator() != false )
+		{
+			$.notification('正在努力为您登录系统...');
+			var userName = Trim(document.getElementById('administratorsName').value);
+			var userPass = hex_md5(Trim(document.getElementById('pass').value));
+			var crumb = Trim(document.getElementById('crumb').value);
+			if( document.getElementById('remberme').checked )
+			{
+				var remberme = 1;
+			}
+			else
+			{
+				var remberme = 0;
+			}
+			var ParamString = "Action=LoginSubmit";
+			ParamString += "&userName="+userName;
+			ParamString += "&userPass="+userPass;
+			ParamString += "&remberme="+remberme;
+			ParamString += "&crumb="+crumb;
+			ajax_Submit('Login.php',ParamString);
+		}
+	}
+	function ajax_Submit(url,postStr) {
+		var ajax=false; 
+		try { ajax = new ActiveXObject("Msxml2.XMLHTTP"); }
+		catch (e) { try { ajax = new ActiveXObject("Microsoft.XMLHTTP"); } catch (E) { ajax = false; } }
+		if (!ajax && typeof XMLHttpRequest!='undefined') ajax = new XMLHttpRequest(); 
+
+		ajax.open("POST", url, true); 
+		ajax.setRequestHeader("Content-Type","application/x-www-form-urlencoded"); 
+		ajax.send(postStr);
+		ajax.onreadystatechange = function(){
+			if (ajax.readyState == 4)
+			{
+				if(ajax.status == 200)
+				{
+					if( Trim(ajax.responseText) == '' )
+					{
+						$.notification('网络传输问题');
+					}
+					else
+					{
+						var theRtnText = ajax.responseText.split('######');
+						switch(theRtnText[0])
+						{
+							case 'false':
+							default:
+								if( theRtnText[1] == null ) $.notification(theRtnText);
+								else
+								{
+									if( Trim(theRtnText[1]) == '' ) $.notification('网络传输问题');
+									else $.notification(theRtnText[1]);
+								}
+							break;
+							case 'true':
+							    if( Trim(theRtnText[1]) == '' ){
+									window.location.href = 'index.php';
+								}
+								else{
+									window.location.href = theRtnText[1];
+								}
+							break;
+						}
+					}
+				}
+				else
+				{
+					$.notification('网络传输问题');
+				}
+			}	
+		} 
+	}
+    </script>
+	<style>
+	#jquery-notification-message {width:450px;}
+	input[type=checkbox] {vertical-align: middle;}
+	</style>
+	<meta content="MSHTML 6.00.3790.0" name="GENERATOR"></head>
+
+	<body class="loginbg" onload="javascript:_GetCookies();" oncontextmenu="return false"><div id="notifier-box"><div class="message-box" style="opacity: 0; "><a class="message-close" href="#" title="Click for close this message"></a><div class="message-header">浏览器兼容</div><div class="message-body"><div class="thumb"><img src="../Images/admin.png"></div><span>EnableQ建议您使用IE浏览器以获得更好的操作体验</span></div></div></div>
+	<noscript>&lt;table width=100%&gt;&lt;tr&gt;&lt;td style="background-color: #FFFF66; border-top: solid 4px #FF9966; border-bottom: solid 4px #FF9966; margin: 10px 25px; padding: 10px 15px;"&gt;系统检查到您的浏览器可能未开启JavaScript支持，系统绝大多数功能可能会受影响！&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</noscript>
+
+	<div class="wrap">
+		<div class="header">
+						<a href="../License/ServicesTerm.html" target="_blank" title="查看EnableQ系统的许可协议文本" class="deal">软件许可协议</a>
+		</div>
+		<div class="login">
+			<form name="loginform" id="loginform" action="" method="post" onsubmit="return false;">
+				<div class="login_top">
+					<h1>EnableQ在线问卷调查引擎</h1>
+					<div class="form_ipt"><label>用户名</label><input type="text" name="administratorsName" id="administratorsName"></div>
+					<div class="form_pas"><label>密&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;码</label><input type="password" class="form_inp" name="pass" id="pass"></div>
+				</div>
+				<div class="login_btn">
+					<input type="checkbox" value="1" name="remberme" id="remberme"><label>记住我的用户名</label>
+				    <input type="hidden" value="LoginSubmit" name="Action" id="Action">
+					<input type="submit" class="submit" value="" name="Submit" onclick="javascript:submitLoginForm();">
+				    <input type="hidden" name="crumb" id="crumb" value="c6f8e591ce">
+				</div>
+			</form>
+		</div>
+	</div>
+
+	<link href="../CSS/Notifier.css" type="text/css" rel="stylesheet">
+	<script type="text/javascript" src="../JS/Jquery.notifier.min.js.php"></script>
+	<script>
+		  var mOptions = {};
+		  mOptions.lifeTime = 0;
+		  if( 0 == 1 )
+		  {
+			  $.jnotify('购买信息', '您当前使用的是EnableQ免费版本，想获得更多功能和更高软件版本？可访问<a href="http://www.enableq.com/cn/buy/price.html" target=_blank>EnableQ网站</a>查询相关购买信息', '../Images/admin.png', mOptions);
+		  }
+		  //浏览器兼容
+		  mOptions.lifeTime = 8000;
+		  var userAgent = navigator.userAgent.toLowerCase();
+		  var is_opera = userAgent.indexOf('opera') != -1 && opera.version();
+		  var is_moz = (navigator.product == 'Gecko') && userAgent.substr(userAgent.indexOf('firefox') + 8, 3);
+		  var is_ie = (userAgent.indexOf('msie') != -1 && !is_opera) && userAgent.substr(userAgent.indexOf('msie') + 5, 3);
+		  var is_mac = userAgent.indexOf('mac') != -1;
+		  if( is_ie ) {
+				var v = is_ie ? /\d+/.exec(userAgent.split(';')[1]) : 'no ie';
+				if( v < 8 )  
+				$.jnotify('浏览器兼容', 'EnableQ强烈建议您使用IE浏览器8.0以及8.0以上版本', '../Images/admin.png', mOptions);
+		  }
+		  else { 
+			  $.jnotify('浏览器兼容', 'EnableQ建议您使用IE浏览器以获得更好的操作体验', '../Images/admin.png', mOptions);
+		  }
+	</script>
+
+	
+
+</body></html>

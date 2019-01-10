@@ -1,0 +1,1322 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns:wb="http://open.weibo.com/wb">
+<head>
+<meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible">
+<meta name="renderer" content="webkit">
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<link rel="shortcut icon" href="/img/favicosec.ico">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta property="qc:admins" content="6641350777616510166375" />
+<meta name="keywords" content="招聘,招聘网,人才网,求职,求职网,找工作,招聘信息,最新招聘,互联网招聘,互联网公司招聘,it招聘,互联网招聘网站,互联网 招聘,互联网招聘信息">
+<meta name="description" content="跟对人招聘信息网站平台,提供互联网it公司最新招聘信息,是互联网人才求职找工作首选网站,跟对人职业顾问助您跟对人做对事,找到知名企业和高薪职位！">
+<title>跟对人_互联网it公司最新招聘信息_互联网人才求职找工作网站</title>
+<link rel="stylesheet" type="text/css" href="/css/index/index.css?v=20161021"/>
+<script type="text/javascript" src="/js/jquery-1.7.2.min.js"></script>
+<script type="text/javascript" src="/js/constants.js?v=2.32" defer="defer"></script>
+<script type="text/javascript" src="/js/json2.js" defer="defer"></script>
+<script type="text/javascript" src="/js/tpl/template-native.js"></script>
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?c6ea3ee6879e24e592519348cc24e1ea";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<script defer="defer">
+jQuery.ajax({
+        url: '/js/common.js?v=20161111',
+        dataType: 'script',
+        cache: true
+    }).done(function() {
+    });
+jQuery.getScript("/js/hr/base.js?v=2.32")
+    .done(function() {
+});
+jQuery.getScript("/js/hr/placeholder.js?v=20151217")
+    .done(function() {
+});
+jQuery.getScript("/js/san_index.js?v=20160422")
+    .done(function() {
+});
+ var openid = "";
+ var ukbn = "";
+ var tab_flag = "0";
+ var matchflag = "1";
+    $(function(){
+      // 鼠标滑过banner，箭头出现
+    // $('.m_banner').mouseover(function(){
+     //  $('.m_banner a').show();
+    // })
+    //  $('.m_banner').mouseleave(function(){
+     //  $('.m_banner a').hide();
+   //  })
+      // 职位tab
+      $('.jieshao_list').hide();
+      $('.jieshao_list').eq(0).show();
+      $('.jieshao_tb span').click(function(){
+	        $(this).addClass('active');
+	        $('.jieshao_list').eq($(this).index()).show();
+	        $(this).siblings('span').removeClass('active');
+	        $('.jieshao_list').eq($(this).index()).siblings('ul').hide();
+	        var v = $(this).attr('v');
+	        tab_flag = v;
+	        if(v == '0' && matchflag == '0'){
+	            $('.seeMore_index a').text("修改简历信息");
+	            var num = $('.hotjobs').find('li').size();
+	            
+	            if(num <= 0){
+	               $('.index_no_suit').show();
+	            }else{
+	               $('.index_no_suit').hide();
+	            }
+	        }else{
+	            $('.seeMore_index a').text("查看更多");
+	            $('.index_no_suit').hide();
+	        }
+      })
+		
+   
+    })
+    
+</script>
+
+</head>
+<body>
+<div id="main">  
+<meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible">
+<meta name="renderer" content="webkit">
+<link rel="stylesheet" type="text/css" href="/css/index/base.css?v=20161229"/>
+<link rel="stylesheet" type="text/css" href="/css/index/base_mend.css?v=20161202"/>
+<link rel="stylesheet" type="text/css" href="/css/style_qq.css?v=2.33" />
+<script type="text/javascript" src="/js/common.js?v=20161111"></script>
+<script src="/js/index/header.js?v=20161021" type="text/javascript" charset="utf-8"></script>
+<script>
+var jianlistatustype="";
+var tui_user_pro='';
+var res_tuijian='';
+var uname = "";
+var ukbn = "";
+var isIE7 = false;
+var headerloadflg="";//加载效果是否显示，0不显示
+//验证标识
+var verifyflg="";
+var firstLogin ="";
+firstLogin = "0";
+function logout(){
+    jQuery.ajax({   
+        type: 'post',   
+        contentType : 'application/json; charset=utf-8',   
+        dataType: 'json',   
+        url: '/ajax/logout.do', 
+        data: JSON.stringify(new Object()),   
+        success: function(data){
+            window.location.href = "/";
+        }
+    })
+}
+
+$(document).ready(function(){
+    if(firstLogin=="1"){
+        $(".gaincoin").html();
+        gaincoin();
+    }     
+    var nowhref = window.location.href;
+    if(nowhref.indexOf("/answers/")>0){
+        $(".index-search").find("ul").empty().append("<li>问答</li><li style='display: none;'>职位</li>");
+        $(".index-search").find("input").attr("placeholder","请输入关键字，如：用户运营");
+        $(".index-search").find("input").attr("searchflg","2");
+    }else{
+        $(".index-search").find("ul").empty().append("<li>职位</li><li style='display: none;'>问答</li>");
+        $(".index-search").find("input").attr("placeholder","请输入职位或公司关键字");
+        $(".index-search").find("input").attr("searchflg","1");
+    }
+//	职位和问答切换
+	$(".index-search").find("ul").hover(function(e){
+		var len= $(this).find("li").length;
+		if(len=1){
+			$(this).find("li").show();
+			e.stopPropagation();
+		}
+		return false;
+		
+	},function(){
+		$(this).find("li").eq(1).hide();    
+	})
+	$(document).on('click',".index-search li",function(){
+		var text1 =$(this).text();
+		var text2 =$(this).siblings().text();		
+		$(this).parents("ul").empty().append("<li>"+text1+"</li><li style='display: none;'>"+text2+"</li>");		
+		//$(".index-search").find("li").eq(1).hide(); 
+		if(text1=="问答"){
+		     $(".index-search").find("input").attr("placeholder","请输入关键字，如：用户运营");
+             $(".index-search").find("input").attr("searchflg","2");
+		}else{
+		     $(".index-search").find("input").attr("placeholder","请输入职位或公司关键字");
+             $(".index-search").find("input").attr("searchflg","1");
+		}
+	})
+    $(".qiye").on('click', function() {
+        document.setCookie("firstflg","0");
+    });
+//底部tab切换
+	$('.contact_Con .contactCon').hide();
+	$('.contact_Con .contactCon').eq(0).show();
+	$('.contact_tab span').click(function(){
+		$(this).addClass('active');
+		$(this).siblings().removeClass('active');
+		$('.contact_Con .contactCon').hide();
+		$('.contact_Con .contactCon').eq($(this).index()).show();
+		
+	})
+  
+//底部二维码
+	$('.about_Us span.ma_img').mouseover(function(){
+	$(this).find('img').show();
+	})
+	$('.about_Us span.ma_img').mouseout(function(){
+	$(this).find('img').hide();
+	})
+	//点击登录
+	$('#login_click').on("click",function(){
+		my_login();
+	});
+	
+	//if(ukbn==1){
+	//	getSelectHrJobJianLi();
+	//}
+	//点击导航的登录 
+	$('#dl_span').on("click",function(){
+		window.location.href='/job/login.html';
+	});
+	
+	// 账号的回车事件
+	$('#myusername').keydown(function(event){
+		if(13 == event.keyCode || 13 == event.which){
+			my_login();
+		}
+	});
+	
+	//密码的回车事件
+	$('#mypassword').keydown(function(event){
+		if(13 == event.keyCode || 13 == event.which){
+			my_login();
+		}
+	});
+	
+	
+
+	//登录框隐藏与显示
+	//$('.dl_hide').hide();
+	$('.pos_dl'). mouseenter(function(){
+	  $('.dl_hide').show();
+	});
+	$('.pos_dl').mouseleave(function(){
+	  $('.dl_hide').hide();
+	});
+
+	//鼠标滑过2维码显示
+	$('.wx_pos').mouseover(function(){
+		$(this).find('img').show();
+	})
+
+	$('.wx_pos').mouseleave(function(){
+		$(this).find('img').hide();
+	})	
+	if(ukbn!=""&&ukbn!=null){
+		// 调用此方法 
+		getJobJianLiMessagenum();
+		getUserPhoto();
+		//getSelectProfileJobJianLi();
+	}
+	
+	if(uname != "" && uname != null && ukbn == 1){
+	    getHrNewJianliNum();
+	}
+	
+	//搜索框的回车事件
+	/*$('#xinkeywd').keydown(function(event){
+		if(13 == event.keyCode || 13 == event.which){
+			$('#sousuo').click();
+		}
+	});
+	$('#sousuo').on('click',function(){
+	   var xinkeywd = $("#xinkeywd").val();
+    	if(xinkeywd==""){
+    		xinkeywd="";
+    	}else{
+    		if(CheckStr(xinkeywd) == false){
+        		alert("搜索词包含非法字符");
+        		return;
+        	}
+    	}
+    	if(xinkeywd == "c++" || xinkeywd == "C++"){
+    		xinkeywd =xinkeywd.substring(0,1) +  "jiajia";
+    	}
+    	if(xinkeywd == "c#" || xinkeywd == "C#"){
+    		xinkeywd =xinkeywd.substring(0,1) +  "jing";
+    	}
+    	window.location.href =BaseJSURL + "/jobs/?mkwd=" + xinkeywd;
+	
+	});*/
+	$(document).on('keyup',".index-search input",function(event){
+        if(event.keyCode == 13){
+            var searchflg = $(this).parents().find("input").attr("searchflg");
+            var keywd = $(this).parents().find("input").val();
+            if(keywd==""){
+                keywd="";
+            }else{
+                if(CheckStr(keywd) == false){
+                    alert("搜索词包含非法字符");
+                    return;
+                }
+            }
+            if(keywd == "c++" || keywd == "C++"){
+                keywd =keywd.substring(0,1) +  "jiajia";
+            }
+            if(keywd == "c#" || keywd == "C#"){
+                keywd =keywd.substring(0,1) +  "jing";
+            }
+            if(searchflg=="1"){
+                window.location.href=BaseJSURL+"/jobs/?mkwd="+keywd+"&m=2";
+            }else{
+                window.location.href=BaseJSURL+"/answers/?mkwd="+keywd;
+            }
+        }
+    })
+	
+});
+window.Document.prototype.setCookie=function(name,value)
+{
+
+    var cvs=this.cookie;
+    var values=cvs.split(";");
+    var d = new Date();
+    var expire = new Date((new Date()).getTime() + 12*30*24 * 3600000);
+    expire = "; expires=" + expire.toGMTString(); 
+    //d.setTime(d.getTime() + (10*24*60*60*1000));
+    //var expires = "expires="+d.toUTCString();
+    cvs=name+"="+value+expire+"path=/";
+    this.cookie=cvs;
+}
+// 登录方法 
+function my_login(){
+	$("#herders_cuowu").hide();
+	var param = new Object();
+	param.emailAddr = $("#myusername").val();
+	param.passwd = $("#mypassword").val();
+	if(param.emailAddr == "")
+        {
+            $("#herders_cuowu").html("请填写用户名");
+            $("#herders_cuowu").show();
+            return;
+        }
+	if(param.passwd == "")
+        {
+            $("#herders_cuowu").html("请填写密码");
+            $("#herders_cuowu").show();
+            return;
+        }
+        
+	jQuery.ajax({   
+		type: 'post',   
+		contentType : 'application/json; charset=utf-8',   
+		dataType: 'json',   
+		url: '/ajax/login.do', 
+		data: JSON.stringify(param),   
+		success: function(data){
+			if(data.ret == "0")
+				{
+					if(data.ukbn==1){
+                      	//window.location.href = "/hr/";
+                      	window.location.href = "/job.html";
+                      } else{
+                      	window.location.href = "/job.html";
+                      }
+				}
+                else if(data.ret == -1)
+                {
+                        $("#herders_cuowu").html("用户不存在或密码错误");
+                        $("#herders_cuowu").show();
+                }
+                else
+                {
+                        $("#herders_cuowu").html("登录失败，请稍候重试");
+                        $("#herders_cuowu").show();
+                }
+        }
+	});
+};
+//查询普通用户没有回复hr面试通知的数量
+function getSelectProfileJobJianLi(){
+	var param = new Object();
+	var total = 0;
+	jQuery.ajax({   
+		type: 'post',   
+		contentType : 'application/json; charset=utf-8',   
+		dataType: 'json',   
+		url: '/ajax/getSelectProfileJobJianLi.do', 
+		data: JSON.stringify(param),   
+		success: function(data){
+			var data_np=data.np;
+			if(typeof(data_np) == "undefined" && typeof(data_np_number0) == "undefined"){
+				return;
+			}
+			if(data.np.number0>0)
+			{
+			    total = total + data.np.number0;
+				//$("#profile_jianli_number").text(data.np.number0);
+				//$("#profile_jianli_number").show();
+				$("#profile_jianli_number2").text(data.np.number0);
+				$("#profile_jianli_number2").show();
+			}
+			if(jianlistatustype==0){
+				if(data.np.number1>0)
+				{
+					$("#profile_jianli_number_1").text(data.np.number1);
+					$("#profile_jianli_number_1").show();
+				}
+				if(data.np.number2>0)
+				{
+					$("#profile_jianli_number_2").text(data.np.number2);
+					$("#profile_jianli_number_2").show();
+				}
+				if(data.np.number3>0)
+				{
+					$("#profile_jianli_number_3").text(data.np.number3);
+					$("#profile_jianli_number_3").show();
+				}
+				
+			}
+			if(jianlistatustype==1){
+				if(data.np.number3>0)
+				{
+					$("#profile_jianli_number_1").text(data.np.number4);
+					$("#profile_jianli_number_1").show();
+				}
+				if(data.np.number4>0)
+				{
+					$("#profile_jianli_number_2").text(data.np.number5);
+					$("#profile_jianli_number_2").show();
+				}
+				if(data.np.number5>0)
+				{
+					$("#profile_jianli_number_3").text(data.np.number6);
+					$("#profile_jianli_number_3").show();
+				}
+				
+			}
+			var jk=parseInt(data.np.number1)+parseInt(data.np.number2)+parseInt(data.np.number3);
+			var jk1=parseInt(data.np.number4)+parseInt(data.np.number5)+parseInt(data.np.number6);
+			if(jk>0)
+			{
+					$("#profile_jianli_number_4").text(jk);
+					$("#profile_jianli_number_4").show();
+			}
+			if(jk1>0)
+			{
+					$("#profile_jianli_number_5").text(jk1);
+					$("#profile_jianli_number_5").show();
+			}
+			total = total + jk + jk1;
+			if(total > 0)
+			{
+			    $("#jianli_status").append('<em>'+total+'</em>');
+			}
+        }
+	});
+};
+
+//查询hr没有回复数量 
+/*function getSelectHrJobJianLi(){
+	jQuery.ajax({   
+		type: 'post',   
+		contentType : 'application/json; charset=utf-8',   
+		dataType: 'json',   
+		url: '/ajax/getSelectHrJobJianLi.do', 
+		data: JSON.stringify(new Object()),   
+		success: function(data){
+			if(data.np.number1>0){
+				$("#hr_mei_jianli").append("<em>"+data.np.number1+"</em>");
+				$("#shou").append("<em>"+data.np.number1+"</em>");
+			}
+			if(data.np.number2>0){
+				$("#hr_tong_jianli").append("<em>"+data.np.number2+"</em>");
+			}
+        }
+	});	
+};*/
+
+//查询Hr新简历数
+function getHrNewJianliNum(){
+		jQuery.ajax({ 
+		     type: 'post',   
+				contentType : 'application/json; charset=utf-8',   
+				dataType: 'json',   
+				url: '/ajax/newnum.do', 
+				data: JSON.stringify(new Object()),   
+				success: function(data){
+				   if(data.num > 0){
+				      $('.num').show();
+				      $('.num').text(data.num);
+				   }else{
+				      $('.num').hide();
+				   }
+				}
+		});
+}
+
+//查询C端未处理的消息数量
+function getJobJianLiMessagenum(){
+    var param = new Object();
+    var total = 0;
+    jQuery.ajax({   
+        type: 'post',   
+        contentType : 'application/json; charset=utf-8',   
+        dataType: 'json',   
+        url: '/ajax/getJobJianLiMessagenum.do', 
+        data: JSON.stringify(param),   
+        success: function(data){
+           var data_np=data.np;
+           if(data_np!=null && data_np!=""){
+                total = data_np.num1*1.0+data_np.num2*1.0+data_np.num3*1.0+data_np.num4*1.0;
+                if(total!=0){
+                    $(".ctotalnum").show();
+                    $(".ctotalnum").text(total);
+                }
+                $(".tdcnum").text(data_np.num1);
+                $(".dgtnum").text(data_np.num2);
+                $(".mstnum").text(data_np.num3);
+                $(".bhsnum").text(data_np.num4);
+           }
+        }
+    });
+};
+//获取用户的头像
+function getUserPhoto(){
+    jQuery.ajax({
+        type: 'post',   
+        contentType : 'application/json; charset=utf-8',   
+        dataType: 'json',   
+        url: '/ajax/getuserphoto.do', 
+        data: JSON.stringify(new Object()),   
+        success: function(data){
+            var data_np=data.np;
+            if(data_np!=null && data_np!=""){
+                $(".yonghuming").find("img").attr("src",user_photo_url+'/'+data_np.photo);
+            }
+        }
+    });
+}
+
+//登录结束 
+</script>
+
+<!-- 头部 -->
+<div class="header">
+    <div class="header_con">
+    <div class="logo-con">
+            <a href="/" title=""><img src="/images/logo_genduiren.png" title="互联网it公司最新招聘信息_跟对人_互联网人才网站" alt="跟对人logo"/></a>
+       
+    </div>
+    <ul class="nav_ul">
+            <li id="index"><a href="/" title="跟对人" class="home">职位</a></li>
+        <!--<li id="tjzw"><a rel="nofollow" href="/rj/" title="推荐" class="tuijian-header">推荐</a></li>
+            <li id="company"><a rel="nofollow" href="/brand/quanguo_0_0_1.html" title="企业" class="qiye">企业</a></li>
+        -->
+        <li id="company"><a rel="nofollow" href="/brand/quanguo_0_0_1.html" title="企业" class="qiye">企业</a></li>
+        <!--<li class="pos_relative" id="bing"><a rel="nofollow" href="http://bing.genduiren.cn/" title="有求必应" class="">必应</a><i>new</i></li>
+        <li id="answer"><a rel="nofollow" href="/answers/" title="有料儿" class="youliao">有料儿</a></li>-->
+    </ul>    
+    
+    <div class="right search_dl">
+
+            <a href="/job/loginuser?ukbn=0" title="" class="ld">登录</a>
+            <a href="/job/regist?ukbn=0" title="" class="ld">注册</a>  
+            <a href="/job/login?ukbn=1" class="ld companyenter">企业入口</a>
+    </div>
+    <!--------搜索--------->
+    <div class="index-search">
+    	<div style='display:none;'>
+    		<ul>
+    			<li>职位</li>
+    			<li style="display: none;">问答</li>
+    		</ul>
+    	</div>
+    	<input type="text" placeholder="请输入职位或公司关键字" searchflg=""  class="search_input" value=""/>
+    	<a id="btn_search" href="javascript:void(0)"></a> 
+    </div>
+    <!---------搜索 end--------->
+    </div>
+</div>
+
+<div class='hsbj'></div>
+<div class="pop_bg"></div>
+<div class='whitebg' style='display:none;'></div>
+<!--这是加载AJAX的动态转图-->
+	<div id="home_loading"  style="left:50%; float:left; position:fixed; top:50%; z-index:100009; display:none;">
+		<img src="/img/anim_loading_75x75.gif" />
+	</div>
+<div class="gaincoin">+10</div>
+<script type="text/javascript">
+	function gaincoin(){
+		$(".gaincoin").show().addClass("coinIn");
+		setTimeout("$('.gaincoin').removeClass('coinIn').hide()",2000);
+	}
+</script>
+<!--登录之后导航上有4个的时候加上这段代码 start
+登录之后导航上有4个的时候加上这段代码 end--><link rel="stylesheet" type="text/css" href="/css/index/base_mend.css?v=20161202"/>
+<!----------------------左侧导航---------------------->
+    <div class='all_divclass' id='all_divclass'>
+        <div class="all_divlist_border all_divlist_border1">
+          	<!--<div class='all_divlist' style="height: 135px;">-->
+          	<div class='all_divlist' style="height: 101px;">
+          		<p>技术</p>
+                <div>
+                  	<a href="/jobs/Java.html" target="_blank" key="JAVA" class="myzhuanhuang" title="Java招聘">Java</a> 
+                  	<a href="/jobs/PHP.html" target="_blank" key="php" class="myzhuanhuang" title="php招聘">PHP</a>
+                  	<a href="/jobs/C.html" target="_blank" key="c" class="myzhuanhuang" title="c招聘">C</a>
+                  	<a href="/jobs/NET.html" target="_blank" title=".NET招聘">.net</a>
+                  	<a href="/jobs/IOS.html" target="_blank" key="ios" class="myzhuanhuang" title="ios招聘">iOS</a>
+                	<!--<a href="/jobs/JAVASCRIPT.html" target="_blank" title="javascript招聘">JS</a>--> 
+                  	
+                  	<a href="/jobs/ANDROID.html" target="_blank" key="android" class="myzhuanhuang" title="安卓招聘">Android</a>                  	
+                	<a href="/jobs/WEBqianduan.html" target="_blank" key="qianduan" class="myzhuanhuang" title="web前端招聘" >web前端</a>
+                	<a href="/jobs/HTML5.html" target="_blank" title="html5招聘">Html5</a>                	
+
+                </div>	                  	
+            </div>
+            <!--技术-->
+            <div class="all_divlist_two all_divlist_two1">	
+            	<div>
+	                <span>前端开发</span>
+	                <div><a href="/jobs/WEBqianduan.html" target="_blank" title="web前端招聘">web前端</a><a href="/jobs/HTML5.html" target="_blank" title="html5招聘">html5</a><a href="/jobs/JAVASCRIPT.html" target="_blank" title="javascript招聘">JavaScript</a></div>
+	            </div>
+	            <div>
+	              	<span>后端开发</span>
+	                <div><a href="/jobs/JAVA.html" target="_blank" title="Java招聘">Java</a><a href="/jobs/PHP.html" target="_blank" title="php招聘">PHP</a><a href="/jobs/C.html" target="_blank" title="c语言招聘">C</a><a href="/jobs/NET.html" target="_blank" title=".NET招聘">.NET</a><a href="/jobs/HADOOP.html" target="_blank" title="hadoop招聘">Hadoop</a><a href="/jobs/PYTHON.html" target="_blank" title="python招聘">Python</a><a href="/jobs/PERL.html" target="_blank" title="Perl招聘">Perl</a><a href="/jobs/RUBY.html" target="_blank" title="ruby招聘">Ruby</a><a href="/jobs/NODEJS.html" target="_blank" title="node.js招聘">Node.js</a></div>
+	            </div>
+             	<div>
+	                <span>移动开发</span>
+	                <div><a href="/jobs/ANDROID.html" target="_blank" title="android招聘">Android</a><a href="/jobs/iOS.html" target="_blank" title="iOS招聘">iOS</a></div>
+              	</div>
+              	<div>
+	                <span>测试</span>
+	                <div><a href="/jobs/ceshigongchengshi.html" target="_blank" title="测试工程师招聘">测试工程师</a><a href="/jobs/ceshijingli.html" target="_blank" title="测试经理招聘">测试经理</a><a href="/jobs/ceshizongjian.html" target="_blank" title="测试总监招聘">测试总监</a></div>
+	            </div>
+              	<div>
+	                <span>运维</span>
+	                <div><a href="/jobs/DBA.html" target="_blank" title="DBA招聘">DBA</a><a href="/jobs/yunweigongchengshi.html" target="_blank" title="运维工程师招聘">运维工程师</a><a href="/jobs/yunweizongjian.html" target="_blank" title="运维总监招聘">运维总监</a></div>              
+              	</div>              
+              	<div>
+	                <span>项目管理</span>
+	                <div><a href="/jobs/xiangmuzhuli.html" target="_blank" title="项目助理招聘">项目助理</a><a href="/jobs/xiangmujingli.html" target="_blank" title="项目经理招聘">项目经理</a><a href="/jobs/xiangmuzongjian.html" target="_blank" title="项目总监招聘">项目总监</a></div>              
+              	</div>              
+              	<div>
+	                <span>高端技术</span>
+	                <div><a href="/jobs/jishujingli.html" target="_blank" title="技术经理招聘">技术经理</a><a href="/jobs/jiagoushi.html" target="_blank" title="架构师招聘">架构师</a><a href="/jobs/jishuzongjian.html" target="_blank" title="技术总监招聘">技术总监</a></div>              
+              	</div>  
+              	<div>
+	                <span>其他</span>
+	                <div><a href="/jobs/U3D.html" target="_blank" title="U3D招聘">U3D</a><a href="/jobs/COCOS2DX.html" target="_blank" title="COCOS2D-X招聘">COCOS2D-X</a><a href="/jobs/yingjiankaifa.html" target="_blank" title="硬件开发招聘">硬件开发</a><a href="/jobs/qiyeruanjian.html "title="企业软件招聘">企业软件</a></div>              
+              	</div>
+              	<div class="hotjob">
+	                <span>热门职位</span>
+	                <div>
+	                <a href="/jobs/?mkwd=MySQL" target="_blank" title="MySQL">MySQL</a>
+	                <a href="/jobs/?mkwd=javascript" target="_blank" title="javascript">javascript</a>
+	                <a href="/jobs/?mkwd=java" target="_blank" title="java">java</a>
+	                <a href="/jobs/?mkwd=Oracle" target="_blank" title="Oracle">Oracle</a>
+	                <a href="/jobs/?mkwd=html5" target="_blank" title="html5">html5</a>
+	                <a href="/jobs/?mkwd=php" target="_blank" title="php">php</a>
+	                <a href="/jobs/?mkwd=web前端" target="_blank" title="web前端">web前端</a>
+	                <a href="/jobs/?mkwd=SQLServer" target="_blank" title="SQLServer">SQLServer</a>
+	                <a href="/jobs/?mkwd=MongoDB" target="_blank" title="MongoDB">MongoDB</a>
+	                <a href="/jobs/?mkwd=java工程师" target="_blank" title="java工程师">java工程师</a>
+	                <a href="/jobs/?mkwd=web前端工程师" target="_blank" title="web前端工程师">web前端工程师</a>
+	                <a href="/jobs/?mkwd=Python" target="_blank" title="Python">Python</a>
+	                </div>              
+              	</div>
+            </div>
+	            </div>
+		          <div class="all_divlist_border">
+		          	<div class='all_divlist'>
+		          		<p>产品</p>
+			            <div>
+			              <a href="/jobs/chanpinjingli.html" target="_blank" key="chanpinjingli" class="myzhuanhuang" title="产品经理招聘">产品经理</a> 
+			              <a href="/jobs/youxicehua.html" target="_blank" key="youxicehua" class="myzhuanhuang" title="游戏策划招聘">游戏策划</a>
+			              <a href="/jobs/chanpinzhuli.html" target="_blank" key="chanpinzhuli" class="myzhuanhuang" title="产品助理招聘">产品助理</a><br/>         
+			            </div>
+			          </div>
+			          <!--产品-->
+				      <div class="all_divlist_two all_divlist_two2" style="min-height: 102px;">
+				      	
+				      	<div>
+				      		<span>产品</span>
+				      		<div><a href="/jobs/chanpinjingli.html" target="_blank" title="产品经理招聘">产品经理</a><a href="/jobs/chanpinzhuli.html" target="_blank" title="产品助理招聘">产品助理</a><a href="/jobs/youxicehua.html" target="_blank" title="游戏策划招聘">游戏策划</a><a href="/jobs/chanpinzongjian.html" target="_blank" title="产品总监招聘">产品总监</a></div>
+				      	</div>
+				      	<div class="hotjob">
+		                	<span>热门职位</span>
+		                	<div>
+                                <a href="/jobs/?mkwd=产品助理" target="_blank" title="产品助理">产品助理</a>
+                                <a href="/jobs/?mkwd=产品经理" target="_blank" title="产品经理">产品经理</a>
+                                <a href="/jobs/?mkwd=CPO" target="_blank" title="CPO">CPO</a>
+                                <a href="/jobs/?mkwd=产品活动策划" target="_blank" title="产品活动策划">产品活动策划</a>
+                                <a href="/jobs/?mkwd=产品总监助理" target="_blank" title="产品总监助理">产品总监助理</a>
+                                <a href="/jobs/?mkwd=H5产品经理" target="_blank" title="H5产品经理">H5产品经理</a>
+                                <a href="/jobs/?mkwd=网页产品设计师" target="_blank" title="网页产品设计师">网页产品设计师</a>
+                                <a href="/jobs/?mkwd=产品经理项目经理" target="_blank" title="产品经理项目经理">产品经理项目经理</a>
+                                <a href="/jobs/?mkwd=游戏剧情策划" target="_blank" title="游戏剧情策划">游戏剧情策划</a>
+                                <a href="/jobs/?mkwd=移动产品总监" target="_blank" title="移动产品总监">移动产品总监</a>
+                                <a href="/jobs/?mkwd=产品技术经理" target="_blank" title="产品技术经理">产品技术经理</a>
+                                <a href="/jobs/?mkwd=初级产品经理" target="_blank" title="初级产品经理">初级产品经理</a>
+        					</div>              
+		              	</div>
+				    </div>
+		          </div>
+		          <div class="all_divlist_border">
+		          	<div class='all_divlist'>
+		          		<p>设计</p>
+			            <div>
+			              	<a href="/jobs/?mkwd=UI" target="_blank" key="uishejishi" class="myzhuanhuang" title="UI设计师招聘">UI设计师</a>			            	
+			              	<a href="/jobs/jiaohushejishi.html" target="_blank" key="jiaohushejishi" class="myzhuanhuang" title="交互设计师招聘">交互设计师</a>
+			            </div>
+			          </div>  
+			          <!--设计-->
+				      <div class="all_divlist_two all_divlist_two3">
+				      	<div>
+				      		<span>视觉设计</span>
+				      		<div><a href="/jobs/shijueshejishi.html" target="_blank" title="视觉设计师招聘">视觉设计师</a><a href="/jobs/shijueshejijingli.html" target="_blank" title="视觉设计经理招聘">视觉设计经理</a><a href="/jobs/shijueshejizongjian.html" target="_blank" title="视觉设计总监招聘">视觉设计总监</a></div>
+				      	</div>
+				      	<div>
+				      		<span>交互设计</span>
+				      		<div><a href="/jobs/jiaohushejishi.html" target="_blank" title="交互设计师招聘">交互设计师</a><a href="/jobs/jiaohushejijingli.html" target="_blank" title="交互设计经理招聘">交互设计经理</a><a href="/jobs/jiaohushejizongjian.html" target="_blank" title="交互设计总监招聘">交互设计总监</a></div>
+				      	</div>
+				      	<div>
+				      		<span>用户研究</span>
+				      		<div><a href="/jobs/yonghuyanjiuyuan.html" target="_blank" title="用户研究员招聘">用户研究员</a></div>
+				      	</div>	
+				      	<div class="hotjob">
+		                	<span>热门职位</span>
+		                	<div>
+                                <a href="/jobs/?mkwd=用户体验" target="_blank" title="用户体验">用户体验</a>
+                                <a href="/jobs/?mkwd=UI设计师" target="_blank" title="UI设计师">UI设计师</a>
+                                <a href="/jobs/?mkwd=视觉设计师" target="_blank" title="视觉设计师">视觉设计师</a>
+                                <a href="/jobs/?mkwd=网页设计师" target="_blank" title="网页设计师">网页设计师</a>
+                                <a href="/jobs/?mkwd=交互设计师" target="_blank" title="交互设计师">交互设计师</a>
+                                <a href="/jobs/?mkwd=美工设计" target="_blank" title="美工设计">美工设计</a>
+                                <a href="/jobs/?mkwd=网页交互设计师" target="_blank" title="网页交互设计师">网页交互设计师</a>
+                                <a href="/jobs/?mkwd=游戏场景" target="_blank" title="游戏场景">游戏场景</a>
+                                <a href="/jobs/?mkwd=用户研究总监" target="_blank" title="用户研究总监">用户研究总监</a>
+                                <a href="/jobs/?mkwd=施工图绘图员" target="_blank" title="施工图绘图员">施工图绘图员</a>
+                                <a href="/jobs/?mkwd=多媒体设计师" target="_blank" title="多媒体设计师">多媒体设计师</a>
+                                <a href="/jobs/?mkwd=视觉设计经理" target="_blank" title="视觉设计经理">视觉设计经理</a>
+		                	</div>              
+		              	</div>
+				      </div>
+		          </div>
+		          <div class="all_divlist_border">   
+		          <div class='all_divlist'>
+		          	<p>运营</p>
+		            <div>
+		              <a href="/jobs/wangluotuiguang.html" target="_blank" key="wangluotuiguang" class="myzhuanhuang" title="网络推广招聘">网络推广</a> 
+		              <a href="/jobs/yunyingzhuanyuan.html" target="_blank" key="yunyingzhuanyuan" class="myzhuanhuang" title="运营专员招聘">运营专员</a>
+		              <a href="/jobs/bianji.html" target="_blank" key="bianji" class="myzhuanhuang" title="编辑招聘">编辑</a>
+		            </div>
+		          </div>
+		          <!--运营-->
+			      <div class="all_divlist_two all_divlist_two4">
+			      	<div>
+			      		<span>运营</span>
+			      		<div><a href="/jobs/zmo.html" target="_blank"title="ZMO">ZMO</a><a href="/jobs/yunyingzhuanyuan.html" target="_blank"title="运营专员招聘">运营专员</a><a href="/jobs/wangluotuiguang.html" target="_blank"title="网络推广招聘">网络推广</a><a href="/jobs/yunyingjingli.html" target="_blank" title="运营经理招聘">运营经理</a><a href="/jobs/yunyingzongjian.html" target="_blank" title="运营总监招聘">运营总监</a></div>
+			      	</div>
+			      	<div>
+			      		<span>编辑</span>
+			      		<div><a href="/jobs/bianji.html" target="_blank"  class="myzhuanhuang" title="编辑招聘">编辑</a><a href="/jobs/zhubian.html" target="_blank"title="主编招聘">主编</a></div>
+			      	</div>
+			      	<div>
+			      		<span>客服</span>
+			      		<div><a href="/jobs/kefu.html" target="_blank" title="客服招聘">客服</a><a href="/jobs/kefujingli.html" target="_blank"title="客服经理招聘">客服经理</a></div>
+			      	</div>	
+			      	<div class="hotjob">
+		                	<span>热门职位</span>
+		                	<div>
+                                <a href="/jobs/?mkwd=数据分析" target="_blank" title="数据分析">数据分析</a>
+                                <a href="/jobs/?mkwd=新媒体运营" target="_blank" title="新媒体运营">新媒体运营</a>
+                                <a href="/jobs/?mkwd=运营专员" target="_blank" title="运营专员">运营专员</a>
+                                <a href="/jobs/?mkwd=文案策划" target="_blank" title="文案策划">文案策划</a>
+                                <a href="/jobs/?mkwd=内容运营" target="_blank" title="内容运营">内容运营</a>
+                                <a href="/jobs/?mkwd=运营策划" target="_blank" title="运营策划">运营策划</a>
+                                <a href="/jobs/?mkwd=用户运营" target="_blank" title="用户运营">用户运营</a>
+                                <a href="/jobs/?mkwd=内容编辑" target="_blank" title="内容编辑">内容编辑</a>
+                                <a href="/jobs/?mkwd=网络推广" target="_blank" title="网络推广">网络推广</a>
+                                <a href="/jobs/?mkwd=活动运营" target="_blank" title="活动运营">活动运营</a>
+                                <a href="/jobs/?mkwd=SEO" target="_blank" title="SEO">SEO</a>
+                                <a href="/jobs/?mkwd=SEM" target="_blank" title="SEM">SEM</a>
+		                	</div>              
+		              	</div>
+			      </div>
+	          </div> 
+		          <div class="all_divlist_border">   
+			          	<div class='all_divlist'>
+			          		<p>市场与销售</p>
+				            <div>
+				              <a href="/jobs/shichangzhuanyuan.html" target="_blank" key="shichangzhuanyuan" class="myzhuanhuang" title="市场专员招聘">市场专员</a> 
+				              <a href="/jobs/xiaoshouzhuanyuan.html" target="_blank" key="xiaoshouzhuanyuan" class="myzhuanhuang" title="销售专员招聘">销售专员</a>
+				              <a href="/jobs/xiaoshoujingli.html" target="_blank" key="xiaoshoujingli" class="myzhuanhuang" title="销售经理招聘">销售经理</a>
+				            </div>
+			          	</div>
+			          <!--市场与营销-->
+				      <div class="all_divlist_two all_divlist_two5">
+				      	<div>
+				      		<span>市场/营销</span>
+				      		<div><a href="/jobs/shichangzhuanyuan.html" target="_blank"  class="myzhuanhuang" title="市场专员招聘">市场专员</a> <a href="/jobs/shichangzongjian.html" target="_blank" title="市场总监招聘">市场总监</a></div>
+				      	</div>
+				      	<div>
+				      		<span>公关</span>
+				      		<div><a href="/jobs/pinpaigongguan.html" target="_blank" title="品牌公关招聘">品牌公关</a><a href="/jobs/gongguanjingli.html" target="_blank"title="公关经理招聘">公关经理</a></div>
+				      	</div>
+				      	<div>
+				      		<span>销售</span>
+				      		<div><a href="/jobs/xiaoshouzhuanyuan.html" target="_blank" title="销售专员招聘">销售专员</a><a href="/jobs/xiaoshouzhuli.html" target="_blank"title="销售助理招聘">销售助理</a><a href="/jobs/xiaoshoujingli.html" target="_blank"title="销售经理招聘">销售经理</a><a href="/jobs/xiaoshouzongjian.html" target="_blank" title="销售总监招聘">销售总监</a></div>
+				      	</div>
+				      	<div>
+				      		<span>投资</span>
+				      		<div><a href="/jobs/touzijingli.html" target="_blank" title="投资经理招聘">投资经理</a></div>
+				      	</div>
+				      	<div class="hotjob">
+		                	<span>热门职位</span>
+		                	<div>
+                                <a href="/jobs/?mkwd=活动策划" target="_blank" title="活动策划">活动策划</a>
+                                <a href="/jobs/?mkwd=渠道拓展" target="_blank" title="渠道拓展">渠道拓展</a>
+                                <a href="/jobs/?mkwd=营销策划" target="_blank" title="营销策划">营销策划</a>
+                                <a href="/jobs/?mkwd=市场营销" target="_blank" title="市场营销">市场营销</a>
+                                <a href="/jobs/?mkwd=品牌策划" target="_blank" title="品牌策划">品牌策划</a>
+                                <a href="/jobs/?mkwd=BD经理" target="_blank" title="BD经理">BD经理</a>
+                                <a href="/jobs/?mkwd=市场经理" target="_blank" title="市场经理">市场经理</a>
+                                <a href="/jobs/?mkwd=电话销售" target="_blank" title="电话销售">电话销售</a>
+                                <a href="/jobs/?mkwd=市场推广" target="_blank" title="市场推广">市场推广</a>
+                                <a href="/jobs/?mkwd=渠道推广" target="_blank" title="渠道推广">渠道推广</a>
+                                <a href="/jobs/?mkwd=销售专员" target="_blank" title="销售专员">销售专员</a>
+                                <a href="/jobs/?mkwd=市场专员" target="_blank" title="市场专员">市场专员</a>
+		                	</div>              
+		              	</div>
+				      </div>
+		          	</div>
+				<div class="all_divlist_border">
+		          <div class='all_divlist'>
+		          	<p>职能</p>
+					<div>
+		              <a href="/jobs/renshizhuanyuan.html" target="_blank" key="renshizhuanyuan" class="myzhuanhuang" title="人事专员招聘">人事专员</a>            
+		              <a href="/jobs/xingzhengzhuanyuan.html" target="_blank" key="xingzhengzhuanyuan" class="myzhuanhuang" title="行政专员招聘">行政专员</a>
+		              <a href="/jobs/caiwu.html" target="_blank" key="kuaiji" class="myzhuanhuang" title="财务招聘">财务</a>
+		            </div>
+		          </div>
+		          <!--职能-->
+			      <div class="all_divlist_two all_divlist_two6">
+			      	<div>
+			      		<span>人力资源</span>
+			      		<div><a href="/jobs/renshizhuanyuan.html" target="_blank"title="人事专员招聘">人事专员</a><a href="/jobs/renshijingli.html" target="_blank" title="人事经理招聘">人事经理</a></div>
+			      	</div>
+			      	<div>
+			      		<span>行政</span>
+			      		<div><a href="/jobs/xingzhengzhuanyuan.html" target="_blank"  class="myzhuanhuang" title="行政专员招聘">行政专员</a><a href="/jobs/xingzhengzhuli.html" target="_blank"title="行政助理招聘">行政助理</a></div>
+			      	</div>
+			      	<div>
+			      		<span>财务</span>
+			      		<div><a href="/jobs/caiwu.html" target="_blank"title="财务招聘">财务</a></div>
+			      	</div>
+			      	<div class="hotjob">
+		                	<span>热门职位</span>
+		                	<div>
+                                <a href="/jobs/?mkwd=HRD" target="_blank" title="HRD">HRD</a>
+                                <a href="/jobs/?mkwd=人事经理" target="_blank" title="人事经理">人事经理</a>
+                                <a href="/jobs/?mkwd=出纳" target="_blank" title="出纳">出纳</a>
+                                <a href="/jobs/?mkwd=招聘顾问" target="_blank" title="招聘顾问">招聘顾问</a>
+                                <a href="/jobs/?mkwd=招聘经理" target="_blank" title="招聘经理">招聘经理</a>
+                                <a href="/jobs/?mkwd=财务经理" target="_blank" title="财务经理">财务经理</a>
+                                <a href="/jobs/?mkwd=出纳专员 " target="_blank" title="出纳专员 ">出纳专员 </a>
+                                <a href="/jobs/?mkwd=人事专员" target="_blank" title="人事专员">人事专员</a>
+                                <a href="/jobs/?mkwd=财务主管" target="_blank" title="财务主管">财务主管</a>
+                                <a href="/jobs/?mkwd=行政主管" target="_blank" title="行政主管">行政主管</a>
+                                <a href="/jobs/?mkwd=出纳实习生" target="_blank" title="出纳实习生">出纳实习生</a>
+                                <a href="/jobs/?mkwd=HR" target="_blank" title="HR">HR</a>
+		                	</div>              
+		              	</div>
+			    </div>
+	          </div>
+	          <div class="clear"></div>
+	          <div class="allclasses"><a href="/jobs/jobtype" target="_blank">全部职位类别</a></div>
+
+	    	</div> 
+    <!----------------------左侧导航 end---------------------->
+    <div class="index-boxcon">
+		<div class="containter" style="overflow:visible;">
+		    <!-- 左边结束  -->
+		    <input type="hidden" id="keywd_py"  value="" />
+		    <!--<div class="index-search">
+		    	<div>
+		    		<p class="indexhot-search">
+				    </p>
+		    		<input type="text" placeholder="请输入职位或公司关键字"  class="search_input"/><a id="btn_search" href="javascript:void(0)"></a>    		
+		    	</div>
+		    </div> -->
+		    
+		    <div class='index_con'>
+		    	<div class="nav_banner"> 	      	
+			      	<!--首页轮播-->
+<link rel="stylesheet" type="text/css" href="/css/public/flexslider.css?v=20160928"/>
+<script type="text/javascript" src="/js/user/jquery.flexslider.min.js?v=20160126" defer="defer"></script>
+<script>
+$(function(){
+    //首页和热招企业轮播
+    $('.flexslider').flexslider({
+        directionNav: true,//是否显示左右控制按钮
+        pauseOnAction: true,  //暂停幻灯片的控制要素互动的时候
+        pauseOnHover: true, //鼠标滑过是否停止轮播
+        slideshow: true, //载入页面时，是否自动播放
+        animationLoop: true, //循环播放
+        slideshowSpeed: 3000, //展示时间间隔ms
+    	animationSpeed: 500 //滚动时间ms
+    
+    });
+    var jiaodiansize = "5";
+    $(".flexslider").hover(function(){    	
+        if(jiaodiansize >1){ 
+            $(".flex-prev").animate({"left":"0"},200);
+            $(".flex-next").animate({"right":"0"},200);
+        }
+    },function(){
+        if(jiaodiansize >1){
+            $(".flex-prev").animate({"left":"-40px"},200);
+            $(".flex-next").animate({"right":"-40px"},200);
+        }
+    });
+})
+</script>
+<div class="flexslider">
+	<ul class="slides">
+		<li class="item">
+			<a href="http://www.genduiren.cn/events/hongkong" target="_blank" ><img title="香港人才招聘官网" alt="香港人才logo" src="http://f.neipin.com/photo/focus_pic/r77UNm0z2r1IlveG.png"></a>
+		</li>
+		<li class="item">
+			<a href="http://www.genduiren.cn/c/17458.html" target="_blank" ><img title="IT桔子招聘官网" alt="IT桔子logo" src="http://f.neipin.com/photo/focus_pic/obvkEkZhMWSxgIgZ.jpg"></a>
+		</li>
+		<li class="item">
+			<a href="http://www.genduiren.cn/c/18499.html" target="_blank" ><img title="神州美味招聘官网" alt="神州美味logo" src="http://f.neipin.com/photo/focus_pic/Ad52gu24B5Ne91ig.jpg"></a>
+		</li>
+		<li class="item">
+			<a href="http://www.genduiren.cn/c/20234.html" target="_blank" ><img title="快看漫画招聘官网" alt="快看漫画logo" src="http://f.neipin.com/photo/focus_pic/bknhgfGlkZT4AfLM.jpg"></a>
+		</li>
+		<li class="item">
+			<a href="http://www.genduiren.cn/c/18310.html" target="_blank" ><img title="映客直播招聘官网" alt="映客直播logo" src="http://f.neipin.com/photo/focus_pic/DZI7R19QZgr98nGz.jpg"></a>
+		</li>
+		<!--<li class="item">
+			<a href="/event/resumetemplate" target="_blank" ><img title="" alt="" src="/images/indexbanner1.jpg"></a>
+		</li>
+		<li class="item">
+			<a href="http://www.genduiren.cn/c/19948.html" target="_blank" ><img title="" alt="" src="/images/indexbanner1.png?v=20160923"></a>
+		</li>
+		<li class="item">
+			<a href="http://www.genduiren.cn/c/20061.html" target="_blank" ><img title="" alt="" src="/images/indexbanner2.png?v=20160923"></a>
+		</li>
+		<li class="item">
+			<a href="http://www.genduiren.cn/c/19976.html" target="_blank" ><img title="" alt="" src="/images/indexbanner3.png?v=20160923"></a>
+		</li>
+		<li class="item">
+			<a href="http://www.genduiren.cn/c/18624.html" target="_blank" ><img title="" alt="" src="/images/indexbanner4.png?v=20160923"></a>
+		</li>
+		<li class="item">
+			<a href="http://www.genduiren.cn/c/18991.html" target="_blank" ><img title="" alt="" src="/images/indexbanner5.png?v=20160923"></a>
+		</li>-->
+	</ul>
+</div>
+			    </div>
+			    <div class="clear"></div>
+			    <!--------推荐主管展示--------->
+			    <div class="manager-box">
+		                <div class="manager-list">
+		                    <a href="/leader/21497.html" target="_blank"><img src="http://f.neipin.com/photo/leader/TDLNACgYnM6nEg7P.jpg" alt="" /></a>
+		                    <p>彭永东</p>
+		                    <div>链家网  ·  CEO </div>
+		                </div>
+		                <div class="manager-list">
+		                    <a href="/leader/21869.html" target="_blank"><img src="http://f.neipin.com/photo/leader/GW0hOtXZ1R17lkn0.png" alt="" /></a>
+		                    <p>程俊</p>
+		                    <div>嗖嗖身边  ·  创始人</div>
+		                </div>
+		                <div class="manager-list">
+		                    <a href="/leader/21126.html" target="_blank"><img src="http://f.neipin.com/photo/leader/abuAobULT7HhR9dZ.jpg" alt="" /></a>
+		                    <p>周磊</p>
+		                    <div>智筹  ·  CEO</div>
+		                </div>
+		                <div class="manager-list">
+		                    <a href="/leader/21500.html" target="_blank"><img src="http://f.neipin.com/photo/leader/9m9Gv2E2GwhoTrs0.jpg" alt="" /></a>
+		                    <p>肖艺能</p>
+		                    <div>费米教育科技  ·  创始人</div>
+		                </div>
+			    </div>
+			</div>
+			
+			<div class="classpartcon">
+				<div class="classpart ">
+					<div class="classpart_title"><span>技术</span>
+		                <a href="/jobs/?mkwd=MySQL" target="_blank" title="MySQL">MySQL</a>
+		                <a href="/jobs/?mkwd=javascript" target="_blank" title="javascript">javascript</a>
+		                <a href="/jobs/?mkwd=java" target="_blank" title="java">java</a>
+		                <a href="/jobs/?mkwd=Oracle" target="_blank" title="Oracle">Oracle</a>
+		                <a href="/jobs/?mkwd=html5" target="_blank" title="html5">html5</a>
+					</div>
+					<!--<div class="classpart-left">
+						<a href="http://www.genduiren.cn/leader/21063.html" target="_blank">
+		            		<img src="/images/user1.png"/>					
+						</a>
+		            </div>-->
+					<div class="classpart-right" id="hj_tech">
+					</div>
+				</div>
+				<div class="classpart">
+					<div class="classpart_title"><span>产品</span>
+		                <a href="/jobs/?mkwd=产品助理" target="_blank" title="产品助理">产品助理</a>
+		                <a href="/jobs/?mkwd=产品经理" target="_blank" title="产品经理">产品经理</a>
+		                <a href="/jobs/?mkwd=CPO" target="_blank" title="CPO">CPO</a>
+		                <a href="/jobs/?mkwd=产品活动策划" target="_blank" title="产品活动策划">产品活动策划</a>
+		                <a href="/jobs/?mkwd=产品总监助理" target="_blank" title="产品总监助理">产品总监助理</a>
+					</div>
+					<!--<div class="classpart-left">
+						<a href="http://www.genduiren.cn/leader/21097.html" target="_blank">
+		            		<img src="/images/user2.png"/>					
+						</a>
+		            </div>-->
+					<div class="classpart-right" id="hj_product">
+					</div>
+				</div>
+				<div class="classpart">
+					<div class="classpart_title"><span>设计</span>
+		                <a href="/jobs/?mkwd=用户体验" target="_blank" title="用户体验">用户体验</a>
+		                <a href="/jobs/?mkwd=UI设计师" target="_blank" title="UI设计师">UI设计师</a>
+		                <a href="/jobs/?mkwd=视觉设计师" target="_blank" title="视觉设计师">视觉设计师</a>
+		                <a href="/jobs/?mkwd=网页设计师" target="_blank" title="网页设计师">网页设计师</a>
+		                <a href="/jobs/?mkwd=交互设计师" target="_blank" title="交互设计师">交互设计师</a>
+					</div>
+					<!--<div class="classpart-left">
+						<a href="http://www.genduiren.cn/leader/21135.html" target="_blank">
+		            		<img src="/images/user3.png"/>					
+						</a>
+		            </div>-->
+					<div class="classpart-right" id="hj_design">
+					</div>
+				</div>
+				<div class="classpart">
+					<div class="classpart_title"><span>运营</span>
+		                <a href="/jobs/?mkwd=数据分析" target="_blank" title="数据分析">数据分析</a>
+		                <a href="/jobs/?mkwd=新媒体运营" target="_blank" title="新媒体运营">新媒体运营</a>
+		                <a href="/jobs/?mkwd=运营专员" target="_blank" title="运营专员">运营专员</a>
+		                <a href="/jobs/?mkwd=文案策划" target="_blank" title="文案策划">文案策划</a>
+		                <a href="/jobs/?mkwd=内容运营" target="_blank" title="内容运营">内容运营</a>
+					</div>
+		            <!--<div class="classpart-left">
+						<a href="http://www.genduiren.cn/leader/21111.html" target="_blank">
+		            		<img src="/images/user4.png"/>					
+						</a>
+		            </div>-->
+		            <div class="classpart-right" id="hj_yunying">
+		            </div>
+		        </div>
+			</div>
+		    <div class="friendlink">
+		    	<div class="friendlinktab">
+		    		<span class="active" borderflag ="1">友情链接</span>
+		    		<span borderflag ="0">站内链接</span>
+		    	</div>
+		    	<div class="friendlinkcon">
+			    	    <a target="_blank" href="http://shpain.cn" title="" style="margin-left:0px;">点子网</a>
+			    	    <a target="_blank" href="http://www.hostucan.cn" title="" style="">IDC点评网</a>
+			    	    <a target="_blank" href="http://www.jzgang.com/" title="" style="">网上兼职</a>
+			    	    <a target="_blank" href="http://www.vchello.com" title="" style="">VChello微投网</a>
+			    	    <a target="_blank" href="http://h2ex.com/" title="" style="">氢网</a>
+			    	    <a target="_blank" href="http://kudouedu.com/" title="" style="">裤兜学院</a>
+			    	    <a target="_blank" href="http://www.ui.cn/" title="" style="">UI中国</a>
+			    	    <a target="_blank" href="http://bj.jiaoyubao.cn/diannao/" title="" style="">北京IT培训</a>
+			    	    <a target="_blank" href="https://www.proginn.com/" title="" style="margin-left:0px;">程序员客栈</a>
+			    	    <a target="_blank" href="http://nanan.597.com/" title="" style="">南安人才网</a>
+			    	    <a target="_blank" href="http://www.job966.com/" title="" style="">沙井辉煌人才市场</a>
+			    	    <a target="_blank" href="http://www.360kjh.com/" title="" style="">会计汇</a>
+			    	    <a target="_blank" href="http://www.datathinking.com/" title="" style="">数据分析招聘</a>
+			    	    <a target="_blank" href="http://www.seoxie.com/" title="" style="">成都SEO</a>
+			    	    <a target="_blank" href="http://www.pt51hr.com/" title="" style="">莆田人才网</a>
+			    	    <a target="_blank" href="http://bing.genduiren.cn/" title="" style="">有求必应</a>
+		    	</div>
+		    </div>
+		</div>
+	</div>
+<div class="footer">
+	<div class="footercon">
+		<div class="footercon-left">
+			<em></em><a href="/about.html" title="关于跟对人" target="_blank">关于我们</a>
+	        <em></em><a href="/reports.html" title="媒体报道" target="_blank">媒体报道</a>
+		</div>
+		<div class='foot_list'>
+	        <span class='about_left wx_pos about_left_wxf'>
+	            <a href="javascript:void(0)" title="">微信服务号</a>
+	            <img src='/img/ma_service.png?v=20160804' />
+	        </span>
+	        <span class='about_left wx_pos about_left_wxd'>
+	            <a href="javascript:void(0)" title="">微信订阅号</a>
+	            <img src='/img/ma_dingyue.png?v=20160804' />
+	        </span>
+	        <span class='about_left about_left_wb'><a target="_blank" rel="nofollow" href="http://weibo.com/neipin2013" title="">新浪微博</a></span>	        
+	        <!--<span class='about_left'><a href="/works/paperlist/" title="牛人开讲" target="_blank">牛人开讲</a></span>-->
+	   </div> 	
+	   
+	    <div class="footerphone">
+	    	<p>客服热线：<span>400-626-3578</span></p>
+	    	<div><span>工作时间：</span><span class="time-right">9:30-19:00/节假日除外</span></div>
+	    	
+	    </div>
+	<div class="clear"></div>
+	</div>
+	<div class="clear"></div>
+	<p class='seap'>京ICP备14004482号-2 版权所有 2016 ©跟对人</p>
+   
+</div>
+
+
+<!--<div class="a_box">
+    <a href="http://qixi.neipin.com/index.html" title="七夕送甜蜜活动" class="activity_icon"></a>
+    <span class='closeBtn'></span>
+</div>-->
+<script type="text/javascript">  
+
+function tou_jobresult(id){
+	window.open("/j/"+id+".html");
+}
+
+$(document).ready(function(){
+    $(".classpart-left a:nth-child(2n)").css({"width":"68px","margin-left":"20px"});
+
+    $("._pel").load("/job/personalinformation");
+    var xian="";
+    if(xian==1){
+    	$('#search_list').slideDown();
+    }   
+    
+    $(".btn_ss").live("click",function(){
+        var keywd = $("#keywd").val();
+        if(keywd != "" && keywd != undefined)
+        {
+            window.location.href = BaseJSURL + "/job/?kwd="+keywd;
+        }
+    });
+
+     $('.hr_sao span').click(function(){
+		$(this).parent('.hr_sao').hide();
+		$('.hsbj').hide();
+	});
+	//	友情链接tab
+	$(".friendlinkcon").eq(0).show();
+	$(".friendlinktab").find("span").click(function(){
+	    headerloadflg="0";
+	    var param = new Object();
+        param.param1 = $(this).text();
+        jQuery.ajax({
+            type : 'post',
+            contentType : 'application/json; charset=utf-8',
+            dataType : 'json',
+            url : BaseJSURL + '/seo/linkdata',
+            data : JSON.stringify(param),
+            success : function(data) {
+                $('.friendlinkcon').html('');
+                $('.friendlinkcon').html(template('youlian', data));
+            }
+        });
+		if(borderflag='0'){
+			$(this).addClass("borderactive");
+		}
+		if(borderflag='1'){
+			$(this).siblings("span").removeClass("borderactive");
+		}
+		$(this).addClass("active");
+		$(this).siblings().removeClass("active");
+	})
+  })
+
+
+function jiazerwm()
+{
+    jQuery.ajax({   
+            type: 'get',   
+            contentType : 'application/json; charset=utf-8',   
+            dataType: 'json',   
+            url: '/qcode/bind', 
+            data: '',   
+            success: function(data){
+                $('.hsbj').show();
+                $("#erweima").attr("src","https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket="+data.ticket);
+                if(ukbn == "0")
+                {
+                    //c
+                    $(".hr_sao").addClass("b_sao");
+                }
+                $('.hr_sao').show();
+            }
+    });
+}
+//$(document).ready(function(){
+//    var erweima_flag = "";
+//     if(erweima_flag =="0" )
+//     {
+//        setTimeout("jiazerwm();", 2000);
+//     }
+   
+//  });
+</script>
+<script id="youlian" type="text/html">
+ <%for (var i=0;i<youlianInfo.length;i++) {%>
+ <a target="_blank" href="<%=youlianInfo[i].url%>" title="" <%if(i%8==0){%>style="margin-left:0px;"<%}%>><%=youlianInfo[i].linkname%></a>
+<%}%>
+</script> 
+<script id="hotjobs" type="text/html">
+<%for (var i=0;i<5;i++) {%>
+<div class="classpart-rightcon" <%if((i+1)%5 ==0){%>style="margin-right:0"<%}%>>
+    <a target="_blank" href="/c/<%=hotjobs[i].companyid%>.html"><img src="http://f.neipin.com/photo/company/<%=hotjobs[i].company_logo%>" alt="" /></a>
+    <div>
+        <p class="p-gsname"><%=hotjobs[i].company_name%></p>    	
+        <a target="_blank" href="/j/<%=hotjobs[i].jobid%>.html"><%=hotjobs[i].jobname%></a>
+        <p class="p-money"><%=hotjobs[i].salary%></p>
+    </div>
+</div>
+<%}%>
+</script>
+<script id="hotcompanys" type="text/html">
+<%for (var i=0;i<result.length;i++) {%>
+<a <%if((i+1)%5 ==0){%>class="width154"<%}%> href="/c/<%=result[i].company_id%>.html" target="_blank">
+    <img alt="" src="http://f.neipin.com/photo/company/<%=result[i].company_logo%>">
+    <div style="display: none;">
+        <p><%=result[i].youshi%></p>
+        <span><%=result[i].jobnum%>个在招职位</span>
+    </div>
+</a>
+<%}%>
+</script>
+<!-- 扫码部分 -->
+<div class='hr_sao' style='display:none;'>
+  <span></span>
+  <img id='erweima' src="" alt="" />  
+</div>
+<style type="text/css">
+	.header {
+		position: fixed;
+		top: 0;
+		left: 0;
+		z-index: 10;
+	}
+	
+	#index a {
+		background: #02c1ff;
+		color: #fff;
+	}
+	.containter {
+		padding-left: 290px;
+		margin-top: 80px;
+		width: 930px;
+	}
+	.qq_zixun,
+	.back_to_top {
+		margin-left: 690px;
+	}
+	.index-search {
+	   display:block;
+	}
+	/*头部首页特殊化*/
+	.header_con {
+		width: 1220px;
+	}
+	.logo-con {
+		width: 245px;
+    	padding-left: 5px;
+	}
+	/*首页底部*/
+	.footercon {
+		width: 1220px;
+	}	
+	.footercon-left {
+		margin-left: 5px;
+	}
+</style>
+<!--更换域名 弹框-->
+<div class="changesite" style="display:none;"><img src="/images/changesite.png" alt="" /><span></span></div>
+<div class="pop_bg65" style="display:none;"></div>
+<!--更换域名 弹框 end-->
+<style type="text/css">
+/*更换域名弹框*/
+	.changesite {
+		position: fixed;
+		z-index: 100;
+		top: 50%;
+		left: 50%;
+		margin-left: -325px;
+		margin-top: -233px;		
+		width: 650px;
+		height: 466px;
+	}
+	.changesite img {
+		width: 580px;
+		margin-top: 8px;		
+	}
+	.changesite span {
+		position: absolute;
+		top: 0;
+		right: 0;
+		width: 40px;
+		height: 40px;
+		cursor: pointer;
+		background: url(/images/close-changesite.png) 0 -40px no-repeat;
+		background-size: 100%;
+	}
+	.changesite span:hover {
+		background: url(/images/close-changesite.png) 0 0 no-repeat;
+		background-size: 100%;
+	}
+	.pop_bg65 {
+	    position: fixed;
+	    z-index: 15;
+	    top: 0;
+	    left: 0;
+	    height: 100%;
+	    width: 100%;
+	    background: url(/images/60.png) 0 0 repeat;		    
+	}
+</style>
+<script type="text/javascript">
+	$(function(){
+	    if(document.getCookie("changesiteflg")!='1'){
+            $(".changesite").show();
+            $(".pop_bg65").show();
+        }
+		$(".changesite").find("span").click(function(){
+			$(this).parents(".changesite").hide();
+			$(".pop_bg65").hide();
+			document.setCookie("changesiteflg","1");
+		})
+	})
+    window.Document.prototype.getCookie=function(name){
+        var cvs=this.cookie;
+        var values=cvs.split(";");
+        var value="";
+        for(var i=0;i<values.length;i++)
+        {
+             var cv=values[i];
+             cv=cv.trim(cv);
+             if(cv.indexOf(name)>=0) {
+                var v = cv.substring(name.length + 1, cv.length);
+                value=v;
+                break;
+            }
+        }
+        return value;
+    }
+</script></body>
+</html>

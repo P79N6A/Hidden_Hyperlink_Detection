@@ -1,0 +1,229 @@
+<!DOCTYPE html><html lang="zh-CN"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+<title>找回账号密码</title>
+	<link rel="stylesheet" href="/WebEplatform/styles/css/wx-mobile.css">
+    <script type="text/javascript" src="/WebEplatform/js/jquery.min.js"></script>
+
+    <script type="text/javascript">
+
+        var xmlObj = XMLHttpRequest;
+        $(function () {
+            if (xmlObj) {
+                XMLHttpRequest = xmlObj;
+            }
+        })
+
+        $(function () {
+            $("select").val("-1");
+
+            var EnableBtn = true;
+            $("#SubBtn").click(function () {
+                try {
+                    if (!EnableBtn)
+                        return;
+                    EnableBtn = false;
+                    
+                    if ($("#prvBox .xzbtn").length > 0) {
+                        EnableBtn = true;
+                        alert("请选择省份!");
+                        return false;
+                    }
+                    if ($("#cityBox .xzbtn").length > 0) {
+                        EnableBtn = true;
+                        alert("请选择城市!");
+                        return false;
+                    }
+                    if ($("#countryBox .xzbtn").length > 0) {
+                        EnableBtn = true;
+                        alert("请选择区县!");
+                        return false;
+                    }
+                    if ($("#schoolBox .xzbtn").length > 0) {
+                        EnableBtn = true;
+                        alert("请选择学校!");
+                        return false;
+                    }
+                    if ($("#SelGrade").val() == "-1") {
+                        EnableBtn = true;
+                        alert("请选择年级");
+                        return false;
+                    }
+                    if ($("#SelClass").val() == "-1") {
+                        EnableBtn = true;
+                        alert("请选择班级");
+                        return false;
+                    }
+                    if ($.trim($("#txtTrueName").val()) == "") {
+                        EnableBtn = true;
+                        alert("请填写姓名");
+                        return false;
+                    }
+                    if ($("#checkcodeBox").length > 0 && $("#txtCheckCode").val() == "") {
+                        EnableBtn = true;
+                        alert("请填写验证码");
+                        return false;
+                    }
+                    alert("只支持查找实验区账号");
+                } catch (e) {
+                    EnableBtn = true;
+                    alert(e);
+                }
+                finally {
+                    EnableBtn = true;
+                }
+            })
+
+
+            $("#SelGrade").change(function () {
+                if ($(".xzbtn").length == 0) {
+                    var Res = RetrieveInfo.ClassRoomList("413F5502F822CEB3", $(this).val());
+                    if (Res == null || Res.value == null || Res.error != null) {
+                        alert("获取班级信息失败!");
+                        return;
+                    }
+                    var strOptionList = '<option value="-1">请选择班级</option>';
+                    for (var i = 0; i < Res.value.Rows.length; i++) {
+                        strOptionList += '<option value="' + Res.value.Rows[i].ID + '">' + Res.value.Rows[i].ClassName + '</option>';
+                    }
+                    $("#SelClass").html(strOptionList);
+                }
+            })
+
+            //更换验证码
+            $("#setImg").click(function () {
+                $("#codeImg").attr("src", "/checkcode.aspx?r=" + Math.random());
+            })
+
+
+            $("#cityBox a").click(function () {
+                if ($("#prvBox .xzbtn").length > 0) {
+                    alert("请选择省份!");
+                    return false;
+                }
+            })
+
+            $("#countryBox a").click(function () {
+                if ($("#cityBox .xzbtn").length > 0) {
+                    alert("请选择城市!");
+                    return false;
+                }
+            })
+
+            $("#schoolBox a").click(function () {
+                if ($("#countryBox .xzbtn").length > 0) {
+                    alert("请选择区县!");
+                    return false;
+                }
+            })
+        })
+    </script>
+</head>
+<body>
+    <form method="post" action="RetrieveInfo.aspx" id="form1">
+<div class="aspNetHidden">
+<input type="hidden" name="__VIEWSTATE" id="__VIEWSTATE" value="/wEPDwUINzExMjgwNzJkZFBsv1PjaVqAj6xvplM49MbUTp/OKKToWQ09JKUQnKIQ">
+</div>
+
+<script type="text/javascript" src="/WebEplatform/ajax/common.ashx"></script><script type="text/javascript" src="/WebEplatform/ajax/WebEplatform.RetrieveInfo,WebEplatform.ashx"></script>
+<div class="aspNetHidden">
+
+	<input type="hidden" name="__VIEWSTATEGENERATOR" id="__VIEWSTATEGENERATOR" value="07B030C3">
+</div>
+    <div class="page" id="page01">
+  <div class="ui-content">
+      
+        <div class="form-groupa border-forma" id="prvBox">
+          <label for="">所在省份：</label>
+          
+                 <div class="inputbd"><a class="xzbtn" href="http://www.safetree.com.cn/WebEplatform/ProvicePage.aspx">选择所在省份</a></div>
+          
+        </div>
+        <div class="form-groupa border-forma" id="cityBox">
+          <label for="url-1">所在城市：</label>
+          
+                 <div class="inputbd"><a class="xzbtn" href="http://www.safetree.com.cn/WebEplatform/CityPage.aspx?prvid=0">选择所在城市</a></div>
+          
+        </div>
+        <div class="form-groupa border-forma" id="countryBox">
+          <label for="url-1">所在区县：</label>
+          
+                 <div class="inputbd"><a class="xzbtn" href="http://www.safetree.com.cn/WebEplatform/CountryPage.aspx?cityid=0">选择所在区县</a></div>
+          
+        </div>
+        <div class="form-groupa border-forma" id="schoolBox">
+          <label for="">所在学校：</label>
+           
+                 <div class="inputbd"><a class="xzbtn" href="http://www.safetree.com.cn/WebEplatform/SchoolPage.aspx?countryid=0">选择所在学校</a></div>
+          
+        </div>
+        <div class="form-groupa">
+          <label for="url-1">所读年级：</label>
+           <div class="inputbd">
+           <select id="SelGrade">
+                <option value="-1">请选择年级</option>
+                <option value="0">幼儿园大班</option>
+                <option value="13">幼儿园小班</option>
+                <option value="14">幼儿园中班</option>
+                <option value="1">一年级</option>
+                <option value="2">二年级</option>
+                <option value="3">三年级</option>
+                <option value="4">四年级</option>
+                <option value="5">五年级</option>
+                <option value="6">六年级</option>
+                <option value="7">初一</option>
+                <option value="8">初二</option>
+                <option value="9">初三</option>
+                <option value="10">高一</option>
+                <option value="11">高二</option>
+                <option value="12">高三</option>
+            </select>
+            </div>
+        </div>
+        <div class="form-groupa">
+          <label for="">所读班级：</label>
+           <div class="inputbd">
+            <select id="SelClass">
+              <option value="-1">请选择班级</option>
+            </select>
+            </div>
+        </div>
+        <div class="form-groupa border-forma">
+          <label for="">真实姓名：</label>
+            <div class="inputbd">
+                <input type="text" class="inputa" placeholder="请输入学生的真实姓名" id="txtTrueName">
+            </div>
+        </div>
+        
+
+        <div class="form-groupa">
+          <div class="inputbd">
+          <label>
+            <input type="checkbox" name="checkbox-0 " id="CheckType">仅找回用户名
+          </label>
+          </div>
+        </div>
+        <div class="form-btn">
+         <button type="button" class="btn btn-submit btn-block" id="SubBtn">提交</button>
+        </div>
+      
+  </div>
+  <div class="ui-footer">
+    <div class="footdiv">
+        <a href="#">版权申明</a>
+    </div>
+    <div class="footdiv">
+        <a href="RetrieveInfo.aspx">找回账号密码</a>
+    </div>
+    <div class="footdiv">
+        <a href="#">帮助中心</a>
+    </div>
+
+</div>
+</div></form>
+    
+    <div style="display:none;">
+<script type="text/javascript" src="http://s6.cnzz.com/stat.php?id=2583451&amp;web_id=2583451"></script><script src="http://c.cnzz.com/core.php?web_id=2583451&amp;t=z" charset="utf-8" type="text/javascript"></script><a href="http://www.cnzz.com/stat/website.php?web_id=2583451" target="_blank" title="站长统计">站长统计</a></div>
+
+
+</body></html>

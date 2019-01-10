@@ -1,0 +1,1009 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head>
+    <base href="http://www.cmread.com:80/wenxue/">
+    <title>回到村里做土豪_回到村里做土豪最新章节全文阅读_米泉_咪咕文学网</title>
+    <meta http-equiv="keywords" content="回到村里做土豪，回到村里做土豪最新章节，回到村里做土豪全文阅读">
+    <meta http-equiv="description" content="《回到村里做土豪》是一部都市小说，由作者米泉精心创作，咪咕文学网第一时间首发更新并提供《回到村里做土豪》最新章节以及《回到村里做土豪》全文阅读，更多更好的小说尽在咪咕文学网">
+    <link rel="stylesheet" type="text/css" href="style/herder.css?v=20170118001">
+    <link rel="stylesheet" type="text/css" href="style/bookinfo.css?v=20170118001">
+    <script src="//hm.baidu.com/hm.js?73d43bb26b21cd7a969230ada4cd2f1d"></script><script type="text/javascript" src="js/jquery.min.js"></script>
+    <script type="text/javascript" src="js/input.js"></script>
+    <script type="text/javascript" src="js/jquery.qqFace.js"></script>
+    <script type="text/javascript">
+        $(function () {
+            /* 等级 */
+            $(".bar div").animate({width: "3%"}, 800);
+            var lv_name = ["文坛新秀", "小有武艺", "出类拔萃", "技冠群雄", "超凡入圣", "登峰造极"];//等级名称
+            var lv;//作者等级
+            lv = "1";
+            $("div.rank").css("background", "url(images_2/lv/LV" + lv + "_2.png) no-repeat right");
+            $("div.rank .lv").find("img").attr("src", "images_2/lv/LV" + lv + "_1.png");
+            $("div.rank .bar").find("div").css("background", "url(images_2/lv/LV" + lv + "_3.png) no-repeat right");
+            $("div.rank ").attr("title", lv_name[lv - 1]);
+
+            /* 评论表情 */
+            $(".expression").qqFace({
+                id: 'facebox',
+                assign: 'saytext',
+                path: 'images_2/qqFace/'//表情存放的路径
+            });
+
+            /* 搜索图书 */
+            $("div.search .option").hover(function () {
+                $(this).find(".option_list").slideDown(300);
+            }, function () {
+                $(this).find(".option_list").hide();
+            });
+            $(".option .option_list ul li").click(function () {
+                var text = $(this).html();
+                $("div.search .option").find("span").html(text);
+                $("div.search .option").find("span").attr("val", $(this).attr("val"));
+                $(".option_list").hide();
+            });
+
+            $("input[name='keyWords']").keydown(function (e) {
+                if (e.keyCode == 13) {
+                    findBook();
+                }
+            });
+
+            var inputword = "输入您要找的书名或者作者";
+            $("input[name='keyWords']").val(inputword).bind("focus", function () {
+                if ($(this).val() == "输入您要找的书名或者作者") {
+                    $(this).attr("class", "search_input");
+                    $(this).val("");
+                }
+            }).bind("blur", function () {
+                if ($(this).val() == "") {
+                    $(this).attr("class", "search_input blur");
+                    $(this).val("输入您要找的书名或者作者");
+                }
+            });
+            $("#search").click(function () {
+                findBook();
+            });
+            /* 搜索图书结束 */
+
+            /* 新增书评 */
+            $("#submitButton").click(function () {
+                var baoqings = $("#saytext").val().match(/\[em_([0-9]*)\]/g);//表情
+                if (baoqings != null) {
+                    var baoqing_num = baoqings.length;//表情个数
+                    if (baoqing_num > 20) {
+                        Alert("表情个数超过20个!!!");
+                        return false;
+                    }
+                }
+                var userid = "";
+                if (!userid) {
+                    Alert("请登录后在评论!!!");
+                    return false;
+                }
+                var bookid = $("div.form input[name='bookid']").val();
+                var comtTitle = $("div.form div input[name='comtTitle']").val().replace(/\s/g, "");
+                var comtText = $("div.form div textarea").val().replace(/\s/g, "");
+
+                if (comtTitle == "请输入标题" || comtTitle.length < 1) {
+                    Alert("请输入标题！");
+                } else if (comtText == "请输入内容" || comtText.length < 1) {
+                    Alert("请输入内容！");
+                } else if (replace_em_2(comtText).length > 500) {
+                    Alert("输入内容不能超过500个字！");
+                } else {
+                    //将图片替换成路径
+                    comtText = replace_em(comtText);
+                    $.post("muntual/add.htm", {
+                        bookId: bookid,
+                        comtTitle: comtTitle,
+                        comtText: comtText,
+                        csrf_token: "0cb2a7d4-51d6-449a-a3cf-842f6863c618"
+                    }, function (data) {
+                        $("div.Review h2 span.FR").html("共" + data.totalNum + "条评论");
+                        var html = "";
+                        for (var i = 0; i < data.result.length; i++) {
+                            html += "<div class='Review_list'><div class='portrait'>" +
+                                    "<a href='#'><img src= '" + data.result[i].namePath + "' alt='' width='50' height='50'></a></div>" +
+                                    "<div class='con'> <div class='title_con'>" + data.result[i].comtTitle + "</div>" +
+                                    "<p class='uname'><a>" + data.result[i].nickName + "</a>说：</p>" +
+                                    "<div class='text'> " + data.result[i].comtText + " </div>" +
+                                    "<p class='time'>" + data.result[i].strComtTime + "</p></div>" +
+                                    "<div style='clear: both'></div></div>";
+                        }
+                        $("div.Review_con").html("");
+                        $("div.Review_con").html(html);
+                        Alert("评论成功！");
+                        $("div.form div input[name='comtTitle']").attr("class", "title blur").val("请输入标题");
+                        $("div.form div textarea").attr("class", "title blur").val("请输入内容");
+                        $("#words_num").html(500);
+                    }, "json");
+                }
+            });
+            /* 新增书评结束 */
+            $(".btn_list>ul>li").last().css("border-right", "none");
+            $("div.search .option").hover(function () {
+                $(this).find(".option_list").slideDown(300);
+            }, function () {
+                $(this).find(".option_list").hide();
+            });
+            $(".option .option_list ul li").click(function () {
+                var text = $(this).html();
+                $("div.search .option").find("span").html(text);
+                $(".option_list").hide();
+            });
+            $(".ranking ul li div.book span.FR").click(function () {
+                var $medal = $(this).parent().siblings("div.medal");
+                if ($medal.is(":hidden")) {
+                    $medal.slideDown(300);
+                } else {
+                    $medal.slideUp(300);
+                }
+            });
+
+            var authorId = "14774649597902";
+            var bookId = "14774649968266";
+            //作者的其他作品
+            $.post("book/otherBooksAjax.htm", {authorId: authorId}, function (data) {
+                var html = "";
+                if (data.result && data.result.length > 1) {
+                    for (var i = 0; i < data.result.length; i++) {
+                        if (bookId != data.result[i].bookId) {
+                            html += "<li>" +
+                                    "<a href='book/search.htm?booktypeId=" + data.result[i].booktypeId + "'>[" + data.result[i].nameType + "]</a>" +
+                                    "<a href ='book/" + data.result[i].bookId + "/index.htm' title='" +
+                                    data.result[i].bookName + "'><span>" + data.result[i].shortBookName10 +
+                                    "</span></a></li>";
+                        }
+                    }
+                } else {
+                    $("div.other_book").html("");
+                }
+                $("div.other_book ul").html("");
+                $("div.other_book ul").html(html);
+            }, "json");
+            //获取图书的打赏记录
+            $.post("monthly/rewardLogAjax.htm", {bookId: bookId}, function (data) {
+                var html = "";
+                if (data.result) {
+                    for (var i = 0; i < data.result.length; i++) {
+                        if (data.result[i].rewardType == "m") {
+                            html += "<li><a>" + data.result[i].nickname + "</a>打赏了" + data.result[i].reward_monthly + "张月票</li>";
+                        } else if (data.result[i].rewardType == "j") {
+                            html += "<li><a>" + data.result[i].nickname + "</a>打赏了" + data.result[i].reward_monthly + "金币</li>";
+                        }
+                    }
+                }
+                $("div.btn_list div ul").html(html);
+                /* 滚动打赏滚动 */
+                scroll_News();
+            }, "json");
+        });
+
+        // 搜索
+        function findBook() {
+            var keyWords = $("input[name='keyWords']").val();
+            if (!keyWords || keyWords == "输入您要找的书名或者作者") {
+                Alert("请输入搜索词");
+                return false;
+            }
+            var type = $("div.search .option").find("span").attr("val");
+            $("input[name='type']").val(type);
+            $("#form").submit();
+        }
+
+        // 滚动打赏滚动 
+        function scroll_News() {
+            var $this = $(".btn_list div.FL");
+            var index = $(".btn_list div.FL ul li").index() + 1;
+            var scrollTimer;
+            $this.hover(function () {
+                clearInterval(scrollTimer);
+            }, function () {
+                if (index > 2) {
+                    scrollTimer = setInterval(function () {
+                        scrollNews($this);
+                    }, 2000);
+                }
+            }).trigger("mouseleave");
+        }
+
+        // 滚动
+        function scrollNews(obj) {
+            var $self = obj.find("ul:first");
+            var lineHeight = $self.find("li:first").height(); //获取行高
+            $self.animate({"marginTop": -lineHeight + "px"}, 600, function () {
+                $self.css({marginTop: 0}).find("li:first").appendTo($self); //appendTo能直接移动元素
+            });
+        }
+
+        // 打赏作者
+        function goldshow() {
+            Modal({
+                name: 'gold',
+                sureCb: function() {
+                    var userid = '';
+                    if (userid) {
+                        var $modal = $('.modal.gold');
+                        var rewardMsg = $modal.find('textarea[name="message"]').val();
+                        var rewardMoney = $modal.find('input[name="rewardMoney"]:checked').val();
+                        var bookid = $('div.form input[name="bookid"]').val();
+                        if (rewardMsg) {
+                            $.post('useraa/awardMoneyAjax.htm', {
+                                bookid: bookid,
+                                rewardMoney: rewardMoney,
+                                rewardMsg: rewardMsg
+                            }, function (data) {
+                                if (data == '恭喜您,打赏成功') {
+                                    // 获取图书的打赏记录
+                                    $.post("monthly/rewardLogAjax.htm", {
+                                        bookId: bookid
+                                    }, function (data) {
+                                        var html = '';
+                                        if (data.result) {
+                                            for (var i = 0; i < data.result.length; i++) {
+                                                if (data.result[i].rewardType == 'm') {
+                                                    html += '<li><a>' + data.result[i].nickname + '</a>打赏了' + data.result[i].reward_monthly + '张月票</li>';
+                                                } else if (data.result[i].rewardType == "j") {
+                                                    html += '<li><a>' + data.result[i].nickname + '</a>打赏了' + data.result[i].reward_monthly + '金币</li>';
+                                                }
+                                            }
+                                        }
+                                        $('div.btn_list div ul').html(html);
+
+                                        // 滚动打赏滚动
+                                        scroll_News();
+                                    }, 'json');
+                                    return true;
+                                }
+                                Alert(data);
+                                return false;
+                            });
+                        } else {
+                            Alert('说点鼓励作者的话吧!!!');
+                            return false;
+                        }
+                    } else {
+                        Alert('您还未登录,请登录后在进行打赏金币...');
+                        return false;
+                    }
+                }
+            });
+
+            var $modal = $('.modal.gold');
+            $modal.find('input[name="rewardMoney"]').eq(0).prop('checked', 'checked');
+            $modal.find('textarea[name="message"]').val('这本书实在是太好了,我决定打赏作品支持下!!!');
+
+            // 获取金币
+            $.post('account/userBalanceAjax.htm', function (data) {
+                $('#gold_money').html('您还剩余' + data[0].money + '金币');
+            }, 'json');
+        }
+
+        // 打赏月票
+        function monthlyshow() {
+            Modal({
+                name: 'monthly',
+                sureCb: function() {
+                    var userid = '';
+                    if (userid) {
+                        var $modal = $('.modal.monthly');
+                        var rewardMsg = $modal.find('textarea[name="message"]').val();
+                        var rewardMonthly = $modal.find('input[name="rewardMonthly"]:checked').val();
+                        var bookid = $('div.form input[name="bookid"]').val();
+                        if (rewardMsg) {
+                            $.post('useraa/awardMonthlyAjax.htm', {
+                                bookid: bookid,
+                                rewardMonthly: rewardMonthly,
+                                rewardMsg: rewardMsg
+                            }, function (data) {
+                                if (data == '恭喜您,打赏成功') {
+                                    // 获取图书的打赏记录
+                                    $.post('monthly/rewardLogAjax.htm', {
+                                        bookId: bookid
+                                    }, function (data) {
+                                        var html = '';
+                                        if (data.result) {
+                                            for (var i = 0; i < data.result.length; i++) {
+                                                if (data.result[i].rewardType == "m") {
+                                                    html += "<li><a>" + data.result[i].nickname + "</a>打赏了" + data.result[i].reward_monthly + "张月票</li>";
+                                                } else if (data.result[i].rewardType == "j") {
+                                                    html += "<li><a>" + data.result[i].nickname + "</a>打赏了" + data.result[i].reward_monthly + "金币</li>";
+                                                }
+                                            }
+                                        }
+                                        $('div.btn_list div ul').html(html);
+
+                                        // 滚动打赏滚动
+                                        scroll_News();
+                                    }, 'json');
+                                    return true;
+                                }
+                                Alert(data);
+                                return false;
+                            });
+                        } else {
+                            Alert('说点鼓励作者的话吧!!!');
+                            return false;
+                        }
+                    } else {
+                        Alert('您还未登录,请登录后在进行打赏月票...');
+                        return false;
+                    }
+                }
+            });
+
+            var $modal = $('.modal.monthly');
+            $modal.find('input[name="rewardMonthly"]').eq(0).prop('checked', 'checked');
+            $modal.find('textarea[name="message"]').val('这本书实在是太好了,我决定投票作品支持下!!!');
+
+            // 获取月票
+            $.post('account/userBalanceAjax.htm', function (data) {
+                $('#gold_nummonth').html('您还剩余月票' + data[0].monthly + '张');
+            }, 'json');
+        }
+
+        // 加入书架
+        function toRack() {
+            $.get('/wenxue/rack/14774649968266.htm?dd=' + new Date(), function (data) {
+                if (data == '您还没登录') {
+                    Alert(data);
+                } else if (data == '您书架已有此书，请到书架查看') {
+                    Confirm({
+                        content: '您书架已有此书，确定前往书架查看？',
+                        sureCb: function() {
+                            window.location.href = '/wenxue/user/list.htm';
+                        }
+                    });
+                } else {
+                    Alert(data);
+                }
+            }, 'json');
+        }
+
+        // 将图片替换成路径
+        function replace_em(str) {
+            str = str.replace(/\</g, '&lt;');
+            str = str.replace(/\>/g, '&gt;');
+            str = str.replace(/\n/g, '<br/>');
+            str = str.replace(/\[em_([0-9]*)\]/g, '<img src="images_2/qqFace/$1.gif" border="0" />');
+            return str;
+        }
+
+        // 内容字数判断
+        function textdown() {
+            var text = $("#saytext");
+            var text_val = replace_em_2(text.val());
+            if (text_val.length > 500) {
+                $("#words_num").html("0(超出" + (text_val.length - 500) + "个字）");
+            } else {
+                $("#words_num").html(500 - text_val.length);
+            }
+        }
+
+        // 过滤表情
+        function replace_em_2(str) {
+            str = str.replace(/\</g, '&lt;');
+            str = str.replace(/\>/g, '&gt;');
+            str = str.replace(/\n/g, '<br/>');
+            str = str.replace(/\s*/g, "");
+            str = str.replace(/\[em_([0-9]*)\]/g, '');
+            return str;
+        }
+
+        
+    </script>
+</head>
+<body>
+
+
+
+<link rel="stylesheet" type="text/css" href="style/herder.css?v=20170118001">
+<script>
+    //百度统计代码
+    var _hmt = _hmt || [];
+    (function () {
+        var hm = document.createElement("script");
+        hm.src = "//hm.baidu.com/hm.js?73d43bb26b21cd7a969230ada4cd2f1d";
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(hm, s);
+    })();
+    function addFavorite2() {
+        var url = window.location;
+        var title = document.title;
+        var ua = navigator.userAgent.toLowerCase();
+        if (ua.indexOf("360se") > -1) {
+            Alert("由于360浏览器功能限制, 请按 Ctrl+D 手动收藏!");
+        } else if (ua.indexOf("msie 8") > -1) {
+            window.external.AddToFavoritesBar(url, title); //IE8
+        } else if (document.all) {
+            try {
+                window.external.addFavorite(url, title);
+            } catch (e) {
+                Alert('您的浏览器不支持, 请按 Ctrl+D 手动收藏!');
+            }
+        } else if (window.sidebar) {
+            window.sidebar.addPanel(title, url, "");
+        } else {
+            Alert('您的浏览器不支持, 请按 Ctrl+D 手动收藏!');
+        }
+    }
+</script>
+<!--header-->
+<div class="head">
+    <div class="header">
+        <a href="jsp/user/login.jsp" class="FL" style="margin-top:5px;">
+            <img src="images/logo3.png" alt="咪咕文学网" height="80">
+        </a>
+        <div class="header_r">
+            <div class="header_r_t">
+                
+                
+                    <div class="login FR"><a href="user/goLogin.htm">登录</a>|<a href="user/addWinUser.htm">注册</a></div>
+                
+                <a class="FR collect" onclick="javascript:addFavorite2()">收藏咪咕</a>
+            </div>
+            <ul>
+                <li class="newtips"><a href="jsp/landing/newtips.jsp">新功能指南</a></li>
+                <li class="newtips"><a href="javascript:;" class="btn-contribute">我要投稿</a></li>
+                <li><a href="jsp/user/login.jsp">首页</a></li>
+                <!-- <li><a href="jsp/lasting/server.jsp">服务介绍</a></li> -->
+                <!-- <li><a href="book/contribute.htm">投稿区</a></li> -->
+                <!-- <li><a href="book/search.htm">原创书库</a></li> -->
+                
+                
+                <li>
+                    <a href="user/announcement.htm">公告</a>
+                </li>
+                <!-- <li><a href="jsp/notice/welfare.jsp">咪咕福利</a></li>
+                <li><a href="jsp/user/activity.jsp" target="_blank">活动专区</a></li>
+                <li><a href="jsp/lasting/mxsc.jsp" target="_blank">梦想书城</a></li> -->
+            </ul>
+        </div>
+    </div>
+</div>
+<div class="nav">
+    
+</div>
+
+<div class="banner">
+    <a><img src="images/banner.jpg" alt=""></a>
+</div>
+<!--书库-->
+<div class="bookdetails">
+    <div class="details_title">
+        <h2 class="FL"><span class="FL">回到村里做土豪</span>
+            
+                <img src="images_2/img_91.jpg" height="20" style="margin-top:6px;" alt="连载中" class="FL">
+            
+            
+        </h2>
+        <div class="search FR">
+            <div class="option">
+                <div class="option">
+                    <span val="4">综合</span><img src="images/img_84.jpg" alt="">
+                    <div class="option_list hide">
+                        <ul>
+                            <li val="4">综合</li>
+                            <li val="2">作者</li>
+                            <li val="1">书名</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <form id="form" action="book/search.htm" method="POST">
+                <input name="keyWords" type="text" class="search_input blur" value="输入您要找的书名或者作者">
+                <input type="hidden" name="type" value="">
+                <a class="FR" id="search">搜索</a>
+            </form>
+        </div>
+        <div class="clear"></div>
+    </div>
+    <div class="bookdetails_l FL">
+        <div class="book_info">
+            <div class="cover">
+                <a href="book/14774649968266/index.htm" title="回到村里做土豪">
+                    <img src="book/showBookImgAjax.htm?bookid=14774649968266" alt="回到村里做土豪" width="156" height="222">
+                </a>
+            </div>
+            <div class="info">
+                <h3>
+                    <a href="#">首页</a> &gt;
+                    <a href="book/search.htm?booktypeId=14031448252945">都市</a> &gt;
+                    <a href="book/14774649968266/index.htm" class="bookname">回到村里做土豪</a>
+                </h3>
+                <div class="statistical">
+                    <span class="span_1">总月票：<span>0</span></span>
+                    <!-- <span class="span_2">总收藏：<span>865</span></span> -->
+                    <span class="span_3">点击数：<span>7347</span></span>
+                    <span class="span_4">总字数：<span>817238</span></span>
+                </div>
+                <div class="medal">
+                    <span>作品勋章：</span>
+                    
+                    
+                        <a href="jsp/lasting/medalList.jsp#linkBook" style="color: #999;">如何获取？</a>
+                    
+                </div>
+                
+                <div class="jianjie">
+                    <p><span>简介：</span>
+                    小屌丝公共汽车上勇斗咸猪手，意外获得了一个神奇的小宝塔，回到农村承包山岭，搞种植，建农庄，爬爬山，钓钓鱼，泡泡妹子，睡觉睡到自然醒，数钱数到手抽筋，大块吃肉，大碗喝酒，嗯！这才是生活。</p>
+                </div>
+                
+                    <div class="biqoqian">
+                        <p><span>作品标签：</span>
+                            
+                                <span>励志</span>
+                            
+                                <span>奋斗</span>
+                            
+                                <span>乡村</span>
+                            
+                                <span>爽文</span>
+                            
+                                <span>种田</span>
+                            
+                        </p>
+                    </div>
+                
+            </div>
+            <div class="clear"></div>
+            <div class="btn_list">
+                <div class="FL">
+                    <ul></ul>
+                </div>
+                <ul class="FR">
+                    <li><a onclick="goldshow()"><img src="images_2/img_97.jpg" alt="打赏作者"></a></li>
+                    <li><a onclick="monthlyshow()"><img src="images_2/img_98.jpg" alt="打赏月票"></a></li>
+                    <li><a onclick="toRack()"><img src="images_2/img_99.jpg" alt="加入书架"></a></li>
+                    <li style="border-right-style: none; "><a href="chapte/14774649968266/list.htm"><img src="images_2/img_100.jpg" alt="开始阅读"></a></li>
+                </ul>
+            </div>
+        </div>
+        <!--最新章节-->
+        <div class="newChapter">
+            <h2>最新章节</h2>
+            
+                <div class="Chapter_name">
+                    <a href="chapte/14909283068639/readBook.htm">第三百七十六章 生命在于运动
+                        <img alt="收费章节" src="images/VIP.jpg">
+                    </a>
+                    <span>更新时间：</span>2017-04-01 23:42:18</div>
+                <p></p><p>孙小平带着制作桃花蜜露养颜高的材料和食物处理机出了空间。</p><p></p><p>他把食物处理机器的插头插到洗手间墙壁的插座上面，接通了电源。</p><p></p><p>接着他端着那个装花瓣地盆子，把桃花花瓣和雪莲花瓣均仔细地放进食物处理机里面，加上少许空间泉水和太岁水。</p><p></p><p>一切妥当以后，他就打开了食物处理机的电源开关。</p><p></p><p>里面的切刀飞速地旋转起来，把花瓣打磨成浆。</p><p></p><p>很快，食物处理机里面的花...</p>
+                <div class="btn">
+                    <a href="chapte/14774649968266/list.htm"><img src="images_2/img_103.jpg" alt="目录"></a>
+                    <a href="chapte/14909283068639/readBook.htm"><img src="images_2/img_102.jpg" alt="阅读此章节"></a>
+                </div>
+            
+            
+        </div>
+        <!-- 书评区 -->
+        <div class="Review">
+            <h2><span class="FL">书评区</span><span class="FR">共1条评论</span></h2>
+            <div class="comment_box"><!--comment_box-->
+                <div class="portrait FL">
+                    
+                    
+                        <a><img src="user/showHeadImgAjax.htm" width="50" height="50" alt=""></a>
+                    
+                </div>
+                <form action="" method="post">
+                    <div class="form">
+                        <input type="hidden" name="bookid" id="bookid" value="14774649968266">
+                        <div>
+                            <input name="comtTitle" type="text" value="请输入标题" class="title blur" style="width: 400px;" maxlength="35">
+                        </div>
+                        <div class="textarea">
+                            <textarea name="comtText" rows="" id="saytext" class="text blur" onkeydown="textdown()" onkeyup="textdown()">请输入内容</textarea>
+                        </div>
+                        <div class="btn">
+                            <a class="expression">表情</a>
+                            <div class="FR">
+                                <!--  <span class="FL">请输入验证码：</span>
+                                 <input class="W80 FL" type="text"/>
+                                 <img class="FL" src="images/img_47.jpg" alt=""> -->
+                                <div class="FL" style="margin-left:10px;">还能输入<span id="words_num">500</span>字</div>
+                                <input id="submitButton" class="sub_btn" type="button" value="提交">
+                            </div>
+                        </div>
+                    </div>
+                </form>
+                <div class="clear"></div>
+            </div> <!--comment_box end-->
+            <div class="Review_tab">
+                <span class="FL"><img src="images_2/img_105.jpg" alt="书评区"></span>
+                <div class="FR">
+                    <ul>
+                        <!-- <li>热门评论</li> -->
+                        <li>最新评论</li>
+                    </ul>
+                </div>
+                <div class="line"></div>
+            </div>
+            <div class="Review_con"><!-- Review_con -->
+                
+                    
+                        <div class="Review_list"><!--Review_list-->
+                            <div class="portrait">
+                                <a href="#">
+                                    <img src="user/showHeadImgAjax.htm?uid=14774649996057" width="50" height="50" alt="书友|枫叶红">
+                                </a>
+                            </div>
+                            <div class="con">
+                                <div class="title_con">新书要支持</div>
+                                <p class="uname"><a>书友|枫叶红</a>说：</p>
+                                <div class="text">作者描写朴实，作品读来顺畅！看起来前途大大的有。。。</div>
+                                <p class="time">2016-10-31 12:52:27<!-- <a class="reply">回复(0)</a> --></p>
+                            </div>
+                            <div class="clear"></div>
+                        </div>
+                    
+                
+            </div>
+        </div>
+    </div>
+    <!--作者信息-->
+    <div class="bookdetails_r FR">
+        <div class="author_info">
+            <div class="portrait FL">
+                <img src="user/showHeadImgAjax.htm" alt="米泉">
+            </div>
+            <div class="info">
+                <div class="uname">米泉</div>
+                <div class="rank" title="文坛新秀" style="background-image: url(http://www.cmread.com/wenxue/images_2/lv/LV1_2.png); background-position: 100% 50%; background-repeat: no-repeat no-repeat; ">
+                    <div class="bar">
+                        <div style="width: 3%; background-image: url(http://www.cmread.com/wenxue/images_2/lv/LV1_3.png); background-position: 100% 50%; background-repeat: no-repeat no-repeat; "></div>
+                    </div>
+                    <div class="lv"><img src="images_2/lv/LV1_1.png" alt="等级"></div>
+                    <div class="bar_num">3%</div>
+                </div>
+            </div>
+            <div class="clear"></div>
+            <div class="title title_2">作家勋章</div>
+            <div class="Medal_list">
+                
+            </div>
+            <div class="other_book"></div>
+            <div class="ranking">
+                <h3>人气榜单</h3>
+                <ul>
+                    
+                        
+                            <li>
+                                <div class="book">
+                                    
+                                        <span class="num red"><span>0</span>1</span>
+                                    
+                                    
+                                    
+                                    
+                                    <a href="book/14770386437993/index.htm" title="重生之神秘阔少逐爱记"><span>重生之神秘阔少..</span></a>
+                                    
+                                </div>
+                                <div class="medal">
+                                    
+                                    <div class="clear"></div>
+                                </div>
+                                <div class="clear"></div>
+                            </li>
+                        
+                            <li>
+                                <div class="book">
+                                    
+                                        <span class="num red"><span>0</span>2</span>
+                                    
+                                    
+                                    
+                                    
+                                    <a href="book/14719442067221/index.htm" title="绝品透视高手"><span>绝品透视高手</span></a>
+                                    
+                                </div>
+                                <div class="medal">
+                                    
+                                    <div class="clear"></div>
+                                </div>
+                                <div class="clear"></div>
+                            </li>
+                        
+                            <li>
+                                <div class="book">
+                                    
+                                        <span class="num red"><span>0</span>3</span>
+                                    
+                                    
+                                    
+                                    
+                                    <a href="book/14189788883786/index.htm" title="校园狂徒"><span>校园狂徒</span></a>
+                                    
+                                </div>
+                                <div class="medal">
+                                    
+                                    <div class="clear"></div>
+                                </div>
+                                <div class="clear"></div>
+                            </li>
+                        
+                            <li>
+                                <div class="book">
+                                    
+                                    
+                                        <span class="num"><span>0</span>4</span>
+                                    
+                                    
+                                    
+                                    <a href="book/14695884886090/index.htm" title="星纹大帝"><span>星纹大帝</span></a>
+                                    
+                                </div>
+                                <div class="medal">
+                                    
+                                    <div class="clear"></div>
+                                </div>
+                                <div class="clear"></div>
+                            </li>
+                        
+                            <li>
+                                <div class="book">
+                                    
+                                    
+                                        <span class="num"><span>0</span>5</span>
+                                    
+                                    
+                                    
+                                    <a href="book/14642321787917/index.htm" title="异能小村长"><span>异能小村长</span></a>
+                                    
+                                </div>
+                                <div class="medal">
+                                    
+                                    <div class="clear"></div>
+                                </div>
+                                <div class="clear"></div>
+                            </li>
+                        
+                            <li>
+                                <div class="book">
+                                    
+                                    
+                                        <span class="num"><span>0</span>6</span>
+                                    
+                                    
+                                    
+                                    <a href="book/14678780602682/index.htm" title="BOSS驾临：亲亲老婆不要躲"><span>BOSS驾临：亲亲..</span></a>
+                                    
+                                </div>
+                                <div class="medal">
+                                    
+                                    <div class="clear"></div>
+                                </div>
+                                <div class="clear"></div>
+                            </li>
+                        
+                            <li>
+                                <div class="book">
+                                    
+                                    
+                                        <span class="num"><span>0</span>7</span>
+                                    
+                                    
+                                    
+                                    <a href="book/14544864528674/index.htm" title="神涯木道"><span>神涯木道</span></a>
+                                    
+                                </div>
+                                <div class="medal">
+                                    
+                                    <div class="clear"></div>
+                                </div>
+                                <div class="clear"></div>
+                            </li>
+                        
+                            <li>
+                                <div class="book">
+                                    
+                                    
+                                        <span class="num"><span>0</span>8</span>
+                                    
+                                    
+                                    
+                                    <a href="book/14619199919739/index.htm" title="鬼兄，我打劫"><span>鬼兄，我打劫</span></a>
+                                    
+                                </div>
+                                <div class="medal">
+                                    
+                                    <div class="clear"></div>
+                                </div>
+                                <div class="clear"></div>
+                            </li>
+                        
+                            <li>
+                                <div class="book">
+                                    
+                                    
+                                        <span class="num"><span>0</span>9</span>
+                                    
+                                    
+                                    
+                                    <a href="book/14770396582716/index.htm" title="女总裁的妖孽保镖"><span>女总裁的妖孽保..</span></a>
+                                    
+                                </div>
+                                <div class="medal">
+                                    
+                                    <div class="clear"></div>
+                                </div>
+                                <div class="clear"></div>
+                            </li>
+                        
+                            <li>
+                                <div class="book">
+                                    
+                                    
+                                    
+                                        <span class="num">10</span>
+                                    
+                                    
+                                    <a href="book/14678780072630/index.htm" title="绝世神皇"><span>绝世神皇</span></a>
+                                    
+                                </div>
+                                <div class="medal">
+                                    
+                                    <div class="clear"></div>
+                                </div>
+                                <div class="clear"></div>
+                            </li>
+                        
+                    
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="clear"></div>
+</div>
+<!--footer-->
+
+
+<link rel="stylesheet" type="text/css" href="css/footer.css?v=20170222001">
+<link rel="stylesheet" type="text/css" href="style/modal.css?v=20170118003">
+<script type="text/javascript" src="js/modal.js?v=20170206001"></script>
+<div class="footer">
+    <p class="p_2"><span style="font-family:Arial">©</span>2015 wx.cmread.com All Rights Reserved 咪咕文学版权所有(16.12) </p>
+    <p class="p_2">都市小说、玄幻小说、言情小说等在线创作网站，未经许可不得擅自转载本站内容。</p>
+    <p class="p_2">浙ICP备15004899号-1 | 咪咕数字传媒有限公司</p>
+    <div class="footer_con">
+        <p class="p_2">本站所收录作品、社区话题、书库评论及本站所做之广告均属其个人行为，与本站立场无关</p>
+        <p class="p_2">请所有作者发布作品时务必遵守国家互联网信息管理办法规定，我们拒绝任何色情小说，一经发现，即作删除！</p>
+    </div>
+</div>
+<!-- 遮罩 -->
+<div class="modal-backdrop"></div>
+<!-- 确认框-小 -->
+<div class="modal" data-type="confirm">
+    <div class="modal-dialog small">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="modal-title">提示</span>
+                <span class="modal-close"></span>
+            </div>
+            <div class="modal-body">内容</div>
+            <div class="modal-footer">
+                <div class="btn btn-sure">确定</div>
+                <div class="btn btn-cancel">取消</div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- 提示框-小 -->
+<div class="modal" data-type="alert">
+    <div class="modal-dialog small">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="modal-title">提示</span>
+                <span class="modal-close"></span>
+            </div>
+            <div class="modal-body">内容</div>
+        </div>
+    </div>
+</div>
+<!-- 摸态框-投稿须知 -->
+<div class="modal contribute" data-type="modal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="modal-title">提示</span>
+                <span class="modal-close"></span>
+            </div>
+            <div class="modal-body">
+                <p>1. 您的投稿在编辑签约审核通过前均免费开放给读者.</p>
+                <p>2. 您的投稿字数一旦满足要求（女频满2万，男频、出版、次元满足3000），将会自动分配编辑审核，并在5个工作日内审核完毕.</p>
+                <p>3. 审核结果会以短信告知，有问题请联系QQ：女频 3414781464 男频 1149815048 次元 2376082746 出版 983132589.</p>
+                <p>4. 请尽快在作家专区里补齐个人资料，以免影响您的作品签约.</p>
+            </div>
+            <div class="modal-footer">
+                <a class="btn btn-sure" href="book/0/edit.htm">确定</a>
+                <div class="btn btn-cancel">关闭</div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- 打赏作者 -->
+<div class="modal gold" data-type="modal">
+    <div class="modal-dialog large">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="modal-title">打赏作者</span>
+                <span class="modal-close"></span>
+            </div>
+            <div class="modal-body">
+                <div class="margin-auto">
+                    <!-- 打赏提示 -->
+                    <div class="row">
+                        <div class="hint-img" data-for="reward"></div>
+                    </div>
+                    <div class="row">
+                        <strong id="gold_money">您还剩余0金币</strong>
+                    </div>
+                    <div class="row">
+                        <div class="radio-list">
+                            <label><input type="radio" name="rewardMoney" value="100" checked="checked"> 100金币</label>
+                            <label><input type="radio" name="rewardMoney" value="588"> 588金币</label>
+                            <label><input type="radio" name="rewardMoney" value="1888"> 1888金币</label>
+                            <label><input type="radio" name="rewardMoney" value="8888"> 8888金币</label>
+                            <label><input type="radio" name="rewardMoney" value="10000"> 10000金币</label>
+                            <label><input type="radio" name="rewardMoney" value="50000"> 50000金币</label>
+                            <label><input type="radio" name="rewardMoney" value="100000"> 100000金币</label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <textarea class="control-input" name="message">这本书实在是太好了,我决定打赏作品支持下!!!</textarea>
+                        <div class="clear"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="btn btn-sure">确定</div>
+                <div class="btn btn-cancel">取消</div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- 打赏月票 -->
+<div class="modal monthly" data-type="modal">
+    <div class="modal-dialog large">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="modal-title">打赏月票</span>
+                <span class="modal-close"></span>
+            </div>
+            <div class="modal-body">
+                <div class="margin-auto">
+                    <!-- 打赏提示 -->
+                    <div class="row">
+                        <div class="hint-img" data-for="monthly"></div>
+                    </div>
+                    <div class="row">
+                        <strong id="gold_nummonth">您还剩余月票0张</strong>
+                    </div>
+                    <div class="row">
+                        <div class="radio-list">
+                            <label><input type="radio" name="rewardMonthly" value="1" checked="checked"> 1张</label>
+                            <label><input type="radio" name="rewardMonthly" value="2"> 2张</label>
+                            <label><input type="radio" name="rewardMonthly" value="3"> 3张</label>
+                            <label><input type="radio" name="rewardMonthly" value="4"> 4张</label>
+                            <label><input type="radio" name="rewardMonthly" value="5"> 5张</label>
+                            <label><input type="radio" name="rewardMonthly" value="6"> 6张</label>
+                            <label><input type="radio" name="rewardMonthly" value="7"> 7张</label>
+                            <label><input type="radio" name="rewardMonthly" value="8"> 8张</label>
+                            <label><input type="radio" name="rewardMonthly" value="9"> 9张</label>
+                            <label><input type="radio" name="rewardMonthly" value="-1"> 全部</label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <textarea class="control-input" name="message">这本书实在是太好了,我决定投票作品支持下!!!</textarea>
+                        <div class="clear"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="btn btn-sure">确定</div>
+                <div class="btn btn-cancel">取消</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body></html>

@@ -1,0 +1,296 @@
+<html><head><link href="../styles/components.css" rel="stylesheet">
+<link href="../styles/contentPages.css" rel="stylesheet">
+
+<style type="text/css">
+.contentEhg {
+  min-width: 100%;
+  width: 100%;
+  display: table;
+  overflow: auto;
+  overflow-scrolling: touch;
+  -webkit-overflow-scrolling: touch;
+}
+</style>
+
+<script type="text/javascript">
+if(top!=window)
+{
+	document.write("<script src='../bower_components/jquery/jquery.min.js'><\/script>");
+	document.write("<script src='../scripts/components/store.js'><\/script>");
+	document.write("<script src='../scripts/components/bochkCore.js'><\/script>");
+	document.write("<script src='../scripts/components/routingCore.js'><\/script>");
+	document.write("<script src='../scripts/components/nonbounce.js'><\/script>");
+			  		
+	setTimeout(function() {
+       	$.nonbounce_refresh();
+     	$.nonbounce();
+     	window.nonBounceFix($(".scroller"), $(".popup-content"));
+     	$(".scroller").scrollTop(1);
+       }, 500);
+}
+        
+var thisErrorPage = "ehgPage";
+function sub_step()
+{
+
+
+       submitByAjax("errorForm");
+
+}
+
+function initMainPage()
+{
+	$("#loading-indicator.customLoading,#loading-indicator.settingLoading").remove();
+	var overallError = $("#overallError").val();
+	var serverName = "cmm.bochk_tc";
+	var fromServiceName = "";
+	if(overallError == "Y")
+    {
+		var ehgTitleKey = "";
+		setEnableRightMenuButton(true);
+		setEnableToggleLanguageButton(false);
+		var currentUrlKey = $("#currentUrlKey").val();
+		if (currentUrlKey != "")
+		{
+			if (serverName != null)
+			{
+				if ("securities/a_share_securities_margin/transaction_record" == currentUrlKey)
+				{
+					if ("smg.deleteOrder_acknowledged" == serverName || "smg.updateOrder_acknowledged" == serverName)
+					{
+						ehgTitleKey = "hksecmargin";
+					}
+				}
+				else if ("securities/hk_securities_margin/transaction_record" == currentUrlKey)
+				{
+					if ("asm.deleteOrder_acknowledged" == serverName)
+					{
+						ehgTitleKey = "assmargin";
+					}
+				}
+				else if ("securities/a_share_securities/transaction_record" == currentUrlKey)
+				{
+					if ("hk_share.deleteOrder_acknowledged" == serverName || "hk_share.updateOrder_acknowledged" == serverName)
+					{
+						ehgTitleKey = "hksec";
+					}
+				}
+				else if ("securities/hk_securities/transaction_record" == currentUrlKey)
+				{
+					if ("a_share.deleteOrder_acknowledged" == serverName)
+					{
+						ehgTitleKey = "ashare";
+					}
+				}
+				else if("banking/echeque/issue_cheque_cashiers_order" == currentUrlKey || "banking/echeque/deposit_cheque_cashiers_order" == currentUrlKey || "banking/echeque/cheque_cashiers_order_template" == currentUrlKey)
+				{
+					if("echeque.setAmt" == serverName || "echeque.setAmtConf" == serverName || "echeque.setAmtDone" == serverName)
+					{
+						ehgTitleKey = "EchequeLimit";
+					}
+					else if ("echeque.acceptService" == serverName || "echeque.template" == fromServiceName || "echeque.issue" == fromServiceName 
+							|| "echeque.receive_input_app" == fromServiceName || "echeque.receive_input" == fromServiceName)
+					{
+						ehgTitleKey = "EchequeRegister";
+					}
+				}
+				else if("banking/echeque/status_enquiry" == currentUrlKey)
+				{
+					if("echeque.setAmt" == serverName || "echeque.setAmtConf" == serverName || "echeque.setAmtDone" == serverName)
+					{
+						ehgTitleKey = "EchequeLimit";
+					}
+					else if ("echeque.acceptService" == serverName || "echeque.editIssue_input" == fromServiceName || "echeque.status_updateReceive_input" == fromServiceName)
+					{
+						ehgTitleKey = "EchequeRegister";
+					}
+				}
+				else if("other_investment/salary_treasure/purchase" == currentUrlKey || "other_investment/salary_treasure/redeem" == currentUrlKey
+						|| "other_investment/salary_treasure/account_balance_enquiry" == currentUrlKey || "other_investment/salary_treasure/transaction_record" == currentUrlKey)
+				{
+					if("sat.accountBand" == serverName || "sat.accountBandConf" == serverName || "sat.accountBandDone" == serverName)
+					{
+						ehgTitleKey = "SalaryAccountBand";
+					}
+				}
+				else if("aaTransfer.transfer_setting_input" == serverName || "aaTransfer.transfer_setting_confirm" == serverName || "aaTransfer.transfer_setting_done" == serverName || "aaTransfer.aaTransfer_setting_input" == serverName || "aaTransfer.aaTransfer_setting_confirm" == serverName || "aaTransfer.aaTransfer_setting_done" == serverName)
+				{
+					ehgTitleKey = "aaTransferRegister";
+					chgUrlKeyAndUpdFuncMenu('banking/aa_transfer/Setting');
+				}
+				else if("aaTransfer.transfer_settingLimit_input" == serverName || "aaTransfer.transfer_settingLimit_confirm" == serverName || "aaTransfer.transfer_settingLimit_done" == serverName)
+				{
+					currentUrlKey = "banking/aa_transfer";
+				}
+				else if("aaTransfer.aaTransfer_input" == serverName)
+				{
+					currentUrlKey = "banking/aa_transfer";
+					chgUrlKeyAndUpdFuncMenu('banking/aa_transfer/transferInput');
+				}
+			}
+			if(''=='AATransfer')
+			{
+				$("[name=retryType]","#errorForm").val("");
+			}
+			//special for call for action
+			switch(serverName)
+			{
+				case 'echeque.receive_input_app':
+					currentUrlKey = "banking/echeque/deposit_cheque_cashiers_order";
+					setTopMenu(true, "echeque", 1);
+					break;
+				default:break;
+			}	
+			var key = fetchFuncMenuDisplayText(currentUrlKey+ehgTitleKey);
+			if (key != "")
+			{
+				setTitle(key);
+			}
+			if (currentUrlKey == "home" && ehgTitleKey == "")
+			{
+				setPageTheme("landing");
+			}
+			
+			if("com.btn.BacktoHome"=="null")
+			{
+				setPageTheme("white");
+			}
+		}
+		var _showLeftMenuBtn = $("#showLeftMenuBtn").val();
+		var _showLogoutBtn = $("#showLogoutBtn").val();
+		if (_showLeftMenuBtn == "Y")
+		{
+			$(".topbar-l-icon").removeClass("animate-show");        	
+		    $(".topbar-l-icon").show();
+		}
+		if (_showLogoutBtn == "Y")
+		{
+			$(".logout-button").show();
+	        $(".headerline").show();
+		}
+		
+		if ($("#currentUrlKey").length > 0)
+		{
+			var currUrlKey = $('#currentUrlKey').val();
+			switch(ehgTitleKey)
+		    {
+		   		 case 'hksec':currUrlKey="securities/hk_securities/transaction_record";break;
+		   		 case 'ashare':currUrlKey="securities/a_share_securities/transaction_record";break;
+		   		 case 'hksecmargin':currUrlKey="securities/hk_securities_margin/transaction_record";break;
+		   		 case 'assmargin':currUrlKey="securities/a_share_securities_margin/transaction_record";break;
+		   		 case 'EchequeRegister':currUrlKey="banking/echeque/echequeRegister";break;
+		   		 case 'EchequeLimit':currUrlKey="banking/echeque/echequeLimit";break;
+		   		 case 'SalaryAccountBand':currUrlKey="other_investment/salary_treasure/account_binding";break;
+		   		 case 'aaTransferRegister':currUrlKey="banking/aa_transfer_setting";break;
+		   		 default:break;
+		    }
+			
+			switch(currUrlKey)
+		    {
+		   		 case 'securities/hk_securities/trading':setTopMenu(true, "hk_securities", 0);break;
+		   		 case 'securities/hk_securities/transaction_record':setTopMenu(true, "hk_securities", 2);break;
+		   		 case 'securities/hk_securities/account_details':setTopMenu(true, "hk_securities", 3);break;
+		   		 case 'securities/a_share_securities/trading':setTopMenu(true, "a_share_securities", 0);break;
+		   		 case 'securities/a_share_securities/transaction_record':setTopMenu(true, "a_share_securities", 2);break;
+		   		 case 'securities/a_share_securities/account_details':setTopMenu(true, "a_share_securities", 3);break;
+		   		 case 'banking/currency_exchange/exchange':setTopMenu(true, "exchange", 0);break;
+		   		 case 'banking/currency_exchange/account_details':setTopMenu(true, "exchange", 1);break;
+		   		 case 'banking/currency_exchange/rates':setTopMenu(true, "exchange", 2);break;
+		   		 case 'banking/time_deposit/deposit_placing':setTopMenu(true, "timedeposit", 0);break;
+		   		 case 'banking/time_deposit/transaction_record':setTopMenu(true, "timedeposit", 1);break;
+		   		 case 'banking/stored_value_card/reload_value':setTopMenu(true, "storedvaluecard", 0);break;
+		   		 case 'banking/stored_value_card/transaction_record':setTopMenu(true, "storedvaluecard", 1);break;
+		   		 case 'banking/physical_cheque/status_enquiry':setTopMenu(true, "cheque", 0);break;
+		   		 case 'banking/echeque/issue_cheque_cashiers_order':setTopMenu(true, "echeque", 0);break;
+		   		 case 'banking/echeque/deposit_cheque_cashiers_order':setTopMenu(true, "echeque", 1);break;
+		   		 case 'banking/echeque/status_enquiry':setTopMenu(true, "echeque", 2);break;
+		   		 case 'banking/echeque/cheque_cashiers_order_template':setTopMenu(true, "echeque", 3);break;
+		   		 case 'banking/physical_cheque/stop_payment':setTopMenu(true, "cheque", 1);break;
+		   		 case 'banking/echeque/stop_cheque_cashiers_order':setTopMenu(true, "echeque", 4);break;
+		   		 case 'banking/echeque/echequeRegister': setTopMenu(true, "echequeRegister", 0, true, true);break;
+		   		 case 'banking/echeque/echequeLimit': setTopMenu(true, "echequeRegisterLimit", 0, true, true);break;
+		   		 case 'bill_payment/my_bill_list':setTopMenu(true, "billpayment", 0);break;
+		   		 case 'bill_payment/new_bill':setTopMenu(true, "billpayment", 1);break;
+		   		 case 'bill_payment/transaction_record':setTopMenu(true, "billpayment", 2);break;
+		   		 case 'other_investment/precious_metal/trading':setTopMenu(true, "preciousMetal", 0);break;
+		   		 case 'other_investment/precious_metal/account_details':setTopMenu(true, "preciousMetal", 1);break;
+		   		 case 'other_investment/precious_metal/transaction_record':setTopMenu(true, "preciousMetal", 2);break;
+		   		 case 'other_investment/precious_metal/quote':setTopMenu(true, "preciousMetal", 3);break;
+		   		 case 'other_investment/precious_metal_fx_margin_trading/reference_price':setTopMenu(true, "preciousMetalOrFXMarginTrading", 0);break;
+		   		 case 'other_investment/precious_metal_fx_margin_trading/trading':setTopMenu(true, "preciousMetalOrFXMarginTrading", 1);break;
+		   		 case 'other_investment/precious_metal_fx_margin_trading/instruction_record':setTopMenu(true, "preciousMetalOrFXMarginTrading", 2);break;
+		   		 case 'other_investment/precious_metal_fx_margin_trading/account_details':setTopMenu(true, "preciousMetalOrFXMarginTrading", 3);break;
+		   		 case 'other_investment/precious_metal_fx_margin_trading/position_square_appointment':setTopMenu(true, "preciousMetalOrFXMarginTrading", 4);break;
+		   		 case 'other_investment/precious_metal_fx_margin_trading/position_square_record':setTopMenu(true, "preciousMetalOrFXMarginTrading", 5);break;
+		   		 case 'other_investment/precious_metal_fx_margin_trading/margin_call':setTopMenu(true, "preciousMetalOrFXMarginTrading", 6);break;
+		   		 case 'other_investment/salary_treasure/purchase':setTopMenu(true, "salarytreasure", 0);break;
+		   		 case 'other_investment/salary_treasure/redeem':setTopMenu(true, "salarytreasure", 1);break;
+		   		 case 'other_investment/salary_treasure/account_balance_enquiry':setTopMenu(true, "salarytreasure", 2);break;
+		   		 case 'other_investment/salary_treasure/transaction_record':setTopMenu(true, "salarytreasure", 3);break;
+		   		 case 'other_investment/salary_treasure/account_binding':setTopMenu(true, "salarytreasure", 4);break;
+		   		 case 'securities/eipo_subscription_financing/application':setTopMenu(true, "eipo", 0);break;
+		   		 case 'securities/eipo_subscription_financing/allotment_result':setTopMenu(true, "eipo", 1);break;
+		   		 case 'securities/eipo_subscription_financing/financing_application_record':setTopMenu(true, "eipo", 2);break;
+		   		 case 'securities/eipo_subscription_financing/financing_calculator':setTopMenu(true, "eipo", 3);break;
+		   		 case 'securities/hk_securities_margin/trading':setTopMenu(true, "hk_securities_margin", 0);break;
+		   		 case 'securities/hk_securities_margin/transaction_record':setTopMenu(true, "hk_securities_margin", 2);break;
+		   		 case 'securities/hk_securities_margin/account_details':setTopMenu(true, "hk_securities_margin", 3);break;
+		   		 case 'securities/hk_securities_margin/margin_transfer':setTopMenu(true, "hk_securities_margin", 4);break;
+		   		 case 'securities/hk_securities_margin/designated_securities':setTopMenu(true, "hk_securities_margin", 5);break;
+		   		 case 'securities/a_share_securities_margin/trading':setTopMenu(true, "a_share_securities_margin", 0);break;
+		   		 case 'securities/a_share_securities_margin/transaction_record':setTopMenu(true, "a_share_securities_margin", 2);break;
+		   		 case 'securities/a_share_securities_margin/account_details':setTopMenu(true, "a_share_securities_margin", 3);break;
+		   		 case 'securities/a_share_securities_margin/margin_transfer':setTopMenu(true, "a_share_securities_margin", 4);break;
+		   		 case 'securities/a_share_securities_margin/designated_securities':setTopMenu(true, "a_share_securities_margin", 5);break;
+		   		 case 'setting/security/regist_fingerprint_authentication':setTopMenu(true, "startfingerprint", 0, true, true);break;
+		   		 case 'setting/security/cancel_fingerprint_authentication':setTopMenu(true, "endfingerprint", 0, true, true);break;
+		   		 case 'setting/security/set_up_the_usage_of_fingerprint_authentication':setTopMenu(true, "setfingerprintSubmit", 0, true, true);break;
+		   		 default:break;
+		    }
+		}
+	}
+}
+
+$(document).on('pageload',function(){
+	initMainPage();
+});
+</script>
+    </head><body><div class="scroller nonbounce">
+        <div class="popup-content">
+        
+<form id="errorForm" class="" method="post" action="/D46C1123338F8DEDCCE6D38A19178D6C.do">
+<input type="hidden" value="04E7AB07EB020F8AD5863859A97E56B7" name="token" id="token">
+ 
+<script type="text/javascript">
+  var ajaxutil = new AjaxUtil();
+    ajaxutil.forwardPageChangeToken('2D7D7E10C9ADC60A56C767A681C028E9');
+  </script>
+
+	
+<div class="footer contentEhg">
+    <div class="longtext-btn-wrap footer-info">
+        <div class="serverror mar-top padtop padbtm">
+           資料接收不清楚，可能引致未能成功遞交或處理，如屬財務交易，請即檢查交易紀錄或致電本行查詢。謝謝！(SJ1857)<br>
+        </div>
+    </div>
+</div>
+
+
+<div class="footer padtop content-h3">
+    <div class="footer-info">	
+    
+           <span class="copyright"> <span class="copyright"></span> </span>
+    
+    </div>
+</div>
+
+
+<input type="hidden" name="linkFrom" value="/BA1BF340CFE2A43F1877E72B58C1F26D.do">
+<input type="hidden" name="retryType" value="R">
+</form>
+
+
+        </div>
+    </div>
+<div mbksessionflag="false"></div>
+<div data-bochk-page-id="mbkErrorPage"></div></body></html>

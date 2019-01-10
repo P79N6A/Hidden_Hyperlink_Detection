@@ -1,0 +1,769 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+ <head id="Head">
+  <title>
+	浩方对战平台原理初步分析 - aurain - C++博客
+</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta id="metaKeywords" name="keywords" content="浩方对战平台原理初步分析" />
+  <link type="text/css" rel="stylesheet" href="/css/common.css" />
+  <link id="MainCss" type="text/css" rel="stylesheet" href="http://www.cppblog.com/Skins/clover/style.css" />
+  <link id="RSSLink" title="RSS" type="application/rss+xml" rel="alternate" href="http://www.cppblog.com/aurain/rss.aspx" />
+ </head> 
+ <body> 
+  <form name="Form1" method="post" action="38408.html" id="Form1"> 
+   <input type="hidden" name="__VIEWSTATE" id="
+__VIEWSTATE" value="" /> 
+   <script language="JavaScript">
+									function ctlent(evt,id)
+											{
+												if(evt.ctrlKey && evt.keyCode == 13)
+												{	
+													try
+													{
+														TempSave(id);
+													}
+													catch(ex)
+													{
+													}
+													finally
+													{
+													    __doPostBack('AjaxHolder$PostComment$btnSubmit','')
+													}
+												}
+		
+												}</script> 
+   <script language="JavaScript">function SetReplyAuhor(author){document.getElementById('AjaxHolder_PostComment_tbComment').value+="@"+author+"\n";document.getElementById('AjaxHolder_PostComment_tbComment').focus();return false}</script> 
+   <script src="/ScriptResource.axd?d=-BecoVNwDVCZ4TW3gB_ZzPWfgjCQ_C64O4hNc3pweA4UGq0B-lWFnUMMAtqURN0AZF_f7fxk9s5U1gsq0foUhwHdXezBbn_OgCN5EL300MOu7Jb-c7WU_a2OCK01&amp;t=634979452452373750" type="text/javascript"></script> 
+   <!--done--> 
+   <table cellpadding="0" cellspacing="0" border="0" align="center" width="100%"> 
+    <tbody>
+     <tr> 
+      <td width="299" background="/skins/clover/images/banner1.jpg"></td> 
+      <td background="/skins/clover/images/banner.jpg"> 
+       <!--done--> 
+       <div class="header"> 
+        <div class="headerText"> 
+         <a id="Header1_HeaderTitle" class="headermaintitle" href="http://www.cppblog.com/aurain/">aurain</a>
+         <br /> 技术文摘 
+        </div> 
+       </div> </td> 
+      <td width="296" background="/skins/clover/images/banner2.jpg"></td> 
+     </tr> 
+    </tbody>
+   </table> 
+   <div id="mylinks"> 
+    <!--done--> 
+    <a id="MyLinks1_HomeLink" class="menu" href="http://www.cppblog.com/">C++博客</a>&nbsp;&nbsp;&nbsp; 
+    <a id="MyLinks1_MyHomeLink" class="menu" href="http://www.cppblog.com/aurain/">首页</a>&nbsp;&nbsp;&nbsp; 
+    <a id="MyLinks1_NewArticleLink" class="menu" href="/EnterMyBlog.aspx?NewArticle=1">新文章</a>&nbsp;&nbsp;&nbsp; 
+    <a id="MyLinks1_NewPostLink" class="menu" href="http://www.cppblog.com/aurain/admin/EditPosts.aspx?opt=1">新随笔</a>&nbsp;&nbsp;&nbsp; 
+    <a id="MyLinks1_Syndication" class="menu" href="http://www.cppblog.com/aurain/Rss.aspx">聚合</a>
+    <a id="MyLinks1_XMLLink" href="http://www.cppblog.com/aurain/Rss.aspx"><img src="http://www.cppblog.com/images/xml.gif" border="0" /></a>&nbsp;&nbsp;&nbsp; 
+    <a id="MyLinks1_Admin" class="menu" href="http://www.cppblog.com/aurain/admin/EditPosts.aspx">管理</a> 
+    <!-- <a id="MyLinks1_ContactLink" accesskey="9" class="menu" href="http://www.cppblog.com/aurain/contact.aspx?id=1">联系</a>&nbsp;&nbsp;&nbsp; --> 
+   </div> 
+   <div id="mytopmenu"> 
+    <div id="mystats"> 
+     <!--done--> 
+     <div class="blogStats">
+       posts - 137,&nbsp; comments - 268,&nbsp; trackbacks - 0 
+     </div>
+    </div> 
+   </div> 
+   <div id="centercontent"> 
+    <!--done--> 
+    <div class="post"> 
+     <div class="postTitle"> 
+      <a id="viewpost1_TitleUrl" class="postTitle2" href="http://www.cppblog.com/aurain/archive/2007/12/13/38408.html">浩方对战平台原理初步分析</a> 
+     </div> 浩方对战平台是一个基于VPN技术的、将互联网上的两个或多个用户模拟成在同一局域网的通用性联网技术，其本质是提供用户间的数据交换，当你用浩方游戏客户端登陆进入相应的房间后，服务器端会自动给你分配一个“虚拟IP地址&quot;，不论你的上网接入方式是拨号/ADSL/LAN/CABLE &nbsp; MODEM，在同一个游戏房间里，你就会有一个虚拟IP，这个IP只是为了玩家之间联网游戏用的。浩方游戏平台通过把tcp/ip协议转换为ipx协议，虚拟局域网，为大家提供了一个作战平台。但游戏开始后，玩家之间就是p2p的关系了，游戏速度和平台无关。而且浩方为了使突袭爱好者玩起来更快更爽，不断优化系统，优化数据包的传输速度。&nbsp;&nbsp;。
+     <br />使用的主要技术是Hook socket(Hook API),DLL注入。
+     <br />
+     <br />发现一个和功能类似的软件：Gamer's Internet Tunnel。分析了一下，它是用WinCpap把网卡置于sniff模式，截获数据包，对发出的游戏数据包（IPX包）加上IP头封成 IP包，分别发给VLan成员；对收到的IP包，如果是VLan的包就去掉IP头转成IPX包，而其它数据包不受影响。 它也能对Ip包作同样的操作，像魔兽3没有用IPX，用的是IP协议。 浩方没有sniff，它应该是用hook截取指定程序的数据包然后作同样操作。
+     <img height="1" src="http://www.moon-soft.com/doc/down_info.asp?id=28804" width="1" border="0" />
+     <br />
+     <br />对浩方对战平台的技术研究,最近得出了未经证实的结果。
+     <br />某有关方面专家这样描述了平台的工作原理：
+     <br />1.假设有A、B两用户，IP地质分别是A（1.1.1.150）和B（2.2.2.170）
+     <br />2.互联的双方游戏（假设是war3）启动之后，平台将监控电脑上运行的特定进程（war3进程），并截取这个进程发送的数据包。
+     <br />3.平台修改A发出的数据包，把用户IP地址修改为（2.2.2.171）发送给B，这时候对B看到A的IP地址前三位也是（2.2.2），便会把A认为 是局域网的邻居。平台同样对B发给A的数据包进行如此的处理让A也认为B是同一局域网的用户。由此实现了模拟局域网的功能。
+     <br />
+     <br />这个工作原理可以解释浩方对战平台的运作特征，例如每个房间都只有250人，这是因为IP地址的最后一位最多为255（偶尔多出来的VIP用户实际上是用了那些在房间里面但没有游戏的IP地址）所以也就会有一部分运气（RP）太差或者说太好的玩家不能在房间内看到主机。 
+     <span class="Sfk540">本文来自 dedecms.com</span> 
+     <br />
+     <br />看 完以上资料也许大家要发挥愤青的基础技能，好好的干他个HF。但实际上我们也应该从我做起，不要在房间里挂机。这样的话投诉看不到游戏的45个人会越来越 多，致使HF修改房间设定以及VIP的设定。当然HF会有别的相当不厚道的方法，例如：将房间基础人数改为200，55VIP，但这毕竟是后话了。 
+     <div class="postDesc">
+      posted on 2007-12-13 12:52 
+      <a href="http://www.cppblog.com/aurain/">水</a> 阅读(8748) 
+      <a href="#Post">评论(9)</a> &nbsp;
+      <a href="http://www.cppblog.com/aurain/admin/EditPosts.aspx?postid=38408">编辑</a>&nbsp;
+      <a href="http://www.cppblog.com/aurain/AddToFavorite.aspx?id=38408">收藏</a> 
+      <a href="http://www.cppblog.com/aurain/services/trackbacks/38408.aspx">引用</a> 所属分类: 
+      <a href="http://www.cppblog.com/aurain/category/6203.html">软件分析</a> 
+     </div> 
+    </div> 
+    <img src="http://www.cppblog.com/aurain/aggbug/38408.html?webview=1" width="1" height="1" /> 
+    <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+xmlns:dc="http://purl.org/dc/elements/1.1/"
+xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/">
+<rdf:Description
+rdf:about="http://www.cppblog.com/aurain/archive/2007/12/13/38408.html"
+dc:identifier="http://www.cppblog.com/aurain/archive/2007/12/13/38408.html"
+dc:title="浩方对战平台原理初步分析"
+trackback:ping="http://www.cppblog.com/aurain/services/trackbacks/38408.aspx" />
+</rdf:RDF>
+--> 
+    <div id="AjaxHolder_UpdatePanel1"> 
+     <a name="pagedcomment"></a> 
+     <!--done--> 
+     <br /> 
+     <b>FeedBack:</b> 
+     <div class="feedbackNoItems"></div> 
+     <div class="feedbackItem"> 
+      <div class="feedbackListTitle">
+       <a title="permalink: re: 浩方对战平台原理初步分析" href="/aurain/archive/2009/02/13/38408.html#65208">#</a>&nbsp;
+       <a name="65208"></a>re: 浩方对战平台原理初步分析
+      </div> 
+      <div class="feedbackListSubtitle">
+        2008-10-27 14:51 | 
+       <a id="AjaxHolder_Comments_CommentList_ctl00_NameLink" target="_blank">独爱网络</a>
+       <br /> 
+       <div align="left">
+        我们宿舍每一层楼联入校完网后就是同一个局域网，至于为什么会是一个局域网我想是连结一层楼的是一个路交换机，玩对战不进浩方也能玩，但我想和相邻楼层玩就得进浩方，但常常卡机!(校园网外速度太差)。有没有方法可以使相邻层不进浩方也能连起来！&nbsp;&nbsp;
+        <a onclick="return SetReplyAuhor(&quot;独爱网络&quot;)" href="/aurain/archive/2009/02/13/38408.html#post">回复</a>&nbsp;&nbsp;
+        <a title="查看该作者发表过的评论" href="http://www.cppblog.com/comment?author=%e7%8b%ac%e7%88%b1%e7%bd%91%e7%bb%9c" target="_blank">更多评论</a>
+        <br />
+        <a id="AjaxHolder_Comments_CommentList_ctl00_DeleteLink" href="javascript:__doPostBack('AjaxHolder$Comments$CommentList$ctl00$DeleteLink','')"></a>&nbsp;&nbsp;
+        <a id="AjaxHolder_Comments_CommentList_ctl00_EditLink"></a>
+       </div> 
+      </div> 
+     </div> 
+     <div class="feedbackItem"> 
+      <div class="feedbackListTitle">
+       <a title="permalink: re: 浩方对战平台原理初步分析" href="/aurain/archive/2009/02/13/38408.html#65286">#</a>&nbsp;
+       <a name="65286"></a>re: 浩方对战平台原理初步分析
+      </div> 
+      <div class="feedbackListSubtitle">
+        2008-10-28 11:26 | 
+       <a id="AjaxHolder_Comments_CommentList_ctl01_NameLink" href="http://www.cppblog.com/aurain/" target="_blank">水</a>
+       <br /> 
+       <div align="left">
+        @独爱网络 
+        <br />可以在两个楼层之间的交换机上再加一个交换机或路由器，不过这个不是你们能控制的。 
+        <br />另外一种方法，自己做VPN，去网上down一个VPN服务端，在某台主机（你们学校内的公网IP）架设，然后，每个人通过VPN客户端连接该服务端。&nbsp;&nbsp;
+        <a onclick="return SetReplyAuhor(&quot;水&quot;)" href="/aurain/archive/2009/02/13/38408.html#post">回复</a>&nbsp;&nbsp;
+        <a title="查看该作者发表过的评论" href="http://www.cppblog.com/comment?author=%e6%b0%b4" target="_blank">更多评论</a>
+        <br />
+        <a id="AjaxHolder_Comments_CommentList_ctl01_DeleteLink" href="javascript:__doPostBack('AjaxHolder$Comments$CommentList$ctl01$DeleteLink','')"></a>&nbsp;&nbsp;
+        <a id="AjaxHolder_Comments_CommentList_ctl01_EditLink"></a>
+       </div> 
+      </div> 
+     </div> 
+     <div class="feedbackItem"> 
+      <div class="feedbackListTitle">
+       <a title="permalink: re: 浩方对战平台原理初步分析" href="/aurain/archive/2009/02/13/38408.html#73712">#</a>&nbsp;
+       <a name="73712"></a>re: 浩方对战平台原理初步分析
+      </div> 
+      <div class="feedbackListSubtitle">
+        2009-02-13 13:22 | 
+       <a id="AjaxHolder_Comments_CommentList_ctl02_NameLink" target="_blank">浩方工作人员</a>
+       <br /> 
+       <div align="left">
+        楼主完全错误&nbsp;&nbsp;
+        <a onclick="return SetReplyAuhor(&quot;浩方工作人员&quot;)" href="/aurain/archive/2009/02/13/38408.html#post">回复</a>&nbsp;&nbsp;
+        <a title="查看该作者发表过的评论" href="http://www.cppblog.com/comment?author=%e6%b5%a9%e6%96%b9%e5%b7%a5%e4%bd%9c%e4%ba%ba%e5%91%98" target="_blank">更多评论</a>
+        <br />
+        <a id="AjaxHolder_Comments_CommentList_ctl02_DeleteLink" href="javascript:__doPostBack('AjaxHolder$Comments$CommentList$ctl02$DeleteLink','')"></a>&nbsp;&nbsp;
+        <a id="AjaxHolder_Comments_CommentList_ctl02_EditLink"></a>
+       </div> 
+      </div> 
+     </div> 
+     <div class="feedbackItem"> 
+      <div class="feedbackListTitle">
+       <a title="permalink: re: 浩方对战平台原理初步分析" href="/aurain/archive/2009/02/13/38408.html#73723">#</a>&nbsp;
+       <a name="73723"></a>re: 浩方对战平台原理初步分析
+      </div> 
+      <div class="feedbackListSubtitle">
+        2009-02-13 16:14 | 
+       <a id="AjaxHolder_Comments_CommentList_ctl03_NameLink" href="http://www.cppblog.com/aurain/" target="_blank">水</a>
+       <br /> 
+       <div align="left">
+        @浩方工作人员 
+        <br />哦，谢谢提醒&nbsp;&nbsp;
+        <a onclick="return SetReplyAuhor(&quot;水&quot;)" href="/aurain/archive/2009/02/13/38408.html#post">回复</a>&nbsp;&nbsp;
+        <a title="查看该作者发表过的评论" href="http://www.cppblog.com/comment?author=%e6%b0%b4" target="_blank">更多评论</a>
+        <br />
+        <a id="AjaxHolder_Comments_CommentList_ctl03_DeleteLink" href="javascript:__doPostBack('AjaxHolder$Comments$CommentList$ctl03$DeleteLink','')"></a>&nbsp;&nbsp;
+        <a id="AjaxHolder_Comments_CommentList_ctl03_EditLink"></a>
+       </div> 
+      </div> 
+     </div> 
+     <div class="feedbackItem"> 
+      <div class="feedbackListTitle">
+       <a title="permalink: re: 浩方对战平台原理初步分析" href="/aurain/archive/2009/02/13/38408.html#78577">#</a>&nbsp;
+       <a name="78577"></a>re: 浩方对战平台原理初步分析
+      </div> 
+      <div class="feedbackListSubtitle">
+        2009-04-01 16:05 | 
+       <a id="AjaxHolder_Comments_CommentList_ctl04_NameLink" target="_blank">TTgive</a>
+       <br /> 
+       <div align="left">
+        我也想做个校园网的游戏平台 有意向的Q我 316945435&nbsp;&nbsp;
+        <a onclick="return SetReplyAuhor(&quot;TTgive&quot;)" href="/aurain/archive/2009/02/13/38408.html#post">回复</a>&nbsp;&nbsp;
+        <a title="查看该作者发表过的评论" href="http://www.cppblog.com/comment?author=TTgive" target="_blank">更多评论</a>
+        <br />
+        <a id="AjaxHolder_Comments_CommentList_ctl04_DeleteLink" href="javascript:__doPostBack('AjaxHolder$Comments$CommentList$ctl04$DeleteLink','')"></a>&nbsp;&nbsp;
+        <a id="AjaxHolder_Comments_CommentList_ctl04_EditLink"></a>
+       </div> 
+      </div> 
+     </div> 
+     <div class="feedbackItem"> 
+      <div class="feedbackListTitle">
+       <a title="permalink: re: 浩方对战平台原理初步分析" href="/aurain/archive/2009/02/13/38408.html#132634">#</a>&nbsp;
+       <a name="132634"></a>re: 浩方对战平台原理初步分析
+      </div> 
+      <div class="feedbackListSubtitle">
+        2010-11-06 07:27 | 
+       <a id="AjaxHolder_Comments_CommentList_ctl05_NameLink" target="_blank">你妈的 真想骂你</a>
+       <br /> 
+       <div align="left">
+        我只能说 你也就是说说 
+        <br />而且说的一点都不清楚 
+        <br />啥叫分析啊 
+        <br />一点逻辑思维都没有 
+        <br />分析的真垃圾 &nbsp;&nbsp;
+        <a onclick="return SetReplyAuhor(&quot;你妈的 真想骂你&quot;)" href="/aurain/archive/2009/02/13/38408.html#post">回复</a>&nbsp;&nbsp;
+        <a title="查看该作者发表过的评论" href="http://www.cppblog.com/comment?author=%e4%bd%a0%e5%a6%88%e7%9a%84+%e7%9c%9f%e6%83%b3%e9%aa%82%e4%bd%a0" target="_blank">更多评论</a>
+        <br />
+        <a id="AjaxHolder_Comments_CommentList_ctl05_DeleteLink" href="javascript:__doPostBack('AjaxHolder$Comments$CommentList$ctl05$DeleteLink','')"></a>&nbsp;&nbsp;
+        <a id="AjaxHolder_Comments_CommentList_ctl05_EditLink"></a>
+       </div> 
+      </div> 
+     </div> 
+     <div class="feedbackItem"> 
+      <div class="feedbackListTitle">
+       <a title="permalink: re: 浩方对战平台原理初步分析" href="/aurain/archive/2009/02/13/38408.html#132676">#</a>&nbsp;
+       <a name="132676"></a>re: 浩方对战平台原理初步分析
+      </div> 
+      <div class="feedbackListSubtitle">
+        2010-11-06 17:34 | 
+       <a id="AjaxHolder_Comments_CommentList_ctl06_NameLink" href="http://www.cppblog.com/aurain/" target="_blank">水</a>
+       <br /> 
+       <div align="left">
+        @你妈的 真想骂你 
+        <br />这个是很早以前发的，不一定正确，且现在hf版本有升级，肯定有改动了。 
+        <br />不知道这位朋友可否有高见，发出来让我学习下，谢谢。&nbsp;&nbsp;
+        <a onclick="return SetReplyAuhor(&quot;水&quot;)" href="/aurain/archive/2009/02/13/38408.html#post">回复</a>&nbsp;&nbsp;
+        <a title="查看该作者发表过的评论" href="http://www.cppblog.com/comment?author=%e6%b0%b4" target="_blank">更多评论</a>
+        <br />
+        <a id="AjaxHolder_Comments_CommentList_ctl06_DeleteLink" href="javascript:__doPostBack('AjaxHolder$Comments$CommentList$ctl06$DeleteLink','')"></a>&nbsp;&nbsp;
+        <a id="AjaxHolder_Comments_CommentList_ctl06_EditLink"></a>
+       </div> 
+      </div> 
+     </div> 
+     <div class="feedbackItem"> 
+      <div class="feedbackListTitle">
+       <a title="permalink: re: 浩方对战平台原理初步分析" href="/aurain/archive/2009/02/13/38408.html#136129">#</a>&nbsp;
+       <a name="136129"></a>re: 浩方对战平台原理初步分析
+      </div> 
+      <div class="feedbackListSubtitle">
+        2010-12-11 11:11 | 
+       <a id="AjaxHolder_Comments_CommentList_ctl07_NameLink" target="_blank">ＴＨＵ人</a>
+       <br /> 
+       <div align="left">
+        我觉得楼主比较make sense，我寒假想开发一个这样的平台，如果有人有兴趣的话可以发邮件给我，谢谢srzhz@hotmail.com&nbsp;&nbsp;
+        <a onclick="return SetReplyAuhor(&quot;ＴＨＵ人&quot;)" href="/aurain/archive/2009/02/13/38408.html#post">回复</a>&nbsp;&nbsp;
+        <a title="查看该作者发表过的评论" href="http://www.cppblog.com/comment?author=%ef%bc%b4%ef%bc%a8%ef%bc%b5%e4%ba%ba" target="_blank">更多评论</a>
+        <br />
+        <a id="AjaxHolder_Comments_CommentList_ctl07_DeleteLink" href="javascript:__doPostBack('AjaxHolder$Comments$CommentList$ctl07$DeleteLink','')"></a>&nbsp;&nbsp;
+        <a id="AjaxHolder_Comments_CommentList_ctl07_EditLink"></a>
+       </div> 
+      </div> 
+     </div> 
+     <div class="feedbackItem"> 
+      <div class="feedbackListTitle">
+       <a title="permalink: re: 浩方对战平台原理初步分析" href="/aurain/archive/2009/02/13/38408.html#212727">#</a>&nbsp;
+       <a name="212727"></a>re: 浩方对战平台原理初步分析
+       <a name="Post"></a>
+      </div> 
+      <div class="feedbackListSubtitle">
+        2016-01-23 15:58 | 
+       <a id="AjaxHolder_Comments_CommentList_ctl08_NameLink" href="http://svtter.leanote.com" target="_blank">Svtter</a>
+       <br /> 
+       <div align="left">
+        有趣，感谢博主的分析，也敬佩博主的人品。&nbsp;&nbsp;
+        <a onclick="return SetReplyAuhor(&quot;Svtter&quot;)" href="/aurain/archive/2009/02/13/38408.html#post">回复</a>&nbsp;&nbsp;
+        <a title="查看该作者发表过的评论" href="http://www.cppblog.com/comment?author=Svtter" target="_blank">更多评论</a>
+        <br />
+        <a id="AjaxHolder_Comments_CommentList_ctl08_DeleteLink" href="javascript:__doPostBack('AjaxHolder$Comments$CommentList$ctl08$DeleteLink','')"></a>&nbsp;&nbsp;
+        <a id="AjaxHolder_Comments_CommentList_ctl08_EditLink"></a>
+       </div> 
+      </div> 
+     </div> 
+     <div id="AjaxHolder_Comments_divRefreshComments" style="text-align:right;margin-right:10px;margin-bottom:5px;font-size:12px;">
+      <a id="AjaxHolder_Comments_refreshList" href="javascript:__doPostBack('AjaxHolder$Comments$refreshList','')">刷新评论列表</a>
+     </div> 
+     <style>
+td { font-size: 12px }
+.commentTextBox 
+{ 
+    font-family : Verdana; 
+    font-size: 13px;
+ }
+</style> 
+     <!--Beging Temp Save--> 
+     <style>.userData { BEHAVIOR: url(#default#userdata) }
+	</style> 
+     <div class="userData" id="CommentsPersistDiv"></div> 
+     <script type="text/javascript">
+function pageLoad()
+{
+    Sys.WebForms.PageRequestManager.getInstance().add_initializeRequest(handleInitializeRequest);
+    //Sys.WebForms.PageRequestManager.getInstance().add_endRequest(handleEndRequest);
+}
+
+function handleInitializeRequest(sender, args)
+{
+    var prm = Sys.WebForms.PageRequestManager.getInstance();
+    var eid = args.get_postBackElement().id;
+    if (eid.indexOf("DeleteLink")>0) 
+    {
+       args.get_postBackElement().innerHTML = "<font color='red'>正在删除...</font>";         
+    }    
+    if (eid.indexOf("btnSubmit")>0) 
+    {
+       document.getElementById("AjaxHolder_PostComment_ltSubmitMsg").innerHTML="正在提交...";
+       document.getElementById("AjaxHolder_PostComment_btnSubmit").disabled = true;
+       
+    }    
+   
+}	
+
+function TempSave(ElementID)
+{
+	try
+	{
+	CommentsPersistDiv.setAttribute("CommentContent",document.getElementById(ElementID).value);
+	CommentsPersistDiv.save("CommentXMLStore");
+	}
+	catch(ex)
+	{
+	}
+	
+}
+function Restore(ElementID)
+{
+	CommentsPersistDiv.load("CommentXMLStore");
+	document.getElementById(ElementID).value=CommentsPersistDiv.getAttribute("CommentContent");
+}	
+			
+			
+</script> 
+     <!--Ene TempSave--> 
+     <div class="commentform"> 
+      <span id="AjaxHolder_PostComment_ltSubmitMsg"><font color="Red"></font></span> 
+      <br /> 
+      <a name="Feedback"></a> 
+      <table cellspacing="1" cellpadding="1" border="0"> 
+       <tbody>
+        <tr>
+         <td colspan="3">只有注册用户<a href="http://www.cppblog.com/login.aspx?ReturnUrl=/aurain/archive/2009/02/13/38408.html">登录</a>后才能发表评论。</td>
+        </tr> 
+        <tr> 
+         <td colspan="3" style="line-height:2.5"> <a href="http://www.ucancode.com/index.htm" target="_blank">【推荐】超50万行VC++源码: 大型组态工控、电力仿真CAD与GIS源码库</a><br /> <script type="text/javascript">
+		(function() {
+		var useSSL = 'https:' == document.location.protocol;
+		var src = (useSSL ? 'https:' : 'http:') +
+		'//www.googletagservices.com/tag/js/gpt.js';
+		document.write('<scr' + 'ipt src="' + src + '"></scr' + 'ipt>');
+		})();
+		</script> <script type="text/javascript">
+		googletag.defineSlot('/1090369/cppblog_blogpost_bottom', [300, 250], 'div-gpt-ad-1391948236744-0').addService(googletag.pubads());
+		googletag.pubads().enableSyncRendering();
+		googletag.pubads().enableSingleRequest();
+		googletag.enableServices();
+		</script> 
+          <!-- cppblog_blogpost_bottom --> 
+          <div id="div-gpt-ad-1391948236744-0" style="width:300px; height:250px;"> 
+           <script type="text/javascript">
+		googletag.display('div-gpt-ad-1391948236744-0');
+		</script> 
+          </div> </td> 
+        </tr> 
+        <tr> 
+         <td colspan="3"> </td> 
+        </tr> 
+        <tr> 
+         <td colspan="3" height="5"> 
+          <div id="divRelativePosts">
+            相关文章: 
+           <ul style="margin-top:0px;line-height:1.8;"> 
+            <li style="list-style:none;"> <a id="AjaxHolder_PostComment_ctl07_RelativePostsList_ctl01_Hyperlink1" href="http://www.cppblog.com/aurain/archive/2008/11/28/68052.html">dns服务软件</a> </li> 
+            <li style="list-style:none;"> <a id="AjaxHolder_PostComment_ctl07_RelativePostsList_ctl02_Hyperlink1" href="http://www.cppblog.com/aurain/archive/2008/08/28/60241.html">介绍一个P2P点播直播开源项目，挺不错的</a> </li> 
+            <li style="list-style:none;"> <a id="AjaxHolder_PostComment_ctl07_RelativePostsList_ctl03_Hyperlink1" href="http://www.cppblog.com/aurain/archive/2008/06/27/54738.html">常见软件登录简要说明（QQ，MSN，盛大冒险岛）</a> </li> 
+            <li style="list-style:none;"> <a id="AjaxHolder_PostComment_ctl07_RelativePostsList_ctl04_Hyperlink1" href="http://www.cppblog.com/aurain/archive/2008/05/14/49792.html">类似于QQ游戏百万人同时在线的服务器架构实现! </a> </li> 
+            <li style="list-style:none;"> <a id="AjaxHolder_PostComment_ctl07_RelativePostsList_ctl05_Hyperlink1" href="http://www.cppblog.com/aurain/archive/2008/05/14/49791.html">彩虹岛游戏登陆过程分析</a> </li> 
+            <li style="list-style:none;"> <a id="AjaxHolder_PostComment_ctl07_RelativePostsList_ctl06_Hyperlink1" href="http://www.cppblog.com/aurain/archive/2008/03/12/44242.html">无种也下BT——新一代迅雷BT技术透析</a> </li> 
+            <li style="list-style:none;"> <a id="AjaxHolder_PostComment_ctl07_RelativePostsList_ctl07_Hyperlink1" href="http://www.cppblog.com/aurain/archive/2008/02/18/42873.html">主流网络加速器对比</a> </li> 
+            <li style="list-style:none;display:none"> <a id="AjaxHolder_PostComment_ctl07_RelativePostsList_ctl08_Hyperlink1" href="http://www.cppblog.com/aurain/archive/2007/12/13/38408.html">浩方对战平台原理初步分析</a> </li> 
+           </ul> 
+          </div> </td> 
+        </tr> 
+        <tr> 
+         <td colspan="3"></td> 
+        </tr> 
+        <tr> 
+         <td colspan="3" height="1">
+          <div id="blogsite">
+           网站导航: 
+           <a href="http://www.cnblogs.com">博客园</a>&nbsp;&nbsp; 
+           <a href="https://news.cnblogs.com">IT新闻</a>&nbsp;&nbsp; 
+           <a href="http://www.blogjava.net">BlogJava</a>&nbsp;&nbsp; 
+           <a href="http://kb.cnblogs.com">知识库</a>&nbsp;&nbsp; 
+           <a href="https://q.cnblogs.com">博问</a>&nbsp;&nbsp; 
+           <a href="/aurain/archive/2009/02/13/38408.html?opt=admin">管理</a> 
+          </div></td> 
+        </tr> 
+        <tr> 
+         <td colspan="3"> <br /> <br /> </td> 
+        </tr> 
+       </tbody>
+      </table> 
+     </div> 
+    </div> 
+   </div> 
+   <div id="leftcontent"> 
+    <div id="leftcontentcontainer"> 
+     <!--done--> 
+     <div class="newsItem"> 
+      <a href="http://info.flagcounter.com/z6Id"><img src="http://s11.flagcounter.com/count/z6Id/bg_FFFFFF/txt_000000/border_CCCCCC/columns_2/maxflags_12/viewers_0/labels_0/pageviews_0/flags_0/" alt="Flag Counter" border="0" /></a> 
+     </div> 
+     <br /> 
+     <table id="Calendar1_entryCal" class="Cal" cellspacing="0" cellpadding="0" title="日历" border="0" style="border:0px"> 
+      <tbody>
+       <tr>
+        <td colspan="7" bgcolor="Transparent">
+         <table class="CalTitle" cellspacing="0" border="0" width="100%"> 
+          <tbody>
+           <tr>
+            <td class="CalNextPrev" width="15%"><a href="javascript:__doPostBack('Calendar1$entryCal','V3166')" style="color:Black" title="转到上一个月">&lt;</a></td>
+            <td align="center" width="70%">2008年10月</td>
+            <td class="CalNextPrev" align="right" width="15%"><a href="javascript:__doPostBack('Calendar1$entryCal','V3227')" style="color:Black" title="转到下一个月">&gt;</a></td>
+           </tr> 
+          </tbody>
+         </table></td>
+       </tr>
+       <tr>
+        <th class="CalDayHeader" align="center" abbr="日" scope="col">日</th>
+        <th class="CalDayHeader" align="center" abbr="一" scope="col">一</th>
+        <th class="CalDayHeader" align="center" abbr="二" scope="col">二</th>
+        <th class="CalDayHeader" align="center" abbr="三" scope="col">三</th>
+        <th class="CalDayHeader" align="center" abbr="四" scope="col">四</th>
+        <th class="CalDayHeader" align="center" abbr="五" scope="col">五</th>
+        <th class="CalDayHeader" align="center" abbr="六" scope="col">六</th>
+       </tr>
+       <tr>
+        <td class="CalOtherMonthDay" align="center" width="14%">28</td>
+        <td class="CalOtherMonthDay" align="center" width="14%">29</td>
+        <td class="CalOtherMonthDay" align="center" width="14%">30</td>
+        <td align="center" width="14%">1</td>
+        <td align="center" width="14%">2</td>
+        <td align="center" width="14%">3</td>
+        <td class="CalWeekendDay" align="center" width="14%">4</td>
+       </tr>
+       <tr>
+        <td class="CalWeekendDay" align="center" width="14%">5</td>
+        <td align="center" width="14%">6</td>
+        <td align="center" width="14%">7</td>
+        <td align="center" width="14%"><a href="http://www.cppblog.com/aurain/archive/2008/10/08.html"><u>8</u></a></td>
+        <td align="center" width="14%">9</td>
+        <td align="center" width="14%"><a href="http://www.cppblog.com/aurain/archive/2008/10/10.html"><u>10</u></a></td>
+        <td class="CalWeekendDay" align="center" width="14%">11</td>
+       </tr>
+       <tr>
+        <td class="CalWeekendDay" align="center" width="14%">12</td>
+        <td align="center" width="14%">13</td>
+        <td align="center" width="14%">14</td>
+        <td align="center" width="14%">15</td>
+        <td align="center" width="14%">16</td>
+        <td align="center" width="14%">17</td>
+        <td class="CalWeekendDay" align="center" width="14%">18</td>
+       </tr>
+       <tr>
+        <td class="CalWeekendDay" align="center" width="14%">19</td>
+        <td align="center" width="14%">20</td>
+        <td align="center" width="14%"><a href="http://www.cppblog.com/aurain/archive/2008/10/21.html"><u>21</u></a></td>
+        <td align="center" width="14%">22</td>
+        <td align="center" width="14%"><a href="http://www.cppblog.com/aurain/archive/2008/10/23.html"><u>23</u></a></td>
+        <td align="center" width="14%">24</td>
+        <td class="CalWeekendDay" align="center" width="14%">25</td>
+       </tr>
+       <tr>
+        <td class="CalWeekendDay" align="center" width="14%">26</td>
+        <td align="center" width="14%">27</td>
+        <td align="center" width="14%">28</td>
+        <td align="center" width="14%">29</td>
+        <td align="center" width="14%">30</td>
+        <td align="center" width="14%">31</td>
+        <td class="CalOtherMonthDay" align="center" width="14%">1</td>
+       </tr>
+       <tr>
+        <td class="CalOtherMonthDay" align="center" width="14%">2</td>
+        <td class="CalOtherMonthDay" align="center" width="14%">3</td>
+        <td class="CalOtherMonthDay" align="center" width="14%">4</td>
+        <td class="CalOtherMonthDay" align="center" width="14%">5</td>
+        <td class="CalOtherMonthDay" align="center" width="14%">6</td>
+        <td class="CalOtherMonthDay" align="center" width="14%">7</td>
+        <td class="CalOtherMonthDay" align="center" width="14%">8</td>
+       </tr> 
+      </tbody>
+     </table> 
+     <ul>
+      <li> 
+       <div id="cnblogsgooglead" width="180" height="150"></div> 
+       <div id="cnblogsgoogleadcode" style="display:none"> 
+        <script type="text/javascript"><!--
+google_ad_client = "pub-4210569241504288";
+google_ad_width = 180;
+google_ad_height = 150;
+google_ad_format = "180x150_as";
+google_ad_channel ="";
+google_ad_type = "text";
+//--></script> 
+        <script type="text/javascript" src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script> 
+       </div> </li>
+     </ul> 
+     <h3>常用链接</h3> 
+     <ul> 
+      <li><a id="SingleColumn1_ctl01_repeaterLinks_ctl01_lnkLinkItem" href="http://www.cppblog.com/aurain/MyPosts.html">我的随笔</a></li> 
+      <li><a id="SingleColumn1_ctl01_repeaterLinks_ctl02_lnkLinkItem" href="http://www.cppblog.com/aurain/MyComments.html">我的评论</a></li> 
+      <li><a id="SingleColumn1_ctl01_repeaterLinks_ctl03_lnkLinkItem" href="http://www.cppblog.com/aurain/OtherPosts.html">我参与的随笔</a></li> 
+     </ul> 
+     <h3>留言簿<span style="font-size:11px;font-weight:normal;">(17)</span></h3> 
+     <ul> 
+      <li> <a id="SingleColumn1__3e0022_lnkMessages" href="http://www.cppblog.com/aurain/Contact.aspx?id=1">给我留言</a> </li>
+      <li> <a id="SingleColumn1__3e0022_lnkPublicMsgView" href="http://www.cppblog.com/aurain/default.aspx?opt=msg">查看公开留言</a> </li>
+      <li> <a id="SingleColumn1__3e0022_lnkPrivateMsgView" href="http://www.cppblog.com/aurain/admin/MyMessages.aspx">查看私人留言</a> </li> 
+     </ul> 
+     <!--done--> 
+     <h1 class="catListTitle">随笔分类<span style="font-size:11px;font-weight:normal">(138)</span></h1> 
+     <ul class="catList"> 
+      <li class="catListItem"> <a id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl01_Link" class="listitem" href="http://www.cppblog.com/aurain/category/19734.html">Android(2)</a><a id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl01_RssLink" title="Subscribe to Android(2)" class="listitem" href="http://www.cppblog.com/aurain/category/19734.html/rss"><img title="Subscribe to Android(2)" src="/Images/xml.gif" border="0" /></a></li> 
+      <li class="catListItem"> <a id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl02_Link" class="listitem" href="http://www.cppblog.com/aurain/category/6208.html">c/c++基础知识(17)</a><a id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl02_RssLink" title="Subscribe to c/c++基础知识(17)" class="listitem" href="http://www.cppblog.com/aurain/category/6208.html/rss"><img title="Subscribe to c/c++基础知识(17)" src="/Images/xml.gif" border="0" /></a></li> 
+      <li class="catListItem"> <a id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl03_Link" class="listitem" href="http://www.cppblog.com/aurain/category/20806.html">Java(4)</a><a id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl03_RssLink" title="Subscribe to Java(4)" class="listitem" href="http://www.cppblog.com/aurain/category/20806.html/rss"><img title="Subscribe to Java(4)" src="/Images/xml.gif" border="0" /></a></li> 
+      <li class="catListItem"> <a id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl04_Link" class="listitem" href="http://www.cppblog.com/aurain/category/20827.html">Linux(7)</a><a id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl04_RssLink" title="Subscribe to Linux(7)" class="listitem" href="http://www.cppblog.com/aurain/category/20827.html/rss"><img title="Subscribe to Linux(7)" src="/Images/xml.gif" border="0" /></a></li> 
+      <li class="catListItem"> <a id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl05_Link" class="listitem" href="http://www.cppblog.com/aurain/category/6202.html">socket编程(8)</a><a id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl05_RssLink" title="Subscribe to socket编程(8)" class="listitem" href="http://www.cppblog.com/aurain/category/6202.html/rss"><img title="Subscribe to socket编程(8)" src="/Images/xml.gif" border="0" /></a></li> 
+      <li class="catListItem"> <a id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl06_Link" class="listitem" href="http://www.cppblog.com/aurain/category/12310.html">sql(3)</a><a id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl06_RssLink" title="Subscribe to sql(3)" class="listitem" href="http://www.cppblog.com/aurain/category/12310.html/rss"><img title="Subscribe to sql(3)" src="/Images/xml.gif" border="0" /></a></li> 
+      <li class="catListItem"> <a id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl07_Link" class="listitem" href="http://www.cppblog.com/aurain/category/6795.html">tcp/ip(18)</a><a id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl07_RssLink" title="Subscribe to tcp/ip(18)" class="listitem" href="http://www.cppblog.com/aurain/category/6795.html/rss"><img title="Subscribe to tcp/ip(18)" src="/Images/xml.gif" border="0" /></a></li> 
+      <li class="catListItem"> <a id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl08_Link" class="listitem" href="http://www.cppblog.com/aurain/category/8951.html">udt分析(2)</a><a id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl08_RssLink" title="Subscribe to udt分析(2)" class="listitem" href="http://www.cppblog.com/aurain/category/8951.html/rss"><img title="Subscribe to udt分析(2)" src="/Images/xml.gif" border="0" /></a></li> 
+      <li class="catListItem"> <a id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl09_Link" class="listitem" href="http://www.cppblog.com/aurain/category/9751.html">vc(13)</a><a id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl09_RssLink" title="Subscribe to vc(13)" class="listitem" href="http://www.cppblog.com/aurain/category/9751.html/rss"><img title="Subscribe to vc(13)" src="/Images/xml.gif" border="0" /></a></li> 
+      <li class="catListItem"> <a id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl10_Link" class="listitem" href="http://www.cppblog.com/aurain/category/10149.html">Windows开发(10)</a><a id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl10_RssLink" title="Subscribe to Windows开发(10)" class="listitem" href="http://www.cppblog.com/aurain/category/10149.html/rss"><img title="Subscribe to Windows开发(10)" src="/Images/xml.gif" border="0" /></a></li> 
+      <li class="catListItem"> <a id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl11_Link" class="listitem" href="http://www.cppblog.com/aurain/category/9258.html">windows驱动(17)</a><a id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl11_RssLink" title="Subscribe to windows驱动(17)" class="listitem" href="http://www.cppblog.com/aurain/category/9258.html/rss"><img title="Subscribe to windows驱动(17)" src="/Images/xml.gif" border="0" /></a></li> 
+      <li class="catListItem"> <a id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl12_Link" class="listitem" href="http://www.cppblog.com/aurain/category/21103.html">架构(1)</a><a id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl12_RssLink" title="Subscribe to 架构(1)" class="listitem" href="http://www.cppblog.com/aurain/category/21103.html/rss"><img title="Subscribe to 架构(1)" src="/Images/xml.gif" border="0" /></a></li> 
+      <li class="catListItem"> <a id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl13_Link" class="listitem" href="http://www.cppblog.com/aurain/category/10906.html">内存管理(3)</a><a id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl13_RssLink" title="Subscribe to 内存管理(3)" class="listitem" href="http://www.cppblog.com/aurain/category/10906.html/rss"><img title="Subscribe to 内存管理(3)" src="/Images/xml.gif" border="0" /></a></li> 
+      <li class="catListItem"> <a id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl14_Link" class="listitem" href="http://www.cppblog.com/aurain/category/6203.html">软件分析(8)</a><a id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl14_RssLink" title="Subscribe to 软件分析(8)" class="listitem" href="http://www.cppblog.com/aurain/category/6203.html/rss"><img title="Subscribe to 软件分析(8)" src="/Images/xml.gif" border="0" /></a></li> 
+      <li class="catListItem"> <a id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl15_Link" class="listitem" href="http://www.cppblog.com/aurain/category/7285.html">算法与数据结构(10)</a><a id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl15_RssLink" title="Subscribe to 算法与数据结构(10)" class="listitem" href="http://www.cppblog.com/aurain/category/7285.html/rss"><img title="Subscribe to 算法与数据结构(10)" src="/Images/xml.gif" border="0" /></a></li> 
+      <li class="catListItem"> <a id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl16_Link" class="listitem" href="http://www.cppblog.com/aurain/category/9531.html">网络安全(2)</a><a id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl16_RssLink" title="Subscribe to 网络安全(2)" class="listitem" href="http://www.cppblog.com/aurain/category/9531.html/rss"><img title="Subscribe to 网络安全(2)" src="/Images/xml.gif" border="0" /></a></li> 
+      <li class="catListItem"> <a id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl17_Link" class="listitem" href="http://www.cppblog.com/aurain/category/10171.html">项目管理(8)</a><a id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl17_RssLink" title="Subscribe to 项目管理(8)" class="listitem" href="http://www.cppblog.com/aurain/category/10171.html/rss"><img title="Subscribe to 项目管理(8)" src="/Images/xml.gif" border="0" /></a></li> 
+      <li class="catListItem"> <a id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl18_Link" class="listitem" href="http://www.cppblog.com/aurain/category/6204.html">协议分析(4)</a><a id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl18_RssLink" title="Subscribe to 协议分析(4)" class="listitem" href="http://www.cppblog.com/aurain/category/6204.html/rss"><img title="Subscribe to 协议分析(4)" src="/Images/xml.gif" border="0" /></a></li> 
+      <li class="catListItem"> <a id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl19_Link" class="listitem" href="http://www.cppblog.com/aurain/category/20824.html">移动互联(1)</a><a id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl19_RssLink" title="Subscribe to 移动互联(1)" class="listitem" href="http://www.cppblog.com/aurain/category/20824.html/rss"><img title="Subscribe to 移动互联(1)" src="/Images/xml.gif" border="0" /></a></li> 
+     </ul> 
+     <h1 class="catListTitle">随笔档案<span style="font-size:11px;font-weight:normal">(137)</span></h1> 
+     <ul class="catList"> 
+      <li class="catListItem"> <a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl01_Link" class="listitem" href="http://www.cppblog.com/aurain/archive/2015/11.html">2015年11月 (1)</a></li> 
+      <li class="catListItem"> <a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl02_Link" class="listitem" href="http://www.cppblog.com/aurain/archive/2015/05.html">2015年5月 (1)</a></li> 
+      <li class="catListItem"> <a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl03_Link" class="listitem" href="http://www.cppblog.com/aurain/archive/2014/11.html">2014年11月 (1)</a></li> 
+      <li class="catListItem"> <a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl04_Link" class="listitem" href="http://www.cppblog.com/aurain/archive/2014/10.html">2014年10月 (1)</a></li> 
+      <li class="catListItem"> <a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl05_Link" class="listitem" href="http://www.cppblog.com/aurain/archive/2014/07.html">2014年7月 (7)</a></li> 
+      <li class="catListItem"> <a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl06_Link" class="listitem" href="http://www.cppblog.com/aurain/archive/2014/04.html">2014年4月 (1)</a></li> 
+      <li class="catListItem"> <a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl07_Link" class="listitem" href="http://www.cppblog.com/aurain/archive/2014/03.html">2014年3月 (3)</a></li> 
+      <li class="catListItem"> <a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl08_Link" class="listitem" href="http://www.cppblog.com/aurain/archive/2014/02.html">2014年2月 (4)</a></li> 
+      <li class="catListItem"> <a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl09_Link" class="listitem" href="http://www.cppblog.com/aurain/archive/2014/01.html">2014年1月 (2)</a></li> 
+      <li class="catListItem"> <a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl10_Link" class="listitem" href="http://www.cppblog.com/aurain/archive/2013/10.html">2013年10月 (1)</a></li> 
+      <li class="catListItem"> <a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl11_Link" class="listitem" href="http://www.cppblog.com/aurain/archive/2013/03.html">2013年3月 (1)</a></li> 
+      <li class="catListItem"> <a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl12_Link" class="listitem" href="http://www.cppblog.com/aurain/archive/2013/01.html">2013年1月 (1)</a></li> 
+      <li class="catListItem"> <a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl13_Link" class="listitem" href="http://www.cppblog.com/aurain/archive/2012/12.html">2012年12月 (1)</a></li> 
+      <li class="catListItem"> <a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl14_Link" class="listitem" href="http://www.cppblog.com/aurain/archive/2012/11.html">2012年11月 (2)</a></li> 
+      <li class="catListItem"> <a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl15_Link" class="listitem" href="http://www.cppblog.com/aurain/archive/2012/07.html">2012年7月 (1)</a></li> 
+      <li class="catListItem"> <a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl16_Link" class="listitem" href="http://www.cppblog.com/aurain/archive/2011/09.html">2011年9月 (1)</a></li> 
+      <li class="catListItem"> <a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl17_Link" class="listitem" href="http://www.cppblog.com/aurain/archive/2011/08.html">2011年8月 (2)</a></li> 
+      <li class="catListItem"> <a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl18_Link" class="listitem" href="http://www.cppblog.com/aurain/archive/2011/06.html">2011年6月 (2)</a></li> 
+      <li class="catListItem"> <a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl19_Link" class="listitem" href="http://www.cppblog.com/aurain/archive/2011/03.html">2011年3月 (1)</a></li> 
+      <li class="catListItem"> <a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl20_Link" class="listitem" href="http://www.cppblog.com/aurain/archive/2010/11.html">2010年11月 (2)</a></li> 
+      <li class="catListItem"> <a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl21_Link" class="listitem" href="http://www.cppblog.com/aurain/archive/2010/09.html">2010年9月 (1)</a></li> 
+      <li class="catListItem"> <a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl22_Link" class="listitem" href="http://www.cppblog.com/aurain/archive/2010/08.html">2010年8月 (1)</a></li> 
+      <li class="catListItem"> <a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl23_Link" class="listitem" href="http://www.cppblog.com/aurain/archive/2010/07.html">2010年7月 (5)</a></li> 
+      <li class="catListItem"> <a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl24_Link" class="listitem" href="http://www.cppblog.com/aurain/archive/2010/05.html">2010年5月 (2)</a></li> 
+      <li class="catListItem"> <a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl25_Link" class="listitem" href="http://www.cppblog.com/aurain/archive/2009/12.html">2009年12月 (3)</a></li> 
+      <li class="catListItem"> <a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl26_Link" class="listitem" href="http://www.cppblog.com/aurain/archive/2009/11.html">2009年11月 (1)</a></li> 
+      <li class="catListItem"> <a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl27_Link" class="listitem" href="http://www.cppblog.com/aurain/archive/2009/09.html">2009年9月 (3)</a></li> 
+      <li class="catListItem"> <a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl28_Link" class="listitem" href="http://www.cppblog.com/aurain/archive/2009/08.html">2009年8月 (3)</a></li> 
+      <li class="catListItem"> <a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl29_Link" class="listitem" href="http://www.cppblog.com/aurain/archive/2009/06.html">2009年6月 (7)</a></li> 
+      <li class="catListItem"> <a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl30_Link" class="listitem" href="http://www.cppblog.com/aurain/archive/2009/04.html">2009年4月 (5)</a></li> 
+      <li class="catListItem"> <a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl31_Link" class="listitem" href="http://www.cppblog.com/aurain/archive/2009/03.html">2009年3月 (7)</a></li> 
+      <li class="catListItem"> <a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl32_Link" class="listitem" href="http://www.cppblog.com/aurain/archive/2009/02.html">2009年2月 (3)</a></li> 
+      <li class="catListItem"> <a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl33_Link" class="listitem" href="http://www.cppblog.com/aurain/archive/2009/01.html">2009年1月 (7)</a></li> 
+      <li class="catListItem"> <a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl34_Link" class="listitem" href="http://www.cppblog.com/aurain/archive/2008/12.html">2008年12月 (1)</a></li> 
+      <li class="catListItem"> <a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl35_Link" class="listitem" href="http://www.cppblog.com/aurain/archive/2008/11.html">2008年11月 (6)</a></li> 
+      <li class="catListItem"> <a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl36_Link" class="listitem" href="http://www.cppblog.com/aurain/archive/2008/10.html">2008年10月 (5)</a></li> 
+      <li class="catListItem"> <a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl37_Link" class="listitem" href="http://www.cppblog.com/aurain/archive/2008/09.html">2008年9月 (2)</a></li> 
+      <li class="catListItem"> <a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl38_Link" class="listitem" href="http://www.cppblog.com/aurain/archive/2008/08.html">2008年8月 (6)</a></li> 
+      <li class="catListItem"> <a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl39_Link" class="listitem" href="http://www.cppblog.com/aurain/archive/2008/07.html">2008年7月 (2)</a></li> 
+      <li class="catListItem"> <a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl40_Link" class="listitem" href="http://www.cppblog.com/aurain/archive/2008/06.html">2008年6月 (11)</a></li> 
+      <li class="catListItem"> <a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl41_Link" class="listitem" href="http://www.cppblog.com/aurain/archive/2008/05.html">2008年5月 (3)</a></li> 
+      <li class="catListItem"> <a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl42_Link" class="listitem" href="http://www.cppblog.com/aurain/archive/2008/04.html">2008年4月 (4)</a></li> 
+      <li class="catListItem"> <a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl43_Link" class="listitem" href="http://www.cppblog.com/aurain/archive/2008/03.html">2008年3月 (3)</a></li> 
+      <li class="catListItem"> <a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl44_Link" class="listitem" href="http://www.cppblog.com/aurain/archive/2008/02.html">2008年2月 (7)</a></li> 
+      <li class="catListItem"> <a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl45_Link" class="listitem" href="http://www.cppblog.com/aurain/archive/2008/01.html">2008年1月 (1)</a></li> 
+      <li class="catListItem"> <a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl46_Link" class="listitem" href="http://www.cppblog.com/aurain/archive/2007/12.html">2007年12月 (2)</a></li> 
+     </ul> 
+     <h1 class="catListTitle">网络开发</h1> 
+     <ul class="catList"> 
+      <li class="catListItem"> <a id="SingleColumn1_Categories_CatList_ctl02_LinkList_ctl01_Link" class="listitem" href="http://blog.csdn.net/pongba" target="_blank">C++的罗浮宫</a></li> 
+      <li style="margin-top:2px;">C++基础知识</li> 
+      <li class="catListItem"> <a id="SingleColumn1_Categories_CatList_ctl02_LinkList_ctl02_Link" class="listitem" href="http://www.cppblog.com/yearner" target="_blank">逆水行舟</a></li> 
+      <li style="margin-top:2px;">基础知识</li> 
+      <li class="catListItem"> <a id="SingleColumn1_Categories_CatList_ctl02_LinkList_ctl03_Link" class="listitem" href="http://www.cppblog.com/kevinlynx/" target="_blank">紫月城游戏软件</a></li> 
+      <li style="margin-top:2px;">网络编程</li> 
+     </ul> 
+     <h3>最新随笔</h3> 
+     <div class="RecentComment"> 
+      <ul style="word-break:break-all"> 
+       <li><a id="SingleColumn1__c0757e_RecentPostsList_ctl00_RecentPostsList2_ctl00_Hyperlink1" href="http://www.cppblog.com/aurain/archive/2015/11/28/212357.html">1.&nbsp;Java调优知识汇总</a></li> 
+       <li><a id="SingleColumn1__c0757e_RecentPostsList_ctl01_RecentPostsList2_ctl00_Hyperlink1" href="http://www.cppblog.com/aurain/archive/2015/05/31/210784.html">2.&nbsp;Web API</a></li> 
+       <li><a id="SingleColumn1__c0757e_RecentPostsList_ctl02_RecentPostsList2_ctl00_Hyperlink1" href="http://www.cppblog.com/aurain/archive/2014/11/20/208928.html">3.&nbsp;htop使用备忘</a></li> 
+       <li><a id="SingleColumn1__c0757e_RecentPostsList_ctl03_RecentPostsList2_ctl00_Hyperlink1" href="http://www.cppblog.com/aurain/archive/2014/10/08/208512.html">4.&nbsp;Windows下jre server模式启动</a></li> 
+       <li><a id="SingleColumn1__c0757e_RecentPostsList_ctl04_RecentPostsList2_ctl00_Hyperlink1" href="http://www.cppblog.com/aurain/archive/2014/07/22/207750.html">5.&nbsp;ubuntu下允许mysql远程连接 </a></li> 
+       <li><a id="SingleColumn1__c0757e_RecentPostsList_ctl04_RecentPostsList2_ctl01_Hyperlink1" href="http://www.cppblog.com/aurain/archive/2014/07/22/207746.html">6.&nbsp;SQLServer性能优化之 nolock，大幅提升数据库查询性能</a></li> 
+       <li><a id="SingleColumn1__c0757e_RecentPostsList_ctl04_RecentPostsList2_ctl02_Hyperlink1" href="http://www.cppblog.com/aurain/archive/2014/07/22/207745.html">7.&nbsp;数据库SQL优化大总结之 百万级数据库优化方案</a></li> 
+       <li><a id="SingleColumn1__c0757e_RecentPostsList_ctl05_RecentPostsList2_ctl00_Hyperlink1" href="http://www.cppblog.com/aurain/archive/2014/07/17/207675.html">8.&nbsp;Ubuntu12.0.4 server手工安装jdk6</a></li> 
+       <li><a id="SingleColumn1__c0757e_RecentPostsList_ctl05_RecentPostsList2_ctl01_Hyperlink1" href="http://www.cppblog.com/aurain/archive/2014/07/17/207673.html">9.&nbsp;Ubuntu12.04 server配置apache2+php5+mysql5环境</a></li> 
+       <li><a id="SingleColumn1__c0757e_RecentPostsList_ctl05_RecentPostsList2_ctl02_Hyperlink1" href="http://www.cppblog.com/aurain/archive/2014/07/17/207672.html">10.&nbsp;Ubuntu 12.04 root登录</a></li> 
+      </ul> 
+     </div> 
+     <script language="JavaScript">
+function SearchGoogle(key,evt,site)
+		{
+			if(evt.keyCode==13 || evt.keyCode==0 || evt.type =='click')
+			{
+				key.focus();
+				var keystr = encodeURIComponent(key.value);
+				url = "http://www.google.com/search?q=";
+				url = url+keystr;
+				url += "&ie=UTF-8&oe=GB2312&hl=zh-CN&domains="+site+"&sitesearch="+site;
+				window.location=url;
+				return false;
+			}
+		}
+</script> 
+     <h3>搜索</h3> 
+     <ul> 
+      <li> </li>
+      <li><input style="WIDTH: 130px" type="text" name="q" id="q" onkeydown="return SearchGoogle(document.getElementById('q'),event,'www.cppblog.com/aurain')" />&nbsp;<input onclick="SearchGoogle(document.getElementById('q'),event,'www.cppblog.com/aurain')" type="button" value="搜索" name="sa" /> </li> 
+     </ul> 
+     <h3>积分与排名</h3> 
+     <ul> 
+      <li> 积分 - 390872 </li>
+      <li> 排名 - 32 </li> 
+     </ul> 
+     <h3>最新随笔</h3> 
+     <div class="RecentComment"> 
+      <ul style="word-break:break-all"> 
+       <li><a id="SingleColumn1__c0757e_RecentPostsList_ctl00_RecentPostsList2_ctl00_Hyperlink1" href="http://www.cppblog.com/aurain/archive/2015/11/28/212357.html">1.&nbsp;Java调优知识汇总</a></li> 
+       <li><a id="SingleColumn1__c0757e_RecentPostsList_ctl01_RecentPostsList2_ctl00_Hyperlink1" href="http://www.cppblog.com/aurain/archive/2015/05/31/210784.html">2.&nbsp;Web API</a></li> 
+       <li><a id="SingleColumn1__c0757e_RecentPostsList_ctl02_RecentPostsList2_ctl00_Hyperlink1" href="http://www.cppblog.com/aurain/archive/2014/11/20/208928.html">3.&nbsp;htop使用备忘</a></li> 
+       <li><a id="SingleColumn1__c0757e_RecentPostsList_ctl03_RecentPostsList2_ctl00_Hyperlink1" href="http://www.cppblog.com/aurain/archive/2014/10/08/208512.html">4.&nbsp;Windows下jre server模式启动</a></li> 
+       <li><a id="SingleColumn1__c0757e_RecentPostsList_ctl04_RecentPostsList2_ctl00_Hyperlink1" href="http://www.cppblog.com/aurain/archive/2014/07/22/207750.html">5.&nbsp;ubuntu下允许mysql远程连接 </a></li> 
+       <li><a id="SingleColumn1__c0757e_RecentPostsList_ctl04_RecentPostsList2_ctl01_Hyperlink1" href="http://www.cppblog.com/aurain/archive/2014/07/22/207746.html">6.&nbsp;SQLServer性能优化之 nolock，大幅提升数据库查询性能</a></li> 
+       <li><a id="SingleColumn1__c0757e_RecentPostsList_ctl04_RecentPostsList2_ctl02_Hyperlink1" href="http://www.cppblog.com/aurain/archive/2014/07/22/207745.html">7.&nbsp;数据库SQL优化大总结之 百万级数据库优化方案</a></li> 
+       <li><a id="SingleColumn1__c0757e_RecentPostsList_ctl05_RecentPostsList2_ctl00_Hyperlink1" href="http://www.cppblog.com/aurain/archive/2014/07/17/207675.html">8.&nbsp;Ubuntu12.0.4 server手工安装jdk6</a></li> 
+       <li><a id="SingleColumn1__c0757e_RecentPostsList_ctl05_RecentPostsList2_ctl01_Hyperlink1" href="http://www.cppblog.com/aurain/archive/2014/07/17/207673.html">9.&nbsp;Ubuntu12.04 server配置apache2+php5+mysql5环境</a></li> 
+       <li><a id="SingleColumn1__c0757e_RecentPostsList_ctl05_RecentPostsList2_ctl02_Hyperlink1" href="http://www.cppblog.com/aurain/archive/2014/07/17/207672.html">10.&nbsp;Ubuntu 12.04 root登录</a></li> 
+      </ul> 
+     </div> 
+     <h3>最新评论 <a id="SingleColumn1__6d778a_RSSHyperlink1" href="http://www.cppblog.com/aurain/CommentsRSS.aspx"><img src="/images/xml.gif" border="0" /></a></h3> 
+     <div class="RecentComment"> 
+      <ul> 
+       <li style="word-break:break-all"> <a id="SingleColumn1__6d778a_CommentList_ctl01_Hyperlink1" href="http://www.cppblog.com/aurain/archive/2016/01/23/38408.html#212727">1.&nbsp;re: 浩方对战平台原理初步分析</a> </li> 
+       <li style="word-break:break-all"> 有趣，感谢博主的分析，也敬佩博主的人品。 </li> 
+       <li style="text-align:right;margin-right:4px"> --Svtter</li> 
+       <li style="word-break:break-all"> <a id="SingleColumn1__6d778a_CommentList_ctl02_Hyperlink1" href="http://www.cppblog.com/aurain/archive/2015/05/03/104521.html#210524">2.&nbsp;re: 一种自定义网络通信协议</a> </li> 
+       <li style="word-break:break-all"> 怎样学会 </li> 
+       <li style="text-align:right;margin-right:4px"> --钟易成</li> 
+       <li style="word-break:break-all"> <a id="SingleColumn1__6d778a_CommentList_ctl03_Hyperlink1" href="http://www.cppblog.com/aurain/archive/2015/04/16/132026.html#210353">3.&nbsp;re: 如何编译TrueCrypt 7.0a源码</a> </li> 
+       <li style="word-break:break-all"> 您好，请问现在还可以找您发一下源码么？ </li> 
+       <li style="text-align:right;margin-right:4px"> --xiaoyaya103</li> 
+       <li style="word-break:break-all"> <a id="SingleColumn1__6d778a_CommentList_ctl04_Hyperlink1" href="http://www.cppblog.com/aurain/archive/2014/05/12/79463.html#206910">4.&nbsp;re: svn提交时设置文件类型过滤</a> </li> 
+       <li style="word-break:break-all"> 楼主我尝试了您的方法 好像不去效果 </li> 
+       <li style="text-align:right;margin-right:4px"> --ss</li> 
+       <li style="word-break:break-all"> <a id="SingleColumn1__6d778a_CommentList_ctl05_Hyperlink1" href="http://www.cppblog.com/aurain/archive/2014/05/08/60241.html#206866">5.&nbsp;re: 介绍一个P2P点播直播开源项目，挺不错的</a> </li> 
+       <li style="word-break:break-all"> 支持！！ </li> 
+       <li style="text-align:right;margin-right:4px"> --刘芳</li> 
+      </ul> 
+     </div> 
+     <h3>阅读排行榜</h3> 
+     <div class="RecentComment"> 
+      <ul style="word-break:break-all"> 
+       <li> <a id="SingleColumn1__141379f_TopList_ctl01_Hyperlink1" href="http://www.cppblog.com/aurain/archive/2009/03/10/76126.aspx">1.&nbsp;GetWindowRect和GetClientRect（转）(31375)</a> </li> 
+       <li> <a id="SingleColumn1__141379f_TopList_ctl02_Hyperlink1" href="http://www.cppblog.com/aurain/archive/2008/10/08/63480.aspx">2.&nbsp;计算最大公约数的两种算法(20113)</a> </li> 
+       <li> <a id="SingleColumn1__141379f_TopList_ctl03_Hyperlink1" href="http://www.cppblog.com/aurain/archive/2008/03/03/43589.aspx">3.&nbsp;windows中定时操作(SetTimer函数用法)(16537)</a> </li> 
+       <li> <a id="SingleColumn1__141379f_TopList_ctl04_Hyperlink1" href="http://www.cppblog.com/aurain/archive/2008/08/28/60241.aspx">4.&nbsp;介绍一个P2P点播直播开源项目，挺不错的(10039)</a> </li> 
+       <li> <a id="SingleColumn1__141379f_TopList_ctl05_Hyperlink1" href="http://www.cppblog.com/aurain/archive/2008/02/22/43093.aspx">5.&nbsp;指针和引用的联系与区别(9517)</a> </li> 
+      </ul> 
+     </div> 
+     <h3>评论排行榜</h3> 
+     <div class="RecentComment"> 
+      <ul style="word-break:break-all"> 
+       <li> <a id="SingleColumn1__bc8104_TopList_ctl01_Hyperlink1" href="http://www.cppblog.com/aurain/archive/2010/11/01/132026.aspx">1.&nbsp;如何编译TrueCrypt 7.0a源码(29)</a> </li> 
+       <li> <a id="SingleColumn1__bc8104_TopList_ctl02_Hyperlink1" href="http://www.cppblog.com/aurain/archive/2008/09/05/61008.aspx">2.&nbsp;用至少三种方法实现1+2+...+n(19)</a> </li> 
+       <li> <a id="SingleColumn1__bc8104_TopList_ctl03_Hyperlink1" href="http://www.cppblog.com/aurain/archive/2008/10/23/64809.aspx">3.&nbsp;【分享】软件工程规范-软件工程文档模板(12)</a> </li> 
+       <li> <a id="SingleColumn1__bc8104_TopList_ctl04_Hyperlink1" href="http://www.cppblog.com/aurain/archive/2008/07/07/55549.aspx">4.&nbsp;删除首次出现字串(10)</a> </li> 
+       <li> <a id="SingleColumn1__bc8104_TopList_ctl05_Hyperlink1" href="http://www.cppblog.com/aurain/archive/2008/02/22/43093.aspx">5.&nbsp;指针和引用的联系与区别(10)</a> </li> 
+      </ul> 
+     </div> 
+     <ul>
+      <li> 
+       <div id="cnblogsgooglead" width="180" height="150"></div> 
+       <div id="cnblogsgoogleadcode" style="display:none"> 
+        <script type="text/javascript"><!--
+google_ad_client = "pub-4210569241504288";
+google_ad_width = 180;
+google_ad_height = 150;
+google_ad_format = "180x150_as";
+google_ad_channel ="";
+google_ad_type = "text";
+//--></script> 
+        <script type="text/javascript" src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script> 
+       </div> </li>
+     </ul>
+    </div> 
+   </div> 
+   <!--done--> 
+   <div class="footer">
+     Copyright &copy;2017 水 Powered By
+    <a href="/">博客园</a> 模板提供：
+    <a href="http://blog.hjenglish.com">沪江博客</a> 
+   </div> 
+   <script type="text/javascript">
+//<![CDATA[
+Sys.Application.initialize();
+//]]>
+</script> 
+  </form> 
+  <script type="text/javascript" src="/script/ShowHidden.js"></script> 
+  <script type="text/javascript">
+	  var _gaq = _gaq || [];
+	  _gaq.push(['_setAccount', 'UA-476124-5']);
+	  _gaq.push(['_trackPageview']);
+
+	  (function() {
+		var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+	  })();
+	</script>   
+ </body>
+</html>

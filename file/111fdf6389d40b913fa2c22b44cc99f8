@@ -1,0 +1,254 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-CN" lang="zh-CN">
+ <head> 
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+  <meta http-equiv="Content-Language" content="zh-CN" /> 
+  <title>笨驴技术(IMFirewall)博客-CISCO2950+ISA2004监控部署方案</title> 
+  <meta name="generator" content="Z-BlogPHP 1.4 Deeplue Build 150101" /> 
+  <link rel="stylesheet" rev="stylesheet" href="http://www.imfirewall.com/blog/zb_users/theme/metro/style/style.css" type="text/css" media="all" /> 
+  <script src="http://www.imfirewall.com/blog/zb_system/script/common.js" type="text/javascript"></script> 
+  <script src="http://www.imfirewall.com/blog/zb_system/script/c_html_js_add.php" type="text/javascript"></script> 
+  <script src="http://www.imfirewall.com/blog/zb_users/theme/metro/script/top.js" type="text/javascript"></script> 
+ </head>
+ <body class="single"> 
+  <div id="headerbg"> 
+   <div class="header"> 
+    <div class="logo"> 
+     <h1><a href="http://www.imfirewall.com/blog/">笨驴技术(IMFirewall)博客</a></h1> 
+     <h3>网络管理、局域网上网行为管理博客</h3> 
+    </div> 
+    <div class="search"> 
+     <form method="post" action="http://www.imfirewall.com/blog/zb_system/cmd.php?act=search">
+      <input type="text" name="q" id="edtSearch" size="12" />
+      <input type="submit" value="搜索" name="btnPost" id="btnPost" />
+     </form> 
+    </div> 
+    <div class="clear"></div> 
+   </div> 
+  </div>
+  <div class="nevbarbg"> 
+   <div class="navbar"> 
+    <ul> 
+     <li id="nvabar-item-index"><a href="http://www.imfirewall.com/blog/">首页</a></li>
+     <li id="navbar-page-189"><a href="http://www.imfirewall.com/blog/189.html">网站首页</a></li> 
+    </ul> 
+   </div> 
+  </div> 
+  <div id="content"> 
+   <div id="main"> 
+    <div class="post cate5  auth1"> 
+     <div class="post_time"> 
+      <h5>25</h5>
+      <h6>2007<br />05</h6> 
+     </div> 
+     <div class="post_r"> 
+      <div class="post_body"> 
+       <h2>CISCO2950+ISA2004监控部署方案</h2> 
+       <div class="post_content">
+         某公司电信光纤接入，采用ISA2004做为上网服务器，CISCO2950做为中心交换机。 网络拓扑图如下： 
+        <img src="/blog/zb_users/upload/cisco2950_ISA.jpg" /> 如上图所示，针对这种网络结构，有两种解决方案： 方案一： 直接把超级嗅探狗监控软件安装在代理服务器上来监控局域网。 方案二： 在其他电脑上安装超级嗅探狗监控软件，通过交换机做端口镜像来监控网络。 [B]请注意：对于通过内部代理服务器上网的环境，要把代理服务器IP添加到超级嗅探狗监控软件的“监听配置”的“本地服务器”中。[/B] 
+        <h2>CISCO2950如何配置端口镜像来实现网络监控？</h2> 如上图所示，代理服务器连接到交换机的23端口， 监控主机连接到交换机的22端口。由于超级嗅探狗只需要监控互联网数据，所以只要把23端口的数据镜像到22端口即可。 CISCO2950端口镜像配置语法： monitor session session_number {destination {interface interface-id [, | -] [encapsulation {dot1q}] [ingress vlan vlan id] | remote vlan vlan-id reflector-port interface-id} | {source {interface interface-id [, | -] [both | rx | tx] | remote vlan vlan-id}} 在本例中： 1. 把23设置为源端口 monitor session 1 source interface Fa0/23 2. 把22端口设置为镜像的目的端口。 monitor session 1 destination interface Fa0/22 ingress vlan 1 请注意： 默认情况下，cisco的镜像口是只能接收数据不能发送数据的，而超级嗅探狗需要发送数据来实现封堵功能。所以需要“ingress vlan 1”的参数。 有些cisco交换机不能支持ingress语法（镜像口不能通讯），如果您的cisco交换机镜像口不支持ingress，那么需要在超级嗅探狗的“监听配置”中设置通讯网卡。具体步骤如下： 1. 把23设置为源端口 monitor session 1 source interface Fa0/23 2. 把22端口设置为镜像的目的端口，如下语法使镜像口只能接收不能发送。 monitor session 1 destination interface Fa0/22 3. 在监控主机上增加一块网卡，接上网线并且连接到交换机。 4. 到超级嗅探狗的“监听配置”中，把“通讯网卡”修改为您新增的这块网卡。 超级嗅探狗相关功能： 聊天监控，邮件监控，禁止QQ聊天，禁止MSN，禁止PPLive，禁止P2P下载，禁止网页，禁止MSN文件传输，禁止QQ文件传输。 链接： 
+        <a href="http://www.imfirewall.com/superMonitor.htm">超级嗅探狗</a> 
+        <a href="http://www.imfirewall.us">Block P2P</a> 
+        <a href="http://www.imfirewall.us">Block Internet</a> 
+        <a href="http://www.imfirewall.com/en">Internet Monitoring</a> 
+        <a href="http://www.imfirewall.com/tech3.htm">禁止MSN文件传输</a> 
+        <a href="http://www.imfirewall.com">上网管理软件</a> 
+        <a href="http://www.imfirewall.com/protocol_list.htm">局域网管理软件</a> 
+       </div> 
+       <div class="post_tags"></div> 
+       <div class="post_info">
+         作者:admin | 分类:网络监控部署方案 | 浏览:1289 | 评论:0 
+       </div> 
+      </div> 
+      <div class="post_nav"> 
+       <a class="l" href="http://www.imfirewall.com/blog/post/3.html" title="如何禁止PPLive，PPStream等流媒体工具？">&laquo; 上一篇</a> 
+       <a class="r" href="http://www.imfirewall.com/blog/post/5.html" title="无线路由器监控方案"> 下一篇 &raquo;</a> 
+      </div> 
+     </div> 
+     <div class="clear"></div> 
+    </div> 
+   </div> 
+   <div id="sidebar"> 
+    <dl class="function" id="divCalendar"> 
+     <dt style="display:none;"></dt>
+     <dd class="function_c"> 
+      <div>
+       <table id="tbCalendar">
+        <caption>
+         <a href="http://www.imfirewall.com/blog/date-2017-2.html">&laquo;</a>&nbsp;&nbsp;&nbsp;
+         <a href="http://www.imfirewall.com/blog/date-2017-3.html">2017年3月</a>&nbsp;&nbsp;&nbsp;
+         <a href="http://www.imfirewall.com/blog/date-2017-4.html">&raquo;</a>
+        </caption>
+        <thead>
+         <tr>
+          <th title="星期一" scope="col"><small>一</small></th>
+          <th title="星期二" scope="col"><small>二</small></th>
+          <th title="星期三" scope="col"><small>三</small></th>
+          <th title="星期四" scope="col"><small>四</small></th>
+          <th title="星期五" scope="col"><small>五</small></th>
+          <th title="星期六" scope="col"><small>六</small></th>
+          <th title="星期日" scope="col"><small>日</small></th>
+         </tr>
+        </thead>
+        <tbody>
+         <tr>
+          <td class="pad" colspan="2"> </td>
+          <td>1</td>
+          <td>2</td>
+          <td>3</td>
+          <td>4</td>
+          <td>5</td>
+         </tr>
+         <tr>
+          <td>6</td>
+          <td>7</td>
+          <td>8</td>
+          <td>9</td>
+          <td>10</td>
+          <td>11</td>
+          <td>12</td>
+         </tr>
+         <tr>
+          <td><a href="http://www.imfirewall.com/blog/post/291.html">13</a></td>
+          <td>14</td>
+          <td><a href="http://www.imfirewall.com/blog/post/292.html">15</a></td>
+          <td>16</td>
+          <td>17</td>
+          <td><a href="http://www.imfirewall.com/blog/post/294.html">18</a></td>
+          <td>19</td>
+         </tr>
+         <tr>
+          <td>20</td>
+          <td>21</td>
+          <td>22</td>
+          <td>23</td>
+          <td><a href="http://www.imfirewall.com/blog/post/296.html">24</a></td>
+          <td>25</td>
+          <td>26</td>
+         </tr>
+         <tr>
+          <td>27</td>
+          <td><a href="http://www.imfirewall.com/blog/post/297.html">28</a></td>
+          <td>29</td>
+          <td>30</td>
+          <td>31</td>
+          <td class="pad" colspan="2"> </td>
+         </tr>
+        </tbody>
+       </table>
+      </div> 
+     </dd> 
+    </dl>
+    <dl class="function" id="social"> 
+     <dt class="function_t">
+      关注我们
+     </dt>
+     <dd class="function_c"> 
+      <div>
+       新浪官方微博： 
+       <a href="http://weibo.com/WFilter" target="_blank">@WFilter</a> 
+       <br /> 微信二维码：
+       <br /> 
+       <img src="http://www.imfirewall.com/images/qrcode_for_gh_560daffe67ae_258.jpg" style="width:85%" />
+      </div> 
+     </dd> 
+    </dl>
+    <dl class="function" id="divContorPanel"> 
+     <dt class="function_t">
+      控制面板
+     </dt>
+     <dd class="function_c"> 
+      <div>
+       <span class="cp-hello">您好,欢迎到访网站!</span>
+       <br />
+       <span class="cp-login"><a href="http://www.imfirewall.com/blog/zb_system/cmd.php?act=login">登录后台</a></span>&nbsp;&nbsp;
+       <span class="cp-vrs"><a href="http://www.imfirewall.com/blog/zb_system/cmd.php?act=misc&amp;type=vrs">查看权限</a></span>
+      </div> 
+     </dd> 
+    </dl>
+    <dl class="function" id="divCatalog"> 
+     <dt class="function_t">
+      网站分类
+     </dt>
+     <dd class="function_c"> 
+      <ul>
+       <li><a href="http://www.imfirewall.com/blog/category-1.html">局域网监控</a></li>
+       <li><a href="http://www.imfirewall.com/blog/category-20.html">流量监控软件</a></li>
+       <li><a href="http://www.imfirewall.com/blog/category-19.html">网络流量监控</a></li>
+       <li><a href="http://www.imfirewall.com/blog/category-18.html">上网行为控制软件</a></li>
+       <li><a href="http://www.imfirewall.com/blog/category-17.html">上网行为管理软件</a></li>
+       <li><a href="http://www.imfirewall.com/blog/category-16.html">上网管理软件</a></li>
+       <li><a href="http://www.imfirewall.com/blog/category-15.html">Web邮件监控</a></li>
+       <li><a href="http://www.imfirewall.com/blog/category-14.html">上网流量管理</a></li>
+       <li><a href="http://www.imfirewall.com/blog/category-13.html">禁止网络游戏</a></li>
+       <li><a href="http://www.imfirewall.com/blog/category-12.html">内网管理</a></li>
+       <li><a href="http://www.imfirewall.com/blog/category-11.html">禁止网络电视</a></li>
+       <li><a href="http://www.imfirewall.com/blog/category-10.html">禁止网站</a></li>
+       <li><a href="http://www.imfirewall.com/blog/category-9.html">禁止QQ聊天</a></li>
+       <li><a href="http://www.imfirewall.com/blog/category-8.html">网络管理</a></li>
+       <li><a href="http://www.imfirewall.com/blog/category-7.html">上网行为管理</a></li>
+       <li><a href="http://www.imfirewall.com/blog/category-6.html">局域网管理</a></li>
+       <li><a href="http://www.imfirewall.com/blog/category-5.html">网络监控部署方案</a></li>
+       <li><a href="http://www.imfirewall.com/blog/category-4.html">P2P监控管理</a></li>
+       <li><a href="http://www.imfirewall.com/blog/category-3.html">聊天监控</a></li>
+       <li><a href="http://www.imfirewall.com/blog/category-2.html">网络监控技术</a></li>
+       <li><a href="http://www.imfirewall.com/blog/category-21.html">多线均衡</a></li>
+       <li><a href="http://www.imfirewall.com/blog/category-22.html">VPN</a></li>
+       <li><a href="http://www.imfirewall.com/blog/category-23.html">WiFi监控管理方案</a></li>
+       <li><a href="http://www.imfirewall.com/blog/category-24.html">邮件监控方案</a></li>
+       <li><a href="http://www.imfirewall.com/blog/category-25.html">上网行为管理方案</a></li>
+      </ul> 
+     </dd> 
+    </dl>
+    <dl class="function" id="divSearchPanel"> 
+     <dt class="function_t">
+      搜索
+     </dt>
+     <dd class="function_c"> 
+      <div>
+       <form name="search" method="post" action="http://www.imfirewall.com/blog/zb_system/cmd.php?act=search">
+        <input type="text" name="q" size="11" /> 
+        <input type="submit" value="搜索" />
+       </form>
+      </div> 
+     </dd> 
+    </dl>
+    <dl class="function" id="divLinkage"> 
+     <dt class="function_t">
+      友情链接
+     </dt>
+     <dd class="function_c"> 
+      <ul>
+       <li><a href="http://www.imfirewall.com" target="_blank">上网行为管理软件</a></li>
+       <li><a href="http://www.imfirewall.com" target="_blank">局域网管理软件</a></li>
+       <li><a href="http://wiki.imfirewall.com" target="_blank">WFilter系统官方文档</a></li>
+       <li><a href="http://www.wfilter.org" target="_blank">WFilter软件官方文档</a></li>
+       <li><a href="http://www.wfilter.org/WFilter_Plugins" target="_blank">WFilter扩展插件</a></li>
+       <li><a href="http://www.wfiltertutorial.com" target="_blank">WFilter Documents</a></li>
+       <li><a href="http://www.wfiltertutorial.com/WFilter_Plugin" target="_blank">WFilter Extensions</a></li>
+       <li><a href="https://www.baidu.com/s?wd=WFilter%E4%B8%8A%E7%BD%91%E8%A1%8C%E4%B8%BA%E7%AE%A1%E7%90%86%E8%BD%AF%E4%BB%B6" target="_blank">上网行为管理软件</a></li>
+       <li><a href="http://www.imfirewall.us" target="_blank">Web content filtering software for business</a></li>
+       <li><a href="http://www.imfirewall.us" target="_blank">Internet content filtering software for business</a></li>
+       <li><a href="http://www.imfirewall.us/internet-usage-monitoring" target="_blank">Business internet monitoring software</a></li>
+       <li><a href="http://www.imfirewall.us/internet-activity-filtering" target="_blank">Business internet filtering software</a></li>
+       <li><a href="http://www.wfilterros.com" target="_blank">WFilter NG Firewall</a></li>
+      </ul> 
+     </dd> 
+    </dl> 
+   </div> 
+   <div class="clear"></div> 
+  </div> 
+  <div id="footer"> 
+   <div class="copyright"> 
+    <p>Powered By <a href="http://www.zblogcn.com/" title="RainbowSoft Z-BlogPHP" target="_blank">Z-BlogPHP 1.4 Deeplue Build 150101</a></p> 
+    <p>Copyright @ IMFirewall Software</p> 
+   </div> 
+   <div id="goTopBtn"> 
+    <a onclick="pageScroll()"><span>返回顶部</span></a> 
+   </div> 
+   <div class="clear"></div> 
+  </div>  
+  <!--8.24 ms , 9 query , 763kb memory , 0 error-->
+ </body>
+</html>

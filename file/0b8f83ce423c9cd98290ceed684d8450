@@ -1,0 +1,296 @@
+<!DOCTYPE html><html><head>
+<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7">
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8;">
+<meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no, width=device-width">
+<title>八百客-CRM客户关系管理系统</title>
+<script language="javascript" src="js/Crm_Global.js"></script>
+<script language="javascript" src="mobile/js/jquery-1.10.2.min.js"></script>
+<link href="/css/new/login.css" rel="stylesheet" type="text/css">
+</head>
+<body style="">
+<script type="text/vbscript">
+Dim FirstDigest
+Dim Digest 
+Digest= "01234567890123456"
+dim bErr
+sub ShowErr(Msg)
+msgbox(Msg)
+	bErr = true
+End Sub
+function Validate(Pin,mServerDigest,mRndNum)
+	Validate=true
+	Digest = "01234567890123456"
+	On Error Resume Next
+	bErr = false
+	ePass.GetLibVersion
+	If Err.number = &H1B6 Then
+		ShowErr "Load ePassND Safe Active Control"
+		Validate = false
+		Exit function
+	Else
+		ePass.OpenDevice 1, ""
+		If Err then
+			ShowErr "Open first ePassND failed."
+			Validate = false
+			Exit function
+		End if
+		dim results
+		results = "01234567890123456"
+		results = ePass.GetStrProperty(7, 0, 0)
+		ePass.VerifyPIN 0, CStr(Pin)
+		If Err Then
+			ShowErr "Verify User PIN Failure!!!"
+			Validate = false
+			ePass.CloseDevice
+			Exit function
+		End If
+		'Open the first key file.
+		If Not bErr Then
+			ePass.OpenFile 0, &H12
+			If Err Then 
+				ShowErr "Open first KEY-file"
+				Validate = false
+				ePass.CloseDevice
+				Exit function
+			End If
+		End If
+
+		'Do HASH-MD5-HMAC compute.
+		If Not bErr Then
+			Digest = ePass.HashToken(1, &H23, mRndNum)
+			If Err Then 
+				ShowErr "HashToken compute"
+				Validate = false
+				ePass.CloseDevice
+				Exit function
+			End If
+			if Digest<>mServerDigest then
+			Validate = false
+			end if
+		End If
+		
+	End If
+	ePass.CloseDevice
+end function
+</script>
+<object classid="clsid:E1D396DC-D064-4846-8B50-A3301BDD6243" id="ePass" name="ePass" style="LEFT:0px;TOP:0px;display:none" width="0" height="0" viewastext=""></object>
+<form name="Form1" method="post" action="./Default.jsp?mfs=login" onsubmit="javascript:return WebForm_OnSubmit();" id="Form1">
+<div>
+<input type="hidden" name="__EVENTTARGET" id="__EVENTTARGET" value="">
+<input type="hidden" name="__EVENTARGUMENT" id="__EVENTARGUMENT" value="">
+<input type="hidden" name="__VIEWSTATE" id="__VIEWSTATE" value="/wEPDwUKMTM2Nzg4MTU2MA9kFgICAQ9kFgICAw9kFgJmD2QWCgICDw8WAh4MRXJyb3JNZXNzYWdlBQblv4Xmt7tkZAIFDw8WAh8ABQblv4Xmt7tkZAIIDw8WAh8ABQblv4Xmt7tkZAIMDw8WAh4EVGV4dAUG55m75b2VFgIeB29uY2xpY2sFFm1sb2dpbigpO3JldHVybiBmYWxzZTtkAg0PEA8WAh8BBRLorrDkvY/nmbvlvZXlkI3np7BkZGRkGAEFHl9fQ29udHJvbHNSZXF1aXJlUG9zdEJhY2tLZXlfXxYBBRNDcm1fQ29udHJvbCRyZW1wYXNzQSyA+agVhfEX7fGNtgwYT5Kbd4M=">
+</div>
+
+<script type="text/javascript">
+//<![CDATA[
+var theForm = document.forms['Form1'];
+if (!theForm) {
+    theForm = document.Form1;
+}
+function __doPostBack(eventTarget, eventArgument) {
+    if (!theForm.onsubmit || (theForm.onsubmit() != false)) {
+        theForm.__EVENTTARGET.value = eventTarget;
+        theForm.__EVENTARGUMENT.value = eventArgument;
+        theForm.submit();
+    }
+}
+//]]>
+</script>
+
+
+<script src="/WebResource.axd?d=Cr6NY1haBII3CUWgTf-vRxkAVYzK1FJ6XORbJp5zHXYb1faJ2WnIXBUQYE-i4nGMszzp_Bd8NNpxf0uVdI32lDKWS0A1&amp;t=636101352168974311" type="text/javascript"></script>
+
+
+<script type="text/javascript" src="/ajaxpro/prototype.ashx"></script>
+<script type="text/javascript" src="/ajaxpro/core.ashx"></script>
+<script type="text/javascript" src="/ajaxpro/converter.ashx"></script>
+<script type="text/javascript" src="/ajaxpro/Crm_Gooling.login_bar,App_Web_login_bar.ascx.6cb53fb3.ashx"></script>
+
+<script src="/WebResource.axd?d=SNhGNua5bytowQD_ES8ruTO4SCXXbtwK-lJPxXcl8mOmp64T4XpO5IObsf1rP-ugdukaf6Id84UYZkzqgspHp55pLaY1&amp;t=636101352168974311" type="text/javascript"></script>
+<script type="text/javascript">
+//<![CDATA[
+function WebForm_OnSubmit() {
+if (typeof(ValidatorOnSubmit) == "function" && ValidatorOnSubmit() == false) return false;
+return true;
+}
+//]]>
+</script>
+
+<div>
+
+	<input type="hidden" name="__VIEWSTATEGENERATOR" id="__VIEWSTATEGENERATOR" value="03A9F73F">
+</div>
+	
+	<div id="Panel_Main" class="bbk_loginBox" style="height: 0px; min-height: 820px; ">
+	
+<script type="text/javascript" language="javascript">
+var murl="";
+var mRndNum="C91F92CJ77YO7MW";
+var mloginname = '';
+var mpass='';
+var mzzm = '';
+var msetupid="";
+var crmnew_script2="验证";
+var crmnew_script3="请等待";
+var crmnew_script4="验证";
+var crmnew_script5="成功！！";
+var crmnew_script6="验证";
+var crmnew_script7="失败！！";
+var ljid="";
+var ljorgid="";
+var ljserver ="";
+var mtab="";
+var lan="";
+</script>
+<script type="text/javascript" src="/js/login_bar.js"></script>
+<script language="javascript" type="text/javascript">
+
+</script>
+<div class="bbk_loginLeft" style="height: 0px; min-height: 820px; ">
+    <div class="bbk_loginL">
+        <div class="bbk_loginL_logo">
+            <img src="/img/new/bbk_login_logo.png" width="190px" height="124px">
+        </div>
+        <div class="bbk_loginL_content">
+            <div class="bbk_loginL_loginMode">
+                <div class="bbk_loginL_LModeList">
+                    <div class="bbk_loginL_LModeListOne mode1 fl activeMode"><a href="javascript:void(0)" onfocus="this.blur();">普通登录</a></div>
+                    <div class="bbk_loginL_LModeListOne mode2 fl"><a href="javascript:void(0)" onfocus="this.blur();">USBkey</a></div>
+                    <div class="bbk_loginL_LModeListOne mode3 fl"><a href="javascript:void(0)" onfocus="this.blur();">电子口令</a></div>
+                    <div class="bbk_loginL_LModeListOne mode4 fl"><a href="javascript:void(0)" onfocus="this.blur();">SMS登录</a></div>
+                </div>
+            </div>
+            <div class="bbk_loginL_form">
+                <div class="bbk_loginL_FError"><span id="Crm_Control_Errormsg1_errlabel" style="display:inline-block;color:Red;background-color:Transparent;border-style:None;font-size:9pt;"></span>
+</div>
+                <div class="bbk_loginL_FOrgNameBox">
+                    <label>组织名：<span><span id="Crm_Control_Requiredzzm" style="color:Red;display:none;">必添</span></span></label>
+                    <div class="bbk_loginL_FOrgName">
+                        <input name="Crm_Control$zzm" type="text" maxlength="100" id="Crm_Control_zzm">
+                    </div>
+                </div>
+                <div class="bbk_loginL_FUserNameBox">
+                    <label>帐户名：<span><span id="Crm_Control_RequiredFieldValidator1" style="color:Red;display:none;">必添</span></span></label>
+                    <div class="bbk_loginL_FUserName">
+                        <input name="Crm_Control$loginname" type="text" maxlength="100" id="Crm_Control_loginname">
+                    </div>
+                </div>
+                <div class="bbk_loginL_FPWDBox">
+                    <label>密 码：<span><span id="Crm_Control_RequiredFieldValidator2" style="color:Red;display:none;">必添</span></span></label>
+                    <div class="bbk_loginL_FPWD">
+                        <input name="Crm_Control$mpassword" type="password" maxlength="100" id="Crm_Control_mpassword">
+                    </div>
+                </div>
+                <div class="bbk_loginL_FVerifCodeBox" style="display: none; ">
+                    <label>验证码<span><span id="Crm_Control_Requiredmcode" style="color:Red;display:none;"></span></span></label>
+                    <div class="bbk_loginL_FVerifCode">
+                        <input name="Crm_Control$mcode" type="text" maxlength="32" id="Crm_Control_mcode" class="bbk_loginL_FVerifCodeText">
+                        <input id="btnsendsms" class="bbk_loginL_FVerifCodeBtn" type="button" value="获取验证码" onclick="msend();return false;">
+                    </div>
+                </div>
+                <input type="submit" name="Crm_Control$btSubmit" value="登录" onclick="mlogin();return false;WebForm_DoPostBackWithOptions(new WebForm_PostBackOptions(&quot;Crm_Control$btSubmit&quot;, &quot;&quot;, true, &quot;&quot;, &quot;&quot;, false, false))" id="Crm_Control_btSubmit" class="bbk_loginL_FLoginBtn">
+                <div class="bbk_loginL_FRemember">
+                    <input id="Crm_Control_rempass" type="checkbox" name="Crm_Control$rempass" checked="checked"><label for="Crm_Control_rempass">记住登录名称</label>
+                </div>
+            </div>
+            <div class="bbk_loginL_forgetPwd">
+                <a href="/default.jsp?mfs=getpass" class="fl">取回密码</a>
+                <a href="/default.jsp?mfs=newpass1&amp;mtype=0&amp;depid=-1" class="fr">免费试用</a>
+            </div>
+        </div>
+    </div>
+    <div class="bbk_login_footer">©&nbsp;八百客（北京）信息技术有限公司&nbsp;版权所有</div>
+</div>
+<div class="bbk_loginRight" style="height: 0px; ">
+    <iframe frameborder="0" style="width:100%;height:100%;min-height:820px; overflow:hidden;" src="/login/loginAD.html"></iframe>
+</div>
+<div class="bbk_loginScroll" style="height: 0px; min-height: 820px; "></div>
+<script type="text/javascript" language="javascript">
+    $(".bbk_loginL_LModeListOne a").on('click', function () {
+        //$(".bbk_loginL_LModeListOne").removeClass("activeMode");
+        //$(this).parent(".bbk_loginL_LModeListOne").addClass("activeMode");
+        var thisMode = $(this).html();
+        $(".bbk_loginL_activeMode span").html(thisMode);
+        $(".bbk_loginL_loginMode").removeClass("bbk_loginL_click");
+        if (thisMode == "普通登录") {
+            mtab = "0";
+        }
+        else if (thisMode == "USBkey") {
+            mtab = "1";
+        }
+        else if (thisMode == "电子口令") {
+            mtab = "2";
+        }
+        else if (thisMode == "SMS登录") {
+            mtab = "3";
+        }
+        initTab();
+        $(".bbk_loginL_FError span").html("");
+    });
+</script>
+</div>
+	<div id="ValidationSummary1" style="color:Red;display:none;">
+
+</div>
+
+<script type="text/javascript">
+//<![CDATA[
+var Page_ValidationSummaries =  new Array(document.getElementById("ValidationSummary1"));
+var Page_Validators =  new Array(document.getElementById("Crm_Control_Requiredzzm"), document.getElementById("Crm_Control_RequiredFieldValidator1"), document.getElementById("Crm_Control_RequiredFieldValidator2"), document.getElementById("Crm_Control_Requiredmcode"));
+//]]>
+</script>
+
+<script type="text/javascript">
+//<![CDATA[
+var Crm_Control_Requiredzzm = document.all ? document.all["Crm_Control_Requiredzzm"] : document.getElementById("Crm_Control_Requiredzzm");
+Crm_Control_Requiredzzm.controltovalidate = "Crm_Control_zzm";
+Crm_Control_Requiredzzm.errormessage = "必添";
+Crm_Control_Requiredzzm.display = "Dynamic";
+Crm_Control_Requiredzzm.evaluationfunction = "RequiredFieldValidatorEvaluateIsValid";
+Crm_Control_Requiredzzm.initialvalue = "";
+var Crm_Control_RequiredFieldValidator1 = document.all ? document.all["Crm_Control_RequiredFieldValidator1"] : document.getElementById("Crm_Control_RequiredFieldValidator1");
+Crm_Control_RequiredFieldValidator1.controltovalidate = "Crm_Control_loginname";
+Crm_Control_RequiredFieldValidator1.errormessage = "必添";
+Crm_Control_RequiredFieldValidator1.display = "Dynamic";
+Crm_Control_RequiredFieldValidator1.evaluationfunction = "RequiredFieldValidatorEvaluateIsValid";
+Crm_Control_RequiredFieldValidator1.initialvalue = "";
+var Crm_Control_RequiredFieldValidator2 = document.all ? document.all["Crm_Control_RequiredFieldValidator2"] : document.getElementById("Crm_Control_RequiredFieldValidator2");
+Crm_Control_RequiredFieldValidator2.controltovalidate = "Crm_Control_mpassword";
+Crm_Control_RequiredFieldValidator2.errormessage = "必添";
+Crm_Control_RequiredFieldValidator2.display = "Dynamic";
+Crm_Control_RequiredFieldValidator2.evaluationfunction = "RequiredFieldValidatorEvaluateIsValid";
+Crm_Control_RequiredFieldValidator2.initialvalue = "";
+var Crm_Control_Requiredmcode = document.all ? document.all["Crm_Control_Requiredmcode"] : document.getElementById("Crm_Control_Requiredmcode");
+Crm_Control_Requiredmcode.controltovalidate = "Crm_Control_mcode";
+Crm_Control_Requiredmcode.display = "Dynamic";
+Crm_Control_Requiredmcode.evaluationfunction = "RequiredFieldValidatorEvaluateIsValid";
+Crm_Control_Requiredmcode.initialvalue = "";
+var ValidationSummary1 = document.all ? document.all["ValidationSummary1"] : document.getElementById("ValidationSummary1");
+ValidationSummary1.showmessagebox = "True";
+ValidationSummary1.showsummary = "False";
+//]]>
+</script>
+
+
+<script type="text/javascript">
+//<![CDATA[
+
+var Page_ValidationActive = false;
+if (typeof(ValidatorOnLoad) == "function") {
+    ValidatorOnLoad();
+}
+
+function ValidatorOnSubmit() {
+    if (Page_ValidationActive) {
+        return ValidatorCommonOnSubmit();
+    }
+    else {
+        return true;
+    }
+}
+        //]]>
+</script>
+</form>
+
+
+</body></html>

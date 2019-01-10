@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+ <head> 
+  <meta charset="UTF-8" /> 
+  <meta name="viewport" content="width=device-width, initial-scale=1" /> 
+  <title>PHP 设计模式系列 —— 中介者模式（Mediator）  –  Laravel学院</title> 
+  <meta name="keywords" content="Laravel学院,Laravel,Lumen,PHP,PHP框架,文档,教程,中文,资源,学习" /> 
+  <meta name="description" content="Laravel学院致力于提供优质Laravel中文学习资源" /> 
+  <link rel="profile" href="http://gmpg.org/xfn/11" /> 
+  <link rel="pingback" href="http://laravelacademy.org/xmlrpc.php" /> 
+  <link rel="shortcut icon" href="/favicon.png" title="Favicon" /> 
+  <link rel="dns-prefetch" href="//s.w.org" /> 
+  <link rel="alternate" type="application/rss+xml" title="Laravel学院 &raquo; Feed" href="http://laravelacademy.org/feed" /> 
+  <link rel="alternate" type="application/rss+xml" title="Laravel学院 &raquo; 评论Feed" href="http://laravelacademy.org/comments/feed" /> 
+  <link rel="alternate" type="application/rss+xml" title="Laravel学院 &raquo; PHP 设计模式系列 —— 中介者模式（Mediator）评论Feed" href="http://laravelacademy.org/post/2894.html/feed" /> 
+  <script type="text/javascript">
+			window._wpemojiSettings = {"baseUrl":"https:\/\/s.w.org\/images\/core\/emoji\/2.2.1\/72x72\/","ext":".png","svgUrl":"https:\/\/s.w.org\/images\/core\/emoji\/2.2.1\/svg\/","svgExt":".svg","source":{"concatemoji":"http:\/\/laravelacademy.org\/wp-includes\/js\/wp-emoji-release.min.js?ver=4.7.3"}};
+			!function(a,b,c){function d(a){var b,c,d,e,f=String.fromCharCode;if(!k||!k.fillText)return!1;switch(k.clearRect(0,0,j.width,j.height),k.textBaseline="top",k.font="600 32px Arial",a){case"flag":return k.fillText(f(55356,56826,55356,56819),0,0),!(j.toDataURL().length<3e3)&&(k.clearRect(0,0,j.width,j.height),k.fillText(f(55356,57331,65039,8205,55356,57096),0,0),b=j.toDataURL(),k.clearRect(0,0,j.width,j.height),k.fillText(f(55356,57331,55356,57096),0,0),c=j.toDataURL(),b!==c);case"emoji4":return k.fillText(f(55357,56425,55356,57341,8205,55357,56507),0,0),d=j.toDataURL(),k.clearRect(0,0,j.width,j.height),k.fillText(f(55357,56425,55356,57341,55357,56507),0,0),e=j.toDataURL(),d!==e}return!1}function e(a){var c=b.createElement("script");c.src=a,c.defer=c.type="text/javascript",b.getElementsByTagName("head")[0].appendChild(c)}var f,g,h,i,j=b.createElement("canvas"),k=j.getContext&&j.getContext("2d");for(i=Array("flag","emoji4"),c.supports={everything:!0,everythingExceptFlag:!0},h=0;h<i.length;h++)c.supports[i[h]]=d(i[h]),c.supports.everything=c.supports.everything&&c.supports[i[h]],"flag"!==i[h]&&(c.supports.everythingExceptFlag=c.supports.everythingExceptFlag&&c.supports[i[h]]);c.supports.everythingExceptFlag=c.supports.everythingExceptFlag&&!c.supports.flag,c.DOMReady=!1,c.readyCallback=function(){c.DOMReady=!0},c.supports.everything||(g=function(){c.readyCallback()},b.addEventListener?(b.addEventListener("DOMContentLoaded",g,!1),a.addEventListener("load",g,!1)):(a.attachEvent("onload",g),b.attachEvent("onreadystatechange",function(){"complete"===b.readyState&&c.readyCallback()})),f=c.source||{},f.concatemoji?e(f.concatemoji):f.wpemoji&&f.twemoji&&(e(f.twemoji),e(f.wpemoji)))}(window,document,window._wpemojiSettings);
+		</script> 
+  <style type="text/css">
+img.wp-smiley,
+img.emoji {
+	display: inline !important;
+	border: none !important;
+	box-shadow: none !important;
+	height: 1em !important;
+	width: 1em !important;
+	margin: 0 .07em !important;
+	vertical-align: -0.1em !important;
+	background: none !important;
+	padding: 0 !important;
+}
+</style> 
+  <link rel="stylesheet" id="font-awesome-css" href="http://laravelacademy.org/wp-content/themes/wp-knowledge-base/lib/bootstrap/css/font-awesome.css" type="text/css" media="screen" /> 
+  <link rel="stylesheet" id="wp-pagenavi-css" href="http://laravelacademy.org/wp-content/plugins/wp-pagenavi/pagenavi-css.css?ver=2.70" type="text/css" media="all" /> 
+  <link rel="stylesheet" id="ipt_kb-style-css" href="http://laravelacademy.org/wp-content/themes/wp-knowledge-base/style.css?ver=1.6.0" type="text/css" media="all" /> 
+  <link rel="stylesheet" id="ipt_kb-bootstrap-css" href="http://laravelacademy.org/wp-content/themes/wp-knowledge-base/lib/bootstrap/css/bootstrap.min.css?ver=1.6.0" type="text/css" media="all" /> 
+  <link rel="stylesheet" id="ipt_kb-bootstrap-theme-css" href="http://laravelacademy.org/wp-content/themes/wp-knowledge-base/lib/bootstrap/css/bootstrap-theme.min.css?ver=1.6.0" type="text/css" media="all" /> 
+  <link rel="stylesheet" id="ipt_kb-icomoon-css" href="http://laravelacademy.org/wp-content/themes/wp-knowledge-base/lib/icomoon/style.css?ver=1.6.0" type="text/css" media="all" /> 
+  <link rel="stylesheet" id="ipt_kb-fix-css" href="http://laravelacademy.org/wp-content/themes/wp-knowledge-base/lib/fix/fix.css?ver=1.6.0-1.6.3" type="text/css" media="all" /> 
+  <script type="text/javascript" src="http://laravelacademy.org/wp-includes/js/jquery/jquery.js?ver=1.12.4"></script> 
+  <script type="text/javascript" src="http://laravelacademy.org/wp-includes/js/jquery/jquery-migrate.min.js?ver=1.4.1"></script> 
+  <script type="text/javascript" src="http://laravelacademy.org/wp-content/themes/wp-knowledge-base/lib/bootstrap/js/bootstrap.min.js?ver=1.6.0"></script> 
+  <script type="text/javascript" src="http://laravelacademy.org/wp-content/themes/wp-knowledge-base/lib/bootstrap/js/jquery.ipt-kb-bootstrap.js?ver=1.6.0"></script> 
+  <script type="text/javascript" src="http://laravelacademy.org/wp-content/themes/wp-knowledge-base/lib/sticky-kit/jquery.sticky-kit.min.js?ver=1.6.0"></script> 
+  <script type="text/javascript">
+/* <![CDATA[ */
+var iptKBJS = {"ajaxurl":"http:\/\/laravelacademy.org\/wp-admin\/admin-ajax.php","ajax_error":"Oops, some problem to connect. Try again?"};
+/* ]]> */
+</script> 
+  <script type="text/javascript" src="http://laravelacademy.org/wp-content/themes/wp-knowledge-base/js/ipt-kb.js?ver=1.6.0"></script> 
+  <link rel="https://api.w.org/" href="http://laravelacademy.org/wp-json/" /> 
+  <link rel="EditURI" type="application/rsd+xml" title="RSD" href="http://laravelacademy.org/xmlrpc.php?rsd" /> 
+  <link rel="wlwmanifest" type="application/wlwmanifest+xml" href="http://laravelacademy.org/wp-includes/wlwmanifest.xml" /> 
+  <link rel="prev" title="[ Laravel 5.2 文档 ] 架构 —— 应用目录结构" href="http://laravelacademy.org/post/2888.html" /> 
+  <link rel="next" title="[ Laravel 5.2 文档 ] 架构 —— 服务提供者" href="http://laravelacademy.org/post/2900.html" /> 
+  <meta name="generator" content="WordPress 4.7.3" /> 
+  <link rel="canonical" href="http://laravelacademy.org/post/2894.html" /> 
+  <link rel="shortlink" href="http://laravelacademy.org/?p=2894" /> 
+  <link rel="alternate" type="application/json+oembed" href="http://laravelacademy.org/wp-json/oembed/1.0/embed?url=http%3A%2F%2Flaravelacademy.org%2Fpost%2F2894.html" /> 
+  <link rel="alternate" type="text/xml+oembed" href="http://laravelacademy.org/wp-json/oembed/1.0/embed?url=http%3A%2F%2Flaravelacademy.org%2Fpost%2F2894.html&amp;format=xml" /> 
+  <style>
+.scroll-back-to-top-wrapper {
+    position: fixed;
+	opacity: 0;
+	visibility: hidden;
+	overflow: hidden;
+	text-align: center;
+	z-index: 99999999;
+    background-color: #e74430;
+	color: #eeeeee;
+	width: 50px;
+	height: 48px;
+	line-height: 48px;
+	right: 30px;
+	bottom: 30px;
+	padding-top: 2px;
+	border-top-left-radius: 10px;
+	border-top-right-radius: 10px;
+	border-bottom-right-radius: 10px;
+	border-bottom-left-radius: 10px;
+	-webkit-transition: all 0.5s ease-in-out;
+	-moz-transition: all 0.5s ease-in-out;
+	-ms-transition: all 0.5s ease-in-out;
+	-o-transition: all 0.5s ease-in-out;
+	transition: all 0.5s ease-in-out;
+}
+.scroll-back-to-top-wrapper:hover {
+	background-color: #f4645f;
+  color: #eeeeee;
+}
+.scroll-back-to-top-wrapper.show {
+    visibility:visible;
+    cursor:pointer;
+	opacity: 1.0;
+}
+.scroll-back-to-top-wrapper i.fa {
+	line-height: inherit;
+}
+.scroll-back-to-top-wrapper .fa-lg {
+	vertical-align: 0;
+}
+</style>
+  <script type="text/javascript">
+	window._wp_rp_static_base_url = 'https://wprp.zemanta.com/static/';
+	window._wp_rp_wp_ajax_url = "http://laravelacademy.org/wp-admin/admin-ajax.php";
+	window._wp_rp_plugin_version = '3.6.3';
+	window._wp_rp_post_id = '2894';
+	window._wp_rp_num_rel_posts = '5';
+	window._wp_rp_thumbnails = false;
+	window._wp_rp_post_title = 'PHP+%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E7%B3%BB%E5%88%97+%E2%80%94%E2%80%94+%E4%B8%AD%E4%BB%8B%E8%80%85%E6%A8%A1%E5%BC%8F%EF%BC%88Mediator%EF%BC%89';
+	window._wp_rp_post_tags = ['php', '%E4%B8%AD%E4%BB%8B%E8%80%85%E6%A8%A1%E5%BC%8F', '%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F', '%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F', 'world', 'made', 'string', 'mediat', 'php', 'a', 'span'];
+	window._wp_rp_promoted_content = true;
+</script> 
+  <link rel="stylesheet" href="http://laravelacademy.org/wp-content/plugins/wordpress-23-related-posts-plugin/static/themes/modern.css?version=3.6.3" /> 
+  <style type="text/css">.recentcomments a{display:inline !important;padding:0 !important;margin:0 !important;}</style> 
+ </head> 
+ <body class="post-template-default single single-post postid-2894 single-format-standard group-blog"> 
+  <div id="page" class="hfeed site"> 
+   <header id="masthead" class="site-header" role="banner"> 
+    <nav class="navbar navbar-default navbar-static-top main-navigation" role="navigation" id="site_navigation"> 
+     <div class="container"> 
+      <!-- Brand and toggle get grouped for better mobile display --> 
+      <div class="navbar-header"> 
+       <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse"> <span class="sr-only">Toggle navigation</span> <span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span> </button> 
+       <a class="site-anchor" href="http://laravelacademy.org/"> <img src="http://laravelacademy.org/wp-content/themes/wp-knowledge-base/logo.png" width="200" height="50" alt="" /> </a> 
+      </div> 
+      <!-- Collect the nav links, forms, and other content for toggling --> 
+      <div class="collapse navbar-collapse navbar-ex1-collapse"> 
+       <ul id="menu-%e5%af%bc%e8%88%aa%e8%8f%9c%e5%8d%95" class="nav navbar-nav">
+        <li id="menu-item-7" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-has-children menu-item-7 dropdown"><a title="文档" href="#" data-toggle="dropdown" class="dropdown-toggle">文档 <span class="caret"></span></a> 
+         <ul role="menu" class=" dropdown-menu"> 
+          <li id="menu-item-6676" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-6676"><a title="Laravel 5.4" href="http://laravelacademy.org/laravel-docs-5_4">Laravel 5.4</a></li> 
+          <li id="menu-item-5711" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-5711"><a title="Laravel 5.3" href="http://laravelacademy.org/laravel-docs-5_3">Laravel 5.3</a></li> 
+          <li id="menu-item-2931" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-2931"><a title="Laravel 5.2" href="http://laravelacademy.org/laravel-docs-5_2">Laravel 5.2</a></li> 
+          <li id="menu-item-285" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-285"><a title="Laravel 5.1" href="http://laravelacademy.org/laravel-docs-5_1">Laravel 5.1</a></li> 
+          <li id="menu-item-508" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-508"><a title="Lumen" href="http://laravelacademy.org/lumen-docs">Lumen</a></li> 
+         </ul> </li> 
+        <li id="menu-item-3168" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-has-children menu-item-3168 dropdown"><a title="教程" href="#" data-toggle="dropdown" class="dropdown-toggle">教程 <span class="caret"></span></a> 
+         <ul role="menu" class=" dropdown-menu"> 
+          <li id="menu-item-948" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-948"><a title="基础教程" href="http://laravelacademy.org/laravel-tutorial-5_1">基础教程</a></li> 
+          <li id="menu-item-2122" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-2122"><a title="博客系列" href="http://laravelacademy.org/tutorials/blog">博客系列</a></li> 
+          <li id="menu-item-3513" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-3513"><a title="新特性系列" href="http://laravelacademy.org/tutorials/feature">新特性系列</a></li> 
+          <li id="menu-item-5612" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-5612"><a title="Vue入门教程" href="http://laravelacademy.org/tutorials/vuejs">Vue入门教程</a></li> 
+         </ul> </li> 
+        <li id="menu-item-671" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-has-children menu-item-671 dropdown"><a title="项目" href="#" data-toggle="dropdown" class="dropdown-toggle">项目 <span class="caret"></span></a> 
+         <ul role="menu" class=" dropdown-menu"> 
+          <li id="menu-item-2044" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-2044"><a title="网站" href="http://laravelacademy.org/project/website">网站</a></li> 
+          <li id="menu-item-1327" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-1327"><a title="扩展包" href="http://laravelacademy.org/project/packages">扩展包</a></li> 
+         </ul> </li> 
+        <li id="menu-item-159" class="menu-item menu-item-type-taxonomy menu-item-object-category current-post-ancestor menu-item-has-children menu-item-159 dropdown"><a title="资源" href="#" data-toggle="dropdown" class="dropdown-toggle">资源 <span class="caret"></span></a> 
+         <ul role="menu" class=" dropdown-menu"> 
+          <li id="menu-item-2482" class="menu-item menu-item-type-taxonomy menu-item-object-category current-post-ancestor current-menu-parent current-post-parent menu-item-2482"><a title="设计模式" href="http://laravelacademy.org/resources/design-patterns">设计模式</a></li> 
+          <li id="menu-item-644" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-644"><a title="代码片段" href="http://laravelacademy.org/resources/code">代码片段</a></li> 
+          <li id="menu-item-3187" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-3187"><a title="运维部署" href="http://laravelacademy.org/resources/linux">运维部署</a></li> 
+          <li id="menu-item-3178" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-3178"><a title="编辑器" href="http://laravelacademy.org/resources/editor">编辑器</a></li> 
+          <li id="menu-item-680" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-680"><a title="工具系列" href="http://laravelacademy.org/resources/tools">工具系列</a></li> 
+          <li id="menu-item-5343" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-5343"><a title="读书笔记" href="http://laravelacademy.org/resources/notebook">读书笔记</a></li> 
+          <li id="menu-item-410" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-410"><a title="相关下载" href="http://laravelacademy.org/resources-download">相关下载</a></li> 
+         </ul> </li> 
+        <li id="menu-item-4225" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-has-children menu-item-4225 dropdown"><a title="现代PHP" href="#" data-toggle="dropdown" class="dropdown-toggle">现代PHP <span class="caret"></span></a> 
+         <ul role="menu" class=" dropdown-menu"> 
+          <li id="menu-item-4226" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-4226"><a title="新特性" href="http://laravelacademy.org/modern-php/feature-modern-php">新特性</a></li> 
+          <li id="menu-item-4513" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-4513"><a title="最佳实践" href="http://laravelacademy.org/modern-php/best-practice">最佳实践</a></li> 
+          <li id="menu-item-4496" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-4496"><a title="编码规范" href="https://github.com/PizzaLiu/PHP-FIG">编码规范</a></li> 
+          <li id="menu-item-2397" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-2397"><a title="PHP 7" href="http://laravelacademy.org/resources/php7">PHP 7</a></li> 
+         </ul> </li> 
+        <li id="menu-item-3999" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-3999"><a title="问答" href="http://forum.laravelacademy.org">问答</a></li> 
+        <li id="menu-item-6268" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-6268"><a title="招聘" href="http://forum.laravelacademy.org/t/job">招聘</a></li> 
+        <li id="menu-item-599" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-599"><a title="新闻" href="http://laravelacademy.org/news">新闻</a></li> 
+        <li id="menu-item-6287" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-6287"><a title="投稿" href="http://forum.laravelacademy.org/t/tutorial">投稿</a></li> 
+        <li id="menu-item-1939" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-1939"><a title="捐赠" href="http://laravelacademy.org/donate-us">捐赠</a></li> 
+        <li id="menu-item-38" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-38"><a title="关于学院" href="http://laravelacademy.org/about-us">关于学院</a></li> 
+       </ul> 
+      </div> 
+     </div> 
+    </nav> 
+   </header>
+   <!-- #masthead --> 
+   <div id="content" class="site-content container"> 
+    <ol id="breadcrumbs" class="breadcrumb" xmlns:v="http://rdf.data-vocabulary.org/#"> 
+     <li typeof="v:Breadcrumb"> <a rel="v:url" property="v:title" href="http://laravelacademy.org/">首页</a> </li> 
+     <li typeof="v:Breadcrumb"> <a rel="v:url" property="v:title" href="http://laravelacademy.org/resources">资源</a> </li> 
+     <li typeof="v:Breadcrumb"> <a rel="v:url" property="v:title" href="http://laravelacademy.org/resources/design-patterns">设计模式</a> </li> 
+     <li class="active" typeof="v:Breadcrumb"> <span property="v:title">PHP 设计模式系列 —— 中介者模式（Mediator）</span> </li> 
+    </ol> 
+    <div id="primary" class="content-area col-md-8"> 
+     <main id="main" class="site-main" role="main"> 
+      <article id="post-2894" class="post-2894 post type-post status-publish format-standard has-post-thumbnail hentry category-design-patterns tag-php tag-529 tag-454"> 
+       <header class="entry-header page-header"> 
+        <h1 class="entry-title">PHP 设计模式系列 —— 中介者模式（Mediator）</h1> 
+        <div class="entry-meta text-muted"> 
+         <span class="posted-on"><i class="glyphicon glyphicon-calendar"></i> Posted on <a href="http://laravelacademy.org/post/2894.html" rel="bookmark"><time class="entry-date published" datetime="2016-01-04T13:02:10+00:00">2016年1月4日</time></a></span>
+         <span class="byline"> by <span class="author vcard"><i class="glyphicon glyphicon-user"></i> <a class="url fn n" href="http://laravelacademy.org/post/author/nonfu">学院君</a></span></span> 
+        </div>
+        <!-- .entry-meta --> 
+       </header>
+       <!-- .entry-header --> 
+       <div class="entry-content"> 
+        <h3 id="ipt_kb_toc_2894_0"><strong>1、模式定义</strong></h3> 
+        <p><a href="http://laravelacademy.org/tags/%e4%b8%ad%e4%bb%8b%e8%80%85%e6%a8%a1%e5%bc%8f" title="View all posts in 中介者模式" target="_blank">中介者模式</a>（Mediator）就是用一个中介对象来封装一系列的对象交互，中介者使各对象不需要显式地相互引用，从而使其耦合松散，而且可以独立地改变它们之间的交互。</p> 
+        <p>对于中介对象而言，所有相互交互的对象，都视为同事类，中介对象就是用来维护各个同事对象之间的关系，所有的同事类都只和中介对象交互，也就是说，中介对象是需要知道所有的同事对象的。当一个同事对象自身发生变化时，它是不知道会对其他同事对象产生什么影响，它只需要通知中介对象，“我发生变化了”，中介对象会去和其他同事对象进行交互的。这样一来，同事对象之间的依赖就没有了。有了中介者之后，所有的交互都封装在了中介对象里面，各个对象只需要关心自己能做什么就行，不需要再关心做了之后会对其他对象产生什么影响，也就是无需再维护这些关系了。</p> 
+        <h3 id="ipt_kb_toc_2894_1"><strong>2、UML类图</strong></h3> 
+        <p><img class="alignnone size-full wp-image-2895" src="http://laravelacademy.org/wp-content/uploads/2016/01/Mediator-Design-Pattern-UML.png" alt="Mediator-Design-Pattern-UML" width="704" height="346" srcset="http://laravelacademy.org/wp-content/uploads/2016/01/Mediator-Design-Pattern-UML.png 704w, http://laravelacademy.org/wp-content/uploads/2016/01/Mediator-Design-Pattern-UML-300x147.png 300w" sizes="(max-width: 704px) 100vw, 704px" /></p> 
+        <h3 id="ipt_kb_toc_2894_2"><strong>3、示例代码</strong></h3> 
+        <h4 id="ipt_kb_toc_2894_3"><strong>MediatorInterface.php</strong></h4> 
+        <pre><span class="cp">&lt;?php</span>
+
+<span class="k">namespace</span> <span class="nx">DesignPatterns\Behavioral\Mediator</span><span class="p">;</span>
+
+<span class="sd">/**</span>
+<span class="sd"> * MediatorInterface是一个中介者契约</span>
+<span class="sd"> * 该接口不是强制的，但是使用它更加符合里氏替换原则</span>
+<span class="sd"> */</span>
+<span class="k">interface</span> <span class="nx">MediatorInterface</span>
+<span class="p">{</span>
+    <span class="sd">/**</span>
+<span class="sd">     * 发送响应</span>
+<span class="sd">     *</span>
+<span class="sd">     * @param string $content</span>
+<span class="sd">     */</span>
+    <span class="k">public</span> <span class="k">function</span> <span class="nf">sendResponse</span><span class="p">(</span><span class="nv">$content</span><span class="p">);</span>
+
+    <span class="sd">/**</span>
+<span class="sd">     * 发起请求</span>
+<span class="sd">     */</span>
+    <span class="k">public</span> <span class="k">function</span> <span class="nf">makeRequest</span><span class="p">();</span>
+
+    <span class="sd">/**</span>
+<span class="sd">     * 查询数据库</span>
+<span class="sd">     */</span>
+    <span class="k">public</span> <span class="k">function</span> <span class="nf">queryDb</span><span class="p">();</span>
+<span class="p">}</span></pre> 
+        <h4 id="ipt_kb_toc_2894_4"><strong>Mediator.php</strong></h4> 
+        <pre><span class="cp">&lt;?php</span>
+
+<span class="k">namespace</span> <span class="nx">DesignPatterns\Behavioral\Mediator</span><span class="p">;</span>
+
+<span class="k">use</span> <span class="nx">DesignPatterns\Behavioral\Mediator\Subsystem</span><span class="p">;</span>
+
+<span class="sd">/**</span>
+<span class="sd"> * Mediator是中介者模式的具体实现类</span>
+<span class="sd"> * In this example, I have made a &quot;Hello World&quot; with the Mediator Pattern.</span>
+<span class="sd"> */</span>
+<span class="k">class</span> <span class="nc">Mediator</span> <span class="k">implements</span> <span class="nx">MediatorInterface</span>
+<span class="p">{</span>
+
+    <span class="sd">/**</span>
+<span class="sd">     * @var Subsystem\Server</span>
+<span class="sd">     */</span>
+    <span class="k">protected</span> <span class="nv">$server</span><span class="p">;</span>
+
+    <span class="sd">/**</span>
+<span class="sd">     * @var Subsystem\Database</span>
+<span class="sd">     */</span>
+    <span class="k">protected</span> <span class="nv">$database</span><span class="p">;</span>
+
+    <span class="sd">/**</span>
+<span class="sd">     * @var Subsystem\Client</span>
+<span class="sd">     */</span>
+    <span class="k">protected</span> <span class="nv">$client</span><span class="p">;</span>
+
+    <span class="sd">/**</span>
+<span class="sd">     * @param Subsystem\Database $db</span>
+<span class="sd">     * @param Subsystem\Client   $cl</span>
+<span class="sd">     * @param Subsystem\Server   $srv</span>
+<span class="sd">     */</span>
+    <span class="k">public</span> <span class="k">function</span> <span class="nf">setColleague</span><span class="p">(</span><span class="nx">Subsystem\Database</span> <span class="nv">$db</span><span class="p">,</span> <span class="nx">Subsystem\Client</span> <span class="nv">$cl</span><span class="p">,</span> <span class="nx">Subsystem\Server</span> <span class="nv">$srv</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">database</span> <span class="o">=</span> <span class="nv">$db</span><span class="p">;</span>
+        <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">server</span> <span class="o">=</span> <span class="nv">$srv</span><span class="p">;</span>
+        <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">client</span> <span class="o">=</span> <span class="nv">$cl</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="sd">/**</span>
+<span class="sd">     * 发起请求</span>
+<span class="sd">     */</span>
+    <span class="k">public</span> <span class="k">function</span> <span class="nf">makeRequest</span><span class="p">()</span>
+    <span class="p">{</span>
+        <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">server</span><span class="o">-&gt;</span><span class="na">process</span><span class="p">();</span>
+    <span class="p">}</span>
+
+    <span class="sd">/**</span>
+<span class="sd">     * 查询数据库</span>
+<span class="sd">     * @return mixed</span>
+<span class="sd">     */</span>
+    <span class="k">public</span> <span class="k">function</span> <span class="nf">queryDb</span><span class="p">()</span>
+    <span class="p">{</span>
+        <span class="k">return</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">database</span><span class="o">-&gt;</span><span class="na">getData</span><span class="p">();</span>
+    <span class="p">}</span>
+
+    <span class="sd">/**</span>
+<span class="sd">     * 发送响应</span>
+<span class="sd">     *</span>
+<span class="sd">     * @param string $content</span>
+<span class="sd">     */</span>
+    <span class="k">public</span> <span class="k">function</span> <span class="nf">sendResponse</span><span class="p">(</span><span class="nv">$content</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">client</span><span class="o">-&gt;</span><span class="na">output</span><span class="p">(</span><span class="nv">$content</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span></pre> 
+        <h4 id="ipt_kb_toc_2894_5"><strong>Colleague.php</strong></h4> 
+        <pre><span class="cp">&lt;?php</span>
+
+<span class="k">namespace</span> <span class="nx">DesignPatterns\Behavioral\Mediator</span><span class="p">;</span>
+
+<span class="sd">/**</span>
+<span class="sd"> * Colleague是一个抽象的同事类，但是它只知道中介者Mediator，而不知道其他同事</span>
+<span class="sd"> */</span>
+<span class="k">abstract</span> <span class="k">class</span> <span class="nc">Colleague</span>
+<span class="p">{</span>
+    <span class="sd">/**</span>
+<span class="sd">     * this ensures no change in subclasses</span>
+<span class="sd">     *</span>
+<span class="sd">     * @var MediatorInterface</span>
+<span class="sd">     */</span>
+    <span class="k">private</span> <span class="nv">$mediator</span><span class="p">;</span>
+    
+    <span class="sd">/**</span>
+<span class="sd">     * @param MediatorInterface $medium</span>
+<span class="sd">     */</span>
+    <span class="k">public</span> <span class="k">function</span> <span class="nf">__construct</span><span class="p">(</span><span class="nx">MediatorInterface</span> <span class="nv">$medium</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">mediator</span> <span class="o">=</span> <span class="nv">$medium</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="c1">// for subclasses</span>
+    <span class="k">protected</span> <span class="k">function</span> <span class="nf">getMediator</span><span class="p">()</span>
+    <span class="p">{</span>
+        <span class="k">return</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">mediator</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span></pre> 
+        <h4 id="ipt_kb_toc_2894_6"><strong>Subsystem/Client.php</strong></h4> 
+        <pre><span class="cp">&lt;?php</span>
+
+<span class="k">namespace</span> <span class="nx">DesignPatterns\Behavioral\Mediator\Subsystem</span><span class="p">;</span>
+
+<span class="k">use</span> <span class="nx">DesignPatterns\Behavioral\Mediator\Colleague</span><span class="p">;</span>
+
+<span class="sd">/**</span>
+<span class="sd"> * Client是发起请求&amp;获取响应的客户端</span>
+<span class="sd"> */</span>
+<span class="k">class</span> <span class="nc">Client</span> <span class="k">extends</span> <span class="nx">Colleague</span>
+<span class="p">{</span>
+    <span class="sd">/**</span>
+<span class="sd">     * request</span>
+<span class="sd">     */</span>
+    <span class="k">public</span> <span class="k">function</span> <span class="nf">request</span><span class="p">()</span>
+    <span class="p">{</span>
+        <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">getMediator</span><span class="p">()</span><span class="o">-&gt;</span><span class="na">makeRequest</span><span class="p">();</span>
+    <span class="p">}</span>
+
+    <span class="sd">/**</span>
+<span class="sd">     * output content</span>
+<span class="sd">     *</span>
+<span class="sd">     * @param string $content</span>
+<span class="sd">     */</span>
+    <span class="k">public</span> <span class="k">function</span> <span class="nf">output</span><span class="p">(</span><span class="nv">$content</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="k">echo</span> <span class="nv">$content</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span></pre> 
+        <h4 id="ipt_kb_toc_2894_7"><strong>Subsystem/Database.php</strong></h4> 
+        <pre><span class="cp">&lt;?php</span>
+
+<span class="k">namespace</span> <span class="nx">DesignPatterns\Behavioral\Mediator\Subsystem</span><span class="p">;</span>
+
+<span class="k">use</span> <span class="nx">DesignPatterns\Behavioral\Mediator\Colleague</span><span class="p">;</span>
+
+<span class="sd">/**</span>
+<span class="sd"> * Database提供数据库服务</span>
+<span class="sd"> */</span>
+<span class="k">class</span> <span class="nc">Database</span> <span class="k">extends</span> <span class="nx">Colleague</span>
+<span class="p">{</span>
+    <span class="sd">/**</span>
+<span class="sd">     * @return string</span>
+<span class="sd">     */</span>
+    <span class="k">public</span> <span class="k">function</span> <span class="nf">getData</span><span class="p">()</span>
+    <span class="p">{</span>
+        <span class="k">return</span> <span class="s2">&quot;World&quot;</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span></pre> 
+        <h4 id="ipt_kb_toc_2894_8"><strong>Subsystem/Server.php</strong></h4> 
+        <pre><span class="cp">&lt;?php</span>
+
+<span class="k">namespace</span> <span class="nx">DesignPatterns\Behavioral\Mediator\Subsystem</span><span class="p">;</span>
+
+<span class="k">use</span> <span class="nx">DesignPatterns\Behavioral\Mediator\Colleague</span><span class="p">;</span>
+
+<span class="sd">/**</span>
+<span class="sd"> * Server用于发送响应</span>
+<span class="sd"> */</span>
+<span class="k">class</span> <span class="nc">Server</span> <span class="k">extends</span> <span class="nx">Colleague</span>
+<span class="p">{</span>
+    <span class="sd">/**</span>
+<span class="sd">     * process on server</span>
+<span class="sd">     */</span>
+    <span class="k">public</span> <span class="k">function</span> <span class="nf">process</span><span class="p">()</span>
+    <span class="p">{</span>
+        <span class="nv">$data</span> <span class="o">=</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">getMediator</span><span class="p">()</span><span class="o">-&gt;</span><span class="na">queryDb</span><span class="p">();</span>
+        <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">getMediator</span><span class="p">()</span><span class="o">-&gt;</span><span class="na">sendResponse</span><span class="p">(</span><span class="s2">&quot;Hello </span><span class="si">$data</span><span class="s2">&quot;</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span></pre> 
+        <h3 id="ipt_kb_toc_2894_9"><strong>4、测试代码</strong></h3> 
+        <h4 id="ipt_kb_toc_2894_10"><strong>Tests/MediatorTest.php</strong></h4> 
+        <pre><span class="cp">&lt;?php</span>
+
+<span class="k">namespace</span> <span class="nx">DesignPatterns\Tests\Mediator\Tests</span><span class="p">;</span>
+
+<span class="k">use</span> <span class="nx">DesignPatterns\Behavioral\Mediator\Mediator</span><span class="p">;</span>
+<span class="k">use</span> <span class="nx">DesignPatterns\Behavioral\Mediator\Subsystem\Database</span><span class="p">;</span>
+<span class="k">use</span> <span class="nx">DesignPatterns\Behavioral\Mediator\Subsystem\Client</span><span class="p">;</span>
+<span class="k">use</span> <span class="nx">DesignPatterns\Behavioral\Mediator\Subsystem\Server</span><span class="p">;</span>
+
+<span class="sd">/**</span>
+<span class="sd"> * MediatorTest tests hello world</span>
+<span class="sd"> */</span>
+<span class="k">class</span> <span class="nc">MediatorTest</span> <span class="k">extends</span> <span class="nx">\<a href="http://laravelacademy.org/tags/php" title="View all posts in PHP" target="_blank">PHP</a>Unit_Framework_TestCase</span>
+<span class="p">{</span>
+
+    <span class="k">protected</span> <span class="nv">$client</span><span class="p">;</span>
+
+    <span class="k">protected</span> <span class="k">function</span> <span class="nf">setUp</span><span class="p">()</span>
+    <span class="p">{</span>
+        <span class="nv">$media</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Mediator</span><span class="p">();</span>
+        <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">client</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Client</span><span class="p">(</span><span class="nv">$media</span><span class="p">);</span>
+        <span class="nv">$media</span><span class="o">-&gt;</span><span class="na">setColleague</span><span class="p">(</span><span class="k">new</span> <span class="nx">Database</span><span class="p">(</span><span class="nv">$media</span><span class="p">),</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">client</span><span class="p">,</span> <span class="k">new</span> <span class="nx">Server</span><span class="p">(</span><span class="nv">$media</span><span class="p">));</span>
+    <span class="p">}</span>
+
+    <span class="k">public</span> <span class="k">function</span> <span class="nf">testOutputHelloWorld</span><span class="p">()</span>
+    <span class="p">{</span>
+        <span class="c1">// 测试是否输出 Hello World :</span>
+        <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">expectOutputString</span><span class="p">(</span><span class="s1">'Hello World'</span><span class="p">);</span>
+        <span class="c1">// 正如你所看到的, Client, Server 和 Database 是完全解耦的</span>
+        <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">client</span><span class="o">-&gt;</span><span class="na">request</span><span class="p">();</span>
+    <span class="p">}</span>
+<span class="p">}</span></pre> 
+        <h3 id="ipt_kb_toc_2894_11"><strong>5、总结</strong></h3> 
+        <p>中介者主要是通过中介对象来封装对象之间的关系，使之各个对象在不需要知道其他对象的具体信息情况下通过中介者对象来与之通信。同时通过引用中介者对象来减少系统对象之间关系，提高了对象的可复用和系统的可扩展性。但是就是因为中介者对象封装了对象之间的关联关系，导致中介者对象变得比较庞大，所承担的责任也比较多。它需要知道每个对象和他们之间的交互细节，如果它出问题，将会导致整个系统都会出问题。</p> 
+       </div>
+       <!-- .entry-content --> 
+       <footer class="entry-meta text-muted well well-sm">
+         分类： 
+        <i class="glyphicon glyphicon-folder-open"></i>&nbsp;&nbsp;
+        <a href="http://laravelacademy.org/resources/design-patterns" rel="category tag">设计模式</a> 
+        <div class="clearfix"></div> 标签： 
+        <i class="glyphicon glyphicon-tags"></i>&nbsp;&nbsp;
+        <a href="http://laravelacademy.org/tags/php" rel="tag">PHP</a>, 
+        <a href="http://laravelacademy.org/tags/%e4%b8%ad%e4%bb%8b%e8%80%85%e6%a8%a1%e5%bc%8f" rel="tag">中介者模式</a>, 
+        <a href="http://laravelacademy.org/tags/%e8%ae%be%e8%ae%a1%e6%a8%a1%e5%bc%8f" rel="tag">设计模式</a>
+        <div class="clearfix"></div> 
+        <div class="share-jiathis">
+         <span class="share-jiathis-label">分享：</span>
+         <div class="jiathis_style"> 
+          <a class="jiathis_button_weixin"></a> 
+          <a class="jiathis_button_tsina"></a> 
+          <a class="jiathis_button_qzone"></a> 
+          <a class="jiathis_button_douban"></a> 
+          <a class="jiathis_button_googleplus"></a> 
+          <a class="jiathis_button_fb"></a> 
+          <a class="jiathis_button_twitter"></a> 
+          <a class="jiathis_button_evernote"></a> 
+          <a class="jiathis_button_ydnote"></a> 
+          <a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jtico jtico_jiathis" target="_blank"></a> 
+          <a class="jiathis_counter_style"></a> 
+         </div>
+        </div>
+        <div class="clearfix"></div> 
+        <div>
+         声明： 原创文章，未经允许，禁止转载！
+        </div> 
+       </footer>
+       <!-- .entry-meta --> 
+      </article>
+      <!-- #post-## --> 
+      <p class="hidden-xs"> <span class="ipt_kb_like_article_info pull-right text-info"><i class="glyphicon glyphicon-fire"></i>&nbsp;&nbsp;1 人觉得这篇文章很有用</span> <button type="button" data-loading-text="请稍等" class="btn btn-success ipt_kb_like_article" data-postid="2894" data-nonce="8809a30b3e"> <i class="glyphicon glyphicon-thumbs-up"></i> <span class="text">这篇文章对我很有帮助</span> </button> </p> 
+      <p class="visible-xs"> <button type="button" data-loading-text="请稍等" class="btn btn-success btn-block ipt_kb_like_article" data-postid="2894" data-nonce="8809a30b3e"> <i class="glyphicon glyphicon-thumbs-up"></i> <span class="text">这篇文章对我很有帮助</span> </button> </p> 
+      <p class="ipt_kb_like_article_info text-info text-center visible-xs"><i class="glyphicon glyphicon-fire"></i>&nbsp;&nbsp;1 觉得这篇文章很有用</p> 
+      <ul role="navigation" id="nav-below" class="post-navigation pager"> 
+       <li class="screen-reader-text">Post navigation</li> 
+       <li class="nav-previous previous"><a href="http://laravelacademy.org/post/2882.html" rel="prev"><span class="meta-nav"><span class="glyphicon glyphicon-arrow-left"></span></span> PHP 设计模式系列 —— 迭代器模式（Iterator）</a></li> 
+       <li class="nav-next next"><a href="http://laravelacademy.org/post/2903.html" rel="next">PHP 设计模式系列 —— 备忘录模式（Memento） <span class="meta-nav"><span class="glyphicon glyphicon-arrow-right"></span></span></a></li> 
+      </ul>
+      <!-- #nav-below --> 
+      <div class="well author-meta"> 
+       <div class="author-avatar text-center pull-left"> 
+        <a href="http://laravelacademy.org/post/author/nonfu"><img alt="" src="http://0.gravatar.com/avatar/699bfa8486547de4b21d7984876627f6?s=96&amp;d=retro&amp;r=g" srcset="http://0.gravatar.com/avatar/699bfa8486547de4b21d7984876627f6?s=192&amp;d=retro&amp;r=g 2x" class="avatar avatar-96 photo" height="96" width="96" /></a> 
+       </div> 
+       <h4 class="author-meta-title"> 学院君 has written <a href="http://laravelacademy.org/post/author/nonfu">614</a> articles </h4> 
+       <div class="author-meta-bio"> 
+        <p>资深PHP工程师，Laravel学院院长</p> 
+       </div> 
+       <div class="author-meta-buttons text-right"> 
+        <div class="btn-group"> 
+         <a href="http://laravelacademy.org" class="btn btn-info bstooltip" title="Website"><span class="glyphicon ipt-icon-home"></span></a> 
+        </div> 
+       </div> 
+       <div class="clearfix"></div> 
+      </div> 
+      <div class="google-ads" style="margin-bottom:8px;"> 
+       <script async="" src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script> 
+       <!-- Laravel学院详情页底部横幅广告 --> 
+       <ins class="adsbygoogle" style="display:inline-block;width:728px;height:90px" data-ad-client="ca-pub-6544917749399342" data-ad-slot="4898369711"></ins> 
+       <script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script> 
+      </div> 
+      <!-- 多说评论框 start --> 
+      <!-- 多说评论框 end --> 
+      <div id="comments" class="comments-area"> 
+       <div id="respond" class="comment-respond"> 
+        <span class="pull-right"><a class="btn btn-danger btn-sm" rel="nofollow" id="cancel-comment-reply-link" href="/post/2894.html#respond" style="display:none;">取消回复</a></span> 
+        <h3 id="reply-title" class="comment-reply-title">发表评论</h3> 
+        <form action="http://laravelacademy.org/wp-comments-post.php" method="post" id="commentform" class="comment-form form-horizontal" novalidate=""> 
+         <p class="comment-notes alert alert-info"> 标记为<span class="required">*</span>的字段是必填项（邮箱地址不会被公开）</p> 
+         <div class="col-sm-5"> 
+          <div class="form-group comment-form-author">
+           <label class="sr-only control-label" for="author">名字 <span class="required">*</span></label> 
+           <div class="input-group">
+            <span class="input-group-addon"><span class="glyphicon ipt-icon-user"></span></span>
+            <input placeholder="名字 *" class="form-control" id="author" name="author" type="text" value="" size="30" aria-required="true" />
+           </div>
+          </div> 
+          <div class="form-group comment-form-email">
+           <label class="sr-only control-label" for="email">邮箱 <span class="required">*</span></label> 
+           <div class="input-group">
+            <span class="input-group-addon"><span class="glyphicon ipt-icon-mail"></span></span>
+            <input placeholder="邮箱 *" class="form-control" id="email" name="email" type="email" value="" size="30" aria-required="true" />
+           </div>
+          </div> 
+          <div class="form-group comment-form-url">
+           <label class="sr-only control-label" for="url">站点</label> 
+           <div class="input-group">
+            <span class="input-group-addon"><span class="glyphicon ipt-icon-link"></span></span>
+            <input placeholder="站点" class="form-control" id="url" name="url" type="url" value="" size="30" />
+           </div>
+          </div> 
+         </div> 
+         <div class="col-sm-7"> 
+          <div class="comment-form-comment form-group">
+           <label class="sr-only control-label" for="comment">评论内容</label>
+           <textarea placeholder="评论内容" class="form-control" id="comment" name="comment" rows="6" aria-required="true"></textarea>
+          </div> 
+         </div> 
+         <div class="clearfix"></div> 
+         <div class="col-sm-12"> 
+         </div> 
+         <div class="clearfix"></div> 
+         <p class="form-allowed-tags well well-sm">你可以使用这些<abbr title="HyperText Markup Language">HTML</abbr> 标签和属性: <code>&lt;a href=&quot;&quot; title=&quot;&quot;&gt; &lt;abbr title=&quot;&quot;&gt; &lt;acronym title=&quot;&quot;&gt; &lt;b&gt; &lt;blockquote cite=&quot;&quot;&gt; &lt;cite&gt; &lt;code&gt; &lt;del datetime=&quot;&quot;&gt; &lt;em&gt; &lt;i&gt; &lt;q cite=&quot;&quot;&gt; &lt;s&gt; &lt;strike&gt; &lt;strong&gt; </code></p> 
+         <p class="form-submit text-right"> <button name="submit" class="btn btn-primary" type="submit" id="submit">提交评论</button> <input type="hidden" name="comment_post_ID" value="2894" id="comment_post_ID" /> <input type="hidden" name="comment_parent" id="comment_parent" value="0" /> </p> 
+         <p style="display: none;"><input type="hidden" id="akismet_comment_nonce" name="akismet_comment_nonce" value="c150c30dc5" /></p>
+         <p style="display: none;"><input type="hidden" id="ak_js" name="ak_js" value="173" /></p> 
+        </form> 
+       </div>
+       <!-- #respond --> 
+      </div>
+      <!-- #comments --> 
+     </main>
+     <!-- #main --> 
+    </div>
+    <!-- #primary --> 
+    <div id="secondary" class="widget-area col-md-4" role="complementary"> 
+     <div class="company-ads" style="margin-bottom:5px;"> 
+      <a href="https://www.mysubmail.com/sms?s=laravelacademy" target="_blank"><img src="http://laravelacademy.org/wp-content/uploads/2016/12/submail_ad_for_larvavel_700x180.jpg" width="350" /></a> 
+     </div> 
+     <!--<div class="forum-20160919142357">
+                           <a href="http://www.henghost.com/ul-xinyunhost.shtml" target="_blank">
+                               <img src="http://laravelacademy.org/wp-content/uploads/2016/09/20160919142222.gif" width="100%" border="0" alt="恒创主机"/>
+                           </a>
+                        </div>--> 
+     <div class="forum-20160919142357">
+      <script charset="utf-8" language="JavaScript" type="text/javascript" src="https://adman.henghost.com/data/forum-20160919142357.js"></script>
+     </div> 
+     <div class="google-ads" style="text-align:center;margin-bottom:10px;margin-top:10px;"> 
+      <script async="" src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script> 
+      <!-- Laravel侧边栏大矩形广告 --> 
+      <ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-6544917749399342" data-ad-slot="6375165315"></ins> 
+      <script>
+				(adsbygoogle = window.adsbygoogle || []).push({});
+				</script> 
+     </div> 
+     <aside id="ipt_kb_affix-2" class="widget ipt_kb_affix panel panel-default">
+      <div class="panel-heading">
+       <h3 class="widget-title panel-title">资源</h3>
+      </div>
+      <div class="panel-body"> 
+       <!-- Stick it or not --> 
+       <input type="hidden" class="dontfix" value="1" /> 
+       <!-- Search form --> 
+       <form role="search" method="get" class="search-form" action="http://laravelacademy.org/"> 
+        <input type="hidden" name="cat" value="110" /> 
+        <div class="form-group"> 
+         <div class="input-group input-group-sm"> 
+          <input type="search" class="search-field form-control" placeholder="搜索…" value="" name="s" /> 
+          <span class="input-group-btn"><button type="submit" class="btn btn-default"><span class="ipt-icon-search"></span></button></span> 
+         </div> 
+        </div> 
+       </form> 
+       <!-- TOC for single posts --> 
+       <div class="text-muted ipt-kb-toc"> 
+        <a href="#ipt-kb-toc-scrollspy" title="点击显示/隐藏内容目录" class="bstooltip pull-right btn btn-xs btn-default accordion-toggle ipt-kb-sub-toc-toggle" data-toggle="collapse"><i class="glyphicon ipt-icon-menu"></i></a> 
+        <h4> 内容目录 </h4> 
+        <div class="clearfix"></div> 
+       </div> 
+       <nav id="ipt-kb-toc-scrollspy" class="collapse in"> 
+        <ul class="nav"> 
+         <li> <a href="#ipt_kb_toc_2894_0">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1、模式定义</a></li> 
+         <li> <a href="#ipt_kb_toc_2894_1">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2、UML类图</a></li> 
+         <li> <a href="#ipt_kb_toc_2894_2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3、示例代码</a></li> 
+         <li> <a href="#ipt_kb_toc_2894_3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MediatorInterface.php</a></li> 
+         <li> <a href="#ipt_kb_toc_2894_4">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Mediator.php</a></li> 
+         <li> <a href="#ipt_kb_toc_2894_5">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Colleague.php</a></li> 
+         <li> <a href="#ipt_kb_toc_2894_6">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Subsystem/Client.php</a></li> 
+         <li> <a href="#ipt_kb_toc_2894_7">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Subsystem/Database.php</a></li> 
+         <li> <a href="#ipt_kb_toc_2894_8">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Subsystem/Server.php</a></li> 
+         <li> <a href="#ipt_kb_toc_2894_9">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;4、测试代码</a></li> 
+         <li> <a href="#ipt_kb_toc_2894_10">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Tests/MediatorTest.php</a></li> 
+         <li> <a href="#ipt_kb_toc_2894_11">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;5、总结</a></li> 
+        </ul> 
+       </nav> 
+       <!-- Get support --> 
+       <!-- Category Listing --> 
+       <div class="list-group"> 
+        <a href="http://laravelacademy.org/resources/php7" class="list-group-item "> <i class="glyphicon ipt-icon-books"></i> PHP 7 系列</a> 
+        <a href="http://laravelacademy.org/resources/code" class="list-group-item "> <i class="glyphicon ipt-icon-books"></i> 代码片段</a> 
+        <a href="http://laravelacademy.org/resources/rightway" class="list-group-item "> <i class="glyphicon ipt-icon-books"></i> 学习方法</a> 
+        <a href="http://laravelacademy.org/resources/tools" class="list-group-item "> <i class="glyphicon ipt-icon-books"></i> 工具系列</a> 
+        <a href="http://laravelacademy.org/resources/editor" class="list-group-item "> <i class="glyphicon ipt-icon-books"></i> 编辑器</a> 
+        <div class="list-group-item active-cat"> 
+         <a href="#ipt-kb-affix-active-post" title="点击显示/隐藏当前所属分类下的所有文章" class="bstooltip accordion-toggle pull-right btn btn-default btn-xs text-center ipt-kb-sub-cat-toggle collapsed" data-toggle="collapse"> <i class="glyphicon ipt-icon-enter"></i> </a> 
+         <i class="glyphicon ipt-icon-books"></i> 设计模式
+        </div> 
+        <div id="ipt-kb-affix-active-post" class="collapse">
+         <a href="http://laravelacademy.org/post/2465.html" class="list-group-item ">PHP 设计模式系列 —— 概述及常用设计模式大全</a> 
+         <a href="http://laravelacademy.org/post/2471.html" class="list-group-item ">PHP 设计模式系列 —— 抽象工厂模式（Abstract Factory）</a> 
+         <a href="http://laravelacademy.org/post/2489.html" class="list-group-item ">PHP 设计模式系列 —— 建造者模式（Builder）</a> 
+         <a href="http://laravelacademy.org/post/2506.html" class="list-group-item ">PHP 设计模式系列 —— 工厂方法模式（Factory Method）</a> 
+         <a href="http://laravelacademy.org/post/2519.html" class="list-group-item ">PHP 设计模式系列 —— 多例模式（Multiton）</a> 
+         <a href="http://laravelacademy.org/post/2532.html" class="list-group-item ">PHP 设计模式系列 —— 对象池模式（Object Pool）</a> 
+         <a href="http://laravelacademy.org/post/2546.html" class="list-group-item ">PHP 设计模式系列 —— 原型模式（Prototype）</a> 
+         <a href="http://laravelacademy.org/post/2599.html" class="list-group-item ">PHP 设计模式系列 —— 单例模式（Singleton）</a> 
+         <a href="http://laravelacademy.org/post/2643.html" class="list-group-item ">PHP 设计模式系列 —— 简单工厂模式（Simple Factory）</a> 
+         <a href="http://laravelacademy.org/post/2647.html" class="list-group-item ">PHP 设计模式系列 —— 静态工厂模式（Static Factory）</a> 
+         <a href="http://laravelacademy.org/post/2660.html" class="list-group-item ">PHP 设计模式系列 —— 适配器模式（Adapter / Wrapper）</a> 
+         <a href="http://laravelacademy.org/post/2680.html" class="list-group-item ">PHP 设计模式系列 —— 桥梁模式（Bridge）</a> 
+         <a href="http://laravelacademy.org/post/2699.html" class="list-group-item ">PHP 设计模式系列 —— 组合模式（Composite）</a> 
+         <a href="http://laravelacademy.org/post/2739.html" class="list-group-item ">PHP 设计模式系列 —— 数据映射模式（Data Mapper）</a> 
+         <a href="http://laravelacademy.org/post/2760.html" class="list-group-item ">PHP 设计模式系列 —— 装饰器模式（Decorator）</a> 
+         <a href="http://laravelacademy.org/post/2792.html" class="list-group-item ">PHP 设计模式系列 —— 依赖注入模式（Dependency Injection）</a> 
+         <a href="http://laravelacademy.org/post/2807.html" class="list-group-item ">PHP 设计模式系列 —— 门面模式（Facade）</a> 
+         <a href="http://laravelacademy.org/post/2820.html" class="list-group-item ">PHP 设计模式系列 —— 服务定位器模式（Service Locator）</a> 
+         <a href="http://laravelacademy.org/post/2828.html" class="list-group-item ">PHP 设计模式系列 —— 流接口模式（Fluent Interface）</a> 
+         <a href="http://laravelacademy.org/post/2841.html" class="list-group-item ">PHP 设计模式系列 —— 代理模式（Proxy）</a> 
+         <a href="http://laravelacademy.org/post/2850.html" class="list-group-item ">PHP 设计模式系列 —— 注册模式（Registry）</a> 
+         <a href="http://laravelacademy.org/post/2858.html" class="list-group-item ">PHP 设计模式系列 —— 责任链模式（Chain Of Responsibilities）</a> 
+         <a href="http://laravelacademy.org/post/2871.html" class="list-group-item ">PHP 设计模式系列 —— 命令模式（Command）</a> 
+         <a href="http://laravelacademy.org/post/2882.html" class="list-group-item ">PHP 设计模式系列 —— 迭代器模式（Iterator）</a> 
+         <a href="http://laravelacademy.org/post/2894.html" class="list-group-item active">PHP 设计模式系列 —— 中介者模式（Mediator）</a> 
+         <a href="http://laravelacademy.org/post/2903.html" class="list-group-item ">PHP 设计模式系列 —— 备忘录模式（Memento）</a> 
+         <a href="http://laravelacademy.org/post/2912.html" class="list-group-item ">PHP 设计模式系列 —— 空对象模式（Null Object）</a> 
+         <a href="http://laravelacademy.org/post/2935.html" class="list-group-item ">PHP 设计模式系列 —— 观察者模式（Observer）</a> 
+         <a href="http://laravelacademy.org/post/2960.html" class="list-group-item ">PHP 设计模式系列 —— 规格模式（Specification）</a> 
+         <a href="http://laravelacademy.org/post/2971.html" class="list-group-item ">PHP 设计模式系列 —— 状态模式（State）</a> 
+         <a href="http://laravelacademy.org/post/2990.html" class="list-group-item ">PHP 设计模式系列 —— 策略模式（ Strategy）</a> 
+         <a href="http://laravelacademy.org/post/3006.html" class="list-group-item ">PHP 设计模式系列 —— 模板方法模式（Template Method）</a> 
+         <a href="http://laravelacademy.org/post/3024.html" class="list-group-item ">PHP 设计模式系列 —— 访问者模式（Visitor）</a> 
+         <a href="http://laravelacademy.org/post/3038.html" class="list-group-item ">PHP 设计模式系列 —— 委托模式（ Delegation）</a> 
+         <a href="http://laravelacademy.org/post/3053.html" class="list-group-item ">PHP 设计模式系列 —— 资源库模式（Repository）</a> 
+         <a href="http://laravelacademy.org/post/3063.html" class="list-group-item ">在 Laravel 5 中使用 Repository 模式实现业务逻辑和数据访问的分离</a> 
+         <a href="http://laravelacademy.org/post/3088.html" class="list-group-item ">Laravel 中管道设计模式的使用 —— 中间件实现原理探究</a> 
+        </div> 
+        <a href="http://laravelacademy.org/resources/notebook" class="list-group-item "> <i class="glyphicon ipt-icon-books"></i> 读书笔记</a> 
+        <a href="http://laravelacademy.org/resources/linux" class="list-group-item "> <i class="glyphicon ipt-icon-books"></i> 运维部署</a> 
+       </div> 
+      </div>
+     </aside>
+     <div class="pin-wrapper">
+      <div class="pinned">
+       <aside id="wp_related_posts_widget" class="widget widget_wp_related_posts panel panel-default"> 
+        <div class="panel-heading">
+         <h3 class="widget-title panel-title">相关文章</h3>
+        </div>
+        <div class="panel-body">
+         <div class="list-group">
+          <a href="http://laravelacademy.org/post/2850.html" class="wp_rp_title list-group-item kb-list-date kb-post-list"><h3><span class="glyphicon ipt-icon-file"></span> PHP 设计模式系列 —— 注册模式（Registry）</h3><span class="clearfix"></span></a>
+          <a href="http://laravelacademy.org/post/2820.html" class="wp_rp_title list-group-item kb-list-date kb-post-list"><h3><span class="glyphicon ipt-icon-file"></span> PHP 设计模式系列 —— 服务定位器模式（Service Locator）</h3><span class="clearfix"></span></a>
+          <a href="http://laravelacademy.org/post/2643.html" class="wp_rp_title list-group-item kb-list-date kb-post-list"><h3><span class="glyphicon ipt-icon-file"></span> PHP 设计模式系列 —— 简单工厂模式（Simple Factory）</h3><span class="clearfix"></span></a>
+          <a href="http://laravelacademy.org/post/2546.html" class="wp_rp_title list-group-item kb-list-date kb-post-list"><h3><span class="glyphicon ipt-icon-file"></span> PHP 设计模式系列 —— 原型模式（Prototype）</h3><span class="clearfix"></span></a>
+          <a href="http://laravelacademy.org/post/2647.html" class="wp_rp_title list-group-item kb-list-date kb-post-list"><h3><span class="glyphicon ipt-icon-file"></span> PHP 设计模式系列 —— 静态工厂模式（Static Factory）</h3><span class="clearfix"></span></a>
+         </div> 
+        </div>
+       </aside> 
+       <div class="google-ads" style="text-align:center;"> 
+        <script async="" src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script> 
+        <!-- Laravel侧边栏矩形滚动广告 --> 
+        <ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-6544917749399342" data-ad-slot="3421636513"></ins> 
+        <script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script> 
+       </div> 
+      </div>
+     </div> 
+    </div>
+    <!-- #secondary --> 
+   </div>
+   <!-- #content --> 
+   <footer id="colophon" class="site-footer" role="contentinfo"> 
+    <div class="site-info"> 
+     <p class="copyright text-muted"> &copy; 2015-2017 Laravel Academy | <a href="http://www.miitbeian.gov.cn/" target="_blank">浙ICP备16003554号</a> | <a href="http://forum.laravelacademy.org" target="_blank">社区</a> | <a href="http://laravelacademy.org/feed">订阅</a> | <a href="http://laravelacademy.org/about-us#ads">广告</a> | <a href="http://laravelacademy.org/donate-us">捐赠</a> | <a href="http://gjsq.me/15561494" target="_blank">VPN</a> | <script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_1256294264'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s4.cnzz.com/stat.php%3Fid%3D1256294264' type='text/javascript'%3E%3C/script%3E"));</script> </p> 
+    </div>
+    <!-- .site-info --> 
+    <div class="scroll-back-to-top-wrapper"> 
+     <span class="scroll-back-to-top-inner"> <i class="fa fa-2x fa-arrow-up"></i> </span> 
+    </div>
+    <script type="text/javascript" src="http://laravelacademy.org/wp-content/plugins/akismet/_inc/form.js?ver=3.3"></script> 
+    <script type="text/javascript">
+/* <![CDATA[ */
+var scrollBackToTop = {"scrollDuration":"500","fadeDuration":"0.5"};
+/* ]]> */
+</script> 
+    <script type="text/javascript" src="http://laravelacademy.org/wp-content/plugins/scroll-back-to-top/assets/js/scroll-back-to-top.js"></script> 
+    <script type="text/javascript">
+/* <![CDATA[ */
+var viewsCacheL10n = {"admin_ajax_url":"http:\/\/laravelacademy.org\/wp-admin\/admin-ajax.php","post_id":"2894"};
+/* ]]> */
+</script> 
+    <script type="text/javascript" src="http://laravelacademy.org/wp-content/plugins/wp-postviews/postviews-cache.js?ver=1.68"></script> 
+    <script type="text/javascript" src="http://laravelacademy.org/wp-content/themes/wp-knowledge-base/js/skip-link-focus-fix.js?ver=1.6.0"></script> 
+    <script type="text/javascript" src="http://laravelacademy.org/wp-content/themes/wp-knowledge-base/js/jquery.pin.js?ver=1.6.0"></script> 
+    <script type="text/javascript" src="http://laravelacademy.org/wp-includes/js/comment-reply.min.js?ver=4.7.3"></script> 
+    <script type="text/javascript" src="http://laravelacademy.org/wp-includes/js/wp-embed.min.js?ver=4.7.3"></script> 
+   </footer>
+   <!-- #colophon --> 
+  </div>
+  <!-- #page --> 
+  <script type="text/javascript">
+        jQuery(document).ready(function() {
+            var s = jQuery(".pinned");
+            var pos = s.position();
+            jQuery(window).scroll(function() {
+                var windowpos = jQuery(window).scrollTop();
+                if (windowpos >= pos.top) {
+                    s.addClass("stick");
+                } else {
+                    s.removeClass("stick");
+                }
+            });
+        });
+    </script> 
+  <script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script> 
+  <script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?0149df826a6be49c34721817692bbf7f";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script> 
+  <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-66519426-1', 'auto');
+    ga('send', 'pageview');
+
+</script>   
+  <!-- Dynamic page generated in 0.260 seconds. --> 
+  <!-- Cached page generated by WP-Super-Cache on 2017-03-28 04:17:44 --> 
+  <!-- Super Cache dynamic page detected but late init not set. See the readme.txt for further details. --> 
+  <!-- Dynamic Super Cache --> 
+  <!-- Compression = gzip -->
+ </body>
+</html>

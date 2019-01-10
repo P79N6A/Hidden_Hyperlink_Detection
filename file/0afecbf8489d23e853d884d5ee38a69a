@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="zh_CN" class="desktop-view not-mobile-device  anon">
+ <head> 
+  <meta charset="utf-8" /> 
+  <title>基于cnn的实现端到端的ocr - Deep Learning - 算法组</title> 
+  <meta name="description" content="OCR是一个古老的问题。这里我们考虑一类特殊的OCR问题，就是验证码的识别。传统做验证码的识别，需要经过如下步骤： 
+
+1. 二值化
+2. 字符分割
+3. 字符识别
+
+这里最难的就是分割。如果字符之间有粘连，那分割起来就无比痛苦了。 
+
+最近研究深度学习，发现有人做端到端的OCR。于是准备尝试一下。一般来说目前做基于深度学习的OCR大概有如下套路： 
+
+
+把OCR的问题当做一个多标签学习的问题。4个数字组成的验证码就相当于有4个标签的图&amp;hellip;" /> 
+  <meta name="author" content="" /> 
+  <meta name="generator" content="Discourse 1.6.0.beta1 - https://github.com/discourse/discourse version cc25716e475e6eed70532c8526d9e612899d61d8" /> 
+  <link rel="icon" type="image/png" href="http://s1.suanfazu.com/favicon.ico" /> 
+  <link rel="apple-touch-icon" type="image/png" href="/images/default-apple-touch-icon.png" /> 
+  <meta name="theme-color" content="#ffffff" /> 
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, user-scalable=yes" /> 
+  <link rel="canonical" href="http://suanfazu.com/t/cnn-ocr/13523" /> 
+  <style>
+  @font-face {
+    font-family: 'FontAwesome';
+    src: url('//cdn.suanfazu.com/assets/fontawesome-webfont-e2f6015310d7f63fa1537ab9822f1446.eot?http://suanfazu.com&amp;2&v=4.5.0');
+    src: url('//cdn.suanfazu.com/assets/fontawesome-webfont-e2f6015310d7f63fa1537ab9822f1446.eot?http://suanfazu.com&amp;2&v=4.5.0#iefix') format('embedded-opentype'),
+         url('//cdn.suanfazu.com/assets/fontawesome-webfont-6d0ddb44b6016bd7adf993e5b9d47ae6.woff2?http://suanfazu.com&amp;2&v=4.5.0') format('woff2'),
+         url('//cdn.suanfazu.com/assets/fontawesome-webfont-90e687312466f7a4993c85399c116f2f.woff?http://suanfazu.com&amp;2&v=4.5.0') format('woff'),
+         url('//cdn.suanfazu.com/assets/fontawesome-webfont-f436f853ea7573a6b623eea9bc9d66ec.ttf?http://suanfazu.com&amp;2&v=4.5.0') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+  }
+</style> 
+  <link href="//cdn.suanfazu.com/stylesheets/desktop_3cd538a579f35992edf155ad9b22c8867cb58252.css?__ws=suanfazu.com" media="all" rel="stylesheet" /> 
+  <link class="custom-css" rel="stylesheet" href="//cdn.suanfazu.com/site_customizations/7e202ef2-56d7-47d5-98d8-a9c8d15e57dd.css?target=desktop&amp;v=f1b43fef7075ecbadc1dae23dd159bfb&amp;__ws=suanfazu.com" type="text/css" media="all" /> 
+  <meta name="fragment" content="!" /> 
+  <script>
+      window.EmberENV = window.EmberENV || {};
+      window.EmberENV['FORCE_JQUERY'] = true;
+    </script> 
+  <script src="//cdn.suanfazu.com/assets/preload_store-d16a3675434b5a0043157cfc2b850471.js"></script> 
+  <script src="//cdn.suanfazu.com/assets/locales/zh_CN-d60d5bfbfe48e142f16fb1ed5d4cdc7e.js"></script> 
+  <script src="//cdn.suanfazu.com/assets/ember_jquery-37c15254b70c40ceb7888cb7248c79d6.js"></script> 
+  <script src="//cdn.suanfazu.com/assets/vendor-17831e059f10b3b31503434a43f32398.js"></script> 
+  <script src="//cdn.suanfazu.com/assets/application-8bf39ee2538a975d4339495316dc34a1.js"></script> 
+  <style>.cooked {line-height:1.6em;font-size:1.1em;} .adsense_topic_bottom{text-align:left}
+.d-header .title{margin-top:10px;}
+@media screen and (max-width : 650px) {
+.nav-pills>li {margin-right:0px}
+.nav-pills>li>a{padding:5px 6px }
+}
+@media screen and (max-width : 400px) {
+.nav-pills>li {margin-right:0px}
+.nav-pills>li>a{padding:5px 5px }
+.ol.category-breadcrumb{margin-right:2px;}
+}
+</style> 
+  <link rel="manifest" href="/manifest.json" /> 
+  <link rel="alternate" type="application/rss+xml" title="'基于cnn的实现端到端的ocr' 的 RSS 内容聚合" href="http://suanfazu.com/t/cnn-ocr/13523.rss" /> 
+  <meta property="og:site_name" content="算法组" /> 
+  <meta name="twitter:card" content="summary" /> 
+  <meta property="og:url" content="http://suanfazu.com/t/cnn-ocr/13523/1" /> 
+  <meta name="twitter:url" content="http://suanfazu.com/t/cnn-ocr/13523/1" /> 
+  <meta property="og:title" content="基于cnn的实现端到端的ocr" /> 
+  <meta name="twitter:title" content="基于cnn的实现端到端的ocr" /> 
+  <meta property="og:description" content="OCR是一个古老的问题。这里我们考虑一类特殊的OCR问题，就是验证码的识别。传统做验证码的识别，需要经过如下步骤：   1. 二值化 2. 字符分割 3. 字符识别  这里最难的就是分割。如果字符之间有粘连，那分割起来就无比痛苦了。   最近研究深度学习，发现有人做端到端的OCR。于是准备尝试一下。一般来说目前做基于深度学习的OCR大概有如下套路：    把OCR的问题当做一个多标签学习的问题。4个数字组成的验证码就相当于有4个标签的图片识别问题（这里的标签还是有序的），用CNN来解决。 把OCR的问题当做一个语音识别的问题，语音识别是把连续的音频转化为文本，验证码识别就是把连续的图片转化为文本，用CNN+LSTM+CTC来解决。 目前第1种方法可以做到90%多的准确率（4个都猜对了才算对），第二种方法我目前的实验还只能到20%多，还在研究中。所以这篇文章先介绍第一种方法。   我们以python-captcha验证码的识别为例来做验证码识别。   下图是一些这个验证码的例子：   [图片]   可以看到这里面有粘连，也有形变，噪音。所以我们可以看看用CNN识别这个验证码的效果。   首..." /> 
+  <meta name="twitter:description" content="OCR是一个古老的问题。这里我们考虑一类特殊的OCR问题，就是验证码的识别。传统做验证码的识别，需要经过如下步骤：   1. 二值化 2. 字符分割 3. 字符识别  这里最难的就是分割。如果字符之间有粘连，那分割起来就无比痛苦了。   最近研究深度学习，发现有人做端到端的OCR。于是准备尝试一下。一般来说目前做基于深度学习的OCR大概有如下套路：    把OCR的问题当做一个多标签学习的问题。4个数字组成的验证码就相当于有4个标签的图片识别问题（这里的标签还是有序的），用CNN来解决。 把OCR的问题当做一个语音识别的问题，语音识别是把连续的音频转化为文本，验证码识别就是把连续的图片转化为文本，用CNN+LSTM+CTC来解决。 目前第1种方法可以做到90%多的准确率（4个都猜对了才算对），第二种方法我目前的实验还只能到20%多，还在研究中。所以这篇文章先介绍第一种方法。   我们以python-captcha验证码的识别为例来做验证码识别。   下图是一些这个验证码的例子：   [图片]   可以看到这里面有粘连，也有形变，噪音。所以我们可以看看用CNN识别这个验证码的效果。   首..." /> 
+  <meta property="og:image" content="http://suanfazu.com/uploads/default/original/2X/8/856896a6eeb34bdc2701e1a7c3ee2b53315ad063.png" /> 
+  <meta name="twitter:image" content="http://suanfazu.com/uploads/default/original/2X/8/856896a6eeb34bdc2701e1a7c3ee2b53315ad063.png" /> 
+  <meta name="twitter:label1" value="阅读时间" /> 
+  <meta name="twitter:data1" value="2 mins 🕑" /> 
+  <meta name="twitter:label2" value="赞" /> 
+  <meta name="twitter:data2" value="1 ❤" /> 
+ </head> 
+ <body> 
+  <noscript data-path="/t/cnn-ocr/13523/1"> 
+   <header class="d-header"> 
+    <div class="wrap"> 
+     <div class="contents"> 
+      <div class="row"> 
+       <div class="title span13"> 
+        <a href="/"> <h2 id="site-text-logo">算法组</h2> </a> 
+       </div> 
+       <div class="panel clearfix"> 
+        <a href="/login" class="btn btn-primary btn-small login-button"><i class="fa fa-user"></i> 登录</a> 
+       </div> 
+      </div> 
+     </div> 
+    </div> 
+   </header> 
+   <div id="main-outlet" class="wrap"> 
+    <!-- preload-content: --> 
+    <h1> <a href="/t/cnn-ocr/13523">基于cnn的实现端到端的ocr</a> </h1> 
+    <div id="breadcrumbs"> 
+     <div id="breadcrumb-0" itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb" itemref="breadcrumb-1"> 
+      <a href="/c/ji-qi-xue-xi" itemprop="url"> <span itemprop="title">机器学习</span> </a> 
+     </div> 
+     <div id="breadcrumb-1" itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb" itemref="breadcrumb-2"> 
+      <a href="/c/ji-qi-xue-xi/deep-learning" itemprop="url"> <span itemprop="title">Deep Learning</span> </a> 
+     </div> 
+     <div id="breadcrumb-2" itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb" itemref="breadcrumb-3"> 
+      <a href="http://suanfazu.com/tags/deep-learning" itemprop="url"> <span itemprop="title">deep-learning</span> </a> 
+     </div> 
+     <div id="breadcrumb-3" itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb" itemref="breadcrumb-4"> 
+      <a href="http://suanfazu.com/tags/cnn" itemprop="url"> <span itemprop="title">cnn</span> </a> 
+     </div> 
+     <div id="breadcrumb-4" itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb"> 
+      <a href="http://suanfazu.com/tags/ocr" itemprop="url"> <span itemprop="title">ocr</span> </a> 
+     </div> 
+    </div> 
+    <div class="tags">
+      标签: deep-learning cnn ocr 
+    </div> 
+    <hr /> 
+    <div itemscope="" itemtype="http://schema.org/Article"> 
+     <div class="creator"> 
+      <span> <a href="/users/lsq"><b itemprop="author">lsq</b></a> <time datetime="2016-05-22T03:05:14Z" itemprop="datePublished"> 2016-05-22 03:05:14 UTC </time> </span> 
+      <span itemprop="position">#1</span> 
+     </div> 
+     <div class="post" itemprop="articleBody"> 
+      <p>OCR是一个古老的问题。这里我们考虑一类特殊的OCR问题，就是验证码的识别。传统做验证码的识别，需要经过如下步骤：</p> 
+      <pre><code>1. 二值化
+2. 字符分割
+3. 字符识别</code></pre> 
+      <p>这里最难的就是分割。如果字符之间有粘连，那分割起来就无比痛苦了。</p> 
+      <p>最近研究深度学习，发现有人做端到端的OCR。于是准备尝试一下。一般来说目前做基于深度学习的OCR大概有如下套路：</p> 
+      <ol> 
+       <li>把OCR的问题当做一个多标签学习的问题。4个数字组成的验证码就相当于有4个标签的图片识别问题（这里的标签还是有序的），用CNN来解决。</li> 
+       <li>把OCR的问题当做一个语音识别的问题，语音识别是把连续的音频转化为文本，验证码识别就是把连续的图片转化为文本，用CNN+LSTM+CTC来解决。<br />目前第1种方法可以做到90%多的准确率（4个都猜对了才算对），第二种方法我目前的实验还只能到20%多，还在研究中。所以这篇文章先介绍第一种方法。</li> 
+      </ol> 
+      <p>我们以<a href="https://pypi.python.org/pypi/captcha/0.1.1" rel="nofollow">python-captcha</a>验证码的识别为例来做验证码识别。</p> 
+      <p>下图是一些这个验证码的例子：</p> 
+      <p><img src="//cdn.suanfazu.com/uploads/default/original/2X/8/856896a6eeb34bdc2701e1a7c3ee2b53315ad063.png" width="269" height="76" /></p> 
+      <p>可以看到这里面有粘连，也有形变，噪音。所以我们可以看看用CNN识别这个验证码的效果。</p> 
+      <p>首先，我们定义一个迭代器来输入数据，这里我们每次都直接调用python-captcha这个库来根据随机生成的label来生成相应的验证码图片。这样我们的训练集相当于是无穷大的。</p> 
+      <p></p>
+      <pre><code class="lang-python">class OCRIter(mx.io.DataIter):
+def __init__(self, count, batch_size, num_label, height, width):
+    super(OCRIter, self).__init__()
+    self.captcha = ImageCaptcha(fonts=['./data/OpenSans-Regular.ttf'])
+    self.batch_size = batch_size
+    self.count = count
+    self.height = height
+    self.width = width
+    self.provide_data = [('data', (batch_size, 3, height, width))]
+    self.provide_label = [('softmax_label', (self.batch_size, num_label))]
+
+def __iter__(self):
+    for k in range(self.count / self.batch_size):
+        data = []
+        label = []
+        for i in range(self.batch_size):
+            # 生成一个四位数字的随机字符串
+            num = gen_rand() 
+            # 生成随机字符串对应的验证码图片
+            img = self.captcha.generate(num)
+            img = np.fromstring(img.getvalue(), dtype='uint8')
+            img = cv2.imdecode(img, cv2.IMREAD_COLOR)
+            img = cv2.resize(img, (self.width, self.height))
+            cv2.imwrite(&quot;./tmp&quot; + str(i % 10) + &quot;.png&quot;, img)
+            img = np.multiply(img, 1/255.0)
+            img = img.transpose(2, 0, 1)
+            data.append(img)
+            label.append(get_label(num))
+
+        data_all = [mx.nd.array(data)]
+        label_all = [mx.nd.array(label)]
+        data_names = ['data']
+        label_names = ['softmax_label']
+
+        data_batch = OCRBatch(data_names, data_all, label_names, label_all)
+        yield data_batch
+
+def reset(self):
+    pass</code></pre> 
+      <p>然后我们用如下的网络来训练这个数据集：</p> 
+      <p></p>
+      <pre><code class="lang-python">def get_ocrnet():
+    data = mx.symbol.Variable('data')
+    label = mx.symbol.Variable('softmax_label')
+    conv1 = mx.symbol.Convolution(data=data, kernel=(5,5), num_filter=32)
+    pool1 = mx.symbol.Pooling(data=conv1, pool_type=&quot;max&quot;, kernel=(2,2), stride=(1, 1))
+    relu1 = mx.symbol.Activation(data=pool1, act_type=&quot;relu&quot;)
+
+    conv2 = mx.symbol.Convolution(data=relu1, kernel=(5,5), num_filter=32)
+    pool2 = mx.symbol.Pooling(data=conv2, pool_type=&quot;avg&quot;, kernel=(2,2), stride=(1, 1))
+    relu2 = mx.symbol.Activation(data=pool2, act_type=&quot;relu&quot;)
+
+    conv3 = mx.symbol.Convolution(data=relu2, kernel=(3,3), num_filter=32)
+    pool3 = mx.symbol.Pooling(data=conv3, pool_type=&quot;avg&quot;, kernel=(2,2), stride=(1, 1))
+    relu3 = mx.symbol.Activation(data=pool3, act_type=&quot;relu&quot;)
+
+    flatten = mx.symbol.Flatten(data = relu3)
+    fc1 = mx.symbol.FullyConnected(data = flatten, num_hidden = 512)
+    fc21 = mx.symbol.FullyConnected(data = fc1, num_hidden = 10)
+    fc22 = mx.symbol.FullyConnected(data = fc1, num_hidden = 10)
+    fc23 = mx.symbol.FullyConnected(data = fc1, num_hidden = 10)
+    fc24 = mx.symbol.FullyConnected(data = fc1, num_hidden = 10)
+    fc2 = mx.symbol.Concat(*[fc21, fc22, fc23, fc24], dim = 0)
+    label = mx.symbol.transpose(data = label)
+    label = mx.symbol.Reshape(data = label, target_shape = (0, ))
+    return mx.symbol.SoftmaxOutput(data = fc2, label = label, name = &quot;softmax&quot;)</code></pre> 
+      <p>上面这个网络要稍微解释一下。因为这个问题是一个有顺序的多label的图片分类问题。我们在fc1的层上面接了4个Full Connect层(fc21,fc22,fc23,fc24)，用来对应不同位置的4个数字label。然后将它们Concat在一起。然后同时学习这4个label。目前用上面的网络训练，4位数字全部预测正确的精度可以达到90%左右。</p> 
+      <p>完整代码如下（或者 <a href="https://gist.github.com/xlvector/6923ef145e59de44ed06f21228f2f879" rel="nofollow">gitst</a>，需翻墙）：</p> 
+      <p></p>
+      <pre><code class="lang-python"># pylint: disable=C0111,too-many-arguments,too-many-instance-attributes,too-many-locals,redefined-outer-name,fixme
+# pylint: disable=superfluous-parens, no-member, invalid-name
+import sys
+sys.path.insert(0, &quot;../../python&quot;)
+import mxnet as mx
+import numpy as np
+import cv2, random
+
+from io import BytesIO
+from captcha.image import ImageCaptcha
+
+class OCRBatch(object):
+    def __init__(self, data_names, data, label_names, label):
+        self.data = data
+        self.label = label
+        self.data_names = data_names
+        self.label_names = label_names
+
+    @property
+    def provide_data(self):
+        return [(n, x.shape) for n, x in zip(self.data_names, self.data)]
+
+    @property
+    def provide_label(self):
+        return [(n, x.shape) for n, x in zip(self.label_names, self.label)]
+
+def gen_rand():
+    num = random.randint(0, 9999)
+    buf = str(num)
+    while len(buf) &lt; 4:
+        buf = &quot;0&quot; + buf
+    return buf
+
+def get_label(buf):
+    return np.array([int(x) for x in buf])
+
+class OCRIter(mx.io.DataIter):
+    def __init__(self, count, batch_size, num_label, height, width):
+        super(OCRIter, self).__init__()
+        self.captcha = ImageCaptcha(fonts=['./data/OpenSans-Regular.ttf'])
+        self.batch_size = batch_size
+        self.count = count
+        self.height = height
+        self.width = width
+        self.provide_data = [('data', (batch_size, 3, height, width))]
+        self.provide_label = [('softmax_label', (self.batch_size, num_label))]
+
+    def __iter__(self):
+        for k in range(self.count / self.batch_size):
+            data = []
+            label = []
+            for i in range(self.batch_size):
+                num = gen_rand()
+                img = self.captcha.generate(num)
+                img = np.fromstring(img.getvalue(), dtype='uint8')
+                img = cv2.imdecode(img, cv2.IMREAD_COLOR)
+                img = cv2.resize(img, (self.width, self.height))
+                cv2.imwrite(&quot;./tmp&quot; + str(i % 10) + &quot;.png&quot;, img)
+                img = np.multiply(img, 1/255.0)
+                img = img.transpose(2, 0, 1)
+                data.append(img)
+                label.append(get_label(num))
+
+            data_all = [mx.nd.array(data)]
+            label_all = [mx.nd.array(label)]
+            data_names = ['data']
+            label_names = ['softmax_label']
+
+            data_batch = OCRBatch(data_names, data_all, label_names, label_all)
+            yield data_batch
+
+    def reset(self):
+        pass
+
+def get_ocrnet():
+    data = mx.symbol.Variable('data')
+    label = mx.symbol.Variable('softmax_label')
+    conv1 = mx.symbol.Convolution(data=data, kernel=(5,5), num_filter=32)
+    pool1 = mx.symbol.Pooling(data=conv1, pool_type=&quot;max&quot;, kernel=(2,2), stride=(1, 1))
+    relu1 = mx.symbol.Activation(data=pool1, act_type=&quot;relu&quot;)
+
+    conv2 = mx.symbol.Convolution(data=relu1, kernel=(5,5), num_filter=32)
+    pool2 = mx.symbol.Pooling(data=conv2, pool_type=&quot;avg&quot;, kernel=(2,2), stride=(1, 1))
+    relu2 = mx.symbol.Activation(data=pool2, act_type=&quot;relu&quot;)
+
+    conv3 = mx.symbol.Convolution(data=relu2, kernel=(3,3), num_filter=32)
+    pool3 = mx.symbol.Pooling(data=conv3, pool_type=&quot;avg&quot;, kernel=(2,2), stride=(1, 1))
+    relu3 = mx.symbol.Activation(data=pool3, act_type=&quot;relu&quot;)
+
+    flatten = mx.symbol.Flatten(data = relu3)
+    fc1 = mx.symbol.FullyConnected(data = flatten, num_hidden = 512)
+    fc21 = mx.symbol.FullyConnected(data = fc1, num_hidden = 10)
+    fc22 = mx.symbol.FullyConnected(data = fc1, num_hidden = 10)
+    fc23 = mx.symbol.FullyConnected(data = fc1, num_hidden = 10)
+    fc24 = mx.symbol.FullyConnected(data = fc1, num_hidden = 10)
+    fc2 = mx.symbol.Concat(*[fc21, fc22, fc23, fc24], dim = 0)
+    label = mx.symbol.transpose(data = label)
+    label = mx.symbol.Reshape(data = label, target_shape = (0, ))
+    return mx.symbol.SoftmaxOutput(data = fc2, label = label, name = &quot;softmax&quot;)
+
+
+def Accuracy(label, pred):
+    label = label.T.reshape((-1, ))
+    hit = 0
+    total = 0
+    for i in range(pred.shape[0] / 4):
+        ok = True
+        for j in range(4):
+            k = i * 4 + j
+            if np.argmax(pred[k]) != int(label[k]):
+                ok = False
+                break
+        if ok:
+            hit += 1
+        total += 1
+    return 1.0 * hit / total
+
+network = get_ocrnet()
+devs = [mx.gpu(0)]
+model = mx.model.FeedForward(ctx = devs,
+                             symbol = network,
+                             num_epoch = 15,
+                             learning_rate = 0.001,
+                             wd = 0.00001,
+                             initializer = mx.init.Xavier(factor_type=&quot;in&quot;, magnitude=2.34),
+                             momentum = 0.9)
+
+data_train = OCRIter(100000, 50, 4, 30, 80)
+data_test = OCRIter(1000, 50, 4, 30, 80)
+
+import logging
+head = '%(asctime)-15s %(message)s'
+logging.basicConfig(level=logging.DEBUG, format=head)
+
+model.fit(X = data_train, eval_data = data_test, eval_metric = Accuracy, batch_end_callback=mx.callback.Speedometer(32, 50),)</code></pre> 
+     </div> 
+     <meta itemprop="interactionCount" content="UserLikes:1" /> 
+     <meta itemprop="interactionCount" content="UserComments:0" /> 
+     <hr /> 
+    </div> 
+    <!-- :preload-content --> 
+    <footer> 
+     <nav itemscope="" itemtype="http://schema.org/SiteNavigationElement"> 
+      <a href="/">主页</a> 
+      <a href="/categories">分类</a> 
+      <a href="/guidelines">FAQ/指引</a> 
+      <a href="/tos">服务条款</a> 
+      <a href="/privacy">隐私政策</a> 
+     </nav> 
+    </footer> 
+   </div> 
+   <footer id="noscript-footer"> 
+    <p>采用 <a href="http://www.discourse.org">Discourse</a>，启用 JavaScript 以获得最佳效果</p> 
+   </footer> 
+  </noscript> 
+  <section id="main"> 
+  </section> 
+  <div id="offscreen-content"> 
+  </div> 
+  <form id="hidden-login-form" method="post" action="/login" style="display: none;"> 
+   <input name="username" type="text" id="signin_username" /> 
+   <input name="password" type="password" id="signin_password" /> 
+   <input name="redirect" type="hidden" /> 
+   <input type="submit" id="signin-button" value="登录" /> 
+  </form> 
+  <script>
+        PreloadStore.store("site",{"default_archetype":"regular","notification_types":{"mentioned":1,"replied":2,"quoted":3,"edited":4,"liked":5,"private_message":6,"invited_to_private_message":7,"invitee_accepted":8,"posted":9,"moved_post":10,"linked":11,"granted_badge":12,"invited_to_topic":13,"custom":14,"group_mentioned":15,"group_message_summary":16},"post_types":{"regular":1,"moderator_action":2,"small_action":3,"whisper":4},"groups":[{"id":1,"name":"admins"},{"id":0,"name":"everyone"},{"id":2,"name":"moderators"},{"id":3,"name":"staff"},{"id":10,"name":"trust_level_0"},{"id":11,"name":"trust_level_1"},{"id":12,"name":"trust_level_2"},{"id":13,"name":"trust_level_3"},{"id":14,"name":"trust_level_4"},{"id":41,"name":"WeUseCaffe"}],"filters":["latest","unread","new","read","posted","bookmarks"],"periods":["all","yearly","quarterly","monthly","weekly","daily"],"top_menu_items":["latest","unread","new","read","posted","bookmarks","category","categories","top"],"anonymous_top_menu_items":["latest","top","categories","category","categories","top"],"uncategorized_category_id":1,"is_readonly":false,"disabled_plugins":[],"user_field_max_length":2048,"suppressed_from_homepage_category_ids":[18,24,26],"post_action_types":[{"name_key":"bookmark","name":"书签","description":"给本帖加书签","long_form":"已给本帖加上书签","is_flag":false,"icon":null,"id":1,"is_custom_flag":false},{"name_key":"like","name":"赞","description":"赞本帖","long_form":"赞本帖内容","is_flag":false,"icon":"heart","id":2,"is_custom_flag":false},{"name_key":"off_topic","name":"题外话","description":"此帖与该主题标题和第一帖而言所讨论的主题无关，可能需要被移动。","long_form":"标记为题外话","is_flag":true,"icon":null,"id":3,"is_custom_flag":false},{"name_key":"inappropriate","name":"不当内容","description":"此帖内容包含对他人的攻击、侮辱、仇视语言或违反了<a href=\"/guidelines\">我们的社群准则<\/a>。","long_form":"标记为不当内容","is_flag":true,"icon":null,"id":4,"is_custom_flag":false},{"name_key":"vote","name":"投票","description":"给本帖投票","long_form":"已给本帖投票","is_flag":false,"icon":null,"id":5,"is_custom_flag":false},{"name_key":"spam","name":"垃圾","description":"此帖为广告。它不包含任何对当前讨论有帮助的内容，只有促销信息。","long_form":"标记为垃圾","is_flag":true,"icon":null,"id":8,"is_custom_flag":false},{"name_key":"notify_user","name":"给@{{username}}发送一条消息","description":"我想与此人私下交流他们的帖子。","long_form":"以发送消息给用户","is_flag":true,"icon":null,"id":6,"is_custom_flag":true},{"name_key":"notify_moderators","name":"其他事项","description":"这个帖子需要版主的注意，原因没有列在上方。","long_form":"标记为需版主注意","is_flag":true,"icon":null,"id":7,"is_custom_flag":true}],"topic_flag_types":[{"name_key":"inappropriate","name":"不当内容","description":"此主题内容包含对他人的攻击、侮辱、仇视语言或违反了<a href=\"/guidelines\">我们的社群准则<\/a>。","long_form":"标记为不当内容","is_flag":true,"icon":null,"id":4,"is_custom_flag":false},{"name_key":"spam","name":"垃圾","description":"这个主题是广告。它对本站点没有联系和帮助，仅仅是推销信息。","long_form":"标记为垃圾","is_flag":true,"icon":null,"id":8,"is_custom_flag":false},{"name_key":"notify_moderators","name":"其他内容","description":"此帖需要版主依据<a href=\"/guidelines\">社群准则<\/a>、<a href=\"/tos\">服务条款（TOS）<\/a>或其它未列出的原因来给予关注。","long_form":"标记为需版主注意","is_flag":true,"icon":null,"id":7,"is_custom_flag":true}],"can_create_tag":null,"can_tag_topics":null,"tags_filter_regexp":"[<\\\\/\\>\\#\\?\\&\\s]","categories":[{"id":1,"name":"其他","color":"AB9364","text_color":"FFFFFF","slug":"qi-ta","topic_count":1,"post_count":1,"position":0,"description":"不需要分类或者不适合放在现在的任何分类中的主题。","description_text":"","topic_url":"/t//","logo_url":"","background_url":"","read_restricted":false,"permission":null,"notification_level":1,"topic_template":null,"has_children":false},{"id":6,"name":"算法","color":"12A89D","text_color":"FFFFFF","slug":"suan-fa","topic_count":24,"post_count":45,"position":1,"description":"关于算法的讨论区。","description_text":"关于算法的讨论区。","topic_url":"/t/guan-yu-fen-lei-suan-fa/12","logo_url":"","background_url":"","read_restricted":false,"permission":null,"notification_level":1,"topic_template":null,"has_children":false},{"id":5,"name":"机器学习","color":"3AB54A","text_color":"FFFFFF","slug":"ji-qi-xue-xi","topic_count":113,"post_count":182,"position":2,"description":"机器学习讨论区。","description_text":"机器学习讨论区。","topic_url":"/t/guan-yu-fen-lei-ji-qi-xue-xi/11","logo_url":"","background_url":"","read_restricted":false,"permission":null,"notification_level":1,"topic_template":null,"has_children":true},{"id":8,"name":"工程开发","color":"F1592A","text_color":"FFFFFF","slug":"gong-cheng-kai-fa","topic_count":40,"post_count":73,"position":3,"description":"开发、代码、编程、工程实现相关讨论","description_text":"开发、代码、编程、工程实现相关讨论","topic_url":"/t/guan-yu-fen-lei-gong-cheng-he-dai-ma/16","logo_url":"","background_url":"","read_restricted":false,"permission":null,"notification_level":1,"topic_template":null,"has_children":false},{"id":12,"name":"面试","color":"25AAE2","text_color":"FFFFFF","slug":"mian-shi","topic_count":14,"post_count":34,"position":4,"description":"面试题，面试经验","description_text":"面试题，面试经验","topic_url":"/t/guan-yu-fen-lei-mian-shi/96","logo_url":"","background_url":"","read_restricted":false,"permission":null,"notification_level":1,"topic_template":null,"has_children":false},{"id":13,"name":"工作招聘","color":"9EB83B","text_color":"FFFFFF","slug":"gong-zuo-zhao-pin","topic_count":9,"post_count":10,"position":5,"description":"招聘职位信息，工作相关讨论","description_text":"招聘职位信息，工作相关讨论","topic_url":"/t/guan-yu-fen-lei-gong-zuo-zhao-pin/234","logo_url":"","background_url":"","read_restricted":false,"permission":null,"notification_level":1,"topic_template":null,"has_children":false},{"id":9,"name":"创业","color":"F7941D","text_color":"FFFFFF","slug":"chuang-ye","topic_count":3,"post_count":3,"position":6,"description":null,"description_text":null,"topic_url":"/t/guan-yu-fen-lei-chuang-ye/21","logo_url":"","background_url":"","read_restricted":false,"permission":null,"notification_level":1,"topic_template":null,"has_children":false},{"id":17,"name":"领域应用","color":"B3B5B4","text_color":"FFFFFF","slug":"application","topic_count":1,"post_count":1,"position":7,"description":null,"description_text":null,"topic_url":"/t/guan-yu-fen-lei-ling-yu-ying-yong/462","logo_url":"","background_url":"","read_restricted":false,"permission":null,"notification_level":1,"topic_template":null,"has_children":true},{"id":10,"name":"程序化交易","color":"ED207B","text_color":"FFFFFF","slug":"cheng-xu-hua-jiao-yi","topic_count":4,"post_count":5,"position":8,"description":"程序化交易，自动化交易，量化投资，交易策略和算法讨论。","description_text":"程序化交易，自动化交易，量化投资，交易策略和算法讨论。","topic_url":"/t/guan-yu-fen-lei-cheng-xu-hua-jiao-yi/27","logo_url":"","background_url":"","read_restricted":false,"permission":null,"parent_category_id":17,"notification_level":1,"topic_template":null,"has_children":false},{"id":7,"name":"Deep Learning","color":"0E76BD","text_color":"FFFFFF","slug":"deep-learning","topic_count":38,"post_count":76,"position":11,"description":"深度学习（Deep Learning）。","description_text":"深度学习（Deep Learning）。","topic_url":"/t/guan-yu-fen-lei-deep-learning/13","logo_url":null,"background_url":null,"read_restricted":false,"permission":null,"parent_category_id":5,"notification_level":1,"topic_template":null,"has_children":false},{"id":11,"name":"幽默","color":"3366aa","text_color":"FFFFFF","slug":"joke","topic_count":10,"post_count":20,"position":12,"description":"幽默笑话。程序员的笑点。","description_text":"幽默笑话。程序员的笑点。","topic_url":"/t/guan-yu-fen-lei-you-mo-xiao-hua/30","logo_url":"","background_url":"","read_restricted":false,"permission":null,"parent_category_id":15,"notification_level":1,"topic_template":null,"has_children":false},{"id":16,"name":"有图","color":"DD2C4C","text_color":"FFFFFF","slug":"mm","topic_count":1,"post_count":4,"position":13,"description":"有图有真相，“多看美女能长寿”。","description_text":"有图有真相，“多看美女能长寿”。","topic_url":"/t/guan-yu-fen-lei-mei-ren-mei-jing/456","logo_url":"","background_url":"","read_restricted":false,"permission":null,"parent_category_id":15,"notification_level":1,"topic_template":null,"has_children":false},{"id":3,"name":"社区建设","color":"808281","text_color":"FFFFFF","slug":"she-qu-jian-she","topic_count":6,"post_count":10,"position":14,"description":"关于本算法组社区建设的反馈、建议和讨论。","description_text":"关于本算法组社区建设的反馈、建议和讨论。","topic_url":"/t/about-the-meta-category/2","logo_url":"","background_url":"","read_restricted":false,"permission":null,"notification_level":1,"topic_template":null,"has_children":false},{"id":14,"name":"博客","color":"008B45","text_color":"FFFFFF","slug":"blog","topic_count":2,"post_count":2,"position":15,"description":"你的个人博客文章。如果你想发布/记录个人的博客文章，可以放到此分类。此分类的类容，不会显示到首页上。","description_text":"你的个人博客文章。如果你想发布/记录个人的博客文章，可以放到此分类。此分类的类容，不会显示到首页上。","topic_url":"/t/guan-yu-fen-lei-bo-ke/451","logo_url":"","background_url":"","read_restricted":false,"permission":null,"notification_level":1,"topic_template":null,"has_children":false},{"id":15,"name":"有趣","color":"1E90FF","text_color":"FFFFFF","slug":"fun","topic_count":0,"post_count":1,"position":16,"description":"我们总有些无聊着的时候：程序在编译，文件在上传，车还没来，…，不要无聊着，来这里看看段子图片…","description_text":"我们总有些无聊着的时候：程序在编译，文件在上传，车还没来，…，不要无聊着，来这里看看段子图片…","topic_url":"/t/guan-yu-fen-lei-bu-xu-wu-liao/454","logo_url":"","background_url":"","read_restricted":false,"permission":null,"notification_level":1,"topic_template":null,"has_children":true},{"id":18,"name":"精选","color":"231F20","text_color":"FFFFFF","slug":"z","topic_count":12139,"post_count":35631,"position":17,"description":"精选文章，来自本站或者外站。","description_text":"精选文章，来自本站或者外站。","topic_url":"/t/topic/734","logo_url":"","background_url":"","read_restricted":false,"permission":null,"notification_level":1,"topic_template":"","has_children":false},{"id":22,"name":"Caffe","color":"C30000","text_color":"FFFFFF","slug":"caffe","topic_count":15,"post_count":55,"position":18,"description":"Caffe 机器学习中文社区","description_text":"Caffe 机器学习中文社区","topic_url":"/t/caffe/12323","logo_url":null,"background_url":null,"read_restricted":false,"permission":null,"parent_category_id":5,"notification_level":1,"topic_template":null,"has_children":false},{"id":23,"name":"MXNet","color":"2980B9","text_color":"FFFFFF","slug":"mxnet","topic_count":7,"post_count":9,"position":19,"description":null,"description_text":null,"topic_url":"/t/mxnet/12324","logo_url":null,"background_url":null,"read_restricted":false,"permission":null,"parent_category_id":5,"notification_level":1,"topic_template":null,"has_children":false},{"id":24,"name":"头条","color":"BF1E2E","text_color":"FFFFFF","slug":"toutiao","topic_count":14,"post_count":15,"position":20,"description":"你必须关注的文章：技术、业界、创业等等","description_text":"你必须关注的文章：技术、业界、创业等等","topic_url":"/t/topic/12808","logo_url":"","background_url":"","read_restricted":false,"permission":null,"notification_level":1,"topic_template":"","has_children":false},{"id":25,"name":"TensorFlow","color":"92278F","text_color":"FFFFFF","slug":"tensorflow","topic_count":7,"post_count":8,"position":21,"description":"关于TensorFlow的讨论和分享等一切。","description_text":"关于TensorFlow的讨论和分享等一切。","topic_url":"/t/tensorflow/13214","logo_url":null,"background_url":null,"read_restricted":false,"permission":null,"parent_category_id":5,"notification_level":1,"topic_template":null,"has_children":false},{"id":26,"name":"教程","color":"652D90","text_color":"FFFFFF","slug":"tutorial","topic_count":12,"post_count":12,"position":22,"description":"快速学习教程，在线入门到高级教程","description_text":"快速学习教程，在线入门到高级教程","topic_url":"/t/topic/13398","logo_url":"","background_url":"","read_restricted":false,"permission":null,"notification_level":1,"topic_template":"","has_children":true},{"id":27,"name":"算法竞赛","color":"8C6238","text_color":"FFFFFF","slug":"contests","topic_count":4,"post_count":14,"position":23,"description":null,"description_text":null,"topic_url":"/t/topic/13456","logo_url":null,"background_url":null,"read_restricted":false,"permission":null,"notification_level":1,"topic_template":null,"has_children":false},{"id":28,"name":"教程系列","color":"99cccc","text_color":"FFFFFF","slug":"tutorial-list","topic_count":4,"post_count":4,"position":24,"description":"在这个分类里存放教程目录，便于查询","description_text":"在这个分类里存放教程目录，便于查询","topic_url":"/t/topic/13469","logo_url":"","background_url":"","read_restricted":false,"permission":null,"parent_category_id":26,"notification_level":1,"topic_template":"","has_children":false}],"trust_levels":[{"id":0,"name":"新用户"},{"id":1,"name":"初级用户"},{"id":2,"name":"成员"},{"id":3,"name":"活跃用户"},{"id":4,"name":"资深"}],"archetypes":[{"id":"regular","name":"常规主题","options":[]},{"id":"banner","name":"横幅主题","options":[]}],"user_fields":[]});
+        PreloadStore.store("siteSettings",{"title":"算法组","contact_email":"suanfazu@suanfazu.com","contact_url":"","logo_url":"","logo_small_url":"","mobile_logo_url":"","favicon_url":"http://s1.suanfazu.com/favicon.ico","allow_user_locale":false,"suggested_topics":10,"track_external_right_clicks":false,"ga_universal_tracking_code":"","ga_universal_domain_name":"auto","ga_tracking_code":"","ga_domain_name":"","top_menu":"latest|new|unread|top|categories|category/头条","post_menu":"like-count|like|share|flag|edit|bookmark|delete|admin|reply","post_menu_hidden_items":"bookmark|edit|delete|admin","share_links":"weibo|wechat|renren|twitter|facebook|google+|email","category_colors":"BF1E2E|F1592A|F7941D|9EB83B|3AB54A|12A89D|25AAE2|0E76BD|652D90|92278F|ED207B|8C6238|231F20|808281|B3B5B4|283890","category_style":"bullet","enable_mobile_theme":true,"relative_date_duration":30,"category_featured_topics":3,"fixed_category_positions":true,"fixed_category_positions_on_create":false,"show_subcategory_list":false,"enable_badges":true,"enable_whispers":false,"invite_only":false,"login_required":false,"must_approve_users":false,"enable_local_logins":true,"allow_new_registrations":true,"enable_signup_cta":true,"enable_google_oauth2_logins":true,"enable_yahoo_logins":false,"enable_twitter_logins":false,"enable_instagram_logins":false,"enable_facebook_logins":false,"enable_github_logins":true,"enable_sso":false,"sso_overrides_avatar":false,"min_username_length":3,"max_username_length":20,"min_password_length":6,"min_admin_password_length":15,"logout_redirect":"","full_name_required":false,"enable_names":true,"invites_per_page":40,"delete_user_max_post_age":60,"delete_all_posts_max":15,"show_email_on_profile":false,"enable_user_directory":true,"allow_anonymous_posting":false,"anonymous_posting_min_trust_level":1,"hide_user_profiles_from_public":false,"min_post_length":7,"min_first_post_length":10,"min_private_message_post_length":5,"max_post_length":232000,"min_topic_title_length":4,"max_topic_title_length":255,"min_private_message_title_length":2,"allow_uncategorized_topics":false,"min_title_similar_length":10,"min_body_similar_length":15,"enable_private_messages":true,"edit_history_visible_to_public":false,"delete_removed_posts_after":24,"traditional_markdown_linebreaks":false,"allow_html_tables":false,"suppress_reply_directly_below":true,"suppress_reply_directly_above":true,"max_reply_history":1,"newuser_max_images":1,"newuser_max_attachments":0,"display_name_on_posts":false,"show_time_gap_days":7,"short_progress_text_threshold":10000,"default_code_lang":"auto","autohighlight_all_code":false,"highlighted_languages":"apache|bash|cs|cpp|css|coffeescript|diff|xml|http|ini|json|java|javascript|makefile|markdown|nginx|objectivec|ruby|perl|php|python|sql|handlebars","censored_words":"","enable_emoji":true,"emoji_set":"emoji_one","email_time_window_mins":10,"disable_digest_emails":false,"email_in":false,"disable_emails":false,"max_image_size_kb":10240,"max_attachment_size_kb":10240,"authorized_extensions":"jpg|jpeg|png|gif|pdf|zip|pptx|txt","max_image_width":690,"max_image_height":5000,"prevent_anons_from_downloading_files":true,"enable_s3_uploads":false,"allow_profile_backgrounds":true,"allow_uploaded_avatars":true,"allow_animated_avatars":false,"default_avatars":"","external_system_avatars_enabled":true,"external_system_avatars_url":"/letter_avatar_proxy/v2/letter/{first_letter}/{color}/{size}.png","tl1_requires_read_posts":2,"tl3_links_no_follow":false,"use_admin_ip_whitelist":false,"alert_admins_if_errors_per_minute":0,"alert_admins_if_errors_per_hour":0,"enable_long_polling":true,"long_polling_base_url":"/","background_polling_interval":60000,"polling_interval":3000,"anon_polling_interval":15000,"flush_timings_secs":20,"verbose_localization":false,"max_new_topics":500,"tos_url":"","privacy_policy_url":"","faq_url":"","maximum_backups":5,"version_checks":true,"suppress_uncategorized_badge":true,"min_search_term_length":1,"topic_views_heat_low":1000,"topic_views_heat_medium":2000,"topic_views_heat_high":5000,"topic_post_like_heat_low":0.5,"topic_post_like_heat_medium":1.0,"topic_post_like_heat_high":2.0,"history_hours_low":12,"history_hours_medium":24,"history_hours_high":48,"cold_age_days_low":14,"cold_age_days_medium":90,"cold_age_days_high":180,"global_notice":"","show_create_topics_notice":true,"automatically_unpin_topics":true,"read_time_word_count":500,"disable_mailing_list_mode":false,"default_topics_automatic_unpin":true,"poll_enabled":true,"poll_maximum_options":100,"tagging_enabled":true,"max_tags_per_topic":5,"max_tag_length":20,"min_trust_level_to_tag_topics":0,"max_tag_search_results":5,"show_filter_by_tag":false,"tags_sort_alphabetically":false,"staff_tags":"","suppress_overlapping_tags_in_list":false,"details_enabled":true,"enable_mathjax_plugin":true,"mathjax_url":"//cdn.bootcss.com/mathjax/2.6.1/MathJax.js","mathjax_config":"TeX-AMS-MML_HTMLorMML","available_locales":"ar|bs_BA|cs|da|de|en|es|fa_IR|fi|fr|gl|he|id|it|ja|ko|nb_NO|nl|pl_PL|pt|pt_BR|ro|ru|sk|sq|sv|te|tr_TR|uk|vi|zh_CN|zh_TW","tag_style":"simple"});
+        PreloadStore.store("customHTML",{"top":"\n","footer":"\n"});
+        PreloadStore.store("banner",{});
+        PreloadStore.store("customEmoji",[]);
+        PreloadStore.store("translationOverrides",{});
+        PreloadStore.store("topic_13523",{"post_stream":{"posts":[{"id":36584,"name":"lsq","username":"lsq","avatar_template":"/letter_avatar_proxy/v2/letter/l/35a633/{size}.png","created_at":"2016-05-22T03:05:14.409Z","cooked":"<p>OCR是一个古老的问题。这里我们考虑一类特殊的OCR问题，就是验证码的识别。传统做验证码的识别，需要经过如下步骤：<\/p>\n\n<pre><code>1. 二值化\n2. 字符分割\n3. 字符识别<\/code><\/pre>\n\n<p>这里最难的就是分割。如果字符之间有粘连，那分割起来就无比痛苦了。<\/p>\n\n<p>最近研究深度学习，发现有人做端到端的OCR。于是准备尝试一下。一般来说目前做基于深度学习的OCR大概有如下套路：<\/p>\n\n<ol>\n<li>把OCR的问题当做一个多标签学习的问题。4个数字组成的验证码就相当于有4个标签的图片识别问题（这里的标签还是有序的），用CNN来解决。<\/li>\n<li>把OCR的问题当做一个语音识别的问题，语音识别是把连续的音频转化为文本，验证码识别就是把连续的图片转化为文本，用CNN+LSTM+CTC来解决。<br>目前第1种方法可以做到90%多的准确率（4个都猜对了才算对），第二种方法我目前的实验还只能到20%多，还在研究中。所以这篇文章先介绍第一种方法。<\/li>\n<\/ol>\n\n<p>我们以<a href=\"https://pypi.python.org/pypi/captcha/0.1.1\" rel=\"nofollow\">python-captcha<\/a>验证码的识别为例来做验证码识别。<\/p>\n\n<p>下图是一些这个验证码的例子：<\/p>\n\n<p><img src=\"//cdn.suanfazu.com/uploads/default/original/2X/8/856896a6eeb34bdc2701e1a7c3ee2b53315ad063.png\" width=\"269\" height=\"76\"><\/p>\n\n<p>可以看到这里面有粘连，也有形变，噪音。所以我们可以看看用CNN识别这个验证码的效果。<\/p>\n\n<p>首先，我们定义一个迭代器来输入数据，这里我们每次都直接调用python-captcha这个库来根据随机生成的label来生成相应的验证码图片。这样我们的训练集相当于是无穷大的。<\/p>\n\n<p><\/p><pre><code class=\"lang-python\">class OCRIter(mx.io.DataIter):\ndef __init__(self, count, batch_size, num_label, height, width):\n    super(OCRIter, self).__init__()\n    self.captcha = ImageCaptcha(fonts=['./data/OpenSans-Regular.ttf'])\n    self.batch_size = batch_size\n    self.count = count\n    self.height = height\n    self.width = width\n    self.provide_data = [('data', (batch_size, 3, height, width))]\n    self.provide_label = [('softmax_label', (self.batch_size, num_label))]\n\ndef __iter__(self):\n    for k in range(self.count / self.batch_size):\n        data = []\n        label = []\n        for i in range(self.batch_size):\n            # 生成一个四位数字的随机字符串\n            num = gen_rand() \n            # 生成随机字符串对应的验证码图片\n            img = self.captcha.generate(num)\n            img = np.fromstring(img.getvalue(), dtype='uint8')\n            img = cv2.imdecode(img, cv2.IMREAD_COLOR)\n            img = cv2.resize(img, (self.width, self.height))\n            cv2.imwrite(\"./tmp\" + str(i % 10) + \".png\", img)\n            img = np.multiply(img, 1/255.0)\n            img = img.transpose(2, 0, 1)\n            data.append(img)\n            label.append(get_label(num))\n\n        data_all = [mx.nd.array(data)]\n        label_all = [mx.nd.array(label)]\n        data_names = ['data']\n        label_names = ['softmax_label']\n\n        data_batch = OCRBatch(data_names, data_all, label_names, label_all)\n        yield data_batch\n\ndef reset(self):\n    pass<\/code><\/pre>\n\n<p>然后我们用如下的网络来训练这个数据集：<\/p>\n\n<p><\/p><pre><code class=\"lang-python\">def get_ocrnet():\n    data = mx.symbol.Variable('data')\n    label = mx.symbol.Variable('softmax_label')\n    conv1 = mx.symbol.Convolution(data=data, kernel=(5,5), num_filter=32)\n    pool1 = mx.symbol.Pooling(data=conv1, pool_type=\"max\", kernel=(2,2), stride=(1, 1))\n    relu1 = mx.symbol.Activation(data=pool1, act_type=\"relu\")\n\n    conv2 = mx.symbol.Convolution(data=relu1, kernel=(5,5), num_filter=32)\n    pool2 = mx.symbol.Pooling(data=conv2, pool_type=\"avg\", kernel=(2,2), stride=(1, 1))\n    relu2 = mx.symbol.Activation(data=pool2, act_type=\"relu\")\n\n    conv3 = mx.symbol.Convolution(data=relu2, kernel=(3,3), num_filter=32)\n    pool3 = mx.symbol.Pooling(data=conv3, pool_type=\"avg\", kernel=(2,2), stride=(1, 1))\n    relu3 = mx.symbol.Activation(data=pool3, act_type=\"relu\")\n\n    flatten = mx.symbol.Flatten(data = relu3)\n    fc1 = mx.symbol.FullyConnected(data = flatten, num_hidden = 512)\n    fc21 = mx.symbol.FullyConnected(data = fc1, num_hidden = 10)\n    fc22 = mx.symbol.FullyConnected(data = fc1, num_hidden = 10)\n    fc23 = mx.symbol.FullyConnected(data = fc1, num_hidden = 10)\n    fc24 = mx.symbol.FullyConnected(data = fc1, num_hidden = 10)\n    fc2 = mx.symbol.Concat(*[fc21, fc22, fc23, fc24], dim = 0)\n    label = mx.symbol.transpose(data = label)\n    label = mx.symbol.Reshape(data = label, target_shape = (0, ))\n    return mx.symbol.SoftmaxOutput(data = fc2, label = label, name = \"softmax\")<\/code><\/pre>\n\n<p>上面这个网络要稍微解释一下。因为这个问题是一个有顺序的多label的图片分类问题。我们在fc1的层上面接了4个Full Connect层(fc21,fc22,fc23,fc24)，用来对应不同位置的4个数字label。然后将它们Concat在一起。然后同时学习这4个label。目前用上面的网络训练，4位数字全部预测正确的精度可以达到90%左右。<\/p>\n\n<p>完整代码如下（或者 <a href=\"https://gist.github.com/xlvector/6923ef145e59de44ed06f21228f2f879\" rel=\"nofollow\">gitst<\/a>，需翻墙）：<\/p>\n\n<p><\/p><pre><code class=\"lang-python\"># pylint: disable=C0111,too-many-arguments,too-many-instance-attributes,too-many-locals,redefined-outer-name,fixme\n# pylint: disable=superfluous-parens, no-member, invalid-name\nimport sys\nsys.path.insert(0, \"../../python\")\nimport mxnet as mx\nimport numpy as np\nimport cv2, random\n\nfrom io import BytesIO\nfrom captcha.image import ImageCaptcha\n\nclass OCRBatch(object):\n    def __init__(self, data_names, data, label_names, label):\n        self.data = data\n        self.label = label\n        self.data_names = data_names\n        self.label_names = label_names\n\n    @property\n    def provide_data(self):\n        return [(n, x.shape) for n, x in zip(self.data_names, self.data)]\n\n    @property\n    def provide_label(self):\n        return [(n, x.shape) for n, x in zip(self.label_names, self.label)]\n\ndef gen_rand():\n    num = random.randint(0, 9999)\n    buf = str(num)\n    while len(buf) &lt; 4:\n        buf = \"0\" + buf\n    return buf\n\ndef get_label(buf):\n    return np.array([int(x) for x in buf])\n\nclass OCRIter(mx.io.DataIter):\n    def __init__(self, count, batch_size, num_label, height, width):\n        super(OCRIter, self).__init__()\n        self.captcha = ImageCaptcha(fonts=['./data/OpenSans-Regular.ttf'])\n        self.batch_size = batch_size\n        self.count = count\n        self.height = height\n        self.width = width\n        self.provide_data = [('data', (batch_size, 3, height, width))]\n        self.provide_label = [('softmax_label', (self.batch_size, num_label))]\n\n    def __iter__(self):\n        for k in range(self.count / self.batch_size):\n            data = []\n            label = []\n            for i in range(self.batch_size):\n                num = gen_rand()\n                img = self.captcha.generate(num)\n                img = np.fromstring(img.getvalue(), dtype='uint8')\n                img = cv2.imdecode(img, cv2.IMREAD_COLOR)\n                img = cv2.resize(img, (self.width, self.height))\n                cv2.imwrite(\"./tmp\" + str(i % 10) + \".png\", img)\n                img = np.multiply(img, 1/255.0)\n                img = img.transpose(2, 0, 1)\n                data.append(img)\n                label.append(get_label(num))\n\n            data_all = [mx.nd.array(data)]\n            label_all = [mx.nd.array(label)]\n            data_names = ['data']\n            label_names = ['softmax_label']\n\n            data_batch = OCRBatch(data_names, data_all, label_names, label_all)\n            yield data_batch\n\n    def reset(self):\n        pass\n\ndef get_ocrnet():\n    data = mx.symbol.Variable('data')\n    label = mx.symbol.Variable('softmax_label')\n    conv1 = mx.symbol.Convolution(data=data, kernel=(5,5), num_filter=32)\n    pool1 = mx.symbol.Pooling(data=conv1, pool_type=\"max\", kernel=(2,2), stride=(1, 1))\n    relu1 = mx.symbol.Activation(data=pool1, act_type=\"relu\")\n\n    conv2 = mx.symbol.Convolution(data=relu1, kernel=(5,5), num_filter=32)\n    pool2 = mx.symbol.Pooling(data=conv2, pool_type=\"avg\", kernel=(2,2), stride=(1, 1))\n    relu2 = mx.symbol.Activation(data=pool2, act_type=\"relu\")\n\n    conv3 = mx.symbol.Convolution(data=relu2, kernel=(3,3), num_filter=32)\n    pool3 = mx.symbol.Pooling(data=conv3, pool_type=\"avg\", kernel=(2,2), stride=(1, 1))\n    relu3 = mx.symbol.Activation(data=pool3, act_type=\"relu\")\n\n    flatten = mx.symbol.Flatten(data = relu3)\n    fc1 = mx.symbol.FullyConnected(data = flatten, num_hidden = 512)\n    fc21 = mx.symbol.FullyConnected(data = fc1, num_hidden = 10)\n    fc22 = mx.symbol.FullyConnected(data = fc1, num_hidden = 10)\n    fc23 = mx.symbol.FullyConnected(data = fc1, num_hidden = 10)\n    fc24 = mx.symbol.FullyConnected(data = fc1, num_hidden = 10)\n    fc2 = mx.symbol.Concat(*[fc21, fc22, fc23, fc24], dim = 0)\n    label = mx.symbol.transpose(data = label)\n    label = mx.symbol.Reshape(data = label, target_shape = (0, ))\n    return mx.symbol.SoftmaxOutput(data = fc2, label = label, name = \"softmax\")\n\n\ndef Accuracy(label, pred):\n    label = label.T.reshape((-1, ))\n    hit = 0\n    total = 0\n    for i in range(pred.shape[0] / 4):\n        ok = True\n        for j in range(4):\n            k = i * 4 + j\n            if np.argmax(pred[k]) != int(label[k]):\n                ok = False\n                break\n        if ok:\n            hit += 1\n        total += 1\n    return 1.0 * hit / total\n\nnetwork = get_ocrnet()\ndevs = [mx.gpu(0)]\nmodel = mx.model.FeedForward(ctx = devs,\n                             symbol = network,\n                             num_epoch = 15,\n                             learning_rate = 0.001,\n                             wd = 0.00001,\n                             initializer = mx.init.Xavier(factor_type=\"in\", magnitude=2.34),\n                             momentum = 0.9)\n\ndata_train = OCRIter(100000, 50, 4, 30, 80)\ndata_test = OCRIter(1000, 50, 4, 30, 80)\n\nimport logging\nhead = '%(asctime)-15s %(message)s'\nlogging.basicConfig(level=logging.DEBUG, format=head)\n\nmodel.fit(X = data_train, eval_data = data_test, eval_metric = Accuracy, batch_end_callback=mx.callback.Speedometer(32, 50),)<\/code><\/pre>","post_number":1,"post_type":1,"updated_at":"2016-05-22T03:05:14.409Z","reply_count":0,"reply_to_post_number":null,"quote_count":0,"avg_time":46,"incoming_link_count":1070,"reads":43,"score":5347.9,"yours":false,"topic_id":13523,"topic_slug":"cnn-ocr","display_username":"lsq","primary_group_name":null,"version":1,"can_edit":false,"can_delete":false,"can_recover":false,"can_wiki":false,"link_counts":[{"url":"https://gist.github.com/xlvector/6923ef145e59de44ed06f21228f2f879","internal":false,"reflection":false,"clicks":56},{"url":"https://pypi.python.org/pypi/captcha/0.1.1","internal":false,"reflection":false,"title":"captcha 0.1.1 : Python Package Index","clicks":53}],"read":true,"user_title":null,"actions_summary":[{"id":2,"count":1}],"moderator":false,"admin":false,"staff":false,"user_id":1582,"hidden":false,"hidden_reason_id":null,"trust_level":1,"deleted_at":null,"user_deleted":false,"edit_reason":null,"can_view_edit_history":false,"wiki":false}],"stream":[36584]},"id":13523,"title":"基于cnn的实现端到端的ocr","fancy_title":"基于cnn的实现端到端的ocr","posts_count":1,"created_at":"2016-05-22T03:05:14.281Z","views":3223,"reply_count":0,"participant_count":1,"like_count":1,"last_posted_at":"2016-05-22T03:05:14.409Z","visible":true,"closed":false,"archived":false,"has_summary":false,"archetype":"regular","slug":"cnn-ocr","category_id":7,"word_count":1056,"deleted_at":null,"user_id":1582,"draft":null,"draft_key":"topic_13523","draft_sequence":null,"unpinned":null,"pinned_globally":false,"pinned":false,"pinned_at":null,"pinned_until":null,"details":{"auto_close_at":null,"auto_close_hours":null,"auto_close_based_on_last_post":false,"created_by":{"id":1582,"username":"lsq","avatar_template":"/letter_avatar_proxy/v2/letter/l/35a633/{size}.png"},"last_poster":{"id":1582,"username":"lsq","avatar_template":"/letter_avatar_proxy/v2/letter/l/35a633/{size}.png"},"participants":[{"id":1582,"username":"lsq","avatar_template":"/letter_avatar_proxy/v2/letter/l/35a633/{size}.png","post_count":1}],"suggested_topics":[{"id":13211,"title":"十个热门开源深度学习框架","fancy_title":"十个热门开源深度学习框架","slug":"topic","posts_count":1,"reply_count":0,"highest_post_number":1,"image_url":null,"created_at":"2016-05-01T13:49:10.265Z","last_posted_at":"2016-05-01T13:49:10.502Z","bumped":true,"bumped_at":"2016-05-01T13:49:10.502Z","unseen":false,"pinned":false,"unpinned":null,"visible":true,"closed":false,"archived":false,"bookmarked":null,"liked":null,"archetype":"regular","like_count":1,"views":5723,"category_id":7},{"id":23,"title":"Jeff Dean：大规模深度学习","fancy_title":"Jeff Dean：大规模深度学习","slug":"jeff-dean-da-gui-mo-shen-du-xue-xi","posts_count":1,"reply_count":0,"highest_post_number":1,"image_url":null,"created_at":"2014-12-09T07:51:32.708Z","last_posted_at":"2014-12-09T07:51:33.317Z","bumped":true,"bumped_at":"2014-12-09T07:51:33.317Z","unseen":false,"pinned":false,"unpinned":null,"visible":true,"closed":false,"archived":false,"bookmarked":null,"liked":null,"archetype":"regular","like_count":0,"views":1714,"category_id":7},{"id":9356,"title":"百度组建全球最大深度机器学习开源平台","fancy_title":"百度组建全球最大深度机器学习开源平台","slug":"topic","posts_count":1,"reply_count":0,"highest_post_number":1,"image_url":null,"created_at":"2015-05-21T16:23:14.886Z","last_posted_at":"2015-05-21T16:23:14.995Z","bumped":true,"bumped_at":"2015-05-21T16:23:14.995Z","unseen":false,"pinned":false,"unpinned":null,"visible":true,"closed":false,"archived":false,"bookmarked":null,"liked":null,"archetype":"regular","like_count":0,"views":2955,"category_id":7},{"id":9401,"title":"Deep Learning（深度学习）学习笔记整理系列","fancy_title":"Deep Learning（深度学习）学习笔记整理系列","slug":"deep-learning","posts_count":1,"reply_count":0,"highest_post_number":1,"image_url":"http://newsget-cache.stor.sinaapp.com/eb8caa7fb6519516f3f79a48b5653e59.jpg","created_at":"2015-05-27T15:42:32.413Z","last_posted_at":"2015-05-27T15:42:32.889Z","bumped":true,"bumped_at":"2015-05-27T15:42:32.889Z","unseen":false,"pinned":false,"unpinned":null,"visible":true,"closed":false,"archived":false,"bookmarked":null,"liked":null,"archetype":"regular","like_count":5,"views":11539,"category_id":7},{"id":706,"title":"Cnn 深度学习脑图","fancy_title":"Cnn 深度学习脑图","slug":"cnn-shen-du-xue-xi-nao-tu","posts_count":1,"reply_count":0,"highest_post_number":1,"image_url":"/uploads/default/_optimized/b96/34e/a5ed7502d1_690x851.jpg","created_at":"2015-05-09T17:57:56.413Z","last_posted_at":"2015-05-09T17:57:56.664Z","bumped":true,"bumped_at":"2015-05-09T17:57:56.664Z","unseen":false,"pinned":false,"unpinned":null,"visible":true,"closed":false,"archived":false,"bookmarked":null,"liked":null,"archetype":"regular","like_count":0,"views":1869,"category_id":7},{"id":189,"title":"Deep Learning 实战之 word2vec PDF","fancy_title":"Deep Learning 实战之 word2vec PDF","slug":"deep-learning-shi-zhan-zhi-word2vec-pdf","posts_count":2,"reply_count":0,"highest_post_number":2,"image_url":null,"created_at":"2014-12-25T16:17:10.110Z","last_posted_at":"2015-03-04T07:10:45.756Z","bumped":true,"bumped_at":"2015-03-04T07:10:45.756Z","unseen":false,"pinned":false,"unpinned":null,"visible":true,"closed":false,"archived":false,"bookmarked":null,"liked":null,"archetype":"regular","like_count":0,"views":3806,"category_id":7},{"id":212,"title":"用深度学习做计算机视觉，基本的 gpu 配置是什么","fancy_title":"用深度学习做计算机视觉，基本的 gpu 配置是什么","slug":"yong-shen-du-xue-xi-zuo-ji-suan-ji-shi-jue-ji-ben-de-gpu-pei-zhi-shi-shi-yao","posts_count":4,"reply_count":2,"highest_post_number":4,"image_url":null,"created_at":"2014-12-27T02:57:39.612Z","last_posted_at":"2015-05-09T17:50:38.245Z","bumped":true,"bumped_at":"2015-05-09T17:50:38.245Z","unseen":false,"pinned":false,"unpinned":null,"visible":true,"closed":false,"archived":false,"bookmarked":null,"liked":null,"archetype":"regular","like_count":3,"views":14040,"category_id":7},{"id":22,"title":"Mikolov用简单的模型应用Word2Vec","fancy_title":"Mikolov用简单的模型应用Word2Vec","slug":"mikolovyong-jian-dan-de-mo-xing-ying-yong-word2vec","posts_count":1,"reply_count":0,"highest_post_number":1,"image_url":null,"created_at":"2014-12-09T07:10:35.761Z","last_posted_at":"2014-12-09T07:10:36.334Z","bumped":true,"bumped_at":"2014-12-09T07:10:36.334Z","unseen":false,"pinned":false,"unpinned":null,"visible":true,"closed":false,"archived":false,"bookmarked":null,"liked":null,"archetype":"regular","like_count":0,"views":1754,"category_id":7},{"id":13453,"title":"使用专用硬件加速深度卷积神经网络","fancy_title":"使用专用硬件加速深度卷积神经网络","slug":"topic","posts_count":1,"reply_count":0,"highest_post_number":1,"image_url":"http://img.blog.csdn.net/20150817111126276?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center","created_at":"2016-05-18T12:44:51.683Z","last_posted_at":"2016-05-18T12:44:51.795Z","bumped":true,"bumped_at":"2016-05-18T12:44:51.795Z","unseen":false,"pinned":false,"unpinned":null,"visible":true,"closed":false,"archived":false,"bookmarked":null,"liked":null,"archetype":"regular","like_count":0,"views":2103,"category_id":7},{"id":13451,"title":"深度强化学习(MLSS2016) by John Schulman[UC Berkeley]","fancy_title":"深度强化学习(MLSS2016) by John Schulman[UC Berkeley]","slug":"mlss2016-by-john-schulman-uc-berkeley","posts_count":2,"reply_count":0,"highest_post_number":2,"image_url":null,"created_at":"2016-05-18T11:43:22.663Z","last_posted_at":"2016-05-18T11:56:43.587Z","bumped":true,"bumped_at":"2016-05-18T11:56:43.587Z","unseen":false,"pinned":false,"unpinned":null,"visible":true,"closed":false,"archived":false,"bookmarked":null,"liked":null,"archetype":"regular","like_count":0,"views":903,"category_id":7}],"links":[{"url":"https://gist.github.com/xlvector/6923ef145e59de44ed06f21228f2f879","title":null,"fancy_title":null,"internal":false,"attachment":false,"reflection":false,"clicks":56,"user_id":1582,"domain":"gist.github.com"},{"url":"https://pypi.python.org/pypi/captcha/0.1.1","title":"captcha 0.1.1 : Python Package Index","fancy_title":null,"internal":false,"attachment":false,"reflection":false,"clicks":53,"user_id":1582,"domain":"pypi.python.org"}],"notification_level":1,"can_flag_topic":false},"highest_post_number":1,"deleted_by":null,"actions_summary":[{"id":4,"count":0,"hidden":false,"can_act":false},{"id":7,"count":0,"hidden":false,"can_act":false},{"id":8,"count":0,"hidden":false,"can_act":false}],"chunk_size":20,"bookmarked":null,"tags":["deep-learning","cnn","ocr"]});
+      </script> 
+  <script>
+  window.assetPath = (function(){
+    var map = {"defer/html-sanitizer-bundle":"//cdn.suanfazu.com/assets/defer/html-sanitizer-bundle-d248c5e7fffd65438fab42fafa3d1d56.js"};
+    return function(asset) { return map[asset]; };
+  })();
+</script> 
+  <script>
+  Ember.RSVP.configure('onerror', function(e) {
+    // Ignore TransitionAborted exceptions that bubble up
+    if (e && e.message === "TransitionAborted") { return; }
+
+    window.onerror(e && e.message, null,null,null,e);
+  });
+
+
+</script> 
+  <script>
+  Discourse.CDN = '//cdn.suanfazu.com';
+  Discourse.BaseUrl = 'suanfazu.com'.replace(/:[\d]*$/,"");
+  Discourse.BaseUri = '';
+  Discourse.Environment = 'production';
+  Discourse.SiteSettings = PreloadStore.get('siteSettings');
+  Discourse.LetterAvatarVersion = '5_b81b9db9c25c85a3cb45c5969b40553e';
+  I18n.defaultLocale = 'zh_CN';
+  PreloadStore.get("customEmoji").forEach(function(emoji) {
+    Discourse.Dialect.registerEmoji(emoji.name, emoji.url);
+  });
+  Discourse.start();
+  Discourse.set('assetVersion','a26913625110801f581a18c324969d26');
+  Discourse.Session.currentProp("disableCustomCSS", false);
+  Discourse.HighlightJSPath = "/highlight-js/suanfazu.com/133b1767dbeecf92cad6dfc38d42cde22195db05.js";
+</script> 
+  <script src="//cdn.suanfazu.com/assets/browser-update-1b088c371e098d02d2b87570660d5d68.js"></script> 
+  <script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?9b0738ab1116d7971e6048c2c63c1da4";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script> 
+  <script>
+function sfz_wait(required_selector, excluded_selector, check_interval, callback) {
+    var func = function(){sfz_wait(required_selector, excluded_selector, check_interval, callback)};
+
+    var s=$(required_selector);
+    if (!s || s.length <= 0) {
+        callback(false);
+        setTimeout(func, check_interval);
+        return;
+    }
+
+    s=$(excluded_selector);
+    if (s && s.length > 0) {
+        setTimeout(func, check_interval * 2);
+        return;
+    }
+    
+    callback(true);
+    setTimeout(func, check_interval * 2);
+}
+
+function _parse_toc(dom) {
+    var contents = $('#main-outlet div.post > ul:first', $('<html>').html($('noscript', dom).text()));
+    if (contents && contents.length > 0) return contents;
+    var s = $('script:contains("PreloadStore.store"):first', dom).text();
+    s = JSON.parse(s.substring(s.indexOf(',') + 1, s.lastIndexOf(')'))).post_stream.posts[0].cooked;
+    contents = $('ul:first', $('<html>').html(s));
+    if (contents && contents.length > 0) return contents;
+    return null;
+}
+
+var TOCTAG='::::';
+function handle_toc(enabled) {
+    $('#toc-left-container').remove();
+    if (!enabled) return;
+    var toc = $('#post_1 a:contains("' + TOCTAG + '")');
+    var toc_url = toc.attr('href');
+    if (!toc_url || (toc_url.indexOf('://') != -1 && toc_url.indexOf('http://suanfazu.com/') != 0)) {return;};
+    var json_url = null;
+    try {
+        json_url = toc_url.split('/t/')[1].split('/')[1];
+        json_url = 'http://suanfazu.com/t/' + json_url + '.json'
+    } catch (e) {console.log(e);};
+    $.getJSON({
+        url: json_url,
+        cache: true,
+        context: document.body,
+        success: function(data, textStatus, request) {
+            try {
+                var contents = $('body > ul:first', $('<html>').html(data.post_stream.posts[0].cooked));
+                if (!contents) {return;}
+                contents.attr('class', 'toc toc-body');
+                toc.after(contents);
+
+                if (screen.width >= 1360) {
+                    var contents = $('body > ul:first', $('<html>').html(data.post_stream.posts[0].cooked));
+                    contents.attr('class', 'toc toc-left');
+                    var title = toc.clone().children().remove().end().text().replace(TOCTAG, '').trim();
+                    title = title.replace('<', '&lt;').replace('>', '&gt;');
+                    $('body').append('<div id="toc-left-container"><div class="toc-title"><a href="' + toc_url + '">' + title + '</a></div></div>');
+                    $('#toc-left-container').append(contents);
+                    if ($('#toc-left-container').height() >= screen.height - 100) {
+                        $('#toc-left-container').css({top:70});
+                    } else {
+                        $(window).scroll(function () {
+                            var currenttop = $(window).scrollTop();
+                            if(currenttop>180){
+                                $('#toc-left-container').css({position:'fixed', top:29, zIndex:100000});
+                            }
+                            if($('#toc-left-container').css('position')=='fixed'){
+                                if(currenttop<180) {
+                                    $('#toc-left-container').css({position:'absolute', top:200});
+                                }
+                            }
+                        });
+                    }
+                }
+
+                var curr = $('.toc a[href*="' + window.location.href.replace('http://suanfazu.com', '') + '"]');
+                curr.attr('class', 'toc-curr-a');
+                curr.parent().attr('class', 'toc-curr');
+                toc.after('<div class="toc-page"><div id="toc-prev"></div><div id="toc-next"></div></div>');
+                var items = $('.toc-body a');
+                for (var i = 0; i < items.length; i++) {
+                    if ($(items[i]).attr('class') == 'toc-curr-a') {
+                        if (i > 0) {
+                            $('#toc-prev').append('<span>上一篇：</span><a href="' + $(items[i-1]).attr('href') + '">' + $(items[i-1]).text() + '</a>');
+                        }
+                        if (i + 1 < items.length) {
+                            $('#toc-next').append('<span>下一篇：</span><a href="' + $(items[i+1]).attr('href') + '">' + $(items[i+1]).text() + '</a>');
+                        }
+                        break;
+                    }
+                }
+                // $.merge($('.toc-page a'), $('.toc a')).click(function(){
+                //     window.location.href = $(this).attr('href');
+                // });
+            } catch (e) {console.log(e);};
+        }
+    });
+}
+//handle_toc();
+//if (window.location.href.indexOf('suanfazu.com/t/') != -1) 
+{sfz_wait('#post_1', '.toc-body', 500, handle_toc);}
+</script>   
+ </body>
+</html>

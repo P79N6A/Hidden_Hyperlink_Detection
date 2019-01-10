@@ -1,0 +1,736 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+ <head> 
+  <meta http-equiv="Content-Type" content="text/html; charset=gb2312" /> 
+  <meta http-equiv="x-ua-compatible" content="ie=7" /> 
+  <meta name="UYId" content="art_211240" /> 
+  <title>ICMP协议结构全解(2) - 51CTO.COM</title> 
+  <meta name="description" content="文章中，我们对ICMP协议进行了结构上的分析。通过几个部分的介绍，希望大家能够掌握这部分内容。具体内容请参考文章内容。" /> 
+  <meta name="keywords" content="ICMP协议" /> 
+  <base target="_blank" /> 
+  <link href="http://images.51cto.com/images/art1105/css/grid.css" rel="stylesheet" type="text/css" /> 
+  <link type="text/css" rel="stylesheet" href="http://images.51cto.com/images/art/css/art_master_top.css" /> 
+  <link href="http://book.51cto.com/images/bookspec/css/css3.css" rel="stylesheet" type="text/css" /> 
+  <script language="javaScript" src="http://www.51cto.com/php/base_art.js"></script> 
+  <script src="http://www.51cto.com/images/homepage/index_1_down.js"></script> 
+  <style type="text/css">
+.bds_tools a{ padding:0; margin:0;}
+</style> 
+ </head> 
+ <body> 
+  <!-- 导航 开始--> 
+  <script id="allmobilize" charset="utf-8" src="http://a.yunshipei.com/a3b9823c927173ada250e3f2f84f4703/allmobilize.min.js"></script>
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <link rel="alternate" media="handheld" href="#" /> 
+  <div id="home_top"> 
+   <div class="top_nav"> 
+    <div class="left" style="width:400px">
+     <div class="logo_51cto" title="51CTO.COM - 技术成就梦想 -  中国领先的IT技术网站"></div>
+     <a href="http://www.51cto.com/">首页</a>
+     <img width="16" height="25" align="absmiddle" src="http://home.51cto.com/public/themes/blue/images/top_bg_xian.gif" style="padding-top: 2px;" />
+     <a onmouseover="show(1,this);" onmouseout="popupClose();" href="http://www.51cto.com/col/35/" target="_blank">技术频道<img align="absmiddle" src="http://images.51cto.com/images/art/top_images/nav_ico1.gif" style="padding-left: 4px;" /></a>
+     <img width="16" height="25" align="absmiddle" src="http://home.51cto.com/public/themes/blue/images/top_bg_xian.gif" />
+     <a onmouseover="show(2,this);" onmouseout="popupClose();" href="http://www.51cto.com" target="_blank">51CTO旗下网站<img align="absmiddle" src="http://images.51cto.com/images/art/top_images/nav_ico1.gif" style="padding-left: 4px;" /></a>
+     <img width="16" height="25" align="absmiddle" src="http://home.51cto.com/public/themes/blue/images/top_bg_xian.gif" />
+     <a href="http://www.51cto.com/about/map.htm" target="_blank">地图</a> 
+     <a href="http://www.51cto.com/about/rss.html" target="_blank"><img src="http://images.51cto.com/files/uploadimg/20110922/143749870.gif" style="vertical-align:middle; margin-bottom: 5px; margin-left:5px;" /></a> 
+    </div> 
+    <div class="right"> 
+     <div class="more">
+      <img width="27" height="16" align="absmiddle" src="http://home.51cto.com/public/themes/blue/images/top_shequ.gif" />
+      <a href="http://wot.51cto.com/" target="_blank" style="color:#CC0000">WOT</a>
+      <a href="http://edu.51cto.com/" target="_blank" style="color:#CC0000">学院</a>
+      <a href="http://down.51cto.com" target="_blank">下载</a>
+      <a href="http://bbs.51cto.com" target="_blank">论坛</a>
+      <a href="http://blog.51cto.com" target="_blank">博客</a>
+      <a onmouseover="show(3,this)" onmouseout="popupClose()" href="javascript:viod(0);">更多<img align="absmiddle" src="http://images.51cto.com/images/art/top_images/nav_ico1.gif" style="padding-left: 4px;" /></a> 
+     </div> 
+     <span id="login_status">
+      <div class="login" id="login_status"></div> </span> 
+    </div> 
+   </div>
+  </div> 
+  <div class="subMenu1" id="s1" onmouseover="popupNoClose();" onmouseout="popupClose();"> 
+   <ul> 
+    <li><a href="http://network.51cto.com" target="_blank">网络</a></li> 
+    <li><a href="http://netsecurity.51cto.com" target="_blank">安全</a></li> 
+    <li><a href="http://developer.51cto.com" target="_blank">开发</a></li> 
+    <li><a href="http://database.51cto.com" target="_blank">数据库</a></li> 
+    <li><a href="http://server.51cto.com" target="_blank">服务器</a></li> 
+    <li><a href="http://os.51cto.com" target="_blank">系统</a></li> 
+    <li><a href="http://virtual.51cto.com" target="_blank">虚拟化</a></li> 
+    <li><a href="http://cloud.51cto.com" target="_blank">云计算</a></li> 
+    <li><a href="http://developer.51cto.com/embed/" target="_blank">嵌入式</a></li> 
+    <li><a href="http://mobile.51cto.com/" target="_blank">移动开发</a></li> 
+   </ul> 
+  </div> 
+  <div class="subMenu2" id="s2" onmouseover="popupNoClose()" onmouseout="popupClose()"> 
+   <ul> 
+    <li><a href="http://www.51cto.com" target="_blank" title="中国领先的IT技术网站">51CTO.COM</a></li> 
+    <li><a href="http://cio.51cto.com" target="_blank" title="中国首个专门服务于CIO的专业网站">CIOage.com</a></li> 
+    <li><a href="http://www.watchstor.com/" target="_blank" title="领先的中文存储网络媒体">WatchStor.com</a></li> 
+    <li><a href="http://www.hc3i.cn/" target="_blank" title="中国首家专注于数字医疗及医疗信息化的专业网站">HC3i.cn</a></li> 
+   </ul> 
+  </div> 
+  <script src="http://www.51cto.com/js/jquery-1.8.3.min.js"></script> 
+  <script>
+$(function(){
+	$(".bann").height(265);	 
+	$(".bann").css("background-color","white");
+	var s=window.location.toString();
+	var s1=s.substr(7,s.length);
+	var s2=s1.indexOf(".");
+	s=s.substr(7,s2);
+	if (s == 'cloud') {
+	     $(".hot").css("top","1200px");
+		$(".g_13").find(".focus").css("height","1390px");
+	}else{
+		$(".hot").css("top","450px");
+
+	}
+	//$(".fixfloat").css("height","640px");
+	$(".g_13").find(".focus").css("height","640px");
+	var url = window.location.host;
+	if (url.indexOf('developer.51cto.com/col')) {
+		$('.banner_r').css('position', 'relative');
+		$('.banner_r').children().append('<div style="right: 0px; width: 24px; height: 14px; z-index: 12; position: absolute; background: transparent url(http://s5.51cto.com/wyfs02/M00/86/BB/wKiom1fI4nWStYqXAAAEoZQn6vs942.png) repeat scroll 0% 0%; bottom: 2px;"></div>');
+	}
+});
+var edunum=2;
+$(function(){
+	$("#change").click(function(){
+		$("#edu > ul").css("display","none");
+		var eduid='edu'+edunum;
+		$("#" + eduid).css("display","block");	
+		if(edunum<4){
+			edunum++;	
+		}else{
+			edunum=1;	
+		}							
+	});  
+});
+</script> 
+  <script src="http://www.51cto.com/head_art_more1.js"></script> 
+  <!-- 登陆信息 --> 
+  <!-- 导航 结束--> 
+  <div class="g_39 mb10"> 
+   <div id="tonglanad" class="fl"></div> 
+   <div id="list4" class="fr"> 
+    <ul> 
+     <li id="wordlinkad1"></li> 
+     <li id="wordlinkad2"></li> 
+     <li id="wordlinkad3"></li> 
+     <li id="wordlinkad4"></li> 
+    </ul> 
+   </div> 
+   <br class="dle" /> 
+  </div> 
+  <div class="g_39 menu"> 
+   <div class="subNav_logo">
+    <img src="http://www.51cto.com/images/sunbanner/zuwang_logo.gif" />
+   </div> 
+   <div class="subNav_l">
+    <a href="http://network.51cto.com/" target="_blank">首页</a> | 
+    <a href="http://network.51cto.com/col/786/" target="_blank">思科</a> | 
+    <a href="http://network.51cto.com/router/" target="_blank">路由</a> | 
+    <a href="http://network.51cto.com/switch" target="_blank">交换</a> | 
+    <a href="http://network.51cto.com/wlan" target="_blank">无线</a> | 
+    <a href="http://network.51cto.com/col/888/" target="_blank">ADSL</a> | 
+    <a href="http://network.51cto.com/col/946/" target="_blank">VPN</a> | 
+    <a href="http://network.51cto.com/col/1022/" target="_blank">网管</a> | 
+    <a href="http://network.51cto.com/col/493/" target="_blank">布线</a> | 
+    <a href="http://network.51cto.com/col/513/" target="_blank">接入</a> | 
+    <a href="http://publish.51cto.com/list/481/" target="_blank">全部文章</a>
+   </div> 
+   <div class="search fr"> 
+    <dl> 
+     <form name="searchform" action="http://www.51cto.com/php/search.php" target="_blank" method="post" style="margin:0px; padding:0px;"> 
+      <dt class="fl">
+       <input name="keyword" type="text" class="searchInput f14 input" value="请输入关键字" onfocus="doempty(this, '请输入关键字');" onblur="doempty(this, '请输入关键字');" />
+      </dt> 
+      <dd class="fl">
+       <input type="image" src="http://images.51cto.com/images/art/newart1012/images/search.gif" />
+      </dd>
+     </form> 
+    </dl> 
+   </div> 
+   <br class="dle" /> 
+  </div> 
+  <div class="g_39 b3-s-4273B3 rel"> 
+   <!--width : 26*25 - 15 = 635px--> 
+   <div class="g_26 fl m_l"> 
+    <div class="brief bgF8F8F8"> 
+     <p class="crumb ">您所在的位置：<a href="http://network.51cto.com">网络频道</a> &gt; <a href="http://network.51cto.com/col/615/">基础技术</a> &gt; <a href="http://network.51cto.com/col/551/">网络协议</a> &gt; <b>ICMP协议结构全解(2)</b> </p> 
+     <h1>ICMP协议结构全解(2)</h1> 
+     <div class="msg"> 
+      <div>
+       2010-07-13 13:59 佚名 TT安全 
+       <span class="f12-a"><a href="#commment" target="_self"></a></span> 字号：
+       <span class="f14-b"><a href="javascript:setfont(12);" target="_self">T</a></span> | 
+       <span class="f16-b"><a href="javascript:setfont(16);" target="_self">T</a></span>
+      </div> 
+      <div class="artHd" id="books" style="padding:5px 25px;display:none;"></div> 
+      <div class="fav">
+       <a href="javascript:favorBox('open');" title="一键收藏，随时查看，分享好友！" target="_self"><img src="http://images.51cto.com/images/art/newart1012/images/Fav.gif" alt="一键收藏，随时查看，分享好友！" border="0" /></a>
+      </div> 
+     </div> 
+     <div class="brieftext"> 
+      <p class="f14 green">文章中，我们对ICMP协议进行了结构上的分析。通过几个部分的介绍，希望大家能够掌握这部分内容。具体内容请参考文章内容。</p> 
+      <p class="ad">AD：<script src="http://www.51cto.com/js/article/keywords_ad_new.js"></script> </p> 
+     </div> 
+    </div> 
+    <div class="tag bgF8F8F8" id="indexlist" style="display:none;"> 
+     <ul id="indexliststr"> 
+     </ul> 
+     <br class="dle" /> 
+    </div> 
+    <div class="content bgF8F8F8 f14"> 
+     <div id="content"> 
+      <p></p> 
+      <p><strong>2 ICMP回射请求和应答报文头部格式</strong></p> 
+      <p>ICMP报文被封装在IP数据报内部传输&#xff61;如图1所示,是ICMP协议回射请求和应答报文头部格式&#xff61;</p> 
+      <p style="text-align: center"><img class="fit-image" onload="javascript:if(this.width&gt;498)this.width=498;" onmousewheel="javascript:return big(this)" alt="图1  ICMP回射请求和应答报文头部格式" src="http://images.51cto.com/files/uploadimg/20100713/1404541.jpg" /></p> 
+      <p style="text-align: center">图1&nbsp; ICMP回射请求和应答报文头部格式</p> 
+      <p>各种ICMP报文的前32bits都一样,它们是:</p> 
+      <p>8bits类型和8bits代码字段:一起决定了ICMP报文的类型&#xff61;常见的有:</p> 
+      <p>类型8&#xff64;代码0:回射请求&#xff61;</p> 
+      <p>类型0&#xff64;代码0:回射应答&#xff61;</p> 
+      <p>类型11&#xff64;代码0:超时&#xff61;</p> 
+      <p>16bits校验和字段:包括数据在内的整个ICMP协议数据包的校验和,其计算方法和IP头部校验和的计算方法是一样的&#xff61;</p> 
+      <p>对于ICMP回射请求和应答报文来说,接下来是16bits标识符字段:用于标识本ICMP进程&#xff61;</p> 
+      <p>最后是16bits序列号字段:用于判断回射应答数据报&#xff61;</p> 
+      <p><strong>3 ICMP目标不可达报文</strong></p> 
+      <p>如图2所示,是ICMP目标不可达报文头部格式&#xff61;</p> 
+      <p style="text-align: center"><img class="fit-image" onload="javascript:if(this.width&gt;498)this.width=498;" onmousewheel="javascript:return big(this)" alt="图2  ICMP目标不可达报文头部格式
+" src="http://images.51cto.com/files/uploadimg/20100713/1404542.jpg" /></p> 
+      <p style="text-align: center">图2&nbsp; ICMP目标不可达报文头部格式</p> 
+      <p>其中代码字段的不同值又代表不同的含义,如,0代表网络不可达&#xff64;1代表主机不可达等,见表1&#xff61;</p> 
+      <p><strong>4 ICMP超时报文头部格式</strong></p> 
+      <p>如图3所示,是ICMP超时报文头部格式&#xff61;</p> 
+      <p style="text-align: center"><img class="fit-image" onload="javascript:if(this.width&gt;498)this.width=498;" onmousewheel="javascript:return big(this)" alt="图3&nbsp; ICMP超时报文头部格式" src="http://images.51cto.com/files/uploadimg/20100713/1404543.jpg" /></p> 
+      <p style="text-align: center">图3&nbsp; ICMP超时报文头部格式</p> 
+      <p>其中:</p> 
+      <p>类型11+代码0:表示传输期间生存时间为0&#xff61;</p> 
+      <p>类型11+代码1:表示数据报组装期间生存时间为0&#xff61;</p> 
+      <p>由于篇幅有限,这里不再分析其他类型ICMP协议数据包的格式&#xff61;</p> 
+      <div align="right">
+       【责任编辑：
+       <a class="ln" href="mailto:zhaokh@51cto.com">佟媛微</a> TEL：（010）68476606】
+      </div>
+      <br /> 
+      <p class="blank10"></p> 
+      <div class="page">
+       <a href="211240.htm" target="_self" class="prew"><span><em>&lt;&lt;</em> 上一页</span></a> 
+       <a href="211240.htm" target="_self"><span>1</span></a> 
+       <em id="cur">2</em>
+       <a href="211240_all.htm" target="_blank" class="next"><span>查看全文</span></a>
+      </div> 
+      <div class="docu">
+       <strong class="f12">内容导航</strong>
+       <div class="f12">
+        <table width="100%">
+         <tbody>
+          <tr>
+           <td width="50%">&nbsp;第 1 页：<a href="211240.htm" target="_self">ICMP报文类型</a></td> 
+           <td width="50%">&nbsp;第 2 页：<a href="211240_1.htm" target="_self"><font color="red">ICMP回射请求、应答报文头格式</font></a></td> 
+          </tr>
+         </tbody>
+        </table>
+       </div>
+       <br class="dle" />
+      </div> 
+      <div class="f12"> 
+       <span class="fl">原文：<a href="http://network.51cto.com/art/201007/211240.htm" class="blue"><b>ICMP协议结构全解(2)</b></a></span> 
+       <span class="fr"><a href="http://network.51cto.com">返回网络频道首页</a></span> 
+      </div> 
+      <p class="blank1"></p> 
+     </div> 
+     <hr style="border-top: #555555 1px solid; height: 1px; border-right: medium none; border-bottom: medium none; border-left: medium none" /> 
+     <div style="width: 600px; background: #ffffff">
+      <img width="600" height="140" alt="" src="http://s3.51cto.com/wyfs02/M01/76/4A/wKioL1ZOwrbDjDqxAABJOr5GFjU021.png" border="0" />
+     </div> 
+     <hr style="border-top: #555555 1px solid; height: 1px; border-right: medium none; border-bottom: medium none; border-left: medium none" /> 
+     <iframe width="600" height="239" src="http://widget.weibo.com/relationship/bulkfollow.php?language=zh_cn&amp;uids=1708729084,1706976420,1888399833,3812432787,1422974343,1734475394&amp;wide=0&amp;color=C2D9F2,FFFFFF,0082CB,666666&amp;showtitle=1&amp;showinfo=1&amp;sense=0&amp;verified=1&amp;count=6&amp;refer='+encodeURIComponent(location.href)+'&amp;dpc=1" frameborder="0" scrolling="no"></iframe> 
+     <div class="tips"> 
+      <div style="float:left;"> 
+       <span style="float:left; margin-top:4px;">分享到：</span> 
+       <!-- Baidu Button BEGIN --> 
+       <div id="bdshare" class="bdshare_t bds_tools get-codes-bdshare" style="margin-right:5px; float:left;"> 
+        <a class="bds_qzone"></a> 
+        <a class="bds_tsina"></a> 
+        <a class="bds_tqq"></a> 
+        <a class="bds_renren"></a> 
+        <a class="bds_t163"></a> 
+        <span class="bds_more"></span> 
+        <a class="shareCount"></a> 
+       </div> 
+       <!--<div class="fl"> 
+    </div>
+-->
+       <script type="text/javascript" id="bdshare_js" data="type=tools&amp;uid=585532"></script> 
+       <script type="text/javascript" id="bdshell_js"></script> 
+       <script type="text/javascript">
+	var bds_config = {'snsKey':{'tsina':'2378297317'}};
+	document.getElementById("bdshell_js").src = "http://bdimg.share.baidu.com/static/js/shell_v2.js?t=" + new Date().getHours();
+</script> 
+       <!-- Baidu Button END --> 
+      </div>
+      <div class="fr blue">
+       <a href="javascript:AddFavorite(document.location.href,document.title);" target="_self">收藏</a>|
+       <a href="javascript:window.print();" target="_self">打印</a>|
+       <a id="msnqqcopy" title="分享本资源给好友" target="_self">复制</a>
+      </div> 
+     </div> 
+    </div> 
+    <!--内容 end--> 
+    <div class="topbiaoqing"> 
+     <div class="biaoqing fixfloat pad"> 
+      <ul> 
+       <li><a href="javascript:getcountscom(211240,1)" target="_self"><img src="http://images.51cto.com/images/art1105/images/bq1.jpg" /></a> 
+        <div>
+         <a href="javascript:getcountscom(211240,1)" target="_self">给力</a>
+        </div> <span id="211240_1">(0票)</span></li> 
+       <li><a href="javascript:getcountscom(211240,2)" target="_self"><img src="http://images.51cto.com/images/art1105/images/bq2.jpg" /></a> 
+        <div>
+         <a href="javascript:getcountscom(211240,2)" target="_self">动心</a>
+        </div> <span id="211240_2">(0票)</span></li> 
+       <li><a href="javascript:getcountscom(211240,3)" target="_self"><img src="http://images.51cto.com/images/art1105/images/bq3.jpg" /></a> 
+        <div>
+         <a href="javascript:getcountscom(211240,3)" target="_self">废话</a>
+        </div> <span id="211240_3">(0票)</span></li> 
+       <li><a href="javascript:getcountscom(211240,4)" target="_self"><img src="http://images.51cto.com/images/art1105/images/bq4.jpg" /></a> 
+        <div>
+         <a href="javascript:getcountscom(211240,4)" target="_self">专业</a>
+        </div> <span id="211240_4">(0票)</span></li> 
+       <li><a href="javascript:getcountscom(211240,5)" target="_self"><img src="http://images.51cto.com/images/art1105/images/bq5.jpg" /></a> 
+        <div>
+         <a href="javascript:getcountscom(211240,5)" target="_self">标题党</a>
+        </div> <span id="211240_5">(0票)</span></li> 
+       <li><a href="javascript:getcountscom(211240,6)" target="_self"><img src="http://images.51cto.com/images/art1105/images/bq6.jpg" /></a> 
+        <div>
+         <a href="javascript:getcountscom(211240,6)" target="_self">路过</a>
+        </div> <span id="211240_6">(0票)</span></li> 
+      </ul> 
+     </div> 
+     <script language="javascript"> 
+getcountscom(211240,11);
+
+</script> 
+    </div> 
+    <p class="blank10"></p> 
+    <!--reltag end--> 
+    <p class="blank10"></p> 
+    <div class="uyan"> 
+     <div id="uyan_frame"></div> 
+     <script type="text/javascript" src="http://v2.uyan.cc/code/uyan.js?uid=1609262"></script> 
+    </div> 
+    <!--box end--> 
+    <div class="bor"> 
+     <div class="titbg pl15">
+      关于
+      <a href="http://www.51cto.com/php/search.php?keyword=ICMP%D0%AD%D2%E9" target="_blank" class="underline">ICMP协议</a>的更多文章
+     </div> 
+     <div class="reltag"> 
+      <ul class="fl list02"> 
+       <li><a href="http://network.51cto.com/art/201109/290240.htm" title="网络命令：NetBios和Netstat解析">网络命令：NetBios和Netstat解析</a></li>
+       <li><a href="http://network.51cto.com/art/201108/286080.htm" title="网络协议X档案文件传输协议篇">网络协议X档案文件传输协议篇</a></li>
+       <li><a href="http://network.51cto.com/art/201108/286069.htm" title="网络协议X档案ICMP、IGMP和RIP协议篇">网络协议X档案ICMP、IGMP和RIP协议篇</a></li>
+       <li><a href="http://network.51cto.com/art/201104/255756.htm" title="Tracert命令的运行过程详细图解">Tracert命令的运行过程详细图解</a></li>
+       <li><a href="http://network.51cto.com/art/201103/250531.htm" title="Unix类操作系统的TCP/IP堆栈加固之ARP协议部分">Unix类操作系统的TCP/IP堆栈加固之ARP协议</a></li> 
+      </ul> 
+      <div class="fr"> 
+       <div class="h5 f12">
+        <a href="http://network.51cto.com/art/200701/38863.htm" title="TCP/IP协议专题"><b>TCP/IP协议专题</b></a>
+       </div> 
+       <a href="http://network.51cto.com/art/200701/38863.htm" title="TCP/IP协议专题"><img src="http://images.51cto.com/files/uploadimg/20070125/175846127.jpg" alt="TCP/IP协议专题" width="100" height="80" border="0" /></a> 
+       <p class="c666">TCP/IP（传输入控制地议/网际协议）是一种网络通信协议，它规范<a class="blue" href="http://network.51cto.com/art/200701/38863.htm" title="TCP/IP协议专题">[详细]</a></p> 
+      </div> 
+     </div>
+    </div> 
+    <p class="blank10"></p> 
+    <div class="relart fl bor"> 
+     <div class="titbg"> 
+      <h3 class="fl t1">栏目热门</h3> 
+      <a href="/click/551" class="tmore">更多&gt;&gt;</a>
+     </div> 
+     <ul> 
+      <li><a href="http://network.51cto.com/art/201309/411660.htm" title="企业升级IP 必须知道的四个IPv6谬论">企业升级IP 必须知道的四个IPv6谬论</a></li> 
+      <li><a href="http://network.51cto.com/art/201309/410880.htm" title="TCP协议的部分解析">TCP协议的部分解析</a></li> 
+      <li><a href="http://network.51cto.com/art/201309/411034.htm" title="网络视频传输的服务质量（QoS）">网络视频传输的服务质量（QoS）</a></li> 
+      <li><a href="http://network.51cto.com/art/201309/410727.htm" title="深入浅出TCP之send和recv">深入浅出TCP之send和recv</a></li> 
+      <li><a href="http://network.51cto.com/art/201311/415086.htm" title="OSPF之邻居关系、邻接关系">OSPF之邻居关系、邻接关系</a></li> 
+     </ul> 
+    </div> 
+    <div class="cathot fr bor"> 
+     <div class="titbg"> 
+      <h3 class="fl t1">同期最新</h3> 
+      <a href="/col/551" class="tmore">更多&gt;&gt;</a>
+     </div> 
+     <ul> 
+      <li><a href="http://network.51cto.com/art/201007/211236.htm" title="HART协议各个网络层的结构">HART协议各个网络层的结构</a></li> 
+      <li><a href="http://network.51cto.com/art/201007/211223.htm" title="HART协议的电磁模块设计">HART协议的电磁模块设计</a></li> 
+      <li><a href="http://network.51cto.com/art/201007/211218.htm" title="HART协议设计原理和参数标准">HART协议设计原理和参数标准</a></li> 
+      <li><a href="http://network.51cto.com/art/201007/211217.htm" title="简单介绍HART协议通讯器">简单介绍HART协议通讯器</a></li> 
+      <li><a href="http://network.51cto.com/art/201007/211155.htm" title="ICMP协议攻击的防范只要两步">ICMP协议攻击的防范只要两步</a></li> 
+     </ul> 
+    </div> 
+    <p class="blank10"></p> 
+    <div class="bor"> 
+     <div class="titbg"> 
+      <h3 class="fl t1"><a href="http://network.51cto.com">网络频道</a></h3> 
+      <span class="pl10">频道导航</span>
+     </div> 
+     <ul class="xtlist"> 
+      <li><span class="tit">热门</span> 
+       <div>
+        <a href="http://network.51cto.com/router/">路由技术</a>|
+        <a href="http://network.51cto.com/switch/">交换网络</a>|
+        <a href="http://network.51cto.com/wlan/">无线网络</a>
+       </div></li> 
+      <li><span class="tit">技术</span> 
+       <div>
+        <a href="http://network.51cto.com/cabling/">布线技术</a>|
+        <a href="http://network.51cto.com/col/1022/">运维技术</a>|
+        <a href="http://network.51cto.com/access/">接入技术</a>
+       </div></li> 
+      <li class="last"><span class="tit">专题</span> 
+       <div>
+        <a href="http://network.51cto.com/speclist/481/">专题汇总</a>|
+        <a href="http://network.51cto.com/art/201101/242851.htm">网管软件</a>|
+        <a href="http://network.51cto.com/art/201011/235584.htm">网络控速</a>
+       </div></li>
+     </ul> 
+    </div> 
+    <p class="blank10"></p> 
+    <p class="blank10"></p> 
+    <div class="leftbotcon"> 
+     <div class="bor jdlist"> 
+      <div class="titbg"> 
+       <h3 class="t2">热点推荐</h3>
+      </div> 
+      <ul> 
+       <li><a onclick="javascript: _gaq.push(['_trackPageview', '/51cto/neirong/d-t-4']);" href="http://mobile.51cto.com/mobile-182392.htm"><img src="http://images.51cto.com/files/uploadimg/20100202/153546162.jpg" /></a> 
+        <div class="name">
+         <a onclick="javascript: _gaq.push(['_trackPageview', '/51cto/neirong/d-t-4']);" href="http://mobile.51cto.com/mobile-182392.htm">Android开发应用详解</a>
+        </div></li> 
+       <li><a onclick="javascript: _gaq.push(['_trackPageview', '/51cto/neirong/d-t-4']);" href="http://developer.51cto.com/art/201106/266369.htm"><img src="http://images.51cto.com/files/uploadimg/20110608/133620622.jpg" /></a> 
+        <div class="name">
+         <a onclick="javascript: _gaq.push(['_trackPageview', '/51cto/neirong/d-t-4']);" href="http://developer.51cto.com/art/201106/266369.htm">那些性感的让人尖叫的程序员</a>
+        </div></li> 
+       <li><a href="http://developer.51cto.com/art/200907/133407.htm"><img src="http://images.51cto.com/files/uploadimg/20090702/134217922.jpg" /></a> 
+        <div class="name">
+         <a href="http://developer.51cto.com/art/200907/133407.htm">HTML5 下一代Web开发标准详解</a>
+        </div></li> 
+       <li><a href="http://developer.51cto.com/art/201104/257581.htm"><img src="http://images.51cto.com/files/uploadimg/20110426/123123954.jpg" /></a> 
+        <div class="name">
+         <a href="http://developer.51cto.com/art/201104/257581.htm">高性能WEB开发应用指南</a>
+        </div></li> 
+       <li><a href="http://os.51cto.com/art/200706/49181.htm"><img src="http://images.51cto.com/files/uploadimg/20070613/195816929.jpg" /></a> 
+        <div class="name">
+         <a href="http://os.51cto.com/art/200706/49181.htm">Ubuntu开源技术交流频道</a>
+        </div></li>
+      </ul>
+     </div> 
+     <p class="blank10"></p> 
+     <div class="bor hotTag">
+      <strong>热门标签：</strong> 
+      <a onclick="javascript: _gaq.push(['_trackPageview', '/51cto/neirong/d-2]);" href="http://os.51cto.com/windows/">windows频道</a>
+      <a onclick="javascript: _gaq.push(['_trackPageview', '/51cto/neirong/d-w']);" href="http://mobile.51cto.com/">移动开发</a>
+      <a onclick="javascript: _gaq.push(['_trackPageview', '/51cto/neirong/d-w']);" href="http://cloud.51cto.com/">云计算</a>
+      <a onclick="javascript: _gaq.push(['_trackPageview', '/51cto/neirong/d-w']);" href="http://mobile.51cto.com/mobile/objc/">objective-c</a>
+      <a onclick="javascript: _gaq.push(['_trackPageview', '/51cto/neirong/d-w']);" href="http://network.51cto.com/art/200909/151122.htm">tp-link路由器设置图解</a>
+      <a onclick="javascript: _gaq.push(['_trackPageview', '/51cto/neirong/d-w']);" href="http://developer.51cto.com/art/200907/133407.htm">html5</a> 
+     </div>
+    </div> 
+    <div class="leftbotbox"> 
+    </div> 
+   </div> 
+   <!--left end--> 
+   <div class="g_13 fr"> 
+    <div class="focus fixfloat"> 
+     <img width="298" style="border: 1px solid #CCCCCC; margin:5px 0px 5px;" src="http://www.51cto.com/images/weixin.jpg" />
+     <div class="hot"> 
+      <ul> 
+       <li class="tit"><em>专题</em> <a href="http://network.51cto.com/act/interpret/20170308">走进IT女性，解读技术的别样风情</a> </li> 
+       <li class="con">
+        <dl>
+         <dt>
+          <a href="http://network.51cto.com/act/interpret/20170308"><img border="0" src="http://s3.51cto.com/wyfs02/M00/8C/32/wKiom1hkw27y9CC8AABuG3EQ9YE821.jpg" /></a>
+         </dt> 
+         <dd>
+          随着云计算、物联网、大数据、移动互联网的大发展，你应该知道这些。
+         </dd> 
+        </dl></li>
+      </ul>
+      <ol class="hotlist">
+       <li><a href="http://netsecurity.51cto.com/act/2016netsecurity/20161122">极简创新 永不止步</a></li>
+       <li><a href="http://netsecurity.51cto.com/art/201703/533515.htm">《2016物联网安全白皮书》正式发布，梆梆安全矢志构建一个安全的物联网</a></li>
+      </ol>
+     </div> 
+     <p id="hzh_one"> <script language="JavaScript" src="http://www.51cto.com/ad/art/hzh/ad.js" type="text/javascript"></script> </p> 
+    </div> 
+    <div class="rank"> 
+     <div class="tlt"> 
+      <h3>文章排行</h3> 
+      <a onmouseover="change_top10(3);" id="top_3">本月</a>
+      <a onmouseover="change_top10(2);" id="top_2">本周</a>
+      <a onmouseover="change_top10(1);" class="myon" id="top_1">24小时</a> 
+     </div> 
+     <div id="top10_1" style="display: block;" class="list">
+      <ul> 
+       <li><a href="http://network.51cto.com/art/201509/490498.htm" target="_blank" title="使用tshark监视和检查网络流量">使用tshark监视和检查网络流量</a> </li>
+       <li><a href="http://network.51cto.com/art/201109/289287.htm" target="_blank" title="为什么路由器设置地址192.168.1.1打不">为什么路由器设置地址192.168.1.1打不</a> </li>
+       <li><a href="http://network.51cto.com/art/201311/0.htm" target="_blank" title="七步走：AngularJS从菜鸟到专家">七步走：AngularJS从菜鸟到专家</a> </li>
+       <li><a href="http://network.51cto.com/art/201311/0.htm" target="_blank" title="IE CSS Bug 解决实例">IE CSS Bug 解决实例</a> </li>
+       <li><a href="http://network.51cto.com/art/201608/515561.htm" target="_blank" title="分段路由：一个新的SDN内部技术">分段路由：一个新的SDN内部技术</a> </li>
+       <li><a href="http://network.51cto.com/art/201004/196752.htm" target="_blank" title="全面认识F5负载均衡">全面认识F5负载均衡</a> </li>
+       <li><a href="http://network.51cto.com/art/201311/0.htm" target="_blank" title="开发频道2013年10月第5周重点内容推荐">开发频道2013年10月第5周重点内容推荐</a> </li>
+       <li><a href="http://network.51cto.com/art/201009/223596.htm" target="_blank" title="详谈DHCP SNOOP等多方面的安全设置">详谈DHCP SNOOP等多方面的安全设置</a> </li>
+       <li><a href="http://network.51cto.com/art/201312/420475.htm" target="_blank" title="SDN本质：让网络软件化、敏捷化">SDN本质：让网络软件化、敏捷化</a> </li>
+       <li><a href="http://network.51cto.com/art/201007/215018.htm" target="_blank" title="宽带路由器连接如何设置">宽带路由器连接如何设置</a> </li>
+      </ul>
+     </div> 
+     <div id="top10_2" style="display: none;" class="list">
+      <ul> 
+       <li><a href="http://network.51cto.com/art/201607/515116.htm" target="_blank" title="网随云动：网络技术创新的重要方向">网随云动：网络技术创新的重要方向</a> </li>
+       <li><a href="http://network.51cto.com/art/201607/515114.htm" target="_blank" title="解读：欧美国家网络共建共享模式及启示">解读：欧美国家网络共建共享模式及启示</a> </li>
+       <li><a href="http://network.51cto.com/art/201607/515097.htm" target="_blank" title="曹淑敏:加快推进5G创新发展,开创万物互">曹淑敏:加快推进5G创新发展,开创万物互</a> </li>
+       <li><a href="http://network.51cto.com/art/201608/515527.htm" target="_blank" title="《人民日报》教你如何正确使用路由器">《人民日报》教你如何正确使用路由器</a> </li>
+       <li><a href="http://network.51cto.com/art/201607/515090.htm" target="_blank" title="NFV/SDN标准化过程现“脱节” 运营商将">NFV/SDN标准化过程现“脱节” 运营商将</a> </li>
+       <li><a href="http://network.51cto.com/art/201608/515529.htm" target="_blank" title="从五大网络供应商定位看，为何5G能驱动">从五大网络供应商定位看，为何5G能驱动</a> </li>
+       <li><a href="http://network.51cto.com/art/201608/515515.htm" target="_blank" title="邬贺铨：未来5G使移动互联网应用变得无">邬贺铨：未来5G使移动互联网应用变得无</a> </li>
+       <li><a href="http://network.51cto.com/art/201608/515528.htm" target="_blank" title="移动大数据时代：无线网络的挑战与机遇">移动大数据时代：无线网络的挑战与机遇</a> </li>
+       <li><a href="http://network.51cto.com/art/201608/515424.htm" target="_blank" title="ADC的演进与挑选ADC的关键">ADC的演进与挑选ADC的关键</a> </li>
+       <li><a href="http://network.51cto.com/art/201608/515562.htm" target="_blank" title="欲重回高地，欧美争抢5G先机">欲重回高地，欧美争抢5G先机</a> </li>
+      </ul>
+     </div> 
+     <div id="top10_3" style="display: none;" class="list">
+      <ul> 
+       <li><a href="http://network.51cto.com/art/201607/514686.htm" target="_blank" title="三分钟教你认清比特率与波特率">三分钟教你认清比特率与波特率</a> </li>
+       <li><a href="http://network.51cto.com/art/201607/514432.htm" target="_blank" title="SDN的发展壮大确实在蚕食物理网络基础">SDN的发展壮大确实在蚕食物理网络基础</a> </li>
+       <li><a href="http://network.51cto.com/art/201607/515116.htm" target="_blank" title="网随云动：网络技术创新的重要方向">网随云动：网络技术创新的重要方向</a> </li>
+       <li><a href="http://network.51cto.com/art/201607/514764.htm" target="_blank" title="在SDN走向商用部署的路上，锐捷网络一">在SDN走向商用部署的路上，锐捷网络一</a> </li>
+       <li><a href="http://network.51cto.com/art/201607/514931.htm" target="_blank" title="企业采用CDN的六个理由">企业采用CDN的六个理由</a> </li>
+       <li><a href="http://network.51cto.com/art/201607/515114.htm" target="_blank" title="解读：欧美国家网络共建共享模式及启示">解读：欧美国家网络共建共享模式及启示</a> </li>
+       <li><a href="http://network.51cto.com/art/201607/513769.htm" target="_blank" title="SDN/NFV:定义网络未来发展的两个不同面">SDN/NFV:定义网络未来发展的两个不同面</a> </li>
+       <li><a href="http://network.51cto.com/art/201607/513766.htm" target="_blank" title="SDN持续火热！未来5年复合增长率超40%">SDN持续火热！未来5年复合增长率超40%</a> </li>
+       <li><a href="http://network.51cto.com/art/201607/515097.htm" target="_blank" title="曹淑敏:加快推进5G创新发展,开创万物互">曹淑敏:加快推进5G创新发展,开创万物互</a> </li>
+       <li><a href="http://network.51cto.com/art/201607/514761.htm" target="_blank" title="SDN的当下与未来：十年发展看十大趋势">SDN的当下与未来：十年发展看十大趋势</a> </li>
+      </ul>
+     </div> 
+    </div> 
+    <p class="blank1"></p> 
+    <div class="bor"> 
+     <div class="titbg"> 
+      <h3 class="fl t1">热点职位</h3> 
+      <a href="http://gaozhao.51cto.com/job-search/list" class="tmore">更多&gt;&gt;</a>
+     </div> 
+     <div class="rmzwn_xx"></div> 
+    </div> 
+    <div class="blank10"></div> 
+    <script src="http://www.51cto.com/images/home_2015/js/51cto_sha1.js"></script> 
+    <div class="bor"> 
+     <div class="titbg"> 
+      <h3 class="fl t1">热点专题</h3> 
+      <a href="http://network.51cto.com/speclist/551" class="tmore">更多&gt;&gt;</a>
+     </div> 
+     <ul class="plist01"> 
+      <li><a href="http://network.51cto.com/art/201301/376661.htm" title="开创先河，方能先机在握"><img src="http://s7.51cto.com/wyfs01/M01/02/1F/wKioJlDs_SewwRMwAAAfqvE3Guk787.jpg" alt="开创先河，方能先机在握" width="100" height="80" /></a> <h5><a href="http://network.51cto.com/art/201301/376661.htm" title="开创先河，方能先机在握">开创先河，方能先机在</a></h5> 
+       <div class="c666">
+        燕山石化借助思科统一统一计算系(UCS)实现高效智能管
+       </div> </li>
+      <li><a href="http://network.51cto.com/art/201211/368965.htm" title="BYOD时代员工向左 老板向右"><img src="http://s6.51cto.com/wyfs01/M00/01/0D/wKioJlC4Z_HjQ9pSAABSxWZj_nc456.jpg" alt="BYOD时代员工向左 老板向右" width="100" height="80" /></a> <h5><a href="http://network.51cto.com/art/201211/368965.htm" title="BYOD时代员工向左 老板向右">BYOD时代员工向左 老</a></h5> 
+       <div class="c666">
+        BYOD指携带自己的设备办公，这些设备包括个人电脑、手
+       </div> </li>
+      <li><a href="http://network.51cto.com/art/201210/361392.htm" title="谷歌数据中心大揭秘！窥探巨人的大脑（二）"><img src="http://images.51cto.com/files/uploadimg/20121024/103137913.jpg" alt="谷歌数据中心大揭秘！窥探巨人的大脑（二）" width="100" height="80" /></a> <h5><a href="http://network.51cto.com/art/201210/361392.htm" title="谷歌数据中心大揭秘！窥探巨人的大脑（二）">谷歌数据中心大揭秘！</a></h5> 
+       <div class="c666">
+        作为一名Android粉丝，我们平时会用到很多谷歌服务，
+       </div> </li> 
+     </ul> 
+    </div> 
+    <p class="blank10"></p> 
+    <div class="tagCloud"> 
+     <div class="tlt"> 
+      <h3>热点标签</h3> 
+     </div> 
+     <div class="taglist">
+      <a title="局域网网速" href="http://network.51cto.com/art/201011/235584.htm">局域网网速</a> 
+      <a title="IPv6" href="http://network.51cto.com/art/200703/41485.htm">IPv6</a> 
+      <a title="负载均衡" href="http://network.51cto.com/art/201101/241997.htm">负载均衡</a> 
+      <a title="思科" href="http://network.51cto.com/cisco/uc/">思科</a> 
+      <a title="交换机典型配置" href="http://network.51cto.com/art/200508/1688.htm">交换机典型配置</a> 
+      <a title="VPN技术" href="http://network.51cto.com/art/200511/11865.htm">VPN技术</a> 
+      <a title="路由器设置" href="http://network.51cto.com/art/200512/13240.htm">路由器设置</a> 
+      <a title="家庭无线局域网" href="http://network.51cto.com/art/200512/13840.htm">家庭无线局域网</a> 
+      <a title="路由故障" href="http://network.51cto.com/art/200511/12105.htm">路由故障</a> 
+      <a class="imp" title="网管软件" href="http://network.51cto.com/art/201101/242851.htm">网管软件</a> 
+      <a title="广域网优化" href="http://network.51cto.com/network/sangfor/optimization/">广域网优化</a> 
+      <a title="视频会议" href="http://network.51cto.com/network/adslr/facemeeting/">视频会议</a> 
+      <a title="MOVE无线" href="http://network.51cto.com/network/move/">MOVE无线</a> 
+      <a title="十大布线品牌" href="http://network.51cto.com/network/cteam/ccb2010/">十大布线品牌</a> 
+      <a title="十大布线品牌" href="http://network.51cto.com/art/200912/169486.htm">tenda无线路由器设置</a>
+      <a class="imp" title="网络招聘" href="http://gaozhao.51cto.com/job-search/list/category-5-0">网络招聘</a>
+     </div> 
+    </div> 
+    <div class="rss"> 
+     <ul> 
+      <li class="lin f12-c"><a href="http://news.51cto.com/col/1323/"><strong>点击这里查看样刊</strong></a></li> 
+      <li> 
+       <dl> 
+        <dt> 
+        </dt> 
+        <dd>
+         <a href="http://home.51cto.com/index.php?s=/Subscribe"><img src="http://images.51cto.com/images/art0910/images/dingy.gif" /></a>
+        </dd> 
+       </dl> </li> 
+     </ul> 
+    </div> 
+    <div class="bor"> 
+     <div class="titbg"> 
+      <h3 class="t1">全站热点</h3> 
+     </div> 
+     <div class="webhot fixfloat"> 
+      <ul> 
+       <li> <a href="http://network.51cto.com/network/cisco/2013/Branding_Q4/" title="联天下，启未来"><img src="http://s5.51cto.com/wyfs01/M00/0F/B2/wKioJlHMCNKzqswBAAAWitfVoPE001.jpg" /></a> 
+        <div>
+         <a href="http://network.51cto.com/network/cisco/2013/Branding_Q4/" title="联天下，启未来">联天下，启未来</a>
+        </div> </li> 
+       <li> <a href="http://mobile.51cto.com/exp/cocostudio/index.html" title="手游开发神器：CocoStudio工具集"><img src="http://s7.51cto.com/wyfs01/M01/0F/95/wKioJlHJBKewKdcPAAAtCAPYe6k884.jpg" /></a> 
+        <div>
+         <a href="http://mobile.51cto.com/exp/cocostudio/index.html" title="手游开发神器：CocoStudio工具集">手游开发神器：CocoStudio工具集</a>
+        </div> </li> 
+      </ul> 
+     </div> 
+     <p class="blank1"></p> 
+     <ul class="list03"> 
+      <li><a href="http://network.51cto.com/art/201310/412347.htm" title="说说HCC2013的那些事儿">说说HCC2013的那些事儿</a></li> 
+      <li><a href="http://book.51cto.com/art/201310/412336.htm" title="领域专用语言实战">领域专用语言实战</a></li> 
+      <li><a href="http://server.51cto.com/sSecurity-412334.htm" title="Whatsapp等官网集体被黑 黑客扬言求和平">Whatsapp等官网集体被黑 黑客扬言求</a></li> 
+      <li><a href="http://network.51cto.com/art/201310/412330.htm" title="简网络享未来">简网络享未来</a></li> 
+      <li><a href="http://server.51cto.com/News-412321.htm" title="惠普效仿雅虎限制居家办公 8万人或受影响">惠普效仿雅虎限制居家办公 8万人或受</a></li> 
+     </ul> 
+    </div> 
+    <p class="blank10"></p> 
+    <div class="bor"> 
+     <div class="titbg"> 
+      <h3 class="t1">读书</h3> 
+     </div> 
+     <div class="catbook">
+      <a href="http://book.51cto.com/art/200707/50443.htm" title="精通JBuilder 2006"><img src="http://images.51cto.com/files/uploadimg/20070704/172621443.gif" width="66" height="98" border="0" /></a> 
+      <h5><a href="http://book.51cto.com/art/200707/50443.htm">精通JBuilder 2006</a></h5> 
+      <div class="c666 text">
+       JBuilder 2006是一款强大的Java企业级开发平台，其集成了几乎所有的Java技术，涵盖了软件开发生命周期的各个过程。本书深入浅出
+      </div> 
+     </div> 
+     <ul class="list03"> 
+      <li><a href="http://book.51cto.com/art/200712/61956.htm" title="C# 2005 &amp; .NET 3.0高级编程(第5版)">C# 2005 &amp; .NET 3.0高级编程(第5版)</a></li> 
+      <li><a href="http://book.51cto.com/art/200712/62343.htm" title="Cisco CCNA 640-801">Cisco CCNA 640-801</a></li> 
+      <li><a href="http://book.51cto.com/art/200712/62510.htm" title="黑客入侵的主动防御">黑客入侵的主动防御</a></li> 
+      <li><a href="http://book.51cto.com/art/200712/62585.htm" title="SUN Solaris 9/10系统管理员认证指南">SUN Solaris 9/10系统管理员认证指南</a></li> 
+     </ul> 
+    </div> 
+    <p class="blank10"></p> 
+    <div class="bor"> 
+     <div class="titbg"> 
+      <h3 class="t1 fl">博文推荐</h3> 
+      <a class="tmore" href="http://blog.51cto.com/">更多&gt;&gt;</a>
+     </div> 
+     <ul class="list03"> 
+      <li><a href="http://angerfire.blog.51cto.com/198455/206785/" target="_blank" title="还原意外删除的用户账户[为企业维护windows server 2008系列三]">还原意外删除的用户账户[为企业维护w</a></li>
+      <li><a href="http://hongren.blog.51cto.com/103647/206744/" target="_blank" title="以虚拟化的名义救赎IT管理">以虚拟化的名义救赎IT管理</a></li>
+      <li><a href="http://sery.blog.51cto.com/10037/206718/" target="_blank" title="负载均衡连载之二">负载均衡连载之二</a></li>
+      <li><a href="http://cqsoftware.blog.51cto.com/926602/206665/" target="_blank" title="微软：系统王者的虚拟化之道">微软：系统王者的虚拟化之道</a></li> 
+     </ul> 
+    </div> 
+    <p class="blank10"></p> 
+    <div class="tj"> 
+     <div class="tlt"> 
+      <h3>最新热帖</h3> 
+      <a class="more" href="http://bbs.51cto.com/hotthreads.php">更多&gt;&gt;</a>
+     </div> 
+     <ul> 
+      <li><a href="http://bbs.51cto.com/thread-26429-1.html" target="_blank" title="通用WAP网站生成系统(PowerDiamond) v.1">通用WAP网站生成系统(PowerDiamond) </a></li>
+      <li><a href="http://bbs.51cto.com/thread-11063-1.html" target="_blank" title="八类大学毕业生求职时不受欢迎">八类大学毕业生求职时不受欢迎</a></li>
+      <li><a href="http://bbs.51cto.com/thread-6946-1.html" target="_blank" title="IT人为什么难以拿到高薪？【转帖】">IT人为什么难以拿到高薪？【转帖】</a></li>
+      <li><a href="http://bbs.51cto.com/thread-4333-1.html" target="_blank" title="想去外企上班">想去外企上班</a></li> 
+     </ul> 
+    </div> 
+    <div class="picAD"> 
+     <script language="JavaScript" src="http://www.51cto.com/ad/art/baidugoogle/ad.js" type="text/javascript"></script> 
+    </div> 
+   </div> 
+   <p class="blank1"></p> 
+   <!--leftbotcon end--> 
+  </div> 
+  <div class="subweb"> 
+   <h4>51CTO旗下网站</h4> 
+   <div> 
+    <a target="_blank" href="http://www.51cto.com/">领先的IT技术网站 51CTO</a> 
+    <a target="_blank" href="http://www.watchstor.com/">领先的中文存储媒体 WatchStor</a> 
+    <a target="_blank" href="http://cio.51cto.com/">中国首个CIO网站 CIOage</a> 
+    <a target="_blank" href="http://www.hc3i.cn/">中国首家数字医疗网站 HC3i</a> 
+   </div> 
+  </div> 
+  <div id="ft">
+   <div id="foot" align="center">
+    <script src="http://images.51cto.com/images/copy_right/copy_right.js"></script>
+   </div>
+  </div> 
+  <script src="http://logs.51cto.com/rizhi/count/count.js"></script> 
+  <script type="text/javascript">
+	$("#uyan_cmt_list").next().remove();	
+	$("#uyan_cmt_list").next().css("display","none");	
+</script> 
+  <!-- 悬浮广告 --> 
+  <!--<style type="text/css">--> 
+  <!--.ipadFload{display:none;}--> 
+  <!--.ipadFloada{ position:fixed; width:280px; height:210px; font-family:"微软雅黑"; padding-left:18px;right: 20px; bottom: 240px;  }--> 
+  <!--.ipadClosea{ text-align:right; font-size:14px; line-height:20px;cursor:pointer;}--> 
+  <!--</style>--> 
+  <!--<div class="ipadFloada" id="ipadFloada" style="z-index:9999;">--> 
+  <!--<div onclick="document.getElementById('ipadFloada').style.display='none';" class="ipadClosea"><img src="http://s3.51cto.com/wyfs02/M02/85/21/wKiom1eaubuSesqTAAAB9Jb8kBA734.gif"></div>--> 
+  <!--<div class="ipadImg">--> 
+  <!--<a href="http://x.51cto.com?sytc" target="_blank"><img width="280px" height="210px" src="http://s4.51cto.com/wyfs02/M00/8D/9C/wKioL1ij756hibWaAAFNKBkaLKk823.jpg"></a></div>--> 
+  <!--</div>--> 
+  <!--end--> 
+  <style>
+.Nfloat { position: fixed; right: 2%; top: 35%; z-index: 801; }
+</style> 
+  <!-- 新监测代码 --> 
+  <!-- 新监测代码 --> 
+  <div id="MyMoveAd" style="display:none"> 
+   <span id="wordlink_1"><script src="http://www.51cto.com/ad/art/wordlink/wordlink1.js"></script></span> 
+   <span id="wordlink_2"><script src="http://www.51cto.com/ad/art/wordlink/wordlink2.js"></script></span> 
+   <span id="wordlink_3"><script src="http://www.51cto.com/ad/art/wordlink/wordlink3.js"></script></span> 
+   <span id="wordlink_4"><script src="http://www.51cto.com/ad/art/wordlink/wordlink4.js"></script></span> 
+   <span id="pinglun"><script language="JavaScript" src="http://www.51cto.com/php/getArtCount.php?artid=211240&amp;type=all"></script></span> 
+   <span id="tonglan"><script language="JavaScript" src="http://www.51cto.com/ad/art/tonglan/ad.js"></script></span> 
+   <span id="wordlink"><script language="JavaScript" src="http://www.51cto.com/ad/art/wordlink/ad.js"></script></span> 
+   <script src="http://www.51cto.com/ad/art/wordlink/ad.js"></script> 
+   <span id="bookss"><script language="JavaScript" src="http://www.51cto.com/php/getBookData.php?artid="></script></span> 
+  </div> 
+  <script language="javascript" src="http://www.51cto.com/js/article/favorite.js"></script> 
+  <script language="javaScript" src="http://www.51cto.com/php/dialog_utf8.js"></script> 
+  <script language="javaScript" src="http://www.51cto.com/mail.js"></script> 
+  <script type="text/javascript" src="http://home.51cto.com/apps/favorite/Tpl/default/Public/js/favorbox.js"></script> 
+  <script language="javascript" src="http://images.51cto.com/images/art/newart1012/clipboard.js"></script> 
+  <script language="javaScript"> 
+	var thistid=211240; 
+	
+	//收藏按钮
+	var favor_url = 'http://network.51cto.com/art/201007/211240.htm';  // 如：http://bbs.51cto.com/thread-789649-1.html
+	var favor_title = 'ICMP协议结构全解(2)';       //  
+	
+	//绑定复制按钮
+	copy('msnqqcopy', 'http://network.51cto.com/art/201007/211240.htm', '分享到MSN/QQ的链接复制成功!');
+//	copy('bbscopy', '[url=http://network.51cto.com/art/201007/211240.htm][u]ICMP协议结构全解(2)[/u][/url]', '分享到论坛的UBB代码复制成功!');
+
+</script> 
+  <script src=" http://home.51cto.com/index.php?s=/Index/getLoginStatus/reback/http%253A%252F%252Fnetwork.51cto.com%252Fart%252F201007%252F211240.htm" charset="utf-8"></script> 
+  <script src="http://www.51cto.com/php/count.php?view=yes&amp;artID=211240" language="javascript"></script> 
+  <script language="javascript">
+document.getElementById('books').innerHTML = document.getElementById("bookss").innerHTML; 
+</script>   
+ </body>
+</html>

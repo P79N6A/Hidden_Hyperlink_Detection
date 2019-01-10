@@ -1,0 +1,467 @@
+<!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html;charset=utf-8;"><title>
+	携程酒店管理系统：订单处理，房价维护，房态维护，住店审核，佣金结算，市场趋势，携程点评回复
+</title><link rel="stylesheet" type="text/css" href="//webresource.c-ctrip.com/reshotelebookingonline/R4/css/common/basis_v3.css?version=20170329"><link rel="stylesheet" type="text/css" href="//webresource.c-ctrip.com/reshotelebookingonline/R4/css/common/header_v3.css?version=20170329"><link rel="stylesheet" type="text/css" href="//webresource.c-ctrip.com/reshotelebookingonline/R4/css/login_v3.css?version=20170329"><link rel="stylesheet" type="text/css" href="//webresource.c-ctrip.com/reshotelebookingonline/R4/css/page_login.css?version=20170329">
+    
+
+    <script type="text/javascript" charset="utf-8" async="" src="//webresource.c-ctrip.com/resaresonline/risk/ubtrms/latest/default/rms.js?v=20170401"></script><script type="text/javascript" charset="utf-8" async="" src="http://webresource.c-ctrip.com/code/ubt/_bfa.min.js?v=20173_1.js"></script><script type="text/javascript" src="//webresource.c-ctrip.com/reshotelebookingonline/R4/js/jquery-1.7.1.js?version=20170329"></script>
+    <script type="text/javascript" src="//webresource.c-ctrip.com/reshotelebookingonline/R4/js/bfa.js?version=20170329"></script>
+    <script type="text/javascript" src="//webresource.c-ctrip.com/reshotelebookingonline/R4/js/Tool.js?version=20170329"></script>
+
+    <script language="javascript" type="text/javascript">
+        var DragPlace = -1;
+        (function ($) {
+            /*
+            *  居中蒙版
+            *   @param {object} container jquery dom对象
+            *   @param {string} closeCls 关闭按钮的class 默认为J_close
+            *   @param {string} triggerEvent 出发蒙版的事件 如: click blur 以空格间隔
+            */
+            $.fn.pop = function (options) {
+                var defaults = {
+                    container: null,
+                    closeCls: 'J_close',
+                    triggerEvent: "click",
+                    onShow: $.noop
+                },
+                    overlay = $("#J_mask");
+
+                overlay.css({
+                    "position": "fixed",
+                    "height": "100%",
+                    "width": "100%",
+                    left: 0,
+                    top: 0,
+                    "z-index": "999",
+                    "display": "none",
+                    "background-color": "#000",
+                    "opacity": "0.6"
+                });
+
+                var settings = $.extend(true, {}, defaults, options || {}),
+                    container = settings.container;
+
+                if (!container) return {};
+
+                container.find("." + settings.closeCls).on("click", function () {
+                    container.css({
+                        "display": "none"
+                    })
+                    overlay.css("display", "none");
+                });
+
+                this.on(settings.triggerEvent, function () {
+                    if (settings.onShow && settings.onShow() === false) return;
+
+                    overlay.css("display", "block");
+                    container.css({
+                        "display": "block",
+                        "position": "fixed",
+                        "z-index": "1000",
+                        "left": "50%",
+                        "top": "50%",
+                        "margin-left": -(container.width() / 2),
+                        "margin-top": -(container.height() / 2)
+                    });
+                });
+
+            }
+        })(jQuery);
+
+        var hfCountDown = 0;
+        var hfRefreshCountDown = 0;
+        function IncludeJS(source) {
+            if ((source != null)) {
+                var oHead = document.getElementsByTagName('HEAD').item(0);
+                var oScript = document.createElement("script");
+                oScript.language = "javascript";
+                oScript.type = "text/javascript";
+                oScript.defer = true;
+                oScript.text = source;
+                oHead.appendChild(oScript);
+            }
+        }
+    </script>
+</head>
+<body style="background: none;" class="cn">
+    <input type="hidden" value="F" id="hidIsShowDlt">
+    <form name="ctl01" method="post" action="./login.aspx?targetPath=%2febooking%2fentry%2findex.aspx%3fname" id="ctl01">
+<div>
+<input type="hidden" name="__VIEWSTATE" id="__VIEWSTATE" value="/wEPDwULLTE3NDQ1MjIyMTEPZBYCAgEPZBYWZg8WAh4JaW5uZXJodG1sBQzkuJrliqHnmbvlvZVkAgEPFgIfAAUP55So5oi35ZCN55m75b2VZAICDxYCHwAFGOaJi+acuuWKqOaAgeWvhueggeeZu+W9lWQCAw8WAh4FdmFsdWUFDjYw56eS5ZCO6YeN6K+VZAIHDxYCHwAFD+W/mOiusOWvhuegge+8n2QCCA8WAh8ABRjkuIDkuKrmnIjlhoXoh6rliqjnmbvlvZVkAgkPZBYEAgEPFgIfAAUS5ruR5Yqo5a6M5oiQ55m75b2VZAIDDxYCHwAFJ+aMieS9j+W3puS+p+a7keWdl++8jOaLluiHs+aMh+ekuuS9jee9rmQCCg9kFgYCAQ8WAh8ABQbnmbvlvZVkAgMPFgIfAAUS55Sz6K+36YWS5bqX5Yqg55ufZAIFDxYEHgVzdHlsZQUQZGlzcGxheTpkaXNwbGF5Ox8ABSPnmbvlvZXlvILluLjvvIzor7forr/pl65odHRwc+ermeeCuWQCEA8WAh8ABQzph43opoHpgJrnn6VkAhIPZBYCAgEPFgIfAAUa5YW25LuWZUJvb2tpbmfnvZHnq5nlhaXlj6NkAhMPFgIeB1Zpc2libGVoFgwCAQ8WAh8ABQ/phZLlupfpooTorqLpg6hkAgMPFgIfAAUP6YWS5bqX5oi/5o6n6YOoZAIFDxYCHwAFD+i0ouWKoee7k+eul+mDqGQCBw8WAh8ABQbnjrDku5hkAgkPFgIfAAUG6aKE5LuYZAILDxYCHwAFDmVCb29raW5n5pyN5YqhZGSrubICYnCK4U4iIVEtCTWzXV/2Lg==">
+</div>
+
+<div>
+
+	<input type="hidden" name="__VIEWSTATEGENERATOR" id="__VIEWSTATEGENERATOR" value="A24BC017">
+</div>
+        <!-- Ebooking页头 -->
+        <div id="divHeader" class="ebk3-main-header" name="ebkstyle" style="">
+            <div class="header-hd-wrap">
+                <div class="header-hd clearfix">
+                    <a href="#" class="ebk-logo"><i class="logo"></i></a>
+                    <div class="header-userAccount">
+                        <ul class="clearfix">
+                            
+                            <li class="header-account-infoItem">
+						        <a href="javascript:;" id="id2BusinessLogin" onclick="goToBusinessLogin()">业务登录</a>
+					        </li>
+                              
+                            
+                            <!-- 选中状态加 cur -->
+                            <li id="newLanguageContainer" class="header-account-infoItem item-dropdown header-language">
+                                <div class="lls">
+                                    <i class="ebk3-ico heander-cn"></i> 简体版<i class="ebk3-ico ebk3-ico-white-arr"></i>
+                                </div>
+                                <div class="header-dropdown-list" style="display: none;">
+                                    <a class="ebk3-simple-btn" href="Login.aspx?l=e"><i class="ebk3-ico heander-usa"></i> English</a>
+						<a class="ebk3-simple-btn" href="Login.aspx?l=j"><i class="ebk3-ico heander-jpn"></i> 日本語</a>
+						<a class="ebk3-simple-btn" href="Login.aspx?l=k"><i class="ebk3-ico heander-kr"></i> 한국어</a>
+						<a class="ebk3-simple-btn" href="Login.aspx?l=tc"><i class="ebk3-ico heander-cn"></i> 繁體版</a>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="h-name-wrap clearfix">
+                        <div class="site-name">
+                            <a href="">携程酒店管理系统
+						<br>
+                                <span>ebooking.ctrip.com</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- MIP页头 -->
+        <div class="main-header" name="dltstyle" style="display: none; ">
+            <div class="main-header-cont clearfix">
+                <div class="icon-logo"></div>
+                <dl class="header-language">
+                    <!-- 上箭头 icon-arrUp -->
+                    <dt class="language-select" id="curLang">Global Sites<i class="icon icon-arrDown"></i></dt>
+                    <dd class="language-list">
+                        <a href="Login.aspx?l=c" class="language-item"><i class="icon icon-cn"></i>简体版</a>
+                        <a href="Login.aspx?l=e" class="language-item"><i class="icon icon-usa"></i>English</a>
+                        <a href="Login.aspx?l=j" class="language-item"><i class="icon icon-jpn"></i>日本語</a>
+                        <a href="Login.aspx?l=k" class="language-item"><i class="icon icon-kr"></i>한국어</a>
+                        <a href="Login.aspx?l=tc" class="language-item"><i class="icon icon-cn"></i>繁体版</a>
+                    </dd>
+                </dl>
+            </div>
+        </div>
+
+        <script>
+            jQuery('#newLanguageContainer').bind('click', function (event) {
+                jQuery('#newLanguageContainer').toggleClass('cur');
+                $_dropDowm = jQuery(jQuery('.header-dropdown-list')[0]);
+                if (jQuery('#newLanguageContainer').hasClass('cur')) {
+                    $_dropDowm.show();
+                } else {
+                    $_dropDowm.hide();
+                }
+            });
+
+            jQuery('body').on('click', function (e) {
+                var CsName = e.target.className;
+                if (CsName != "lls")
+                {
+                    jQuery('#newLanguageContainer').removeClass('cur');
+                    $_dropDowm = jQuery(jQuery('.header-dropdown-list')[0]);
+                    $_dropDowm.hide();
+                }
+            });
+
+            jQuery('#newLanguageContainer').find('a[name=changeCurrentLanguage]').each(function (i, item) {
+                jQuery(item).bind('click', function () {
+                    var newLang = jQuery(item).html();
+                    var defaultLang = 'SimpChinese';
+                    if (newLang.indexOf('English') > 0) {
+                        defaultLang = 'English';
+                    }
+
+                    if (newLang.indexOf('日本語') > 0) {
+                        defaultLang = 'Japanese';
+                    }
+
+                    if (newLang.indexOf('한국어') > 0) {
+                        defaultLang = 'Korean';
+                    }
+
+                    if (newLang.indexOf('简体版') > 0) {
+                        defaultLang = 'SimpChinese';
+                    }
+
+                    if (newLang.indexOf('繁體版') > 0) {
+                        defaultLang = 'TraditionalChinese';
+                    }
+
+                    document.cookie = 'CurrentLanguage=' + defaultLang + ';path=/';
+
+                    location.reload();
+                });
+            });
+
+            function goToBusinessLogin() {
+                tl.SetCookie("NeedForBusinessLogin", '2', 365);
+                window.location.href = "LoginForBusiness.aspx";
+            }
+            tl.DelCookie("IsBusinessLogin");
+        </script>
+            
+
+
+        <!-- 登录主体 -->
+        <div class="login-banner">
+            <div class="login-cont">
+                <div class="login-form" id="loginForm">
+                    <div class="login-form-bg">
+                        <ul class="login-formTab clearfix" id="shiftAcc">
+                            <li id="userTab" class="login-formTab-item singleItem selected" datasource="userAcc">用户名登录</li>
+                            <li id="phoneTab" class="login-formTab-item" datasource="phoneAcc">手机动态密码登录</li>
+                        </ul>
+                        <!-- 验证码登录 -->
+                        <div class="login-formTab-cont" style="display: none;" id="idenfityAccType">
+                            <div class="inputItem">
+                                <i class="ebk3-ico ebk3-ico-loginInputPhone"></i>
+                                <input type="text" name="cellPhone" id="cellPhone" class="ebk3-inText" placeholder="手机号">
+                            </div>
+                            <div class="inputItem">
+                                <i class="ebk3-ico ebk3-ico-loginInputPsw"></i>
+                                <input type="text" name="identifyCodeForPhone" id="identifyCodeForPhone" class="ebk3-inText" placeholder="动态密码">
+                                <input type="button" value="发送动态密码" class="ebk3-btn sendCodeBtn" id="captcha">
+                                <input name="captchaCountDown" type="button" id="captchaCountDown" class="ebk3-btn sendCodeBtn" value="60秒后重试" style="display: none; ">
+                            </div>
+                            <div class="verification-item" id="cpatchaForPhone" style="display: none; ">
+                                <input type="text" name="verifycodeForPhone" id="verifycodeForPhone" class="ebk3-inText verificationCode" placeholder="验证码">
+                                <img id="verifyCodeImgForPhone" class="verificationImg" alt="验证码" src="captcha/RandomCaptcha.aspx" style="width: 80px; height: 44px;">
+                            </div>
+                            <div class="logInfo clearfix">
+                                <div class="login-feedBack" id="tipForPhoneAcc" style="display: none; ">
+                                    <span class="feedBack-err"><i class="ebk3-ico ebk3-ico-error-12"></i>
+                                        <span id="phoneTips"></span>
+                                    </span>
+                                    
+                                </div>
+                            </div>
+                        </div>
+                        <!-- 用户名密码登录 -->
+
+                        <div class="login-formTab-cont" style="" id="userAccType">
+                            <div class="inputItem">
+                                <i class="ebk3-ico ebk3-ico-loginInputAccName"></i>
+                                <input name="userName" type="text" id="userName" class="ebk3-inText" placeholder="用户名/手机号">
+                            </div>
+                            <div class="inputItem">
+                                <i class="ebk3-ico ebk3-ico-loginInputPsw"></i>
+                                <input name="userPwd" type="password" id="userPwd" class="ebk3-inText" placeholder="密码">
+                            </div>
+                            <div class="verification-item" id="identifyCodeForUser" style="display: none; ">
+                                <input name="verifycode" type="text" id="verifycode" class="ebk3-inText verificationCode" placeholder="验证码">
+                                <img id="verifyCodeImg" class="verificationImg" alt="验证码" src="captcha/RandomCaptcha.aspx" style="width: 80px; height: 44px;">
+                            </div>
+                            <div class="login-feedBack" id="tipForUserAcc" style="display: none; ">
+                                <span class="feedBack-err"><i class="ebk3-ico ebk3-ico-error-12"></i>
+                                    <span id="userTips"></span>
+                                </span>
+                                
+                            </div>
+                            <div class="logInfo clearfix">
+                                <a href="password/RetrievePassword.aspx" id="forgetPwd" class="fgtPsw">忘记密码？</a>
+                                <div class="login-feedBack">
+                                    
+                                </div>
+                            </div>
+                        </div>
+
+
+                        
+
+
+
+                        <div id="loginbtndiv" class="login-form-ac">
+                            <a href="javascript:" id="accSubmit" class="ebk3-btn ebk3-btn-org ebk3-btn-huge  ek3-btn-cDefault">登录</a>
+    
+                            <div class="ac-bottom ">
+							<a href="http://hotels.ctrip.com/jiameng#ctm_ref=ebk_hp_tool_hsu_n_1" id="applyToJoin" target="_blank">申请酒店加盟</a>
+							<div class="b-r">
+								<a href="https://ebooking.ctrip.com/ebkassembly/login.aspx" id="loginException" style="display:display;">登录异常，请访问https站点</a>
+							</div>
+						</div>
+                        </div>
+
+
+
+                    </div>
+                    <div class="login-form-chrome" id="sugestTips" style="">
+                        <a href="http://download.ctrip.com/client/eBookingAPP/Common/hotel_apk/ebooking/ChromeStandaloneSetup.exe" class="link-chrome" target="_blank">
+                            <i class="ebk3-ico ebk3-ico-chrome"></i><span id="tipCons">建议分辨率设置为1280*960及以上.</span></a>
+                    </div>
+                </div>
+            </div>
+            <!-- banner轮播 -->
+            <div class="banner-pop">
+                <div class="login_middle">
+                    <div class="box_banner" id="J_imgScrollBox"><ul class="banner_pics"><li data-index="0" style="opacity: 0.44; "><img src="//pic.c-ctrip.com/ebooking/web/banner-shanzhu.png"></li><li data-index="1" style="opacity: 0.56; "><img src="//pic.c-ctrip.com/ebooking/web/banner-app.png"></li><li data-index="2" style="opacity: 0; "><img src="//pic.c-ctrip.com/ebooking/web/banner-gbooking.png"></li><li data-index="3" style="opacity: 0; "><img src="//pic.c-ctrip.com/ebooking/web/banner1.png"></li></ul><div class="banner_btns"><a href="javascript:;" data-index="0" class=""></a><a href="javascript:;" data-index="1" class="current"></a><a href="javascript:;" data-index="2"></a><a href="javascript:;" data-index="3"></a></div></div>
+                </div>
+            </div>
+            <input name="curLangType" type="hidden" id="curLangType" value="SimpChinese">
+            <input name="logining" type="hidden" id="logining" value="登录中。。。">
+            <input name="beforLogin" type="hidden" id="beforLogin" value="登录">
+            <input name="afterLogin" type="hidden" id="afterLogin" value="登录成功，正在跳转">
+            <input name="targetPath" type="hidden" id="targetPath" value="/ebooking/entry/index.aspx?name">
+        </div>
+
+        <!-- Ebooking重要通知 -->
+        <div class="login-bgc" name="ebkstyle" style="">
+            <div class="ebk3-main-content">
+                <!-- 资讯 -->
+                <dl class="login-news clearfix">
+                    <dt id="hotNews">重要通知</dt>
+                    <dd><a href="//ebooking.ctrip.com/ebkassembly/login/TendencyViewLogin.aspx?Tid=1424" target="_blank"><i class="ebk3-simple-tag ebk3-tag-orgTag">new</i>&nbsp;<span style="color:#FF0000;font-weight:bold;" title="“收益管理”更名为“生意通”">“收益管理”更名为“生意通”</span></a></dd><dd><a href="//ebooking.ctrip.com/ebkassembly/login/TendencyViewLogin.aspx?Tid=1423" target="_blank"><i class="ebk3-simple-tag ebk3-tag-orgTag">new</i>&nbsp;<span style="color:#FF0000;font-weight:bold;" title="住店审核新版上线，更快速更便捷">住店审核新版上线，更快速更便捷</span></a></dd><dd><a href="//ebooking.ctrip.com/ebkassembly/login/TendencyViewLogin.aspx?Tid=1405" target="_blank"><i class="ebk3-simple-tag ebk3-tag-orgTag">new</i>&nbsp;<span style="color:#FF0000;font-weight:bold;" title="小E帮帮忙--酒店问答模块使用贴士">小E帮帮忙--酒店问答模块使用贴士</span></a></dd>
+                </dl>
+                <!-- 客户端下载 -->
+                <ul id="appDownload" class="login-content clearfix">
+                    <li class="login-content-item">
+                        <h5 class="item-title ebk3-f-yh">手机APP下载安装</h5>
+                        <div class="ebkQcode-ct">
+                            <img src="//pic.c-ctrip.com/ebooking/web/qrcode_android.png" alt="下载ebooking app">
+                        </div>
+                        <div class="download-container ebk3-f-yh">
+                            <a href="https://itunes.apple.com/cn/app/ebooking/id867960183?mt=8" class="downloadApp" target="_black">IOS版<br>
+                                <span class="fw">App Store</span><i class="ebk3-ico ebk3-ico-appDl"></i>
+                            </a>
+                            <a href="//download2.ctrip.com/html5/eBooking.apk" class="downloadApp">ANDROID版<br>
+                                <span class="fw">直接下载</span><i class="ebk3-ico ebk3-ico-appDl"></i>
+                            </a>
+                        </div>
+                    </li>
+                    <li class="login-content-item">
+                        <h5 class="item-title ebk3-f-yh">微信公众平台</h5>
+                        <div class="ebkQcode-ct">
+                            <img src="//pic.c-ctrip.com/ebooking/web/qrcode_wx.png" alt="下载ebooking app">
+                        </div>
+                        <div class="login-content-item-desc">
+                            搜索“携程酒店管理系统”或<br>
+                            扫描的二维码
+                        </div>
+                    </li>
+                    <li class="login-content-item">
+                        <dl class="login-content-item-contcatUs" style="">
+                            <dt class="ebk3-f-yh">服务热线：<span>021-34064884</span></dt>
+                            <dd>订单相关问题： 转&nbsp;<strong class="ebk3-c-blue">1</strong>  7*24小时 接听</dd>
+                            <dd>房态相关问题： 转&nbsp;<strong class="ebk3-c-blue">2</strong>  每天 8:00-23:00</dd>
+                            <dd>对账结算问题： 转&nbsp;<strong class="ebk3-c-blue">3</strong>  工作日 9:00-18:00</dd>
+                            <dd>住店审核问题： 转&nbsp;<strong class="ebk3-c-blue">4</strong>  每天 9:00-18:00</dd>
+                            <dd>系统使用问题： 转&nbsp;<strong class="ebk3-c-blue">5</strong>  工作日 9:00-18:00</dd>
+                            <dd class="service-mail clearfix">
+                                <div class="service-mail-item">
+                                    直达邮箱
+							<p><a href="javascirpt:void(0)">ebooking@ctrip.com</a></p>
+                                </div>
+                                <div class="service-mail-item">
+                                    审核结算咨询QQ
+							<p><a href="javascirpt:void(0)">3336936301</a></p>
+                                </div>
+                            </dd>
+                        </dl>
+                    </li>
+                </ul>
+                <!-- 其他booking 入口 -->
+                <div id="otherIntro" class="allBookingIntro">
+                    <div class="allBookingIntro-hr"></div>
+                    <span id="otheraccess" class="allBookingIntro-title">其他eBooking网站入口</span>
+                    <ul class="allBookingIntro-list">
+                        <li><a href="http://www.joinexpedia.com/onboarding/Account/SignIn" target="_blank">
+                            <img src="//pic.c-ctrip.com/ebooking/web/u8.png" alt="Expedia" title="Expedia eBooking"></a></li>
+                        <li><a href="http://admin.bookings.org" target="_blank">
+                            <img src="//pic.c-ctrip.com/ebooking/web/u10.png" alt="Booking.com" title="Booking eBooking"></a></li>
+                        <li><a href="http://ycs4.agoda.com/zh-cn/Login" target="_blank">
+                            <img src="//pic.c-ctrip.com/ebooking/web/u12.png" alt="agoda" title="agoda eBooking"></a></li>
+                        <li><a href="http://ebooking.elong.com/" target="_blank">
+                            <img src="//pic.c-ctrip.com/ebooking/web/u6.png" alt="eLong" title="eLong eBooking"></a></li>
+                        <li><a href="http://ebooking.qunar.com/ebPage/login.html" target="_blank">
+                            <img src="//pic.c-ctrip.com/ebooking/web/u14.png" alt="Qunar" title="Qunar eBooking"></a></li>
+                        <li><a href="https://gsh.ctrip.com/" target="_blank">
+                            <img src="//pic.c-ctrip.com/ebooking/web/u15.png" alt="Group purchase" title="Group eBooking"></a></li>
+                    </ul>
+                </div>
+                <!-- 海外邮箱 -->
+                
+            </div>
+        </div>
+        <!-- 代理通样式-->
+        <div class="main-info" name="dltstyle" style="display: none; " id="div-dlt-introduce" data-content-url="//webresource.c-ctrip.com/reshotelebookingonline/R4/js/login/dlt-info-c.html?version=20170329">
+            <div class="main-info-cont">
+                <ul class="info-list">
+                    <li class="list-item">
+                        <i class="item-icon icon-1"></i>
+                        <span class="item-name">共享共赢</span>
+                        <p class="item-text"><strong>大数据共享</strong> 共享全球酒店房型房态等行业标准数据</p>
+                        <p class="item-text"><strong>快速在线售卖</strong> 自助复制便可上线各大渠道</p>
+                    </li>
+                    <li class="list-item">
+                        <i class="item-icon icon-2"></i>
+                        <span class="item-name">通用平台</span>
+                        <p class="item-text"><strong>集中分销</strong> 仅通过代理通，可一键上线携程/去哪儿/艺龙等众多分销渠道</p>
+                        <p class="item-text"><strong>集中处理</strong> 整合线上/线下订单，集中接单/发单，集中结算</p>
+                    </li>
+                    <li class="list-item">
+                        <i class="item-icon icon-3"></i>
+                        <span class="item-name">收益最大</span>
+                        <p class="item-text"><strong>效率最高</strong> 线上线下多种自动发单方式，自动接单</p>
+                        <p class="item-text"><strong>成本最低</strong> ebooking/传真/短信免费共享开放</p>
+                    </li>
+                    <li class="list-item">
+                        <i class="item-icon icon-4"></i>
+                        <span class="item-name">服务最优</span>
+                        <p class="item-text"><strong>专业团队</strong> 15年经验，专业技术+业务团队</p>
+                        <p class="item-text"><strong>五星服务</strong> 共享强大电话呼叫中心</p>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Ebooking页脚 -->
+        <div class="footer" name="ebkstyle" style="">
+            <p>
+                携程旅行网 版权所有 2002-2017  保留所有权利<br>
+                Copyright 2002-2017  Ctrip.com All rights reserved
+            </p>
+        </div>
+        <!-- 代理通页脚-->
+        <div class="footer" name="dltstyle" style="display: none; ">
+            <p>Copyright©1999-2016. All rights reserved. | <span id="spanICP">ICP证</span>：<a href="http://www.miibeian.gov.cn/" id="DLTICPNumber" target="_blank">沪ICP备16020138号-1</a></p>
+            <p><a href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=31010502000018"><i class="icon-gns"></i><span id="spanPoliceNumber">沪公网备31010502000018号</span></a></p>
+        </div>
+
+        <input type="hidden" name="hfCountDown" id="hfCountDown" value="60">
+        <input type="hidden" name="hfRefreshCountDown" id="hfRefreshCountDown">
+
+        <!--大黑罩子-->
+        <div id="J_mask" class="sec-bg-full" style="display: none;">
+        </div>
+        <!--浮层-->
+        <div class="box_popup sec-pop" style="background-color: #fff; margin: 0; display: none;" id="errorMsg">
+            <a href="javascript:;" class="btn_close">× </a>
+            <div class="box_risk">
+                <h3 id="errorMsgTitle" class="pop-text"></h3>
+                <p id="errorMsgContent" class="pop-text-sub">
+                </p>
+                <div class="box_button">
+                    <input type="button" class="btn" value="知道了">
+                </div>
+            </div>
+        </div>
+    
+
+<script type="text/javascript">
+//<![CDATA[
+hfCountDown='60';hfRefreshCountDown='';//]]>
+</script>
+</form>
+    <input type="hidden" id="page_id" value="800104">
+    <input type="hidden" id="tars_login" value="tars_login">
+
+
+<script type="text/javascript" src="//webresource.c-ctrip.com/reshotelebookingonline/R4/js/usercenter/Login.js?version=20170329"></script>
+<script type="text/javascript" src="//webresource.c-ctrip.com/reshotelebookingonline/R4/js/scroll-image.js?version=20170329"></script>
+</body></html>

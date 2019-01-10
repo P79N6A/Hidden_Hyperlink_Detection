@@ -1,0 +1,1386 @@
+<html><head></head><body><pre style="word-wrap: break-word; white-space: pre-wrap;">String.prototype.trim=function(){ return this.replace(/^\s+||\s+$/ig,'');}
+String.prototype.int=function(){ var re= parseInt(this);if(isNaN(re)) re=0; return re;}
+
+var _page=15;//每页显示数 
+var _preNextLent=30;//字符数
+var _SentNow;//现在的句子
+var CS= CS||{};//Catch Sent 缓存句子
+var CEssay= CEssay||{};// Catch Essay 缓存文章
+
+var worAttr={"token_cnt":"词汇","noun_cnt":"名词","verb_cnt":"动词","adj_cnt":"形容词","adv_cnt":"副词","prep_cnt":"介词","pron_cnt":"代词","conj_cnt":"连词","char_cnt":"标点"};
+function initEssay(){
+	//alert('good');
+	initEssayWord();
+	initEssayTitle();
+}
+
+function initModify(){
+	  $('.mdSub').find('button').click(function(){
+		  if(!textCheck() ) return false;		  
+		  $('#modifyForm').submit();
+	  });
+}
+
+function initEssayTitle(){
+	var str='';
+	for(p in _STitle){
+		str+='&lt;p&gt;&lt;a href="javascript:;" onclick="javascript:sentInArtSql(\''+p+'\',\'asdfasdf\',\'asdfasdfasdf\');"&gt;'+_STitle[p]+'&lt;/a&gt;&lt;/p&gt; ';
+	}
+	$('#essayAnlyTitle').html( str );
+	str=initTotalS('');
+	$('#totalAny').html( str );
+
+}
+
+function initTotalS(id){
+	var o= anlyTotal(id);
+	//alert(o.token_cnt);
+	//str='&lt;table cellspacing="1"&gt;';
+	if(id==''){
+		var th='&lt;th&gt;文章&lt;/th&gt;&lt;th&gt;句子&lt;/th&gt;';
+		var pCnt=0;
+		for(var p in _STitle){
+			pCnt++;
+		}
+		var td= '&lt;td&gt;'+ pCnt +'&lt;/td&gt;&lt;td&gt;'+o.sent_cnt+'&lt;/td&gt;'; 
+	}else{
+		var th='&lt;th&gt;句子&lt;/th&gt;';
+		var td= '&lt;td&gt;'+o.sent_cnt+'&lt;/td&gt;'; 
+	}
+	for(var p in worAttr){
+		th+='&lt;th&gt;'+worAttr[p]+'&lt;/th&gt;';
+		td+='&lt;td&gt;'+o[p]+'&lt;/td&gt;';
+	}
+	str='&lt;table cellspacing="1"&gt;&lt;tr&gt;'+th+'&lt;/tr&gt;&lt;tr&gt;'+td+'&lt;/tr&gt;&lt;/table&gt;';
+	//alert(str);
+	return str;
+}
+
+function requestToggle(t){
+	//alert('456789....');
+	//alert($(t).attr('className'));
+	if($(t).attr('className')=='requestOpen'){
+		$(t).attr('className','requestClose');
+		$(t).text('开启详情');
+		$('#requestW').css('display','none');
+	}else{
+		$(t).attr('className','requestOpen');
+		$(t).text('关闭详情');
+		$('#requestW').css('display','block');
+	}
+}
+
+function initEssayWord(){
+	//setEssayHtml(0,_page);
+	setEssayPage(1); 
+	$('#word_page&gt;.PageHeader').click( function(){setEssayPage(1);  });
+	$('#word_page&gt;.PageFooter').click( function(){ total=Math.ceil(_Word.length/_page) ;setEssayPage(total); } );
+	total=Math.ceil(_Word.length/_page) ;
+	$('#word_page&gt;.PageTotal').text('共'+total+'页');
+	$('#word_page&gt;.PageNext').click(
+		function(){ 
+			total=Math.ceil(_Word.length/_page) ; 
+			var pageNo= parseInt ( $('#word_page&gt;.PageNow').text() );
+			//alert(pageNo);
+			pnext=pageNo+1;
+			if( total&lt;pnext ) pnext=total;
+			setEssayPage( pnext );
+		}
+	);
+	$('#word_page&gt;.PagePre').click(
+		function(){ 
+			var pageNo= parseInt ( $('#word_page&gt;.PageNow').text() );
+			pnext=pageNo-1;
+			if( pnext&lt;1 ) pnext=1;
+			setEssayPage( pnext );
+		}
+	);
+
+}
+function setEssayPage(pageNo){
+	setEssayHtml( (pageNo-1)*_page ,_page);
+	$('#word_page&gt;.PageNow').text( pageNo );
+	$('#word_content&gt;tr').click(essayTrClick);
+	$('#word_content&gt;tr').each(function(i){ $(this).click(); return false;});
+}
+
+function essayTrClick(){
+	//alert('asdf');
+	$('#word_content&gt;tr').attr('className','');
+	$(this).attr('className','tSelect');
+	var keyWord=$(this).find('.t1').text();
+	keyWord=keyWord.trim();
+
+	var re=initSent(keyWord); 
+	
+	if(!re &amp;&amp; keyWord.indexOf('_')&gt;=0 ){
+		//alert(re);
+		keyWord=keyWord.replace(/_/ig,' ' );
+		//alert(keyWord );
+		initSent(keyWord);
+	}
+}
+
+
+function sentTrClick(){
+	var key=$(this).attr('content');
+	var key=parseInt(key);
+	//var sentStr= _Sent[key].sent;
+	$('#sent_content&gt;tr').attr('className','');
+	$(this).attr('className','tSelect');
+	
+	var keyWord= $(this).find('.t2').text();
+
+	showSentInfo(key,keyWord.trim() );
+}
+
+function showSentInfo(key,keyWord){	
+	//alert(keyWord);
+	eval('var reg=/([^a-z_])+('+keyWord+')+([^a-z_])/ig');
+	//eval('var reg2=/[^a-z_]+'+keyWord+'/i');
+	eval('var reg2=/([^a-z_])+('+keyWord+')$/ig');
+	eval('var reg3=/^('+keyWord+')+([^a-z_])/ig');
+
+	var tSent=' '+ _Sent[key].sent +' ';
+	tSent=tSent.replace(reg,"$1&lt;b&gt;$2&lt;/b&gt;$3");
+	if(keyWord.indexOf('\'')==0 || keyWord.indexOf('`')==0 ){
+		eval('var reg=/('+keyWord+')+([^a-z_])/ig');
+		tSent=tSent.replace(reg,"&lt;b&gt;$1&lt;/b&gt;$2");
+	 }
+	//tSent=tSent.replace(keyWord,"&lt;b&gt;"+keyWord+"&lt;/b&gt;");
+	//alert( tSent );
+	//var 
+	var htmlStr='&lt;div id="showSentInfo"&gt;';
+	htmlStr+='&lt;div id="showSentInfoW"&gt;';
+	htmlStr+='&lt;div class="showSentInfoTitle"&gt;完整句子&lt;/div&gt;';
+	htmlStr+='&lt;div id="showSentInfoSent"&gt;'+ tSent +'&lt;/div&gt;';
+	htmlStr+='&lt;div class="showSentInfoTitle"&gt;句子词统计&lt;/div&gt;';
+	//htmlStr+='&lt;div class="showSentInfoTable"&gt;&lt;span&gt;：&lt;/span&gt;&lt;b&gt;'+ +'&lt;/b&gt;&lt;/div&gt;';
+	var tmpA= _Sent[key];
+	var th='';//'&lt;th&gt;词数&lt;/th&gt;';
+	var td='';// '&lt;td&gt;'+_Sent[key].token_cnt +'&lt;/td&gt;';;
+	for(p in worAttr){
+		th+='&lt;th&gt;'+worAttr[p]+'&lt;/th&gt;';
+		td+= '&lt;td&gt;'+tmpA[p]+'&lt;/td&gt;';
+		//htmlStr+='&lt;div class="showSentInfoItem"&gt;&lt;span&gt;'+worAttr[p]+'：&lt;/span&gt;&lt;b&gt;'+ tmpA[p]+'&lt;/b&gt;&lt;/div&gt;';
+	}
+	htmlStr+='&lt;div id="showSentInfoTable"&gt;&lt;table width="100%" cellspacing="1" &gt;';
+	htmlStr+='&lt;tr &gt;'+th+'&lt;/tr&gt;&lt;tr &gt;'+td+'&lt;/tr&gt;&lt;/table&gt;&lt;/div&gt;';
+	htmlStr+='&lt;div class="showSentInfoItem"&gt;&lt;span class="showSentInfoTitle"&gt;句子所在文章位置：&lt;/span&gt;';
+	htmlStr+='&lt;a href="javascript:;" onclick="javascript:sentInArt('+key+',\''+keyWord.replace('\'','\\\'')+'\');"&gt;'+_STitle[tmpA.essay_id]+'&lt;/a&gt;&lt;/div&gt;';
+	//alert();
+	if(tmpA.root_verb!='') htmlStr+='&lt;div class="showSentInfoItem"&gt;&lt;span class="showSentInfoTitle"&gt;主动词：&lt;/span&gt;&lt;span&gt;'+tmpA.root_verb+'&lt;/span&gt;&lt;/div&gt;';
+
+	htmlStr+='&lt;/div&gt;&lt;/div&gt;';
+	F.show('句子查看-批改网(pigai.org)',htmlStr,[[ F.hide ,' 关 闭 ']],500,0);
+}
+function sentInArt(key,keyWord){
+	_eid= _Sent[key].essay_id;
+	sentInArtSql(_eid, _Sent[key].sent,keyWord );
+	//alert(essay_id);
+}
+//原版
+function sentInArtSql(_eid,sent,keyWord){
+	eval( 'reg=/('+sent+')/ig ;');	
+	eval('var regSent=/([^a-z_])+('+keyWord+')+([^a-z_])/ig');
+	var sent2=' '+sent+' ';
+	sentTo= sent2.replace(regSent,"$1&lt;u&gt;$2&lt;/u&gt;$3");
+	//eval( 'reg2=/('+sent2+')/ig ;');	
+		
+	F.show('文章查看-批改网(pigai.org)'
+		,'&lt;div id="showArt"&gt;&lt;div id="showArtTitle"&gt;&lt;/div&gt;&lt;div id="showArtW"&gt;Loading....&lt;/p&gt;&lt;/div&gt;&lt;/div&gt;'
+		,[[ F.hide ,' 关 闭 ']]
+		,600,0);
+
+	//alert(Key);
+	if( CEssay[_eid] ){
+		var d=CEssay[_eid] ;
+		//d= d.replace(reg,"&lt;b&gt;$1&lt;/b&gt;");
+		//alert(sentTo);
+		d= d.replace(reg,'&lt;B&gt;'+sentTo+'&lt;/b&gt;');
+		$('#showArtW').html( d );
+		$('#showArtTitle').html( _STitle[_eid] );
+	}else{
+		//alert( _eid );
+		$('#showArtW').html('Loading......'); 		
+		$.post(_self+"?c=ajax&amp;a=getEssay",{essayid:_eid},function(d){	
+			//alert(d);
+					CEssay[_eid]=d;
+					//d= d.replace(reg,"&lt;b&gt;$1&lt;/b&gt;");
+					d= d.replace(reg,'&lt;B&gt;'+sentTo+'&lt;/b&gt;');
+					$('#showArtW').html(d );
+					$('#showArtTitle').html( _STitle[_eid] );
+		});	
+	}
+}
+
+//初始化 句子
+function initSent( keyWord ){
+	var tem =searchSent( keyWord );
+	if(tem.length==0) return false;
+	_SentNow =initSentHtml(tem,keyWord);
+	setSentPage(1);
+	
+	
+	var total=Math.ceil(_SentNow.length/_page) ;
+	$('#sent_page&gt;.PageTotal').text('共'+total+'页');
+	if(total&gt;1){
+		$('#sent_page&gt;.PageHeader').show();
+		$('#sent_page&gt;.PageNext').show();
+		$('#sent_page&gt;.PageFooter').show();
+		$('#sent_page&gt;.PageNow').show();
+		$('#sent_page&gt;.PagePre').show();
+
+		$('#sent_page&gt;.PageHeader').click( function(){setSentPage(1);  });
+		$('#sent_page&gt;.PageFooter').click( function(){ var total=Math.ceil(_SentNow.length/_page) ;setSentPage(total); } );
+		$('#sent_page&gt;.PageNext').click(
+			function(){ 
+				var total=Math.ceil(_SentNow.length/_page) ; 
+				var pageNo= parseInt ( $('#sent_page&gt;.PageNow').text() );
+				var pnext=pageNo+1;
+				if( total&lt;pnext ) pnext=total;
+				setSentPage( pnext );
+			}
+		);
+		$('#sent_page&gt;.PagePre').click(
+			function(){ 
+				var pageNo= parseInt ( $('#sent_page&gt;.PageNow').text() );
+				var pnext=pageNo-1;
+				if( pnext&lt;1 ) pnext=1;
+				setSentPage( pnext );
+			}
+		);
+	}else{
+		$('#sent_page&gt;.PageHeader').hide();
+		$('#sent_page&gt;.PageNext').hide();
+		$('#sent_page&gt;.PageFooter').hide();
+		$('#sent_page&gt;.PageNow').hide();
+		$('#sent_page&gt;.PagePre').hide();
+	}
+	return true;
+}
+
+//统计先不
+function anlyTotal(eid){
+	/*if(eid==''){
+	}*/
+	var o={};
+	for(var p in worAttr){
+		//worAttr
+		o[p]=0;
+	}
+	var tem,tj=0;
+	//alert( _Sent.length );
+	for(var i=0;i&lt; _Sent.length;i++){
+		tem=_Sent[i];
+		for(var p in worAttr){
+			o[p]+= parseInt(tem[p]);
+		}
+		tj++;
+	}
+	o.sent_cnt=tj;
+	//alert(o.token_cnt);
+	return o;
+}
+
+
+
+function searchSent(keyWord){
+	var tArr= new Array();
+	eval('var reg=/[^a-z_]+'+keyWord+'+[^a-z_]/i');
+	//eval('var reg2=/[^a-z_]+'+keyWord+'/i');
+	//eval('var reg2=/[^a-z_]+'+keyWord+'$/i');
+	//eval('var reg3=/^'+keyWord+'+[^a-z_]/i');
+	for(var i=0;i&lt;_Sent.length;i++){ 
+		if( reg.test(' '+_Sent[i].sent+' ') ){ tArr[tArr.length]=i; continue;}
+		//if( reg2.test(_Sent[i].sent) ){ tArr[tArr.length]=i; continue;}
+		//if( reg3.test(_Sent[i].sent) ){ tArr[tArr.length]=i; continue;}
+	} 
+	if( tArr.length==0 ){ 
+		if( keyWord.indexOf('\'')==0 || keyWord.indexOf('`')==0 ){
+			eval('var reg=/'+keyWord+'+[^a-z_]/i');
+			for(var i=0;i&lt;_Sent.length;i++){ 
+				if( reg.test(' '+_Sent[i].sent+' ') ){ tArr[tArr.length]=i; continue;}
+			}
+		}
+	}
+	return tArr;
+}
+
+//把得到的id 初始化 html
+function initSentHtml(tArr,keyWord){
+	if( CS[keyWord] ) return CS[keyWord];
+	var t= new Array();
+	for(var i=0;i&lt;tArr.length;i++){
+		no=i+1;
+		//
+		strSent= _Sent[tArr[i]].sent;//,keyWord;
+		preNext=splitHeadword( strSent ,keyWord);
+		pre=  reverseStr( subWord( reverseStr(preNext[0]),_preNextLent ));
+		next = subWord( preNext[1],_preNextLent );		
+		str= '&lt;tr content="'+tArr[i]+'"&gt;&lt;td class="t0"&gt;'+no+'&lt;/td&gt;&lt;td class="t1"&gt;'+ pre+'&lt;/td&gt;&lt;td class="t2"&gt;';
+		str+= keyWord +'&lt;/td&gt;&lt;td class="t3"&gt;'+ next +'&lt;/td&gt;&lt;/tr&gt;';
+		t[i]=str;
+	} 
+	CS[keyWord]=t;
+	return t;
+}
+//分割中心词
+function splitHeadword(str,keyword){
+	//return new Array(str,keyword);
+	eval('var reg=/[^a-z_]+'+keyword+'+[^a-z_]/i');
+	str=' '+ str +' ';
+
+	t= str.split(reg);
+	if(t.length&lt;2){
+		if( keyword.indexOf('\'')==0 || keyword.indexOf('`')==0 ){
+			eval('var reg=/'+keyword+'+[^a-z_]/i');
+			t= str.split(reg);
+		}
+
+	}
+	if(t.length&gt;2){
+		pre=t[0]+' '+keyword+' '+t[1];
+		var cont='';
+		next='';
+		for(var i=2;i&lt;t.length;i++){
+			next+=cont+t[i];
+			cont=keyword+' ';
+		}
+	}else{
+		pre=t[0];
+		next=t[1];
+	}
+	
+	//pre=t[0];
+	//next=t[1];
+	//alert(pre);
+	return new Array(pre,next);
+}
+//sent分页
+function setSentPage( pageNo ){
+	setSentHtml(  (pageNo-1)*_page ,_page );	
+	$('#sent_page&gt;.PageNow').text( pageNo );
+}
+
+function setSentHtml( from,length ){
+	var str='';
+	var max=length+from;
+    var j=0;
+	for(var i=from;i&lt; _SentNow.length &amp;&amp; i&lt;max;i++){		
+		str += _SentNow[i];
+	}
+	$('#sent_content').html(str);
+	$('#sent_content&gt;tr').click(sentTrClick);
+}
+
+
+//往token（左边）里面填数据
+function setEssayHtml(from,length){
+	var str='';
+	var max=length+from;
+	//alert(_Word.length);
+	for(var i=from;i&lt; _Word.length &amp;&amp; i&lt;max;i++){
+		//trClass= i==from?' class="tSelect"':'';
+		str += '&lt;tr &gt;&lt;td class="t1"&gt;'+_Word[i].word+'&lt;/td&gt;&lt;td class="t2"&gt;'+_Word[i].cnt+'&lt;/td&gt;&lt;/tr&gt;';
+	}
+	//alert(str);
+	$('#word_content').html(str);
+	//$('#word_page&gt;.PageNow').text(1);
+}
+
+
+function subWord( str,len){
+		//alert(str{len});
+		if(!str) return '';
+		if( str.length&lt;=len ) return str;
+		var re= str.substr(0,len);
+		var reg=/[a-z\-_]+/i;
+		for(var i=len;i&lt;str.length;i++){
+			tChar=str.substr(i,1);
+			if(reg.test( tChar ) )re+=tChar ;//str[i];
+			else {  break;}
+		}
+		return re+'...';
+}
+//字符串反转
+function reverseStr(str){
+	var re='';
+	for(var i=str.length;i&gt;0;i--){
+		re+=str.substr(i-1,1) ;
+	}
+	return re;
+}
+
+function initUpload(){
+	//alert('asdf');
+	uploadFileInit();
+	uploadZipInit();
+	//uploadTextInit();
+	$('.utSub').find('button').click( uploadSub );
+
+}
+function uploadSub(){
+	var type= $(this).attr('content');
+	//alert(type);
+	if(type.trim()=='upTextAdd' ) textAdd();
+}
+
+function textCheck(){
+	var ttitle = $('#utTitle').val().trim();
+	var tContent = $('#utContent').val().trim();
+	//alert('456789');
+	if( ttitle=='' ){ msg('标题不允许为空，请填写标题');$('#utTitle').focus();return ;false}
+	if( tContent=='' ){ msg('内容不允许为空，请填写内容');$('#utContent').focus();return ;false}
+	return true;
+}
+function textAdd(){
+	if(!textCheck() ) return false;
+	$('.utSub').find('button').attr('disabled',true);
+	var ttitle = $('#utTitle').val().trim();
+	var tContent = $('#utContent').val().trim();
+	msg('提交中......',false);
+	$.post(_self+"?c=ajax&amp;a=textAdd",{utTitle:encodeURIComponent(ttitle),utContent:encodeURIComponent(tContent)},function(d){
+			$('.utSub').find('button').attr('disabled',false);
+			msgHide();
+			//alert(d);
+			//alert( typeof parseInt( d.trim() ) )
+			if( parseInt( d.trim() )&lt; 0 || !parseInt( d.trim() ) ) msg2(d);
+			else{
+				 $('#utTitle').val('');
+				 $('#utContent').val('');
+				 var str='语料库添加成功;&lt;a href="'+_self+'?c=essay&amp;a=view&amp;id='+d+'"&gt;查看语料库分析结果！&lt;/a&gt;';
+				 msg2(str);
+			}
+	});
+}
+
+function uploadZipInit(){
+	$('#upZipAdd').find('input').change(function(){
+		var str=$(this).val();
+		var pos = str.lastIndexOf('.');
+		var ext= str.substring(pos+1,str.length  );
+		if(ext.toLowerCase() != 'zip') {
+			$(this).val('');
+			msg('打包上传至语料库,只支持.zip文件');
+			return false;
+		}
+	});
+}
+function uploadFileInit(){
+	$('#upFileAdd').find('input').unbind('change');
+	$('#upFileAdd').find('input').change(uploadFileChange);
+}
+function uploadFileChange(){
+	//alert('asdf');
+	var str=$(this).val();
+	//alert( str );
+	var pos = str.lastIndexOf('.');
+	var ext= str.substring(pos+1,str.length  );
+	//alert(ext.toLowerCase() )
+	if(ext.toLowerCase() != 'txt') {
+		$(this).val('');
+		msg('文件上传至语料库,只支持.txt文件');
+		return false;
+	}
+	
+	Jnum=0;
+	var obj=$('#upFileAdd').find('input');
+	obj.each(
+		function(i){
+			if( $(this).val()=='' ) return false;
+			Jnum++;
+	});
+	//alert( Jnum );
+	if( Jnum== obj.length ){
+		//alert('456');
+		var div=document.createElement('div');
+		div.className='uploadItem2';
+		div.innerHTML='&lt;span&gt;文件'+(Jnum+1)+'：&lt;/span&gt;&lt;input type="file" name="userfile[]"&gt;';
+		//appendChild
+		document.getElementById('upFileAdd').appendChild( div );
+		uploadFileInit();
+	}
+}
+
+function msg(msg){
+	if( undefined!=dialog ){
+		var d = dialog({content: msg });
+		d.show();
+		setTimeout(function () {
+			d.close().remove();
+		}, 2000);
+
+	}else{
+		var uiwang= $('#icibaWinWarning');
+		uiwang.css('opacity',1);
+		msg='&lt;div style="padding:30px 20px;color:#336699;  text-align:center"&gt;'+msg+'&lt;/div&gt;';
+		F.msg(msg,260,0,0);
+		if(uiwang.length&lt;=0 ) uiwang= $('#icibaWinWarning');
+		uiwang.css({'opacity':1,'background-color':'#fff','box-shadow': '0 0 8px rgba(0, 0, 0, 0.1)','border-radius':'6px' });
+		//uiwang.addClass('pigaiDialog' );
+		var isClose=true;
+		if(arguments.length&gt;1){
+			isClose=arguments[1];
+		}
+		if(isClose){ 		
+			setTimeout( function(){ uiwang.slideUp("fast", msgHide ); }, 3000 );
+		}
+	}
+}
+function msgHide(){F.msgHide();}
+function msg2(msg){
+/*
+	F.show('提示 批改网(pigai.org)','&lt;div style="padding:20px;"&gt;'+msg+'&lt;/div&gt;'
+	,[[F.hide,'关闭'] ],400,0);*/
+	F.show('提示','&lt;div style="padding:20px;"&gt;'+msg+'&lt;/div&gt;'
+	,[[F.hide,'关闭'] ],400,0);
+
+}
+function initMy(){
+	//alert('456');
+	//$('#esMy').find('table&gt;tbody&gt;tr&gt;.t1').click(myTrClick);
+	//$('#esMy').find('table&gt;tbody&gt;tr&gt;.t2').click(myTrClick);
+	$('#esMy').find('tbody').find('input').click( inputMyClick );
+	$('.esMySub&gt;button').click( esMySub );
+	//$('#esMy').find('table&gt;tbody&gt;tr').click(myTrClick);
+}
+
+function esMySub(){
+	ids='';
+	cont='';
+	$('tbody').find('input').each(function(i){
+		if($(this).attr('checked')){
+			ids+=cont+$(this).val();
+			cont=',';
+		}
+	});
+	//alert(ids);	
+	if(ids.trim()==''){
+		msg('请选择您要分析的语料库！');
+		return ;
+	}
+	//alert(_self);
+	location.href= _self+'?c=essay&amp;a=view&amp;id='+ids;
+}
+function myTrClick(){
+	var p=$(this).parent();
+	//p.find('input').click();
+	var ch= p.find('input').attr('checked');
+	if(!ch)p.attr('className','tSelect');
+	else p.attr('className','');
+	p.find('input').attr('checked',!ch);
+	toInput();
+}
+function inputMyClick(){
+	var p=$(this).parent().parent();
+	var ch= $(this).attr('checked');
+	//alert(ch);
+	if(ch)p.attr('className','tSelect');
+	else p.attr('className','');
+	toInput();
+}
+
+function toInput(){
+	ids='';
+	cont='';
+	$('tbody').find('input').each(function(i){
+		if($(this).attr('checked')){
+			ids+=cont+$(this).val();
+			cont=',';
+		}
+	});
+	$('#esMyinput').val(ids);
+}
+
+function wCheck( obj,msgStr ){ 
+	if(obj.val().trim()==''){
+		obj.focus();
+		try{
+			var d = dialog({
+				content: msgStr,
+				//quickClose: true// 点击空白处快速关闭
+			});
+			d.show( obj[0]);
+			setTimeout(function () { d.close().remove(); }, 2000);
+
+		}catch( e ){
+			msg(msgStr);
+		}
+		return false;
+	}
+	return true;
+}
+
+function initTeacherPigai(){
+	if( $('.sentCheckChunkTeacher') ){
+		 $('.sentCheckChunkTeacher').find('u').click(chunkPigai);
+		 $('.sentCheckTripleTeacher').find('u').click(triplePigai);
+	}
+}
+function chunkPigai(){
+	//alert($(this).text());
+	var str=$(this).text();
+	var idStr=$(this).attr('id');
+	var cssStr=  $(this).parents('span').attr('className') ;
+	_isChunk_Trp='chunk';
+	showError(idStr,str,cssStr);	
+	chunkLoad(str);
+	
+}
+function showError(idStr,str,cssStr){
+	var htmlStr='';
+	htmlStr='&lt;div id="chunkPigaiShow" content="'+idStr+'"&gt;';
+	htmlStr+='&lt;div class="chunkPigaiShowTitle"&gt;&lt;span&gt;词组:&lt;/span&gt;&lt;b&gt;'+str+'&lt;/b&gt;&lt;/div&gt;';
+	if( cssStr=='error_select' ||  cssStr=='error_chunk' ){
+		htmlStr+='&lt;div class="chunkPigaiShowError"&gt;&lt;span style="font-size:12px;"&gt;正在载入教师批改建议......&lt;/span&gt;&lt;/div&gt;';
+	}
+	if(cssStr!='error_chunk'){
+		htmlStr+='&lt;div class="chunkPigaiShowContentW"&gt;批改类型：&lt;INPUT TYPE="radio" NAME="error_type" value="1" &gt; 错误';
+		htmlStr+=' &lt;INPUT TYPE="radio" NAME="error_type" value="2"&gt; 警告 ';
+		htmlStr+='&lt;INPUT TYPE="radio" NAME="error_type" value="3" checked&gt; 建议 &lt;/div&gt;';
+		htmlStr+='&lt;div class="chunkPigaiShowContent"&gt;&lt;TEXTAREA name="error_txt" id="error_txt"&gt;&lt;/TEXTAREA&gt;&lt;/div&gt;';
+	}else{
+		htmlStr+='&lt;Br&gt;&lt;Br&gt;';
+	}
+	htmlStr+='&lt;/div&gt;';
+	var btArrry=  [[ chunkPigaiSub ,' 批 改 '],[ F.hide ,' 关 闭 ']];
+	if( cssStr=='error_chunk'){
+		btArrry=[ [ F.hide ,' 关 闭 ']];
+	}
+	F.show('批改词组-批改网(pigai.org)',htmlStr,btArrry,500,0);
+}
+function delError(id,type){
+	//alert( id );
+	$.post(_self+"?c=ajax&amp;a=delChunkError&amp;type="+type,{'id':id},function(d){
+		F.show('提示 批改网(pigai.org)','&lt;div style="padding:20px;"&gt;'+d+'&lt;/div&gt;'
+	,[[function(){F.hide();location.reload() ;},'关闭'] ],400,0);
+		//F.hide();
+	});
+}
+function chunkLoad( str ){
+	if(str.trim()==''){return false;}
+	if( $('.chunkPigaiShowError').length&gt;0 ){
+		//alert(str);
+		$.post(_self+"?c=ajax&amp;a=getChunkError&amp;type="+_isChunk_Trp,{name:encodeURIComponent(str)},function(d){
+			//alert(d);
+			try{
+				eval("var error="+d+";");
+				var str='';
+				for(var i=0,c=error.length;i&lt;c;i++){
+					//alert( error[i].user_id +':'+ J.config.userId);
+					is_delete= error[i].user_id.int()==J.config.userId.int()?' &lt;a href="javascript:;" onclick="javascript:delError(\''+error[i].id+'\',\''+_isChunk_Trp+'\')" &gt;删除&lt;/a&gt;':'' ;
+					str +='&lt;div&gt;';
+					if(error[i].teacher_name.trim()!='') str +='&lt;span&gt;'+error[i].teacher_name+'老师指出&lt;/span&gt;:';
+					else str +='&lt;span&gt;系统指出&lt;/span&gt;:';
+					str +='&lt;b&gt;'+error[i].exp+'&lt;/b&gt;'+is_delete+'&lt;/div&gt;';
+				}
+				$('.chunkPigaiShowError').html( str );
+			}catch(e){
+				msg(d);
+			}
+		});
+	}
+}
+function getPostStrTrp(eName,ids){
+	 eName= eName.replace('...','~');
+		eName= eName.replace(' ','_');
+		var posrel_id= $('#'+ids).attr('content');
+		if( posrel_id =='2'){
+			var Tarr= eName.split('~');
+			eName= Tarr[1]+'~'+Tarr[0];
+		}
+	return eName;
+}
+function chunkPigaiSub(){
+	if($('#error_txt').val().trim() ==''){
+		msg('错误内容不允许为空!');
+		$('#error_txt').focus();
+		return false;
+	}
+	//chunkPigaiShowContentW
+	//alert( $('.chunkPigaiShowContentW&gt;input').length );
+	var type=1;
+	$('.chunkPigaiShowContentW&gt;input').each(function(i){
+		if( $(this).attr('checked') ){
+			type= $(this).val();
+			return false;
+		}
+	});
+	//alert(type);
+	//return false;
+	var ids=$('#chunkPigaiShow').attr('content');
+
+	var eName= $('.chunkPigaiShowTitle&gt;b').text().trim();
+	var error_txt= $('#error_txt').val().trim();
+	if(_isChunk_Trp=='trp'){
+		eName=getPostStrTrp(eName,ids);
+	}
+	$('#icibaWinBotton').find('input').attr('disabled',true);
+	msg('正在提交......',false);
+	$.post(_self+"?c=ajax&amp;a=chunkPigai&amp;type="+_isChunk_Trp,{eid:_eid,name:encodeURIComponent(eName),exp:encodeURIComponent(error_txt),tp:type},function(d){
+	   msg(d);
+	   var ids=$('#chunkPigaiShow').attr('content');
+	   $('#icibaWinBotton').find('input').attr('disabled',false);
+	   F.hide();
+	   $('#'+ids).parents('span').attr('className','error_select');
+	});
+	//alert(eName);
+}
+function triplePigai(){
+	var str=$(this).text();
+	var idStr=$(this).attr('id');
+	var cssStr=  $(this).parents('span').attr('className') ;
+	_isChunk_Trp='trp';
+	showError(idStr,str,cssStr);
+	str=getPostStrTrp(str,idStr);
+	chunkLoad(str);
+}
+
+function initPigaiView(){
+		//alert('asdf');
+	if( $('.error_chunk') ){
+		 $('.error_chunk').click( errorChunkClick);
+	}
+	if( $('.pigaiShow') ){
+		$('.pigaiShow').click( pigaiShow);
+		countShow();
+	}
+	if( $('.show2') ){
+		$('.show2').click( pigaiShow2);
+	}
+}
+function countShow(){
+	$('.pigaiShow').each(
+		function(i){
+		   //alert( $(this).attr('content') );
+		   var classStr= '.'+$(this).attr('content')+'ico';
+		   var len= $(classStr).length;
+		   $(this).find('b').html(len);
+		}
+	);
+}
+function pigaiShow(){
+	if( $(this).find('b').text().int()== 0  ){
+		return false;
+	}
+	$('.pigaiShow').parents('li').attr('className','');
+	$(this).parents('li').attr('className','select');
+	$('.tbContent').find('.item').hide();
+	var classStr= '.'+$(this).attr('content')+'ico';
+	$(classStr).parents('li').show(); 
+}
+
+function pigaiShow2(){
+	//alert(  );
+	$('.show2').parents('li').removeClass('select');//attr('className','');
+	$(this).parents('li').addClass('select');//attr('className','select');
+	$('.myItem').hide();
+	var id=$(this).attr('content');
+	$('#'+id).show();
+}
+
+function errorChunkClick(){
+	//alert( $(this).text()  );
+	_isChunk_Trp='chunk';
+	var str= $(this).text();
+	showError('-1',str,'error_chunk');	
+	chunkLoad(str);
+}
+
+
+//用ajax 提交 然后记录过程
+function essayAjaxPost(){
+	_isPost=true;
+	var eid= $("input[name=eid]").val(); 
+	var cStr= $('#utContent').length &gt;0 ? $('#utContent').val(): $('body',docId).html() ;//内容
+	//alert(cStr);
+	//return false; 
+	dd='';
+	if( $('input[name="del[]"]').length  &gt;0 ){
+		$('input[name="del[]"]').each( function(){
+			if( ! $(this).is(':checked') ) dd+=$(this).val()+',';
+		});
+	}
+	//alert(dd);
+	//return false;
+	
+	initViewSqs(eid); 
+	$.post( _self+"?c=ajax&amp;a=PostV2"
+	 ,{ utContent:encodeURIComponent(cStr ) 
+		 , rid: $("input[name=rid]").val() 
+		 ,eid: $("input[name=eid]").val() 
+		 ,type:0 
+		 ,gao:1
+		 ,uncheck:dd }
+	 ,function(d){	
+		 if(d.trim()=='ok') {
+			 _isPost=2;
+		 }else{	
+			 var dmsg=d.trim();
+			 if( dmsg.indexOf('msg:')==0 ){
+				 _isPost=false;
+				 alert( d.trim().replace('msg:','') );
+				 F.hide();
+			 }else {
+				 //从新提交
+				 essayAjaxPost();
+			 }
+			 //msg2( d.trim() );
+			 return false;
+		 }
+	 });
+	 return false;
+}
+
+function initViewSqs(eid){
+	startSqs( eid );
+	var html='';
+	//html+='&lt;li content="post"&gt;[&lt;span&gt;分析中...&lt;/span&gt;] 入库&lt;/li&gt;';
+	html+='&lt;li content="system"&gt;[&lt;span&gt;分析中...&lt;/span&gt;] 解析&lt;/li&gt;';
+	html+='&lt;li content="pigai_essay_stat"&gt;[&lt;span&gt;分析中...&lt;/span&gt;] 文章统计&lt;/li&gt;';
+	//html+='&lt;li content="check_term"&gt;[&lt;span&gt;分析中...&lt;/span&gt;] 语言点检查&lt;/li&gt;';
+	html+='&lt;li content="pos"&gt;[&lt;span&gt;分析中...&lt;/span&gt;] 词汇统计&lt;/li&gt;';
+	html+='&lt;li content="relevance"&gt;[&lt;span&gt;分析中...&lt;/span&gt;] 语义关联&lt;/li&gt;';
+	html+='&lt;li content="wgrammar"&gt;[&lt;span&gt;分析中...&lt;/span&gt;] 语法检查&lt;/li&gt;';
+	html+='&lt;li content="term_count"&gt;[&lt;span&gt;分析中...&lt;/span&gt;] 语言点检查&lt;/li&gt;';
+	html+='&lt;li content="spell_check"&gt;[&lt;span&gt;分析中...&lt;/span&gt;] 词汇检查&lt;/li&gt;';
+	F.show('分析进度 批改网(pigai.org)','&lt;h1&gt;正在分析请勿关闭......&lt;/h1&gt;&lt;div style="padding:0 20px;" id="viewSqs"&gt;'+html+'&lt;ul&gt;&lt;/ul&gt;&lt;/div&gt;'
+	,[ ],400,0); 
+}
+
+
+function initViewSqsV2(eid){
+	//startSqs( eid );
+	var html='';
+	/*
+	html+='&lt;li content="sntbr"&gt;[&lt;span&gt;分析中...&lt;/span&gt;] 句子切分&lt;/li&gt;';
+	html+='&lt;li content="parse"&gt;[&lt;span&gt;分析中...&lt;/span&gt;] 语义分析&lt;/li&gt;';
+	html+='&lt;li content="kp"&gt;[&lt;span&gt;分析中...&lt;/span&gt;] 语言点分析&lt;/li&gt;';
+	html+='&lt;li content="grammar"&gt;[&lt;span&gt;分析中...&lt;/span&gt;] 语法检查&lt;/li&gt;';
+	*/
+	//html+='&lt;li content="v3_anly"&gt;[&lt;span&gt;分析中...&lt;/span&gt;] 语言分析&lt;/li&gt;';
+	//html+='&lt;li content="v3_save"&gt;[&lt;span&gt;分析中...&lt;/span&gt;] 数据保存&lt;/li&gt;';
+	html+='&lt;span class="progressbar" id="uploadprogressbar" style="font-size:12px;"&gt;0%&lt;/span&gt;';
+	F.show('分析进度 批改网(pigai.org)','作文已提交成功&lt;br&gt;正在分析请勿关闭......&lt;div style="padding:0 20px;" id="viewSqs"&gt;'+html+'&lt;ul&gt;&lt;/ul&gt;&lt;/div&gt;'
+	,[ ],400,0);
+	var strlen =10000;
+	try{
+		if( $('#contents').length&gt; 0 ){
+			strlen = $('#contents').val().length || $('#contents').text().length ;
+		}
+	}catch(e){ strlen =10000 ;}
+	initProgressBar( strlen , '#uploadprogressbar');
+}
+
+function startSqs( eid ){
+	$.post( _self+"?c=ajax&amp;a=delSqs" ,{eid: eid} ,function(d){
+		viewSqs( eid );
+	});
+}
+function viewSqs(eid){
+	//alert(eid);
+	if( ! _isPost) return ;
+	if(_isPost==2){
+		location.href= _self+'?c=write&amp;a=view2&amp;eid='+eid;
+		return ;
+	}
+	$.post( _self+"?c=ajax&amp;a=viewSqs" ,{eid:eid} ,function(d){
+		try{
+			eval("var o="+ d);
+			var str='';
+			for(p in o){
+				//alert(p);
+				str= o[p]  ==0 ?'小于0.001秒': o[p]+'秒';
+				$('#viewSqs').find('li[content='+p+']').find('span').html(str ) ;
+			}
+		}catch( e ){
+		}
+		//setTimeout(viewSqs,50 ,eid);
+		setTimeout("viewSqs("+eid+")",1500 );
+	 });
+}
+
+//postSave + postAnly 等于 essayAjaxPost 的功能
+function postSave(){
+	//alert('save');
+	if( $('.tips').length&gt;0  ){ alert( $('.tips').text() ); return;}
+
+	var eid= $("input[name=eid]").val(); 
+	var cStr= $('#utContent').length &gt;0 ? $('#utContent').val() : $('body',docId).html() ;//内容
+	var cTitle= $('#utTitle').length &gt;0 ? $('#utTitle').val() : '未定义'; //标题
+	dd='';
+	if( $('input[name="del[]"]').length  &gt;0 ){
+		$('input[name="del[]"]').each( function(){
+			if( ! $(this).is(':checked') ) dd+=$(this).val()+',';
+		});
+	}
+	msg2("正在提交......");	
+	$.post( _self+"?c=ajax&amp;a=postSave"
+	 ,{ utContent:encodeURIComponent(cStr )
+		 ,utTitle:encodeURIComponent(cTitle)
+		 ,rid: $("input[name=rid]").val() 
+		 ,eid: $("input[name=eid]").val() 
+		 ,type:0 
+		 ,gao:1
+		 ,bzold:$('#beizhu').length==0?'':encodeURIComponent( bzold)
+		 ,bz:$('#beizhu').length==0?'': encodeURIComponent( $('#beizhu').val())
+		 ,uncheck:dd }
+	 ,function(d){
+			F.hide();
+			 var dmsg=d.trim();
+			 if(  dmsg.indexOf('eid')==0 ){
+				 eid = dmsg.replace('eid=','');
+				 //alert(eid);
+				 if( $('#fktime').val()=='2' ) {
+					 alert("保存成功，系统在1小时后提供反馈");
+					 location.href= _self+"?c=write";
+				 }else{
+					 postAnly(eid);
+				 }
+			 }else if( dmsg.indexOf('msg:')==0 ){
+				 alert( d.trim().replace('msg:','') );
+			 }else{
+				 alert("发生错误！\n\n错误信息：\n"+dmsg);
+			 }
+			 return false;
+		 
+	 });
+
+}
+
+//postSave + postAnly 等于 essayAjaxPost 的功能 
+function postAnly(eid){
+	_isPost=true;
+	initViewSqs(eid); 
+	$.post( _self+"?c=ajax&amp;a=postAnly",{eid: eid}
+	 ,function(d){
+		 var dmsg= (d.trim() );
+		 if( dmsg.indexOf('msg:')==0 ){
+			_isPost= false ; 
+			F.hide();
+			alert( dmsg.replace("msg:","") );
+			location.href= _self+"?c=write";
+		 }else if(dmsg=='ok'){
+			 //分析成功
+			 location.href= _self+"?c=write&amp;a=view2&amp;eid="+eid;
+			 _isPost= false ;
+		 }else{
+			 _isPost= false ;
+		 }
+	 });
+
+}
+//end 用ajax 提交 然后记录过程
+function setQ(key,value){
+	eval('var test=/'+key+'=([^&amp;]*)/g');
+	_url= arguments.length&gt;2?arguments[2]:location.href;
+	_url= _url.replace( test,'' );
+	//alert(_url);
+	_pos= _url.indexOf('?');
+	if(_pos&gt;0)
+		if(_pos+1 == _url.length)
+			_url += '';
+			else
+				_url += '&amp;';
+				else
+					_url += '?';
+	_url+= key+'='+value;
+	_url=_url.replace( /&amp;{2}/,'&amp;' );
+	_url=_url.replace( /\?&amp;/,'?' );
+	//alert(_url);
+	return _url;
+}
+
+//语言点增加
+function showWinZdianping( ob ,btArray ){
+	// ob.str 显示 ob.essay_id ob.request_id ob.sent_id ob.sent_txt ob.term ob.type类别
+	var htmlStr='';
+	htmlStr +='&lt;div id="ChunkToggle" content="v1"&gt;缩起▲&lt;/div&gt;';
+	htmlStr +='&lt;div id="chunkPigaiShow"&gt;';
+	htmlStr+='&lt;div class="chunkPigaiShowTitle"&gt;&lt;b&gt;'+ob.str+'&lt;/b&gt;&lt;/div&gt;';
+
+	htmlStr+='&lt;div class="chunkPigaiShowContentW"&gt;打分建议：'
+	htmlStr+='&lt;INPUT TYPE="radio" NAME="error_type" value="-2" &gt; 减分';
+	htmlStr+=' &lt;INPUT TYPE="radio" NAME="error_type" value="0" &gt; 只做提示 ';
+	//htmlStr+='&lt;INPUT TYPE="radio" NAME="error_type" value="1" &gt; 加分 &lt;/div&gt;';
+	htmlStr+='&lt;INPUT TYPE="radio" NAME="error_type" value="-1" checked&gt; 减分并显示 &lt;/div&gt;';
+
+	htmlStr+='&lt;div id="chunkContentTxt"&gt;&lt;div class="chunkPigaiShowContentW"&gt;';
+	htmlStr+='错误标签(可以选择或者直接输入)&lt;br&gt;&lt;INPUT TYPE="text" NAME="" style="width:450px;" id="tabTxt" value=""&gt;';
+	htmlStr+='&lt;/div&gt;';
+	
+	htmlStr+='&lt;div class="chunkPigaiShowContentW chunkPigaiTab"&gt;';
+	htmlStr+='常用标签:&lt;span&gt;大小写错误&lt;/span&gt;&lt;span&gt;构词错误&lt;/span&gt;&lt;span&gt;主谓不一致&lt;/span&gt;&lt;span&gt;语态错误&lt;/span&gt;';
+	htmlStr+='&lt;/div&gt;';
+	try{
+		var dcat='';
+		for(var i=0;i&lt;cat.length;i++ ){
+			dcat+='&lt;option value="'+i+'"&gt;'+cat[i]+'&lt;/option&gt;'+"\n";
+		}
+		htmlStr+='&lt;div class="chunkPigaiShowContentW" id="t_dcat"&gt;';
+		htmlStr+='全部标签:&lt;select name="cat" id="t_cat"&gt;'+dcat+'&lt;/select&gt; (请选择标签分类) &lt;a href="http://wiki.pigai.org/doc-view-228.html" target="_blank" style="font-size:12px;"&gt;标签说明&lt;/a&gt;';
+		htmlStr+='&lt;/div&gt;';
+		htmlStr+='&lt;div class="chunkPigaiShowContentW chunkPigaiTab" style="" id="chunkPigaiTab_all"&gt;';
+		htmlStr+='&lt;/div&gt;';
+	}catch(e){
+	}
+	
+
+	htmlStr+='&lt;div class="chunkPigaiShowContent"&gt;简单说明:&lt;TEXTAREA name="error_txt" id="error_txt"&gt;&lt;/TEXTAREA&gt;&lt;/div&gt;';
+	htmlStr+='&lt;div class="chunkPigaiShowContentW2"&gt;可替换为(选填):&lt;INPUT TYPE="text" NAME="chang_to" id="chang_to"&gt;&lt;/div&gt;';
+	
+	htmlStr+='&lt;/div&gt;&lt;/div&gt;';
+	htmlStr+='&lt;INPUT TYPE="hidden" NAME="essay_id" id="t_essay_id" value="'+ob.essay_id+'"&gt;';
+	htmlStr+='&lt;INPUT TYPE="hidden" NAME="request_id" id="t_request_id" value="'+ ob.request_id+'"&gt;';
+	htmlStr+='&lt;INPUT TYPE="hidden" NAME="sent_txt" id="t_sent_txt" value="'+ob.sent_txt+'"&gt;';
+	htmlStr+='&lt;INPUT TYPE="hidden" NAME="sent_id" id="t_sent_id" value="'+ob.sent_id+'"&gt;';
+	htmlStr+='&lt;INPUT TYPE="hidden" NAME="term" id="t_term" value="'+ob.term+'"&gt;';
+	htmlStr+='&lt;INPUT TYPE="hidden" NAME="type" id="t_type" value="'+ob.type+'"&gt;'; //dobj.attr('title');
+
+	
+	F.show('批改-批改网(pigai.org)',htmlStr,btArray,500,0); 
+	ChunkToggleInit();
+	chunkAllTabMore();
+	chunkPigaiTab();
+}
+
+function showWinZdianpingV2(  ob ,btArray ){
+	//alert(ob.str);
+	var htmlStr='';
+	htmlStr +='&lt;div id="Chunkmsg" style="display:none"&gt;正在提交......&lt;/div&gt;';
+	htmlStr +='&lt;div id="ChunkToggle" content="v2"&gt;高级(标签和说明) ▼&lt;/div&gt;';
+	htmlStr +='&lt;div id="chunkPigaiShow"&gt;';
+	htmlStr +='&lt;div id="chunkPigaiShowText"&gt;&lt;div&gt;&lt;b&gt;预览&lt;/b&gt;  &lt;span id="chunkPigaiChacha"&gt;查字典&lt;/span&gt;&lt;/div&gt;';	
+	var sst = ob.str.replace('"',"“");
+	    sst = sst.replace('"',"”");
+	//alert( sst );
+	htmlStr+='&lt;div class="chunkPigaiShowTitle"&gt;[教师点评]&lt;span id="chunkDisplay" content="'+sst+'"&gt;'+sst+'&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;';
+	htmlStr+='&lt;div&gt;';
+	htmlStr+='&lt;div id="chunkContentTxt" style="display:none;"&gt;';
+	htmlStr += '&lt;div id="chunkPigaiOther" style="display:none;"&gt;&lt;/div&gt;';
+	htmlStr+='&lt;div class="chunkPigaiShowContentW"&gt;';
+	htmlStr+='错误标签(可以选择或者直接输入)&lt;br&gt;&lt;INPUT TYPE="text" NAME="" style="width:450px;" id="tabTxt" value=""&gt;';
+	htmlStr+='&lt;/div&gt;';	
+	htmlStr+='&lt;div class="chunkPigaiShowContentW chunkPigaiTab"&gt;';
+	htmlStr+='常用标签:&lt;span&gt;大小写错误&lt;/span&gt;&lt;span&gt;构词错误&lt;/span&gt;&lt;span&gt;主谓不一致&lt;/span&gt;&lt;span&gt;语态错误&lt;/span&gt;';
+	htmlStr+='&lt;/div&gt;';
+	try{
+		var dcat='';
+		for(var i=0;i&lt;cat.length;i++ ){
+			dcat+='&lt;option value="'+i+'"&gt;'+cat[i]+'&lt;/option&gt;'+"\n";
+		}
+		htmlStr+='&lt;div class="chunkPigaiShowContentW" id="t_dcat"&gt;';
+		htmlStr+='全部标签:&lt;select name="cat" id="t_cat"&gt;'+dcat+'&lt;/select&gt; (请选择标签分类) &lt;a href="http://wiki.pigai.org/doc-view-228.html" target="_blank" style="font-size:12px;"&gt;标签说明&lt;/a&gt;';
+		htmlStr+='&lt;/div&gt;';
+		htmlStr+='&lt;div class="chunkPigaiShowContentW chunkPigaiTab" style="" id="chunkPigaiTab_all"&gt;';
+		htmlStr+='&lt;/div&gt;';
+	}catch(e){
+	}
+	htmlStr +="&lt;/div&gt;";
+
+	htmlStr+='&lt;div class="chunkPigaiShowContent"&gt;&lt;div id="chunkPigaiInfo"&gt;简单说明:&lt;/div&gt;&lt;TEXTAREA name="error_txt" id="error_txt"&gt;&lt;/TEXTAREA&gt;&lt;/div&gt;';
+	htmlStr+='&lt;div class="chunkPigaiShowContentW2" style="display:none;"&gt;可替换为(选填):&lt;INPUT TYPE="text" NAME="chang_to" id="chang_to"&gt;&lt;/div&gt;';	
+	htmlStr+='&lt;/div&gt;&lt;/div&gt;';
+	F.show('批改-批改网(pigai.org)',htmlStr,btArray,500,0); 
+	ChunkToggleInit();
+	chunkAllTabMore();
+	chunkPigaiTab(); 	
+	//$('#ChunkToggle').click();
+	initChunkV2();
+	enterV2( function(){ var s= btArray[0][0];s();} );
+}
+function enterV2(fnt){
+	$('#error_txt').keyup(function(e){	if( e.keyCode==13 )  fnt();	});
+}
+function initChunkV2(){
+	//$('#error_txt').val('请检查是否使用正确');
+	$('#tabTxt').blur( blurChunk );
+	$('#error_txt').blur( blurChunk);
+	$('#chang_to').blur( blurChunk);
+	$('#tabTxt').keyup( blurChunk );
+	$('#error_txt').keyup( blurChunk);
+	$('#chang_to').keyup( blurChunk);
+	$('#tabTxt').focus( blurChunk );
+	$('#error_txt').focus( blurChunk);
+	$('#chang_to').focus( blurChunk);
+	$('#error_txt').focus();
+}
+
+function blurChunk(){
+	var str= $('#chunkDisplay').attr("content");
+	var tab = $.trim( $('#tabTxt').val());
+	var error_txt =   $.trim(  $('#error_txt').val() ) ;
+	var chang_to = $.trim( $('#chang_to').val() );
+	var st_str= str+" : ";
+	if( tab!='') {
+		st_str += " 是"+tab;//+",";
+		if(tab.indexOf("错误")&lt;0)  st_str +='错误';
+		st_str +=',';
+	}
+	if( error_txt!=''){ st_str+= error_txt ;	}
+	if( chang_to!=''){ st_str+=  '建议替换为'+ chang_to ;	}
+	$('#chunkDisplay').html(  $.trim(st_str,':')  );
+}
+function chunkAllTabMore(){
+	//alert('addd');
+	$('#t_cat').unbind('change');
+	$('#t_cat').change( function(){
+		//alert('dddd'); 
+		var ix= this.options[ this.selectedIndex].value ;
+		//alert( ix );
+		ix= parseInt(ix);
+		if(ix&lt;0) return false;
+		var str_html='';
+		//alert( cat_cn[ix].length );
+		for(var i=0;i&lt;cat_cn[ix].length;i++){
+			str_html += '&lt;span&gt;'+cat_cn[ix][i]+'&lt;/span&gt;';
+		}
+		$('#chunkPigaiTab_all').html( str_html );
+		$('#chunkPigaiTab_all').show();
+		chunkPigaiTab();
+		
+	});
+}
+ 
+function ChunkToggleInit(){
+	$('#ChunkToggle').click(function(){
+		//$('input[name=error_type]').attr('checked',false);
+		if(  $('#chunkContentTxt').css('display')=='none' ){ 
+			$('#chunkContentTxt').show();
+			$(this).html('缩起▲');
+			$('input[name=error_type][value=-1]').attr('checked',true);
+		}else{
+			$('#chunkContentTxt').hide();
+			$(this).html('高级(标签和说明) ▼');
+			$('input[name=error_type][value=-2]').attr('checked',true);
+		}
+		$('#error_txt').focus();
+	});
+}
+function chunkPigaiTab(){
+	$('.chunkPigaiTab').find('span').unbind('click');
+	$('.chunkPigaiTab').find('span').click(function(){
+		var v = $('#ChunkToggle').attr('content');
+		//alert( v );
+		if(v=='v2'){
+			$('#tabTxt').val( $(this).html());
+			$('.sp_select').removeClass('sp_select');
+			$(this).addClass('sp_select');
+			$('#tabTxt').focus();
+			return ;
+		}
+		var str= $('#tabTxt').val( );
+		if( $(this).attr('className').indexOf('sp_select')&gt;=0 ){ 
+			$(this).removeClass('sp_select');
+			str= str.replace($(this).html()+" ",'' );
+		}else{
+			$(this).addClass('sp_select');
+			str += $(this).html()+" ";			
+		}
+		$('#tabTxt').val( str  );
+	});
+}
+
+function getZpigaiData(){
+	var key= $('#t_term').val() ;	 
+	var scrot_adj= $('.chunkPigaiShowContentW').find("input[name='error_type'][checked]").val();
+	var chunTab= $('#tabTxt').val();
+	chunTab= chunTab.trim(); 
+	var des= $('#error_txt').val();
+	var chang= $('#chang_to').val();
+	des=des.trim(); 
+	var _type = $('#t_type').val(); 	
+	var data={tab:encodeURIComponent(chunTab),term:encodeURIComponent(key),des_htm:encodeURIComponent(des),change_to:chang,score_adjust:scrot_adj,term_type:_type};
+	data.request_id =  $('#t_request_id').val();
+	data.essay_id= $('#t_essay_id').val();
+	data.sent_id= $('#t_sent_id').val();
+	data.sent_txt= $('#t_sent_txt').val();
+	return data;
+}
+
+function zdianpingPost(){	
+	var data=getZpigaiData();
+	if( data.tab =='' &amp;&amp; $('#chunkContentTxt').css('display')!='none' ){ 
+		alert('请错误标签');
+		$('#tabTxt').focus();
+		return false;
+	}
+	if(data.des=='' &amp;&amp; $('#chunkContentTxt').css('display')!='none' ){ alert('请填写说明');  $('#error_txt').focus();return;}	
+
+	$.post(_self+'?c=ajax&amp;a=zterm',data,function(d){ 
+		if(d.trim()!='1'){ alert( d );}
+		else{
+			alert('感谢您的确认！');
+			F.hide();
+			location.reload();
+		}
+	});
+}
+
+//end 增加语言点
+
+function initStime(){
+	alert("dddddd");
+}
+
+function setPop(left,top){
+	$('#pop').css('top',top+'px');
+	$('#pop').css('left',left+'px');
+	$('#pop').fadeIn("slow");
+	//alert( $('#pop').attr('clientHeight') );
+}
+function initPop(){
+
+	$('#pop_close').click(function(){
+		$('#pop').fadeOut("slow");
+	});
+	try{
+		if( $('.dptermping').length &gt;0 || parseInt(_dianping_term_cnt)&gt;0 ){ return ;}
+	}catch(e){ }
+	$('.sentTxt').hover(function(){
+		if($('#pop').attr("content")=="1") return ;
+		$('#pop').attr("content",'1');
+		var pos = getCoords(this);
+		setPop(pos.x,pos.y-65);
+	},function(){}); 
+	
+	//alert(pos.x);
+}
+
+function getCoords  (node){
+        var x = node.offsetLeft;
+        var y = node.offsetTop;
+        var parent = node.offsetParent;
+        while (parent != null){
+                x += parent.offsetLeft;
+                y += parent.offsetTop;
+                parent = parent.offsetParent;
+        }
+        return {
+                x: x,
+                y: y
+        };
+}
+
+function purview(){
+	//msg2("您目前使用的是基础版，请升级为更高版本！");
+	var html= '&lt;div style="padding-left:50px;background:url(/res/images/fts.gif) no-repeat;height:80px;"&gt;';
+	html +='&lt;div style="color:#2e5f88;padding-top:10px;"&gt;您需要升级到更高版本才能使用此功能！&lt;/div&gt;';
+	
+	/*
+	html +='&lt;div style="padding:30px 0 0 80px;"&gt;';
+	html +='&lt;a style="float:left;background:url(/res/images/tan.gif) no-repeat;width:92px;height:30px;" href="/?a=upgrade" target="_blank" onclick="javascript:F.hide();"&gt;&lt;/a&gt;';
+	html +='&lt;input type="button" value="关闭"&gt;';
+	html +='&lt;a href="javascript:;" style="font-size:12px;float:left;padding-left:10px;padding-top:10px" onclick="javascript:F.hide();"&gt;关闭&lt;/a&gt;';
+	html +='&lt;div style="clear:both;"&gt;&lt;/div&gt; ';
+	html +='&lt;/div&gt;';
+	*/
+	html +='&lt;/div&gt;';//icibaWinBotton
+
+	F.show('提示 批改网(pigai.org)', html 	,[ [function(){ location.href='/?a=upgrade';},"了解详情"],[function(){location.href='/?c=teacher&amp;a=invite';},'邀请老师获得延期'] ],400,0);
+}
+
+function initTop(){
+	var pos = $('#write').position();
+	//alert(pos.left );
+	var Lleft = (pos.left+960)+"px";
+	//alert( document.documentElement.scrollTop  );
+	
+	$(window).load(function(){
+		//alert("left="+Lleft);
+        $('.scroll').css( {"left":Lleft});
+		topHideShow();	
+    }).scroll(function(){
+		topHideShow();		
+    } ).resize(function(){
+        topHideShow();	
+    });
+}
+function topHideShow(){
+	//$('.scroll').css( {"bottom":"100px"}); 
+	if(  document.documentElement.scrollTop &gt;0 ){  $('.scroll').fadeIn() ;}
+	else { $('.scroll').fadeOut() ;}
+}
+
+function  initProgressBar( len ,id ){
+	$( id ).progressBar();
+	$( id ).fadeIn();
+	var inum=0 ;
+	//$( id ).progressBar( 50 );
+	var _ttime = 0.365+ 0.007*len/5.56+0.042*Math.sqrt( len/5.56 );
+	//alert( _ttime  );
+	var _titem = 50;
+	var i = setInterval(function() { 	 
+			//if(inum&gt;=100) return;	
+			var numbar = 100.0*inum*_titem/(_ttime *1000);
+			//alert( numbar );
+			if( numbar&gt;100){ clearInterval( i )  ; return ;}
+			$( id ).progressBar( numbar );
+			inum++;
+		 
+	}, _titem );
+}
+
+function dd_more(){
+	var now_show ;
+	$('.df_more').hover(function(){ now_show = $(this);dd_show(); },dd_hide );
+	$('#more_dd').hover(dd_show,dd_hide);
+
+	function dd_show(){	 
+		 //alert('dddd');
+		 var id = now_show.attr('content');		 
+		 var node = now_show.get(0); 
+		 var essy_type=  now_show.data("type") ;
+		 var pos= J.getCoords( node );
+		 if(essy_type=="101"){
+			 var str='&lt;li&gt;&lt;a href="http://tiku.pigai.org/index.php?m=Translation&amp;c=Index&amp;a=answerTransLog&amp;eid='+id+'" &gt;查看&lt;/a&gt;&lt;/li&gt;';
+			   str+='&lt;li&gt;&lt;a href="/?c=teacher&amp;a=del&amp;rid='+id+'" onclick="return confirm(\'确认删除！\');"&gt;删除&lt;/a&gt;&lt;/li&gt;';
+		 }else if(essy_type=="102"){			 
+			 var str='&lt;li&gt;&lt;a href="http://tiku.pigai.org/decorate/Index/answerLog?eid='+id+'" &gt;查看&lt;/a&gt;&lt;/li&gt;';
+			   str+='&lt;li&gt;&lt;a href="/?c=teacher&amp;a=del&amp;rid='+id+'" onclick="return confirm(\'确认删除！\');"&gt;删除&lt;/a&gt;&lt;/li&gt;';
+		 }else{
+		 var str='&lt;li&gt;&lt;a href="/?c=write&amp;a=writeFrom&amp;rid='+id+'" &gt;自测&lt;/a&gt;';
+		 str += '&lt;/li&gt;&lt;li&gt;&lt;a href="javascript:void(0)" onclick="preview('+id+',this)"&gt;预览&lt;/a&gt;';
+		 str += '&lt;/li&gt;&lt;li&gt;&lt;a href="/?c=teacher&amp;a=createv2&amp;fid='+id+'"&gt;复制要求&lt;/a&gt;';
+		 str += '&lt;/li&gt;&lt;li&gt;&lt;a href="/?c=teacher&amp;a=create_copy&amp;fid='+id+'"&gt;一键布置&lt;/a&gt;';
+		// str += '&lt;/li&gt;&lt;li&gt;&lt;a href="/?c=teacher&amp;a=goto&amp;rid='+id+'&amp;to=zhihui"&gt;智慧课堂&lt;/a&gt;';
+		 str += '&lt;/li&gt;&lt;li&gt;&lt;a href="http://tiku.pigai.org/index.php?m=Home&amp;c=Upload&amp;a=uploadPgArticle&amp;id='+id+'" target="_blank"&gt;一键分享&lt;/a&gt;';
+                 str += '&lt;/li&gt;&lt;li&gt;&lt;a href="index.php?c=teacher&amp;a=createview&amp;rid='+id+'" target="_blank"&gt;二维码&lt;/a&gt;';
+		 str += '&lt;/li&gt;&lt;li&gt;&lt;a href="/?c=teacher&amp;a=del&amp;rid='+id+'" onclick="return confirm(\'确认删除！\');"&gt;删除&lt;/a&gt;';
+		 str +='&lt;/li&gt;';
+		 }
+		 $('#more_dd').html(str).css( {"left":(pos.x-50)+"px","top":(pos.y+20)+"px"} ).show();
+	}
+
+	function dd_hide(){
+		$('#more_dd').hide();
+	}
+
+}
+
+
+function addMemberLog( data){
+	//data={'cat_id':100101,'obj_id':'10086','txt':'this is essay?'}
+	$.post(_self+"?c=ajax&amp;a=addMemberLog", data ,function(d){	
+	});
+}
+
+function msgShow( dmsg ){
+	if( dmsg.indexOf('msg:')&gt;=0){
+		str= dmsg.replace('msg:','');
+		msg2( str ); 
+		return true;
+	}
+	return false;
+}
+
+function msg2Obj( dmsg ){
+	try{
+		eval("var obj="+dmsg +";");
+		return obj;
+	}catch(e ){
+		return false;
+	}
+}
+</pre></body></html>

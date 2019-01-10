@@ -1,0 +1,2850 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+ <head id="Head1">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta name="keywords" content="教程,基础教程,菜鸟教程,编程,入门,手册,在线工具,数据库,微信,html,css,php,asp.net,c#,java,python,sql,IT新闻,业界资讯,乐呵,笑话,dongcoder,懂客" />
+  <meta name="description" content="腾讯、网易、新浪新闻网站爬虫编写记录及评论格式分析,转载请注明：&nbsp;吹水小镇 | reetsee.com原文链接地址：&nbsp;http://blog.reetsee.com/archives/237 0 前言 先说说看这篇博客你能知道什么：1 腾讯、网易、新浪不同新闻的地址格式以及评论内容的地址格式（返回数据为json的异步接口）；2 一些比较通用的设计方法 ..." />
+  <title>
+	腾讯、网易、新浪新闻网站爬虫编写记录及评论格式分析-懂客-dongcoder.com
+</title>
+  <link href="/css/style.css" type="text/css" rel="stylesheet" /> 
+  <script src="/js/jquery-1.8.3.min.js" type="text/javascript" charset="utf-8"></script>
+  <link rel="stylesheet" type="text/css" href="/js/kindeditor/plugins/code/prettify.css" /> 
+  <script type="text/javascript" charset="utf-8" src="/js/kindeditor/plugins/code/prettify.js"></script> 
+ </head> 
+ <body> 
+  <div class="dctop"> 
+   <div> 
+    <div class="eleft"> 
+     <a href="/" class="colorhei">[首页]</a>
+     <a href="/jiaocheng/" class="colorhei">[教程]</a>
+     <a href="/info.html" class="colorhei">[文章]</a>
+     <a href="/news/" class="colorhei">[新闻]</a>
+     <a href="/lehe/" class="colorhei">[乐呵]</a> 
+    </div> 
+    <div class="eright" id="logindescription">
+      &nbsp; 
+    </div> 
+   </div> 
+  </div> 
+  <div class="dcinfomenu"> 
+   <ul> 
+    <li class="dcinfomenuleft"><a href="/" title="首页"> <img src="/img/logo.png" alt="" width="120" height="58" border="0" /></a> </li> 
+    <li class="dcinfomenuright"><a id="info_menu_i" href="/info.html" title="文章首页">文章首页</a><a id="info_menu_2" href="/list-2-1.html" title="Web开发"> Web编程</a><a id="info_menu_3" href="/list-3-1.html" title="Windows开发">Windows编程</a><a id="info_menu_4" href="/list-4-1.html" title="编程语言">编程语言</a><a id="info_menu_5" href="/list-5-1.html" title="数据库技术">数据库</a><a id="info_menu_6" href="/list-6-1.html" title="移动平台">移动平台</a><a id="info_menu_8" href="/list-8-1.html" title="系统服务">系统服务</a><a id="info_menu_9" href="/list-9-1.html" title="微信开发">微信平台</a><a id="info_menu_11" href="/list-11-1.html" title="其他">其他</a> </li> 
+   </ul> 
+  </div> 
+  <div class="dcmain"> 
+   <div class="guide"> 
+    <h2> <a href="/" title="懂客首页">首页</a> &gt; <a href="/list-2-1.html" id="atitle1" title="Web编程列表">Web编程</a>&gt; <a href="/detail-180122.html" id="atitle2" title="腾讯、网易、新浪新闻网站爬虫编写记录及评论格式分析">腾讯、网易、新浪新闻网站爬虫编写记录及评论格式分析</a> </h2> 
+   </div> 
+   <ul> 
+    <li class="dcmainleft"> 
+     <div class="listdetail margintop10"> 
+      <div class="marginbottom20"> 
+       <script async="" src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script> 
+       <!-- dc-auto --> 
+       <ins class="adsbygoogle" style="display: block" data-ad-client="ca-pub-8616102841876629" data-ad-slot="2332712282" data-ad-format="auto"></ins> 
+       <script>
+        (adsbygoogle = window.adsbygoogle || []).push({});
+    </script> 
+      </div> 
+      <div class="detailtitle"> 
+       <h1 id="article_title" class="colorlan">腾讯、网易、新浪新闻网站爬虫编写记录及评论格式分析</h1> 
+      </div> 
+      <div class="detailaaa">
+        时间：
+       <span id="article_time" class="colorhong">2016-10-03 06:31:29</span> &nbsp;&nbsp;&nbsp;&nbsp; 阅读：
+       <span id="article_N" class="colorhong">8</span> &nbsp;&nbsp;&nbsp;&nbsp; 评论：
+       <span id="article_comment" class="colorhong">0</span> &nbsp;&nbsp;&nbsp;&nbsp; 收藏：
+       <span id="article_favorite" class="colorhong">0</span> &nbsp;&nbsp;&nbsp;&nbsp; 
+       <a id="articlefavorite" class="cursorpointer">[点我收藏+]</a> 
+       <span id="spanoldurl"> <br /> 原文：<span id="article_oldurl">http://www.cnblogs.com/LonelyEnvoy/p/5928500.html</span></span> 
+      </div> 
+      <div id="article_content" class="detailtext">
+       <div>
+        <strong>转载请注明：</strong>&nbsp;
+        <a href="http://blog.reetsee.com/">吹水小镇 | reetsee.com</a>
+        <br />
+        <strong>原文链接地址：</strong>&nbsp;
+        <a href="http://blog.reetsee.com/archives/237">http://blog.reetsee.com/archives/237</a>
+       </div> 
+       <hr /> 
+       <h1>0 前言</h1> 
+       <p>先说说看这篇博客你能知道什么：1 腾讯、网易、新浪不同新闻的地址格式以及评论内容的地址格式（返回数据为json的异步接口）；2 一些比较通用的设计方法，对软件设计的菜鸟可能有帮助；</p> 
+       <p>之前也说了要写这篇博客，现在终于写出来了。我的毕业设计的指导老师说毕设论文的字数不够……所以我决定把这些本不应该出现在论文中的实现细节凑到论文中。至于下面说到的东西要解决什么问题，各位可以先看看这个网站（我毕设的初步结果，目前还在优化中，包括代码结构还有UI设计）：<a title="吹水新闻" href="http://news.reetsee.com/" target="_blank">http://news.reetsee.com/</a></p> 
+       <p><strong>凡是这篇博文中出现超链接的地方，可以放心点击，新的页面会在新标签中打开而不会直接在当前的标签打开。</strong></p> 
+       <p>这个网站要实现以下功能：从腾讯新闻、网易新闻、新浪新闻中（当然以后可能会更多其它新闻网站）通过代码自动分析出哪些新闻内容是相似的，然后把相似的内容组织到一起，例如三个网站都有“北京成功申奥”这样的新闻，这个网站会自动把三条新闻归到一起，然后把三个新闻网站的热门评论都下载下来，按照时间排序，最后通过代码计算出一段“评论概括”，因为有的人很懒，看新闻基本就是看了标题然后看评论，看评论可能只看热门评论，看热门评论可能还看那种被顶得最多的，所以我就这么帮下这些懒人了……哈哈哈。</p> 
+       <p>网站打开得有点慢，这个是因为我的代码写得不够好，在百度也看到很多牛逼的技术内容，回头看看这个毕设的各种设计，觉得有点丢脸，迟点重构&middot;&middot;&middot;&middot;目前先凑合着用。咳咳，跑题了，这个网站的所有内容可以说都是通过爬虫抓取下来了，我的工作只不过是将爬虫获取的内容进行了组织然后重新展现。</p> 
+       <p>这篇博客的内容仅仅是说一下爬虫是怎么写的，完全不会涉及分析新闻相似的算法是怎么样的以及对热门评论进行概括的算法是怎么样的。</p> 
+       <p>那么下面开始。</p> 
+       <h1><a name="t1"></a>1 新闻格式规范化</h1> 
+       <p>我在同学介绍下选择了Python的Scrapy爬虫框架进行爬虫编写（最近我自己用PHP写了个爬虫框架<a title="Phpfetcher" href="https://github.com/fanfank/phpfetcher" target="_blank">Phpfetcher</a>，可以参见这里：<a title="一个简单的开源PHP爬虫框架『Phpfetcher』" href="http://blog.reetsee.com/archives/366" target="_blank">http://blog.reetsee.com/archives/366</a>）。要在自己的网站上展示新闻内容，就应该将下载好的新闻按照统一的格式处理好，这样前端（网页端）才能够方便地处理、展示。一篇新闻有以下几个需要关注的地方：</p> 
+       <ol> 
+        <li>新闻标题</li> 
+        <li>新闻正文</li> 
+        <li>新闻时间</li> 
+       </ol> 
+       <p>&nbsp;由于要知道新闻的来源以及对应的评论，所以加上这两项：4. 新闻来源，5. 新闻评论地址。</p> 
+       <p>那么最终在我这里，一篇处理后的新闻格式应该是这样的（这里使用类似json的格式表示，“[]”表示一个数组，“{}”表示一个字典）：</p> 
+       <div id="highlighter_263521" class="syntaxhighlighter  Brush"> 
+        <div class="lines"> 
+         <div class="line alt1"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>01</code></td> 
+             <td class="content"><code class="Brush plain">{</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt2"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>02</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush string">‘source‘</code>&nbsp;&nbsp;&nbsp;<code class="Brush plain">:&nbsp;</code><code class="Brush string">‘来源网站‘</code><code class="Brush plain">,</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt1"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>03</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush string">‘date‘</code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="Brush plain">:&nbsp;</code><code class="Brush string">‘时间（长度8位，如20140501）‘</code><code class="Brush plain">,</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt2"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>04</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush string">‘contents‘</code>&nbsp;<code class="Brush plain">: {</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt1"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>05</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush string">‘link‘</code>&nbsp;&nbsp;&nbsp;&nbsp;<code class="Brush plain">:&nbsp;</code><code class="Brush string">‘新闻详细内容页面的地址‘</code><code class="Brush plain">,</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt2"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>06</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush string">‘title‘</code>&nbsp;&nbsp;&nbsp;<code class="Brush plain">:&nbsp;</code><code class="Brush string">‘新闻标题‘</code><code class="Brush plain">,</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt1"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>07</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush string">‘passage‘</code>&nbsp;<code class="Brush plain">:&nbsp;</code><code class="Brush string">‘新闻正文‘</code><code class="Brush plain">,</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt2"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>08</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">},</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt1"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>09</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush string">‘comments‘</code>&nbsp;<code class="Brush plain">: {</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt2"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>10</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush string">‘link‘</code>&nbsp;<code class="Brush plain">:&nbsp;</code><code class="Brush string">‘新闻对应的评论页面地址‘</code><code class="Brush plain">,</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt1"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>11</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">},</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt2"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>12</code></td> 
+             <td class="content"><code class="Brush plain">}</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+        </div> 
+       </div> 
+       <p>如果有人问既然已经有了新闻的地址页面，为什么还要将新闻标题、新闻正文这些内容保存到本地呢？因为要在本地对新闻进行分类，就必须将这些内容下载下来。</p> 
+       <p>上面的格式只是一个初步的统一格式，最终的格式相比这个可能会有小变化，这个后面再说。</p> 
+       <h1><a name="t2"></a>2 评论格式规范化</h1> 
+       <p>要在我的网站对评论进行展示，就要有统一的格式，通常评论的要素包括三个：</p> 
+       <ol> 
+        <li>用户名</li> 
+        <li>评论时间</li> 
+        <li>评论内容</li> 
+       </ol> 
+       <p>&nbsp;由于我要标注评论的来源，所以再加一个：4. 评论来源，那么最终被我处理过的评论格式如下：</p> 
+       <div id="highlighter_135460" class="syntaxhighlighter  Brush"> 
+        <div class="lines"> 
+         <div class="line alt1"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>1</code></td> 
+             <td class="content"><code class="Brush plain">{</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt2"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>2</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush string">‘source‘</code>&nbsp;<code class="Brush plain">:&nbsp;</code><code class="Brush string">‘来自哪个新闻网站‘</code><code class="Brush plain">,</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt1"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>3</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush string">‘user‘</code>&nbsp;<code class="Brush plain">:&nbsp;</code><code class="Brush string">‘用户名‘</code><code class="Brush plain">,</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt2"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>4</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush string">‘time‘</code>&nbsp;<code class="Brush plain">:&nbsp;</code><code class="Brush string">‘10位长度的时间戳‘</code><code class="Brush plain">,&nbsp;</code><code class="Brush comments">//转换成时间戳是为了方便以后排序</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt1"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>5</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush string">‘content‘</code>&nbsp;<code class="Brush plain">:&nbsp;</code><code class="Brush string">‘评论内容‘</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt2"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>6</code></td> 
+             <td class="content"><code class="Brush plain">}</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+        </div> 
+       </div> 
+       <p>那么最终重新按照时间排序后的评论列表格式应该是像下面这样的：</p> 
+       <div id="highlighter_737689" class="syntaxhighlighter  Brush"> 
+        <div class="lines"> 
+         <div class="line alt1"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>01</code></td> 
+             <td class="content"><code class="Brush plain">[</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt2"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>02</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">{</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt1"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>03</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush string">‘source‘</code>&nbsp;<code class="Brush plain">:&nbsp;</code><code class="Brush string">‘‘</code><code class="Brush plain">,</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt2"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>04</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush string">‘user‘</code>&nbsp;<code class="Brush plain">:&nbsp;</code><code class="Brush string">‘‘</code><code class="Brush plain">,</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt1"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>05</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush string">‘time‘</code>&nbsp;<code class="Brush plain">:&nbsp;</code><code class="Brush string">‘‘</code><code class="Brush plain">,</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt2"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>06</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush string">‘content‘</code>&nbsp;<code class="Brush plain">:&nbsp;</code><code class="Brush string">‘‘</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt1"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>07</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">},</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt2"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>08</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">{</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt1"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>09</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush string">‘source‘</code>&nbsp;<code class="Brush plain">:&nbsp;</code><code class="Brush string">‘‘</code><code class="Brush plain">,</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt2"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>10</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush string">‘user‘</code>&nbsp;<code class="Brush plain">:&nbsp;</code><code class="Brush string">‘‘</code><code class="Brush plain">,</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt1"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>11</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush string">‘time‘</code>&nbsp;<code class="Brush plain">:&nbsp;</code><code class="Brush string">‘‘</code><code class="Brush plain">,</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt2"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>12</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush string">‘content‘</code>&nbsp;<code class="Brush plain">:&nbsp;</code><code class="Brush string">‘‘</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt1"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>13</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">},</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt2"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>14</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">{</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt1"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>15</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush string">‘source‘</code>&nbsp;<code class="Brush plain">:&nbsp;</code><code class="Brush string">‘‘</code><code class="Brush plain">,</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt2"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>16</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush string">‘user‘</code>&nbsp;<code class="Brush plain">:&nbsp;</code><code class="Brush string">‘‘</code><code class="Brush plain">,</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt1"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>17</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush string">‘time‘</code>&nbsp;<code class="Brush plain">:&nbsp;</code><code class="Brush string">‘‘</code><code class="Brush plain">,</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt2"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>18</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush string">‘content‘</code>&nbsp;<code class="Brush plain">:&nbsp;</code><code class="Brush string">‘‘</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt1"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>19</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">},</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt2"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>20</code></td> 
+             <td class="content">&nbsp;</td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt1"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>21</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">...</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt2"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>22</code></td> 
+             <td class="content"><code class="Brush plain">]</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+        </div> 
+       </div> 
+       <p>这里先规范好最终的评论格式，下面针对评论部分的讲解设计就有头有据了。</p> 
+       <p>另外就是评论并不需要爬虫下载！因为评论是实时更新的，不像新闻，基本上发布了就不怎么变化了。因为评论的内容是在用户点击某条新闻后才通过HTTP请求获取的。</p> 
+       <h1><a name="t3"></a>3 URL规则分析</h1> 
+       <h2><a name="t4"></a>3.1 腾讯新闻</h2> 
+       <div>
+        其实整个分析下来，我觉得腾讯的URL地址格式是最容易弄清楚的，对于下面的内容，打了黄色背景色的是一个分析说明，其中用了红色字体的代表这个地方是依据新闻的不同而变化的，聪明的你们一定一看就知道是什么意思了。在看下面的内容时，可以自己把这些URL敲到地址栏中尝试一下，其次是使用CHROME或者百度浏览器的同学，强烈建议安装“FeHelper”这个插件，地址是：
+        <a href="https://chrome.google.com/webstore/detail/web%E5%89%8D%E7%AB%AF%E5%8A%A9%E6%89%8Bfehelper/pkgccpejnmalmdinmhkkfafefagiiiad?hl=zh-CN" target="_blank">https://chrome.google.com/webstore/detail/web%E5%89%8D%E7%AB%AF%E5%8A%A9%E6%89%8Bfehelper/pkgccpejnmalmdinmhkkfafefagiiiad?hl=zh-CN</a>，这个东西的作用是能够直接将JSON格式的内容美化成很漂亮的非常容易读到的内容，例如这样：
+       </div> 
+       <div>
+        <a href="http://blog.reetsee.com/wp-content/uploads/2014/06/fehelper.jpeg"><img alt="fehelper" class="aligncenter size-full wp-image-238" src="http://blog.reetsee.com/wp-content/uploads/2014/06/fehelper.jpeg" width="644" height="400" data-bd-imgshare-binded="1" /></a>
+       </div> 
+       <div>
+        &nbsp;
+       </div> 
+       <div>
+        这个是其中一个功能，还有很多非常赞的功能。
+       </div> 
+       <div>
+        回到正文。
+       </div> 
+       <div>
+        <strong>新闻（非专题类）地址格式</strong>&nbsp;&nbsp; ：http://news.qq.com/a/
+        <strong>8位日期</strong>/
+        <strong>新闻ID</strong>.htm，例如：
+        <a href="http://news.qq.com/a/20140113/012246.htm" target="_blank">http://news.qq.com/a/20140113/012246.htm</a>。
+       </div> 
+       <div>
+        <strong>新闻页面获取评论数量的方法</strong>：http://coral.qq.com/article/
+        <strong>评论页ID（即cmt_id）</strong>/commentnum?callback=_cbSum&amp;source=1&amp;t=
+        <strong>随机数（怀疑是时间戳，但是好像没什么用）</strong>，例如：
+        <a href="http://coral.qq.com/article/1004703995/commentnum?callback=_cbSum&amp;source=1&amp;t=0" target="_blank">http://coral.qq.com/article/1004703995/commentnum?callback=_cbSum&amp;source=1&amp;t=0</a>，实际上这个用不到。
+       </div> 
+       <div>
+        <strong>新闻的所有评论页面地址</strong>&nbsp;&nbsp; &nbsp; &nbsp;：http://coral.qq.com/
+        <strong>评论ID（即cmt_id</strong>
+        <strong>）</strong>，例如：
+        <a href="http://coral.qq.com/1004703995" target="_blank">http://coral.qq.com/1004703995</a>。
+       </div> 
+       <div>
+        <strong>其中正常的评论链接格式如下</strong>：http://coral.qq.com/article/
+        <strong>评论页ID（即cmt_id）</strong>/comment?commentid=
+        <strong>起始ID</strong>&amp;reqnum=
+        <strong>显示数目</strong>&amp;tag=&amp;callback=mainComment&amp;_=
+        <strong>时间戳+3位随机整数（共10+3=13位）</strong>，
+        <a href="http://coral.qq.com/article/1004703995/comment?commentid=0&amp;reqnum=20&amp;tag=&amp;callback=mainComment&amp;_=1389623278900" target="_blank">http://coral.qq.com/article/1004703995/comment?commentid=0&amp;reqnum=20&amp;tag=&amp;callback=mainComment&amp;_=1389623278900</a>。实际上这个用不到。
+       </div> 
+       <div>
+        <strong>热门评论的链接格式如下 &nbsp; &nbsp; &nbsp;</strong>：http://coral.qq.com/article/
+        <strong>评论页ID（即cmt_id）</strong>/hotcomment?reqnum=
+        <strong>显示数目</strong>&amp;callback=myHotcommentList&amp;_=
+        <strong>时间戳+3位随机整数（共10+3=13位）</strong>，
+        <a href="http://coral.qq.com/article/1004703995/hotcomment?reqnum=10&amp;callback=myHotcommentList&amp;_=1389617814425" target="_blank">http://coral.qq.com/article/1004703995/hotcomment?reqnum=10&amp;callback=myHotcommentList&amp;_=1389617814425</a>。
+       </div> 
+       <div>
+        要注意的是，评论页ID是大于10^9的；新闻ID不是一个数字，注意真的不是一个数字！而是一个只包含数字的字符串，例如它可能是“000123”。
+       </div> 
+       <div>
+        现在开始分析一下腾讯新闻评论中的字段，比起网易新闻的简直是太臃肿了，那么就直接说关心的内容了（请直接点击上面热门评论的那条URL、或者复制到你的地址栏，回车后查看结果，与下面的内容比对）：
+       </div> 
+       <div>
+        <ol> 
+         <li>targetid就是新闻的id；</li> 
+         <li>time就是时间戳，有了这个可以转换成公元时间；</li> 
+         <li>content就是回复的内容（这位网友真是热心回复这么多）；</li> 
+         <li>up就是人家给的赞的数量；</li> 
+         <li>userinfo中的nick就是用户名了，后面竟然还有对应的腾讯微博的用户信息。</li> 
+        </ol>
+       </div> 
+       <div id="highlighter_491473" class="syntaxhighlighter  Brush"> 
+        <div class="lines"> 
+         <div class="line alt1"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>01</code></td> 
+             <td class="content"><code class="Brush plain">{</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt2"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>02</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">id:&nbsp;</code><code class="Brush string">&quot;5828439023791190273&quot;</code><code class="Brush plain">,</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt1"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>03</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">targetid: 1004703995,</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt2"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>04</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">parent:&nbsp;</code><code class="Brush string">&quot;0&quot;</code><code class="Brush plain">,</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt1"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>05</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">replyuser:&nbsp;</code><code class="Brush string">&quot;&quot;</code><code class="Brush plain">,</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt2"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>06</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">replyuserid: 0,</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt1"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>07</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">timeDifference:&nbsp;</code><code class="Brush string">&quot;01月13日 18:15:50&quot;</code><code class="Brush plain">,</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt2"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>08</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">time:&nbsp;</code><code class="Brush string">&quot;1389608150&quot;</code><code class="Brush plain">,</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt1"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>09</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">content:&nbsp;</code><code class="Brush string">&quot;很高兴看到中央军委日前印发《关于军队贯彻落实〈党政机关厉行节约反对浪费条例〉的措施》，规定今后所有公务用车采购国产自主品牌，其实不光是汽车，像电脑、打印机、扫描仪、复印机、服务器、网络设备、软件等产品更要带头采购国产自主品牌，防止军队内部机密资料遭受国外网络黑客攻击！希望中央军委、中国海陆空军队能够切实担负起捍卫国土、捍卫钓鱼岛的职责！其实中国的部队，大部分军官素质是好的，但也有相当一部分军官也十分腐败，作风腐化堕落，为人霸道欺负新兵，道德品质极差；艰苦奋斗、勤俭建军的思想有所淡化；革命意志、进取精神有所退化；铺张浪费、大手大脚现象有所抬头。加强军队的反腐倡廉建设对于巩固党的执政地位、树立中国军队的新形象、提升国防战斗力十分重要。要保卫好祖国国土完整，加强军队作风建设和反腐倡廉建设责任重大。“物必自腐，而后虫之”，如果任由各种腐败作风在军队系统漫延，将使中国军队的整体战斗力、中国军官的整体政治素质大大下降，后果不堪设想！希望中央军委一定要在全军大力开展创先争优活动，加强中国军人综合素质建设与作风建设，全面推广党风廉政建设巡视检查制度，大力清除军队内部的腐败分子，大力整顿军队内部的“吃喝玩乐嫖赌、卖官鬻爵收受贿赂违规提拔干部”等各类不正之风，营造“勤于学习、善于学习、钻研技术、廉洁从业”的良好氛围，铸造一支英勇善战、战斗力凝聚力号召力超强的中国军队！同时中国军队应该坚持人性化细节化管理，对于长期夫妻两地分居的军官、军人要免费发放性慰器，防止他们流入社会进入嫖娼卖淫场所影响中国军队形象！希望中国能够集国家和中华民族的坚强意志，大力加强自主创新型国家建设，努力攻克在大型民用飞机、军用飞机、导弹系统、航空母舰等制约国家核心技术的关键高端产业领域，早日使我国的民用与军用飞机、导弹、航空母舰早日上市，彻底摆脱对欧洲、美国、日本在先进技术上的制约，成为一个装备制造强国！中国不能搞、不会搞军事扩张但也绝不能太懦弱，一定要夯实军事装备，提升军队战斗力，保护好国土、海域的安全，捍卫民族尊严！&quot;</code><code class="Brush plain">,</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt2"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>10</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">up:&nbsp;</code><code class="Brush string">&quot;91&quot;</code><code class="Brush plain">,</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt1"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>11</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">rep:&nbsp;</code><code class="Brush string">&quot;0&quot;</code><code class="Brush plain">,</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt2"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>12</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">type:&nbsp;</code><code class="Brush string">&quot;2&quot;</code><code class="Brush plain">,</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt1"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>13</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">hotscale:&nbsp;</code><code class="Brush string">&quot;3&quot;</code><code class="Brush plain">,</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt2"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>14</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">checktype:&nbsp;</code><code class="Brush string">&quot;2&quot;</code><code class="Brush plain">,</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt1"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>15</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">checkstatus:&nbsp;</code><code class="Brush string">&quot;1&quot;</code><code class="Brush plain">,</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt2"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>16</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">isdeleted:&nbsp;</code><code class="Brush string">&quot;0&quot;</code><code class="Brush plain">,</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt1"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>17</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">tagself:&nbsp;</code><code class="Brush string">&quot;&quot;</code><code class="Brush plain">,</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt2"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>18</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">taghost:&nbsp;</code><code class="Brush string">&quot;&quot;</code><code class="Brush plain">,</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt1"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>19</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">source:&nbsp;</code><code class="Brush string">&quot;1&quot;</code><code class="Brush plain">,</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt2"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>20</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">userinfo: {</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt1"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>21</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">userid:&nbsp;</code><code class="Brush string">&quot;21059616&quot;</code><code class="Brush plain">,</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt2"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>22</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">uidex:&nbsp;</code><code class="Brush string">&quot;ec52a391823814524e8446efa3bd6a48d9&quot;</code><code class="Brush plain">,</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt1"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>23</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">nick:&nbsp;</code><code class="Brush string">&quot;炎黄子孙中国梦&quot;</code><code class="Brush plain">,</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt2"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>24</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">head:&nbsp;</code><code class="Brush string">&quot;<a href="http://q1.qlogo.cn/g?b=qq&amp;k=ACz0AuPMwiaSfHTmIGWbIOw&amp;s=40&amp;t=0">http://q1.qlogo.cn/g?b=qq&amp;k=ACz0AuPMwiaSfHTmIGWbIOw&amp;s=40&amp;t=0</a>&quot;</code><code class="Brush plain">,</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt1"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>25</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">gender:&nbsp;</code><code class="Brush string">&quot;1&quot;</code><code class="Brush plain">,</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt2"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>26</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">viptype:&nbsp;</code><code class="Brush string">&quot;0&quot;</code><code class="Brush plain">,</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt1"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>27</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">mediaid: 0,</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt2"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>28</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">region:&nbsp;</code><code class="Brush string">&quot;中国:安徽:宣城&quot;</code><code class="Brush plain">,</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt1"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>29</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">thirdlogin: 0,</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt2"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>30</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">wbuserinfo: {</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt1"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>31</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">name:&nbsp;</code><code class="Brush string">&quot;cjppjc17&quot;</code><code class="Brush plain">,</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt2"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>32</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">nick:&nbsp;</code><code class="Brush string">&quot;炎黄子孙中国梦&quot;</code><code class="Brush plain">,</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt1"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>33</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">url:&nbsp;</code><code class="Brush string">&quot;&quot;</code><code class="Brush plain">,</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt2"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>34</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">vip: 0,</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt1"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>35</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">ep: 0,</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt2"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>36</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">brief:&nbsp;</code><code class="Brush string">&quot;&quot;</code><code class="Brush plain">,</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt1"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>37</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">identification:&nbsp;</code><code class="Brush string">&quot;&quot;</code><code class="Brush plain">,</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt2"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>38</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">intro:&nbsp;</code><code class="Brush string">&quot;&quot;</code><code class="Brush plain">,</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt1"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>39</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">liveaddr: {</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt2"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>40</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">country:&nbsp;</code><code class="Brush string">&quot;1&quot;</code><code class="Brush plain">,</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt1"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>41</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">province:&nbsp;</code><code class="Brush string">&quot;34&quot;</code><code class="Brush plain">,</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt2"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>42</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">city:&nbsp;</code><code class="Brush string">&quot;18&quot;</code><code class="Brush plain">,</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt1"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>43</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">area:&nbsp;</code><code class="Brush string">&quot;&quot;</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt2"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>44</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">},</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt1"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>45</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">level: 0,</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt2"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>46</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">classify:&nbsp;</code><code class="Brush string">&quot;&quot;</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt1"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>47</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">},</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt2"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>48</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">commentnum:&nbsp;</code><code class="Brush string">&quot;283&quot;</code><code class="Brush plain">,</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt1"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>49</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">commentednum:&nbsp;</code><code class="Brush string">&quot;168&quot;</code><code class="Brush plain">,</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt2"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>50</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">upnum:&nbsp;</code><code class="Brush string">&quot;2108&quot;</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt1"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>51</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">}</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt2"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>52</code></td> 
+             <td class="content"><code class="Brush plain">},</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+        </div> 
+       </div> 
+       <p>还记得在“评论规范化”中定的格式吗？现在我们就从上面的json格式找到一个将其规范化的方法，假设热门评论连接中返回的json格式的变量名为js，i为遍历时的下标，那么用下面这个方法进行评论格式的规范化：</p> 
+       <div id="highlighter_267252" class="syntaxhighlighter  Brush"> 
+        <div class="lines"> 
+         <div class="line alt1"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>1</code></td> 
+             <td class="content"><code class="Brush plain">{</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt2"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>2</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush string">‘source‘</code>&nbsp;<code class="Brush plain">:&nbsp;</code><code class="Brush string">‘tencent‘</code><code class="Brush plain">,</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt1"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>3</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush string">‘user‘</code>&nbsp;<code class="Brush plain">: js[</code><code class="Brush string">‘data‘</code><code class="Brush plain">][</code><code class="Brush string">‘commentid‘</code><code class="Brush plain">][i][</code><code class="Brush string">‘userinfo‘</code><code class="Brush plain">][</code><code class="Brush string">‘nick‘</code><code class="Brush plain">],</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt2"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>4</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush string">‘time‘</code>&nbsp;<code class="Brush plain">: js[</code><code class="Brush string">‘data‘</code><code class="Brush plain">][</code><code class="Brush string">‘commentid‘</code><code class="Brush plain">][i][</code><code class="Brush string">‘time‘</code><code class="Brush plain">],&nbsp;</code><code class="Brush comments">//原格式就是10位时间戳了不用转换</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt1"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>5</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush string">‘content‘</code>&nbsp;<code class="Brush plain">: js[</code><code class="Brush string">‘data‘</code><code class="Brush plain">][</code><code class="Brush string">‘commentid‘</code><code class="Brush plain">][i][</code><code class="Brush string">‘content‘</code><code class="Brush plain">]</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt2"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>6</code></td> 
+             <td class="content"><code class="Brush plain">}</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+        </div> 
+       </div> 
+       <p>&nbsp;</p> 
+       <div>
+        腾讯新闻的算是搞掂了。
+       </div> 
+       <div>
+        &nbsp;
+       </div> 
+       <h2><a name="t5"></a>3.2 网易新闻</h2> 
+       <div>
+        &nbsp;
+       </div> 
+       <div>
+        <strong>新闻（非专题类）地址格式</strong>&nbsp;&nbsp; ：http://news.163.com/
+        <strong>年份</strong>/
+        <strong>日期（四位）</strong>/
+        <strong>数字</strong>/
+        <strong>新闻ID</strong>.html，例如
+        <a href="http://news.163.com/14/0114/19/9IISVTCG0001124J.html" target="_blank">http://news.163.com/14/0114/19/9IISVTCG0001124J.html</a>。
+       </div> 
+       <div>
+        <strong>新闻页面获取评论数量的方法</strong>：查找”
+        <strong>totalCount</strong>“就是评论数目，新闻ID就是”
+        <strong>threadId</strong>“，
+        <strong>讨论版面</strong>就是”
+        <strong>boardId</strong>“，这个js是inline的，直接就放到网页中了：
+       </div> 
+       <div> 
+        <div id="highlighter_510279" class="syntaxhighlighter  Brush"> 
+         <div class="lines"> 
+          <div class="line alt1"> 
+           <table> 
+            <tbody> 
+             <tr> 
+              <td class="number"><code>01</code></td> 
+              <td class="content"><code class="Brush plain">&lt;script type=</code><code class="Brush string">&quot;text/javascript&quot;</code><code class="Brush plain">&gt;</code></td> 
+             </tr> 
+            </tbody> 
+           </table> 
+          </div> 
+          <div class="line alt2"> 
+           <table> 
+            <tbody> 
+             <tr> 
+              <td class="number"><code>02</code></td> 
+              <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush keyword">if</code>&nbsp;<code class="Brush plain">(</code><code class="Brush keyword">typeof</code>&nbsp;<code class="Brush plain">isForceShowComment !=&nbsp;</code><code class="Brush string">&quot;undefined&quot;</code><code class="Brush plain">) {</code></td> 
+             </tr> 
+            </tbody> 
+           </table> 
+          </div> 
+          <div class="line alt1"> 
+           <table> 
+            <tbody> 
+             <tr> 
+              <td class="number"><code>03</code></td> 
+              <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">isShowComments = isForceShowComment;</code></td> 
+             </tr> 
+            </tbody> 
+           </table> 
+          </div> 
+          <div class="line alt2"> 
+           <table> 
+            <tbody> 
+             <tr> 
+              <td class="number"><code>04</code></td> 
+              <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">};</code></td> 
+             </tr> 
+            </tbody> 
+           </table> 
+          </div> 
+          <div class="line alt1"> 
+           <table> 
+            <tbody> 
+             <tr> 
+              <td class="number"><code>05</code></td> 
+              <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush keyword">function</code>&nbsp;<code class="Brush plain">tieInit() {</code></td> 
+             </tr> 
+            </tbody> 
+           </table> 
+          </div> 
+          <div class="line alt2"> 
+           <table> 
+            <tbody> 
+             <tr> 
+              <td class="number"><code>06</code></td> 
+              <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">tie_load({</code></td> 
+             </tr> 
+            </tbody> 
+           </table> 
+          </div> 
+          <div class="line alt1"> 
+           <table> 
+            <tbody> 
+             <tr> 
+              <td class="number"><code>07</code></td> 
+              <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">urs:&nbsp;</code><code class="Brush string">&quot;<a href="http://img1.cache.netease.com/utf8/microblog/urs/urs1.0.3.js">http://img1.cache.netease.com/utf8/microblog/urs/urs1.0.3.js</a>&quot;</code><code class="Brush plain">,</code></td> 
+             </tr> 
+            </tbody> 
+           </table> 
+          </div> 
+          <div class="line alt2"> 
+           <table> 
+            <tbody> 
+             <tr> 
+              <td class="number"><code>08</code></td> 
+              <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">tie:&nbsp;</code><code class="Brush string">&quot;<a href="http://img1.cache.netease.com/utf8/tie/tieanywhere2.6.6-min.js">http://img1.cache.netease.com/utf8/tie/tieanywhere2.6.6-min.js</a>&quot;</code></td> 
+             </tr> 
+            </tbody> 
+           </table> 
+          </div> 
+          <div class="line alt1"> 
+           <table> 
+            <tbody> 
+             <tr> 
+              <td class="number"><code>09</code></td> 
+              <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">},</code></td> 
+             </tr> 
+            </tbody> 
+           </table> 
+          </div> 
+          <div class="line alt2"> 
+           <table> 
+            <tbody> 
+             <tr> 
+              <td class="number"><code>10</code></td> 
+              <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush keyword">function</code><code class="Brush plain">() {</code></td> 
+             </tr> 
+            </tbody> 
+           </table> 
+          </div> 
+          <div class="line alt1"> 
+           <table> 
+            <tbody> 
+             <tr> 
+              <td class="number"><code>11</code></td> 
+              <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush keyword">var</code>&nbsp;<code class="Brush plain">replyCount = 10068,</code></td> 
+             </tr> 
+            </tbody> 
+           </table> 
+          </div> 
+          <div class="line alt2"> 
+           <table> 
+            <tbody> 
+             <tr> 
+              <td class="number"><code>12</code></td> 
+              <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">totalCount = 59215,</code></td> 
+             </tr> 
+            </tbody> 
+           </table> 
+          </div> 
+          <div class="line alt1"> 
+           <table> 
+            <tbody> 
+             <tr> 
+              <td class="number"><code>13</code></td> 
+              <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">threadId =&nbsp;</code><code class="Brush string">&quot;9IISVTCG0001124J&quot;</code><code class="Brush plain">,</code></td> 
+             </tr> 
+            </tbody> 
+           </table> 
+          </div> 
+          <div class="line alt2"> 
+           <table> 
+            <tbody> 
+             <tr> 
+              <td class="number"><code>14</code></td> 
+              <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">boardId =&nbsp;</code><code class="Brush string">&quot;news_guonei8_bbs&quot;</code><code class="Brush plain">,</code></td> 
+             </tr> 
+            </tbody> 
+           </table> 
+          </div> 
+          <div class="line alt1"> 
+           <table> 
+            <tbody> 
+             <tr> 
+              <td class="number"><code>15</code></td> 
+              <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">host = tieChannel,</code></td> 
+             </tr> 
+            </tbody> 
+           </table> 
+          </div> 
+          <div class="line alt2"> 
+           <table> 
+            <tbody> 
+             <tr> 
+              <td class="number"><code>16</code></td> 
+              <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">tId = tId;</code></td> 
+             </tr> 
+            </tbody> 
+           </table> 
+          </div> 
+          <div class="line alt1"> 
+           <table> 
+            <tbody> 
+             <tr> 
+              <td class="number"><code>17</code></td> 
+              <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">NTES(</code><code class="Brush string">&quot;.js-tielink&quot;</code><code class="Brush plain">).attr(</code><code class="Brush string">&quot;href&quot;</code><code class="Brush plain">,&nbsp;</code><code class="Brush string">&quot;<a href="http://comment./">http://comment.</a>&quot;</code><code class="Brush plain">+ host +&nbsp;</code><code class="Brush string">&quot;.163.com/&quot;</code>&nbsp;<code class="Brush plain">+ boardId +&nbsp;</code><code class="Brush string">&quot;/&quot;</code>&nbsp;<code class="Brush plain">+ threadId +&nbsp;</code><code class="Brush string">&quot;.html&quot;</code><code class="Brush plain">)</code></td> 
+             </tr> 
+            </tbody> 
+           </table> 
+          </div> 
+          <div class="line alt2"> 
+           <table> 
+            <tbody> 
+             <tr> 
+              <td class="number"><code>18</code></td> 
+              <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">NTES(</code><code class="Brush string">&quot;.js-tiecount&quot;</code><code class="Brush plain">).attr(</code><code class="Brush string">&quot;innerHTML&quot;</code><code class="Brush plain">, totalCount);</code></td> 
+             </tr> 
+            </tbody> 
+           </table> 
+          </div> 
+          <div class="line alt1"> 
+           <table> 
+            <tbody> 
+             <tr> 
+              <td class="number"><code>19</code></td> 
+              <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">NTES(</code><code class="Brush string">&quot;.js-joinCount&quot;</code><code class="Brush plain">).attr(</code><code class="Brush string">&quot;innerHTML&quot;</code><code class="Brush plain">, TieAnywhere.formatNumber(totalCount.toString(), 3));</code></td> 
+             </tr> 
+            </tbody> 
+           </table> 
+          </div> 
+          <div class="line alt2"> 
+           <table> 
+            <tbody> 
+             <tr> 
+              <td class="number"><code>20</code></td> 
+              <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">NTES(</code><code class="Brush string">&quot;.js-bjoinCount&quot;</code><code class="Brush plain">).attr(</code><code class="Brush string">&quot;innerHTML&quot;</code><code class="Brush plain">, TieAnywhere.formatNumber(totalCount.toString(), 3));</code></td> 
+             </tr> 
+            </tbody> 
+           </table> 
+          </div> 
+          <div class="line alt1"> 
+           <table> 
+            <tbody> 
+             <tr> 
+              <td class="number"><code>21</code></td> 
+              <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">NTES(</code><code class="Brush string">&quot;.js-actCount&quot;</code><code class="Brush plain">).attr(</code><code class="Brush string">&quot;innerHTML&quot;</code><code class="Brush plain">, TieAnywhere.formatNumber(replyCount.toString(), 3));</code></td> 
+             </tr> 
+            </tbody> 
+           </table> 
+          </div> 
+          <div class="line alt2"> 
+           <table> 
+            <tbody> 
+             <tr> 
+              <td class="number"><code>22</code></td> 
+              <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">NTES(</code><code class="Brush string">&quot;.js-bactCount&quot;</code><code class="Brush plain">).attr(</code><code class="Brush string">&quot;innerHTML&quot;</code><code class="Brush plain">, TieAnywhere.formatNumber(replyCount.toString(), 3));</code></td> 
+             </tr> 
+            </tbody> 
+           </table> 
+          </div> 
+          <div class="line alt1"> 
+           <table> 
+            <tbody> 
+             <tr> 
+              <td class="number"><code>23</code></td> 
+              <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush keyword">new</code>&nbsp;<code class="Brush plain">TieAnywhere.Tie({</code></td> 
+             </tr> 
+            </tbody> 
+           </table> 
+          </div> 
+          <div class="line alt2"> 
+           <table> 
+            <tbody> 
+             <tr> 
+              <td class="number"><code>24</code></td> 
+              <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">wraper: NTES(</code><code class="Brush string">&quot;#tieArea&quot;</code><code class="Brush plain">),</code></td> 
+             </tr> 
+            </tbody> 
+           </table> 
+          </div> 
+          <div class="line alt1"> 
+           <table> 
+            <tbody> 
+             <tr> 
+              <td class="number"><code>25</code></td> 
+              <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">threadId: threadId,</code></td> 
+             </tr> 
+            </tbody> 
+           </table> 
+          </div> 
+          <div class="line alt2"> 
+           <table> 
+            <tbody> 
+             <tr> 
+              <td class="number"><code>26</code></td> 
+              <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">boardId: boardId,</code></td> 
+             </tr> 
+            </tbody> 
+           </table> 
+          </div> 
+          <div class="line alt1"> 
+           <table> 
+            <tbody> 
+             <tr> 
+              <td class="number"><code>27</code></td> 
+              <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">host: host,</code></td> 
+             </tr> 
+            </tbody> 
+           </table> 
+          </div> 
+          <div class="line alt2"> 
+           <table> 
+            <tbody> 
+             <tr> 
+              <td class="number"><code>28</code></td> 
+              <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">isShowComment: isShowComments,</code></td> 
+             </tr> 
+            </tbody> 
+           </table> 
+          </div> 
+          <div class="line alt1"> 
+           <table> 
+            <tbody> 
+             <tr> 
+              <td class="number"><code>29</code></td> 
+              <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">isStrict: isStrict,</code></td> 
+             </tr> 
+            </tbody> 
+           </table> 
+          </div> 
+          <div class="line alt2"> 
+           <table> 
+            <tbody> 
+             <tr> 
+              <td class="number"><code>30</code></td> 
+              <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">tId: tId</code></td> 
+             </tr> 
+            </tbody> 
+           </table> 
+          </div> 
+          <div class="line alt1"> 
+           <table> 
+            <tbody> 
+             <tr> 
+              <td class="number"><code>31</code></td> 
+              <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">});</code></td> 
+             </tr> 
+            </tbody> 
+           </table> 
+          </div> 
+          <div class="line alt2"> 
+           <table> 
+            <tbody> 
+             <tr> 
+              <td class="number"><code>32</code></td> 
+              <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">})</code></td> 
+             </tr> 
+            </tbody> 
+           </table> 
+          </div> 
+          <div class="line alt1"> 
+           <table> 
+            <tbody> 
+             <tr> 
+              <td class="number"><code>33</code></td> 
+              <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">};</code></td> 
+             </tr> 
+            </tbody> 
+           </table> 
+          </div> 
+          <div class="line alt2"> 
+           <table> 
+            <tbody> 
+             <tr> 
+              <td class="number"><code>34</code></td> 
+              <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">tie_ready(</code><code class="Brush keyword">function</code><code class="Brush plain">() {</code></td> 
+             </tr> 
+            </tbody> 
+           </table> 
+          </div> 
+          <div class="line alt1"> 
+           <table> 
+            <tbody> 
+             <tr> 
+              <td class="number"><code>35</code></td> 
+              <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush keyword">if</code>&nbsp;<code class="Brush plain">(!window.NTES) {</code></td> 
+             </tr> 
+            </tbody> 
+           </table> 
+          </div> 
+          <div class="line alt2"> 
+           <table> 
+            <tbody> 
+             <tr> 
+              <td class="number"><code>36</code></td> 
+              <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">tie_load({ lib:&nbsp;</code><code class="Brush string">&quot;<a href="http://img1.cache.netease.com/cnews/js/ntes_jslib_1.x.js">http://img1.cache.netease.com/cnews/js/ntes_jslib_1.x.js</a>&quot;</code>&nbsp;<code class="Brush plain">},&nbsp;</code><code class="Brush keyword">function</code><code class="Brush plain">() {</code></td> 
+             </tr> 
+            </tbody> 
+           </table> 
+          </div> 
+          <div class="line alt1"> 
+           <table> 
+            <tbody> 
+             <tr> 
+              <td class="number"><code>37</code></td> 
+              <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">tieInit();</code></td> 
+             </tr> 
+            </tbody> 
+           </table> 
+          </div> 
+          <div class="line alt2"> 
+           <table> 
+            <tbody> 
+             <tr> 
+              <td class="number"><code>38</code></td> 
+              <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">},&nbsp;</code><code class="Brush string">&quot;GBK&quot;</code><code class="Brush plain">)</code></td> 
+             </tr> 
+            </tbody> 
+           </table> 
+          </div> 
+          <div class="line alt1"> 
+           <table> 
+            <tbody> 
+             <tr> 
+              <td class="number"><code>39</code></td> 
+              <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">}&nbsp;</code><code class="Brush keyword">else</code>&nbsp;<code class="Brush plain">{</code></td> 
+             </tr> 
+            </tbody> 
+           </table> 
+          </div> 
+          <div class="line alt2"> 
+           <table> 
+            <tbody> 
+             <tr> 
+              <td class="number"><code>40</code></td> 
+              <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">tieInit();</code></td> 
+             </tr> 
+            </tbody> 
+           </table> 
+          </div> 
+          <div class="line alt1"> 
+           <table> 
+            <tbody> 
+             <tr> 
+              <td class="number"><code>41</code></td> 
+              <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">};</code></td> 
+             </tr> 
+            </tbody> 
+           </table> 
+          </div> 
+          <div class="line alt2"> 
+           <table> 
+            <tbody> 
+             <tr> 
+              <td class="number"><code>42</code></td> 
+              <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">});</code></td> 
+             </tr> 
+            </tbody> 
+           </table> 
+          </div> 
+          <div class="line alt1"> 
+           <table> 
+            <tbody> 
+             <tr> 
+              <td class="number"><code>43</code></td> 
+              <td class="content"><code class="Brush plain">&lt;/script&gt;</code></td> 
+             </tr> 
+            </tbody> 
+           </table> 
+          </div> 
+          <div class="line alt2"> 
+           <table> 
+            <tbody> 
+             <tr> 
+              <td class="number"><code>44</code></td> 
+              <td class="content"><code class="Brush plain">&lt;!--tie end--&gt;</code></td> 
+             </tr> 
+            </tbody> 
+           </table> 
+          </div> 
+         </div> 
+        </div> 
+        <p>&nbsp;</p> 
+        <div>
+         <strong>新闻的所有评论页面地址</strong>：http://comment.news.163.com/
+         <strong>boardId</strong>/
+         <strong>新闻ID</strong>.html，例如
+         <a href="http://comment.news.163.com/news_guonei8_bbs/9IISVTCG0001124J.html" target="_blank">http://comment.news.163.com/news_guonei8_bbs/9IISVTCG0001124J.html</a>。关于boardId及新闻ID，请参见上面一项。
+        </div> 
+        <div>
+         &nbsp;
+        </div> 
+        <div>
+         <del>在该页面下评论数目为：很有可能在data变量的tcount中。即“data.tcount”</del>
+        </div> 
+        <div>
+         <del>其中正常的评论链接格式如下：http://comment.news.163.com/cache/newlist/news_guonei8_bbs/9IISVTCG0001124J_1.html，但是会有乱码，评论之间通过”return tiePage.showPage(4);“</del>
+        </div> 
+        <div>
+         &nbsp;
+        </div> 
+        <div>
+         &nbsp;
+        </div> 
+        <div>
+         <strong>热门评论的链接格式如下</strong>：
+        </div> 
+        <div>
+         20160415注：我发现网易新闻大改版了，新闻页内容变成了GBK编码，而热门评论的Ajax接口也换了，所以我在这里也更新之前博客写的内容。
+        </div> 
+        <div>
+         http://comment.news.163.com/api/v1/products/a2869674571f77b5a0867c3d71db5856/threads/
+         <strong>新闻ID</strong>/comments/hotTopList?offset=
+         <strong>从第几条开始(通常为0)</strong>&amp;limit=
+         <strong>返回数量上限</strong>&amp;showLevelThreshold=72&amp;headLimit=1&amp;tailLimit=2&amp;callback=getData&amp;ibc=newspc，URL里面的其它参数就不做详细分析了，上面的格式的一个例子如下：http://comment.news.163.com/api/v1/products/a2869674571f77b5a0867c3d71db5856/threads/BKMGMST50001124J/comments/hotTopList?offset=0&amp;limit=40&amp;showLevelThreshold=72&amp;headLimit=1&amp;tailLimit=2&amp;callback=getData&amp;ibc=newspc，这个评论页面有点不同，它返回的不是一个json文件，而是一个Javascript的变量(JSONP回调)，评论内容就在花括号内，它是一个json，因此要更好地观察具体的内容，你应该新建一个文件（例如comment.json），然后把花括号
+         <strong>“{}”</strong>之间的内容（包括花括号本身）复制出来粘贴到comment.json中，接着用浏览器打开comment.json文件。然后你会看到“热门评论”在’comments’字段中。
+         <del>评论之间通过”return tiePage.showHotPage(4);“来实现翻页，感觉页面是缓存起来的……一次全部下载完。</del>编码是UTF-8的，如果乱码那么可以对浏览器选择编码为UTF-8。在实际处理文本内容的时候注意好编码问题。
+        </div> 
+        <div>
+         现在开始分析一下网易新闻评论中各个字段含义：
+        </div> 
+       </div> 
+       <div>
+        前面的数字表示评论id；
+       </div> 
+       <ul> 
+        <li>里面的部分buildLevel表示盖楼数（应该是）；</li> 
+        <li>content表示评论内容；</li> 
+        <li>createTime就是评论发表时间；</li> 
+        <li>postId就是新闻id与评论id拼起来后的字符串；</li> 
+        <li>user就是用户相关的信息，通常我们关心里面的nickname即用户名称即可</li> 
+        <li>vote就是被顶的次数</li> 
+       </ul> 
+       <div>
+        &nbsp;
+       </div> 
+       <div id="highlighter_397167" class="syntaxhighlighter  Brush"> 
+        <div class="lines"> 
+         <div class="line alt1"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>01</code></td> 
+             <td class="content"><code class="Brush plain">931804338: {</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt2"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>02</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">against: 0,</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt1"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>03</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">anonymous:&nbsp;</code><code class="Brush keyword">false</code><code class="Brush plain">,</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt2"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>04</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">buildLevel: 1,</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt1"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>05</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">commentId: 931804338,</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt2"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>06</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">content:&nbsp;</code><code class="Brush string">&quot;必须的！猪肉都涨了30%以上！&quot;</code><code class="Brush plain">,</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt1"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>07</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">createTime:&nbsp;</code><code class="Brush string">&quot;2016-04-15 10:48:13&quot;</code><code class="Brush plain">,</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt2"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>08</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">favCount: 0,</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt1"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>09</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">ip:&nbsp;</code><code class="Brush string">&quot;219.137.*.*&quot;</code><code class="Brush plain">,</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt2"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>10</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">isDel:&nbsp;</code><code class="Brush keyword">false</code><code class="Brush plain">,</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt1"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>11</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">postId:&nbsp;</code><code class="Brush string">&quot;BKMGMST50001124J_931804338&quot;</code><code class="Brush plain">,</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt2"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>12</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">shareCount: 0,</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt1"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>13</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">source:&nbsp;</code><code class="Brush string">&quot;wb&quot;</code><code class="Brush plain">,</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt2"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>14</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">user: {</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt1"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>15</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">avatar:&nbsp;</code><code class="Brush string">&quot;<a href="http://img2.ph.126.net/aVsKiVqjtytuhlIaVBWLPw==/656118170730205310.jpg">http://img2.ph.126.net/aVsKiVqjtytuhlIaVBWLPw==/656118170730205310.jpg</a>&quot;</code><code class="Brush plain">,</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt2"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>16</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">id:&nbsp;</code><code class="Brush string">&quot;ZmFyZXdlbGxfdWNrQDE2My5jb20=&quot;</code><code class="Brush plain">,</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt1"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>17</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">label:&nbsp;</code><code class="Brush string">&quot;[{&quot;</code><code class="Brush plain">endTime</code><code class="Brush string">&quot;:&quot;</code><code class="Brush plain">1457574655664</code><code class="Brush string">&quot;,&quot;</code><code class="Brush plain">startTime</code><code class="Brush string">&quot;:&quot;</code><code class="Brush plain">1457488255663</code><code class="Brush string">&quot;,&quot;</code><code class="Brush plain">tagKey</code><code class="Brush string">&quot;:&quot;</code><code class="Brush plain">100</code><code class="Brush string">&quot;},{&quot;</code><code class="Brush plain">endTime</code><code class="Brush string">&quot;:&quot;</code><code class="Brush plain">1457523423909</code><code class="Brush string">&quot;,&quot;</code><code class="Brush plain">startTime</code><code class="Brush string">&quot;:&quot;</code><code class="Brush plain">1457437023908</code><code class="Brush string">&quot;,&quot;</code><code class="Brush plain">tagKey</code><code class="Brush string">&quot;:&quot;</code><code class="Brush plain">101</code><code class="Brush string">&quot;},{&quot;</code><code class="Brush plain">endTime</code><code class="Brush string">&quot;:&quot;</code><code class="Brush plain">1457173148975</code><code class="Brush string">&quot;,&quot;</code><code class="Brush plain">startTime</code><code class="Brush string">&quot;:&quot;</code><code class="Brush plain">1457086748974</code><code class="Brush string">&quot;,&quot;</code><code class="Brush plain">tagKey</code><code class="Brush string">&quot;:&quot;</code><code class="Brush plain">102</code><code class="Brush string">&quot;},{&quot;</code><code class="Brush plain">endTime</code><code class="Brush string">&quot;:&quot;</code><code class="Brush plain">1454603975126</code><code class="Brush string">&quot;,&quot;</code><code class="Brush plain">startTime</code><code class="Brush string">&quot;:&quot;</code><code class="Brush plain">1454517575126</code><code class="Brush string">&quot;,&quot;</code><code class="Brush plain">tagKey</code><code class="Brush string">&quot;:&quot;</code><code class="Brush plain">103</code><code class="Brush string">&quot;},{&quot;</code><code class="Brush plain">endTime</code><code class="Brush string">&quot;:&quot;</code><code class="Brush plain">1456968812620</code><code class="Brush string">&quot;,&quot;</code><code class="Brush plain">startTime</code><code class="Brush string">&quot;:&quot;</code><code class="Brush plain">1456882412619</code><code class="Brush string">&quot;,&quot;</code><code class="Brush plain">tagKey</code><code class="Brush string">&quot;:&quot;</code><code class="Brush plain">104</code><code class="Brush string">&quot;},{&quot;</code><code class="Brush plain">endTime</code><code class="Brush string">&quot;:&quot;</code><code class="Brush plain">1457074346651</code><code class="Brush string">&quot;,&quot;</code><code class="Brush plain">startTime</code><code class="Brush string">&quot;:&quot;</code><code class="Brush plain">1456987946651</code><code class="Brush string">&quot;,&quot;</code><code class="Brush plain">tagKey</code><code class="Brush string">&quot;:&quot;</code><code class="Brush plain">105</code><code class="Brush string">&quot;}]&quot;</code><code class="Brush plain">,</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt2"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>18</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">location:&nbsp;</code><code class="Brush string">&quot;广东省广州市增城市&quot;</code><code class="Brush plain">,</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt1"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>19</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">nickname:&nbsp;</code><code class="Brush string">&quot;见朕骑妓的時刻到了&quot;</code><code class="Brush plain">,</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt2"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>20</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">userId: 58444404</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt1"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>21</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">},&nbsp;</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt2"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>22</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">vote: 51</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt1"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>23</code></td> 
+             <td class="content"><code class="Brush plain">}</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+        </div> 
+       </div> 
+       <div>
+        &nbsp;
+       </div> 
+       <div>
+        有没有觉得网易新闻的评论内容中key都很短？而且几乎没有冗余信息。
+       </div> 
+       <div>
+        接下来就是将上述的评论进行格式规范化，假设这个json变量名为js，i为遍历时的下标：
+       </div> 
+       <div> 
+        <div id="highlighter_689059" class="syntaxhighlighter  Brush"> 
+         <div class="lines"> 
+          <div class="line alt1"> 
+           <table> 
+            <tbody> 
+             <tr> 
+              <td class="number"><code>1</code></td> 
+              <td class="content"><code class="Brush plain">{</code></td> 
+             </tr> 
+            </tbody> 
+           </table> 
+          </div> 
+          <div class="line alt2"> 
+           <table> 
+            <tbody> 
+             <tr> 
+              <td class="number"><code>2</code></td> 
+              <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush string">‘source‘</code>&nbsp;<code class="Brush plain">:&nbsp;</code><code class="Brush string">‘netease‘</code><code class="Brush plain">,</code></td> 
+             </tr> 
+            </tbody> 
+           </table> 
+          </div> 
+          <div class="line alt1"> 
+           <table> 
+            <tbody> 
+             <tr> 
+              <td class="number"><code>3</code></td> 
+              <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush string">‘user‘</code>&nbsp;<code class="Brush plain">: js[</code><code class="Brush string">‘comments‘</code><code class="Brush plain">][i][</code><code class="Brush string">‘user‘</code><code class="Brush plain">][</code><code class="Brush string">‘nickname‘</code><code class="Brush plain">],</code></td> 
+             </tr> 
+            </tbody> 
+           </table> 
+          </div> 
+          <div class="line alt2"> 
+           <table> 
+            <tbody> 
+             <tr> 
+              <td class="number"><code>4</code></td> 
+              <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush string">‘time‘</code>&nbsp;<code class="Brush plain">: js[</code><code class="Brush string">‘comments‘</code><code class="Brush plain">][i][</code><code class="Brush string">‘createTime‘</code><code class="Brush plain">],&nbsp;</code><code class="Brush comments">//原格式“%Y-%m-%d %H:%M:%S”，要转换成10位长度的时间戳</code></td> 
+             </tr> 
+            </tbody> 
+           </table> 
+          </div> 
+          <div class="line alt1"> 
+           <table> 
+            <tbody> 
+             <tr> 
+              <td class="number"><code>5</code></td> 
+              <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush string">‘content‘</code>&nbsp;<code class="Brush plain">: js[</code><code class="Brush string">‘comments‘</code><code class="Brush plain">][i][</code><code class="Brush string">‘content‘</code><code class="Brush plain">]</code></td> 
+             </tr> 
+            </tbody> 
+           </table> 
+          </div> 
+          <div class="line alt2"> 
+           <table> 
+            <tbody> 
+             <tr> 
+              <td class="number"><code>6</code></td> 
+              <td class="content"><code class="Brush plain">}</code></td> 
+             </tr> 
+            </tbody> 
+           </table> 
+          </div> 
+         </div> 
+        </div> 
+        <p>&nbsp;</p> 
+        <div>
+         要注意的是，上面的’n’不是一定存在的，因为如果有N楼，那么除了最后一层楼外，从1~N-1楼都是没有’n’标签的。呼，网易新闻的也搞掂了。
+        </div> 
+        <div>
+         &nbsp;
+        </div> 
+        <h2><a name="t6"></a>3.3 新浪新闻</h2> 
+        <div>
+         新浪（评论好像是GBK编码）
+        </div> 
+        <div> 
+         <div>
+          &nbsp;
+         </div> 
+         <div>
+          新浪新闻的URL规则好复杂，推敲了很久才搞明白。
+         </div> 
+         <div>
+          <strong>新闻（非专题类）地址格式</strong>：http://news.sina.com.cn/
+          <strong>字母c或者w（c表示和中国有关，w表示和中国没有直接关系的世界新闻）</strong>/
+          <strong>年-月-日</strong>/
+          <strong>小时分钟(</strong>4位数字)及新闻ID的后8位.shtml，例如
+          <a href="http://news.sina.com.cn/c/2014-01-19/021929283928.shtml" target="_blank">http://news.sina.com.cn/c/2014-01-19/021929283928.shtml</a>。新浪新闻的地址还有一些地址格式有“变种”，例如：http://news.sina.com.cn/c/
+          <strong>sd</strong>/2014-01-24/152429336501.shtml，http://news.sina.com.cn/w/p/2014-01-24/154829336676.shtml，还有诸如http://weather.news.sina.com.cn/news/2014/0124/072298232.html和http://mil.news.sina.com.cn/2014-01-24/0839761572.html。
+         </div> 
+         <div>
+          <strong>所以综合以上所述，最完整的地址格式应该是</strong>：http://
+          <strong>[类别.]</strong>news.sina.com.cn/
+          <strong>一堆可能出现的东西</strong>/
+          <strong>日期（注意这里的日期格式可能是“年-月-日”也可能是“年/月”）</strong>/
+          <strong>小时分钟（4位数字）及新闻ID的后8位</strong>.
+          <strong>shtml或者html</strong>
+         </div> 
+         <div>
+          有点蛋碎的感觉，不过没事，这些都是一个正则表达式就搞掂的事。
+         </div> 
+         <div>
+          新浪新闻有一个新闻ID和评论通道，这两个东西都比较麻烦，但又很关键，我这里先说获取的方法，下面就知道用途了。以下是
+          <strong>新闻ID</strong>获取方法和
+          <strong>评论通道</strong>获取方法，在新闻详细页面看到找到以下两行：
+         </div> 
+         <div> 
+          <div id="highlighter_796203" class="syntaxhighlighter  Brush"> 
+           <div class="lines"> 
+            <div class="line alt1"> 
+             <table> 
+              <tbody> 
+               <tr> 
+                <td class="number"><code>1</code></td> 
+                <td class="content"><code class="Brush plain">&lt;meta name=</code><code class="Brush string">&quot;comment&quot;</code>&nbsp;<code class="Brush plain">content=</code><code class="Brush string">&quot;kj:2-1-9122947&quot;</code><code class="Brush plain">&gt;</code></td> 
+               </tr> 
+              </tbody> 
+             </table> 
+            </div> 
+            <div class="line alt2"> 
+             <table> 
+              <tbody> 
+               <tr> 
+                <td class="number"><code>2</code></td> 
+                <td class="content"><code class="Brush plain">&lt;meta name=</code><code class="Brush string">&quot;sudameta&quot;</code>&nbsp;<code class="Brush plain">content=</code><code class="Brush string">&quot;comment_channel:kj;comment_id:2-1-9122947&quot;</code><code class="Brush plain">&gt;</code></td> 
+               </tr> 
+              </tbody> 
+             </table> 
+            </div> 
+           </div> 
+          </div> 
+          <p>&nbsp;</p> 
+         </div> 
+        </div> 
+       </div> 
+       <div>
+        comment_id同时也是官方所谓的newsid，comment_id的组成是：channelId-1-新闻Id后8位，其中中间的1还不知道是什么意思，comment_channel就是评论通道。
+       </div> 
+       <div>
+        <strong>新闻页面获取评论的方法</strong>：http://comment5.news.sina.com.cn/page/info?format=
+        <strong>格式（可选json,js）</strong>&amp;channel=
+        <strong>板块（通常是2个字母</strong>）&amp;newsid=
+        <strong>评论ID(即上面的comment_id</strong>
+        <strong>)</strong>&amp;group=
+        <strong>0(默认为0)</strong>&amp;compress=1&amp;ie=gbk&amp;oe=gbk&amp;page=
+        <strong>第几页（数字越大评论越旧）</strong>&amp;page_size=
+        <strong>缓存的评论数（并非展示的评论数）</strong>&amp;jsvar=requestId_
+        <strong>貌似是个随机整数（非常不确定）</strong>，例如
+        <a href="http://comment5.news.sina.com.cn/page/info?format=json&amp;channel=gn&amp;newsid=1-1-29283928&amp;group=0&amp;compress=1&amp;ie=gbk&amp;oe=gbk&amp;page=1&amp;page_size=100&amp;jsvar=requestId_24959748" target="_blank">http://comment5.news.sina.com.cn/page/info?format=json&amp;channel=gn&amp;newsid=1-1-29283928&amp;group=0&amp;compress=1&amp;ie=gbk&amp;oe=gbk&amp;page=1&amp;page_size=100&amp;jsvar=requestId_24959748</a>，返回的内容是所有的评论，热门评论在“hot_list”中，关联的新闻信息在“news”中，正常的评论在“cmtlist”中，另外包含一些在“replydict”中的东西，不知道是什么。其中评论数目在“count”的“show”中
+       </div> 
+       <div>
+        &nbsp;
+       </div> 
+       <div>
+        <strong>对应的所有评论页面地址</strong>：http://comment5.news.sina.com.cn/comment/skin/default.html?channel=
+        <strong>板块（见上面的解释）</strong>&amp;newsid=
+        <strong>评论ID</strong>，
+        <a href="http://comment5.news.sina.com.cn/comment/skin/default.html?channel=gn&amp;newsid=1-1-29283928" target="_blank">http://comment5.news.sina.com.cn/comment/skin/default.html?channel=gn&amp;newsid=1-1-29283928</a>。
+       </div> 
+       <div>
+        &nbsp;
+       </div> 
+       <div>
+        最后把得到的评论的格式规范化。假设这个json变量名为js，i为遍历时的下标：
+       </div> 
+       <div> 
+        <div id="highlighter_632508" class="syntaxhighlighter  Brush"> 
+         <div class="lines"> 
+          <div class="line alt1"> 
+           <table> 
+            <tbody> 
+             <tr> 
+              <td class="number"><code>1</code></td> 
+              <td class="content"><code class="Brush plain">{</code></td> 
+             </tr> 
+            </tbody> 
+           </table> 
+          </div> 
+          <div class="line alt2"> 
+           <table> 
+            <tbody> 
+             <tr> 
+              <td class="number"><code>2</code></td> 
+              <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush string">‘source‘</code>&nbsp;<code class="Brush plain">:&nbsp;</code><code class="Brush string">‘sina‘</code><code class="Brush plain">,</code></td> 
+             </tr> 
+            </tbody> 
+           </table> 
+          </div> 
+          <div class="line alt1"> 
+           <table> 
+            <tbody> 
+             <tr> 
+              <td class="number"><code>3</code></td> 
+              <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush string">‘user‘</code>&nbsp;<code class="Brush plain">: js[</code><code class="Brush string">‘hot_list‘</code><code class="Brush plain">][i][</code><code class="Brush string">‘nick‘</code><code class="Brush plain">],</code></td> 
+             </tr> 
+            </tbody> 
+           </table> 
+          </div> 
+          <div class="line alt2"> 
+           <table> 
+            <tbody> 
+             <tr> 
+              <td class="number"><code>4</code></td> 
+              <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush string">‘time‘</code>&nbsp;<code class="Brush plain">: js[</code><code class="Brush string">‘hot_list‘</code><code class="Brush plain">][i][</code><code class="Brush string">‘time‘</code><code class="Brush plain">],&nbsp;</code><code class="Brush comments">//原格式“%Y-%m-%d %H:%M:%S”，要转换为10位时间戳</code></td> 
+             </tr> 
+            </tbody> 
+           </table> 
+          </div> 
+          <div class="line alt1"> 
+           <table> 
+            <tbody> 
+             <tr> 
+              <td class="number"><code>5</code></td> 
+              <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush string">‘content‘</code>&nbsp;<code class="Brush plain">: js[</code><code class="Brush string">‘hot_list‘</code><code class="Brush plain">][i][</code><code class="Brush string">‘content‘</code><code class="Brush plain">]</code></td> 
+             </tr> 
+            </tbody> 
+           </table> 
+          </div> 
+          <div class="line alt2"> 
+           <table> 
+            <tbody> 
+             <tr> 
+              <td class="number"><code>6</code></td> 
+              <td class="content"><code class="Brush plain">}</code></td> 
+             </tr> 
+            </tbody> 
+           </table> 
+          </div> 
+         </div> 
+        </div> 
+        <p>&nbsp;</p> 
+       </div> 
+       <h1>4 最终格式及补充说明</h1> 
+       <div>
+        在新闻格式规范化里面提到了那个格式不是最终的格式，原因就在于实现
+        <a title="吹水新闻" href="http://news.reetsee.com/" target="_blank">http://news.reetsee.com</a>（或者我以后直接叫吹水新闻……）功能的时候，当点击了新闻标题时，评论应该是实时获取的（不应该是爬取新闻一样一开始就使用爬虫下载下来），所以我们需要直接拿到评论的具体内容，不能通过评论页面去获取，而应该直接使用获取新闻评论的json接口（就是上面所有的返回数据格式为json的地址），那么就需要我们根据规则直接拼出接口的URL，这些URL中可能会有日期、新闻ID、评论ID、板块ID等不同的变量，所以我们不妨把它直接放到新闻格式规范化的结果中。为什么不直接等点击链接的时候再到新闻页面获取这些ID？因为这样网速会太慢了。
+       </div> 
+       <div>
+        根据实际需求，腾讯、网易、新浪的新闻保存格式如下：
+       </div> 
+       <div>
+        <strong>腾讯</strong>：
+       </div> 
+       <div> 
+        <div id="highlighter_289833" class="syntaxhighlighter  Brush"> 
+         <div class="lines"> 
+          <div class="line alt1"> 
+           <table> 
+            <tbody> 
+             <tr> 
+              <td class="number"><code>01</code></td> 
+              <td class="content"><code class="Brush plain">{</code></td> 
+             </tr> 
+            </tbody> 
+           </table> 
+          </div> 
+          <div class="line alt2"> 
+           <table> 
+            <tbody> 
+             <tr> 
+              <td class="number"><code>02</code></td> 
+              <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush string">‘source‘</code>&nbsp;&nbsp;&nbsp;<code class="Brush plain">:&nbsp;</code><code class="Brush string">‘tencent‘</code><code class="Brush plain">,</code></td> 
+             </tr> 
+            </tbody> 
+           </table> 
+          </div> 
+          <div class="line alt1"> 
+           <table> 
+            <tbody> 
+             <tr> 
+              <td class="number"><code>03</code></td> 
+              <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush string">‘date‘</code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="Brush plain">:&nbsp;</code><code class="Brush string">‘20140214‘</code><code class="Brush plain">,</code></td> 
+             </tr> 
+            </tbody> 
+           </table> 
+          </div> 
+          <div class="line alt2"> 
+           <table> 
+            <tbody> 
+             <tr> 
+              <td class="number"><code>04</code></td> 
+              <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush string">‘newsId‘</code>&nbsp;&nbsp;&nbsp;<code class="Brush plain">:&nbsp;</code><code class="Brush string">‘015412‘</code><code class="Brush plain">,</code></td> 
+             </tr> 
+            </tbody> 
+           </table> 
+          </div> 
+          <div class="line alt1"> 
+           <table> 
+            <tbody> 
+             <tr> 
+              <td class="number"><code>05</code></td> 
+              <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush string">‘cmtId‘</code>&nbsp;&nbsp;&nbsp;&nbsp;<code class="Brush plain">:&nbsp;</code><code class="Brush string">‘1004980094‘</code><code class="Brush plain">,</code></td> 
+             </tr> 
+            </tbody> 
+           </table> 
+          </div> 
+          <div class="line alt2"> 
+           <table> 
+            <tbody> 
+             <tr> 
+              <td class="number"><code>06</code></td> 
+              <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush string">‘contents‘</code>&nbsp;<code class="Brush plain">: {</code></td> 
+             </tr> 
+            </tbody> 
+           </table> 
+          </div> 
+          <div class="line alt1"> 
+           <table> 
+            <tbody> 
+             <tr> 
+              <td class="number"><code>07</code></td> 
+              <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush string">‘link‘</code>&nbsp;&nbsp;&nbsp;<code class="Brush plain">:&nbsp;</code><code class="Brush string">‘<a href="http://news.qq.com/a/20140214/015412.htm">http://news.qq.com/a/20140214/015412.htm</a>‘</code><code class="Brush plain">,</code></td> 
+             </tr> 
+            </tbody> 
+           </table> 
+          </div> 
+          <div class="line alt2"> 
+           <table> 
+            <tbody> 
+             <tr> 
+              <td class="number"><code>08</code></td> 
+              <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush string">‘title‘</code>&nbsp;&nbsp;<code class="Brush plain">:&nbsp;</code><code class="Brush string">‘哈尔滨一夜清查酒店洗浴等2700余家‘</code><code class="Brush plain">,</code></td> 
+             </tr> 
+            </tbody> 
+           </table> 
+          </div> 
+          <div class="line alt1"> 
+           <table> 
+            <tbody> 
+             <tr> 
+              <td class="number"><code>09</code></td> 
+              <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush string">‘passage‘</code><code class="Brush plain">:&nbsp;</code><code class="Brush string">‘正文内容‘</code></td> 
+             </tr> 
+            </tbody> 
+           </table> 
+          </div> 
+          <div class="line alt2"> 
+           <table> 
+            <tbody> 
+             <tr> 
+              <td class="number"><code>10</code></td> 
+              <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">},</code></td> 
+             </tr> 
+            </tbody> 
+           </table> 
+          </div> 
+          <div class="line alt1"> 
+           <table> 
+            <tbody> 
+             <tr> 
+              <td class="number"><code>11</code></td> 
+              <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush string">‘comments‘</code>&nbsp;<code class="Brush plain">: {</code></td> 
+             </tr> 
+            </tbody> 
+           </table> 
+          </div> 
+          <div class="line alt2"> 
+           <table> 
+            <tbody> 
+             <tr> 
+              <td class="number"><code>12</code></td> 
+              <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush string">‘link‘</code>&nbsp;<code class="Brush plain">:&nbsp;</code><code class="Brush string">‘<a href="http://coral.qq.com/1004980094">http://coral.qq.com/1004980094</a>‘</code><code class="Brush plain">,</code></td> 
+             </tr> 
+            </tbody> 
+           </table> 
+          </div> 
+          <div class="line alt1"> 
+           <table> 
+            <tbody> 
+             <tr> 
+              <td class="number"><code>13</code></td> 
+              <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">}</code></td> 
+             </tr> 
+            </tbody> 
+           </table> 
+          </div> 
+          <div class="line alt2"> 
+           <table> 
+            <tbody> 
+             <tr> 
+              <td class="number"><code>14</code></td> 
+              <td class="content"><code class="Brush plain">}</code></td> 
+             </tr> 
+            </tbody> 
+           </table> 
+          </div> 
+         </div> 
+        </div> 
+        <p>&nbsp;</p> 
+       </div> 
+       <p><strong>网易</strong>：</p> 
+       <div id="highlighter_285128" class="syntaxhighlighter  Brush"> 
+        <div class="lines"> 
+         <div class="line alt1"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>01</code></td> 
+             <td class="content"><code class="Brush plain">{</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt2"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>02</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush string">‘source‘</code>&nbsp;&nbsp;&nbsp;<code class="Brush plain">:&nbsp;</code><code class="Brush string">‘netease‘</code><code class="Brush plain">,</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt1"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>03</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush string">‘date‘</code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="Brush plain">:&nbsp;</code><code class="Brush string">‘20140214‘</code><code class="Brush plain">,</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt2"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>04</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush string">‘newsId‘</code>&nbsp;&nbsp;&nbsp;<code class="Brush plain">:&nbsp;</code><code class="Brush string">‘9L2525NG0001124J‘</code><code class="Brush plain">,</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt1"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>05</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush string">‘cmtId‘</code>&nbsp;&nbsp;&nbsp;&nbsp;<code class="Brush plain">:&nbsp;</code><code class="Brush string">‘9L2525NG0001124J‘</code><code class="Brush plain">,</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt2"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>06</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush string">‘boardId‘</code>&nbsp;&nbsp;<code class="Brush plain">:&nbsp;</code><code class="Brush string">‘news_guonei8_bbs‘</code><code class="Brush plain">,</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt1"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>07</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush string">‘contents‘</code>&nbsp;<code class="Brush plain">: {</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt2"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>08</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush string">‘link‘</code>&nbsp;&nbsp;&nbsp;&nbsp;<code class="Brush plain">:&nbsp;</code><code class="Brush string">‘<a href="http://news.163.com/14/0214/14/9L2525NG0001124J.html">http://news.163.com/14/0214/14/9L2525NG0001124J.html</a>‘</code><code class="Brush plain">,</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt1"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>09</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush string">‘title‘</code>&nbsp;&nbsp;&nbsp;<code class="Brush plain">:&nbsp;</code><code class="Brush string">‘哈尔滨4800余警力一夜清查酒店洗浴等2700余家‘</code><code class="Brush plain">,</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt2"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>10</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush string">‘passage‘</code>&nbsp;<code class="Brush plain">:&nbsp;</code><code class="Brush string">‘正文内容‘</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt1"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>11</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">},</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt2"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>12</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush string">‘comments‘</code>&nbsp;<code class="Brush plain">: {</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt1"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>13</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush string">‘link‘</code>&nbsp;<code class="Brush plain">:&nbsp;</code><code class="Brush string">‘<a href="http://comment.news.163.com/news_guonei8_bbs/9L2525NG0001124J.html">http://comment.news.163.com/news_guonei8_bbs/9L2525NG0001124J.html</a>‘</code><code class="Brush plain">,</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt2"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>14</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">},</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt1"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>15</code></td> 
+             <td class="content"><code class="Brush plain">}</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+        </div> 
+       </div> 
+       <p><strong>新浪</strong>：</p> 
+       <div id="highlighter_185740" class="syntaxhighlighter  Brush"> 
+        <div class="lines"> 
+         <div class="line alt1"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>01</code></td> 
+             <td class="content"><code class="Brush plain">{</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt2"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>02</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush string">‘source‘</code>&nbsp;&nbsp;&nbsp;&nbsp;<code class="Brush plain">:&nbsp;</code><code class="Brush string">‘sina‘</code><code class="Brush plain">,</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt1"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>03</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush string">‘date‘</code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="Brush plain">:&nbsp;</code><code class="Brush string">‘20140214‘</code><code class="Brush plain">,</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt2"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>04</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush string">‘newsId‘</code>&nbsp;&nbsp;&nbsp;&nbsp;<code class="Brush plain">:&nbsp;</code><code class="Brush string">‘1-1-29471498‘</code><code class="Brush plain">,</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt1"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>05</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush string">‘cmtId‘</code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="Brush plain">:&nbsp;</code><code class="Brush string">‘1-1-29471498‘</code><code class="Brush plain">,</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt2"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>06</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush string">‘channelId‘</code>&nbsp;<code class="Brush plain">:&nbsp;</code><code class="Brush string">‘gn‘</code><code class="Brush plain">,</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt1"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>07</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush string">‘contents‘</code>&nbsp;&nbsp;<code class="Brush plain">: {</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt2"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>08</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush string">‘link‘</code>&nbsp;&nbsp;&nbsp;&nbsp;<code class="Brush plain">:&nbsp;</code><code class="Brush string">‘<a href="http://news.sina.com.cn/c/2014-02-14/142829471498.shtml">http://news.sina.com.cn/c/2014-02-14/142829471498.shtml</a>‘</code><code class="Brush plain">,</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt1"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>09</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush string">‘title‘</code>&nbsp;&nbsp;&nbsp;<code class="Brush plain">:&nbsp;</code><code class="Brush string">‘哈尔滨4800余警力一夜清查2700家酒店洗浴场所‘</code><code class="Brush plain">,</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt2"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>10</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush string">‘passage‘</code>&nbsp;<code class="Brush plain">:&nbsp;</code><code class="Brush string">‘正文内容‘</code><code class="Brush plain">,</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt1"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>11</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">},</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt2"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>12</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush string">‘comments‘</code>&nbsp;&nbsp;<code class="Brush plain">: {</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt1"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>13</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush string">‘link‘</code>&nbsp;<code class="Brush plain">:&nbsp;</code><code class="Brush string">‘<a href="http://comment5.news.sina.com.cn/comment/skin/default.html?channel=gn&amp;newsid=1-1-29471498">http://comment5.news.sina.com.cn/comment/skin/default.html?channel=gn&amp;newsid=1-1-29471498</a>‘</code><code class="Brush plain">,</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt2"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>14</code></td> 
+             <td class="content"><code class="spaces">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code><code class="Brush plain">},</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+         <div class="line alt1"> 
+          <table> 
+           <tbody> 
+            <tr> 
+             <td class="number"><code>15</code></td> 
+             <td class="content"><code class="Brush plain">}</code></td> 
+            </tr> 
+           </tbody> 
+          </table> 
+         </div> 
+        </div> 
+       </div> 
+       <p>&nbsp;</p> 
+       <div>
+        上面的格式其实一看就是有问题的，因为扩展性太差了，这也是我第一次设计囿于时间、经验等造成的，各位自己设计的时候就可以设计得更加好。
+       </div> 
+       <div>
+        这篇东西敲了好久，我想想怎么把文字表述转换一下……使它看起来比较书面一些……然后放到论文中凑凑字数什么的……
+       </div> 
+       <div>
+        过一段时间还会有一篇将毕业设计的设计过程的，那篇也存了草稿很久了，有空再看什么时间弄一弄。
+       </div> 
+       <div>
+        &nbsp;
+       </div> 
+       <div>
+        祝大家五一节快乐！放假期间还在看这篇博文的人，都是宅男啊。（
+        <strong>那写这篇东西的我呢</strong>！？我了个去）
+       </div> 
+       <div>
+        <strong>转载请注明：</strong>&nbsp;
+        <a href="http://blog.reetsee.com/">吹水小镇 | reetsee.com</a>
+        <br />
+        <strong>原文链接地址：</strong>&nbsp;
+        <a href="http://blog.reetsee.com/archives/237">http://blog.reetsee.com/archives/237</a>
+       </div>
+       <p>标签：<a href="http://www.dongcoder.com/s/1/%e9%80%9a%e8%bf%87" title="标签：通过" target="_blank">通过</a>&nbsp;&nbsp;&nbsp;<a href="http://www.dongcoder.com/s/1/%e7%94%b5%e8%84%91" title="标签：电脑" target="_blank">电脑</a>&nbsp;&nbsp;&nbsp;<a href="http://www.dongcoder.com/s/1/%e8%a1%a8%e6%a0%bc" title="标签：表格" target="_blank">表格</a>&nbsp;&nbsp;&nbsp;<a href="http://www.dongcoder.com/s/1/%e4%bb%8b%e7%bb%8d" title="标签：介绍" target="_blank">介绍</a>&nbsp;&nbsp;&nbsp;<a href="http://www.dongcoder.com/s/1/%e5%a4%8d%e5%8d%b0%e6%9c%ba" title="标签：复印机" target="_blank">复印机</a>&nbsp;&nbsp;&nbsp;<a href="http://www.dongcoder.com/s/1/product" title="标签：product" target="_blank">product</a>&nbsp;&nbsp;&nbsp;<a href="http://www.dongcoder.com/s/1/ext" title="标签：ext" target="_blank">ext</a>&nbsp;&nbsp;&nbsp;<a href="http://www.dongcoder.com/s/1/href" title="标签：href" target="_blank">href</a>&nbsp;&nbsp;&nbsp;<a href="http://www.dongcoder.com/s/1/nic" title="标签：nic" target="_blank">nic</a>&nbsp;&nbsp;&nbsp;</p>
+      </div> 
+      <div class="detailzan"> 
+       <span id="article_yes_content" class="colorhong"></span>
+       <span class="cursorpointer"> <img id="articleyes" src="/img/up.gif" width="24" height="24" alt="赞" />（<span id="article_yes" class="colorhong">0</span>）</span> 
+      </div> 
+      <div class="margintop20 marginbottom20 divoverflowauto"> 
+       <div class="divfloatleft"> 
+        <script async="" src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script> 
+        <!-- dc-detail-content-middle-left-300x250 --> 
+        <ins class="adsbygoogle" style="display: inline-block; width: 300px; height: 250px" data-ad-client="ca-pub-8616102841876629" data-ad-slot="7881658689"></ins> 
+        <script>
+            (adsbygoogle = window.adsbygoogle || []).push({});
+        </script> 
+       </div> 
+       <div class="divfloatright marginleft8"> 
+        <script async="" src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script> 
+        <!-- dc-detail-content-middle-right-300x250 --> 
+        <ins class="adsbygoogle" style="display: inline-block; width: 300px; height: 250px" data-ad-client="ca-pub-8616102841876629" data-ad-slot="9358391884"></ins> 
+        <script>
+            (adsbygoogle = window.adsbygoogle || []).push({});
+        </script> 
+       </div> 
+      </div> 
+      <div id="comment" class="dcdetailpinglun"> 
+       <ul class="title"> 
+        <li class="titleleft">评论</li> 
+        <li class="titleright">一句话评论（<span id="article_comment1" class="colorhong">0</span>）</li> 
+       </ul> 
+       <div class="dcdetailpingluncontent"> 
+        <div id="infocommentno" class="textaligncenter">
+          暂无评论！
+        </div> 
+       </div> 
+       <div class="dcdetailpinglunadd"> 
+        <form method="post" action="/ajaxjs/info_detail_commentadd.aspx"> 
+         <div> 
+          <div id="commenthf"> 
+          </div> 
+          <div> 
+           <textarea name="tbcommentcontent" id="tbcommentcontent" class="tb"></textarea> 
+          </div> 
+         </div> 
+         <div class="dcdetailpinglunaddop"> 
+          <span id="addCommentTishi" class="colorhong">登录后才能评论！</span> 
+          <span id="loginno"><input type="button" class="btn" value="登录" onclick="location.href='http://member.dongcoder.com/login.aspx?returnUrl='+document.URL.replace(new RegExp('&amp;', 'g'), '(_)')" /></span> 
+         </div> 
+        </form> 
+       </div> 
+      </div> 
+     </div> </li> 
+    <li class="dcmainright"> 
+     <div class="marginbottom20"> 
+      <script type="text/javascript">        (function () { document.write(unescape('%3Cdiv id="bdcs"%3E%3C/div%3E')); var bdcs = document.createElement('script'); bdcs.type = 'text/javascript'; bdcs.async = true; bdcs.src = 'http://znsv.baidu.com/customer_search/api/js?sid=6953432671112556687' + '&plate_url=' + encodeURIComponent(window.location.href) + '&t=' + Math.ceil(new Date() / 3600000); var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(bdcs, s); })();</script> 
+     </div> 
+     <div class="margintop20 marginbottom20"> 
+      <script async="" src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script> 
+      <!-- dc-right-top-336x280 --> 
+      <ins class="adsbygoogle" style="display: inline-block; width: 336px; height: 280px" data-ad-client="ca-pub-8616102841876629" data-ad-slot="5344643887"></ins> 
+      <script>
+        (adsbygoogle = window.adsbygoogle || []).push({});
+    </script> 
+     </div> 
+     <div class="section"> 
+      <ul class="titlesmall"> 
+       <li id="infotop1_info_title" class="titlesmallleft">文章昨日排行</li> 
+       <li class="titlesmallright"><a href="/list-top-2-1-1.html" id="infotop1_amore" title="文章昨日排行更多">更多&gt;</a></li> 
+      </ul> 
+      <ul class="listsmall"> 
+       <li class="listsmalltitle"><a href="/detail-1408.html" title="[李景山php]每天laravel-20160901|Dispatcher-1" _self=""> [李景山php]每天laravel-20160901|Dispatcher-1</a> &nbsp;<span>2016-06-16</span> </li> 
+       <li class="listsmalltitle"><a href="/detail-105479.html" title="apache ab压力测试工具需要用户登录才能测得时候怎么办？" _self=""> apache ab压力测试工具需要用户登录才能测得时候怎么办？</a> &nbsp;<span>2016-08-18</span> </li> 
+       <li class="listsmalltitle"><a href="/detail-273340.html" title="ASP.MVC时间类型json数据处理" _self=""> ASP.MVC时间类型json数据处理</a> &nbsp;<span>2016-11-29</span> </li> 
+       <li class="listsmalltitle"><a href="/detail-275373.html" title="必学的几种提高网站收录量的办法" _self=""> 必学的几种提高网站收录量的办法</a> &nbsp;<span>2016-11-30</span> </li> 
+       <li class="listsmalltitle"><a href="/detail-286472.html" title="Mac Aria2 使用Privoxy将socks代理转化为http代理" _self=""> Mac Aria2 使用Privoxy将socks代理转化为http代理</a> &nbsp;<span>2016-12-07</span> </li> 
+       <li class="listsmalltitle"><a href="/detail-338872.html" title="Css3新特性应用之过渡与动画" _self=""> Css3新特性应用之过渡与动画</a> &nbsp;<span>2017-01-09</span> </li> 
+       <li class="listsmalltitle"><a href="/detail-348674.html" title="谷歌和谷歌学术镜像网站" _self=""> 谷歌和谷歌学术镜像网站</a> &nbsp;<span>2017-01-15</span> </li> 
+       <li class="listsmalltitle"><a href="/detail-357565.html" title="js设计模式" _self=""> js设计模式</a> &nbsp;<span>2017-01-21</span> </li> 
+       <li class="listsmalltitle"><a href="/detail-379127.html" title="网站文章若何优化的顶级办法" _self=""> 网站文章若何优化的顶级办法</a> &nbsp;<span>2017-02-10</span> </li> 
+       <li class="listsmalltitle"><a href="/detail-399371.html" title="nginx实现http/2.0实战" _self=""> nginx实现http/2.0实战</a> &nbsp;<span>2017-02-24</span> </li> 
+      </ul> 
+     </div> 
+     <div class="section"> 
+      <ul class="titlesmall"> 
+       <li id="jctop1_info_title" class="titlesmallleft">教程昨日排行</li> 
+       <li class="titlesmallright"></li> 
+      </ul> 
+      <ul class="listsmall"> 
+       <li class="listsmalltitle"><a href="/jiaocheng/detail-5975.html" title="tabsize" _self=""> tabsize</a> &nbsp;<span>2016-09-25</span> </li> 
+       <li class="listsmalltitle"><a href="/jiaocheng/detail-28.html" title="HTML 表格" _self=""> HTML 表格</a> &nbsp;<span>2016-10-11</span> </li> 
+       <li class="listsmalltitle"><a href="/jiaocheng/detail-722.html" title="C++ 函数" _self=""> C++ 函数</a> &nbsp;<span>2016-09-29</span> </li> 
+       <li class="listsmalltitle"><a href="/jiaocheng/detail-2168.html" title="column-gap" _self=""> column-gap</a> &nbsp;<span>2016-10-28</span> </li> 
+       <li class="listsmalltitle"><a href="/jiaocheng/detail-2213.html" title="list-style-type" _self=""> list-style-type</a> &nbsp;<span>2016-09-29</span> </li> 
+       <li class="listsmalltitle"><a href="/jiaocheng/detail-2242.html" title="padding-right" _self=""> padding-right</a> &nbsp;<span>2016-09-30</span> </li> 
+       <li class="listsmalltitle"><a href="/jiaocheng/detail-4194.html" title="HTML DOM 事件对象" _self=""> HTML DOM 事件对象</a> &nbsp;<span>2016-09-26</span> </li> 
+       <li class="listsmalltitle"><a href="/jiaocheng/detail-253.html" title="jQuery AJAX 方法" _self=""> jQuery AJAX 方法</a> &nbsp;<span>2016-10-14</span> </li> 
+       <li class="listsmalltitle"><a href="/jiaocheng/detail-275.html" title="AngularJS                                                            输入验证" _self=""> AngularJS 输入验证</a> &nbsp;<span>2016-09-29</span> </li> 
+       <li class="listsmalltitle"><a href="/jiaocheng/detail-682.html" title="C 输入 &amp; 输出" _self=""> C 输入 &amp; 输出</a> &nbsp;<span>2016-10-17</span> </li> 
+      </ul> 
+     </div> 
+     <div class="section"> 
+      <ul class="titlesmall"> 
+       <li id="newsnew1_news_title" class="titlesmallleft">最新新闻</li> 
+       <li class="titlesmallright"><a href="/news/list-0-1.html" id="newsnew1_amore" title="最新新闻更多">更多&gt;</a></li> 
+      </ul> 
+      <ul class="listsmall"> 
+       <li class="listsmalltitle"><a href="/news/detail-41920.html" title="雷军自曝见印度部长曲折过程：真心不容易" target="_blank"> 雷军自曝见印度部长曲折过程：真心不容易</a> &nbsp;<span>2017-03-28</span> </li> 
+       <li class="listsmalltitle"><a href="/news/detail-41963.html" title="苹果赢得超声波生物识别感测技术专利 屏幕下Touch ID有戏" target="_blank"> 苹果赢得超声波生物识别感测技术专利 屏幕下Touch ID有戏</a> &nbsp;<span>2017-03-28</span> </li> 
+       <li class="listsmalltitle"><a href="/news/detail-41940.html" title="iPhone QQ 6.7.1 正式版发布" target="_blank"> iPhone QQ 6.7.1 正式版发布</a> &nbsp;<span>2017-03-28</span> </li> 
+       <li class="listsmalltitle"><a href="/news/detail-41926.html" title="史上最全攻略！支付宝在日本能干啥？最后绝了" target="_blank"> 史上最全攻略！支付宝在日本能干啥？最后绝了</a> &nbsp;<span>2017-03-28</span> </li> 
+       <li class="listsmalltitle"><a href="/news/detail-41962.html" title="受困于资本管制，乐视20亿美元收购Vizio交易案或流产" target="_blank"> 受困于资本管制，乐视20亿美元收购Vizio交易案或流产</a> &nbsp;<span>2017-03-28</span> </li> 
+       <li class="listsmalltitle"><a href="/news/detail-41895.html" title="三星宣布重卖Note 7官翻版：确定不在美国上市" target="_blank"> 三星宣布重卖Note 7官翻版：确定不在美国上市</a> &nbsp;<span>2017-03-28</span> </li> 
+       <li class="listsmalltitle"><a href="/news/detail-41943.html" title="疑似锤子T3高清渲染图曝光" target="_blank"> 疑似锤子T3高清渲染图曝光</a> &nbsp;<span>2017-03-28</span> </li> 
+       <li class="listsmalltitle"><a href="/news/detail-41922.html" title="除了Windows Store在PC端还能通过Steam下载《光环》游戏" target="_blank"> 除了Windows Store在PC端还能通过Steam下载《光环》游戏</a> &nbsp;<span>2017-03-28</span> </li> 
+       <li class="listsmalltitle"><a href="/news/detail-41899.html" title="科学家建议宇航员隐蔽在月球隧道中躲避太阳辐射" target="_blank"> 科学家建议宇航员隐蔽在月球隧道中躲避太阳辐射</a> &nbsp;<span>2017-03-28</span> </li> 
+       <li class="listsmalltitle"><a href="/news/detail-41887.html" title="Android之父强势归来 或亲自推出无边框高端机" target="_blank"> Android之父强势归来 或亲自推出无边框高端机</a> &nbsp;<span>2017-03-28</span> </li> 
+      </ul> 
+     </div> 
+     <div class="section"> 
+      <ul class="titlesmall"> 
+       <li id="infonew1_info_title" class="titlesmallleft">最新文章</li> 
+       <li class="titlesmallright"><a href="/new-1.html" id="infonew1_amore" title="最新文章更多">更多&gt;</a></li> 
+      </ul> 
+      <ul class="listsmall"> 
+       <li class="listsmalltitle"><a href="/detail-445895.html" title="webform版部分视图与请求拦截" target="_blank"> webform版部分视图与请求拦截</a> &nbsp;<span>2017-03-29</span> </li> 
+       <li class="listsmalltitle"><a href="/detail-445867.html" title="leetcode 213. House Robber II 抢劫房子II---------- java" target="_blank"> leetcode 213. House Robber II 抢劫房子II---------- java</a> &nbsp;<span>2017-03-29</span> </li> 
+       <li class="listsmalltitle"><a href="/detail-445924.html" title="任务调度之集群（基于Quartz.net）" target="_blank"> 任务调度之集群（基于Quartz.net）</a> &nbsp;<span>2017-03-29</span> </li> 
+       <li class="listsmalltitle"><a href="/detail-445874.html" title="BZOJ 1877 拆点费用流" target="_blank"> BZOJ 1877 拆点费用流</a> &nbsp;<span>2017-03-29</span> </li> 
+       <li class="listsmalltitle"><a href="/detail-445887.html" title="nodejs socket.io" target="_blank"> nodejs socket.io</a> &nbsp;<span>2017-03-29</span> </li> 
+       <li class="listsmalltitle"><a href="/detail-445931.html" title="git之解决冲突" target="_blank"> git之解决冲突</a> &nbsp;<span>2017-03-29</span> </li> 
+       <li class="listsmalltitle"><a href="/detail-445864.html" title="求N!的长度【数学】 51nod 1058" target="_blank"> 求N!的长度【数学】 51nod 1058</a> &nbsp;<span>2017-03-29</span> </li> 
+       <li class="listsmalltitle"><a href="/detail-445890.html" title="scrapy抓取的页面中文会变成unicode字符串" target="_blank"> scrapy抓取的页面中文会变成unicode字符串</a> &nbsp;<span>2017-03-29</span> </li> 
+       <li class="listsmalltitle"><a href="/detail-445910.html" title="BZOJ 4488/4052 gcd" target="_blank"> BZOJ 4488/4052 gcd</a> &nbsp;<span>2017-03-29</span> </li> 
+       <li class="listsmalltitle"><a href="/detail-445913.html" title="46.ActiveMQ开篇（Hello World、安全认证、Connection、Session、MessageProducer、MessageConsumer）" target="_blank"> 46.ActiveMQ开篇（Hello World、安全认证、Connection、Session、MessageProducer、MessageConsumer）</a> &nbsp;<span>2017-03-29</span> </li> 
+      </ul> 
+     </div> 
+     <div id="xt" class="width336" style="margin:20px 0 0 18px;"> 
+      <script async="" src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script> 
+      <!-- dc-right-300x600 --> 
+      <ins class="adsbygoogle" style="display: inline-block; width: 300px; height: 600px" data-ad-client="ca-pub-8616102841876629" data-ad-slot="9862983488"></ins> 
+      <script>
+        (adsbygoogle = window.adsbygoogle || []).push({});
+    </script> 
+     </div> </li> 
+   </ul> 
+  </div> 
+  <div class="dcmain dcfriendlink"> 
+   <div class="dcfriendlinktitle">
+     友情链接
+   </div> 
+   <div class="dcfriendlinkcontent"> 
+    <a href="http://www.baidu.com/" target="_blank">百度</a>&nbsp;&nbsp; 
+    <a href="http://www.cnzz.com/" target="_blank">站长统计</a>&nbsp;&nbsp; 
+    <a href="http://www.aliyun.com/" target="_blank"> 阿里云</a> 
+   </div> 
+  </div> 
+  <ul class="dcmain dcbottom"> 
+   <li class="list"> 
+    <div> 
+     <a href="/contactus.html" title="dongcoder.com联系我们">联系我们</a> - 
+     <a href="/guest.html" title="dongcoder.com留言反馈">留言反馈</a> 
+    </div> 
+    <div>
+      &copy; 2016 
+     <a href="http://www.dongcoder.com" title="dongcoder.com懂客">dongcoder.com</a> 版权所有 鲁ICP备09046678号-6 
+    </div> 
+    <div> 
+     <script type="text/javascript">                var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://"); document.write(unescape("%3Cspan id='cnzz_stat_icon_1259569311'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s11.cnzz.com/z_stat.php%3Fid%3D1259569311%26show%3Dpic' type='text/javascript'%3E%3C/script%3E"));</script> 
+     <script>
+                var _hmt = _hmt || [];
+                (function () {
+                    var hm = document.createElement("script");
+                    hm.src = "//hm.baidu.com/hm.js?aae6e990f509fada642c1419322837fa";
+                    var s = document.getElementsByTagName("script")[0];
+                    s.parentNode.insertBefore(hm, s);
+                })();
+            </script> 
+    </div> 
+    <div class="textaligncenter margintop20 marginbottom10"> 
+     <a class="btn font18" href="http://www.dongcoder.com">电脑端</a> &nbsp;&nbsp;
+     <a class="btn font18" href="http://m.dongcoder.com">移动端</a> 
+    </div> </li> 
+  </ul> 
+  <script type="text/javascript">        var info_menu_i = "2"; var mid = ''; var id = '180122'; var idm = '401008'; var commentitemcount = ''; var memberhost = 'http://member.dongcoder.com/'; prettyPrint();
+    </script> 
+  <script src="/js/infodetail.js" type="text/javascript" charset="utf-8"></script> 
+  <script src="/js/member.js" type="text/javascript" charset="utf-8"></script> 
+  <script type="text/javascript" src="/js/dongcoder.js"></script>   
+ </body>
+</html>

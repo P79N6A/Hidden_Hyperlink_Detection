@@ -1,0 +1,129 @@
+<!DOCTYPE html><html><head lang="en">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+    <meta name="format-detection" content="telephone=no">
+    <title>登录</title>
+    <link rel="stylesheet" href="//static.360buyimg.com/devfe/LittleB/css/index.css">
+    <link rel="stylesheet" href="//static.360buyimg.com/devfe/LittleB/css/login.css">
+    <script type="text/javascript" src="//static.360buyimg.com/devfe/LittleB/js/zepto.min.js"></script>
+    <script type="text/javascript" src="//static.360buyimg.com/devfe/LittleB/js/index.js"></script>
+</head>
+<body>
+<div class="login-container">
+    <div class="img-frame">
+        <img src="//static.360buyimg.com/devfe/LittleB/css/i/login.jpg" width="130" height="33" alt="">
+    </div>
+    <form action="/doLogin" method="post" onsubmit="return login.checkSubmit();">
+        <div class="login-info">
+            <div class="ui-row">
+                <i class="ui-icon-erp"></i>
+                <input id="userName" name="userName" type="text" placeholder="ERP" value="" autofocus="on" onblur="login.checkEach(this);">
+                <p id="name_tip" class="ui-error"></p>
+            </div>
+            <div class="ui-row">
+                <i class="ui-icon-psw"></i>
+                <input id="password" name="password" type="password" placeholder="密码" value="" onblur="login.checkEach(this);">
+                <p id="pwd_tip" class="ui-error"></p>
+            </div>
+            <div class="ui-row multi">
+                <input id="idCode" name="idCode" class="code-text" type="text" placeholder="验证码" value="">
+                <a id="code-get-btn" class="code-get-btn">获取验证码</a>
+                <p id="code_tip" class="ui-error">
+                                    </p>
+            </div>
+            <input type="submit" id="login-submit" class="button login-button" value="登录">
+        </div>
+    </form>
+</div>
+<script>
+
+    var login = {
+        init : function () {
+            login.bindClick();
+        },
+        bindClick: function () {
+            $("#code-get-btn").click(function(){
+                if (!$(this).hasClass("has-get")){
+                    var userName = $("#userName").val();
+                    if(!userName){
+                        $("#name_tip").text("ERP账号不能为空");
+                        return;
+                    }
+                    var password = $("#password").val();
+                    if(!password){
+                        $("#pwd_tip").text("ERP密码不能为空");
+                        return;
+                    }
+                    //设置为不可点击，防止多次刷新
+                    $("#code-get-btn").addClass("has-get");
+
+                    $.ajax({
+                        type:"post",
+                        url:"getLoginCode",
+                        data:{userName:userName,password:password},
+                        dataType:"json",
+                        success: function(data){
+                            var r=data;
+                            if (r && r.code == "0"){
+                                $("#code_tip").text(r.message).attr("class","ui-success");
+                                login.timer(60);
+                            }
+                            else {
+                                $("#code_tip").text(r.message).attr("class","ui-error");
+                                $("#code-get-btn").removeClass("has-get")
+                            }
+                        }
+                    });
+                }
+            });
+        },
+        checkEach : function (obj) {
+            if($(obj).val()){
+                $(obj).siblings("p").text("");
+            }
+            else {
+                var val1 = $(obj).attr("name");
+                var showVal = "";
+                if(val1 == 'userName'){
+                    showVal = "ERP账号";
+                }
+                if(val1 == 'password'){
+                    showVal = "ERP密码";
+                }
+                $(obj).siblings("p").text(showVal + "不能为空");
+            }
+        },
+        checkSubmit : function () {
+            var userName = $("#userName").val();
+            if(!userName){
+                $("#name_tip").text("ERP账号不能为空");
+                return false;
+            }
+            var password = $("#password").val();
+            if(!password){
+                $("#pwd_tip").text("ERP密码不能为空");
+                return false;
+            }
+            var idCode = $("#idCode").val();
+            if(!idCode){
+                $("#code_tip").text("手机验证码不能为空").attr("class","ui-error");
+                return false;
+            }
+
+            return true;
+        },
+        timer : function (second) {
+            if(second > 0) {
+                $("#code-get-btn").text(second + "s后重新获取");
+                setTimeout(function(){login.timer(second - 1)},1000);
+            }
+            else {
+                $("#code-get-btn").text("获取验证码").removeClass("has-get");
+            }
+
+        }
+    }
+    login.init();
+</script>
+
+</body></html>

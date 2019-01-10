@@ -1,0 +1,261 @@
+<!DOCTYPE html><html><head><meta http-equiv="Content-Type" content="text/html;charset=utf-8;">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0,user-scalable=0">
+<meta content="telephone=no" name="format-detection">
+<meta name="csrftoken" content="27598432e044ad3ff76a772719648dad7db747d7">
+<link rel="stylesheet" type="text/css" href="/css/m_service/m_service.css?4770">
+<title>畅捷服务</title>
+    <script src="//hm.baidu.com/hm.js?b97bd1082e2fb97a499da951e71a9da2"></script><script type="text/javascript" src="/js/mb/lib/zepto.min.js"></script>
+    <script type="text/javascript" src="/js/mb/lib/zepto.cookie.min.js"></script>
+    <script type="text/javascript" src="/js/mb/StringTools.js?"></script>
+    <script type="text/javascript" src="/js/mb/lib/art-template.js"></script>
+<!--    <script type="text/javascript" src="/static/base/config.js"></script>-->
+    <script type="text/javascript" src="/rlib/mc/dest/core.es3.js"></script>
+    <script type="text/javascript" src="/rlib/modcfg.js"></script>
+    <!--<script type="text/javascript" src="/tc/base/global.js"></script>-->
+    <script type="text/javascript" src="/static/base/global.js"></script><script type="text/javascript" src="//passport.chanjet.com/js/modules/ChanjetLogin.js"></script>
+<script type="text/javascript">
+$(document).on('ajaxBeforeSend', function(e, xhr, options){
+  if(options.type=='POST'){
+  	var csrf = $('meta[name=csrftoken]').attr('content');
+	var params = {};
+	params.csrftoken=csrf;
+  	if(typeof options.data=='undefined')
+  		options.data = $.param(params);
+  	else
+  		options.data = options.data + "&" + $.param(params);
+  }
+});
+</script>
+
+	<script type="text/javascript" charset="utf-8" src="//passport.chanjet.com/js/lib/jquery.js"></script></head><body><div class="m_box fz16 c-fff m_loginbox2">
+		<h3 class="m_loginlogobox">
+			<span class="m_loginlogo br07"></span>
+			<p class="tc c-1e85e1">畅捷服务</p>
+			<p class="m_slogen tc fz12 c-1e85e1">为您提供最专业、最及时的服务</p>
+		</h3>
+		<ul class="m_login2">
+			<li class="p10 bb1"><input type="text" name="username" id="username" placeholder="邮箱／手机号"></li>
+			<li class="p10"><input type="password" name="passwd" id="passwd" placeholder="密码"></li>
+		</ul>
+		<a class="m_login_btn2 bg_b fz16" href="javascript:void(0);" onclick="doLogin()" id="login">登录</a>
+		<!--
+		<ul class="m_thirdloginbox">
+			<li class="m_thirdlogin"><a class="m_login_btn2 fz14"><span class="m_thirdlogo m_wechatlogo"></span>微信登录</a></li>
+			<li class="m_thirdlogin"><a class="m_login_btn2 fz14"><span class="m_thirdlogo m_qqlogo"></span>QQ登录</a></li>
+		</ul>	
+		-->
+
+		<ul class="m_login_bottom pf h40" style="position: static; top: -48px; ">
+			<li class="br1eb"><a class="" href="/user/forget?callback=http://service.chanjet.com/m/article/58d1d907e657f1206d7832a9?from" id="forgetpass">忘记密码</a></li>
+			<li><a class="" href="/user/register?callback=http://service.chanjet.com/m/article/58d1d907e657f1206d7832a9?from" id="register">注册</a></li>
+		</ul>
+	</div>
+	<div class="m_wronginfo br05" style="display:none;" id="errorinfo"></div>
+
+<script type="text/javascript">
+var callback="";
+var valid;
+
+$(document).ready(function(){
+  //valid=new zeptovalidate({errordiv:'#errorinfo'});
+  if(location.args.callback){
+    callback=location.args.callback;
+  }else{
+    callback='/';
+  }
+  $("#register").attr("href","/user/register?callback="+callback);
+  $("#forgetpass").attr("href","/user/forget?callback="+callback);
+  var ch=document.documentElement.clientHeight-48;
+  $(".m_login_bottom").css('top',ch);
+});
+function doLogin(){
+  var url="/auth/login";
+  var params={};
+  params.csrftoken =  $('meta[name="csrftoken"]')[0].content;
+  params.username=$("#username").val();
+  params.password=$("#passwd").val();
+  // params.params = encodeURIComponent($("#params").val());
+
+  if(!params.username){
+  	showError('请输入邮箱或手机号');
+  	return false;
+  }
+  if(!params.password){
+  	showError('请输入密码');
+  	return false;
+  }
+  //if(!valid.validate())return false;
+  if($("#login").hasClass("backgroundgray")){
+		return;
+  }
+  $("#login").addClass("backgroundgray");  
+  $("#login").html("正在登录...");
+  $.post(url,params,function(res) {
+    if(res){
+      $("#login").html("登录成功，正在跳转...");
+      // var ua = navigator.userAgent.toLowerCase();
+      // if(ua.match(/MicroMessenger/i) == "micromessenger"){
+      //   //微信账号绑定
+
+      //   var callbackURL = location.origin+'/auth/callback?server=weixin&redirect=' + encodeURIComponent(callback);
+      //   var wxURL = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx4826dc39aa6202f7&redirect_uri=' + encodeURIComponent(callbackURL) + '&response_type=code&scope=snsapi_userinfo&state=weixin#wechat_redirect';
+      //   window.location=wxURL;
+      // }else{
+      //   window.location.href=callback;  
+      // }
+
+      window.location.href=decodeURIComponent(callback);  
+    }else{
+	  $("#login").removeClass("backgroundgray");
+	  $("#login").text('登录');    	
+      showError('账号或密码错误');
+    }
+  },'json');
+}
+
+function showError (str) {
+   var ch=document.documentElement.clientHeight*0.4;
+   var wh=document.documentElement.clientWidth/2-6-str.length*7;	
+    $("#errorinfo").css({'top':ch,'left':wh}).text(str).show();
+    setTimeout(function(){
+    	$("#errorinfo").hide();
+    },2000);
+}
+</script>
+	
+
+
+    <script>
+        
+        (function(){
+            if (!GB || !MC) {
+                return;
+            }
+
+            // 设置会话
+            var userStr = '';
+
+            if (!MC.isEmpty(userStr)) {
+                GB.user(JSON.parse(userStr));
+                GB.user().name = '';
+            }
+
+            // 全局参数
+            var sysParams = '{"csrftoken":"27598432e044ad3ff76a772719648dad7db747d7","qqClientId":"100477722","weiboClientId":"3960111159"}';
+            MC.isEmpty(sysParams) || GB.sysParam(JSON.parse(sysParams));
+
+            var appId = 'wx4826dc39aa6202f7',
+nonceStr = 'hp6eBz4oqlw99jJE',
+timestamp = '1491078471',
+signature = '8d16fc11a3acfcffdea4fbd617502ef4afd667f2',
+debug = '';
+
+            // 加载微信参数
+            GB.weixinConfig({
+                debug: true,
+                appId: appId,
+                timestamp: timestamp,
+                nonceStr: nonceStr,
+                signature: signature,
+                jsApiList: [
+                    'onMenuShareTimeline', 'onMenuShareAppMessage'
+                ]
+            });
+
+
+            // 渲染页面
+            var modId = '',
+                id = '',
+                data = '';
+            GB.render(modId, MC.isEmpty(data) ? id : JSON.parse(data));
+
+
+
+            // 微信自动登录
+            var downloadAction = '';
+            if (downloadAction == '1' && !MC.cookie('isDownloadMaskHide')) {
+                GB.renderDownloadAppMask();
+            }
+
+
+            if (!GB.isLogined()) {
+
+                var url = window.location.href;
+                var iswx = is_weixin();
+                if(iswx){
+                    localStorage.setItem('weixin_callback',url);
+                    location.href = '/m/weixin/login?callback=' + encodeURIComponent(url);
+                }else{
+                    //注释掉，由于allhall不在微信一直调整到登录界面
+                    //location.href = '/user/login?callback=' + encodeURIComponent(url);
+                }
+
+            }else{
+                $.ajax({
+                    url:'/lapi/organization/init',
+                    async:false,
+                    success:function(data){
+                        localStorage.removeItem('userInfoo');
+                        localStorage.setItem('userInfoo',JSON.stringify({'name':data.data.user.name,'_id':data.data.user._id,'csp_user':data.data.user.csp_user}));
+//						console.log(localStorage.getItem('userInfoo'));
+                    }
+                });
+            }
+
+            function is_weixin(){
+                var ua = navigator.userAgent.toLowerCase();
+                if(ua.match(/MicroMessenger/i)=="micromessenger") {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+
+            setTimeout(function(){
+                // 百度统计
+                GB.baiduHm();
+            }, 0)
+
+
+
+        })();
+    </script>
+
+<script>
+    var sysParams = {"csrftoken":"27598432e044ad3ff76a772719648dad7db747d7","qqClientId":"100477722","weiboClientId":"3960111159"};
+
+template.helper('$formatDate', function (longtime) {
+    return formatDate(longtime);
+});
+template.helper('$formatDated', function (longtime) {
+    return formatDate(longtime,"MM/dd");
+});
+function resize(){
+	document.documentElement.setAttribute("data-dpr",window.devicePixelRatio );
+	var bodyfont=window.devicePixelRatio*12;
+	document.body.style.fontSize=bodyfont+"px";
+	switch(window.devicePixelRatio){
+		case 1:
+			document.documentElement.style.fontSize="20px";
+			break;
+		case 2:
+			var fontsize=window.screen.width/320*5;
+			document.documentElement.style.fontSize=fontsize+"px";
+			break;
+		case 3:
+			var fontsize=window.screen.width/320*20;
+			document.documentElement.style.fontSize=fontsize+"px";
+			break;
+	}
+	
+	// document.body.style.fontSize=bodyfont+"px";
+	// var scale=window.screen.width/640;
+	// var fontsize=Math.ceil(scale*40)+"px";
+	// document.documentElement.style.fontSize=fontsize;
+}
+//resize();
+
+</script>
+
+
+</body></html>

@@ -1,0 +1,226 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head>
+    <title>找回密码</title>
+    
+	<meta http-equiv="pragma" content="no-cache">
+	<meta http-equiv="cache-control" content="no-cache">
+	<meta http-equiv="expires" content="0">    
+	<meta http-equiv="keywords" content="keyword1,keyword2,keyword3">
+	<meta http-equiv="description" content="This is my page">
+	<!--
+	<link rel="stylesheet" type="text/css" href="styles.css">
+	-->
+	<link href="../login/css1/style.css" rel="stylesheet" type="text/css">
+	<script type="text/javascript" async="" src="http://site.cdnmaster.cn/sitemaster/collect.js"></script><script src="../login/js/jquery-1.7.2.min.js"></script>
+	<script src="../login/js/main.js"></script>
+	<script src="../js/cdnmaster.js"></script>
+	<script type="text/javascript">
+		var hrefUrl = location.href;
+		var indexNum = hrefUrl.indexOf("/", hrefUrl.indexOf("/", 10)+1);
+		var servletUrl = hrefUrl.substring(0, indexNum) + "/change/service";
+		var getAjax = false; //提交
+		var checkSubmit = false; //是否验证通过
+	
+		function initUserInfo(){
+			var function_codeIndex = hrefUrl.indexOf("?function_code");
+			var checkUrl = hrefUrl.substring(function_codeIndex+1);
+			//alert(checkUrl);	
+			if(function_codeIndex > 0){
+		    	$.ajax({
+		    		'url':servletUrl,
+		    		'type':'post',
+		    		'data':checkUrl,
+		    		'dataType':'json',
+		    		'cache':false,
+		    		'success':function(data,statusText){
+		    	   		if(data.result == "0000"){
+		    	   			//alert("0000");
+		    	   		}else{
+		    	   			//alert(data.errordesc);
+		    	   			location.href = "./findpwd1.jsp?error="+data.result;
+		    	   		}
+		    	    }
+		    	});
+			}
+		}
+		
+		function hide(){
+			$("#passwordError").show();
+			$("#passwordRigth").hide();
+			$("#password_sureError").show();
+			$("#password_sureRigth").hide();
+		}
+		
+		function checkPwd(){
+			hide();
+			
+			changeStyle("passwordError", "", "");	
+			changeStyle("password_sureError", "", "");
+			var password = $("#password").val();
+			var password_sure = $("#password_sure").val();
+				
+			if(password == null || password == "" || password.indexOf(" ") > -1){
+				changeStyle("passwordError", "密码不能为空,且不能使用空格", "wtip");
+				return false;
+			}
+			
+			if(password.length <6 || password.length > 20){
+				changeStyle("passwordError", "密码长度范围为6-20字符", "wtip");
+				return false;
+			}
+			
+			if(!/^[~!@$%^*()\-_=+\|\\{}\[\]:?.\w\d]+$/.test(password)){
+				changeStyle("passwordError", "密码存在非法字符", "wtip");
+				return false;
+			}
+			//密码安全级别 0：弱；1：中；2：强
+			var level = 0;
+			if ( ( password.match(/[a-z]+/) ) && ( password.match(/[A-】Z]+/) ) && ( password.match(/\d+/) )){
+				//由数字和大写、小写字母混合而成的
+				changeStyle("passwordError", "", "tright");
+				level = 2;
+			}else if ((/^[a-z]+$/.test(password)) || (/^[A-Z]+$/.test(password)) || (/^\d+$/.test(password)) || (/^[~,!,@,$,%,^,*,(,),\-,_,=,+,\|,\\,{,},\[,\],:,?,.]+$/.test(password))){
+				//只有小写、大写、数字单独组成
+				level = 0;
+				changeStyle("passwordError", "密码过于简单", "wtip");
+				return false;
+			}else{
+				//$("#passwordError").hide();
+				//$("#passwordRigth").show();
+				changeStyle("passwordError", "", "tright");
+			}
+			if(password_sure != "" && password != password_sure){
+				changeStyle("password_sureError", "两次输入的密码不一致", "wtip");
+				return false;
+			}else if(password_sure != "" && password == password_sure){
+				//$("#password_sureError").hide();
+				//$("#password_sureRigth").show();
+				changeStyle("password_sureError", "", "tright");
+			}
+			return true;
+		}
+		
+		function checkPwdSure(){
+		    if(!checkPwd()){
+	    		return false;
+			}
+			return true;
+		}
+		
+		function changeStyle(id,text,classSty){
+			var li = "<i class=\"wico\"></i>";
+	    	$("#"+id).removeClass().addClass(classSty);
+			if("" != text){
+		    	$("#"+id).html(li+text);
+			}else{
+				$("#"+id).html("");
+			}
+			
+	    }
+		
+		$(function(){
+			
+			var $tel=$('.formarea').find('.tel');
+			$tel.focus(function(){
+				$(this).siblings('.stip').fadeIn(100);
+			});
+			$tel.blur(function(){
+				var falg = checkPwd();
+				if(falg){
+					$(this).siblings('.stip').fadeOut(100);
+				}
+			});	
+			//禁止右键
+			$(document).bind("contextmenu",function(e){
+				return false;
+			});
+
+	   		$("#password").blur(function(){
+	   			checkPwd();
+	   		});
+	   		
+	   		$("#password_sure").blur(function(){
+	   			checkPwdSure();
+	   		});
+	        		
+		    //提交
+		    $("#nextStep").click(function(){	
+		    	if(!checkPwdSure()){
+		    		return;
+				}
+				var password = $("#password").val();
+				var password_sure = $("#password_sure").val();
+				if(password != password_sure){
+					changeStyle("password_sureError", "两次输入的密码不一致", "wtip");
+					return false;
+				}				
+				//alert("true"); return;
+				if(getAjax) return;
+		    	getAjax = true;
+		    	password = encodeURI(encodeURI(password));    	
+		    	//ajax传送手机验证码
+		    	$.ajax({
+		    		'url':servletUrl,
+		    		'type':'post',
+		    		'data':'function_code=updateMember_password&member_password='+password,
+		    		'dataType':'json',
+		    		'cache':false,
+		    		'success':function(data,statusText){
+		    			//getAjax = false;
+		    	   		if(data.result == "0000"){
+		    	   			//alert("0000");
+		    	   			location.href = "../register/findpwd44.jsp";
+		    	   		}else{
+		    	   			getAjax = false;
+		    	   			//changeStyle("password_sure", data.errordesc, "wrongSty");
+		    	   			changeStyle("password_sureError", data.errordesc, "wtip");
+		    	   		}
+		    	    }
+		    	});
+		    });	
+
+		});	
+					
+	</script>
+  </head>
+  
+  <body onload="initUserInfo()">
+    <div class="wrapper header"><img src="../login/images/logo.gif">重置密码</div>
+	<div class="wrapper reg forget">
+		<ul class="nav clearfix">
+			<li class="active"><span><i>1</i>输入登录名</span></li>
+			<li class="active"><span><i>2</i>身份验证</span></li>
+			<li class="active"><span><i>3</i>重置密码</span></li>
+			<li><span><i>4</i>完成</span></li>
+		</ul>
+		<div class="formarea">
+			<dl class="clearfix">
+				<dt>新密码</dt>
+				<dd><input type="password" class="text tel" id="password" name="password">
+					<span id="passwordError"></span>
+					<span class="stip"><i class="sico"></i><span>请填写6-20位字符，只能填写数字、字母（区分大小写）</span></span>
+				</dd>
+			</dl>
+			<dl class="clearfix">
+				<dt>确认密码</dt>
+				<dd><input type="password" class="text" id="password_sure">
+				<span id="password_sureError"></span>
+				</dd>
+			</dl>
+			<dl class="tm35 clearfix">
+				<dt></dt>
+				<dd><input type="button" value="下一步" class="btn1 op8" id="nextStep"></dd>
+			</dl>
+		</div>
+	</div>
+	<div class="wrapper footer">
+		<p>版权所有 © 泰康在线财产保险股份有限公司未经许可不得复制、转载或摘编，违者必究!</p>
+		<p>京ICP备09074081号-19 Copyright © Tk.cn Insurance CO.,LTD. All Rights Reserved</p>
+	</div>
+	<script>
+	$(function(){
+		modeLogin.telTip();
+	})
+	</script>
+  
+
+</body></html>

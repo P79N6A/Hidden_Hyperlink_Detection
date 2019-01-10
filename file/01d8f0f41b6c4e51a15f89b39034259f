@@ -1,0 +1,125 @@
+<html><head></head><body><pre style="word-wrap: break-word; white-space: pre-wrap;">/*Ïà»úÐÅÏ¢*/
+var IMG_EXif_STATE = {},
+    $LAST_PHOTO_GID_HOVER_EL;
+function photoMouseEvent(event) {
+    var eventType = event.type,
+        target = event.target, relatedTarget = event.relatedTarget,
+        $target = $(target), $photoGidEl = $target,
+        isMouseEnter = false;
+
+    if ($photoGidEl.hasClass('photo') ||
+        ((($photoGidEl = $((eventType === 'mouseover' ? target : relatedTarget))) &amp;&amp; $photoGidEl &amp;&amp; ($photoGidEl = $photoGidEl.getParent('div.photo'))) &amp;&amp; $photoGidEl)
+    ) {
+        isMouseEnter = true;
+    }
+    if (isMouseEnter) { // enter
+
+        addPhotoGidHover($photoGidEl);
+        if (target.getAttribute('role') === 'exifToggler') {
+            var $exifEl = $photoGidEl.getElement('div.exif');
+            $exifEl &amp;&amp; $exifEl.addClass('exif-open');
+        }
+    } else if($LAST_PHOTO_GID_HOVER_EL) { // leave
+        removePhotoGidHover();
+    }
+}
+function removePhotoGidHover() {
+    var $exifEl = $LAST_PHOTO_GID_HOVER_EL.getElement('div.exif');
+    $exifEl &amp;&amp; $exifEl.removeClass('exif-open');
+    if ($LAST_PHOTO_GID_HOVER_EL) {
+        Browser.Engine.trident4 &amp;&amp; $LAST_PHOTO_GID_HOVER_EL.removeClass('hover');
+        $LAST_PHOTO_GID_HOVER_EL = null;
+    }
+}
+function addPhotoGidHover($photoGidEl) {
+    Browser.Engine.trident4 &amp;&amp; $photoGidEl.addClass('hover');
+
+    $LAST_PHOTO_GID_HOVER_EL = $photoGidEl;
+
+    var $photoEl = $photoGidEl.getElement('img'),
+        itemId = $photoEl.getAttribute('data-photo-item-id') || 0;
+
+    if (!itemId) {
+        return;
+    }
+
+    !IMG_EXif_STATE[itemId] &amp;&amp; (IMG_EXif_STATE[itemId] = 0);
+
+    var $exifEl = $photoGidEl.getElement('div.exif');
+
+    //$exifEl.setStyle('margin-left', -($photoEl.width / 2 - 10));
+    if (IMG_EXif_STATE[itemId] === 0) {
+        $exifEl.addEvent('mouseenter', function(event) {
+            var $thisEl = $(this);
+            
+            IMG_EXif_STATE[itemId] === 1 &amp;&amp; new Request.JSON({
+                url: 'http://photo.poco.cn/module_common/act/get_image_exif.json.php',
+                data: 'item_id=' + itemId,
+                method: 'get',
+                onRequest: function() {
+                    var $exifInfoContainer = $(document.createElement('div'));
+                    $exifInfoContainer.innerHTML = '&lt;p class="no-exif"&gt;ÕýÔÚ¶ÁÈ¡ExifÐÅÏ¢&lt;/p&gt;';
+                    $exifInfoContainer.className = 'exif_info';
+                    $exifInfoContainer.inject($thisEl);
+
+                    IMG_EXif_STATE[itemId] = 2;
+                },
+                onComplete: function(jsonData) {
+                    IMG_EXif_STATE[itemId] = 3;
+                    var exifData = jsonData.data,
+                        exifList = [
+						
+                            { title: 'Æ·ÅÆ', key: 'make'}, { title: 'ÐÍºÅ', key: 'model'}, { title: '¾µÍ·', key: 'lens'}, { title: '¹âÈ¦', key: 'aperture'},
+                            { title: '¿ìÃÅ', key: 'shutter'}, { title: '½¹¾à', key: 'focal'}, { title: 'ISO', key: 'iso'},{title:'ÈÕÆÚ',key:'time'}
+							//,{title:'ÅÄÉã',key:'ExposureMode'},{title:'²â¹â',key:'MeteringMode'},
+							
+                        ],
+                        exifInfoHtml = [];                    
+                    if (exifData) {
+                        exifInfoHtml.push('&lt;dl class="clearfix"&gt;');
+                        for (var i = 0, len = exifList.length; i &lt; len; i++) {
+							if( exifList[i].key == 'time' ){
+							
+								var date = new Date(exifData[exifList[i].key]); 	//ÈÕÆÚ¶ÔÏó
+								var exifTime = "";									//Ïà»úÊ±¼ä
+								exifTime = date.getFullYear()+"/"; 				
+								exifTime = exifTime + (date.getMonth()+1)+"/";	
+								exifTime = exifTime + date.getDate()+" ";
+								exifTime = exifTime + date.getHours()+":";
+								exifTime = exifTime + date.getMinutes()+":";
+								exifTime = exifTime + date.getSeconds()+"";
+								exifData[exifList[i].key] = exifTime;
+								
+							}
+							exifInfoHtml.push('&lt;dt&gt;' + exifList[i].title + '&lt;/dt&gt;&lt;dd&gt;' + (exifData[exifList[i].key] || '-') + '&lt;/dd&gt;');
+                        
+						}
+                        exifInfoHtml.push('&lt;/dl&gt;');
+                    } else {
+                        exifInfoHtml.push('&lt;p class="no-exif"&gt;ÕâÕÅÕÕÆ¬Ã»ÓÐExifÐÅÏ¢£¬ÏêÇé¿ÉÍ¨¹ýÆÀÂÛ°´Å¥×ÉÑ¯×÷Õß&lt;/p&gt;');
+                    }
+
+                    var $exifInfoEl = $thisEl.getElement('div.exif_info');
+                    $exifInfoEl.innerHTML = exifInfoHtml.join('');
+                }
+            }).send();
+
+            if (!$LAST_PHOTO_GID_HOVER_EL) {
+                return;
+            }
+
+            var $exifEl = $LAST_PHOTO_GID_HOVER_EL.getElement('div.exif');
+            $exifEl &amp;&amp; $exifEl.addClass('exif-open');
+        })
+        $exifEl.addEvent('mouseleave', function(event) {
+            if (!$LAST_PHOTO_GID_HOVER_EL) {
+                return;
+            }
+            var $exifEl = $LAST_PHOTO_GID_HOVER_EL.getElement('div.exif');
+            $exifEl &amp;&amp; $exifEl.removeClass('exif-open');
+        });
+
+        IMG_EXif_STATE[itemId] = 1;
+    }
+}
+/*Ïà»úÐÅÏ¢*/</pre></body></html>

@@ -1,0 +1,2312 @@
+<html><head></head><body><pre style="word-wrap: break-word; white-space: pre-wrap;">//header.js
+var BrowserDetect={
+	init:function(){
+		this.browser = this.searchString(this.dataBrowser) || "An unknown browser";
+		this.version = this.searchVersion(navigator.userAgent) || this.searchVersion(navigator.appVersion) || "an unknown version";
+		this.OS = this.searchString(this.dataOS) || "an unknown OS";
+	},
+	searchString:function(data){
+		for(var i=0;i&lt;data.length;i++){
+			var dataString = data[i].string;
+			var dataProp = data[i].prop;
+			this.versionSearchString = data[i].versionSearch || data[i].identity;
+			if(dataString){
+				if(dataString.indexOf(data[i].subString) != -1)
+					return data[i].identity;
+			}else if(dataProp)
+				return data[i].identity;
+		}
+	},
+	searchVersion:function(dataString){
+		var index = dataString.indexOf(this.versionSearchString);
+		if(index == -1) {return}
+		return parseFloat(dataString.substring(index+this.versionSearchString.length+1));
+	},
+	dataBrowser:[{
+			string: navigator.userAgent,
+			subString: "MSIE",
+			identity: "Explorer",
+			versionSearch: "MSIE"
+		}
+	],
+	dataOS : [
+	]
+};
+BrowserDetect.init();
+
+function $(id){
+	return document.getElementById(id);
+};
+
+function login(){
+	var formObj = document.all("loginForm");
+	if(formObj){
+		if(formObj.login_id.value == "" || formObj.password.value == ""){
+			alert("用户名或密码不能为空！");
+			return false;
+		}
+		formObj.submit();
+	}
+};
+
+function changeLocation(){
+	var changeLocation = $("changeLocation");
+	if(changeLocation.style.display == "block"){
+		changeLocation.style.display = "none";
+	}else{
+		changeLocation.style.display = "block";
+	}
+
+};
+
+var link=1;
+function SetLinkVar(){
+	if(link){
+		link=0;
+	}
+};
+
+function ChangeListingColor_bg(s,i,j){
+	var colors = new Array("#ffffff","#f9f9f9","#fdfaeb");
+	var	color=colors[j];
+	if(i){
+		s.style.backgroundColor=color;
+	}else{
+		s.style.backgroundColor='#f1fcff';
+	}
+};
+
+function ChangeListingColor(s,i){
+	if(!i){
+		s.style.backgroundColor='';
+	}
+	else{
+		s.style.backgroundColor='#f6ffce';
+	}
+};
+
+var Class = {
+  create: function() {
+    return function() {
+      this.initialize.apply(this, arguments);
+    }
+  }
+};
+
+Object.extend = function(destination, source) {
+    for (var property in source) {
+        destination[property] = source[property];
+    }
+    return destination;
+};
+
+var Scroller = Class.create();
+Scroller.prototype = {
+  initialize: function(idScroller, idScrollMid, idUl, options) {
+	if (!$(idScroller) || !$(idScrollMid) || !$(idUl)) return;
+    var oScroll = this, oScroller = $(idScroller), oScrollMid = $(idScrollMid), ulHeight = $(idUl).offsetHeight;
+
+    this.heightScroller = oScroller.offsetHeight;
+	if (oScrollMid.offsetHeight &lt; ulHeight) {
+		oScrollMid.style.height = ulHeight + 'px';
+	}
+    this.heightList = oScrollMid.offsetHeight;
+
+	if (this.heightList &lt;= this.heightScroller) return;
+
+	var oUl = $(idUl);
+	var lis = oUl.getElementsByTagName('li');
+	var lisNum = lis.length;
+	for (var i=0; i&lt;lisNum; i++) {
+		var li = lis[i].cloneNode(true);
+		oUl.appendChild(li);
+	}
+
+    this.oScroller = oScroller;
+    this.timer = null;
+
+    this.SetOptions(options);
+
+    oScrollMid.onmouseover = function() { oScroll.Stop(); };
+    oScrollMid.onmouseout = function() { oScroll.Start(); };
+
+    if(this.options.PauseStep &lt;= 0 || this.options.PauseHeight &lt;= 0) {this.options.PauseStep = this.options.PauseHeight = 0}
+    this.Pause = 0;
+
+    this.Start();
+  },
+  SetOptions: function(options) {
+    this.options = {
+      Step:            1,
+      Time:            10,
+      PauseHeight:    0,
+      PauseStep:    2000
+    };
+    Object.extend(this.options, options || {});
+  },
+  Scroll: function() {
+    var iScroll = this.oScroller.scrollTop, iHeight = this.heightList, time = this.options.Time, oScroll = this, iStep = this.options.Step;
+
+	if(iScroll &gt;= (iHeight * 2 - this.heightScroller)){ iScroll -= iHeight; }
+
+    if(this.options.PauseHeight &gt; 0){
+        if(this.Pause &gt;= this.options.PauseHeight){
+            time = this.options.PauseStep;
+            this.Pause = 0;
+        } else {
+            this.Pause += iStep;
+            this.oScroller.scrollTop = iScroll + iStep;
+        }
+    } else { this.oScroller.scrollTop = iScroll + iStep; }
+
+    this.timer = window.setTimeout(function(){ oScroll.Scroll(); }, time);
+  },
+  Start: function() {
+    this.Scroll();
+  },
+  Stop: function() {
+    clearTimeout(this.timer);
+  }
+};
+scrollerArray = new Array();
+
+function newGoToPage(page){
+    var r=new RegExp("^[0-9]+$");
+	var num = parseInt(document.getElementById("pagenum").value ? document.getElementById("pagenum").value : 1);
+	if(!r.test(num) || num&lt;=0){
+		alert('页码必须是大于0的数字');
+		document.getElementById("pagenum").value="";
+		return false;
+	}
+	var totlenum = parseInt(document.getElementById("totlenum").value ? document.getElementById("totlenum").value : 0);
+	switch(page){
+		case "listing":
+			var url = document.getElementById("url").value ? document.getElementById("url").value : '';
+			var ig = document.getElementById("ig").value ? document.getElementById("ig").value : '';
+			var isNewUrl = document.getElementById("isNewUrl").value ? document.getElementById("isNewUrl").value : 0;
+			var listingOrderNumber = document.getElementById("listingOrderNumber")!=null ? document.getElementById("listingOrderNumber").value : 0;
+			if(num &gt; 1) {
+				if(parseInt(isNewUrl) == 1) {
+					if (num &lt;= listingOrderNumber){
+						var pagenum = (num &gt; totlenum) ? totlenum : num;
+						url = url + '/' + pagenum +'/';
+					}else{
+						var pagenum = ((totlenum - num + 1)&gt;0) ? (totlenum - num + 1) : 1;
+						url = url + '/index' + pagenum + '.html';
+					}
+				} else {
+					var pagenum = ((totlenum - num + 1)&gt;0) ? (totlenum - num + 1) : 1;
+					url = url + '/index' + pagenum + '.html' + ig;
+				}
+			} else {
+				url = url + '/';
+				if(parseInt(isNewUrl) == 0) {url = url + ig}
+			}
+			window.location.href = url;
+			break;
+		case 'q':
+			var url1 = document.getElementById("url1").value ? document.getElementById("url1").value : '';
+			var url2 = document.getElementById("url2").value ? document.getElementById("url2").value : '';
+			var pagenum = (num &gt; totlenum) ? totlenum : num;
+			if(pagenum == 1){
+				window.location.href = url1 + url2;
+			}else{
+				window.location.href = url1 + pagenum + '/' + url2;
+			}
+			break;
+
+		case 'c':
+			var url1 = document.getElementById("url1").value ? document.getElementById("url1").value : '';
+			var pagenum = (num &gt; totlenum) ? totlenum : num;
+			window.location.href = url1 + pagenum + '/';
+			break;
+
+		case 'bestofedeng':
+			var url1 = document.getElementById("url1").value ? document.getElementById("url1").value : '';
+			var pagenum = (num &gt; totlenum) ? totlenum : num;
+			if(pagenum == 1){
+				window.location.href = url1;
+			}else{
+				window.location.href = url1 + pagenum + '/';
+			}
+			break;
+		case 'f':
+			var url1 = document.getElementById("url1").value ? document.getElementById("url1").value : '';
+			var pagenum = (num &gt; totlenum) ? totlenum : num;
+			if(pagenum == 1){
+				window.location.href = url1+'1/';
+			}else{
+				window.location.href = url1 + pagenum + '/';
+			}
+			break;
+		default:
+			break;
+	}
+};
+
+function duo(i){
+	if(i=='1'){
+		document.getElementById('v2_hotCity').className="v2_hotcity_class2";
+		document.getElementById('gd_none').style.display="none";
+	}else{
+		document.getElementById('v2_hotCity').className="v2_hotcity_class1";
+		document.getElementById('gd_none').style.display="block";
+	}
+};
+
+function getGeoCookie(name) {
+	var start = document.cookie.indexOf(name + "=");
+	var len = start + name.length + 1;
+	if ((!start) &amp;&amp; (name != document.cookie.substring(0, name.length))) {
+		return null;
+	}
+	if (start == -1)
+		return null;
+	var end = document.cookie.indexOf(';', len);
+	if (end == -1)
+		end = document.cookie.length;
+	return unescape(document.cookie.substring(len, end));
+};
+
+function getUrlCookie(id){
+	return true;
+};
+
+//search.js
+function go(pageno){
+	try{
+		pno = parseInt(pageno,10);
+	}
+	catch(e){
+		pno = 1;
+	}
+
+	if(pno&lt;1)
+		pno = 1;
+	try{
+		pcount = parseInt(document.searchform.pagecount.value);
+	}
+	catch(e){
+		pcount = 0;
+	}
+	if (pno&lt;1)
+		pno = 1;
+	document.searchform.pageno.value = pno;
+	document.searchform.submit();
+};
+
+function goprev() {
+	go(parseInt(document.searchform.pageno.value) - 1);
+};
+
+function gonext() {
+	go(parseInt(document.searchform.pageno.value) + 1);
+};
+
+String.prototype.trim = function() {
+	// 用正则表达式将前后空格
+	// 用空字符串替代。
+	return this.replace(/(^\s*)|(\s*$)/g, "");
+};
+
+function sGo(fn,tp,ref_id){
+	/*
+	var c_r_searchId = document.getElementById('h_cat_id');
+	var c_r_searchCellId = document.getElementById('searchCell-search-tooltip');
+	if(c_r_searchId.value &amp;&amp; c_r_searchCellId &amp;&amp; (c_r_searchId.value==0)){
+		c_r_searchCellId.style.display="block";
+		return false;
+	}
+	*/
+ 	var sform = document.forms[fn];
+	var s_keyword = sform.key_title.value;
+	var noallowchar = "";
+	s_keyword = s_keyword.trim();
+	if(s_keyword.indexOf("*") != -1){
+		s_keyword = s_keyword.replace(/(\**)/g,"");//只替换掉首字符为*的情况 jira3167 in 4.35 delete all the * to fix solr error
+		noallowchar = noallowchar + '‘*’';
+	}
+	if(s_keyword.indexOf("?") != -1){
+		s_keyword = s_keyword.replace(/(\?*)/g,"");//只替换掉首字符为?的情况 jira3167 in 4.35 delete all the ? to fix solr error
+		noallowchar = noallowchar + '‘?’';
+	}
+	s_keyword = s_keyword.trim();
+	if(s_keyword &amp;&amp; !strpos(s_keyword, '输入关键字试试')){
+		var newurl = tp ? sform.newurl.value : '/c/G';
+		//alert(newurl);
+		//return false;
+		var sgid = tp ? sform.geo_id.value : 1;
+		var scid = tp ? sform.cat_id.value : 0;
+		var goURL = "";
+		if(!sgid){sgid = 1}
+		if(!scid){scid = 0}
+		if(ref_id)   {ref_str="R"+ref_id}
+		else  {ref_str=""}
+		goURL = goURL + newurl + sgid + "C" + scid +ref_str+"/" + encodeURI(s_keyword);
+		window.location.href = goURL? goURL+"/" : document.location.href;
+	}else{
+		var alertmsg = "请输入搜索关键词";
+		if(noallowchar!=""){alertmsg = alertmsg + ",且不要尝试"+noallowchar+"等非法字符。"}
+		alert(alertmsg);
+		sform.key_title.value = "";
+		sform.key_title.focus();
+	}
+	return false;
+};
+
+function checkKW(form,n,txt) {
+	if(typeof(txt)=='undefined'){
+		txt = '想找什么？输入类别或关键字试试';
+	}
+	var kw = form;
+	if(n==0){
+		if(kw.value == ''){
+			kw.value = txt;
+		}
+	}
+	if(n==1){
+		if(kw.value == txt){
+			kw.value='';
+		}
+	}
+};
+
+function more_fav(i)
+{
+	if(i)
+	{
+	  document.getElementById('more_fav').className=' serch_lis_tit_r_m  more_fav_border';
+	  document.getElementById('menu_fav').style.display='block';
+	}
+	else
+	{
+	  document.getElementById('more_fav').className='serch_lis_tit_r_m more_fav_border_no';
+	  document.getElementById('menu_fav').style.display='none';
+	}
+};
+
+function strpos(haystack, needle, offset){
+	var i=(haystack+'').indexOf(needle,(offset ? offset : 0));
+	return i === -1 ?false : i;
+};
+//message.js
+function win2(fileName) {
+  myFloater = window.open('','myWindow','scrollbars=yes,status=no,width=500,height=300');
+  myFloater.location.href = fileName;
+};
+
+function getMessageButtons(buttons) {
+	var style = "";
+	for(var i=0;i&lt;buttons.length;i++){
+		if (buttons[i][2])
+			style = "class=\"" + buttons[i][2] + "\"";
+		if(buttons[i][1] == '收藏信息'){
+			document.write("&lt;li&gt;&lt;a " + buttons[i][0] + " " + style + "&gt;" + buttons[i][1] + "&lt;/a&gt;&lt;/li&gt;");
+		}else{
+			document.write("&lt;li&gt;&lt;a href=\"" + buttons[i][0] + "\" " + style + "&gt;" + buttons[i][1] + "&lt;/a&gt;&lt;/li&gt;");
+		}
+	}
+};
+
+
+function prve(i){
+	if(i==1){
+		document.getElementById('prev_item').className = 'custom_prev_item';
+		document.getElementById('prev_s_item').className = 'custom_prev_s_item_img';
+	}else{
+		document.getElementById('prev_item').className = 'custom_prev_item_ne';
+		document.getElementById('prev_s_item').className = 'custom_prev_s_item_img_ne';
+	}
+};
+function next(i){
+	if(i==1){
+		document.getElementById('next_item').className = 'custom_next_item';
+		document.getElementById('next_s_item').className = 'custom_next_s_item_img';
+	}else{
+		document.getElementById('next_item').className = 'custom_next_item_ne';
+		document.getElementById('next_s_item').className = 'custom_next_s_item_img_ne';
+	}
+};
+
+var http_request_log = false;
+function send_request_log(url) {
+	if(window.XMLHttpRequest) {
+		http_request_log = new XMLHttpRequest();
+		if (http_request_log.overrideMimeType) {
+			http_request_log.overrideMimeType("text/xml");
+		}
+	}
+	else if (window.ActiveXObject) {
+		try {
+			http_request_log = new ActiveXObject("Msxml2.XMLHTTP");
+		} catch (e) {
+			try {
+				http_request_log = new ActiveXObject("Microsoft.XMLHTTP");
+			} catch (e) {}
+		}
+	}
+	if (!http_request_log) {
+		window.alert("不能创建XMLHttpRequest对象实例.");
+		return false;
+	}
+	var number = Math.random();
+	var fullurl=url+'&amp;n='+number;
+	http_request_log.open("GET", fullurl, true);
+	http_request_log.send(null);
+};
+
+function logitemlink(type) {
+	var url = '/ui/templates/html/modules/logitemlink.php?type='+type;
+	send_request_log(url);
+	return true;
+};
+
+
+function prototype_ajax_post(objform){
+	var url = "/ui/templates/html/modules/worstofedeng.php";
+	var myAjax = new Ajax.Request(
+		url,
+		{method: 'post', parameters: Form.serialize(objform), onComplete: prototype_response}
+	);
+};
+function prototype_response(req){
+	alert(req.responseText);
+};
+//image.js
+var Slideshow = {
+	next: function(container) {
+		this.move(container, this.images(container), 1);
+	},
+
+	previous: function(container) {
+		this.move(container, this.images(container), -1);
+	},
+
+	move: function(container, images, count) {
+		if (window['currentImg_'+container] &gt; -1) {
+			this.hide(container, images[window['currentImg_'+container]]);
+		}
+		window['currentImg_'+container] += count;
+		if (window['currentImg_'+container] &gt;= images.length) {
+			window['currentImg_'+container] = window['currentImg_'+container] % images.length;
+		}
+		if (window['currentImg_'+container] &lt; 0) {
+			window['currentImg_'+container] = (images.length-1);
+		}
+		if (container == 'photos') {
+			var parts = $('slide_paginator').innerHTML.split(' ');
+			parts[0] = window['currentImg_'+container] + 1;
+			$('slide_paginator').innerHTML = parts.join(' ');
+		}
+		this.show(container, images[window['currentImg_'+container]]);
+	},
+
+	jump: function(container, index) {
+		var images = this.images(container);
+		if (index &gt; -1 &amp;&amp; index &lt; images.length) {
+			if (window['currentImg_'+container] &gt; -1) {
+				this.hide(container, images[window['currentImg_'+container]]);
+			}
+			this.show(container, images[index]);
+			window['currentImg_'+container] = index;
+		} else if (index == -1) {
+			this.hide(container, images);
+			window['currentImg_'+container] = index;
+		}
+	},
+
+	images: function(container) {
+		var container = $(container);
+		var images;
+		if (window[container.id + '_images']) {
+			images = window[container.id + '_images'];
+		} else {
+			images = $A(container.getElementsByTagName('img'));
+		}
+		return images;
+	},
+
+	current: function(container, images) {
+		return window['currentImg_'+container];
+	},
+
+	show: function(container, image) {
+		if (container == 'preview') {
+			if (image.constructor == Array) {
+				if ($('post_video_ad')) {
+					Element.hide($('post_video_ad'));
+					Element.show('obj_img');
+				}
+				$('obj_img').src = image[0];
+				$('obj_href').href = image[0];
+				if($('obj_img')){
+					$('obj_img').alt = image[3];
+				}
+				if($('bigimg_descript')) {
+					$('bigimg_descript').innerHTML = image[3];
+					$('obj_img').alt = image[3];
+				}
+			} else {
+				Element.show(image);
+			}
+		} else {
+			Element.show(image);
+		}
+	},
+
+	hide: function(container, image) {
+		if (container == 'preview') {
+		} else {
+			Element.hide(image);
+		}
+	},
+
+	image_or_parent: function(image) {
+		var o = $(image);
+		if (o.parentNode.nodeName.toLowerCase() == 'a') {
+			return o.parentNode;
+		}
+		return o;
+	}
+};
+
+function SetSize(obj, width, height) {
+	myImage = new Image();
+	myImage.src = obj.src;
+	if (myImage.width&gt;0 &amp;&amp; myImage.height&gt;0) {
+		var rate = 1;
+		if (myImage.width&gt;width || myImage.height&gt;height) {
+			if (width/myImage.width&lt;height/myImage.height) {
+				rate = width/myImage.width;
+			} else {
+				rate = height/myImage.height;
+			}
+		}
+		if (window.navigator.appName == "Microsoft Internet Explorer") {
+			//obj.style.zoom = rate;
+			obj.width = myImage.width*rate;
+			obj.height = myImage.height*rate;
+		} else {
+			obj.width = myImage.width*rate;
+			obj.height = myImage.height*rate;
+		}
+	}
+};
+//register.js
+/**
+ * 统计字符串字节数
+ *
+ * return	integer
+ */
+String.prototype.ByteCount = function()
+{
+	txt = this.replace(/(&lt;.*?&gt;)/ig,'');
+	txt = txt.replace(/([\u0391-\uFFE5])/ig, '11');
+	var count = txt.length;
+	return count;
+};
+
+var http_request = false;
+function send_request(url) {//初始化、指定处理函数、发送请求的函数
+	http_request = false;
+	//开始初始化XMLHttpRequest对象
+	if(window.XMLHttpRequest) { //Mozilla 浏览器
+		http_request = new XMLHttpRequest();
+		if (http_request.overrideMimeType) {//设置MiME类别
+			http_request.overrideMimeType("text/xml");
+		}
+	}
+	else if (window.ActiveXObject) { // IE浏览器
+		try {
+			http_request = new ActiveXObject("Msxml2.XMLHTTP");
+		} catch (e) {
+			try {
+				http_request = new ActiveXObject("Microsoft.XMLHTTP");
+			} catch (e) {}
+		}
+	}
+	if (!http_request) { // 异常，创建对象实例失败
+		window.alert("不能创建XMLHttpRequest对象实例.");
+		return false;
+	}
+	var number = Math.random();
+	var fullurl=url+'&amp;n='+number;
+	http_request.onreadystatechange = checkrepeat;
+	// 确定发送请求的方式和URL以及是否同步执行下段代码
+	http_request.open("GET", fullurl, true);
+	http_request.send(null);
+};
+
+// 处理返回信息的函数
+function processRequest() {
+       if (http_request.readyState == 4) { // 判断对象状态
+            if (http_request.status == 200) { // 信息已经成功返回，开始处理信息
+				document.getElementById('checkloginidframe').innerHTML = http_request.responseText;
+				//checkloginidframe.innerHTML = '';
+                //alert(http_request.responseText);
+            } else { //页面不正常
+                alert("您所请求的页面有异常。");
+            }
+        }
+    };
+
+function checkrepeat() {
+	if (http_request.readyState == 4) { // 判断对象状态
+		if (http_request.status == 200) { // 信息已经成功返回，开始处理信息
+			reval = http_request.responseText;
+			if(reval) {
+				var val = reval.split(':');
+				document.getElementById(val[0]+'info').innerHTML = val[2];
+				if(parseInt(val[1]) &gt; 0) {
+					document.getElementById(val[0]+'info').className="reg_bg_three";
+					document.getElementById(val[0]+'repeat').value = val[1];
+				} else {
+					document.getElementById(val[0]+'info').className="reg_bg_four";
+					document.getElementById(val[0]+'repeat').value = '0';
+				}
+			}
+		} else { //页面不正常
+			alert("您所请求的页面有异常。");
+		}
+	}
+};
+
+//获得登陆名焦点
+function click_loginid()
+{
+	document.getElementById('loginidinfo').innerHTML="4-16个字符（包括4、16）或2-8个汉字";
+};
+
+//失去登陆名焦点
+function check_loginid(thisobj)
+{
+	var re = /^[\w|\u4E00-\u9FA5]+$/;
+	var count = thisobj.value.trim().ByteCount();
+	if( count == 0 )
+	{
+		document.getElementById('loginidinfo').className='reg_bg_three';
+		document.getElementById('loginidinfo').innerHTML="请输入登陆名！";
+		return false;
+	}
+	else if ((( count &gt; 16 || count &lt; 4))|| !thisobj.value.match(re)) {
+		document.getElementById('loginidinfo').className="reg_bg_three";
+		document.getElementById('loginidinfo').innerHTML="你输入的登陆名不符合规范，请重新输入！";
+		return false;
+	}
+	else
+	{
+		document.getElementById('loginidinfo').innerHTML = '正在检查...';
+		var ret=send_request('chkreginfo.php?loginid='+thisobj.value);
+		return true;
+	}
+};
+
+//获得第一个密码焦点
+function click_pwd()
+{
+		document.getElementById('pwdinfo').innerHTML="密码须为6位或6以上的字母/数字/下划线";
+};
+//失去第一个密码焦点
+function check_pwd(thisobj)
+{
+	var re = /^[\w]+$/;
+	var count = thisobj.value.trim().ByteCount();
+
+	if ( (thisobj.value.trim() == '') ) {
+		document.getElementById('pwdinfo').className="reg_bg_three";
+		document.getElementById('pwdinfo').innerHTML="请输入密码！";
+		return false;
+	}
+	else if (!thisobj.value.match(re) || (count &lt; 6 ) )
+	{
+		document.getElementById('pwdinfo').className = 'reg_bg_three';
+		document.getElementById('pwdinfo').innerHTML = '你输入的密码不符合规范，请重新输入！';
+		return false;
+	}
+	else
+	{
+		document.getElementById('pwdinfo').className = 'reg_bg_four';
+		document.getElementById('pwdinfo').innerHTML = '√';
+		return true;
+	}
+};
+//获得第二个密码焦点
+function click_repwd()
+{
+		var oPass = document.getElementById('password').value;
+		if( oPass == '')
+		{
+			document.getElementById('password').focus();
+			document.getElementById('pwdinfo').innerHTML="请输入密码！";
+		}else{
+			document.getElementById('repwdinfo').innerHTML="请输入确认密码";
+		}
+};
+//失去第二个密码焦点
+function check_repwd(thisobj)
+{
+	var oPass = document.getElementById('password').value;
+	if( thisobj.value.length=='' )
+	{
+		document.getElementById('repwdinfo').className="reg_bg_three";
+		document.getElementById('repwdinfo').innerHTML = '请输入确认密码！';
+		return false;
+	}
+	else if(thisobj.value != oPass)
+	{
+		document.getElementById('repwdinfo').className='reg_bg_three';
+		document.getElementById('repwdinfo').innerHTML = '两次输入的密码不一致，请重新输入。';
+		return false;
+	}
+	else
+	{
+		document.getElementById('repwdinfo').className = 'reg_bg_four';
+		document.getElementById('repwdinfo').innerHTML = '√';
+		return true;
+	}
+};
+
+//获得EMAIL焦点
+function click_email()
+{
+		document.getElementById('emailinfo').innerHTML="忘记密码时，可凭安全邮箱索取密码";
+};
+//失去Email焦点
+function check_email(thisobj)
+{
+	//var re = /^[0-9a-zA-Z\-\.\_]+@[0-9a-zA-Z\-]+\.[0-9a-zA-Z\-\.]+$/;
+	var re = /^[_\.0-9a-zA-Z-]+[0-9a-zA-Z]@([0-9a-zA-Z][0-9a-zA-Z-]+\.)+[a-zA-Z]{2,3}$/;
+
+	if ( (thisobj.value.trim() == '') ) {
+		document.getElementById('emailinfo').className="reg_bg_three";
+		document.getElementById('emailinfo').innerHTML="请输入E-mail！";
+		return false;
+	}
+	else if (!thisobj.value.match(re) || thisobj.value.split("@")[0].length &gt; 20)
+	{
+		document.getElementById('emailinfo').className = 'reg_bg_three';
+		document.getElementById('emailinfo').innerHTML = '你输入的E-mail不符合规范，请重新输入！';
+		return false;
+	}
+	else
+	{
+		document.getElementById('emailinfo').innerHTML = '正在检查...';
+		send_request('chkreginfo.php?email='+thisobj.value);
+		return true;
+	}
+};
+
+//失去City焦点
+function check_city(value)
+{
+
+	if ( (value == 0) ) {
+		document.getElementById('geoinfo').className = "reg_bg_three";
+		document.getElementById('geoinfo').innerHTML = "请选择所在城市！";
+		return false;
+	}
+	else
+	{
+		document.getElementById('geoinfo').className = "reg_bg_four";
+		document.getElementById('geoinfo').innerHTML = "√";
+		return true;
+	}
+};
+
+//获得验证码焦点
+function click_auth()
+{
+		document.getElementById('authinfo').innerHTML="请输入图中的四位数字验证码";
+};
+//失去验证码焦点
+function check_auth(thisobj)
+{
+	var re = /([0-9]){4}/;
+	var count = thisobj.value.trim().ByteCount();
+
+	if ( (thisobj.value.trim() == '') ) {
+		document.getElementById('authinfo').className="reg_bg_three";
+		document.getElementById('authinfo').innerHTML="请输入验证码！";
+		return false;
+	}
+	else if(!thisobj.value.match(re) || count != 4 )
+	{
+		document.getElementById('authinfo').className = 'reg_bg_three';
+		document.getElementById('authinfo').innerHTML = '验证码不正确，请重新输入！';
+		return false;
+	}
+	else
+	{
+		document.getElementById('authinfo').className="reg_bg_two";
+		document.getElementById('authinfo').innerHTML="此步骤有助于防止恶意自动注册行为的发生。";
+		return true;
+	}
+};
+
+function chkForm() {
+	var r = /^[\w|\u4E00-\u9FA5]+$/;
+	var rm = /^[_\.0-9a-zA-Z-]+[0-9a-zA-Z]@([0-9a-zA-Z][0-9a-zA-Z-]+\.)+[a-zA-Z]{2,3}$/;
+	var re = /^[\w]+$/;
+	var recode = /([0-9]){4}/;
+
+	var email = document.getElementById('email').value.trim();
+	var loginid = document.getElementById('login_id').value.trim();
+	var password =document.getElementById('password').value.trim();
+	var repwd = document.getElementById('repassword').value.trim();
+	var city = document.getElementById('geo1').value.trim();
+	var authcode = document.getElementById('number').value.trim();
+	if( loginid.ByteCount()&lt;4 || loginid.ByteCount()&gt;16 || (!loginid.match(r)) )
+	{
+		document.getElementById('login_id').focus();
+		document.getElementById('loginidinfo').className="reg_bg_three";
+		document.getElementById('loginidinfo').innerHTML="你输入的登陆名不符合规范，请重新输入！";
+		return false;
+	}
+	if(document.getElementById('loginidrepeat').value == 'yes') {
+		document.getElementById('login_id').focus();
+		document.getElementById('loginidinfo').className="reg_bg_three";
+		document.getElementById('loginidinfo').innerHTML="此登录名已被注册，请更换一个！";
+		return false;
+	}
+	if( password.ByteCount() &lt; 6 || (!password.match(re)) )
+	{
+		document.getElementById('pwdinfo').className = 'reg_bg_three';
+		document.getElementById('pwdinfo').innerHTML = '你输入的密码不符合规范，请重新输入！';
+		document.getElementById('password').focus();
+		return false;
+	}
+	if( password != repwd)
+	{
+		document.getElementById('repassword').focus();
+		document.getElementById('repwdinfo').className='reg_bg_three';
+		document.getElementById('repwdinfo').innerHTML = '两次输入的密码不一致，请重新输入。';
+		return false;
+	}
+	if(email=='' || (!email.match(rm)))
+	{
+		document.getElementById('email').focus();
+		document.getElementById('emailinfo').className = 'reg_bg_three';
+		document.getElementById('emailinfo').innerHTML = '你输入的E-mail不符合规范，请重新输入！';
+		return false;
+	}
+	var emailrepeat = parseInt(document.getElementById('emailrepeat').value);
+	if(emailrepeat &gt; 0) {
+		document.getElementById('email').focus();
+		document.getElementById('emailinfo').className="reg_bg_three";
+		if(emailrepeat == 1) {
+			document.getElementById('emailinfo').innerHTML="此邮箱已被注册，请更换一个！";
+		} else {
+			document.getElementById('emailinfo').innerHTML="请填写正确的E-mail！";
+		}
+		return false;
+	}
+	if( city == 0 )
+	{
+		document.getElementById('geo1').focus();
+		document.getElementById('geoinfo').className="reg_bg_three";
+		document.getElementById('geoinfo').innerHTML="请选择城市！";
+		return false;
+	}
+	if(!authcode.match(recode))
+	{
+		document.getElementById('number').focus();
+		document.getElementById('authinfo').className="reg_bg_three";
+		document.getElementById('authinfo').innerHTML="请输入正确的验证码！";
+		return false;
+	}
+	return true;
+};
+
+function showpersonal(check) {
+	if(check == true) {
+		document.getElementById('companyname').style.display="none";
+		document.getElementById('companyurl').style.display="none";
+		document.getElementById('companyperson').style.display="none";
+		document.getElementById('officetel1').style.display="none";
+		document.getElementById('officetel2').style.display="none";
+		document.getElementById('personalname').style.display="";
+		document.getElementById('hometel').style.display="";
+		document.getElementById('worktel').style.display="";
+		document.userForm.name.focus();
+	}
+};
+function showcompany(check) {
+	if(check == true) {
+		document.getElementById('personalname').style.display="none";
+		document.getElementById('hometel').style.display="none";
+		document.getElementById('worktel').style.display="none";
+		document.getElementById('companyname').style.display="";
+		document.getElementById('companyurl').style.display="";
+		document.getElementById('companyperson').style.display="";
+		document.getElementById('officetel1').style.display="";
+		document.getElementById('officetel2').style.display="";
+		document.getElementById('companyname').focus();
+	}
+};
+
+function isphone_NUM(str,n){             //数字字符串判定
+	var flag=1;
+	for(var i=0;i&lt;n;i++){
+		var not_NUM=(str.charAt(i)&gt;"9" || str.charAt(i)&lt;"0");
+		if((not_NUM &amp;&amp; str.charAt(i)!="-" ) &amp;&amp; (not_NUM &amp;&amp; str.charAt(i)!="(" ) &amp;&amp; (not_NUM &amp;&amp; str.charAt(i)!=")" ) ){
+			flag=0;
+	 		return flag;
+		}
+	}
+	return flag;
+};
+
+function get_geo(type, id, de) {
+	if (typeof(geoArray[id]) != "undefined") {
+		var geo = geoArray[id];
+		if(geo.length &gt; 1) {
+			if(document.getElementById(type) == null) {
+				var select1 = document.createElement("select");
+				select1.id = type;
+				select1.name = type;
+				document.getElementById("sel_geo").appendChild(select1);
+			} else {
+				document.getElementById(type).length = 0;
+			}
+			for (i=0; i&lt;geo.length; i++) {
+				var geo_info = geo[i].split('::');
+				document.getElementById(type).options[i] = new Option(geo_info[1], geo_info[0]); //建立option
+				if( de == geo_info[0] ) document.getElementById(type).options[i].selected = true;
+			}
+			document.getElementById(type).style.display = '';
+		} else if(document.getElementById(type)) {
+			document.getElementById(type).length = 0;
+			document.getElementById(type).style.display = 'none';
+		}
+	} else if(document.getElementById(type)) {
+		document.getElementById(type).length = 0;
+		if(type == 'geo2') document.getElementById(type).style.display = "none";
+	}
+	if(de&gt;1 &amp;&amp; type=='geo1') {
+		get_geo('geo2', de, 0);
+	}
+};
+
+function hideError(){
+	document.getElementById('searchCell-search-tooltip').style.display="none";
+};
+
+function checkEmpty(){
+	var start_city = document.getElementById('start_city').value;
+	var end_city = document.getElementById('end_city').value;
+	var start_date = document.getElementById('start_date').value;
+	if(start_city!='' &amp;&amp; end_city!='' &amp;&amp; start_date!=''){
+		return true;
+	}
+	alert('请填写完整信息');
+	return false;
+};
+function openVotePopDiv(msgid,url){
+	msgid = msgid ? msgid*1 : 0;
+	url = url ? url*1 : 0;
+	var iDiv=document.createElement('div');
+	iDiv.id='webInfoLayer';
+	document.body.appendChild(iDiv);
+	iDiv.style.left=parseInt((document.documentElement.scrollWidth-iDiv.offsetWidth)/2)+document.documentElement.scrollLeft+"px";
+	iDiv.style.top=Math.abs(parseInt((document.documentElement.clientHeight-iDiv.offsetHeight)/2))+document.documentElement.scrollTop+"px";
+
+	var sDiv=document.createElement('div');
+	sDiv.id='webShadowLayer';
+	document.body.appendChild(sDiv);
+	sDiv.style.cssText="filter:alpha(opacity=30);opacity:0.3;";
+	sDiv.style.left=parseInt(5+(document.documentElement.scrollWidth-sDiv.offsetWidth)/2)+document.documentElement.scrollLeft+"px";
+	sDiv.style.top=Math.abs(parseInt(8+(document.documentElement.clientHeight-sDiv.offsetHeight)/2))+document.documentElement.scrollTop+"px";
+
+	var bDiv=document.createElement('div');
+	bDiv.id='webBgLayer';
+	document.body.appendChild(bDiv);
+	bDiv.style.cssText="filter:alpha(opacity=40);opacity:0.4;";
+	bDiv.style.height=document.documentElement.scrollHeight+"px";
+	document.getElementById("webInfoLayer").innerHTML='&lt;iframe width="100%" style="height:300px; width:435px; overflow:hidden;" src="/nf/item_votepop.php?msgid='+msgid+'&amp;url='+url+'" frameborder="0"&gt;&lt;/iframe&gt;';
+};
+function CloseVotePopDiv(){
+	var iDiv = document.getElementById('webInfoLayer');
+	var sDiv = document.getElementById('webShadowLayer');
+	var bDiv = document.getElementById('webBgLayer');
+	document.body.removeChild(iDiv);
+	document.body.removeChild(sDiv);
+	document.body.removeChild(bDiv);
+};
+
+function openResumePopDiv(msgid,catid){
+	msgid = msgid ? msgid*1 : 0;
+	catid = catid ? catid*1 : 0;
+	var iDiv=document.createElement('div');
+	iDiv.id='webResumeInfoLayer';
+	document.body.appendChild(iDiv);
+	// Opacity should be defined in CSS if the opacity is not intended to change dynamicall by JS.
+	//iDiv.style.cssText="filter:alpha(opacity=30);opacity:0.3;";
+	iDiv.style.left=parseInt((document.documentElement.scrollWidth-iDiv.offsetWidth)/2)+document.documentElement.scrollLeft+"px";
+	iDiv.style.top=Math.abs(parseInt((document.documentElement.clientHeight-iDiv.offsetHeight)/2))+document.documentElement.scrollTop+"px";
+
+	var sDiv=document.createElement('div');
+	sDiv.id='webResumeShadowLayer';
+	document.body.appendChild(sDiv);
+	//sDiv.style.cssText="filter:alpha(opacity=40);opacity:0.4;";
+	sDiv.style.left=parseInt(5+(document.documentElement.scrollWidth-sDiv.offsetWidth)/2)+document.documentElement.scrollLeft+"px";
+	sDiv.style.top=Math.abs(parseInt(8+(document.documentElement.clientHeight-sDiv.offsetHeight)/2))+document.documentElement.scrollTop+"px";
+
+	var bDiv=document.createElement('div');
+	bDiv.id='webResumeBgLayer';
+	document.body.appendChild(bDiv);
+	bDiv.style.height=document.documentElement.scrollHeight+"px";
+	document.getElementById("webResumeInfoLayer").innerHTML='&lt;iframe width="100%" style="height:250px; width:406px; overflow:hidden;" src="/nf/item_resume.php?msgid='+msgid+'&amp;catid='+catid+'" frameborder="0"&gt;&lt;/iframe&gt;';
+};
+function CloseResumePopDiv(){
+	var iDiv = document.getElementById('webResumeInfoLayer');
+	var sDiv = document.getElementById('webResumeShadowLayer');
+	var bDiv = document.getElementById('webResumeBgLayer');
+	document.body.removeChild(iDiv);
+	document.body.removeChild(sDiv);
+	document.body.removeChild(bDiv);
+};
+
+function openFilterPopDiv(){
+	var iDiv=document.createElement('div');
+	iDiv.id='filterInfoLayer';
+	document.body.appendChild(iDiv);
+	iDiv.style.left=parseInt((document.documentElement.scrollWidth-iDiv.offsetWidth)/2)+document.documentElement.scrollLeft+"px";
+	iDiv.style.top=Math.abs(parseInt((document.documentElement.clientHeight-iDiv.offsetHeight)/2))+document.documentElement.scrollTop+"px";
+
+	var sDiv=document.createElement('div');
+	sDiv.id='filterShadowLayer';
+	document.body.appendChild(sDiv);
+	sDiv.style.cssText="filter:alpha(opacity=30);opacity:0.3;";
+	sDiv.style.left=parseInt(5+(document.documentElement.scrollWidth-sDiv.offsetWidth)/2)+document.documentElement.scrollLeft+"px";
+	sDiv.style.top=Math.abs(parseInt(8+(document.documentElement.clientHeight-sDiv.offsetHeight)/2))+document.documentElement.scrollTop+"px";
+
+	var bDiv=document.createElement('div');
+	bDiv.id='filterBgLayer';
+	document.body.appendChild(bDiv);
+	bDiv.style.cssText="filter:alpha(opacity=40);opacity:0.4;";
+	bDiv.style.height=document.documentElement.scrollHeight+500+"px";
+	document.getElementById("filterInfoLayer").innerHTML='&lt;iframe width="100%" style="height:250px; width:406px; overflow:hidden;" src="/nf/item_filter.php?msgid='+f_msgid+'&amp;catid='+f_catid+'&amp;geoid='+f_geoid+'" frameborder="0" scrolling="no"&gt;&lt;/iframe&gt;';
+};
+
+function addHandleEvent(obj, type, func) {
+	if (obj.attachEvent) {
+		obj.attachEvent('on' + type, func);
+		return true;
+	} else if (obj.addEventListener) {
+		obj.addEventListener(type, func, false);
+		return true;
+	} else {
+		return false;
+	}
+};
+
+function getFreshMessageButtons(buttons){
+	var style="class=\"underline\"";
+	if(buttons.length&gt;1){
+		for(var i=0;i&lt;buttons.length;i++){
+			document.write("&lt;span&gt;|&lt;/span&gt;&lt;a href=\""+buttons[i][0]+"\" "+style+"&gt;"+buttons[i][1]+"&lt;/a&gt;");
+		}
+	}
+};
+
+// Xue Feng's code. begin
+var $B = (function(ua){
+	var b = {
+		msie: /msie/.test(ua) &amp;&amp; !/opera/.test(ua),
+		opera: /opera/.test(ua),
+		safari: /webkit/.test(ua) &amp;&amp; !/chrome/.test(ua),
+		firefox: /firefox/.test(ua),
+		chrome: /chrome/.test(ua)
+	};
+	var vMark = "";
+	for (var i in b) {
+		if (b[i]) { vMark = "safari" == i ? "version" : i; break; }
+	}
+	b.version = vMark &amp;&amp; RegExp("(?:" + vMark + ")[\\/: ]([\\d.]+)").test(ua) ? RegExp.$1 : "0";
+
+	b.ie = b.msie;
+	b.ie6 = b.msie &amp;&amp; parseInt(b.version, 10) == 6;
+	b.ie7 = b.msie &amp;&amp; parseInt(b.version, 10) == 7;
+	b.ie8 = b.msie &amp;&amp; parseInt(b.version, 10) == 8;
+
+	return b;
+})(window.navigator.userAgent.toLowerCase());
+/*DOM*/
+var $D = {
+	getScrollTop: function(node) {
+		var doc = node ? node.ownerDocument : document;
+		var body = doc.documentElement || doc.body;
+		return body.scrollTop;
+	},
+	getScrollLeft: function(node) {
+		var doc = node ? node.ownerDocument : document;
+		return doc.documentElement.scrollLeft || doc.body.scrollLeft;
+	},
+	getDocWidth: function () {
+		var doc = document.documentElement || document.body;
+		return doc.scrollWidth;
+	},
+	nowStyle: function (elem) {
+		return document.defaultView	? document.defaultView.getComputedStyle(elem, null) :  elem.currentStyle;
+	},
+	rect: function(node){
+		var left = 0, top = 0, right = 0, bottom = 0;
+		//ie8的getBoundingClientRect获取不准确。 不仅 IE8，IE都不准，换用 offset 累加的方式。仔细测发现 getBoundingClientRect 在某些浏览器可以精确到小数，但 offset 累加只能整数。
+		//TODO IE6 还有1像素的错位
+		if ( !node.getBoundingClientRect || $B.ie ) {
+			var n = node;
+			while (n) {
+				left += n.offsetLeft;
+				top += n.offsetTop;
+				n = n.offsetParent;
+			};
+			right = left + node.offsetWidth;
+			bottom = top + node.offsetHeight;
+		}
+		else {
+			var rect = node.getBoundingClientRect();
+			left = right = this.getScrollLeft(node);
+			top = bottom = this.getScrollTop(node);
+			left += rect.left; right += rect.right;
+			top += rect.top; bottom += rect.bottom;
+		};
+		return { "left": left, "top": top, "right": right, "bottom": bottom };
+	}
+};
+;;;var iterate = function (obj){var	s="遍历对象"+obj+"的属性：\n";	for(var i in obj)	s+=i+":"+obj[i]+"\n&lt;br /&gt;";	return s;};
+var itemJump =
+{
+	timer:null,
+	se:null,
+	needtrack:null,
+	start:function(searchEngine, url, pagetype, needtrack, wait)
+	{
+		this.se = searchEngine;
+		this.needtrack = needtrack;
+		// skw 是全局变量, 从搜索引擎搜来时会存在
+		var searchKeyword = window.skw || '';
+		var wait = wait || 10;
+		var pagetype = pagetype || 'item';
+
+		var dom = $('itemJump');
+		if (dom)
+		{
+			var hint =
+			{
+				'item' : '很遗憾，您访问的页面已经失效，建议您查阅关于&lt;span class="keywordJump"&gt;'+searchKeyword+'&lt;/span&gt;的最新信息，&lt;span class="keywordSeconds" id="itemJumpCD"&gt;'+wait+'&lt;/span&gt; 秒后我们为您切换到相关页面。&lt;a href="'+url+'" onclick="itemJump.track(0)"&gt;马上查阅&lt;/a&gt; &lt;a href="javascript:;" onclick="itemJump.stop()"&gt;取消跳转&lt;/a&gt;',
+				'listing' : '友情提示：您访问的页面已经刷新，您需要浏览最新信息吗？&lt;span class="keywordSeconds" id="itemJumpCD"&gt;'+wait+'&lt;/span&gt; 秒后我们将为您切换到最新页面。&lt;a href="'+url+'" onclick="itemJump.track(0)"&gt;马上查阅&lt;/a&gt; &lt;a href="javascript:;" onclick="itemJump.stop()"&gt;取消跳转&lt;/a&gt;',
+				'vote':'感谢您的投票参与，我们将在 &lt;span class="keywordSeconds" id="itemJumpCD"&gt;'+g+'&lt;/span&gt; 秒后跳转回信息页面。&lt;a href="'+d+'" onclick="itemJump.track(0)"&gt;马上查阅&lt;/a&gt; &lt;a href="javascript:;" onclick="itemJump.stop()"&gt;取消跳转&lt;/a&gt;'
+			};
+			var str = hint[pagetype];
+			dom.innerHTML=str;
+			dom.style.display= 'block';
+			var me = this;
+			var countdown = function()
+			{
+				var domCountdown = $('itemJumpCD');
+				domCountdown.innerHTML = wait--;
+				if (wait &lt; 1)
+				{
+					//直接在 location.href=url; 前调用 me.track(2) 不能发出请求，改放在 unload 事件里执行就行了
+					addHandleEvent(window, 'unload', function(){me.track(2);});
+					location.href=url;
+				}
+			};
+			this.timer = setInterval(countdown, 1000);
+
+			// 让提示层跟随页面滚动
+			//列表页有 html 或 body 定义的 relative 定位，CSS 不好改，只好再额外用 JS 判断了，是 relative 的浮动层 left 用定值，否则从浮动层初始的位置取值。
+			// 根元素 html 用 documentElement 表示
+			var htmlStyle = $D.nowStyle(document.documentElement);
+			var bodyStyle = $D.nowStyle(document.body);
+			//最后查到 list 页面只有 html 是 relative，而 item 页则 html 和 body 都是 relative。只在只有 html 是 relative 时才需要修正定位
+			var ieRelative = (('relative' == htmlStyle.position.toLowerCase()) &amp;&amp; ('relative' != bodyStyle.position.toLowerCase())) &amp;&amp; $B.ie;
+			var rect = $D.rect(dom);
+			var rectBody = $D.rect(document.body);
+			var originalTop = rect.top ;
+			var originalWidth = rect.right-rect.left;
+			if(pagetype!='vote'){
+			dom.style.position = 'absolute';
+			}
+			//alert('rect.left='+rect.left+' rectBody.left='+rectBody.left);
+			//dom.style.left = (ieRelative ? rect.left-rectBody.left: rect.left) +'px';
+			dom.style.left = rect.left +'px';
+			dom.style.top = originalTop +'px';
+
+			//延时处理,不仅有利于页面性能,而且能解决 IE 获取 docWidth 的问题, IE 是一开始 resize 就获取 docWidth 而不是 resize 结束时, 等 resize 结束后 docWidth 值就不准了.
+			var timerDom = null;
+			var fixHint = function() {
+				setTimeout(function() {
+				dom.style.top = $D.getScrollTop() + originalTop + 'px';
+				var bodyWidthNow = $D.getDocWidth();
+				var styleLeft = (originalWidth &lt; bodyWidthNow) ? Math.round((bodyWidthNow-originalWidth)/2) :0;
+
+				// IE 的BUG在于 body 或 html 元素有 relative 定位时, 页面元素再绝对定位就不是相对于窗口, 而是相对于 body 的左上角了, 所以IE 的话再修正一下,仍然用节点自身的 left 值就行了.
+				//最后查到 list 页面只有 html 是 relative，而 item 页则 html 和 body 都是 relative。只在只有 html 是 relative 时才需要修正定位
+				if (ieRelative)
+				{
+					styleLeft = rect.left;
+				}
+
+				dom.style.left = styleLeft + 'px';
+				}, 100);
+			};
+			addHandleEvent(window, 'scroll', fixHint);
+			addHandleEvent(window, 'resize', fixHint);
+			//alert(iterate(rect));
+		}
+	},
+	stop:function()
+	{
+		var dom = $('itemJump');
+		if (dom)
+		{
+			dom.style.display= 'none';
+		}
+		clearInterval(this.timer);
+		this.track(1);
+	},
+	track:function(jump_type)
+	{
+		if (this.needtrack)
+		{
+			var param = {
+				'jump_type':jump_type,
+				'search_engine':this.se,
+				'current_url':encodeURIComponent(location.href)
+			};
+			$HTTP.jsonp({'url' : 'http://'+ED.domain+'/track_jump.php', 'params' : param});
+		}
+	}
+};
+
+//document.ready() method to listen to DOMContentLoaded event
+(function() {
+	var ie = !-[1,];
+	var wk = /webkit\/(\d+)/i.test(navigator.userAgent) &amp;&amp; (RegExp.$1 &lt; 525);
+	var fn = [];
+	var run = function() {
+		for (var i = 0; i &lt; fn.length; i++)
+		fn[i]();
+	};
+	var d = document;
+	d.ready = function(f) {
+		if (!ie &amp;&amp; !wk &amp;&amp; d.addEventListener)
+		return d.addEventListener('DOMContentLoaded', f, false);
+		if (fn.push(f) &gt; 1)
+		return;
+		if (ie)
+		(function() {
+			try {
+				d.documentElement.doScroll('left');
+				run();
+			} catch (err) {
+				setTimeout(arguments.callee, 0);
+			}
+		})();
+		else if (wk)
+			var t = setInterval(function() {
+				if (/^(loaded|complete)$/.test(d.readyState))
+				clearInterval(t), run();
+			}, 0);
+		};
+})();
+
+/*Object*/
+var $$ = function (id) {
+	return 'string' == typeof id ? document.getElementById(id) : id;
+};
+//HTTP 请求相关。某些页使用了 prototype.js！和 $H 变量名冲突，只好改个名字了。
+var $HTTP = {
+	/**通过增加脚本元素实现规范的 JSONP，只有 GET 请求。实现了加载成功和加载失败的处理。
+	xhr 基本一样。，JSON 格式对象
+	{
+	'url': url,		请求的 URL
+	'params': 提交的参数，JSON 格式，如{var1:'北京', var2:'test'}
+	'success': 响应成功时的处理函数，传入参数是响应的 JSON 格式数据。
+	'fail': 请求失败时的处理函数，通常是在页面上给出提示，可以为空
+	'loading': 等行响应时的加载中函数，通常是在页面上给出提示，可以为空
+	'timeout': 超时时间，默认为 10000 毫秒
+	}
+	*/
+	jsonp : function(json) {
+		var me = this;
+		//refresh 默认为 true
+		var
+		url=json.url,
+		params=json.params || {},
+		callback = json.callback||'callback',
+		onComplete=json.success,
+		onFailure=json.fail,
+		refresh = (false == json.refresh) ? false : true,
+		timeout = json.timeout||10000,
+		loading=json.loading;
+		if (loading)
+		{
+			loading();
+		}
+		var randomstr = Math.random().toString().substr(2);
+		//仅在有响应处理函数时再做 callback 处理。这样在不需要响应处理时可以减少 GET 请求参数。
+		if (onComplete)
+		{
+			//加载超时的处理, 只能是按既定时间等待, 如果没加载, 就放弃, 再执行超时处理函数.
+			var timerWait = setTimeout(function() {
+				//清理掉待执行的
+				window[randomName] = null;
+				//如果有超时的处理函数,执行之.
+				if (onFailure) {
+					onFailure();
+				}
+			}, timeout);
+
+			var randomName = 'jp'+randomstr;
+			//成功加载的处理, 先把超时处理的定时器清理掉, 再执行加载成功的处理函数.这里要做成 window 的成员，因为确实要使它成为全局函数。
+			window[randomName] = function(data) {
+				clearTimeout(timerWait);
+				//为防止 IE 内存泄漏，把 SCRIPT 节点再删了。索性其它浏览器也同样删吧，让别人不好猜我的程序。
+				firstTag.removeChild(scriptTag);
+				onComplete(data);
+			};
+			params[callback] = randomName;
+		}
+		var arg = '';
+		//先统一 &amp;arg=val，后面会再把第一个 &amp; 去
+		for (var key in params) {
+			arg += '&amp;' + key + '=' + params[key];
+		}
+		url += '?'+arg.substr(1);
+		if (refresh)
+		{
+			url += ((url.indexOf('?') &gt; 0) ? '&amp;' : '?')	+ randomstr;
+		}
+		//为什么这个函数把 script 标签加成 documentElement 的子节点，其实 documentElement.firstChild 通常就是 head 标签，用它比用 ['head'] 更保险，万一某页面没有 head 标签也能正常。
+		var scriptTag = document.createElement("script"),
+		firstTag = document.documentElement.firstChild;
+		scriptTag.type = "text/javascript";
+		scriptTag.src = url;
+		firstTag.insertBefore(scriptTag, firstTag.firstChild);
+	}
+};
+
+//is or not from search engine.
+var isSearchEngine=function(){
+	isGoogleReferrer = document.referrer.lastIndexOf('google');
+	isBaiduReferrer = document.referrer.lastIndexOf('baidu');
+	strCookie=document.cookie;
+	arrCookie=strCookie.split("; ");
+	for(i=0;i&lt;arrCookie.length;i++){
+		arr=arrCookie[i].split("=");
+		if("isReferrer"==arr[0]){
+			isReferrer=arr[1];
+			break;
+		}
+	}
+	if(isGoogleReferrer&gt;-1 || isBaiduReferrer&gt;-1){
+		document.cookie = 'isReferrer=1; path=/; domain=edeng.cn; true';
+	}
+};
+//push code to page.
+var callBackFun = function(show, occultation){
+	if(document.getElementById(show)){
+		document.getElementById(show).innerHTML = document.getElementById(occultation).innerHTML;
+	}
+};
+
+document.ready(function() {
+		// Toggle hints for search keyword
+	var toggleKeywordHint = function()
+	{
+		if(typeof(skw)!="undefined" &amp;&amp; skw!=""){
+			var arrItemToggle = ['h_key_title', 'b_key_title', 'i_key_title'];
+			var hint = '想找' + skw + '分类信息？输入关键字试试';
+			for (var i=0; i&lt;arrItemToggle.length;i++)
+			{
+				var domToggle = document.getElementById(arrItemToggle[i]);
+				if (domToggle)
+				{
+					domToggle.value = hint;
+					domToggle.onclick=function() {checkKW(this,1,hint);};
+					domToggle.onblur=function() {checkKW(this,0,hint);};
+				}
+			}
+			if(document.getElementById('kw_from_se1')) {
+				document.getElementById('kw_from_se1').style.display = '';
+				document.getElementById('kw_from_se1').innerHTML = '在&lt;font color="#0000CC"&gt;易登网&lt;/font&gt;看更多 &lt;a href="#" onClick="document.getElementById(\'lc_key_title1\').value = \'' + skw + '\'; sGo(\'lcsearchform1\',true,4);return false;"&gt;' + skw + '&lt;/a&gt; 的结果';
+			}
+			if(document.getElementById('kw_from_se2')) {
+				document.getElementById('kw_from_se2').style.display = '';
+				document.getElementById('kw_from_se2').innerHTML = '在&lt;font color="#0000CC"&gt;易登网&lt;/font&gt;看更多 &lt;a href="#" onClick="document.getElementById(\'lc_key_title2\').value = \'' + skw + '\'; sGo(\'lcsearchform2\',true,4);return false;"&gt;' + skw + '&lt;/a&gt; 的结果';
+			}
+		}
+	};
+	toggleKeywordHint();
+
+	//Lazy load Ads. 百度的 http://cpro.baidu.com/cpro/ui/c.js 有 document.write，只能放在 HTML 中而不能彻底分离出来。为避免重复请求，复制 HTML 内容时只复制普通节点而跳过 SCRIPT 节点。
+	//把除了 script 标签以外的有效节点转移到真正需要显示的地方去。由于当前节点的子节点 appendChild 到另一个节点后，当前节点的 length 会改变，所以不能用简单的 for 循环，即 for(i; i&lt;baiduAd.length; i++) 时不能正确遍历全部子节点。所以改用 while 循环。
+	var lazyLoadAds = function(blockId) {
+		var loader = $$(blockId+'_none');
+		//确认用于加载广告的隐藏块存在再执行后面的转移操作
+		if (loader) {
+			var presenter = $$(blockId);
+			var nodeThis = loader.firstChild;
+			var nodeNext;
+			while (nodeThis)
+			{
+				nodeNext = nodeThis.nextSibling;
+				var tagThis = nodeThis.tagName;
+				if (tagThis &amp;&amp; 'script'!=tagThis.toLowerCase())
+				{
+					presenter.appendChild(nodeThis);
+				}
+				nodeThis = nodeNext;
+			}
+			presenter.style.display = 'block';
+		}
+	};
+	lazyLoadAds('item_4');
+	lazyLoadAds('item_5');
+
+	//非 IE 还有一次多余的百度的请求，并且是加载失败！细查原来是 FF 、Chrome 在改变 iframe 节点隶属的父节点时会重新加载 iframe！只是状态始终是加载中，没有完成的状态。
+	//尝试不直接 appendChild 这个 iframe 节点，而是转移它外面的 div 节点，仍然 reload。
+	//有人汇报了这个 FF 的 bug， https://bugzilla.mozilla.org/show_bug.cgi?id=254144 但实测 Chrome 和 Opera 也同样效果。
+	//This incorrect behavior can be observed any time an iframe node is pulled from the DOM tree and re-inserted, whether it is done via an appendChild (see URL example), a removeChild and then appendChild, or a replaceChild.
+	//使用 appendChild 、removeChild 再 appendChild 或者 replaceChild 都会重载。那 cloneChild 呢？cloneChild 出来的节点还得 appendChild 到已有节点上，此时还是 reload。
+	//现在能想到的办法比较复杂，就是监测百度的 iframe 创建，在创建出来时截获 URL 然后把原始的 IFRAME 请求终止掉，然后在页面加载完成后再自己加载 IFRAME 到需要的位置。太复杂的，而且不一定行，以后再试吧。
+	//与显示无关的请求放最后
+	//ED.track 存储当前页的相同属性ID，在 HTML 页脚的 SCRIPT 标签中。
+	if (window.ED)
+	{
+		// 后加载地图
+		
+		/*
+		if(ED.mapLat &amp;&amp; ED.mapLng &amp;&amp; GBrowserIsCompatible)
+		{
+			// Google 地图用 loadJs 加载不灵！必须用 script 标签
+			if (GBrowserIsCompatible()) {
+					var map = null;
+					var map_id = "map_canvas";
+
+					map = new GMap2(document.getElementById(map_id));
+					//缩放和移动控件
+					map.addControl(new GSmallMapControl());
+					map.addControl(new GScaleControl());
+					map.addControl(new GMenuMapTypeControl());
+					var center = new GLatLng(ED.mapLat, ED.mapLng);
+					map.setCenter(center, 13);
+					var marker = new GMarker(center);
+					map.addOverlay(marker);
+			}
+		}
+		*/
+			if(ED.mapLat &amp;&amp; ED.mapLng){
+				var map = new BMap.Map("map_canvas");
+				var point = new BMap.Point(ED.mapLng, ED.mapLat);
+				map.centerAndZoom(point, 13);
+				map.addControl(new BMap.NavigationControl());
+				var marker = new BMap.Marker(point);
+				map.addOverlay(marker);
+			}
+		
+		
+		//$HTTP.jsonp({'url' : 'http://'+ED.domain+'/iframetracker.php', 'params' : ED.track});
+	}
+});
+// Xue Feng's code. end.
+var deljump = {
+	timer:null,
+	delwait:10,
+	countdel:function(url){
+		var delCount = document.getElementById('del_number');
+		delCount.innerHTML = this.delwait--;
+		if(this.delwait &lt; 1){
+			location.href=url;
+		}
+	},
+	init:function(url){
+		this.timer = setInterval(
+			function(){
+				deljump.countdel(url);
+			},
+			1000
+		);
+	},
+	stop:function(){
+		clearTimeout(this.timer);
+		document.getElementById('dialogCase').style.display='none';
+	}
+};
+
+
+;;;var iterate = function (obj){var	s="遍历对象"+obj+"的属性：\n";	for(var i in obj)	s+=i+":"+obj[i]+"\n&lt;br /&gt;";	return s;};
+
+//document.ready() method to listen to DOMContentLoaded event
+(function() {
+	var ie = !-[1,];
+	var wk = /webkit\/(\d+)/i.test(navigator.userAgent) &amp;&amp; (RegExp.$1 &lt; 525);
+	var fn = [];
+	var run = function() {
+		for (var i = 0; i &lt; fn.length; i++)
+		fn[i]();
+	};
+	var d = document;
+	d.ready = function(f) {
+		if (!ie &amp;&amp; !wk &amp;&amp; d.addEventListener)
+		return d.addEventListener('DOMContentLoaded', f, false);
+		if (fn.push(f) &gt; 1)
+		return;
+		if (ie)
+		(function() {
+			try {
+				d.documentElement.doScroll('left');
+				run();
+			} catch (err) {
+				setTimeout(arguments.callee, 0);
+			}
+		})();
+		else if (wk)
+			var t = setInterval(function() {
+				if (/^(loaded|complete)$/.test(d.readyState))
+				clearInterval(t), run();
+			}, 0);
+		};
+	})();
+
+var $$ = function (id) {
+	return 'string' == typeof id ? document.getElementById(id) : id;
+};
+
+var $B = (function(ua){
+	var b = {
+		msie: /msie/.test(ua) &amp;&amp; !/opera/.test(ua),
+		opera: /opera/.test(ua),
+		safari: /webkit/.test(ua) &amp;&amp; !/chrome/.test(ua),
+		firefox: /firefox/.test(ua),
+		chrome: /chrome/.test(ua)
+	};
+	var vMark = "";
+	for (var i in b) {
+		if (b[i]) { vMark = "safari" == i ? "version" : i; break; }
+	}
+	b.version = vMark &amp;&amp; RegExp("(?:" + vMark + ")[\\/: ]([\\d.]+)").test(ua) ? RegExp.$1 : "0";
+
+	b.ie = b.msie;
+	b.ie6 = b.msie &amp;&amp; parseInt(b.version, 10) == 6;
+	b.ie7 = b.msie &amp;&amp; parseInt(b.version, 10) == 7;
+	b.ie8 = b.msie &amp;&amp; parseInt(b.version, 10) == 8;
+
+	return b;
+})(window.navigator.userAgent.toLowerCase());
+/*DOM*/
+var $D = {
+	getScrollTop: function(node) {
+		var doc = node ? node.ownerDocument : document;
+		var body = doc.documentElement || doc.body;
+		return body.scrollTop;
+	},
+	getScrollLeft: function(node) {
+		var doc = node ? node.ownerDocument : document;
+		return doc.documentElement.scrollLeft || doc.body.scrollLeft;
+	},
+	getDocWidth: function () {
+		var doc = document.documentElement || document.body;
+		return doc.scrollWidth;
+	},
+	nowStyle: function (elem) {
+		return document.defaultView	? document.defaultView.getComputedStyle(elem, null) :  elem.currentStyle;
+	},
+	rect: function(node){
+		var left = 0, top = 0, right = 0, bottom = 0;
+		//ie8的getBoundingClientRect获取不准确。 不仅 IE8，IE都不准，换用 offset 累加的方式。仔细测发现 getBoundingClientRect 在某些浏览器可以精确到小数，但 offset 累加只能整数。
+		//TODO IE6 还有1像素的错位
+		if ( !node.getBoundingClientRect || $B.ie ) {
+			var n = node;
+			while (n) {
+				left += n.offsetLeft;
+				top += n.offsetTop;
+				n = n.offsetParent;
+			};
+			right = left + node.offsetWidth;
+			bottom = top + node.offsetHeight;
+		}
+		else {
+			var rect = node.getBoundingClientRect();
+			left = right = this.getScrollLeft(node);
+			top = bottom = this.getScrollTop(node);
+			left += rect.left; right += rect.right;
+			top += rect.top; bottom += rect.bottom;
+		};
+		return { "left": left, "top": top, "right": right, "bottom": bottom };
+	}
+};
+
+
+//HTTP 请求相关。某些页使用了 prototype.js！和 $H 变量名冲突，只好改个名字了。
+var $HTTP = {
+	/**通过增加脚本元素实现规范的 JSONP，只有 GET 请求。实现了加载成功和加载失败的处理。
+	xhr 基本一样。，JSON 格式对象
+	{
+	'url': url,		请求的 URL
+	'params': 提交的参数，JSON 格式，如{var1:'北京', var2:'test'}
+	'success': 响应成功时的处理函数，传入参数是标准 XMLHttpRequest 对象
+	'fail': 请求失败时的处理函数，通常是在页面上给出提示，可以为空
+	'loading': 等行响应时的加载中函数，通常是在页面上给出提示，可以为空
+	'timeout': 超时时间，默认为 10000 毫秒
+	}
+	*/
+	jsonp : function(json) {
+		var me = this;
+		//refresh 默认为 true
+		var
+		url=json.url,
+		params=json.params || {},
+		callback = json.callback||'callback',
+		onComplete=json.success,
+		onFailure=json.fail,
+		refresh = (false == json.refresh) ? false : true,
+		timeout = json.timeout||10000,
+		loading=json.loading;
+		if (loading)
+		{
+			loading();
+		}
+		var randomstr = Math.random().toString().substr(2);
+		//仅在有响应处理函数时再做 callback 处理。这样在不需要响应处理时可以减少 GET 请求参数。
+		if (onComplete)
+		{
+			//加载超时的处理, 只能是按既定时间等待, 如果没加载, 就放弃, 再执行超时处理函数.
+			var timerWait = setTimeout(function() {
+				//清理掉待执行的
+				window[randomName] = null;
+				//如果有超时的处理函数,执行之.
+				if (onFailure) {
+					onFailure();
+				}
+			}, timeout);
+
+			var randomName = 'jp'+randomstr;
+			//成功加载的处理, 先把超时处理的定时器清理掉, 再执行加载成功的处理函数.这里要做成 window 的成员，因为确实要使它成为全局函数。
+			window[randomName] = function(data) {
+				clearTimeout(timerWait);
+				//为防止 IE 内存泄漏，把 SCRIPT 节点再删了。索性其它浏览器也同样删吧，让别人不好猜我的程序。
+				firstTag.removeChild(scriptTag);
+				onComplete(data);
+			};
+			params[callback] = randomName;
+		}
+		var arg = '';
+		//先统一 &amp;arg=val，后面会再把第一个 &amp; 去
+		for (var key in params) {
+			arg += '&amp;' + key + '=' + params[key];
+		}
+		url += '?'+arg.substr(1);
+		if (refresh)
+		{
+			url += ((url.indexOf('?') &gt; 0) ? '&amp;' : '?')	+ randomstr;
+		}
+		//为什么这个函数把 script 标签加成 documentElement 的子节点，其实 documentElement.firstChild 通常就是 head 标签，用它比用 ['head'] 更保险，万一某页面没有 head 标签也能正常。
+		var scriptTag = document.createElement("script"),
+		firstTag = document.documentElement.firstChild;
+		scriptTag.type = "text/javascript";
+		scriptTag.src = url;
+		firstTag.insertBefore(scriptTag, firstTag.firstChild);
+	}
+};
+
+var ED = ED || {};
+ED.toggleHint = function(formitem, hintstr) {
+		//提交表单会改变表单项的焦点状态，这里再加上焦点在当前对象时的判断，如当前格是默认值并且焦点在当前格时才清空
+		var active = document.activeElement;
+		var defaultvalue = hintstr || formitem.defaultValue;
+		var currentvalue = formitem.value;
+		if ('' == currentvalue &amp;&amp; active != formitem) {
+			formitem.value = defaultvalue;
+		} else if (currentvalue == defaultvalue  &amp;&amp; active == formitem) {
+			formitem.value = '';
+		}
+};
+
+/**
+		* 读取 cookie, 此方法不对 cookie 的值进行 URL 解码，解码工作由使用其值的程序自行处理
+		* @param {string} cookieName	cookie 名字
+		* @return {string}	cookie 值
+		*/
+ED.getCookie = function(cookieName)
+{
+	var allcookies = document.cookie;
+	//alert(allcookies);
+	//提取形如  bbsSearch=%E8%81%94%E6%83%B3; 的 cookie 值，要在字符串里表示一个 \，就得写 \\。注意如果这是本站唯一的 cookie，取全部 cookie 字符串时会没有结尾的 ;，所以要用 ;?。
+	var reCookieExtract = new RegExp(cookieName+'=([^;]+);?');
+	//var arrHistory = [];
+	var cookieValue = '';
+	var arrMatch ;
+	//alert(reCookieExtract.exec(allcookies));
+	if (arrMatch = reCookieExtract.exec(allcookies))
+	{
+		//cookieValue = decodeURIComponent(arrMatch[1]);
+		cookieValue = arrMatch[1];
+	}
+	return cookieValue ;
+};
+ED.session = ED.session || {};
+ED.parseSessionCookie = function()
+{
+		var sessionCookie = decodeURIComponent(ED.getCookie('edengcookie'));
+		if (''!=sessionCookie)
+		{
+			var arrCookie = sessionCookie.split(';;;');
+			for (var i =0; i &lt; arrCookie.length; i++)
+			{
+				var tmp = arrCookie[i].split(':=:');
+				ED.session[tmp[0]] = tmp[1];
+			}
+		}
+};
+document.ready(function() {
+		// Make post link according to user login status.
+	// link_id: id of the link
+	var makeSessionPostLink = function(link_id, user_id, config, geotrace, cattrace, title)
+	{
+		var domHousePost = $$(link_id);
+		if (domHousePost)
+		{
+			var urlHousePost = config.code_dir+config.post_msg_file+'?geotrace='+geotrace+'&amp;cattrace='+cattrace;
+				if (0==user_id)
+				{
+					urlHousePost = config.login_form_file+'?from=5&amp;to='+encodeURIComponent(urlHousePost);
+				}
+				urlHousePost = config.web_url+urlHousePost;
+				domHousePost.href = urlHousePost;
+				domHousePost.title = title;
+		}
+	};
+
+		// Toggle hints for search keyword
+	var toggleKeywordHint = function()
+	{
+		//if(typeof(skw)!="undefined" &amp;&amp; skw!="")
+			var arrItemToggle = ['h_key_title', 'b_key_title', 'i_key_title'];
+			for (var i=0; i&lt;arrItemToggle.length;i++)
+			{
+				var domToggle = $$(arrItemToggle[i]);
+				if (domToggle)
+				{
+					domToggle.onclick=function() {ED.toggleHint(this);};
+					domToggle.onblur=function() {ED.toggleHint(this);};
+				}
+			}
+			var dom_se1 = $$('kw_from_se1');
+			if(dom_se1) {
+				dom_se1.style.display = '';
+				dom_se1.innerHTML = '在&lt;font color="#0000CC"&gt;易登网&lt;/font&gt;看更多 &lt;a href="#" onClick="document.getElementById(\'lc_key_title1\').value = \'' + skw + '\'; sGo(\'lcsearchform1\',true,4);return false;"&gt;' + skw + '&lt;/a&gt; 的结果';
+			}
+			var dom_se2 = $$('kw_from_se2');
+			if(dom_se2) {
+				dom_se2.style.display = '';
+				dom_se2.innerHTML = '在&lt;font color="#0000CC"&gt;易登网&lt;/font&gt;看更多 &lt;a href="#" onClick="document.getElementById(\'lc_key_title2\').value = \'' + skw + '\'; sGo(\'lcsearchform2\',true,4);return false;"&gt;' + skw + '&lt;/a&gt; 的结果';
+			}
+	};
+	toggleKeywordHint();
+
+	//与显示无关的请求放最后
+	//ED.track 存储当前页的相同属性ID，在 HTML 页脚的 SCRIPT 标签中。
+	if (window.ED)
+	{
+		var config = ED.config;
+		var web_url = config.web_url;
+		var msg = ED.msg;
+		var geoid = msg.geoid;
+		ED.parseSessionCookie();
+		var user_id = ED.session.uid ? ED.session.uid : 0;
+		var postFile = config.code_dir+config.post_msg_file+'?geotrace='+msg.geotrace+'&amp;cattrace='+msg.cattrace;
+
+		// User session panel
+		var domSession = $$('session_info');
+		if (domSession)
+		{
+			var userpanel = '&lt;a href="'+web_url+'/company/help_core.html" target="_blank" class="edhelp underline"&gt;帮助&lt;/a&gt;';
+			if (user_id &gt; 0)
+			{
+				userpanel += '&lt;a href="'+web_url+config.logout_file+'" class="edout underline"&gt;退出&lt;/a&gt;&lt;a href="'+web_url+config.my_edeng_file+'" class="edmyedeng underline" target="_blank"&gt;我的易登&lt;/a&gt;';
+			}
+			else
+			{
+				userpanel += '&lt;a href="'+web_url+config.register_user_file+'" class="edzhuce underline" target="_blank"&gt;注册&lt;/a&gt;&lt;a href="'+web_url+config.code_dir+'/bin/login/login_form.php?a='+geoid+'&amp;f='+encodeURIComponent(postFile)+'" class="edlogin underline"&gt;登录&lt;/a&gt;';
+			}
+			domSession.innerHTML = userpanel;
+		}
+
+		// Posting link
+		makeSessionPostLink('COOKIE_FABU', user_id, config, msg.geotrace, msg.cattrace, msg.geotitle+'免费发布信息');
+		makeSessionPostLink('COOKIE_FABU_POP', user_id, config, msg.geotrace, msg.cattrace, msg.geotitle+'免费发布信息');
+		// send tracking.
+		var track = {
+			tid:		msg.tid,
+			invite:	msg.invite,
+			cid:		msg.geoid,
+			uid:		user_id,
+			catid:	msg.catid,
+			iid:		msg.msgid,
+			search:	msg.search,
+			ttlsrch:msg.ttlsrch,
+			lf:			msg.lf
+		};
+		//$HTTP.jsonp({'url' : web_url+'/iframetracker.php', 'params' : track});
+	}
+});
+/*home_2012.js start*/
+;;;var iterate = function (obj){var	s="遍历对象"+obj+"的属性：\n";	for(var i in obj)	s+=i+":"+obj[i]+"\n&lt;br /&gt;";	return s;};
+//document.ready() method to listen to DOMContentLoaded event
+(function() {
+var ie = !-[1,];
+var wk = /webkit\/(\d+)/i.test(navigator.userAgent) &amp;&amp; (RegExp.$1 &lt; 525);
+var fn = [];
+var run = function() {
+	for (var i = 0; i &lt; fn.length; i++)
+	fn[i]();
+};
+var d = document;
+d.ready = function(f) {
+	if (!ie &amp;&amp; !wk &amp;&amp; d.addEventListener)
+	return d.addEventListener('DOMContentLoaded', f, false);
+	if (fn.push(f) &gt; 1)
+	return;
+	if (ie)
+	(function() {
+		try {
+			d.documentElement.doScroll('left');
+			run();
+		} catch (err) {
+			setTimeout(arguments.callee, 0);
+		}
+	})();
+	else if (wk)
+		var t = setInterval(function() {
+			if (/^(loaded|complete)$/.test(d.readyState))
+			clearInterval(t), run();
+		}, 0);
+	};
+})();
+String.prototype.trim = function()
+
+{
+
+	return this.replace(/(^\s*)|(\s*$)/g, "");
+
+};
+var $$ = function (id) {
+	return 'string' == typeof id ? document.getElementById(id) : id;
+};
+var ED = ED || {};
+ED.toggleHint = function(formitem, hintstr) {
+	var active = document.activeElement;
+	var defaultvalue = hintstr || formitem.defaultValue;
+	var currentvalue = formitem.value;
+	if ('' == currentvalue &amp;&amp; active != formitem) {
+		formitem.value = defaultvalue;
+	} else if (currentvalue == defaultvalue  &amp;&amp; active == formitem) {
+		formitem.value = '';
+	}
+};
+//get cookie
+ED.getCookie = function(cookieName)
+{
+	var allcookies = document.cookie;
+	//提取形如  bbsSearch=%E8%81%94%E6%83%B3; 的 cookie 值，要在字符串里表示一个 \，就得写 \\。注意如果这是本站唯一的 cookie，取全部 cookie 字符串时会没有结尾的 ;，所以要用 ;?。
+	var reCookieExtract = new RegExp(cookieName+'=([^;]+);?');
+	//var arrHistory = [];
+	var cookieValue = '';
+	var arrMatch ;
+	//alert(reCookieExtract.exec(allcookies));
+	if (arrMatch = reCookieExtract.exec(allcookies))
+	{
+		//cookieValue = decodeURIComponent(arrMatch[1]);
+		cookieValue = arrMatch[1];
+	}
+	return cookieValue ;
+};
+//parse cookie
+ED.session = ED.session || {};
+ED.parseSessionCookie = function()
+{
+		var sessionCookie = decodeURIComponent(ED.getCookie('edengcookie'));
+		if (''!=sessionCookie)
+		{
+			var arrCookie = sessionCookie.split(';;;');
+			for (var i =0; i &lt; arrCookie.length; i++)
+			{
+				var tmp = arrCookie[i].split(':=:');
+				ED.session[tmp[0]] = tmp[1];
+			}
+		}
+};
+
+var HP = HP || {};
+HP.popSearch = function(obj){
+	$$(obj).style.display="block";
+};
+HP.setVal = function(obj){
+	$$('h_cat_id').value = obj.id;
+	$$('click_btn').innerHTML = obj.innerHTML;
+	$$('click_box').style.display="none";
+};
+HP.strpos = function(haystack, needle, offset){
+	var i=(haystack+'').indexOf(needle,(offset ? offset : 0));
+
+	return i === -1 ?false : i;
+};
+HP.closePop = function(obj){
+	$$(obj).style.display="none";
+};
+HP.showDiv = function(orgclass,toclass,orgobj,toobj){
+	$$(orgobj).className = $$(orgobj).className.replace(orgclass,toclass);
+	$$(toobj).style.display = "block";
+};
+HP.closeDiv = function(orgclass,toclass,orgobj,toobj){
+	$$(orgobj).className = $$(orgobj).className.replace(toclass,orgclass);
+	$$(toobj).style.display = "none";
+};
+HP.searchGo = function(fn,tp,ref_id){
+	var sform = document.forms[fn];
+
+	var s_keyword = sform.key_title.value;
+
+	var noallowchar = "";
+
+	s_keyword = s_keyword.trim();
+
+	if(s_keyword.indexOf("*") != -1){
+
+		s_keyword = s_keyword.replace(/(\**)/g,"");//jira3167
+
+		noallowchar = noallowchar + '‘*’';
+
+	}
+
+	if(s_keyword.indexOf("?") != -1){
+
+		s_keyword = s_keyword.replace(/(\?*)/g,"");//jira3167 
+
+		noallowchar = noallowchar + '‘?’';
+
+	}
+
+	s_keyword = s_keyword.trim();
+
+	if(s_keyword &amp;&amp; !HP.strpos(s_keyword, '输入关键字试试')){
+
+		var newurl = tp ? sform.newurl.value : '/c/G';
+
+		var sgid = tp ? sform.geo_id.value : 1;
+
+		var scid = tp ? sform.cat_id.value : 0;
+
+		var goURL = tp ? sform.gourl.value : "";
+
+		if(!sgid)sgid = 1;
+
+		if(!scid)scid = 0;
+
+		if(ref_id){
+			ref_str="R"+ref_id;
+		}else{
+
+		  	ref_str="";
+		  }
+
+		goURL = goURL + newurl + sgid + "C" + scid +ref_str+"/" + encodeURI(s_keyword);
+
+//		window.open('http://www.sogou.com/sogou?query='+encodeURI(s_keyword)+'&amp;pid=sogou-site-8fc687aa152e8199', '_blank', 'alwaysLowered=no,toolbar=yes,menubar=yes,scrollbars=yes,resizable=yes,location=yes,status=yes');
+		window.location.href = goURL? goURL+"/" : document.location.href;
+
+	}else{
+
+		var alertmsg = "请输入搜索关键词";
+
+		if(noallowchar!="")
+
+		{
+
+			alertmsg = alertmsg + ",且不要尝试"+noallowchar+"等非法字符。";
+
+		}
+
+		alert(alertmsg);
+
+		sform.key_title.value = "";
+
+		sform.key_title.focus();
+
+	}
+
+	return false;
+};
+
+//AJAX for homepage.
+var adsHomeValue=0;
+var adsxmlhttp = false;
+try {
+	adsxmlhttp = new ActiveXObject("Msxml2.XMLHTTP");
+} catch (e) {
+	try {
+		adsxmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+	} catch (e2) {
+		adsxmlhttp = false;
+	}
+}
+if (!adsxmlhttp &amp;&amp; typeof XMLHttpRequest != 'undefined') {
+	adsxmlhttp = new XMLHttpRequest();
+}
+function pageTurnAjax(num, action, geoid){
+	if(action=='next'){
+		adsHomeValue += num;
+	}else{
+		adsHomeValue -= num;
+	}
+	document.getElementById("adscode").innerHTML = '&lt;div id="adsloading"&gt;&lt;img src="http://img01.edeng.cn/images/blue/loading.gif" /&gt;&lt;/div&gt;';
+	adsxmlhttp.open("GET","/nf/home_ads_2012.php?num="+num+"&amp;action="+action+"&amp;flag="+adsHomeValue+"&amp;geoid="+geoid, true);
+	adsxmlhttp.send(null);
+	adsxmlhttp.onreadystatechange=function(){
+		if (4==adsxmlhttp.readyState){
+			if (200==adsxmlhttp.status){
+				document.getElementById("adscode").innerHTML=adsxmlhttp.responseText;
+			}else{
+				document.getElementById("adscode").innerHTML = '&lt;div id="adsloading"&gt;&lt;img src="http://img01.edeng.cn/images/blue/loading.gif" /&gt;&lt;/div&gt;';
+			}
+		}
+	};
+};
+
+var getFavor = function(uid,gid){
+	if($$('menu_hover_box').style.display == 'none'){
+		if($$('myfeet').className.indexOf('hover') == -1){
+			$$('myfeet').className = $$('myfeet').className + ' hover';
+		}
+		$$('menu_hover_box').style.display = "block";
+		if(!uid){
+			return false;
+		}
+		document.getElementById("menu_hover").innerHTML = '加载中请稍候..';
+		adsxmlhttp.open("GET","/nf/user_favor.php?uid="+uid+'&amp;gid='+gid+'&amp;radom'+Math.random(), true);
+		adsxmlhttp.send(null);
+		adsxmlhttp.onreadystatechange=function(){
+			if (4==adsxmlhttp.readyState){
+				if (200==adsxmlhttp.status){
+					if(adsxmlhttp.responseText != false){
+						var data = eval('('+adsxmlhttp.responseText+')');
+						$$("menu_hover").innerHTML = data.data;
+						if(data.state == 1){
+							$$('menu_hover_op').innerHTML = '&lt;a class="btn_topmenu" target="_blank"  href="http://www.edeng.cn/code/bin/register/reg_cat.php?ms=my" id="menu_hover_op"&gt;修改关注&lt;/a&gt;';
+						}else if(data.state == 0){
+							$$('menu_hover_op').innerHTML = '&lt;a class="btn_topmenu" target="_blank"  href="http://www.edeng.cn/code/bin/register/reg_cat.php?ms=my" id="menu_hover_op"&gt;添加关注&lt;/a&gt;';
+						}
+					}else{
+						$$("menu_hover").innerHTML = '您尚未登录';
+					}
+				}else{
+					$$("menu_hover").innerHTML = '加载中请稍候..';
+				}
+			}
+		};
+	}
+};
+
+var getFavorOut = function(flag){
+	if(flag == 1){
+		if($$('myfeet').className.indexOf('hover') == -1){
+			$$('myfeet').className = $$('myfeet').className + ' hover';
+		}
+		$$('menu_hover_box').style.display = "block";
+	}else{
+		$$('myfeet').className = $$('myfeet').className.replace('hover','');
+		$$('menu_hover_box').style.display = "none";
+	}
+};
+
+
+/* for mobile site referrer*/
+var sUserAgent = window.navigator.userAgent;
+var sUserHerf = window.location.href;
+var sUserRefer = window.document.referrer;
+var sUserRedirectUrl = '';
+var sUserPageName = 'other';
+var sMobileType = /(SymbianOS|SymbianOS|SonyEricsson|Android|Nokia|SAMSUNG|iPhone|MOT|WindowsCE|BlackBerry|SAM|WindowsMobile|softbank|KDDI|LG|SCH|MobilePhone|UTS|HTC|ZTE|SGH|philips|panasonic|alcatel|lenovo|cldc|midp|mobile|itouch|CoolPAD|Motorola|NEC)/i;
+if (sUserHerf.indexOf('xinxi/') != -1){
+	sUserPageName = 'item';
+}else if (sUserHerf.match(/(edeng\.cn\/?)$/)){
+	sUserPageName = 'home';
+}else if (sUserHerf.match(/(edeng\.cn\/13\/|edeng\.cn\/33\/|edeng\.cn\/53\/|edeng\.cn\/63\/)/i)){
+	sUserPageName = 'listing';
+}else{
+	//others
+}
+if (sUserRefer.indexOf('edeng.cn') == -1){
+	if (sUserAgent.match(sMobileType)){
+		if (sUserPageName == 'other'){
+			sUserRedirectUrl = 'http://wap.edeng.cn';
+		}else{
+			if(sUserHerf.indexOf('www.edeng.cn') != -1){
+				sUserRedirectUrl = sUserHerf.replace('www','wap');
+			}else if(sUserHerf.indexOf('wap.') == -1){
+				sUserRedirectUrl = sUserHerf.replace('http://','http://wap.');
+			}
+		}
+	}else{
+		// main site
+	}
+	if (sUserRedirectUrl){
+		window.location.href = sUserRedirectUrl;
+	}
+}
+/*mobile referrer end*/
+
+function sitebox(config){
+	var web_url = config.web_url;
+	var my_edeng_file = config.my_edeng_file;
+	adsxmlhttp.open("GET", my_edeng_file + '?m=sitebox&amp;a=unread&amp;radom'+Math.random());
+	adsxmlhttp.send(null);
+	adsxmlhttp.onreadystatechange=function(){
+		if (4==adsxmlhttp.readyState){
+			if (200==adsxmlhttp.status){
+				if(adsxmlhttp.responseText != false){
+					var data = eval('('+adsxmlhttp.responseText+')');
+					if(data.state == 100){
+						var unread = data.data.msg;
+						if(unread &gt; 0){
+							var div = document.createElement("div");
+							div.className = "quickmenu left";
+							var html = '&lt;a href="'+web_url+my_edeng_file+'?m=sitebox&amp;a=in" target="_blank"&gt;' + unread + '条未读信息&lt;/a&gt;&lt;span class="sitebox"&gt;&lt;/span&gt;';
+							div.innerHTML = html;
+							$$("session_info").insertBefore(div, $$("u_name_btn").nextSibling);
+						}
+					}
+				}
+			}
+		}
+	};
+}
+
+document.ready(function() {
+		// Make post link according to user login status.
+	// link_id: id of the link
+	var makeSessionPostLink = function(link_id, user_id, config, geotrace, cattrace, title)
+	{
+		var domHousePost = $$(link_id);
+		if (domHousePost)
+		{
+			var urlHousePost = config.code_dir+config.post_msg_file+'?geotrace='+geotrace+'&amp;cattrace='+cattrace;
+			if (0==user_id)
+			{
+				urlHousePost = config.login_form_file+'?from=5&amp;to='+encodeURIComponent(urlHousePost);
+			}
+			urlHousePost = config.web_url+urlHousePost;
+			domHousePost.href = urlHousePost;
+			domHousePost.title = title;
+		}
+	};
+	var domToggle = $$('key_title');
+	if (domToggle)
+	{
+		domToggle.onclick=function() {ED.toggleHint(this);};
+		domToggle.onblur=function() {ED.toggleHint(this);};
+	}
+	//与显示无关的请求放最后
+	if (window.ED)
+	{
+		var config = ED.config;
+		var web_url = config.web_url;
+		var msg = ED.msg;
+		var geoid = msg.geoid;
+		ED.parseSessionCookie();
+		var user_id = ED.session.uid ? ED.session.uid : 0;
+		var postFile = config.code_dir+config.post_msg_file+'?geotrace='+msg.geotrace+'&amp;cattrace='+msg.cattrace;
+		// User session panel
+		var user_name = decodeURIComponent(ED.getCookie('login_id'));
+		var domSession = $$('session_info');
+		if (domSession)
+		{
+			var userpanel = '';
+			if (user_id &gt; 0)
+			{
+				userpanel +='&lt;div class="quickmenu left nobg " id="myfeet"  &gt;&lt;a href="javascript:;" onmouseover="getFavor('+user_id+','+geoid+')"&gt;我的关注&lt;span class="arrow"&gt;&lt;/span&gt;&lt;/a&gt;&lt;div style="display:none;" id="menu_hover_box" class="hc" onmouseover="getFavorOut(1);" onmouseout="getFavorOut(0);"&gt;&lt;p class="qucikmenu_title"&gt;您关注的分类：&lt;/p&gt;&lt;ul id="menu_hover"&gt;&lt;/ul&gt;&lt;label id="menu_hover_op"&gt;&lt;/label&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="quickmenu left" id="myfeet"&gt;&lt;a href="'+web_url+config.my_edeng_file+'?m=publish&amp;a=shown" target="_blank"&gt;已发布的信息&lt;/a&gt;&lt;span class="arrow"&gt;&lt;/span&gt;&lt;/div&gt;';
+
+				userpanel += '&lt;div class="login left quickmenu spacing" id="u_name_btn" onmouseover = "HP.showDiv(\'quickmenu\',\'hover\',\'u_name_btn\',\'menu_hover_box3\')" onmouseout="HP.closeDiv(\'quickmenu\',\'hover\',\'u_name_btn\',\'menu_hover_box3\')" &gt;&lt;a  href="javascript:;"  &gt;'+user_name+'&lt;/a&gt;&lt;span class="arrow"&gt;&lt;/span&gt;&lt;div id="menu_hover_box3" class="hc"  style="display:none;"&gt;&lt;ul&gt;&lt;li&gt;&lt;a href="'+web_url+config.my_edeng_file+'" target="_blank"&gt;我的易登&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href="'+web_url+config.my_edeng_file+'?m=promotion&amp;a=index" target="_blank"&gt;推广管理&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href="'+web_url+config.logout_file+'"&gt;退出&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;&lt;/div&gt;&lt;/div&gt;';
+			}
+			else
+			{
+				userpanel += '&lt;div class="quickmenu left nobg " id="myfeet" onmouseover="getFavor('+user_id+','+geoid+')" onmouseout="getFavorOut();"&gt;&lt;a href="javascript:;" &gt;我的关注&lt;span class="arrow"&gt;&lt;/span&gt;&lt;/a&gt;&lt;div style="display:none;" id="menu_hover_box" class="hc"&gt;&lt;p class="qucikmenu_title"&gt;你还没有任何关注&lt;/p&gt;&lt;ul id="menu_hover"&gt;&lt;a class="btn_topmenu" target="_blank"  href="'+web_url+config.code_dir+'/bin/login/login_form.php?a='+geoid+'&amp;f='+encodeURIComponent(postFile)+'" id="menu_hover_op"&gt;添加关注&lt;/a&gt;&lt;/ul&gt;&lt;label id="menu_hover_op"&gt;&lt;/label&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="login left"&gt;&lt;a target="_self" href="'+web_url+config.code_dir+'/bin/login/login_form.php?a='+geoid+'&amp;f='+encodeURIComponent(postFile)+'"&gt;登录&lt;/a&gt;&lt;/div&gt;&lt;div class="register left"&gt;&lt;a target="_self" href="'+web_url+config.register_user_file+'"&gt;注册&lt;/a&gt;&lt;/div&gt;'
+			}
+			userpanel += '&lt;div class="help left"&gt;&lt;a target="_self" href="'+web_url+'/company/help_core.html"&gt;&lt;font style="font-weight:bold;color:red"&gt;帮助&lt;/font&gt;&lt;/a&gt;&lt;/div&gt;';
+			domSession.innerHTML = userpanel;
+			if(user_id &gt; 0){
+				sitebox(config);
+			}
+		}
+		// Posting link
+		makeSessionPostLink('COOKIE_FABU', user_id, config, msg.geotrace, msg.cattrace, msg.geotitle+'免费发布信息');
+	}
+});
+/*home_2012.js end*/
+
+
+
+//创建于13-10-28 by 'frank'
+/* 修复大量页面中返回顶部js兼容问题 */
+function backToTop() {
+	el = $$('gotopbtn');
+	if(typeof el === "undefined") return null;
+	el.onclick=function (){
+		window.scrollTo(0, 0)
+		sb();
+	}
+	
+	function sb(){
+		if((document.documentElement.scrollTop+document.body.scrollTop)==0){
+			el.style.display="none";
+		}else{
+			el.style.display="block";
+		}
+	}
+	_addScroll(sb);
+}
+
+//右侧广告固定效果
+function adEffect() {	
+	var el = $$('center_right');
+	if(typeof el === "undefined") return null;
+    var top = Math.max(el.parentNode.offsetTop, el.offsetTop);	
+    function fexed() {
+		if (getBodyTop() &gt; top) {
+			el.style.cssText = "position:fixed;top:0;left:50%;margin-left:290px;float:none;z-index:99;_position:absolute;_top:" + getBodyTop() + "px";
+        } else {
+			el.style.cssText = "";
+        }
+    }
+	_addScroll(fexed);
+}
+_addLoadEvent(backToTop);
+_addLoadEvent(adEffect);
+function getBodyTop(){return document.documentElement.scrollTop+document.body.scrollTop}
+function _addLoadEvent(func) {
+	var oldonload = window.onload;
+	if (typeof window.onload != 'function') {
+		window.onload = func;
+	} else {
+		window.onload = function() {
+			oldonload();
+			func();
+		}
+	}
+}
+function _addScroll(func) {
+	var oldScroll = window.onscroll;
+	if (typeof window.onscroll != 'function') {
+		window.onscroll = func;
+	} else {
+		window.onscroll = function() {
+			oldScroll();
+			func();
+		}
+	}
+	
+}
+</pre></body></html>

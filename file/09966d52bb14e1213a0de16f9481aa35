@@ -1,0 +1,322 @@
+<!DOCTYPE html><html><head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8;">
+<meta http-equiv="X-UA-Compatible" content="IE=7">
+<title>安徽合肥人才网-新安人才网企业登陆首页</title>
+<link rel="stylesheet" type="text/css" href="/v5/default.css">
+<link rel="stylesheet" type="text/css" href="/v5/index.css?v=20170328">
+<script type="text/javascript" async="" src="http://www.google-analytics.com/ga.js"></script><script type="text/javascript" src="/v5/jquery_1.7.2.js"></script>
+<script type="text/javascript" src="/scripts/jquery.placeholder.min.js?v=20170324"></script>
+<!--[if lt IE 9]>
+  <script src="/v5/html5shiv.min.js" language="javascript"></script>
+<![endif]-->
+<style>
+.placeholder {color: #a9a9a9;}
+#right_let {display: block;overflow: hidden; top: 113px;z-index: 100000;right: 0px; position: fixed;}
+</style></head>
+
+<body>
+<script>
+function showTipMsg(id, type, msg) {
+    if (type == 1) {
+        //$('#'+id+'_right').html('<i class="u-icon-16 u-icon-right"></i>');
+        $('#'+id+'_right').html('');
+        $('#'+id).html('');
+    } else if (type == 3) {
+        $('#'+id+'_right').html('');
+        $('#'+id).html('<div class="forom-tip" ><i class="u-icon-16 u-icon-error-16"></i>'+msg+'</div>');
+    }
+}
+
+$(function(){
+    $('input, textarea').placeholder();
+    $(document).keyup(function(event){
+        if(event.keyCode == 13){
+            $(".classLogin").trigger("mousedown");
+        }  
+    });
+    $('.classLogin').bind("mousedown",function () {
+        var nexFlag = 1;
+        $("input[alt]").each(function(){
+            $this = $(this);
+            if ($this.attr("alt")=='blank') {
+                if ($(this).val()=='') {
+                    var tipid = $(this).attr("tipid");
+                    var ph = $(this).attr("placeholder");
+                    $(this).parent("div").addClass("form-error");
+                    showTipMsg(tipid, 3, ph);
+                    nexFlag = 0;
+                }
+            }
+        });
+
+        //ajax 请求
+        if (nexFlag == 1) {
+            $.ajax({
+                type: "get",
+                dataType: "json",
+                data: {
+                    memName: $("#memName").val(),
+                    loginName: $("#loginName").val(),
+                    password: $("#password").val(),
+                    vcode: $("#vcode").val()
+                },
+                url: "http://ehr.goodjobs.cn/dispatcher.php/action/LoginAjaxErr",
+                success: function (data) {
+                    if (data.status == 100) {
+                        location.href=data.url;
+                    } else if (data.status == 102) {
+                        if (!$("#memName").parent("div").hasClass("form-error")) {
+                            $("#memName").parent("div").addClass("form-error");
+                        }
+                        showTipMsg('tip_mem', 3 , data.message);
+                    } else if (data.status == 103) {
+                        if (!$("#loginName").parent("div").hasClass("form-error")) {
+                            $("#loginName").parent("div").addClass("form-error");
+                        }
+                        showTipMsg('tip_login', 3 ,data.message);
+                    } else if (data.status == 104) {
+                        if (!$("#password").parent("div").hasClass("form-error")) {
+                            $("#password").parent("div").addClass("form-error");
+                        }
+                        showTipMsg('tip_password' ,3 ,data.message);
+                    } else if (data.status == 101) {
+                        if (!$("#vcode").parent("div").hasClass("form-error")) {
+                            $("#vcode").parent("div").addClass("form-error");
+                        }
+                        showTipMsg('tip_vcode', 3 ,data.message);
+                    } else if (data.status == 110) {
+                        alert(data.message);
+                    } else if (data.status == 200) {
+                        document.loginForm.submit();
+                    }
+                }
+            });
+        }
+    });
+    
+    $('input[alt]').bind("blur",function () {
+        var tipid = $(this).attr("tipid");
+        var ph = $(this).attr("placeholder");
+        if ($(this).val().length > 0) {
+            if (tipid !="tip_vcode") {
+                if ($(this).parent("div").hasClass("form-error")) {
+                    $(this).parent("div").removeClass("form-error");
+                }
+                showTipMsg(tipid, 1, '');
+            } else {
+                if ($(this).val().length != 4) {
+                    $(this).parent("div").addClass("form-error");
+                    showTipMsg(tipid, 3, ph);
+                } else {
+                    if ($(this).parent("div").hasClass("form-error")) {
+                        $(this).parent("div").removeClass("form-error");
+                    }
+                    showTipMsg(tipid, 1, '');
+                }
+            }
+        } else {
+            $(this).parent("div").addClass("form-error");
+            showTipMsg(tipid, 3, ph);
+        }
+    });
+})
+</script>
+<!--网站头部-->
+<header class="m-head">
+  <div class="f-page-1000">
+    <figure class="logo f-pull-left">
+      <a href="http://www.goodjobs.cn/" class="vertical-align-middle"><img src="/v5/images/img_logo.png"></a>
+    </figure>
+    <ul class="m-nav-content f-pull-right">
+      <a href="http://www.goodjobs.cn/">首页</a>
+      <a href="http://user.goodjobs.cn/">找工作</a>
+      <a href="http://jobfair.goodjobs.cn/">招聘会</a>
+      <a href="http://headhunt.goodjobs.cn/">中高级人才</a>
+      <a href="http://bc.goodjobs.cn/">蓝领招聘</a>
+      <a href="http://campus.goodjobs.cn/">校园招聘</a>
+      <a href="http://learning.goodjobs.cn/">个人培训</a>
+      <a href="http://training.goodjobs.cn/">管理咨询</a>
+    </ul>
+  </div>
+</header>
+<!--end 网站头部-->
+<section class="f-page-1000 f-relative">
+  <form method="POST" name="loginForm" action="/dispatcher.php/action/Login">
+  <fieldset class="f-form-horizontal m-login-content f-pull-left">
+    <h1 class="f-font-24 f-text-center f-padding-top">企业会员登录</h1>
+
+    <div class="form-group f-margin-top">
+      <label class="control-label">会员名</label>
+      <input type="text" placeholder="请输入会员名" class="control-input" alt="blank" name="memName" tipid="tip_mem" id="memName" value="">
+      <span id="tip_mem_right"></span>
+    </div>
+    <span id="tip_mem"></span>
+
+    <div class="form-group">
+      <label class="control-label">用户名</label>
+      <input type="text" placeholder="请输入用户名" class="control-input" alt="blank" name="loginName" tipid="tip_login" id="loginName" value="">
+      <span id="tip_login_right"></span>
+    </div>
+    <span id="tip_login"></span>
+
+    <div class="form-group">
+      <label class="control-label f-hidden"><span class="f-letter-spacing-14">密码</span></label>
+      <input type="password" placeholder="请输入密码" class="control-input" alt="blank" name="password" tipid="tip_password" id="password" value="">
+      <span id="tip_password_right"></span>
+    </div>
+    <span id="tip_password"></span>
+
+    <div class="form-group form-erification-code">
+      <label class="control-label">验证码</label>
+      <input type="text" placeholder="请输入验证码" class="control-input" alt="blank" name="vcode" tipid="tip_vcode" id="vcode">
+      <img id="vcodeimage" src="http://ehr.goodjobs.cn/vcode.php?rnd=61452" width="70" height="25" onclick="this.src='http://ehr.goodjobs.cn/vcode.php?rnd='+Math.round(Math.random() * 100000);">
+      <span id="tip_vcode_right"></span>
+    </div>
+    <span id="tip_vcode"></span>
+
+    <div class="form-btn">
+      <button class="u-btn classLogin" type="button">登录</button>
+    </div>
+    <div class="form-remember">
+      <div class="f-pull-left"><input id="rememberMe" name="remember" type="checkbox"> 记住我</div>
+      <div class="f-pull-right">没有账号？<a href="/dispatcher.php/action/BasicInfo" class="f-font-red" target="_blank">企业会员账号申请</a></div>
+    </div>
+    <div class="form-tel">
+      <img src="/v5/images/img_tel.png">
+      <a href="http://hrclub.goodjobs.cn" target="_blank">[ HR俱乐部 ]</a>
+    </div>
+  </fieldset>
+  </form>
+  <div class="login-other-link f-pull-right">
+        <div class="m-ad">
+    <a href="http://img2.goodjobs.cn/imgclick.php?bannerid=15529&amp;zoneid=399&amp;source=&amp;dest=http%3A%2F%2Fwww.goodjobs.cn%2Findex.php%2Fmodule%2FDefault%2Faction%2FReurl%2Fid%2F3082" target="_blank" onmouseover="self.status='企培8周年感恩回馈'; return true;" onmouseout="self.status='';return true;"><img src="http://img2.goodjobs.cn/files/54172.gif" width="541" height="90" alt="企培8周年感恩回馈" title="企培8周年感恩回馈" border="0"></a>    </div>
+        <ul class="login-link-ul">
+      <li>
+        <img src="/v5/images/bg_link_1.png">
+        <h2 class="title">企业管理咨询</h2>
+        <div class="f-font-14">专业&nbsp;&nbsp;&nbsp;&nbsp;高效&nbsp;&nbsp;&nbsp;&nbsp;真诚&nbsp;&nbsp;&nbsp;&nbsp;共赢</div>
+        <a href="http://training.goodjobs.cn/index.php/action/Culture" class="enter" target="_blank">点击进入 &gt;&gt;</a>
+      </li>
+      <li>
+        <img src="/v5/images/bg_link_2.png">
+        <h2 class="title">猎头服务</h2>
+        <div class="f-font-14">新安猎头&nbsp;&nbsp;千军不易得&nbsp;&nbsp;一将更难求</div>
+        <a href="http://headhunt.goodjobs.cn" class="enter" target="_blank">点击进入 &gt;&gt;</a>
+      </li>
+      <li>
+        <img src="/v5/images/bg_link_3.png">
+        <h2 class="title">职业培训</h2>
+        <div class="f-font-14">在安徽,每10位人力资源管理师中有8位是新安校友！</div>
+        <a href="http://learning.goodjobs.cn/index.php/action/Develop" class="enter" target="_blank">点击进入 &gt;&gt;</a>
+      </li>
+    </ul>
+  </div>
+  <div class="f-clear"></div>
+  <div class="honor-block">
+    <h1 class="f-font-16">所获荣誉</h1>
+    <div class="honor-inner-block f-margin-top">
+      <span class="span-01">国家高新技术企业</span>
+      <span class="span-02">国家中小企业公共服务示范平台</span>
+      <span class="span-03">全国人力资源诚信服务示范机构</span>
+      <span class="span-04">安徽省信息化与工业化融合示范企业</span>
+      <span class="span-05">安徽民营文化企业100强</span>
+    </div>
+  </div>
+</section>
+<div id="right_let" style="right: -625px; ">
+  <div id="r_p_1" style="margin-bottom: 10px;">
+  <div><a href="http://click.goodjobs.cn/2015/qyapp/" target="_blank"><img src="/v5/images/img_App.png" border="0"></a></div>
+    <div class="cursor" onclick="document.getElementById('r_p_1').style.display='none';">
+      <img src="http://www.goodjobs.cn/images/close.gif">
+    </div>
+  </div>
+</div>
+<script language="JavaScript" type="text/javascript">
+// 获取窗口宽度
+var sW = "";
+if (window.innerWidth){
+    sW = window.innerWidth;
+} else if ((document.body) && (document.body.clientWidth)){
+    sW = document.body.clientWidth;
+}
+// 通过深入 Document 内部对 body 进行检测，获取窗口大小
+if (document.documentElement && document.documentElement.clientWidth) {
+    sW = document.documentElement.clientWidth;
+}
+var halfWidth = (sW - 1000) / 2;
+sR = halfWidth - 125;
+divRightLet = document.getElementById('right_let');
+divRightLet.style.right = sR + "px";
+</script>
+<footer class="footer-control f-padding-top">
+  <div class="f-page-1000">
+    <h4 class="f-font-16 f-relative">友情链接<span class="more">友情链接交换QQ：2120218043</span></h4>
+    <div class="friendship-link f-padding-bottom">
+        <a href="http://www.51biye.cn" class="a103" target="_blank">应届毕业生招聘网</a>
+    <span class="font11">&nbsp;|&nbsp;</span>    <a href="http://www.shenzhenjiaoshi.com/zhaopin/" class="a103" target="_blank">深圳教师招聘网</a>
+    <span class="font11">&nbsp;|&nbsp;</span>    <a href="http://www.7ahr.com/" class="a103" target="_blank">畜牧人才网</a>
+    <span class="font11">&nbsp;|&nbsp;</span>    <a href="http://sh.1010jz.com/" class="a103" target="_blank">上海兼职</a>
+    <span class="font11">&nbsp;|&nbsp;</span>    <a href="http://www.cxrc.com.cn/" class="a103" target="_blank">成都人才网</a>
+    <span class="font11">&nbsp;|&nbsp;</span>    <a href="http://www.288job.cn/" class="a103" target="_blank">寿光就业网</a>
+    <span class="font11">&nbsp;|&nbsp;</span>    <a href="http://ehr.goodjobs.cn" class="a103" target="_blank">安徽招聘网</a>
+    <span class="font11">&nbsp;|&nbsp;</span>    <a href="http://hefei.liebiao.com/" class="a103" target="_blank">合肥列表网</a>
+    <span class="font11">&nbsp;|&nbsp;</span>    <a href="http://yc.hr1000.com" class="a103" target="_blank">宜昌招聘</a>
+    <span class="font11">&nbsp;|&nbsp;</span>    <a href="http://jiaoyu.huangye88.com" class="a103" target="_blank">中国教育培训网</a>
+    <span class="font11">&nbsp;|&nbsp;</span>    <a href="http://wszg.examw.com" class="a103" target="_blank">卫生人才网</a>
+    <span class="font11">&nbsp;|&nbsp;</span>    <a href="http://sh.jianzhi8.com" class="a103" target="_blank">上海兼职网</a>
+    <span class="font11">&nbsp;|&nbsp;</span>    <a href="http://www.0757rc.com" class="a103" target="_blank">佛山人才网</a>
+    <span class="font11">&nbsp;|&nbsp;</span>    <a href="http://www.workpcb.com" class="a103" target="_blank">pcb人才网</a>
+    <span class="font11">&nbsp;|&nbsp;</span>    <a href="http://newhouse.wx.house365.com" class="a103" target="_blank">无锡新房网</a>
+    <span class="font11">&nbsp;|&nbsp;</span>    <a href="http://www.cabhr.com/" class="a103" target="_blank">电缆人才网</a>
+    <span class="font11">&nbsp;|&nbsp;</span>    <a href="http://anqing.ganji.com" class="a103" target="_blank">安庆赶集网</a>
+    <span class="font11">&nbsp;|&nbsp;</span>    <a href="http://www.qyjpzx.com/" class="a103" target="_blank">保定人才网</a>
+    <span class="font11">&nbsp;|&nbsp;</span>    <a href="http://hz.fang.anjuke.com/" class="a103" target="_blank">杭州房产网</a>
+    <span class="font11">&nbsp;|&nbsp;</span>    <a href="http://www.guangshan.ccoo.cn/" class="a103" target="_blank">光山在线人才网</a>
+    <span class="font11">&nbsp;|&nbsp;</span>    <a href="http://www.rgf-hragent.com.cn" class="a103" target="_blank">日企招聘网</a>
+    <span class="font11">&nbsp;|&nbsp;</span>    <a href="http://www.dxs518.cn" class="a103" target="_blank">大学生网</a>
+    <span class="font11">&nbsp;|&nbsp;</span>    <a href="http://www.jobgojob.com" class="a103" target="_blank">云南招聘网</a>
+    <span class="font11">&nbsp;|&nbsp;</span>    <a href="http://qz.597.com" class="a103" target="_blank">泉州人才网</a>
+    <span class="font11">&nbsp;|&nbsp;</span>    <a href="http://hefei.tianqi.com/" class="a103" target="_blank">合肥天气</a>
+    <span class="font11">&nbsp;|&nbsp;</span>    <a href="http://m.goodjobs.cn" class="a103" target="_blank">新安人才网手机站</a>
+    <span class="font11">&nbsp;|&nbsp;</span>    <a href="http://www.goodjobs.cn/app.html" class="a103" target="_blank">新安人才网客户端</a>
+    <span class="font11">&nbsp;|&nbsp;</span>    <a href="http://www.133jz.com" class="a103" target="_blank">大学生兼职网</a>
+    <span class="font11">&nbsp;|&nbsp;</span>    <a href="http://www.txrz.com/" class="a103" target="_blank">桐乡人才网</a>
+    <span class="font11">&nbsp;|&nbsp;</span>    <a href="http://dili.chazidian.com" class="a103" target="_blank">查字典地理网</a>
+    <span class="font11">&nbsp;|&nbsp;</span>    <a href="http://ehr.goodjobs.cn/" class="a103" target="_blank">安徽人才网</a>
+    <span class="font11">&nbsp;|&nbsp;</span>    <a href="http://maanshan.goodjobs.cn/" class="a103" target="_blank">马鞍山招聘网</a>
+    <span class="font11">&nbsp;|&nbsp;</span>    <a href="http://www.566job.com" class="a103" target="_blank">武汉人才网</a>
+    <span class="font11">&nbsp;|&nbsp;</span>    <a href="http://hr.yjbys.com/" class="a103" target="_blank">人力资源</a>
+    <span class="font11">&nbsp;|&nbsp;</span>    <a href="http://campus.goodjobs.cn/" class="a103" target="_blank">新安校园</a>
+    <span class="font11">&nbsp;|&nbsp;</span>    <a href="http://m.goodjobs.cn/" class="a103" target="_blank">新安人才网手机站</a>
+    <span class="font11">&nbsp;|&nbsp;</span>    <a href="http://www.360guakao.net/" class="a103" target="_blank">挂靠网</a>
+    <span class="font11">&nbsp;|&nbsp;</span>    <a href="http://www.01hn.com/" class="a103" target="_blank">范文网</a>
+    <span class="font11">&nbsp;|&nbsp;</span>    <a href="http://gongwen.cnrencai.com/ " class="a103" target="_blank">公文写作</a>
+    <span class="font11">&nbsp;|&nbsp;</span>    <a href="http://bbs.taisha.org/" class="a103" target="_blank">留学论坛</a>
+        </div>
+  </div>
+  <div class="copyright" style="height: 70px;line-height: 25px; padding-top: 10px">
+    未经goodjobs.cn同意，不得转载网站之所有招聘信息及作品 新安人才网版权所有 © 2000-2017<br>
+    皖ICP备12018891号 经营许可证：皖B2-20080016
+  </div>
+</footer>
+<!-- Google Analytics -->
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-2903492-1']);
+  _gaq.push(['_setDomainName', 'goodjobs.cn']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+<!-- Google Analytics -->
+
+
+
+
+<!-- This page took 0.0074 seconds to process. --></body></html>

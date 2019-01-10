@@ -1,0 +1,326 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><script language="javascript" src="js_data.jsp"></script>
+
+
+
+
+
+
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8;">
+<title>欢迎使用黑龙江省农村信用社个人网上银行</title>
+<link href="css/login_2600.css" rel="stylesheet" type="text/css">
+<link rel="stylesheet" type="text/css" href="css/orange/window/default.css">
+<link rel="stylesheet" type="text/css" href="css/orange/window/spread.css">
+<script language="javascript" src="scripts/lib/shortcut.js"></script>
+<script language="javascript" src="scripts/lib/prototype.js"></script>
+<script language="javascript" src="scripts/lib/prototype_EMP.js"></script>
+<script language="javascript" src="scripts/window.js"></script>
+<script language="javascript" src="scripts/lib/window.js"></script>
+<script language="javascript" src="scripts/lib/effects.js"></script>
+<script language="javascript" src="scripts/public.js"></script>
+<script language="javascript" src="scripts/softkey.js"></script>
+<script language="javascript" src="scripts/main.js"></script>
+<script language="javascript" src="password_js.jsp"></script>
+<script language="javascript" src="scripts/PassGuardCtrl.js"></script>
+
+<script language="JavaScript">
+var memberBankId = '260000999';
+
+
+
+function containSpecials(s){
+	var pattern = /^[\u4E00-\u9FA5\w_]+$/; 
+	return (pattern.test(s));
+}
+
+
+function checkHead(s) {
+	var pattern = /^[0-9]$/;
+	return (pattern.test(s.substring(0, 1)));
+}
+
+
+function myCheckLength(v,m,n) {
+	var s = v.value;
+	var len = 0;
+	for(i=0;i<s.length;i++)	{
+		var c = s.substr(i,1);
+		var ts = escape(c);
+		if(ts.substring(0,2) == "%u") {
+			len+=2;
+		} else {
+			len+=1;
+		}
+	}
+	if(m<=len&&len<=n)
+	{
+		return true;
+	} else {
+		return false;
+	}
+}
+
+
+function checkAccount() {
+	var account = document.getElementById("accountText");
+	var temp = account.value;
+	var pz = /^[0-9]{15,30}$/
+	if(!pz.test(temp)) {
+		alert("账号至少15位，至多30位!");
+		return false;
+	}else {
+		return true;
+	}
+}
+
+
+function checkPassword() {
+	var passwordObj = document.getElementById("passwordText");
+	if(passwordObj.PasswordLength<6 || passwordObj.PasswordLength>18){
+		alert('登录密码只能输入6-18位大小写字母和数字！');
+		passwordObj.Clear();
+		return false;
+	}else{
+		return true;
+	}
+}
+
+
+function doSubmit()
+{	
+	var regex = new RegExp("^\\d+$");
+	var name = $('nameText').value;
+	var flag = getRadioValue('logonType');
+	var code = $('tempCheckCode').value;
+	if(!regex.test(name))
+	{
+		if(isEmpty(name)){
+			alert("请输入客户昵称或账号！");
+			return false;
+	
+		}else{
+			document.logonForm.customerAlias.value = trim(name);
+		}
+	}else
+	{
+		var pz = /^[0-9]{10}$/
+		if(isEmpty(name)){
+			alert("请输入客户昵称或账号！");
+			return false;
+	
+		}else{
+			document.logonForm.customerAlias.value = trim(name);
+		}
+	}
+	 if(pgeditorLogin.pwdLength()==0){
+	     alert("密码不能为空");
+		 
+		 return ;
+	}
+
+	if(pgeditorLogin.pwdValid()==1){
+		alert("登录密码只能输入6-18位大小写字母和数字");
+		 return ;
+	} 
+	
+	var password = pgeditorLogin.pwdResult28();//获取登录密码密文
+	document.logonForm.password.value = password;
+	
+	
+	
+	if(isEmpty(code)) {
+		alert('请输入验证码!');
+		return false;
+	}else{
+		document.logonForm.checkCode.value = code;
+	}
+	document.logonForm.memberBankId.value = memberBankId;
+	document.logonForm.logonType.value = "0";
+	document.logonForm.submit();
+}
+
+function doRegist(){
+	document.registForm.memberBankId.value = memberBankId;
+	document.registForm.submit();
+}
+
+function findNickName()
+{
+	document.FindNickName.submit();
+}
+function showTip(){
+	addEnterListener(["nameText","passwordText","tempCheckCode"],doSubmit);
+	var tip = "";
+	if(tip=="null"||tip==""||tip=="0")
+		return ;
+	var tipField = "tip0";//+tip.substring(0,1);
+	var tipContext = "";
+	document.getElementById(tipField).innerHTML =tipContext;
+	document.getElementById("tempCheckCode").value="";
+}
+function doReset(){
+	document.getElementById("nameText").value="";
+	document.getElementById("passwordText").Clear();
+	document.getElementById("tempCheckCode").value="";
+}
+
+function init(){
+	//查询银行通知
+	queryBankAdvice();
+	pgeditorLogin.pgInitialize();//初始化控件
+    GetSNAJAXLogin();
+}
+function queryBankAdvice()
+{
+	var url = 'bankAdviceQuery.do?openNode=' + 260000999;
+	
+	sendAjaxRequest(  'POST', url, null, processResponse );
+}
+
+function processResponse(contextData)
+{
+	var icoll = contextData.getElement("iBankNotice");
+	icolllength=icoll.size();
+	for (var i = 0;i < icoll.size();i ++) 
+	{
+		var kcoll = icoll.getElementAt(i);
+		addOneRow("dataBody",i,kcoll);
+	}
+} 
+var cell = "";
+var messageContent = "";
+var messageTitle = "";
+var messageTime = "";
+var param = "";
+
+function addOneRow(tbodyName,inndex,kcoll)
+{   
+	if(inndex==0) {
+		messageTitle=kcoll.getValueAt("messageTitle");
+		messageContent=kcoll.getValueAt("messageContent");
+		messageTime=kcoll.getValueAt("messageTime");
+		cell = document.getElementById("mscroll1");
+		param = "<em><a href=\"#1\" onclick=\"readNotice('"+messageTitle+"','"+messageContent+"','"+messageTime+"')\">"+messageTitle+"</a></em>";
+		cell.innerHTML = "<marquee  direction=\"left\" onmouseover=\"this.stop()\" onmouseout=\"this.start()\" scrollAmount=\"2\" >"+param+"</marquee>";
+		//cell.innerHTML ="<marquee direction=\"left\" >"+messageTitle+"</marquee>";
+		//alert(cell.innerHTML);
+	} else {
+		messageTitle=kcoll.getValueAt("messageTitle");
+		messageContent=kcoll.getValueAt("messageContent");
+		messageTime=kcoll.getValueAt("messageTime");
+		param = param + "                   "+"<em><a href=\"#1\" onclick=\"readNotice('"+messageTitle+"','"+messageContent+"','"+messageTime+"')\">"+messageTitle+"</a></em>";
+		//cell.innerHTML = cell.innerHTML + " "+"<a href=\"#1\" onclick=\"readNotice('"+messageTitle+"','"+messageContent+"','"+messageTime+"')\">"+messageTitle+"</a>";
+		cell.innerHTML = "<marquee  direction=\"left\" onmouseover=\"this.stop()\" onmouseout=\"this.start()\" scrollAmount=\"2\" >"+param+"</marquee>";
+
+		//alert(cell.innerHTML);
+	}
+}
+
+function readNotice(messageTitle,messageContent,messageTime)
+{
+
+	var params = 'messageTitle=' + messageTitle;
+	var url = "bankAdviceQueryDetail.do?messageTitle="+messageTitle+'&messageContent='+messageContent+'&messageTime='+messageTime+'&branchId='+260000999;
+
+	var title = "网银公告";
+	var windowProperties = {width:550,height:350,top:140,left:300,close:true,drag:true};
+	openNewWindow(url,title,windowProperties);
+}
+
+</script>
+
+
+<style type="text/css">
+.ocx_style{width:200px; height:20px;background-color:#fff;float:left;line-height:20px;}
+#mscroll {
+	WIDTH: 500px; OVERFLOW: hidden;
+}
+#mscroll TABLE {
+	BORDER-BOTTOM: #000 0px solid;BORDER-TOP: #000 0px solid; 
+}
+
+#mscroll TABLE TD {
+	PADDING-BOTTOM: 0px; PADDING-LEFT: 10px; PADDING-RIGHT: 10px; WHITE-SPACE: nowrap; PADDING-TOP: 0px
+}
+</style>
+
+</head>
+
+<body class="bgcolor" onload="showTip();init();">
+<div class="content">
+<div class="mainbox">
+	 <div class="header">
+    	<div class="logo" style="background: url(images/logo/2600_logo.png) left no-repeat;  _filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='images/logo/2600_logo.png',sizingMethod='image');_background-image: none;"></div>
+  	</div>
+     <div class="centerbox">
+            <div class="login_left">
+            	<div class="login_title">用户登录</div>
+           		<div class="login_input">
+                            <table>
+                                <tbody><tr>
+                                    <td>昵称/账号：</td>
+                                  <td class="idn"><input id="nameText" type="text" value=""><br></td>
+                                </tr>
+                                <tr>
+                                  <td class="psd" height="40">登录密码：</td>
+                                  <td class="td_password"><script type="text/javascript">pgeditorLogin.generate()</script><span id="td_password_down" class="ocx_style" style="text-align:center;"><a href="./nxywizard/2600/NXYHZLHYH.exe">请点此安装控件</a></span></td> 
+                                </tr>
+                               
+                                <tr>
+                                    <td>验证码：</td>
+                                    <td class="xcode"><input id="tempCheckCode" type="text" maxlength="4" value=""><img id="verifyImg" src="VerifyImage" align="absmiddle" onclick="this.src='VerifyImage?update=' + Math.random()" style="cursor:pointer;" title="点击图片可更换验证码"></td>
+                                </tr>
+                            </tbody></table>
+                            </div>
+                            <div class="lgn_Agreement">
+                            	若您知晓并愿意遵守:<br><a href="regulation.do">《黑龙江省农村信用社电子银行业务章程》</a>，<a href="protocol.do">《黑龙江省农村信用社电子银行个人客户服务协议》</a>和<a href="rules.do">《黑龙江省农村信用社个人网上银行交易规则》</a>，请点击“登录”进入黑龙江省农村信用社个人网上银行。
+                            </div>
+                            <div class="lgnbtn"><a href="#"><img src="images/2600/lgn_btn.jpg" width="172" height="53" onclick="doSubmit();"></a></div>
+                            <div class="error_prompt" id="tip0">&nbsp;</div>
+       </div>
+            <div class="login_right">
+            <div class="sysnotices">
+                <span class="dt">系统公告</span>
+					<span class="dd" id="mscroll1"></span>
+			</div>
+            <div class="iconbtn">
+            	<ul>
+                	<li class="notice"><a href="javascript:document.SafetyTips.submit()">安全提示</a></li>
+                    <li class="qa"><a href="nxywizard/2600/NXYWizard_setup.exe">网银向导</a></li>
+                    <li class="test"><a href="#">操作手册</a></li>
+                	<li class="guide"><a href="javascript:document.download.submit()">相关下载</a></li>
+                    <li class="workbook"><a href="#">网银演示版</a></li>
+                </ul>
+            
+            </div>
+            <div class="prompt">
+    			<div class="login_text"><ul><span>重要提示</span><li><font color="red">windows10客户请使用IE浏览器登录网银。</font></li><li>请您在使用网银之前打开防火墙，防病毒软件。</li><li>请您尽量不要在网吧等公共场所使用网上银行系统。</li><li>您登录网上银行系统后，如需退出，请点击“退出”。</li><li>如果您存有疑问，请拨打客户服务热线 <span>96388</span></li></ul></div>
+   			</div>
+            
+            </div>
+            </div>
+    	</div>
+		  <div class="footer">黑龙江省农村信用社 版权所有 2017</div>
+   
+	</div>
+   
+
+
+<form name="logonForm" method="post" action="userLogon.do">
+	<input type="hidden" name="memberBankId">
+	<input type="hidden" name="logonType" value="">
+	<input type="hidden" name="customerAlias" value="">
+	<input type="hidden" name="password" value="">
+	<input type="hidden" name="logonLanguage" value="ZH_CN">
+
+	<input type="hidden" name="checkCode">
+
+</form>
+
+<form name="FindNickName" method="post" action="findNickNameJSP.do"></form>
+<form name="download" method="post" action="downloadList.do"></form>
+<form name="SafetyTips" method="post" action="SafetyTips.do"></form>
+<form name="faq" method="post" action="faq.do"></form>
+
+
+
+</body></html>

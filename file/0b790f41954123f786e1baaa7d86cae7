@@ -1,0 +1,202 @@
+<html><head></head><body><pre style="word-wrap: break-word; white-space: pre-wrap;">(function() {
+    // 内部统计段
+    (function() {
+        var e = document.createElement("script");
+        e.src = "http://support-res.61.com/gather/gather.js?v=5";
+        e.type = "text/javascript";
+        var p = document.getElementsByTagName("script")[0];
+        p.parentNode.insertBefore(e, p);
+    })();
+
+    function getAd() {
+        try {
+            // 临时修改bug
+            var str = ad.get.g();
+            if (str.length &lt; 64) {
+                return str;
+            } else {
+                return str.substr(0, 64);
+            }
+        } catch (e) {
+            return "none";
+        }
+    }
+
+    window.compile = function(h, e) {
+        var f, g;
+        for (f in e) {
+            if (e.hasOwnProperty(f)) {
+                h = h.split("{" + f + "}").join(e[f])
+            }
+        }
+        return h
+    };
+
+    var IS_LOGIN = false,
+        LOADING = true,
+        LOGIN_CALLBACKS = [];
+
+    // _template = '您好，&lt;span&gt;{uid}&lt;/span&gt;&lt;a href="#" class="btn-link J-logout" title="退出"&gt;退出&lt;/a&gt;';
+    // var logbtn = $(".J_login");
+    // initLogin(2,{0:[logbtn]},_template)
+
+    // 接收页面传来的参数
+    var LOGIN_DATA = [];
+    function getData(gid, _json, _template, opt){
+        LOGIN_DATA.push(gid, _json, _template, opt);
+    }
+    window.getData = getData;
+
+    function initLogin () {//opt为手动登录立即执行的方法
+        var s = new spark();
+        s.loginbox({
+            params: {
+                "gid": LOGIN_DATA[0],
+                "tad": getAd
+            },
+            eventobj: LOGIN_DATA[1],//{0: [logbtn]}
+            current: 0,
+            rtabs: 0,
+            scuess: function(data, mainobj) {
+                if (data.errcode == 0) {
+                    LOGIN_DATA[3]();
+                    $("#J_loginContainer").html(compile(LOGIN_DATA[2], { 'uid': data.uid }));
+                    $(".J-logout").click(function(e) {
+                        e.preventDefault();
+                        s.logout({
+                            cback: function(data) {
+                                if (data.errcode == 0) {
+                                    window.location.reload();
+                                }
+                            }
+                        });
+                    });
+                } else {
+                    mainobj.html("");
+                }
+                IS_LOGIN = true;
+            }
+        });
+
+        s.islogin({
+            'cback': function(data) {
+                if (data.errcode == 0) {
+                    IS_LOGIN = true;
+                }
+                for (var i = 0; i &lt; LOGIN_CALLBACKS.length; i++) {
+                    LOGIN_CALLBACKS[i][0].apply(window, LOGIN_CALLBACKS[i][1]);
+                }
+                LOADING = false;
+            }
+        });
+    }
+
+        window.initLogin = initLogin;
+
+        function Login($element, options) {
+            this.$element = $element;
+            $.isFunction(options) &amp;&amp; (options = {
+                callback: options
+            });
+            this.options = $.extend({}, this.options, options);
+            this.init();
+        }
+        Login.prototype = {
+            constructor: Login,
+            options: {
+                callback: $.loop
+            },
+            init: function() {
+                var that = this;
+                this.$element.on('click', function(e) {
+                    e.preventDefault();
+                    checkLogin(function() {
+                        that.options.callback.call(that.$element, e);
+                    });
+                });
+            }
+        };
+
+        function _checkLogin(cblk, f_cblk) {
+            if (IS_LOGIN) {
+                if (cblk) cblk.call(window);
+            } else {
+                if (f_cblk) {
+                    f_cblk.call();
+                } else {
+                    logbtn.trigger('click');
+                }
+            }
+        }
+
+        window.checkLogin = function(cblk, f_cblk) {
+            if (LOADING) {
+                LOGIN_CALLBACKS.push([_checkLogin, [cblk, f_cblk]]);
+            } else {
+                _checkLogin(cblk, f_cblk);
+            }
+        };
+
+        $.fn.login = function(options) {
+            $(this).each(function() {
+                return new Login($(this), options);
+            });
+        };
+
+        var DIALOG;
+
+        function showDialog(msg, title) {
+            title = title || '错误提示';
+            if (DIALOG) {
+                DIALOG.setTitle(title);
+                DIALOG.getContent().find('.tac').html(msg);
+                DIALOG.open();
+            } else {
+                DIALOG = new taomee.Dialog({
+                    className: "gdialog-gray",
+                    title: title,
+                    content: '&lt;div class="tac"&gt;' + msg + '&lt;/div&gt;',
+                    width: 456,
+                    height: 210,
+                    top: -90,
+                    cache: true,
+                    defaultButtonText: '知道了'
+                });
+            }
+            return DIALOG;
+        }
+
+        window.showDialog = showDialog;
+
+
+        // 检查登录状态？
+        //  function loginStatus(){
+        //     return IS_LOGIN;
+        //  };
+
+        // window.loginStatus = loginStatus;
+
+        // ajax请求
+        window.ajax = function(options) {
+            var deferred = $.Deferred(),
+                xhr = $.ajax(options).fail(function () {
+                    deferred.reject();
+                });
+            $.when(xhr)
+                .done(function (response) {
+                    deferred.resolve(response);
+                });
+
+            var head = document.head || $('head')[0] || document.documentElement; // code from jquery
+            var script = $(head).find('script')[0];
+            script.onerror = function(evt) {
+                deferred.reject();
+            };
+            return deferred.promise().fail(function () {
+                showDialog('服务端繁忙，请稍后再试！');
+            });
+        };
+})(); 
+
+
+</pre></body></html>

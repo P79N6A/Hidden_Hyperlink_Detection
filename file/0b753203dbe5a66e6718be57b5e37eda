@@ -1,0 +1,402 @@
+<!DOCTYPE html><html lang="en"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0">
+    <title>南宁移动宽带覆盖查询</title>
+    <link rel="stylesheet" href="/adsl/css/style/weui.css">
+    <link rel="stylesheet" href="/adsl/css/style/example.css">
+
+    <script async="" src="http://fex.bdstatic.com/hunter/alog/dp.csp.min.js?v=140804"></script><script async="" src="http://fex.bdstatic.com/hunter/alog/feature.min.js?v=150727"></script><script async="" src="http://fex.bdstatic.com/hunter/alog/element.min.js?v=160118"></script><script async="" src="http://fex.bdstatic.com/hunter/alog/monkey.min.js"></script><script async="" src="http://fex.bdstatic.com/hunter/alog/speed.min.js?v=160115"></script><script async="" src="http://fex.bdstatic.com/hunter/alog/dp.min.js?v=-17258-17258"></script><script async="" src="http://fex.bdstatic.com/hunter/alog/alog.min.js?v=-17258-17258"></script><script>
+        function banli(address1,address2) {
+            window.location.href = "/adsl/wx/register/index.do?address1="+address1+"&address2="+address2;
+
+        }
+    </script>
+<script src="/adsl/js/zepto.min.js"></script>
+<script src="/adsl/js/router.min.js"></script>
+<script src="/adsl/js/example.js"></script>
+<script src="/adsl/js/jquery.js"></script>
+<script src="/adsl/js/tipLayer.js"></script>
+<!-- <script src="http://res.wx.qq.com/open/js/jweixin-1.0.0.js"></script> -->
+<script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&amp;ak=Lee6HSjdRKCo2FqcqMbrY5m1P9OSog1K"></script><script type="text/javascript" src="http://api.map.baidu.com/getscript?v=2.0&amp;ak=Lee6HSjdRKCo2FqcqMbrY5m1P9OSog1K&amp;services=&amp;t=20170324173232"></script>
+<script>
+/* 	var appId = "";
+	var timestamp = "";
+	var nonceStr="";
+	var signature="";
+   	$().ready(function(){
+   		var url = "http://l800.ydxxt.com/adsl/wx/cover/index.do?from";
+   		var submitData={localUrl:url};
+   		$.ajax({
+   			url:"/adsl/common/getSignData.do",
+			type:"post",
+			dataType:"json",
+			data:submitData,
+			success:function(data){
+				appId = data.appId;
+				timestamp = data.timestamp;
+				nonceStr = data.nonceStr;
+				signature = data.signature;
+				wx.config({
+					debug:false,
+					appId:appId,
+					timestamp:timestamp,
+					nonceStr: nonceStr,
+					signature: signature,
+					jsApiList: ['getLocation'] 
+				});
+			},
+			error:function(){
+				alert("系统繁忙，请稍候再试！");
+			}
+   		});
+   	});
+   	
+   	var lng = "";
+   	var lat = "";
+   	
+   	wx.ready(function () {
+   		wx.getLocation({
+   		    type: 'wgs84', // 默认为wgs84的gps坐标，如果要返回直接给openLocation用的火星坐标，可传入'gcj02'
+   		    success: function (res) {
+   		    	lat = res.latitude; // 纬度，浮点数，范围为90 ~ -90
+   		     	lng = res.longitude; // 经度，浮点数，范围为180 ~ -180。
+   		        var speed = res.speed; // 速度，以米/每秒计
+   		        var accuracy = res.accuracy; // 位置精度
+   		        console.log(lng+"||"+lat);
+   		     	//getAddress(lng,lat);
+   		     	translate(lng,lat);
+   		    }
+   		});
+   	});
+ */
+function translate(x,y) {
+	var ggPoint = new BMap.Point(x,y);
+	var convertor = new BMap.Convertor();
+    var pointArr = [];
+    pointArr.push(ggPoint);
+    convertor.translate(pointArr, 1, 5, translateCallback);
+}
+
+//坐标转换完之后的回调函数
+translateCallback = function (data){
+  if(data.status === 0) {
+/*     var marker = new BMap.Marker(data.points[0]);
+    bm.addOverlay(marker);
+    var label = new BMap.Label("转换后的百度坐标（正确）",{offset:new BMap.Size(20,-10)});
+    marker.setLabel(label); //添加百度label
+    bm.setCenter(data.points[0]); */
+    console.log(data);
+    console.log(data.points[0]);
+    console.log(data.points[0].lng);
+    console.log(data.points[0].lat);
+    getAddress(data.points[0].lng,data.points[0].lat);
+  } else {
+	   $("#location").html("无法获取到位置信息，请手动搜索小区名字");
+	   $("#location").show();
+   }
+}
+
+var geolocation = new BMap.Geolocation();
+geolocation.getCurrentPosition(function(r){
+	if(this.getStatus() == BMAP_STATUS_SUCCESS){
+		var mk = new BMap.Marker(r.point);
+		//map.addOverlay(mk);
+		//map.panTo(r.point);
+		//alert('您的位置：'+r.point.lng+','+r.point.lat);
+		getAddress(r.point.lng,r.point.lat);
+	} else {
+		//alert('failed'+this.getStatus());
+		$("#location").html("无法获取到位置信息，请手动搜索小区名字");
+		$("#location").show();
+	}        
+},{enableHighAccuracy: true})
+//关于状态码
+//BMAP_STATUS_SUCCESS	检索成功。对应数值“0”。
+//BMAP_STATUS_CITY_LIST	城市列表。对应数值“1”。
+//BMAP_STATUS_UNKNOWN_LOCATION	位置结果未知。对应数值“2”。
+//BMAP_STATUS_UNKNOWN_ROUTE	导航结果未知。对应数值“3”。
+//BMAP_STATUS_INVALID_KEY	非法密钥。对应数值“4”。
+//BMAP_STATUS_INVALID_REQUEST	非法请求。对应数值“5”。
+//BMAP_STATUS_PERMISSION_DENIED	没有权限。对应数值“6”。(自 1.1 新增)
+//BMAP_STATUS_SERVICE_UNAVAILABLE	服务不可用。对应数值“7”。(自 1.1 新增)
+//BMAP_STATUS_TIMEOUT	超时。对应数值“8”。(自 1.1 新增)
+   	
+function getAddress(lng,lat) {
+	var map = new BMap.Map("allmap");
+	var point = new BMap.Point(lng,lat);
+	var gc = new BMap.Geocoder();
+	gc.getLocation(point, function(rs){
+	   var addComp = rs.addressComponents;
+	   var address = addComp.city+addComp.district+addComp.street+addComp.streetNumber;
+	   //console.log(address);
+	   //console.log(addComp.province + ", " + addComp.city + ", " + addComp.district + ", " + addComp.street + ", " + addComp.streetNumber);
+	   if(address != "") {
+		   $("#location").html(address);
+		   $("#location").show();
+		   getNearArea(lng,lat);
+	   } else {
+		   $("#location").html("无法获取到位置信息，请手动搜索小区名字");
+		   $("#location").show();
+	   }
+	});
+}
+
+function getNearArea(lng,lat) {
+	if(lng != "" && lat != "") {
+    	$.getJSON("/adsl/wx/cover/getLocation.do?lng="+lng+"&lat="+lat, function(json){
+    		//console.log(json);
+			if(json.result!="true") {
+				return;
+			}
+			var n = json.near;
+			var str = '<a class="weui_cell" href="javascript:banli(\'address1\',\'address2\');">'
+            +'<div class="weui_cell_bd weui_cell_primary">'
+            +'<p>address2</p>'
+            +'</div>'
+            +'<div class=\"weui_cell_ft\">distancem</div>'
+            +'</a>';
+			$.each(n,function(m,value){
+				var _str = str;
+				var arrays = value.name.split("|");
+				$("#near_cover").append(_str.replace(/address2/g,arrays[1]).replace("address1",arrays[0]).replace("distance",value.distance));
+				//console.info(m+"||"+value.name+"||"+value.distance);
+			});
+   		});
+	} else {
+		$("#location").html("无法获取到位置信息，请手动搜索小区名字");
+		$("#location").show();
+	}
+}
+
+function jumpZhongChouQuery(){
+    window.location.href = "/adsl/wx/crowdfundingquery/index.do";
+}
+
+</script>
+</head>
+<body ontouchstart="">
+<div class="container" id="container"><div class="home">
+	<!-- 新增tab导航部分   开始  -->
+    <div class="bd" style="height: 100%;">
+        <div class="weui_tab">
+            <div class="weui_navbar">
+
+                <div class="weui_navbar_item">
+                   	预约报装
+                </div>
+            	<div class="weui_navbar_item weui_bar_item_on" onclick="jumpZhongChouQuery();">
+                   	 宽带众筹
+             	</div>
+
+            </div>
+            <div class="weui_tab_bd">
+            </div>
+        </div>
+    </div>
+
+    <div class="hd">
+        <h1 class="page_title">宽带地址查询</h1>
+        <p class="page_desc" id="location" style="">广州市越秀区美华北路</p>
+    </div>
+	<div style="text-align:center">
+        <img src="/adsl/images/wx/djbannar4.jpg" style="width:350px;">
+    </div>
+	<br>
+
+    <div class="weui_search_bar" id="search_bar">
+        <form class="weui_search_outer">
+            <div class="weui_search_inner">
+                <i class="weui_icon_search"></i>
+                <input type="search" class="weui_search_input" id="search_input" placeholder="搜索" required="">
+                <a href="javascript:" class="weui_icon_clear" id="search_clear"></a>
+            </div>
+            <!-- <label for="search_input" class="weui_search_text" id="search_text">
+                <i class="weui_icon_search"></i>
+                <span>搜索</span>
+            </label> -->
+        </form>
+        <a href="javascript:" class="weui_search_cancel" id="search_cancel">取消</a>
+    </div>
+
+    <div class="weui_cells weui_cells_access search_show" id="search_show">
+        <!-- 修改为ajax获取搜索小区名字结果-->
+        <!-- <div class="weui_cell">
+            <div class="weui_cell_bd weui_cell_primary">
+                <a href="javascript:banli();">
+                    <p>金碧花园</p>
+                </a>
+            </div>
+        </div> -->
+        <!-- 修改为ajax获取搜索小区名字结果-->
+    </div>
+
+    <div class="weui_cells_title">附近已经覆盖的小区</div>
+    <div class="weui_cells weui_cells_access" id="near_cover">
+       <!-- <a class="weui_cell" href="javascript:banli();">
+            <div class="weui_cell_bd weui_cell_primary">
+                <p>西湖新天地</p>
+            </div>
+            <div class="weui_cell_ft">300m</div>
+        </a>
+        <a class="weui_cell" href="javascript:banli();">
+            <div class="weui_cell_bd weui_cell_primary">
+                <p>西湖新天地</p>
+            </div>
+            <div class="weui_cell_ft">300m</div>
+        </a> -->
+    </div>
+<img width="0" height="0" src="/adsl/images/wx/logo.jpg">
+</div></div>
+<script type="text/html" id="tpl_home">
+	<!-- 新增tab导航部分   开始  -->
+    <div class="bd" style="height: 100%;">
+        <div class="weui_tab">
+            <div class="weui_navbar">
+
+                <div class="weui_navbar_item">
+                   	预约报装
+                </div>
+            	<div class="weui_navbar_item weui_bar_item_on" onclick="jumpZhongChouQuery();">
+                   	 宽带众筹
+             	</div>
+
+            </div>
+            <div class="weui_tab_bd">
+            </div>
+        </div>
+    </div>
+
+    <div class="hd">
+        <h1 class="page_title">宽带地址查询</h1>
+        <p class="page_desc" id="location" style="display: none;">当前位置:南宁青秀区东方明珠花园附近</p>
+    </div>
+	<div style="text-align:center">
+        <img src="/adsl/images/wx/djbannar4.jpg" style="width:350px;" />
+    </div>
+	<br/>
+
+    <div class="weui_search_bar" id="search_bar">
+        <form class="weui_search_outer">
+            <div class="weui_search_inner">
+                <i class="weui_icon_search"></i>
+                <input type="search" class="weui_search_input" id="search_input" placeholder="搜索" required/>
+                <a href="javascript:" class="weui_icon_clear" id="search_clear"></a>
+            </div>
+            <!-- <label for="search_input" class="weui_search_text" id="search_text">
+                <i class="weui_icon_search"></i>
+                <span>搜索</span>
+            </label> -->
+        </form>
+        <a href="javascript:" class="weui_search_cancel" id="search_cancel">取消</a>
+    </div>
+
+    <div class="weui_cells weui_cells_access search_show" id="search_show">
+        <!-- 修改为ajax获取搜索小区名字结果-->
+        <!-- <div class="weui_cell">
+            <div class="weui_cell_bd weui_cell_primary">
+                <a href="javascript:banli();">
+                    <p>金碧花园</p>
+                </a>
+            </div>
+        </div> -->
+        <!-- 修改为ajax获取搜索小区名字结果-->
+    </div>
+
+    <div class="weui_cells_title">附近已经覆盖的小区</div>
+    <div class="weui_cells weui_cells_access" id="near_cover">
+       <!-- <a class="weui_cell" href="javascript:banli();">
+            <div class="weui_cell_bd weui_cell_primary">
+                <p>西湖新天地</p>
+            </div>
+            <div class="weui_cell_ft">300m</div>
+        </a>
+        <a class="weui_cell" href="javascript:banli();">
+            <div class="weui_cell_bd weui_cell_primary">
+                <p>西湖新天地</p>
+            </div>
+            <div class="weui_cell_ft">300m</div>
+        </a> -->
+    </div>
+<img width="0" height="0" src="/adsl/images/wx/logo.jpg">
+</script>
+<script>
+    $('#container').on('focus', '#search_input', function () {
+        var $weuiSearchBar = $('#search_bar');
+        $weuiSearchBar.addClass('weui_search_focusing');
+    }).on('blur', '#search_input', function () {
+        var $weuiSearchBar = $('#search_bar');
+        $weuiSearchBar.removeClass('weui_search_focusing');
+        if ($(this).val()) {
+            $('#search_text').hide();
+        } else {
+            $('#search_text').show();
+        }
+    }).on('input', '#search_input', function () {
+        var $searchShow = $("#search_show");
+       	console.log($(this).val());
+        if ($(this).val()) {
+            $searchShow.show();
+        } else {
+            $searchShow.hide();
+        }
+    }).on('touchend', '#search_cancel', function () {
+        $("#search_show").hide();
+        console.info($('#search_input').val());
+        $('#search_input').val('');
+    }).on('touchend', '#search_clear', function () {
+        $("#search_show").hide();
+        console.info($('#search_input').val());
+        $('#search_input').val('');
+    });
+    
+	//搜索
+	//全局变量
+	var q = "";
+	function search() {
+		var _q = $("#search_input").val();
+		
+		//校验是否发送变化
+		if(q!=_q) {
+			q=_q;
+		} else {
+			return;
+		}
+		
+		//隐藏和显示
+		/* if(_q != "") {
+			$("#search_show").show();
+		} else {
+			$("#search_show").hide();
+		} */
+		
+    	var html = '<div class="weui_cell">'
+            +'<div class="weui_cell_bd weui_cell_primary">'
+            +'    <a href="javascript:banli(\'address1\',\'address2\');">'
+            +'        <p>address2</p>'
+            +'    </a>'
+            +'</div>'
+            +'</div>'
+        	$.getJSON("/adsl/wx/cover/queryLocation.do?query="+_q, function(json){
+        		console.info(json.result);
+        		if(json.result) {
+        			$("#search_show").html("");
+        			var show = false;
+        			$.each(json.result,function(m,value){
+        				show = true;
+        				var _html = html;
+        				var arrays = value.split("|");
+        				$("#search_show").append(_html.replace(/address2/g,arrays[1]).replace("address1",arrays[0]));
+        				//console.info(m+"||"+value.name+"||"+value.distance);
+        			});
+        			if(show) {
+        				$("#search_show").show();
+        			}
+        		}
+        	});
+	}
+	setInterval(search,500);
+	
+</script>
+
+
+</body></html>

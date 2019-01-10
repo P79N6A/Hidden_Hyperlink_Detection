@@ -1,0 +1,700 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head>
+    <meta name="viewport" content="width=1180">
+
+    <title>计算器_足球胜平负/足球让球胜平负玩法</title>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8;">
+    <link type="text/css" href="css/lotCss.css" charset="utf-8" rel="stylesheet">
+    <link type="text/css" href="css/tipsy.css" rel="Stylesheet">
+    <style type="text/css">
+        #mainTbl span.oddsItem
+        {
+	        display:inline-block;
+	        width:99px;
+	        height:38px;
+	        line-height:38px;
+	        cursor:pointer;
+	        font-family:Verdana @Arial Unicode MS;
+	        font-weight:bold;
+	        font-size:15px;
+        }
+        #mainTbl span.oddsItemKeep
+        {
+	        background-color:#ffffe8;
+        }
+        #mainTbl span.oddsItemUp
+        {
+	        background-image:url(./images/lotbg.jpg);
+	        background-repeat:no-repeat;
+	        background-position:-136px -147px;
+        }
+        #mainTbl span.oddsItemDown
+        {
+	        background-image:url(./images/lotbg.jpg);
+	        background-repeat:no-repeat;
+	        background-position:-136px -101px;
+        }
+        #mainTbl span.oddsClk
+        {
+	        background-image:none;
+	        background-color:#ff7a2d;
+        }
+        #mainTbl span.oddsEffect
+        {
+		background-color:Transparent;
+	        background-image:none;
+	        font-weight:normal;
+	        font-size:12px;
+        }
+        #headerTr .oddsHeader
+        {
+	        width:99px;
+	        text-align:center; 
+	        background-image:url(./images/listArrow.gif);
+	        background-repeat:no-repeat; 
+	        background-position:60px center;
+	        cursor:pointer;
+        }
+        #selDetailDiv
+        {
+	        position:absolute;
+	        display:none;
+	        left:0px;
+	        bottom:71px;
+	        z-index:99;
+	        text-align:left;
+	        width:380px;
+        }
+        #headerTr .arrow_re
+        {
+	        background-image:url(./images/listArrow_re.gif); 
+        }
+        #mainTbl td.vsTd a.vsOver
+        {
+        	color:Red;
+        }
+        #mainTbl img
+        {
+	        margin-top:3px;
+        }
+        #mainTbl td.oddsTdEf
+        {
+        }
+        #mainTbl div.overColor
+        {
+        	color:Red;
+        	font-size:16px;
+        }
+    </style>
+    <script src="//hm.baidu.com/hm.js?860f3361e3ed9c994816101d37900758"></script><script src="http://static.sporttery.cn/info/jslib/jq/jquery-1.7.min.js" type="text/javascript"></script>
+    <link href="http://static.sporttery.cn/css/main/functionheader.css" rel="stylesheet" type="text/css">
+    <script type="text/javascript" src="http://static.sporttery.cn/info/jslib/bdtj/sportterycn.js"></script>
+    <script type="text/javascript" src="http://static.sporttery.cn/pres/proj/2016/sporttery-2016/js/navigation.js"></script>
+    <script type="text/javascript" src="http://static.sporttery.cn/pres/proj/2016/sporttery-2016/js/schedule.js"></script>
+    <link href="http://static.sporttery.cn/pres/proj/2016/sporttery-2016/style/global.css" rel="stylesheet" type="text/css">
+    <link href="http://static.sporttery.cn/pres/proj/2016/sporttery-2016/style/navigation.css" rel="stylesheet" type="text/css">
+    <link href="http://static.sporttery.cn/pres/proj/2016/sporttery-2016/style/navigation2.css" rel="stylesheet" type="text/css">
+    
+    <script src="js/lotJs.js" type="text/javascript"></script>
+    <script src="js/jquery.PrintArea.js" type="text/javascript"></script>
+    <script src="js/jquery.tipsy.js" type="text/javascript"></script>
+    <script src="js/jquery.easing.min.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        var voteList = {}; //modi vote
+        function init() {
+            oddsName = { "胜": "h", "平": "d", "负": "a" };
+            oddsIndex = ["胜", "平", "负"];
+            isShowOddsChg = false;
+            curPool = "hhad";
+        };
+        function initData() {
+            if (curData.length == 0) {
+                return;
+            }
+
+            var rqAry = [];
+            filteAry = { date: [], league: [] };
+            var htmlStr = "";
+            for (var i = 0; i < curData.length; i++) {
+                var tmpDate = curData[i][0].b_date;
+                var weekObj = lotFunc.getWeek(tmpDate);
+                filteAry.date.push(weekObj.cn);
+                htmlStr += "<tr><td class='bDateTd' colspan='10' bIndex='" + filteAry.date.length + "'>周" + weekObj.cn + " " + tmpDate + "&nbsp;&nbsp;&nbsp;共<label></label>场比赛&nbsp;&nbsp;&nbsp;<a href='javascript:void(0);' class='bDateHide'>[隐藏]</a></td></tr>";
+
+                for (var j = 0; j < curData[i].length; j++) {
+                    var tmpObj = curData[i][j];
+                    //
+
+                    var isFind = -1;
+                    for (var m = 0; m < filteAry.league.length; m++) {
+                        if (filteAry.league[m] == tmpObj.l_cn) {
+                            isFind = m + 1;
+                            break;
+                        }
+                    }
+                    if (isFind == -1) {
+                        filteAry.league.push(tmpObj.l_cn);
+                        isFind = filteAry.league.length;
+                    }
+
+                    var hadLine = "未开售", hhadLine = "未开售", hValue0 = "--", dValue0 = "--", aValue0 = "--", hValue1 = "--", dValue1 = "--", aValue1 = "--", hBgClass0 = "", dBgClass0 = "", aBgClass0 = "", hBgClass1 = "", dBgClass1 = "", aBgClass1 = "";
+                    var hadObj = tmpObj.had;
+                    var hhadObj = tmpObj.hhad;
+                    if (hadObj != undefined) {
+                        hadLine = ((hadObj.fixedodds == "") ? "0" : hadObj.fixedodds);
+                        hValue0 = ((hadObj.h == "") ? "--" : hadObj.h);
+                        dValue0 = ((hadObj.d == "") ? "--" : hadObj.d);
+                        aValue0 = ((hadObj.a == "") ? "--" : hadObj.a);
+                        //
+                        hBgClass0 = "oddsItem" + lotFunc.getTrendStr(hadObj.h_trend);
+                        dBgClass0 = "oddsItem" + lotFunc.getTrendStr(hadObj.d_trend);
+                        aBgClass0 = "oddsItem" + lotFunc.getTrendStr(hadObj.a_trend);
+                    }
+                    if (hhadObj != undefined) {
+                        hhadLine = ((hhadObj.fixedodds == "") ? "0" : hhadObj.fixedodds);
+                        hValue1 = ((hhadObj.h == "") ? "--" : hhadObj.h);
+                        dValue1 = ((hhadObj.d == "") ? "--" : hhadObj.d);
+                        aValue1 = ((hhadObj.a == "") ? "--" : hhadObj.a);
+                        //
+                        hBgClass1 = "oddsItem" + lotFunc.getTrendStr(hhadObj.h_trend);
+                        dBgClass1 = "oddsItem" + lotFunc.getTrendStr(hhadObj.d_trend);
+                        aBgClass1 = "oddsItem" + lotFunc.getTrendStr(hhadObj.a_trend);
+                    }
+                    if (hhadLine != "未开售") {
+                        var hasLine = false;
+                        for (var n = 0; n < rqAry.length; n++) {
+                            if (rqAry[n] == hhadLine) {
+                                hasLine = true;
+                                break;
+                            }
+                        }
+                        if (!hasLine) {
+                            rqAry.push(hhadLine);
+                        }
+                    }
+                    var weatherInfo = "未知";
+                    if (tmpObj.weather_pic != undefined) {
+                        weatherInfo = "<img  title='" + tmpObj.weather + "' src='" + tmpObj.weather_pic + "' />";
+                    }
+                    var matchInfo = "&nbsp;";
+                    if (tmpObj.match_info != undefined) {
+                        if (tmpObj.id != "43742") {
+                            for (var m = 0; m < tmpObj.match_info.length; m++) {
+                                matchInfo += "<span style='cursor:pointer;' title='" + tmpObj.match_info[m].prompt + "'>中立</span>";
+                            }
+                        }
+                    }
+                    var bgStr = "";
+                    var tmpNum = Math.round(Math.random() * 10); //测试数据 || tmpNum % 7 == 0
+                    if ((tmpObj.had != undefined && tmpObj.had.single == "1" && tmpObj.had.o_type == "F")) {
+                        bgStr = " style='background-image:url(./images/single.gif);background-repeat:no-repeat;background-position:left top;'";
+                    }
+                    var bgStr2 = "";
+                    tmpNum = Math.round(Math.random() * 10); //测试用 || tmpNum % 7 == 0
+                    if ((tmpObj.hhad != undefined && tmpObj.hhad.single == "1" && tmpObj.hhad.o_type == "F")) {
+                        bgStr2 = " style='background-image:url(./images/single.gif);background-repeat:no-repeat;background-position:left top;'";
+                    }
+                    var disCls0 = "", disCls1 = "";
+                    if (tmpObj.had != undefined && tmpObj.had.cbt == "2") disCls0 = " oddsDis";
+                    if (tmpObj.hhad != undefined && tmpObj.hhad.cbt == "2") disCls1 = " oddsDis";
+                    //if (tmpObj.crs.single == "1") {
+                    var lineStyle = "";
+                    //                    if (hhadLine.toString().indexOf("+")!=-1) {
+                    //                        lineStyle = " style='color:#c80000;'";
+                    //                    } else if (hhadLine.toString().indexOf("-") != -1) {
+                    //                        lineStyle = " style='color:#198600;'";
+                    //                    }
+                    htmlStr += "<tr id='list_" + tmpObj.id + "' dataIndex='" + i + "_" + j + "' class='listTr' lIndex='" + isFind + "' bIndex='" + filteAry.date.length + "' line='" + Number(hhadLine) + "'><td" + ((i == 0) ? " style='width:48px;'" : "") + ">" + tmpObj.num.substr(0, 2) + "<br>" + tmpObj.num.substr(2) + "</td><td title='" + tmpObj.l_cn + "' class='lname' style='background-color:#" + tmpObj.l_background_color + "'>" + tmpObj.l_cn_abbr + "</td><td>" + tmpObj.date.substr(5) + "<br>" + tmpObj.time.substr(0, 5) + "</td><td" + ((i == 0) ? " style='width:50px;'" : "") + ">" + weatherInfo + "<br>&nbsp;" + ((tmpObj.temperature == undefined) ? "" : tmpObj.temperature) + "</td><td class='vsTd'" + ((i == 0) ? " style='width:300px;'" : "") + "><a href='http://info.sporttery.cn/football/info/fb_match_info.php?m=" + tmpObj.id + "' target='_blank'><label>" + tmpObj.h_order + "</label><span title='" + tmpObj.h_cn + "'>" + tmpObj.h_cn_abbr + "</span> VS <span title='" + tmpObj.a_cn + "'>" + tmpObj.a_cn_abbr + "</span><label>" + tmpObj.a_order + "</label></a></td><td class='goalLineTd'><div title='胜平负' class='hadGL'" + bgStr + ">" + hadLine + "</div><div title='让球胜平负'" + lineStyle + " class='hhadGL'" + bgStr2 + "><label style='font-weight:normal;'></label>" + hhadLine + "</div></td><td" + ((i == 0) ? " style='width:300px;'" : "") + "><div class='hadOdds bLine'><span class='oddsItem rLine " + hBgClass0 + disCls0 + "'>" + hValue0 + "</span><span class='oddsItem rLine " + dBgClass0 + disCls0 + "'>" + dValue0 + "</span><span class='oddsItem " + aBgClass0 + disCls0 + "'>" + aValue0 + "</span></div><div class='hhadOdds'><span class='oddsItem rLine " + hBgClass1 + disCls1 + "'>" + hValue1 + "</span><span class='oddsItem rLine " + dBgClass1 + disCls1 + "'>" + dValue1 + "</span><span class='oddsItem " + aBgClass1 + disCls1 + "'>" + aValue1 + "</span></div></td><td class='linkTd'" + ((i == 0) ? " style='width:74px;'" : "") + "><a href='http://info.sporttery.cn/football/info/fb_match_hhad.php?m=" + tmpObj.id + "' target='_blank'>欧</a> <a href='http://info.sporttery.cn/football/info/fb_match_asia.php?m=" + tmpObj.id + "' target='_blank'>亚</a><br><a href='http://info.sporttery.cn/football/info/fb_match_news.php?m=" + tmpObj.id + "' target='_blank'>讯</a> <a href='http://info.sporttery.cn/football/search_odds.php?mid=" + tmpObj.id + "' target='_blank'>同</a></td><td class='uOddsTd'><div class='hadU bLine'><span class='rLine'>--</span><span class='rLine'>--</span><span>--</span></div><div class='hhadU'><span class='rLine'>--</span><span class='rLine'>--</span><span>--</span></div></td><td class='matchInfoTd'>" + matchInfo + "</td></tr>";
+                }
+            }
+
+            $("#mainTbl").html(htmlStr + "<tr><td style='height:5px;' colspan='10'></td></tr>");
+
+            var rqListHtml = "";
+            for (var n = 0; n < rqAry.length; n++) {
+                if (isNaN(Number(rqAry[n]))) continue;
+                rqListHtml += "<option>" + rqAry[n] + "</option>";
+            }
+            $("#rqList").html("<option>全部</option>" + rqListHtml);
+
+            lotFunc.initOK();
+            //
+            var hTdObj = $("#headerTr td");
+            var mTdObj = $("#mainTbl tr:eq(1) td");
+            for (var i = 0; i < hTdObj.length; i++) {
+                hTdObj.eq(i).width(mTdObj.eq(i).width());
+            }
+            //
+            if (!loadedOk) {
+                if (listTop < 0) listTop = $("#headerTr").offset().top;
+                $(window).scroll(lotFunc.scrollFunc);
+                setTimeout(lotFunc.scrollFunc, 500);
+                loadedOk = true;
+            }
+            //
+            lotFunc.getReferDataI(0);
+        }
+
+        $(document).ready(function() {
+            //胜平负复选框
+            $("#hadCkb").click(function() {
+                if ($(this).attr("checked") == undefined) {
+                    $("#mainTbl div.hadOdds span.oddsItem").addClass("oddsEffect");
+                    if ($("#hhadCkb").attr("checked") == undefined) {
+                        $("#hhadCkb").attr("checked", true);
+                        $("#mainTbl div.hhadOdds span.oddsItem").removeClass("oddsEffect");
+                    }
+                } else {
+                    $("#mainTbl div.hadOdds span.oddsItem").removeClass("oddsEffect");
+                }
+            });
+            //让球胜平负复选框
+            $("#hhadCkb").click(function() {
+                if ($(this).attr("checked") == undefined) {
+                    $("#mainTbl div.hhadOdds span.oddsItem").addClass("oddsEffect");
+                    if ($("#hadCkb").attr("checked") == undefined) {
+                        $("#hadCkb").attr("checked", true);
+                        $("#mainTbl div.hadOdds span.oddsItem").removeClass("oddsEffect");
+                    }
+                } else {
+                    $("#mainTbl div.hhadOdds span.oddsItem").removeClass("oddsEffect");
+                }
+            });
+            //奖金区浮动显示奖金变化复选框
+            $("#floatCkb").click(function() {
+                isShowOddsChg = Boolean($(this).attr("checked"));
+            });
+
+            //奖金事件
+            $("#mainTbl span.oddsItem").live("mouseover", function(e) {
+                var trObj = $(this).closest("tr");
+                //奖金变化
+                if (isShowOddsChg && $("#oddsChgDiv:visible").length == 0 && Number($(this).text()) > 0 && !$(this).hasClass("oddsEffect") && !$(this).hasClass("oddsDis")) {
+                    $("#oddsChgDiv").show();
+                    //
+                    var idStr = trObj.attr("id").split("_")[1];
+                    var poolStr = ($(this).closest("div").attr("class").indexOf("hhad") == -1) ? "had" : "hhad";
+                    if ($("#oddsChgDiv").attr("curId") != idStr + "_" + poolStr) {
+                        $("#oddsChgDiv").attr("curId", idStr + "_" + poolStr);
+                        lotFunc.getOddsChgI(poolStr, idStr);
+                    }
+                }
+                //vs变色
+                trObj.find("td.vsTd a").addClass("vsOver");
+                //
+                $(this).closest("td").addClass("oddsTdEf");
+                var oIndex = $(this).closest("td").find("span").index($(this));
+                if (oIndex > 2) {
+                    trObj.find("div.hhadGL").addClass("overColor");
+                } else {
+                    trObj.find("div.hadGL").addClass("overColor");
+                }
+            });
+
+            //
+            lotFunc.ready();
+            //
+            $("#mainTbl span.oddsItem").live("mousemove", function(e) {
+                if (isShowOddsChg && $("#oddsChgDiv:visible").length == 1 && Number($(this).text()) > 0 && !$(this).hasClass("oddsEffect") && !$(this).hasClass("oddsDis")) {
+                    $("#oddsChgDiv").offset({ left: e.pageX + 4, top: e.pageY + 4 });
+                }
+            });
+            $("#mainTbl span.oddsItem").live("mouseleave", function(e) {
+                var trObj = $(this).closest("tr");
+                if (isShowOddsChg && $("#oddsChgDiv:visible").length == 1) {
+                    $("#oddsChgDiv").hide();
+                }
+                //
+                $("#mainTbl td.vsTd a").removeClass("vsOver");
+                //
+                $(this).closest("td").removeClass("oddsTdEf");
+                trObj.find("div.hhadGL").removeClass("overColor");
+                trObj.find("div.hadGL").removeClass("overColor");
+            });
+            $("#mainTbl span.oddsItem").live("click", function(e) {
+                if ($(this).hasClass("oddsDis")) return;
+                if ($(this).text() == "" || $(this).text() == "--") return;
+                if ((!$(this).hasClass("oddsItemKeep") && !$(this).hasClass("oddsItemUp") && !$(this).hasClass("oddsItemDown")) || $(this).hasClass("oddsEffect")) return;
+
+                var oddsTxt = $(this).text();
+                if (Number(oddsTxt) == 0 || isNaN(Number(oddsTxt))) {
+                    return;
+                }
+
+                var oIndex = $(this).closest("div").find("span").index($(this));
+                var index = $(this).closest("td").find("span").index($(this));
+                var tmpAry = $(this).closest("tr").attr("id").split("_");
+                var idStr = tmpAry[1];
+                var uObj = $(this).closest("tr").find("td.uOddsTd span").eq(index);
+
+                //判断混串
+                var poolStr = ((index >= 3) ? "hhad" : "had");
+
+                if ($(this).hasClass("oddsClk")) { //不选
+                    $(this).removeClass("oddsClk");
+                    uObj.removeClass("uOddsSel");
+                    //从selAry中删除
+                    if (selAry[idStr + "@" + poolStr] == undefined) {
+
+                    } else {
+                        var oddsAry = selAry[idStr + "@" + poolStr].odds;
+                        oddsAry[oIndex] = "";
+                        if (Number(oddsAry.join("")) == 0) {
+                            delete selAry[idStr + "@" + poolStr];
+                            selAryLen--;
+                        }
+                    }
+                } else { //选中
+                    if (selAry[idStr + "@" + poolStr] == undefined) {
+                        var allSingle = lotFunc.isAllSingle();
+                        if ($(this).closest("tr").find("." + poolStr + "GL").css("background-image") == "none") {
+                            allSingle = false;
+                        }
+                        //超过8场
+                        if (selAryLen >= 8) {
+                            //如果选择的都是单关，不提示；否则不能选
+                            if (!allSingle) {
+                                alert("超过8场只能选择单关进行计算");
+                                return;
+                            }
+                        }
+                        //同一场比赛不同玩法
+                        if (!allSingle) {
+                            //如果有选中同一场比赛不同玩法
+                            var tmpObj = new Object();
+                            var hasMulti = false;
+                            for (var key in selAry) {
+                                var tmpPoolStr = (selAry[key].pool == "had") ? "hhad" : "had";
+                                if (tmpObj[key.split("@")[0] + "@" + tmpPoolStr] != undefined) {
+                                    hasMulti = true;
+                                    break;
+                                } else {
+                                    tmpObj[key] = 1;
+                                }
+                            }
+
+                            if (tmpObj[idStr + "@" + ((poolStr == "had") ? "hhad" : "had")] != undefined) {
+                                hasMulti = true;
+                            }
+                            if (hasMulti) {
+                                alert("一场比赛只能选择一种玩法进行串关计算；如计算单关，请删除已选的未开单关的选项！");
+                                return;
+                            }
+                        }
+                    }
+                    //添加到selAry
+                    if (selAry[idStr + "@" + poolStr] == undefined) {
+                        //
+                        selAry[idStr + "@" + poolStr] = new Object();
+                        selAry[idStr + "@" + poolStr].odds = ["", "", ""];
+                        selAry[idStr + "@" + poolStr].dataIndex = $(this).closest("tr").attr("dataIndex");
+                        selAry[idStr + "@" + poolStr].pool = poolStr;
+                        selAry[idStr + "@" + poolStr].single = false;
+                        if ($(this).closest("tr").find("." + poolStr + "GL").css("background-image") != "none") {
+                            selAry[idStr + "@" + poolStr].single = true;
+                        }
+
+                        selAryLen++;
+                    }
+                    selAry[idStr + "@" + poolStr].odds[oIndex] = oddsTxt;
+
+                    //调用接口
+                    if (voteList[idStr + poolStr + oddsName[oddsIndex[oIndex]]] == undefined) { //modi vote
+                        voteList[idStr + poolStr + oddsName[oddsIndex[oIndex]]] = 1;
+                        lotFunc.getVoteI(idStr, poolStr, oddsName[oddsIndex[oIndex]]);
+                    }
+                    //
+                    $(this).addClass("oddsClk");
+                    uObj.addClass("uOddsSel");
+
+                    lotFunc.animate($(this).offset().top, $(this).offset().left, $(this).width(), $(this).height());
+
+                    //默认展开选择详细
+//                    if (!openDetail && !$("#selDetailBtn").hasClass("detailBtnClk")) {
+//                        $("#selDetailBtn").click();
+//                        openDetail = true;
+//                    }
+                }
+                lotFunc.calculate();
+                //
+                if ($("#optionTip").html() != "") {
+                    $("#optionTip").width(100);
+                    $("#optionTip").animate({ width: "280px" }, { easing: 'easeOutBounce', duration: 600, complete: null });
+                }
+            });
+            //
+            $("#sortList").mouseout(function(e) {
+                if (e.pageX < $(this).offset().left || e.pageY < $(this).offset().top || e.pageX > ($(this).offset().left + $(this).width()) || e.pageY > ($(this).offset().top + $(this).height())) {
+                    $("#sortList").offset({ left: 0, top: 0 });
+                    $("#sortList").attr("oddsStr", "");
+                    $("#sortList").hide();
+                }
+            });
+            $("#sortList a").click(function() {
+                var index = $("#sortList a").index($(this));
+                var sortKey = "had", orderStr = "asc";
+                switch (index) {
+                    case 0:
+                        break;
+                    case 1:
+                        orderStr = "desc";
+                        break;
+                    case 2:
+                        sortKey = "hhad";
+                        orderStr = "asc";
+                        break;
+                    case 3:
+                        sortKey = "hhad";
+                        orderStr = "desc";
+                        break;
+                }
+                lotFunc.sortByOdds(sortKey, $("#sortList").attr("oddsStr"), orderStr);
+                //
+                lotFunc.applaySel();
+            });
+            //选择的奖金
+            $("#selDetailTbl .selOdds").live("click", function() {
+                if ($(this).attr("title") == "" || $(this).attr("title") == "--") return;
+                var trObj = $(this).closest("tr");
+                var num = trObj.attr("id").split("_")[1];
+                var index = trObj.find(".selOdds").index($(this));
+                var listTr = $("#" + trObj.attr("id").replace("sel", "list").split("@")[0]);
+                var selObj = selAry[num];
+                if ($(this).hasClass("selOddsSel")) {
+                    //取消选择
+                    $(this).removeClass("selOddsSel");
+                    //selAry
+                    selObj.odds[index] = "";
+                    //右侧
+                    listTr.find("." + selObj.pool + "Odds .oddsItem:eq(" + index + ")").removeClass("oddsClk");
+                    listTr.find("." + selObj.pool + "U span:eq(" + index + ")").removeClass("uOddsSel");
+                    if (Number(selObj.odds.join("")) == 0) {
+                        $(this).closest("tr").find(".delSelLine").click();
+                    }
+                } else {
+                    //选中
+                    $(this).addClass("selOddsSel");
+                    //selAry
+                    selAry[num].odds[index] = $(this).attr("title");
+                    //右侧
+                    listTr.find("." + selObj.pool + "Odds .oddsItem:eq(" + index + ")").addClass("oddsClk");
+                    listTr.find("." + selObj.pool + "U span:eq(" + index + ")").addClass("uOddsSel");
+                }
+                //
+                lotFunc.calculate();
+            });
+            //让球下拉列表
+            $("#rqList").change(function() {
+                //
+                if ($(this).val() == "全部") {
+                    $("#mainTbl tr.listTr").show();
+                } else {
+                    //
+                    $("#mainTbl tr.listTr[line=" + Number($(this).val()) + "]").show();
+                    $("#mainTbl tr.listTr[line!=" + Number($(this).val()) + "]").hide();
+                }
+                //
+                lotFunc.getHideCount();
+                //
+                lotFunc.updateDDateState();
+                //
+                lotFunc.scrollFunc();
+                //
+                if ($("#mainTbl .bDateHide").eq(0).text() == "[显示]") {
+                    $("#mainTbl .bDateHide").eq(0).click();
+                    $("#mainTbl .bDateHide").eq(0).click();
+                }
+            });
+            //排序 odds
+            $("#headerTr .oddsHeader").live("click", function() {
+                var oddsStr = $(this).attr("id").substr(0, 1);
+                if (!$("#hadCkb").attr("checked")) {
+                    lotFunc.sortByOdds("hhad", oddsStr);
+                } else if (!$("#hhadCkb").attr("checked")) {
+                    lotFunc.sortByOdds("had", oddsStr);
+                } else {
+                    //下来列表
+                    $("#sortList").show();
+                    $("#sortList").offset({ left: $(this).offset().left + 25, top: $(this).offset().top });
+                    $("#sortList").attr("oddsStr", oddsName[$(this).text()]);
+                }
+                //
+                lotFunc.checkToolChk();
+                //
+                lotFunc.applaySel();
+            });
+            //
+            $("#uOddsListbox").tipsy({ fade: true, show: false, gravity: "s", fallback: "点击展开" });
+            $("#codeHeader").tipsy();
+            $("#headerTr .oddsHeader").tipsy({ fallback: "点击排序" });
+        });
+        function setAnn(anns) {
+            lotFunc.setAnn(anns);
+        }
+        //赔率变化数据
+        function getChgData(backData) {
+            var tmpAry = $("#oddsChgDiv").attr("curid").split("_");
+            var obj = $("#list_" + tmpAry[0]);
+            var tempTxt = obj.find(".vsTd").text();
+            if (tempTxt.indexOf("]") != -1) {
+                tempTxt = tempTxt.split("]")[1];
+            }
+            if (tempTxt.indexOf("[") != -1) {
+                tempTxt = tempTxt.split("[")[0];
+            }
+            
+            var glTxt = obj.find("." + tmpAry[1] + "GL").text();
+            tempTxt = tempTxt.replace(" VS", "(" + glTxt + ") VS")
+
+            $("#oddsChgDiv").html("<div style='background-color:#FF6000;color:#FFFFFF;line-height:21px;' >" + tempTxt + " 奖金变化</div>" + backData);
+            //$("#oddsChgDiv div").remove();
+        }
+        //调用接口，callBack
+        function getData(backData) {
+            lotFunc.updateTime(backData.status.last_updated);
+            if (backData == undefined || backData == "" || backData.data == undefined || backData.data == "" || (backData.data.length != undefined && backData.data.length == 0)) {
+                alert("没有比赛数据！");
+                return;
+            }
+
+            var newDataFlag = Boolean(curData.length);
+
+            if (!newDataFlag) {
+                var bDate = "";
+                for (var key in backData.data) {
+                    var tmpObj = backData.data[key];
+                    if (tmpObj.b_date != bDate) {
+                        curData.push([]);
+                        bDate = tmpObj.b_date;
+                    }
+                    curData[curData.length - 1].push(tmpObj);
+                }
+            }
+
+            initData();
+        }
+        //
+        function updateSelDetail() {
+            if ($("#selDetailDiv").css("display") == "none") return;
+            var str = "<tr style='font-weight:bold;'><td><a href='javascript:void(0)' id='clearSel'>清空</a></td><td>编号</td><td>让球</td><td>主队</td><td>平局</td><td>客队</td><td>设胆<label id='selDetailClose'>×</label></td></tr>";
+            var poolNum = 0;
+            var poolStr = "";
+            if (selAryLen > 0) {
+                for (var key in selAry) {
+                    var selObj = selAry[key];
+                    var indexAry = selObj.dataIndex.split("_");
+                    var pool = selObj.pool;
+                    var tmpAry = selObj.odds;
+                    var dataObj = curData[indexAry[0]][indexAry[1]];
+                    var goalNum = Number(dataObj[pool].fixedodds);
+                    poolNum += Math.ceil(Math.abs(goalNum) / 10);
+                    str += "<tr id='sel_" + key + "'><td class='delSelLine'>×</td><td>" + dataObj.num + "</td><td>" + Number(dataObj[pool].fixedodds) + "</td><td><span title='" + dataObj[pool].h + "' class='selOdds" + ((tmpAry[0] != "") ? " selOddsSel" : "") + "'>" + dataObj.h_cn_abbr + "</span></td><td><span title='" + dataObj[pool].d + "' class='selOdds" + ((tmpAry[1] != "") ? " selOddsSel" : "") + "'>平局</span></td><td><span title='" + dataObj[pool].a + "' class='selOdds" + ((tmpAry[2] != "") ? " selOddsSel" : "") + "'>" + dataObj.a_cn_abbr + "</span></td><td><input" + (($("#optionHeader input:eq(0)").attr("disabled") != undefined) ? " disabled" : "") + " type='checkbox'" + ((selObj.isDan) ? " checked" : "") + " class='danChk' /></td></tr>";
+                }
+                //
+                if (poolNum == 0) {
+                    poolStr = "胜平负";
+                } else if (poolNum == selAryLen) {
+                    poolStr = "让球胜平负";
+                } else {
+                    poolStr = "混合过关";
+                }
+            }
+            str += "<tr style='display:none;'><td colspan='7'><span class='remindIcon'></span> 您的方案属于<span id='selDetailPoolHint' style='color:#0050E2;font-size:16px;font-weight:bolder'>" + poolStr + "</span>玩法，购买时请提醒销售人员。</td></tr>";
+            $("#selDetailTbl").html(str);
+
+            lotFunc.autoScroll();
+
+            lotFunc.danCheck();
+
+            fadeOutF();
+        }
+        function fadeInF() {
+            if ($("#selDetailDiv").css("display") == "none") return;
+            if ($("#selDetailPoolHint").text() == "混合过关") {
+                $("#selDetailPoolHint").fadeIn("slow", fadeOutF);
+            }
+        }
+        function fadeOutF() {
+            if ($("#selDetailPoolHint").text() == "混合过关") {
+                $("#selDetailPoolHint").fadeOut("slow", fadeInF);
+            }
+        }
+        function getCopyData(param) {
+            var str = "";
+            var tmpObj = $("#mainTbl tr.listTr:visible");
+            for (var i = 0; i < tmpObj.length; i++) {
+                var tdObj = tmpObj.eq(i).find("td");
+
+                var oddsObj = tdObj.eq(6).find("span");
+                str += getFixedLength(10, tdObj.eq(0).text()) + getFixedLength(10, tdObj.eq(1).text()) + getFixedLength(16, tdObj.eq(2).html().toLocaleLowerCase().replace("<br>", " ")) + getFixedLength(38, tdObj.eq(4).text()) + getFixedLength(10, " 0") + getFixedLength(10, oddsObj.eq(0).text()) + getFixedLength(10, oddsObj.eq(1).text()) + getFixedLength(10, oddsObj.eq(2).text()) + "\r\n";
+                str += getFixedLength(10, "") + getFixedLength(10, "") + getFixedLength(16, "") + getFixedLength(38, "") + getFixedLength(9, tdObj.eq(5).find(".hhadGL").text()) + getFixedLength(10, oddsObj.eq(3).text()) + getFixedLength(10, oddsObj.eq(4).text()) + getFixedLength(10, oddsObj.eq(5).text()) + "\r\n";
+
+            }
+            return str;
+        }
+    </script>
+</head>
+<body>
+<!--导航-->
+    <script src="http://static.sporttery.cn/pres/proj/2016/sporttery-2016/js/header.js" type="text/javascript"></script><div class="login"><div class="all-wrap"><div class="FloatL">中国体育彩票竞猜游戏官方信息发布平台</div><div class="FloatR"><a href="http://info.sporttery.cn/virtual_soccer/cal.htm" target="_blank">虚拟足球</a>|<a href="http://bbs.sporttery.cn/" target="_blank">竞彩论坛</a>|<a href="http://www.sporttery.cn/help/3229.html?gid=3" target="_blank">帮助中心</a>|<a href="http://www.sporttery.cn/sitemap.html" target="_blank">网站导航</a></div></div></div><div class="header-top all-wrap"><div class="FloatL mtb"><a href="http://www.sporttery.cn/?pc=1" target="_blank"><img src="http://static.sporttery.cn/pres/proj/2016/sporttery-2016/images/global_nav/logo.jpg" alt="竞彩网"></a></div><div class="FloatR mtb"><div>竞彩网客服热线<span class="f16">400-869-5086</span></div><div>中国体育彩票监督热线<span class="f16">95086</span></div></div></div><div class="header-nav"><div class="all-wrap" id="navmenu"><ul><li class="u-play"><a onclick="return false" href="javascript:void(0)" target="_blank">全部玩法<em class="triangle-nav"></em></a><ul class="sub-menu2"><li><div class="FloatL"><a href="http://info.sporttery.cn/football/hhad_list.php" target="_blank"><img src="http://static.sporttery.cn/pres/proj/2016/sporttery-2016/images/home/fotbal.png"></a></div><div class="FloatR"><a href="http://info.sporttery.cn/football/hhad_list.php" target="_blank"><strong>竞彩足球</strong></a><div class="lot-link"><a href="http://info.sporttery.cn/football/hhad_list.php" target="_blank">胜平负</a><a href="http://info.sporttery.cn/football/hhad_list.php" target="_blank">让球胜平负</a><a href="http://info.sporttery.cn/football/cal_crs.htm" target="_blank">比分</a><br><a href="http://info.sporttery.cn/football/cal_ttg.htm" target="_blank">总进球数</a><a href="http://info.sporttery.cn/football/cal_hafu.htm" target="_blank">半全场</a><a href="http://info.sporttery.cn/mixed/mixed.htm?gameIndex=0" target="_blank">混合过关</a></div></div></li><li><div class="FloatL"><a href="http://info.sporttery.cn/basketball/mnl_list.php" target="_blank"><img src="http://static.sporttery.cn/pres/proj/2016/sporttery-2016/images/home/basbal.png"></a></div><div class="FloatR"><a href="http://info.sporttery.cn/basketball/mnl_list.php" target="_blank"><strong>竞彩篮球</strong></a><div class="lot-link"><a href="http://info.sporttery.cn/basketball/mnl_list.php" target="_blank">胜负</a><a href="http://info.sporttery.cn/basketball/hdc_list.php" target="_blank">让分胜负</a><a href="http://info.sporttery.cn/basketball/hilo_list.php" target="_blank">大小分</a><br><a href="http://info.sporttery.cn/basketball/wnm_list.php" target="_blank">胜分差</a><a href="http://info.sporttery.cn/mixed/mixed.htm?gameIndex=1" target="_blank">混合过关</a></div></div></li><li><div class="FloatL"><a href="http://www.sporttery.cn/lottery/index.html" target="_blank"><img src="http://static.sporttery.cn/pres/proj/2016/sporttery-2016/images/home/trafb.png"></a></div><div class="FloatR"><a href="http://www.sporttery.cn/lottery/index.html" target="_blank"><strong>传统足彩</strong></a><div class="lot-link"><a href="http://www.sporttery.cn/lottery/index.html?tid=0#czcal" target="_blank">14场胜负/任选9场</a><a href="http://www.sporttery.cn/lottery/index.html?tid=1#czcal" target="_blank">6场半全场</a><br><a href="http://www.sporttery.cn/lottery/index.html?tid=2#czcal" target="_blank">4场球数</a></div></div></li><li><div class="FloatL"><a href="http://www.sporttery.cn/digitallottery/" target="_blank"><img src="http://static.sporttery.cn/pres/proj/2016/sporttery-2016/images/home/letou.png"></a></div><div class="FloatR"><a href="http://www.sporttery.cn/digitallottery/" target="_blank"><strong>乐透数字</strong></a><div class="lot-link"><a href="http://info.sporttery.cn/roll/fb_list.php?&amp;s=digital&amp;c=%B3%AC%BC%B6%B4%F3%C0%D6%CD%B8" target="_blank">超级大乐透</a><a href="http://info.sporttery.cn/roll/fb_list.php?&amp;s=digital&amp;c=%C5%C5%C1%D03/%C5%C5%C1%D05" target="_blank">排列3</a><a href="http://info.sporttery.cn/roll/fb_list.php?&amp;s=digital&amp;c=%C5%C5%C1%D03/%C5%C5%C1%D05" target="_blank">排列5</a><br><a href="http://info.sporttery.cn/roll/fb_list.php?&amp;s=digital&amp;c=%C6%DF%D0%C7%B2%CA" target="_blank">七星彩</a></div></div></li><li><div class="FloatL"><img src="http://static.sporttery.cn/pres/proj/2016/sporttery-2016/images/home/code.png"></div><div class="FloatR"><strong>竞彩官方公众号</strong><div class="lot-link"><img src="http://static.sporttery.cn/pres/proj/2016/sporttery-2016/images/schedule/codeBig.jpg"></div></div></li></ul></li><li class="home"><a href="http://www.sporttery.cn/?pc=1" target="_blank">首页</a></li><li><a href="http://info.sporttery.cn/football/history/data_center.php" target="_blank">联赛资料</a></li><li><a href="http://www.sporttery.cn/zixun/index.html" target="_blank">竞彩资讯</a></li><li class="tri"><a onclick="return false" href="javascript:void(0)" target="_blank">比分直播<em class="triangle-nav"></em></a><ul class="sub-menu"><li><a href="http://info.sporttery.cn/livescore/fb_livescore.html" target="_blank">足球比分直播</a></li><li><a href="http://info.sporttery.cn/livescore/bk_livescore.html" target="_blank">篮球比分直播</a></li></ul></li><li class="tri"><a onclick="return false" href="javascript:void(0)" target="_blank">赛果开奖<em class="triangle-nav"></em></a><ul class="sub-menu"><li><a href="http://info.sporttery.cn/football/match_result.php" target="_blank">足球赛果开奖</a></li><li><a href="http://info.sporttery.cn/basketball/match_result.php" target="_blank">篮球赛果开奖</a></li></ul></li><li><a href="http://www.sporttery.cn/digitallottery/" target="_blank">乐透数字</a></li><li><a href="http://www.sporttery.cn/lottery/index.html" target="_blank">传统足彩</a></li><li class="u-w76"><a href="http://info.sporttery.cn/shop/map/index.php" target="_blank">竞彩店</a></li></ul></div></div>
+
+    
+<div class="wrap">
+    <div id="container">
+        <table cellpadding="0" cellspacing="0" width="100%">
+            <tbody><tr id="tabDiv">
+                <td id="tabList"><a class="selTab" style="border-bottom:none;">胜平负/让球胜平负</a><a href="cal_crs.htm">比 分</a><a href="cal_ttg.htm">总进球数</a><a href="cal_hafu.htm">半全场胜平负</a><a href="http://info.sporttery.cn/mixed/mixed.htm?gameIndex=0">混合过关</a></td>
+                <td id="noticeSpan" align="right" valign="bottom"><a href="http://info.sporttery.cn/football/match_list.php" style="color:#4e91ea" target="_blank">[足球受注赛程]</a>&nbsp;&nbsp;<a href="http://info.sporttery.cn/football/match_interim.php" style="color:#4e91ea" target="_blank">[足球暂定赛程]</a>&nbsp;&nbsp;<a href="http://info.sporttery.cn/iframe/lottery_notice.php" style="color:#4e91ea" target="_blank">[赛事公告]</a></td>
+            </tr>
+        </tbody></table>
+        <div id="toolDiv">
+            <span style="float:right; line-height:28px; display:inline-block;">&nbsp;竞彩奖金更新时间：<span id="updateTime"></span> <a href="javascript:void(0)" id="updateBtn">[刷新]</a></span>
+            <a href="http://www.sporttery.cn/football/jcjq/2014/1021/123944.html" target="_blank" style="float:right;color:#4e91ea;">[ 使用说明 ]</a>
+            <span id="copytoboard" style="display: none; ">
+                <object id="copyFlash" classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=9,0,0,0" width="74" height="20" align="top">
+	            <param name="allowScriptAccess" value="always">
+	            <param name="allowFullScreen" value="false">
+	            <param name="movie" value="images/copytoboard.swf">
+	            <param name="loop" value="false">
+	            <param name="menu" value="false">
+	            <param name="quality" value="high">
+	            <param name="wmode" value="transparent">
+	            <embed src="images/copytoboard.swf" loop="false" menu="false" quality="high" wmode="transparent" bgcolor="#ffffff" width="74" height="20" name="copyFlash" align="top" allowscriptaccess="sameDomain" allowfullscreen="false" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer">
+	            </object>
+	        </span>
+            <span id="mFilterBtn">&nbsp;赛事筛选</span> 共隐藏<label id="hideCount">0</label>场赛事&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input id="hadCkb" checked="checked" type="checkbox"><label for="hadCkb">胜平负</label> <input id="hhadCkb" checked="checked" type="checkbox"><label for="hhadCkb">让球胜平负</label> | <input id="floatCkb" type="checkbox"><label for="floatCkb">奖金区浮动显示奖金变化</label>
+        </div>
+        <table id="headerTr" cellpadding="0" cellspacing="0"><tbody><tr><td><span id="codeHeader" class="headerList" original-title="点击排序">赛事<br>编号</span></td><td><span>赛事</span></td><td><span>开赛<br>时间</span></td><td><span>即时<br>天气</span></td><td>主队 VS 客队</td><td>让球<br><select id="rqList"></select></td><td style="width:300px;"><span id="hHeader" class="oddsHeader" original-title="">胜</span><span id="dHeader" class="oddsHeader" original-title="">平</span><span id="aHeader" class="oddsHeader" original-title="">负</span></td><td>数据</td><td style="width:140px; vertical-align:bottom;"><span id="uOddsListbox" original-title="">支持率<img src="images/listArrow2.gif"></span><br><span class="uoOption tLine rLine">胜</span><span class="uoOption tLine rLine">平</span><span class="uoOption tLine">负</span></td><td>重要提示</td></tr></tbody></table>
+        <table id="mainTbl" cellspacing="0" cellpadding="0" width="100%"></table>
+    </div>
+    
+    <script type="text/javascript" src="js/JScript.js"></script><div id="sel_pan"><table width="1180" align="center"> <tbody><tr><td align="center"><div><div id="selDetailBtn"><span style="margin-top:8px; display:inline-block; font-weight:bold;">已选<span id="selCount">0</span>场</span><br>(设胆)</div><div id="selDetailDiv"><table id="selDetailTbl" cellpadding="0" cellspacing="0"></table></div></div></td><td style="padding-bottom:5px;"><div style="padding: 5px 0 3px 0; color:#FFE38B; font-size:14px; font-weight:bold;">本页面目前仅提供奖金计算功能，更多便捷服务将在将来开通。</div><div id="optionHeader"><b>过关方式：</b><input type="radio" index="0" name="optionType" checked="">普通过关<input index="1" type="radio" name="optionType">多选过关<label id="optionTip" style="width: auto; "></label></div><div><span id="optionList" count="0"></span></div></td><td><input type="button" id="subBtn" class="subAddBtn" value="-"><input id="times" type="text" value="1"><input type="button" id="addBtn" class="subAddBtn" value="+"><label style="color:#FFFFFF;"> 倍</label><br><font color="#FFFFFF">[最高99倍]</font></td><td id="bonusTd">投注金额：<span id="consume">0</span>元<br>理论最高奖金：<span id="bonus">0.00</span>元</td><td><input type="button" id="detailBtn" value="查看详情"><div id="viewDetailDiv"><table cellspacing="0" cellpadding="6" width="100%"><tbody><tr><td colspan="4"><a id="detailClose" style="text-decoration:none;" href="javascript:void(0);">×</a><a id="printBtn" href="javascript:void(0);">打印</a><span id="mmSpan"></span></td></tr><tr style="font-weight:bold;"><td style="width:38px;border-right:none;">注号</td><td style="width:100px;border-right:none;">过关方式</td><td id="dch" style="width:380px;border-right:none;">注项内容</td><td id="dBTd" style="width:50px;">奖金</td></tr></tbody></table><div id="detailList"><table id="viewDetailTbl" width="100%" cellpadding="6" cellspacing="0"></table></div></div></td></tr></tbody></table></div><table id="filterTbl" cellpadding="0" cellspacing="0" style="display: none; "><tbody><tr><td id="filterHeader" style="width:68px; height:17px; line-height:17px; background-image:url(images/lotbg.jpg); background-position:left -129px; background-repeat:no-repeat;"></td><td id="filterResize">&nbsp;</td></tr><tr style="background-color:#FFFFFF;"><td style="border-left:solid 1px #CCCCCC;">&nbsp;按日期筛选</td><td style="height:24px; border-top:solid 1px #CCCCCC; border-right:solid 1px #CCCCCC; text-align:right;"><span id="filterCloseBtn" style="display:inline-block; width:16px; line-height:16px; text-align:center; cursor:pointer; color:#F69090; border:solid 1px #F69090;">×</span></td></tr><tr><td id="dFilterList" style="background-color:#FFFFFF; border-left:solid 1px #CCCCCC; border-right:solid 1px #CCCCCC; padding:6px;" colspan="2"></td></tr><tr style="background-color:#FFFFFF;"><td style="border-left:solid 1px #CCCCCC;">&nbsp;按赛事筛选</td><td style="height:24px; border-right:solid 1px #CCCCCC;">&nbsp;</td></tr><tr><td id="mFilterList" style="background-color:#FFFFFF; border-left:solid 1px #CCCCCC; border-right:solid 1px #CCCCCC; border-bottom:solid 1px #CCCCCC; padding:6px;" colspan="2"></td></tr></tbody></table>
+
+    
+    <div id="oddsChgDiv" curid=""></div>
+    <div id="animateFrame"></div>
+    <div id="uOddsSelect"><a href="javascript:void(0);">支持率</a><br><a href="javascript:void(0);">百家平均</a><a href="javascript:void(0);" style="width:1px; height:1px; display:inline-block;">&nbsp;</a></div>
+    <div id="sortList" oddsstr=""><a href="javascript:void(0)">胜平负↑</a><br><a href="javascript:void(0)">胜平负↓</a><br><a href="javascript:void(0)">让球胜平负↑</a><br><a href="javascript:void(0)">让球胜平负↓</a></div>
+    
+    <div style="border:solid 1px #e5e5e5; background-color:#f2f2f2; padding:7px;color:#999999;">
+        <ul style="padding-left:20px; margin-left:0px; line-height:26px;"><b>竞彩足球投注提示：</b>
+        <li>1、让球只适合“让球胜平负”玩法，“+”为客让主，“-”为主让客。</li>
+        <li style="color:#C80000">2、页面中过关投注固定奖金仅供参考，实际奖金以出票时刻奖金为准。投注区显示的中奖金额=每1元对应中奖奖金。</li>
+        <li>3、过关投注完场显示的奖金仅指比赛截止投注时的过关奖金，仅供参考，派奖奖金以方案详情中出票时刻的奖金为准。</li>
+        <li>4、2或3场过关投注，单注最高奖金限额20万元；4或5场过关投注，单注最高奖金限额50万元；6场和6场以上过关投注，单注最高奖金限额100万元。</li>
+        </ul>
+    </div>
+    
+    <div id="newIndicate"></div>
+    
+    <!--[if !IE]>Footer开始<![endif]-->
+    <script src="http://static.sporttery.cn/pres/proj/2016/sporttery-2016/js/footer.js" type="text/javascript"></script></div><div class="footer">   <div class="rel_links">相关机构&nbsp;&nbsp;&nbsp;&nbsp;<a href="http://www.sport.gov.cn/" target="_blank" title="国家体育总局">国家体育总局</a>│<a href="http://www.mof.gov.cn/" target="_blank" title="财政部">财政部</a>│<a href="http://www.lottery.gov.cn/" target="_blank" title="中国体彩网">中国体彩网</a>&nbsp;&nbsp;&nbsp;&nbsp;   <select onchange="s_click(this)"><option>各地体彩</option><option value="http://www.bjlot.com">北京体彩网</option><option value="http://www.tjlottery.gov.cn">天津体彩网</option><option value="http://www.hbtcw.com">河北体彩网</option><option value="http://www.sxlottery.net">山西体彩网</option><option value="http://www.nmtc.com.cn">内蒙古体彩网</option><option value="http://www.lntycp.com">辽宁体彩网</option><option value="http://jl.lottery.gov.cn">吉林体彩网</option><option value="http://www.hljtcp.com">黑龙江体彩网</option><option value="http://www.shlottery.gov.cn">上海体彩网</option><option value="http://www.js-lottery.com">江苏体彩网</option><option value="http://www.zjlottery.com">浙江体彩网</option><option value="http://www.ahtc.gov.cn">安徽体彩网</option><option value="http://www.fjtc.com.cn">福建体彩网</option><option value="http://www.jxlottery.cn">江西体彩网</option><option value="http://www.sdticai.com">山东体彩网</option><option value="http://www.hnlottery.com.cn">河南体彩网</option><option value="http://www.hbtycp.com">湖北体彩网</option><option value="http://www.hnticai.com">湖南体彩网</option><option value="http://www.gdlottery.cn">广东体彩网</option><option value="http://www.lottery.gx.cn">广西体彩网</option><option value="http://www.tc.hainan.net">海南体彩网</option><option value="http://www.cqlottery.gov.cn">重庆体彩网</option><option value="http://www.sclottery.gov.cn">四川体彩网</option><option value="http://www.gztcw.com.cn">贵州体彩网</option><option value="http://www.ynticai.cn">云南体彩网</option><option value="http://www.sxtc.com.cn">陕西体彩网</option>   <option value="http://www.gstc.org.cn">甘肃体彩网</option><option value="http://www.qhtycp.com/">青海体彩网</option><option value="http://www.nxtcw.com.cn">宁夏体彩网</option><option value="http://www.xjlottery.gov.cn">新疆体彩网</option><option value="http://www.hljjcw.cn">黑龙江竞彩网</option></select>&nbsp;&nbsp;&nbsp;&nbsp;<a target="_self" href="http://www.sporttery.cn/wap/">触屏版</a>   </div>   <div class="FooterZC"><a href="http://www.sporttery.com/jcdt/2012/0329/1426.html" target="_blank" title="法律声明">法律声明</a> | <a href="http://www.sporttery.cn/sitemap.html" target="_blank" title="网站导航">网站导航</a> | <a href="http://www.sporttery.cn/football/o/2012/0329/1431.html" target="_blank" title="联系我们">联系我们</a> | <a href="http://chat.talk99.cn/chat/chat/p.do?c=10039268&amp;f=10060066&amp;g=10061649" target="_blank" title="在线客服">在线客服</a> | <a href="http://www.sporttery.com/jcdt/2012/0329/1429.html" target="_blank" title="免责声明">免责声明</a><br><a href="http://www.hd315.gov.cn/beian/view.asp?bianhao=010202014042900008" target="_blank"><img src="http://static.sporttery.cn/images/2014/05/04/1_1134542471.gif" border="0"></a><br><a href="http://www.miibeian.gov.cn/" target="_blank">竞彩网ICP编号：京ICP证090602号</a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="http://www.sporttery.cn/video_license.html" target="_blank">网络视听许可证：0110594号</a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="http://static.sporttery.cn/images/2015/05/18/1_1112529141.jpg" target="_blank">广播电视节目制作经营许可证(京)字第1864号</a>&nbsp;&nbsp;&nbsp;&nbsp;<a target="_blank" href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=11010702001614"><img src="http://static.sporttery.cn/pres/proj/2016/sporttery-2016/images/home/ghs.png" style="vertical-align:middle;">京公网安备 11010702001614号</a><br>本网站赛程、赛果、奖金等数据由国家体育总局体育彩票管理中心发布 </div></div>
+<div class="sidebar"><a onclick="return false" href="javascript:void(0);" class="side-code" title="公众号"> <div class="code-pop"></div></a><a target="_blank" href="http://chat.talk99.cn/chat/chat/p.do?c=10039268&amp;f=10060066&amp;g=10061649" class="side-ser" title="客服"> <div class="service_pop"><div class="ser-btn">在线客服</div></div></a><a onclick="return false" href="javascript:void(0)" class="side-top" title="回到顶部"></a></div>
+ 
+    <!--[if !IE]>Footer结束<![endif]-->
+    
+
+<script type="text/javascript" src="http://info.sporttery.cn/js/pushNews.js"></script>
+
+<script type="text/javascript" src=" http://static.sporttery.cn/scripts/traffic_stats.js"></script><script src=" http://hm.baidu.com/h.js?860f3361e3ed9c994816101d37900758" type="text/javascript"></script><table cellspacing="0" id="pushNews" style="position: absolute; top: 0px; display: none; vertical-align: middle; font-size: 16px; font-weight: bold; padding: 0px; "><tbody><tr><td style="width:106px;line-height:82px; background-image:url(http://static.sporttery.cn/images/main/push_news2.png); background-repeat:no-repeat; background-position:right top;"></td><td style="background-image:url(http://static.sporttery.cn/images/main/push_news4.png); background-repeat:repeat-x;"><a style=" margin-top:30px; font-family:微软雅黑; padding-left:8px;padding-right:8px; display:inline-block; color:#FFF; text-decoration:none;" target="_blank" onclick="pnObj.closePushNews()"></a></td><td align="center" valign="top" style="width:38px; height:82px; background-image:url(http://static.sporttery.cn/images/main/push_news3.png); background-repeat:no-repeat;"><span onclick="pnObj.closePushNews()" onmouseover="this.style.color='#000000'" onmouseout="this.style.color='#FF0000'" style="cursor:pointer; display:inline-block; margin-top:29px; color:Red;">×</span></td></tr></tbody></table>
+
+</body></html>

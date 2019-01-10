@@ -1,0 +1,683 @@
+
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head><meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><link rel="stylesheet" type="text/css" href="/css/web.less" /><link rel="stylesheet" type="text/css" href="/css/index.less" /><link rel="shortcut icon"href="/favicon.ico"  type="image/x-icon"/>
+<link rel="icon" href="/favicon.ico" type="image/x-icon" />
+<script src="/jquery/jquery.js" type="text/javascript"></script>
+<script src="/jquery/jquery.ui.js" type="text/javascript"></script>
+<script src="/js/func.js" type="text/javascript"></script>
+<script src="/js/loadarea.js" type="text/javascript"></script>
+<script src="/js/loadbrand.js" type="text/javascript"></script>
+<script src="/js/selector.js" type="text/javascript"></script>
+<script src="/artDialog/jquery.artDialog.source.js?skin=win8" type="text/javascript"></script>
+<script src="/artDialog/plugins/iframeTools.source.js" type="text/javascript"></script>
+<script src="/jquery/jquery.form.js" type="text/javascript"></script>
+<script src="/jquery/jquery.shark.js" type="text/javascript"></script>
+<script src="/jquery/jquery.scrollintoview.js" type="text/javascript"></script>
+<script src="/js/common.js" type="text/javascript"></script>
+<script src="/js/control.js" type="text/javascript"></script>
+<script src="/js/extend-func.js" type="text/javascript"></script>
+<script>
+	(function (config) {
+		config['lock'] = true;
+		config['okVal'] = '确定';
+		config['cancelVal'] = '取消';
+		config['opacity'] = 0.3;
+		config['resize'] = false;
+	})(art.dialog.defaults);
+
+	var newmessage = 0;
+	var newtrack = 0;
+	var newsysmsg = 0;
+
+	var objselector;
+
+	var isroot = false;
+
+	login = function (url, pop) {
+		url = "/login/?ref=" + escape(url == undefined ? top.location.href.replace(/http:\/\/www\.[a-zA-Z0-9]*\.com/gi, "") : url);
+		if(pop == undefined || !pop) {
+			top.location.href = url;
+		} else {
+			window.open(url);
+		}
+	};
+	
+	logout = function() {
+		top.location.href = "/login/?ref=" + escape(top.location.href.replace(/http:\/\/www\.[a-zA-Z0-9]*\.com/gi, "")) + "&method=logout";
+	};
+
+	needlogin = function(url, pop) {
+		login(url, pop);
+		return false;
+	};
+
+	showpic = function (id, i) {
+		openwindow("/gallery/viewimages.aspx?g=" + id + "&i=" + i, "gallery", 1500, 1000, "浏览图片", undefined, "no");
+	};
+
+	opendialog = function(dialogid, name) {
+		openwindow("/mc_com/info/messagedialog.aspx?u=" + dialogid, "messagedialog", 800, 550, "与 " + name + " 的对话");
+	};
+
+	closedialog = function() {
+		closewindow("messagedialog");
+	};
+
+	showbuilding = function () {
+		openwindow("/building.shtml", "building", 600, 500, "正在建设");
+		return false;
+	};
+
+	showprivacy = function () {
+		openwindow("/text/privacy.html", "privacy", 800, 600, "隐私声明");
+	};
+
+	showterm = function () {
+		openwindow("/text/term.html", "term", 800, 600, "用户服务条款");
+	};
+
+	var nowprovince, nowcity, nowbrand, nowmodel;
+</script>
+	<script type="text/html">
+		isroot = true;
+	</script>
+	<title>
+	大麦进口车
+</title></head>
+<body>
+	<div id="headerbox">
+	<div class="logotext"><a href="http://www.damaicar.com/">中国进口汽车网报价资源站：大麦进口车  damaicar.com</a></div>
+	<div class="login" id="login_loading" style="display: inline-block;"></div>
+	<div class="login" id="login"><a href="javascript: void(0);" onclick="login();">登录</a><span class="splitbar"></span><a href="javascript: void(0);" onclick="login();">注册</a> <!--<a class="fastlogin" href="javascript: void(0);">快捷登录<span>▼</span></a>--></div>
+	<div class="login" id="logout">
+		<div class="menuitem">
+			<a href="javascript: void(0);" id="btnpersonal"></a>
+			<div id="personalmenu" class="menu">
+				<div class="bar"></div>
+				<div class="box">
+					<div class="menucontainer">
+						<a href="/user/?page=info" id="myinfo">我的资料</a>
+						<div class="split"></div>
+						<a href="/user/?page=head">修改头像</a>
+						<div class="split"></div>
+						<a href="/user/?page=security">账号安全</a>
+						<a href="/user/?page=security#unfoldContent:password">密码修改</a>
+						<!--<a href="javascript: void(0);">我的关注</a>
+						<a href="javascript: void(0);">我的收藏</a>-->
+						<div class="split"></div>
+						<a href="javascript: void(0);" onclick="logout();">退出登录</a>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="menuitem">
+			<a href="javascript: void(0);" id="btnoption"></a>
+			<div id="loginmenu" class="menu">
+				<div class="bar"></div>
+				<div class="box">
+					<div class="menucontainer">
+						<a href="/mc/">管理中心</a>
+						<a href="/mc_com/">管理中心（兼容模式）</a>
+						<div class="split"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="menuitem">
+			<a href="javascript: void(0);" id="btnmessage"></a>
+			<div id="messagemenu" class="menu">
+				<div class="bar"></div>
+				<div class="box">
+					<div class="menucontainer">
+						<a href="/mc/?page=info&opt=message"><span id="newmsgcount"></span>我的私信</a>
+						<a href="/mc/?page=track&opt=customer"><span id="newtrackcount"></span>潜在客户</a>
+						<a href="/mc/?page=info&opt=sysmsg"><span id="newsysmsgcount"></span>系统消息</a>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="tips"><a href="javascript: void(0);" class="close"><img src="/images/close.png" /></a><div class="tipscontent"></div></div>
+		<span class="splitbar"></span><a href="/u" id="loginname"></a>
+	</div>
+	<div class="mainmenu">
+	<a class="child" href="/?all=true" id="newcar_quote">新车车源</a><a class="splitbar">|</a><a class="child" href="javascript: void(0);" id="usedcar_quote" onclick="return showbuilding();">二手车源</a><a class="splitbar">|</a><a class="child" href="/newcar/demand/?all=true" id="newcar_demand">新车需求</a><a class="splitbar">|</a><a class="child" href="javascript: void(0);" id="usedcar_demand" onclick="return showbuilding();">二手需求</a><a class="splitbar">|</a><a class="child" href="/zdm/" id="zdm">值得买</a>
+</div>
+<div class="dealersearch">
+	<form onsubmit="searchdealer(); return false;"><label><input type="radio" name="method" value="0" checked="checked" />搜公司</label> <label><input type="radio" name="method" value="1" />搜人</label> <input type="text" id="key" name="key" placeholder="请输入关键字" /><a href="javascript: void(0);" onclick="searchdealer();">搜索</a></form>
+</div>
+<script type="text/javascript">
+	var searchdealer = function () {
+		var key = $(".dealersearch input[name='key']").val();
+		var method = parseInt($(".dealersearch input[name='method']:checked").val());
+		var minsize = (method==0 ? 3 : 1);
+		if (key == undefined || key.length < minsize) {
+			show_alert("必须输入至少" + minsize + "个字来进行搜索");
+		} else {
+			openwindow("/mc/public/dealersearch.aspx?method=" + method + "&key=" + escape(key), "ds", 300, 300, "搜索结果", function () { }, "yes");
+		}
+	};
+</script>
+	<div class="logo" onclick="top.location.href='/';"></div>
+	<div class="search">
+		<div class="detail"><form action="/"><input id="keys" name="k" value="" class="keybox" /><button class="submit">大麦查</button></form></div>
+		<div class="clear"></div>
+	</div>
+	<div class="download"><a href="/app/" target="_blank"></a></div>
+</div>
+	<div class="download"><a href="/app/" target="_blank"></a></div>
+	<div id="containerbox">
+		<div class="searchsimplebox">
+			<div class="logoicons"><div></div></div>
+			<div class="searchbox">
+				<div class="mainmenu">
+	<a class="child" href="/?all=true" id="newcar_quote">新车车源</a><a class="splitbar">|</a><a class="child" href="javascript: void(0);" id="usedcar_quote" onclick="return showbuilding();">二手车源</a><a class="splitbar">|</a><a class="child" href="/newcar/demand/?all=true" id="newcar_demand">新车需求</a><a class="splitbar">|</a><a class="child" href="javascript: void(0);" id="usedcar_demand" onclick="return showbuilding();">二手需求</a><a class="splitbar">|</a><a class="child" href="/zdm/" id="zdm">值得买</a>
+</div>
+<div class="search">
+	<div class="logo"><div></div></div>
+	<div class="detail"><form><input id="keys" name="k" value="" class="keybox" placeholder="请输入关键字" /><button class="submit">大麦查</button></form></div>
+	<div class="clear"></div>
+</div>
+<div class="download"><a href="/app/" target="_blank"></a></div>
+<script>
+</script>
+				<div class="clear"></div>
+			</div>
+		</div>
+		<div class="zi"><div><img usemap="#map" src="" /></div></div>
+		<map name="map">
+			<area shape="rect" coords="0,0,105,33" href="http://www.at188.com/" alt="" />
+			<area shape="rect" coords="122,0,301,33" href="http://www.damaicar.com" alt="" />
+		</map>
+		<div class="bottombar">
+			<table width="100%" cellpadding="0" cellspacing="0" border="0">
+				<tr>
+					<td class="advsearch"><a href="javascript: void(0);" class="advance" id="showadvance" hidefocus="true">高级搜索</a></td>
+				</tr>
+			</table>
+		</div>
+		<div id="searchcontainer">
+	<div class="holder" onclick="hideadvsearch();">高级搜索</div>
+	<div class="close" onclick="hideadvsearch();"><span>×</span>关闭</div>
+	<div id="advsearch">
+		<form>
+			<input type="hidden" name="search" value="advance" />
+			<div class="line">
+				<label>品牌车系：</label><div class="agSelector" id="advauto" style="width: 260px;"><div class="agtext"><span class="default">不限品牌车系</span></div><div class="agbutton">▼</div></div>
+				<!--<select id="brand" name="brand" onchange="loadbrand(this.value);"></select><select id="model" name="model">
+					<option value="">不限型号</option>
+				</select>-->
+				<input type="hidden" name="brand" />
+				<input type="hidden" name="model" />
+			</div>
+			<div class="line">
+				<label>所在地区：</label><div class="agSelector" id="advarea" style="width: 260px;"><div class="agtext"><span class="default">不限地区</span></div><div class="agbutton">▼</div></div>
+				<input type="hidden" name="province" />
+				<input type="hidden" name="city" />
+				<!--<select id="province" name="province" onchange="loadarea(this.value);"></select><select id="city" name="city">
+					<option value="">不限城市</option>
+				</select>-->
+			</div>
+			<div class="line single select color"><a href="javascript:void(0);" class="selected" value="">不限颜色</a><a href="javascript:void(0);" value="白">白（White）</a><a href="javascript:void(0);" value="黑">黑（Black）</a><a href="javascript:void(0);" value="灰">灰（Gray）</a><a href="javascript:void(0);" value="银">银（Silver）</a><a href="javascript:void(0);" value="棕">棕（Brown）</a><a href="javascript:void(0);" value="黄">黄（Yellow）</a><a href="javascript:void(0);" value="红">红（Red）</a><a href="javascript:void(0);" value="蓝">蓝（Blue）</a><a href="javascript:void(0);" value="金">金（Golden）</a><a href="javascript:void(0);" value="铜">铜（Copper）</a><a href="javascript:void(0);" value="绿">绿（Green）</a><a href="javascript:void(0);" value="紫">紫（Purple）</a><input type="hidden" name="color" /></div>
+			<div class="line single select country"><a href="javascript:void(0);" class="selected" value="0">不限规格</a><a href="javascript:void(0);" value="1">中规</a><a href="javascript:void(0);" value="2">美规</a><a href="javascript:void(0);" value="3">中东</a><a href="javascript:void(0);" value="4">加版</a><a href="javascript:void(0);" value="5">德规</a><a href="javascript:void(0);" value="6">欧规</a><input type="hidden" name="country" value="" /></div>
+			<div class="line single select type"><a href="javascript:void(0);" class="selected" value="">不限状态</a><a href="javascript:void(0);" value="0">现车</a><a href="javascript:void(0);" value="1">期货</a><a href="javascript:void(0);" value="2">订单</a><input type="hidden" name="type" /></div>
+			<div class="line section select price"><a href="javascript:void(0);" class="selected" value="">不限价格</a><a href="javascript:void(0);" value=",50">50万以下</a><a href="javascript:void(0);" value="45,65">50万左右</a><a href="javascript:void(0);" value="65,90">80万左右</a><a href="javascript:void(0);" value="90,110">100万左右</a><a href="javascript:void(0);" value="110,130">120万左右</a><a href="javascript:void(0);" value="130,165">150万左右</a><a href="javascript:void(0);" value="165,195">180万左右</a><a href="javascript:void(0);" value="185,220">200万左右</a><a href="javascript:void(0);" value="200,">200万以上</a><span><input type="number" name="price1" min="0" max="800" /> ～ <input type="number" name="price2" min="0" max="800" /> 万</span></div>
+			<div class="line button">
+				<button type="submit">搜索</button>
+			</div>
+		</form>
+	</div>
+</div>
+	</div>
+	<div id="statuebar">
+	<div style="float: right;"><span style="font-family: arial">&copy;2013 damaicar.com</span> | <a href=" http://www.miibeian.gov.cn" target="_blank">津ICP备14000390号-1</a> | <a href="javascript: void(0);" onclick="showterm();">服务条款</a> | <a href="javascript: void(0);" onclick="showprivacy();">隐私声明</a></div>
+	<div style="font-family: arial">大麦进口车公测正式开始，如发现任何使用的问题请及时联系客服（022-25761762）。感谢您的合作！</div>
+</div>
+<iframe name="hidewin" width="0" height="0" style="display: none;"></iframe>
+<script type="text/javascript">
+	var isIE6 = false;
+	var isIE7 = false;
+</script>
+<!--[if lte IE 6]>
+	<script type="text/javascript">
+		isIE6 = true;
+	</script>
+<![endif]-->
+<!--[if IE 7]>
+	<script type="text/javascript">
+		isIE7 = true;
+	</script>
+<![endif]-->
+<script type="text/javascript">
+	var advsearch = $("#advsearch");
+	if(advsearch.size() > 0) {
+		var advsearchhtml = $("#advsearch").html();
+		$("#advsearch").html(advsearchhtml.replace(/～/gi, '<span style="font-family: arial; display: inline-block; padding: 0 3px;">~</span>'));
+
+		$("#showadvance").on("click", function () {
+			var that = $(this);
+			showadvsearch();
+		});
+
+		showadvsearch = function () {
+			$("div.bottombar").fadeOut('fast');
+			$('#searchcontainer').slideDown('fast');
+			$(document).on('keydown', function (ev) {
+				var e = event || window.event;
+				var keyCode = e.keyCode || e.which;
+				if (keyCode == 27) {
+					hideadvsearch();
+				}
+			});
+		};
+
+		hideadvsearch = function () {
+			$('#searchcontainer').slideUp('fast');
+			$("div.bottombar").fadeIn('fast');
+			$(document).off('keydown');
+		};
+
+		$.ajax({
+			cache: false,
+			timeout: 3000,
+			dataType: "html",
+			url: "/api/getdata.aspx",
+			data: {
+				page: "at188_2012/area/province.html"
+			},
+			success: function (result) {
+				$("#province").html(result);
+				$("#province").val(Request("province", ""));
+				if (objselector != undefined) objselector.reload($("#province")[0]);
+				loadarea(Request("province", ""), Request("city", ""));
+			},
+			error: function () {
+				$("#province").html("载入出错");
+				if (objselector != undefined) objselector.reload($("#province")[0]);
+			}
+		});
+
+		//$.ajax({
+		//	cache: false,
+		//	timeout: 3000,
+		//	dataType: "html",
+		//	url: "/api/getdata.aspx",
+		//	data: {
+		//		page: "at188_2012/autos/brand.html"
+		//	},
+		//	success: function (result) {
+		//		$("#brand").html(result);
+		//		$("#brand").val(Request("brand", ""));
+		//		if (objselector != undefined) objselector.reload($("#brand")[0]);
+		//		loadbrand(Request("brand", ""), Request("model", ""));
+		//	},
+		//	error: function () {
+		//		if (objselector != undefined) objselector.reload($("#brand").html("载入出错")[0]);
+		//	}
+		//});
+		var autobrand = Request("brand", "");
+		var automodel = Request("model", "");
+		$("#advsearch [name='brand']").val(autobrand);
+		$("#advsearch [name='model']").val(automodel);
+		$.ajax({
+			cache: false,
+			timeout: 3000,
+			dataType: "json",
+			url: "/api/run.aspx",
+			data: {
+				api: "getautoname",
+				auto: autobrand + (automodel.length > 0 ? ",": "") + automodel
+			},
+			success: function (result) {
+				if (result.state && result.result.length > 0) {
+					$("#advauto .agtext").html(result.result);
+				} else if (!result.state) {
+					$("#advauto .agtext").html("获取数据失败，请刷新");
+				}
+			},
+			error: function () {
+				$("#advauto .agtext").html("获取数据失败，请刷新");
+			}
+		});
+		delete autobrand, automodel;
+
+		$("#advauto").on("click", function () {
+			openwindow("/public/selector/selectauto.aspx?brandonly=1&brand=" + $("#advsearch [name='brand']").val() + "&model=" + $("#advsearch [name='model']").val(), "selectauto",
+				300, 500, "选择品牌车系", function () {
+					if (top.returnvalue != undefined && top.returnvalue.length > 0) {
+						var tag = top.returnvalue.split('_');
+						if (tag.length == 4) {
+							$("#advsearch [name='brand']").val(tag[0]);
+							$("#advsearch [name='model']").val(tag[1]);
+							$("#advauto .agtext").html(tag[2] + " " + tag[3]);
+						} else if (tag.length == 2) {
+							$("#advsearch [name='brand']").val(tag[0]);
+							$("#advauto .agtext").html(tag[1]);
+							$("#advsearch [name='model']").val("");
+						}
+
+						top.returnvalue = undefined;
+					}
+				}
+			);
+		});
+
+		var areaprovince = Request("province", "");
+		var areacity = Request("city", "");
+		$("#advsearch [name='province']").val(areaprovince);
+		$("#advsearch [name='city']").val(areacity);
+		$.ajax({
+			cache: false,
+			timeout: 3000,
+			dataType: "json",
+			url: "/api/run.aspx",
+			data: {
+				api: "getareaname",
+				area: areaprovince + (areacity.length > 0 ? "," : "") + areacity
+			},
+			success: function (result) {
+				if (result.state && result.result.length > 0) {
+					$("#advarea .agtext").html(result.result);
+				} else if (!result.state) {
+					$("#advarea .agtext").html("获取数据失败，请刷新");
+				}
+			},
+			error: function () {
+				$("#advarea .agtext").html("获取数据失败，请刷新");
+			}
+		});
+		delete areaprovince, areacity;
+
+
+		$("#advarea").on("click", function () {
+			openwindow("/public/selector/selectarea.aspx?provinceonly=1&province=" + $("#advsearch [name='province']").val() + "&city=" + $("#advsearch [name='city']").val(), "selectarea",
+				300, 500, "选择所在地区", function () {
+					if (top.returnvalue != undefined && top.returnvalue.length > 0) {
+						var tag = top.returnvalue.split('_');
+						if (tag.length == 4) {
+							$("#advsearch [name='province']").val(tag[0]);
+							$("#advsearch [name='city']").val(tag[1]);
+							$("#advarea .agtext").html(tag[2] + " " + tag[3]);
+						} else if (tag.length == 2) {
+							$("#advsearch [name='province']").val(tag[0]);
+							$("#advarea .agtext").html(tag[1]);
+							$("#advsearch [name='city']").val("");
+						}
+
+						top.returnvalue = undefined;
+					}
+				}
+			);
+		});
+
+		$("#advsearch .select").each(function () {
+			var that = this;
+			$("a", this).on("click", function () {
+				$(".selected", that).removeClass("selected");
+				$(this).addClass("selected");
+				if ($(that).hasClass("single")) {
+					$("input:first", that).val($(this).attr("value"));
+				} else if ($(that).hasClass("section")) {
+					$("input:eq(0)", that).val($(this).attr("value").split(',')[0]);
+					$("input:eq(1)", that).val($(this).attr("value").split(',')[1]);
+				}
+			});
+		});
+
+		$("#advsearch div.line input").on("change", function () {
+			if ($(this).attr("name") == "price1" || $(this).attr("name") == "price2") {
+				$(".selected", $(this).parent().parent()).removeClass("selected");
+				if ($("#advsearch [name='price1']").val().length == 0 && $("#advsearch [name='price2']").val().length == 0) {
+					$("#advsearch .price [value='']").addClass("selected");
+				} else {
+					$("#advsearch .price [value='" + $("#advsearch [name='price1']").val() + "," + $("#advsearch [name='price2']").val() + "']").addClass("selected");
+				}
+			} else {
+				$(".selected", $(this).parent()).removeClass("selected");
+				$("[value='" + $(this).val() + "']", $(this).parent()).addClass("selected");
+			}
+		});
+
+		$("#advsearch input").each(function () {
+			if (Request($(this).attr("name")) != undefined) {
+				$(this).val(unescape(Request($(this).attr("name")))).change();
+			}
+		});
+	} else {
+		//if (nowprovince != undefined && $("#province").size() > 0) {
+		//	$.ajax({
+		//		cache: false,
+		//		timeout: 3000,
+		//		dataType: "html",
+		//		url: "/api/getdata.aspx",
+		//		data: {
+		//			page: "at188_2012/area/province.html"
+		//		},
+		//		success: function (result) {
+		//			$("#province").html(result/*.replace("不限", "请选择")*/);
+		//			$("#province").val(nowprovince);
+		//			if (objselector != undefined) objselector.reload($("#province")[0]);
+		//			loadarea(nowprovince, nowcity, "请选择城市");
+		//		},
+		//		error: function () {
+		//			$("#province").html("载入出错");
+		//		}
+		//	});
+		//}
+
+		//if (nowbrand == undefined && $("#brand").size() > 0 && $("#brand")[0].nodeName.toLowerCase()=="select") {
+		//	$.ajax({
+		//		cache: false,
+		//		timeout: 3000,
+		//		dataType: "html",
+		//		url: "/api/getdata.aspx",
+		//		data: {
+		//			page: "at188_2012/autos/brand.html"
+		//		},
+		//		success: function (result) {
+		//			$("#brand").html(result);
+		//			$("#brand").val(nowbrand);
+		//			if (objselector != undefined) objselector.reload($("#brand")[0]);
+		//			loadbrand(nowbrand, nowmodel);
+		//		},
+		//		error: function () {
+		//			if (objselector != undefined) objselector.reload($("#brand").html("载入出错")[0]);
+		//		}
+		//	});
+		//}
+	}
+
+	$(".tips .close").on("click", function () {
+		$(this).parent().hide(0);
+	});
+
+	if (Request("k") != undefined) {
+		$("#keys[name='k']").val(Request("k").replace(/\+/gi, " "));
+	}
+
+	$(document).ready(function () {
+		$("#loginname").html("正在读取登录状态...");
+		$.ajax({
+			url: "/api/getlogin/",
+			dataType: "html",
+			cache: false,
+			timeout: 3000,
+			success: function (result) {
+				$("#login_loading").hide(0);
+				if (result.length > 0) {
+					var height = 69;
+					$("#loginname").html(result.split('|')[0]);
+					$("#myinfo").html("<img src=\"http://img.damaicar.com/heads/" + result.split('|')[1] + "\" height=\"50\" /> " + result.split('|')[0]);
+					var items = result.split('|')[2].split(',');
+					for (var i = 0; i < items.length; i++) {
+						if (items[i] == "-") {
+							$("#loginmenu .menucontainer").append("<div class=\"split\"></div>");
+							height += 11;
+						} else {
+							var tmpVar = items[i].split(':');
+							$("#loginmenu .menucontainer").append("<a href=\"/mc/?page=" + tmpVar[0] + "&opt=" + tmpVar[1] + "\">" + tmpVar[2] + "</a>");
+							height += 30;
+						}
+					}
+					$("#loginmenu .box .menucontainer").height(height);
+					$("#loginmenu .box").height(height + 10);
+					$("#logout").show(0);
+				} else {
+					$("#login").show(0);
+				}
+			}
+		});
+	});
+	if (!isIE6) objselector = setSelector(false);
+</script>
+<script type="text/javascript">
+	$("#btnoption").on("mouseover", function () {
+		$("#logout").removeClass();
+		$("#logout").addClass("login loginmenu");
+	});
+	$("#loginmenu .bar").on("mouseover", function () {
+		$("#logout").addClass("loginmenu");
+	});
+	$("#loginmenu .box").on("mouseover", function () {
+		$("#logout").addClass("loginmenu");
+	});
+	$("#loginmenu .bar").on("mouseout", function () {
+		$("#logout").removeClass("loginmenu");
+	});
+	$("#loginmenu .box").on("mouseout", function () {
+		$("#logout").removeClass("loginmenu");
+	});
+
+	$("#btnmessage").on("mouseover", function () {
+		$("#logout").removeClass();
+		$("#logout").addClass("login messagemenu");
+	});
+	$("#messagemenu .bar").on("mouseover", function () {
+		$("#logout").addClass("messagemenu");
+	});
+	$("#messagemenu .box").on("mouseover", function () {
+		$("#logout").addClass("messagemenu");
+	});
+	$("#messagemenu .bar").on("mouseout", function () {
+		$("#logout").removeClass("messagemenu");
+	});
+	$("#messagemenu .box").on("mouseout", function () {
+		$("#logout").removeClass("messagemenu");
+	});
+
+	$("#btnpersonal").on("mouseover", function () {
+		$("#logout").removeClass();
+		$("#logout").addClass("login personalmenu");
+	});
+	$("#personalmenu .bar").on("mouseover", function () {
+		$("#logout").addClass("personalmenu");
+	});
+	$("#personalmenu .box").on("mouseover", function () {
+		$("#logout").addClass("personalmenu");
+	});
+	$("#personalmenu .bar").on("mouseout", function () {
+		$("#logout").removeClass("personalmenu");
+	});
+	$("#personalmenu .box").on("mouseout", function () {
+		$("#logout").removeClass("personalmenu");
+	});
+
+	checkmessage = function () {
+		$.ajax({
+			url: "/api/run.aspx",
+			method: "get",
+			data: {
+				api: "getnewcount"
+			},
+			timeout: 10000,
+			async: true,
+			dataType: "json",
+			success: function (result) {
+				if (result.state) {
+					var tips = "";
+					$("#newmsgcount").html(parseInt(result.result.message) > 0 ? result.result.message : "");
+					$("#newtrackcount").html(parseInt(result.result.track) > 0 ? result.result.track : "");
+					$("#newsysmsgcount").html(parseInt(result.result.sysmsg) > 0 ? result.result.sysmsg : "");
+					if (parseInt(result.result.message) > 0) {
+						tips += "<a href=\"/mc/?page=info&opt=message\">未读私信 " + result.result.message + " 条</a>";
+					}
+					if (parseInt(result.result.track) > 0) {
+						tips += "<a href=\"/mc/?page=track&opt=customer\">新潜在客户 " + result.result.track + " 位</a>";
+					}
+					if (parseInt(result.result.sysmsg) > 0) {
+						tips += "<a href=\"/mc/?page=info&opt=sysmsg\">系统消息 " + result.result.sysmsg + " 条</a>";
+					}
+					if (newmessage < parseInt(result.count)) {
+						$("#messagemenu .tips").show(0);
+					}
+					var oldmessage = newmessage;
+					var oldtrack = newtrack;
+					var oldsysmsg = newsysmsg;
+					newmessage = parseInt(result.result.message);
+					newtrack = parseInt(result.result.track);
+					newsysmsg = parseInt(result.result.sysmsg);
+					if (newmessage + newtrack + newsysmsg > 0) {
+						if (oldmessage != newmessage || oldtrack != newtrack || oldsysmsg != newsysmsg) {
+							$("#logout .tips .tipscontent").html(tips);
+							$("#logout .tips").addClass("show");
+						}
+					} else {
+						$("#logout .tips").removeClass("show");
+					}
+				}
+				setTimeout(checkmessage, 3000);
+			}
+		});
+	};
+
+	checkmessage();
+
+	$(".listcontainer .filterbar .filtermenu").on("click", function () {
+		if ($(this).parent().hasClass("selected")) {
+			$(".submenu", $(this).parent()).slideUp("fast", function() {
+				$(this).parent().removeClass("selected");
+			});
+		} else {
+			var selected = $(".submenu", $(".listcontainer .filterbar span.selected"));
+			if (selected.size() > 0) {
+				var that = this;
+				selected.slideUp("fast", function () {
+					$(this).parent().removeClass("selected");
+					$(that).parent().addClass("selected");
+					$(".submenu", $(that).parent()).slideDown("fast");
+				});
+			} else {
+				$(this).parent().addClass("selected");
+				$(".submenu", $(this).parent()).slideDown("fast");
+			}
+		}
+	});
+	$(".listcontainer .filterbar .slideup").on("click", function () {
+		$(".submenu", $(this).parent().parent().parent()).slideUp("fast", function () {
+			$(this).parent().removeClass("selected");
+		});
+	});
+</script>
+<div style="display: none;">
+	<script src="http://hm.baidu.com/h.js?f5a1e26391fa287e6b13b1e1932b529f" type="text/javascript"></script>
+</div>
+<!--[if lte IE 6]>
+<script type="text/javascript">
+	$(document).ready(function () {
+		$("a").each(function () {
+			if (this.href.replace("%20", " ") == "javascript: void(0);") {
+				this.href = "#";
+			}
+		});
+		var mainheight = $("html").height() - 140;
+		$("#maincontent").css({ height: mainheight });
+		if ($(".listcontainer #container").size() > 0) {
+			$(".listcontainer #container").css({ height: mainheight - $(".listcontainer .filterbar").height() - 3 });
+		}
+	});
+</script>
+<![endif]-->
+</body>
+</html>

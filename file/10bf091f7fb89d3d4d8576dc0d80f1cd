@@ -1,0 +1,290 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html><head>
+		<title>用户登录</title>
+		
+		
+
+
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8;">
+<meta http-equiv="Pragma" contect="no-cache">
+
+
+<script type="text/javascript">
+	var ctxpath = ''; 
+	var theme = 'default'; 
+	var images = '/frameworks/images';
+	var sessionId = '0983B72F502810C27202BAB102A2F0F0';
+	var currentUser = '';
+	
+	//将权限置于JS数组变量rMap中
+	var rMap = [];
+	
+</script>
+
+<script type="text/javascript" src="/frameworks/jquery/ui/js/jquery-1.6.2.min.js"></script>
+<script type="text/javascript" src="/frameworks/jquery/ui/js/jquery-ui-1.8.16.custom.min.js"></script>
+<link rel="stylesheet" type="text/css" href="/frameworks/jquery/ui/css/blitzer/jquery-ui-1.8.16.custom.css">
+<link rel="stylesheet" type="text/css" href="/frameworks/jquery/layout/layout-default-latest.css">
+<script type="text/javascript" src="/frameworks/jquery/layout/jquery.layout-latest.js"></script>
+
+<link rel="stylesheet" type="text/css" href="/frameworks/jquery/sweetalert/sweetalert.css">
+<script type="text/javascript" src="/frameworks/jquery/sweetalert/sweetalert.min.js?d=201604200001"></script>
+
+<script type="text/javascript" src="/frameworks/common.js?d=20161202001"></script>
+<script type="text/javascript" src="/frameworks/extends.js"></script>
+<link rel="stylesheet" type="text/css" href="/frameworks/common.css?d=20160703">
+
+
+		
+<link rel="stylesheet" type="text/css" href="/frameworks/extend/dialog/ext_dialog.css">
+<script type="text/javascript" src="/frameworks/extend/dialog/ext_dialog.js?d=20160417"></script>
+		 
+		<link href="style/alogin.css?d=20161114003" rel="stylesheet" type="text/css">
+		<link rel="shortcut icon" type="image/ico" href="/frameworks/images/ico.ico">
+		
+		<script type="text/javascript">
+			//让登录页不能被嵌套在iframe中
+			if(self.frameElement && self.frameElement.tagName) {	
+				top.location.href = '/index.jsp';
+			}
+		</script>
+		<script type="text/javascript">
+			var ctxpath = ''; 
+		
+			/** 单位注册 */
+			function register() {
+				top.$extDialog = openExtDialog({
+					title: '未建会单位注册',
+					url: ctxpath + '/union/registerAction!beforeAdd.action?vo.mainType=1&random=' + Math.random(),
+					width: 740,
+					height: 280,
+					opener: top,
+					edit: true
+				});
+			}
+			/** 职工入会 */
+			function member(step) {
+				if(step == 1) {
+					top.$extDialog = openExtDialog({
+						title: '职工入会',
+						url: ctxpath + '/security/html/manifesto.jsp?random=' + Math.random(),
+						width: 400,
+						height: 180,
+						opener: top,
+						edit: true
+					});
+				}
+				if(step == 2) {
+					top.$extDialog = openExtDialog({
+						title: '职工入会',
+						url: ctxpath + '/union/registerAction!beforeMemberRegister.action?random=' + Math.random(),
+						width: 740,
+						height: 280,
+						opener: top,
+						edit: true
+					});
+				}
+			}
+			/** 注册进度查询 */
+			function queryIt() {
+				top.$extDialog = openExtDialog({
+					title: '注册进度查询',
+					url: ctxpath + '/union/registerAction!beforeQueryIt.action?random=' + Math.random(),
+					width: 840,
+					height: 280,
+					opener: top
+				});
+			}
+			
+			var nocredentials = false;	//是否不需要验证码
+			/** 用户登录 */
+			function submitLogin() {
+				var form = document.loginForm;
+				var errDiv = document.getElementById('login_err');
+				if(form.j_username.value == "") {
+					errDiv.innerHTML = "请输入用户名";
+					document.getElementById('j_username').focus();
+					return;
+				}
+				if(form.j_password.value == "") {
+					errDiv.innerHTML = "请输入密码";
+					document.getElementById('j_password').focus();
+					return;
+				}
+				if(!nocredentials && form.j_captcha.value == "") {
+					errDiv.innerHTML = "请输入验证码";
+					document.getElementById('j_captcha').focus();
+					return;
+				}
+				setCookie("loginUserName", form.j_username.value);
+				form.submit();	
+			}
+			
+			/** 刷新验证码 */
+			function refreshCaptach(img) {
+				img.src = "/captcha.servlet?random=" + Math.random();
+			}
+			
+			function setCookie(name, value) {
+				var Days = 30;
+				var exp = new Date(); 
+				exp.setTime(exp.getTime() + Days*24*60*60*1000);
+				document.cookie = name + "="+ escape (value) + ";expires=" + exp.toGMTString();
+			}
+			function getCookie(name) {
+				var arr,reg=new RegExp("(^| )"+name+"=([^;]*)(;|$)");
+				if(arr=document.cookie.match(reg)) return unescape(arr[2]);
+				else return "";
+			}
+			
+			function flashChecker() {
+			    var hasFlash = 0;　　　　 //是否安装了flash
+			    var flashVersion = 0;　　 //flash版本
+			    if(document.all) {
+			    	var swf;
+			    	try {
+			        	swf = new ActiveXObject('ShockwaveFlash.ShockwaveFlash');
+			        } catch(e) {}
+			        if(swf) {
+			            hasFlash = 1;
+			            VSwf = swf.GetVariable("$version");
+			            flashVersion = parseInt(VSwf.split(" ")[1].split(",")[0]);
+			        }
+			    } else {
+			        if(navigator.plugins && navigator.plugins.length > 0) {
+			            var swf = navigator.plugins["Shockwave Flash"];
+			            if(swf) {
+			                hasFlash = 1;
+			                var words = swf.description.split(" ");
+			                for(var i = 0; i < words.length; ++i) {
+			                    if(isNaN(parseInt(words[i]))) continue;
+			                    flashVersion = parseInt(words[i]);
+			                }
+			            }
+			        }
+			    }
+			    return {
+			        f: hasFlash,
+			        v: flashVersion
+			    };
+			}
+			  
+			var fls = flashChecker();
+			if(fls.f) {
+				if(fls.v < 10) {
+					alert('检测到未安装Flash版本过低，请百度搜索 “flash”，并下载安装!');
+				}
+			} else { 
+				if(navigator.userAgent.match(/(iPhone|iPod|Android|ios|iPad)/i)) { 
+	 				  
+	            } else {
+					alert('检测到未安装Flash，请自行百度搜索 “flash”，并下载安装!');
+				}
+			} 
+			
+			var ie6=!-[1,]&&!window.XMLHttpRequest;
+			var ie7=(navigator.appName == "Microsoft Internet Explorer" && navigator.appVersion.split(";")[1].replace(/[ ]/g,"")=="MSIE7.0");
+			if(ie6 || ie7) {
+				alert('检测到您还在使用低版本IE浏览器，请升级IE后再使用系统！最低要求IE8，建议使用IE9以上版本。\n\n如果是winXP系统无法升级到IE9，可自行安装firefox或chrome浏览器！');
+			}
+			
+		</script>
+	</head>
+	<body>
+		<form name="loginForm" action="/j_spring_security_check" method="POST" style="background: url(images/login/bg.jpg?d=2) repeat;">
+			<div class="Main">
+				<ul>
+					<li class="top"></li>
+		            <li class="top2" id="top2"></li>
+		            <li class="topA"></li>
+		            <li class="topB"><span>
+		                <img src="images/login/logo.png?d=2" alt="" style="">
+		            </span></li>
+		            <li class="topC"></li>
+		            <li class="topD">
+		                <ul class="login">
+		                
+		                	
+		                    <li>
+		                    	<span class="left">用户名：</span> 
+		                    	<span style="left">
+		                        	<input type="text" id="j_username" name="j_username" style="color: #004;" tabindex="1" class="txt" onkeydown="if(event.keyCode==13)submitLogin();">
+		                    	</span>
+		                    </li>
+		                    <li>
+		                    	<span class="left">密 码：</span> 
+		                    	<span style="left">
+		                       		<input type="password" id="j_password" name="j_password" tabindex="2" class="txt" style="color: #004;" onkeydown="if(event.keyCode==13)submitLogin();">
+		                    	</span>
+		                    </li>
+		                    
+		                    
+		                    
+		                    <li>
+							 
+								<span class="left">验证码：</span>
+								<span>
+									<input name="j_captcha" class="txtCode" id="j_captcha" type="text" maxlength="8" tabindex="3" autocomplete="off" onkeydown="if(event.keyCode==13)submitLogin();" style="color: #004;">
+									<img src="/captcha.servlet" id="captchaImg" style="vertical-align:middle;margin-top:5px;margin-left:10px;cursor:pointer;height:25px;width:70px;" onclick="refreshCaptach(this);" title="点击更换验证码">
+								</span>
+							</li>
+							
+		                    
+		                </ul>
+		            </li>
+		            <li class="topE"></li>
+		            <li class="middle_A"></li>
+		            <li class="middle_B">
+		            	<div style="font-size:12px;color:#666666;padding-left:100px;">帮助文档：<a href="javascript:void(0)" style="font-size:12px;color:#666666;" onclick="window.open(ctxpath + '/union/registerAction!downloadHelp.action?type=base&amp;random=' + Math.random());">基层工会</a> | <a href="javascript:void(0)" style="font-size:12px;color:#666666;" onclick="window.open(ctxpath + '/union/registerAction!downloadHelp.action?type=regu&amp;random=' + Math.random());">上级工会</a></div>
+		            </li>
+		            <li class="middle_C">
+			            <span class="btn">
+			                <img alt="" src="images/login/btnlogin.gif?d=2" onclick="submitLogin();" style="cursor:pointer">
+			            </span>
+			            <span class="btn">
+			                <img alt="" src="images/login/register.gif?d=1" onclick="register();" style="cursor:pointer">
+			            </span>
+			            <span class="btn">
+			                <img alt="" src="images/login/register2.gif" onclick="member(1);" style="cursor:pointer">
+			            </span>
+			            <span class="btn">
+			                <img alt="" src="images/login/register1.gif" onclick="queryIt();" style="cursor:pointer">
+			            </span>
+		            </li>
+		            <li class="middle_D"></li>
+		            
+		            <li class="bottom_A"></li>
+		            <li class="bottom_B" id="login_err">
+		            	
+						
+		            </li>
+		    	</ul>
+			</div>			
+		</form>
+		<script type="text/javascript">
+			document.getElementById('j_username').value=getCookie("loginUserName");
+			//document.getElementById('j_password').value="";
+			if(document.getElementById('j_username').value == "")
+				document.getElementById('j_username').focus();
+			else
+				document.getElementById('j_password').focus();
+				
+			var winW, winH;  
+			if(window.innerHeight) { // all except IE    
+			   winW = window.innerWidth;
+			   winH = window.innerHeight;  
+			} else if (document.documentElement && document.documentElement.clientHeight) { // IE 6 Strict Mode
+			   winW = document.documentElement.clientWidth;
+			   winH = document.documentElement.clientHeight;  
+			} else if (document.body) {	// other
+			   winW = document.body.clientWidth;
+			   winH = document.body.clientHeight;  
+			}
+			document.getElementById('top2').style.height = (winH / 4 - 20) + "px";	
+				
+		</script>
+		
+		<div style="position:absolute;top:15px;right:15px;font-size:12px;color:#666666;">建议使用 IE9+/火狐/谷歌等 浏览器，且在分辨率为1366*768以上使用!</div>
+		<div style="position:absolute;bottom:0px;font-size:13px;;text-align:center;width:100%;background-color:#F9D09B;padding:10px 0px;color:black">惠州市总工会版权所有 | 技术支持：广东泰一高新技术发展有限公司</div>
+	
+
+</body></html>

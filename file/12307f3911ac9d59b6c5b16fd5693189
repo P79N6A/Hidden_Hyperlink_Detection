@@ -1,0 +1,468 @@
+<!DOCTYPE html><html style="font-size: 0px; "><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, height=device-height, user-scalable=no,initial-scale=1, minimum-scale=1, maximum-scale=1">  
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="format-detection" content="telephone=no, email=no">
+<meta name="misapplication-tap-highlight" content="no">
+<meta name="HandheldFriendly" content="true">
+<meta name="screen-orientation" content="portrait">
+<meta name="x5-orientation" content="portrait">
+<meta name="msapplication-tap-highlight" content="no">
+<title>卡密支付</title>
+<link rel="stylesheet" type="text/css" href="http://static9.pplive.cn/vip/2016/cardpay-m/v_20160714162202/css/style.css">
+<style>
+body,html,.wapper{min-height:10rem;}
+</style><script charset="utf-8" async="" src="http://static9.pplive.cn/pub/delayload/v_20130627170851/delayload.js"></script><script charset="utf-8" async="" src="http://static9.pplive.cn/pc_client/v_20131010140851/clt.js"></script><script charset="utf-8" async="" src="http://static9.pplive.cn/pub/jquery/v_20130812110929/jquery.js"></script></head>
+<body>
+<script>
+//判断字体的js，需要放在顶部让它先加载
+function getFont() {
+    var deviceWidth = document.documentElement.clientWidth;
+    if(deviceWidth > 750) deviceWidth = 750;
+    document.documentElement.style.fontSize = deviceWidth / 7.5 + 'px';
+}
+getFont();
+window.onresize = function() {
+    getFont();
+};
+//document.body.addEventListener('touchstart', function(){ });
+</script><div class="wapper" style="min-height:460px;">
+    <div class="header">
+        <a href="javascript:history.go(-1);">返回</a>
+        <p>支付中心</p>
+    </div>
+    <div class="content">
+        <div class="main cardmain">
+            <div class="cardhd">
+                <h1><i class="ico_zs"></i>支付方式：</h1>
+                <div class="payli"></div>
+                <h2><i class="ico_mm"></i>请输入PPTV会员充值卡密码：</h2>
+                <div class="payinput"><input name="" type="text" value="16位密码不区分大小写" id="pay_card" maxlength="16"></div>
+                <div class="err" style="display:none" id="msg2"><p>密码错误，请确认候重新输入</p></div>
+            </div>
+            <a class="pagbd" href="javascript:;" id="nologin">请先登录并完成支付</a>
+            <div class="pagbd" id="username" style="display:none;">
+                下单账号：
+            </div>
+        </div>
+        <div class="paybtnbox" style="padding-top: 0;">
+            <a href="javascript:;" class="paybtn">确认支付</a>
+                <p><i class="ico_xz ico_xz_cur" id="pay_agree"></i>接受并同意<a href="http://pay.vip.pptv.com/wxpay/mobile/agreement/">PPTV会员服务条款</a></p>
+        </div>
+    </div>
+    <div class="footer">
+        <p>＊如有疑问，请拨打客服热线<span>400-001-2007</span></p>
+    </div>
+</div>
+
+<!--加载seajs开始-->
+<script type="text/javascript">
+(function(m,o,d,u,l,a,r){if(m[d])return;function f(n,t){return function(){r.push(n,arguments);return t}};m[d]=a={args:(r=[]),config:f(0,a),use:f(1,a)};m.define=f(2)})(window,document,'seajs');
+</script>
+<script type="text/javascript">
+seajs.use(['delayload','client'],function(delay,client){
+  delay.init();
+  if(window.plt && plt == 'clt'){ client.ex.initLinks(); }
+}); 
+
+
+
+//seajs配置和加载
+if( window.seajs ){ seajs.config({
+    base: "http://static9.pplive.cn/pub/",
+    modules: [
+    	    ['seajs', 'v_20121109095255'],
+		    ['jquery', 'v_20130812110929'],
+		    ['json', 'v_20120830104551'],
+		    ['cookie', 'v_20121102122826'],
+		    ['user', 'v_20130926154143'],
+		    ['puid', 'v_20120813152810'],
+		    ['sctx', 'v_20130807180208'],
+		    ['pctx','v_20120919172616'],
+		    ['suggest', 'v_20131011145332'],
+		    ['popbox','v_20131206174300'],
+		    ['log','v_20131104141415'],
+		    ['history','v_20131011145524'],
+		    ['scoremark', 'v_20130426163418'],
+		    ['remind', 'v_20130330061622'],
+		    ['login','v_20141022160709'],
+	            ['reward', 'v_20130216114015'],
+                    ['md5','v_20130118144206'],
+                    ['underscore','v_20130222153732'],
+                    ['episode','v_20131203171416'],
+                    ['pbar','v_20130718162746'],
+		    ['photoslide', 'v_20130828150717'],
+                    ['tabview','v_20130731111028'],
+                    ['delayload','v_20130627170851'],
+                    
+
+    //jui
+			['jquery-slider','v_20121217190813'],
+			['jui-base', 'v_20121023191226'],
+			['jui-playnav', 'v_20121026130312'],
+			['jui-minnav', 'v_20121026130312'],
+			['jui-minnav_single', 'v_20130114124219'],
+			['jui-popbox', 'v_20120820094705'],
+			['renderdiv', 'v_20121213103512'],
+			['juicer','v_20130128194959'],
+			['jqueryui-core','v_20120912171856'],
+			['jquery-tabs', 'v_20120821120003'],
+			['jquery-slider','v_20121217190813'],
+
+   //other
+			['seriesList','v_20120919171825'], 
+			['oth', 'v_20120919172353']
+   ],
+   	   	alias : {
+                  'playheader' : 'http://static9.pplive.cn/pptv/pub/v_20131011999999/js/playheader.js',
+                  'header' : 'http://static9.pplive.cn/pptv/pub/v_20140108141126/js/header.js',	   		         
+                  'client' : 'http://static9.pplive.cn/pc_client/v_20131010140851/clt.js'
+	   	}
+})};
+(function(b,c,h,g){if(!b[g]&&b[c]&&b[c].args)for(var e=b[c].args;0<e.length;){for(var d=0;d<e.length;d+=2)if(0==e[d]){var a=e[d+1][0];if(a&&a.modules)for(var f=0;f<a.modules.length;f++)if(a.modules[f][0]==c){b[g]=!0;document.write('<script src="'+a.base+c+"/"+a.modules[f][1]+"/"+h+'" type="text/javascript"><\/script>');return}}break}})(this,"seajs","sea.js","_ldr_initialized");
+</script><script src="http://static9.pplive.cn/pub/seajs/v_20121109095255/sea.js" type="text/javascript"></script><!--加载seajs结束-->
+
+<script src="http://static9.pplive.cn/oth/2012/10/jssdk/v_20150408155209/jsbridge.js"></script>
+<script src="http://static9.pplive.cn/vip/201507/pay/v_20150721174241/js/jquery.min.js"></script>
+<script type="text/javascript">
+window.domain="pptv.com"; 
+window.PPName="";
+window.nickname="";
+window.Token="";
+window.viptype="";
+var cookie = document.cookie;  
+var arrycookie = cookie.split(";");
+
+function initName(){
+	isLogin = true;
+	seajs.use(['jquery'],function($){ 
+        $("#nologin").hide();
+        $("#username").show();                  
+		if(nickname==""||nickname==null){                            
+			$("#username").html("下单账号：" + decodeURIComponent(PPName));
+		}else{                               
+			$("#username").html("下单账号：" + nickname);
+		}
+	})
+}
+function initH5(){
+	for(var i=0; i<arrycookie.length; i++){    
+		try{
+			var arrcookie = arrycookie[i].split("="); 
+			var cookieName = arrcookie[0].replace(/(^\s*)|(\s*$)/g,"");
+		}catch(err){
+			var cookieName = "0";
+		}
+		if(cookieName=="PPName"){
+			PPName = arrcookie[1].split("$")[0];
+			PPName =PPName.split("%24")[0];
+			PPName = decodeURIComponent(PPName);
+		} else if(cookieName=="UDI"){
+			viptype = arrcookie[1].split("$")[17]; 
+			nickname = arrcookie[1].split("$")[16]; 
+			nickname = decodeURIComponent(nickname);
+		} else if(cookieName=="ppToken"){
+			Token = arrcookie[1];
+		}
+	}
+    if(PPName!=""){
+        initName();
+    }
+            
+}
+
+
+function checkLoginH5(){
+	initH5();
+	seajs.use(['jquery','login','user'],function($,login,user){
+		if(!user.isLogined){
+			var returnUrl = encodeURIComponent(window.location.href);
+			window.location.href = "http://i.pptv.com/h5login?returnUrl="+returnUrl+"";
+		}else{
+			initName();
+		}
+	});
+}
+
+
+function setCookie(name,value,days){
+if (days){
+	var date = new Date();
+	date.setTime(date.getTime()+(days*24*60*60*1000));
+	var expires = "; expires="+date.toGMTString();
+}
+else var expires = "";
+document.cookie = name+"="+value+expires+"; path=/";
+}
+
+function run(){
+	external.userLogin('loginCallback'); 
+} 
+    
+function loginCallback(info) { 
+	var data = info.constructor === String ? JSON.parse(info) : info; 
+	var userinfo=data.content;
+	if(data && data.message === 'ok'){
+		PPName=userinfo.userName;
+		Token=userinfo.token;
+		nickname=userinfo.nickname;
+		initName();
+		viptype=userinfo.vipinfo.viptype;
+		if(userinfo.vipinfo.isyearvip==1) viptype="1";
+		setCookie("PPName",PPName,1);
+		setCookie("PPToken",Token,1);
+	} else {    
+		//run();
+	} 
+}
+
+function androidtakeUserData(){ 
+	external.currentUserInfo('takeUserDataCallback'); 
+} 
+    
+function takeUserDataCallback(info){ 
+	var data = info.constructor === String ? JSON.parse(info) : info; 
+	var userinfo=data.content;
+	if(data && data.message === 'ok'){ 
+		PPName=userinfo.userName;
+		Token=userinfo.token;
+		nickname=userinfo.nickname;
+		initName();
+		viptype=userinfo.vipinfo.viptype;
+		if(userinfo.vipinfo.isyearvip==1) viptype="1";
+		setCookie("PPName",PPName,1);
+		setCookie("PPToken",Token,1);
+	} else { 
+		setCookie("PPName","",-1);
+		setCookie("PPToken","",-1);
+		run();
+	} 
+}
+
+function checkIsLoginApp(){
+	ppsdk.config({});
+	ppsdk.ready(function () {
+		ppsdk.getDeviceInfo({
+            success: function(rspData) {
+                ppsdk.getUserInfo({
+                    success:function(rspData){
+                        PPName=rspData.userName;
+						Token=rspData.token;
+						nickname=rspData.nickname;
+						initName();	
+						viptype=userinfo.vipinfo.viptype;
+						if(userinfo.vipinfo.isyearvip==1) viptype="1";
+						setCookie("PPName",PPName,1);
+						setCookie("PPToken",Token,1);
+                    },
+                    error: function(errCode, msg) {
+                    	setCookie("PPName","",-1);
+						setCookie("PPToken","",-1);
+                    }
+                })
+            },
+            error: function(errCode, msg) {
+            	setCookie("PPName","",-1);
+				setCookie("PPToken","",-1);
+            }
+        });
+	});
+}
+
+
+function checkLoginApp(){
+	ppsdk.config({});
+	ppsdk.ready(function () {
+		window.login = function () {
+			ppsdk.login({
+				autologin: false,
+				success: function (rspData) {
+					PPName=rspData.userName;
+					Token=rspData.token;
+					nickname=rspData.nickname;
+					initName();	
+					viptype=userinfo.vipinfo.viptype;
+					if(userinfo.vipinfo.isyearvip==1) viptype="1";
+					setCookie("PPName",PPName,1);
+					setCookie("PPToken",Token,1);
+				},
+				error: function (errCode, msg) {
+					setCookie("PPName","",-1);
+					setCookie("PPToken","",-1);
+				},
+				cancel: function () {
+					setCookie("PPName","",-1);
+					setCookie("PPToken","",-1);
+				}
+			}); 
+		};
+	});
+
+	if(navigator.userAgent.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/)){
+		ppsdk.ready(function () {
+			window.login();
+		});
+	}else{
+		androidtakeUserData();
+	}
+}
+</script>
+<script>
+$(".ico_xz").click(function(){
+    $(this).toggleClass("ico_xz_cur");
+});
+$("#pay_card").val("16位密码不区分大小写");
+$("#pay_card").focus(function(){
+    if($("#pay_card").val()=="16位密码不区分大小写") {
+        $("#pay_card").val("");
+    }  
+});
+
+window.isLogin = false;
+
+window.type = 2; //2 h5页面
+if(window.type==1){
+    checkIsLoginApp();
+}else{
+    initH5();
+}
+
+/*window.type = 2;
+ppsdk.config({});
+ppsdk.ready(function () {
+    ppsdk.getDeviceInfo({
+        success: function(rspData) {
+            type=1;
+            checkIsLoginApp();
+        },
+        error: function(errCode, msg) {
+            type=2;
+            initH5();
+        }
+    });
+});*/
+   
+$("#nologin").click(function(){
+    if(type==1){
+        checkLoginApp();
+    }else if(type==2){
+        checkLoginH5();
+    }
+});
+     
+$("#pay_card").focus(function(){
+    if(type==1){
+        checkLoginApp();
+    }else if(type==2){
+        checkLoginH5();
+    }
+});
+
+seajs.use(['jquery'],function($){
+    $(".paybtn").click(function(){
+        if(isLogin){
+            var  psd = $("#pay_card").val();
+            if($.trim(psd).length==0){
+                $("#msg2").html("*请输入卡密");
+                $("#msg2").show();
+                return;
+            }
+            if(psd.length<16){
+                $("#msg2").html("*请输入16位长度卡密");
+                $("#msg2").show();
+                return;
+            }
+            if($("#pay_agree").attr("class")!="ico_xz ico_xz_cur"){
+                alert("请确认同意会员服务条款！");
+                return;
+            }
+            psd = psd.replace(/\s+/g,'');
+            if(psd.length>16){
+                psd = psd.substr(0,16);
+            }
+            var reg= /^([a-zA-Z]{8}\d{8})$/;
+            if(!reg.test(psd)){
+                $("#msg2").html("*请输入字母+数字的合法密码");
+                $("#msg2").show();
+                return;
+            }
+        $("#pay_card").attr("disabled","true");
+        setTimeout(function(){
+           $("#pay_card").removeAttr("disabled");
+        },3000);
+        $.ajax({
+            url: "http://pay.vip.pptv.com/pcardpay/?username="+PPName+"&cardnumber="+psd.toLowerCase()+"&format=jsonp&cb=?",
+            dataType:"jsonp",
+            success:function(data){
+                switch(data["errorCode"]){                  
+                    case "0":
+                        //alert("恭喜你,支付已成功!");
+                        //break; 
+                        var a = $("<a href='http://pay.vip.pptv.com/v2/payresult_h5/'></a>").get(0);
+                        var e = document.createEvent('MouseEvents');
+                        e.initEvent('click', true, true);
+                        a.dispatchEvent(e)                                  
+                    case "101":
+                        $("#msg2").html("*接口停止服务!");
+                        $("#msg2").show();
+                        break;
+                    case "102":
+                        $("#msg2").html("*缺少参数!");
+                        $("#msg2").show();
+                        break;
+                    case "103":
+                        $("#msg2").html("*无效的PP充值卡!");
+                        $("#msg2").show();
+                        break;
+                    case "104":
+                        $("#msg2").html("*代理商无效!");
+                        $("#msg2").show();
+                        break;
+                    case "105":
+                        $("#msg2").html("*验签不合法!");
+                        $("#msg2").show();
+                        break;
+                    case "106":
+                        $("#msg2").html("*pptv用户名无效!");
+                        $("#msg2").show();
+                        break;
+                    case "107":
+                        $("#msg2").html("*PP充值卡已被使用!");
+                        $("#msg2").show();
+                        break;
+                    case "108":
+                        $("#msg2").html("*PP充值卡还未开启使用!");
+                        $("#msg2").show();
+                        break;
+                    case "109":
+                        $("#msg2").html("*服务异常!");
+                        $("#msg2").show();
+                        break;
+                    case "110":
+                        $("#msg2").html("*处理支付结果失败!");
+                        $("#msg2").show();
+                        break;
+                    case "111":
+                        $("#msg2").html("*使用次数超过上限!");
+                        $("#msg2").show();
+                        break;
+                    default:
+                        alert("支付出错");
+                        break;
+                }  
+              }
+            });
+        }else{
+            if(type==1){
+                checkLoginApp();
+            }else if(type==2){
+                checkLoginH5();
+            }
+        }
+    })
+})  
+</script>
+
+
+</body></html>

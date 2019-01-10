@@ -1,0 +1,117 @@
+<!DOCTYPE html><html><head>
+    <meta charset="utf-8">
+	<meta name="viewport" content="width=device-width， initial-scale=1.0">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black">
+	<meta name="format-detection" content="telephone=no">
+	<meta http-equiv="Expires" content="-1">
+	<meta http-equiv="Cache-Control" content="no-cache">
+	<meta http-equiv="Pragma" content="no-cache">
+    <link href="/zj-uni-order/statics/app/css/style_spread.css" type="text/css" rel="stylesheet">
+    <link href="/zj-uni-order/statics/dateJs/skin/WdatePicker.css" rel="stylesheet" type="text/css"></head>
+<body style="background:none;">
+<!-- banner-->
+<div class="banner"><img src="/zj-uni-order/statics/app/images/top.jpg" width="100%" alt=""></div>
+<div class="connet">
+	<!--<div class="connet_tig">目前已有0人领取</div>-->
+    <form id="recommend" method="post" action="/zj-uni-order/appmanager/spreadAdd.do">
+	<input type="hidden" id="recoOperId" name="recoOperId" value="">
+    <input type="hidden" id="cardType" name="cardType" value="">
+    <input type="hidden" id="firmType" name="firmType" value="">
+    
+    <input type="hidden" id="countyType" name="countyType" value="">
+    <input type="hidden" id="regionType" name="regionType" value="">
+    <input type="hidden" id="recoLevel" name="recoLevel" value="">
+    
+	<div class="connet_text"><input type="text" class="connet_text_phone" placeholder="输入手机号码" maxlength="11" id="svcNum" name="svcNum" value=""></div>
+   
+  <input type="hidden" id="codeHidden" value="no">
+  
+   <!--<div class="connet_text_con">
+	<div class="connet_num"><input type="text" class="connet_text_num" placeholder="输入验证码">
+	<div class="connet_phone_code">获取验证码</div>
+	</div>
+  </div>-->
+	<div class="connet_btn" onclick="recommedAdd('/zj-uni-order');">提交</div>
+</form></div>
+<script src="https://hm.baidu.com/hm.js?ebdbdd115c75c0e6e4185cf40d2a6b01"></script><script type="text/javascript" src="/zj-uni-order/statics/js/pop.js"></script>
+<script type="text/javascript" src="/zj-uni-order/statics/js/common.js"></script>
+<script type="text/javascript" src="/zj-uni-order/statics/js/jquery/jquery-1.7.2.min.js"></script>
+<script type="text/javascript" src="/zj-uni-order/statics/js/jquery/jquery-ui.js"></script>
+<script type="text/javascript" src="/zj-uni-order/statics/js/jquery/jquery.pagination.js"></script>
+<script type="text/javascript" src="/zj-uni-order/statics/js/jquery/jquery.pager.js"></script>
+<script type="text/javascript" src="/zj-uni-order/statics/js/jquery/jquery.easyui.min.js"></script>
+<script type="text/javascript" src="/zj-uni-order/statics/js/sys/sys.js"></script>
+<script type="text/javascript" src="/zj-uni-order/statics/js/jquery-loadmask-0.4/jquery.loadmask.min.js"></script>
+<script type="text/javascript" src="/zj-uni-order/statics/dateJs/WdatePicker.js"></script>
+ <script type="text/javascript">
+	 function recommedAdd(path){
+	 		var recoOperId = jQuery("#recoOperId").val();
+		 	var cardType = jQuery("#cardType").val();
+		 	var svcNum = jQuery("#svcNum").val();
+		 	var firmType = jQuery("#firmType").val();
+		 	var codeVal=jQuery("#codeHidden").val();
+		 	var seccode =jQuery("#seccode").val();
+		 	
+		 	var countyType =jQuery("#countyType").val();
+		 	var regionType =jQuery("#regionType").val();
+		 	var recoLevel =jQuery("#recoLevel").val();
+		 	
+		 	
+		 	var regex =/^((13[0-9])|(14[5|7])|(15([0-3]|[5-9]))|(18[0-9])|(17[0-9]))\d{8}$/;
+		 	if(!regex.test(svcNum)){
+		 		alert("请输入正确的11位手机号码!");
+		 		return;
+		 	}
+		 	
+		 	var re= /^((130|131|132|145|155|156|185|186|176|175)\d{8})$/;
+			if (re.test(svcNum)) {
+				alert("很遗憾，您未能把握此次机会，敬请期待下次活动！");
+				$("#svcNum").focus();
+				return;
+			}
+			if(codeVal=="yes"){
+				if(seccode==""){
+				 	alert("请输入验证码！");
+					return;
+				}
+			}
+			//alert(path + "/appmanager/spreadAdd.do?recoOperId="+recoOperId+"&cardType="+cardType+"&svcNum="+svcNum+"&c="+seccode+"&firmType="+firmType+"&countyType="+countyType+"&regionType="+regionType+"&recoLevel="+recoLevel+"&tem="+new Date());
+			jQuery.ajax({
+					url : path + "/appmanager/spreadAdd.do?recoOperId="+recoOperId+"&cardType="+cardType+"&svcNum="+svcNum+"&c="+seccode+"&firmType="+firmType+"&countyType="+countyType+"&regionType="+regionType+"&recoLevel="+recoLevel+"&tem="+new Date(),
+					type : "GET",
+					success : function(data) {
+						if(data.success){
+							//alert("提交成功");
+							window.location.href="https://m.10010.com/queen/tencent/king-tab.html?channel=2&ptag=4_5.4.0.17642_copy";
+						}else{
+							alert(data.message);
+							ajaxRefresh();
+						}
+					}
+				});
+	 
+	 }
+	 
+	 function ajaxRefresh(){ 
+			//IE浏览器 ,注意后面必须要加上随机数 否则不会向服务器发送请求
+			$("#_IdentifyingCode").attr('src','/zj-uni-order/image/generatImage.do?rnd='+Math.random());
+		}
+	 
+	 
+	 
+	 var _hmt = _hmt || [];
+	 (function() {
+	   var hm = document.createElement("script");
+	   hm.src = "https://hm.baidu.com/hm.js?ebdbdd115c75c0e6e4185cf40d2a6b01";
+	   var s = document.getElementsByTagName("script")[0]; 
+	   s.parentNode.insertBefore(hm, s);
+	 })();
+	 
+ </script>
+	
+
+
+  
+</body></html>

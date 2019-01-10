@@ -1,0 +1,75 @@
+<!DOCTYPE html><html><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Play</title>
+<link rel="stylesheet" href="http://ck.chushengqc.com/h5.css">
+<script type="text/javascript" src="http://apps.bdimg.com/libs/jquery/1.7.2/jquery.min.js"></script>
+<script type="text/javascript" src="http://ck.chushengqc.com/ckplayer.js"></script>
+<script type="text/javascript" src="http://ck.chushengqc.com/h5.js"></script>
+</head>
+<body style="overflow-y:hidden;">
+<div id="loading" style="font-weight: bold; padding-top: 90px; display: none; " align="center">正在加载视频,请稍等...</div>
+<div id="a1" style="display:none;"></div>
+<div id="error" style="font-weight: bold; padding-top: 90px; " align="center">非法访问，403~！</div>
+<script type="text/javascript">
+errid = 0;
+function player(){
+    $.post("/play/api.php", {"url": "2PdArrItbOcB3CaWICeb2gzzmUjRRxrnE/Ex/V4_FDgIWqozrvYrdaH507wPntR_2C69k8xoyioKxzB4CaVenc3sK3HKj0Q"},
+    function(data){
+        if(data['msg'] == 'ok'){
+            if(data['ext']=='link'){
+                $('#a1').html('<iframe width="100%" height="100%" allowTransparency="true" frameborder="0" scrolling="no" src="'+data['url']+'"></iframe>');
+            }else if(data['ext']=='h5_fd'){
+                $('#a1').html(vodhtml);
+				isiPad = true;
+				ydiskvod.init(data['url']);
+				var h=parseFloat($('body').css('height'));
+				$('.video').css('height',(h-40));
+				setInterval('error()',1000);
+            }else if(isiPad || data['ext']=='h5'){
+				$('#a1').html('<video class="video" controls="controls" x-webkit-airplay="allow" style="margin-bottom:0px;"><source src="'+data['url']+'" type="video/mp4"></video>');
+				isiPad = true;
+				setInterval('error()',1000);
+            }else{
+                if(data['ext']=='m3u8' || data['ext']=='m3u8_list'){
+                    var flashvars={f:'http://ck.chushengqc.com/m3u8.swf',a:data['url'],c:0,s:4,lv:0,p:1,v:100,loaded:'error'}
+                }else if(data['ext']=='mp4'){
+                    var flashvars={f:data['url'],c:0,s:0,p:1,v:100,h:3,loaded:'error'};
+                }else if(data['ext']=='xml'){
+                    var flashvars={f:data['url'],c:0,s:2,p:1,v:100,h:3,loaded:'error'};
+                }
+                var params={bgcolor:'#FFF',allowFullScreen:true,allowScriptAccess:'always',wmode:'transparent'};
+                CKobject.embedSWF('http://ck.chushengqc.com/ckplayer.swf','a1','ckplayer_a1','100%','100%',flashvars,params);
+            }
+            $('#loading').hide();
+            $('#a1').show();
+        }else{
+            $('#loading').hide();
+            $('#a1').hide();
+            $('#error').show();
+            $('#error').html('资源不存在了，请先看看其他视频吧...');
+        }
+    },"json");
+}
+function play_up(){
+	errid++;
+	if(errid < 4){ //最多只重新加载3次
+		$.post("api.php", {"url": "2PdArrItbOcB3CaWICeb2gzzmUjRRxrnE/Ex/V4_FDgIWqozrvYrdaH507wPntR_2C69k8xoyioKxzB4CaVenc3sK3HKj0Q","up": "1"},
+		function(data){
+			if(data['msg'] == 'ok'){
+				location.href = '?url=http://v.youku.com/v_show/id_XMTg5NDAxMDk2.html&err='+errid;
+			}else{
+				$('#loading').hide();
+				$('#a1').hide();
+				$('#error').show();
+				$('#error').html('资源不存在了，请先看看其他视频吧...');
+			}
+		},"json");
+	}
+}
+	$('#loading').hide();
+	$('#error').html('非法访问，403~！').show();
+</script>
+
+
+</body></html>

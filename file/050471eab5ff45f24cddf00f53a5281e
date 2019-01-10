@@ -1,0 +1,819 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+ <head> 
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" /> 
+  <meta name="apple-mobile-web-app-capable" content="yes" /> 
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" /> 
+  <meta name="format-detection" content="telephone=no" /> 
+ </head>
+ <body style="-webkit-tap-highlight-color: rgba(255, 255, 255, 0);">
+  <metaname="applicable-device" content="mobile"> 
+   <link href="/Styles/Site.css?v=1" rel="stylesheet" type="text/css" /> 
+   <script src="/scripts/jquery-1.4.1.min.js" type="text/javascript" language="javascript"></script> 
+   <script src="/scripts/index.js" type="text/javascript" language="javascript"></script> 
+   <title>
+        Android使用LruCache缓存图片_Android开发_网络编程_码蚁之家_www.codes51.com</title> 
+   <meta name="keywords" content="" /> 
+   <meta name="description" content="最近做项目遇到了一个频繁加载图片导致OOM的问题，做了一个多张图片轮播的东西，点击每张图片跳转浏览器打开网页，退出浏览器后又重新加载图片进行轮播，这样进行多次，因为上次加载使用的内存没有释放掉，导致每次占用的内存都会多一点，最后直接就报停了。 如图： 在过去，我们经常会使用一种非常流行的内存缓存技术的实现，即软引用或弱引用 (SoftReference or WeakReference)。但是现在" /> 
+   <link href="/Styles/detail.css?v=5" rel="stylesheet" type="text/css" /> 
+   <script>
+        $(function () {
+            var w = $(window).width();
+            //$(".article-content img").css("width", w - 10);
+            //$(".article-content img").parent().find("p").css("text-indent", "-2em");
+        });  
+    </script> 
+   <script>
+        AT_Id=533215
+    </script> 
+   <script type="text/javascript" src="/scripts/av.js"></script> 
+   <style>
+        .article-content pre
+        {
+            display: block;
+            padding: 0.3em;
+            color: #333;
+            overflow-y: auto;
+            background-color: #f6f6f6;
+            font-size: 11px;
+            border: 1px solid #ccc;
+            line-height: 25px;
+            background-color: #f5f5f5;
+            border-radius: 3px;
+            -webkit-border-radius: 3px;
+            -moz-border-radius: 3px;
+            padding: 10px 10px;
+            margin: 5px auto;
+            word-break: break-all;
+            word-wrap: break-word;
+        }
+        .pagelist
+        {
+            margin-top: 10px;
+            height: 30px;
+            width: 100%;
+            text-align: center;
+        }
+        .pagelist u
+        {
+            float: center;
+            padding: 5px 10px;
+            margin-right: 5px;
+            font-size: 12px;
+        }
+        
+        .pagelist a
+        {
+            float: center;
+            padding: 5px 10px;
+            border: 1px solid #ccc;
+            margin-right: 5px;
+            font-size: 12px;
+            text-decoration: none;
+        }
+    </style> 
+   <link href="/Styles/dev.css" rel="stylesheet" type="text/css" /> 
+   <script type="text/javascript">
+    /*智能场景 创建于2016-08-31*/
+    var cpro_id = "u2748913";
+</script> 
+   <script src="http://cpro.baidustatic.com/cpro/ui/cm.js" type="text/javascript"></script>   
+   <img src="http://hm.baidu.com/hm.gif?si=f79dd24e04797fc5ff22760393102383&amp;et=0&amp;nv=1&amp;st=1&amp;v=wap-1-0.1&amp;rnd=1858431499" width="0" height="0" /> 
+   <script type="text/javascript">
+    /*顶部横幅--创建于2016-06-02*/
+    var cpro_id = "u2659291";
+</script> 
+   <script src="http://cpro.baidustatic.com/cpro/ui/cm.js" type="text/javascript"></script> 
+   <div id="pubilc-menu"> 
+    <dl> 
+     <dt>
+      <a href="/">返回首页</a>
+     </dt> 
+     <dt>
+      <a href="/topic/list.html">专题</a>
+     </dt> 
+    </dl> 
+    <dl> 
+     <dt>
+      <a href="/article/index.html"> 网络编程</a>
+     </dt> 
+     <dd> 
+      <a href="/article/list_10.html">ASP教程</a> 
+      <a href="/article/list_11.html">.NET教程</a> 
+      <a href="/article/list_12.html">PHP教程</a> 
+      <a href="/article/list_13.html">JSP教程</a> 
+      <a href="/article/list_14.html">C#教程</a> 
+      <a href="/article/list_15.html">Java教程</a> 
+      <a href="/article/list_16.html">Delphi教程</a> 
+      <a href="/article/list_17.html">VB教程</a> 
+      <a href="/article/list_18.html">C/C++教程</a> 
+      <a href="/article/list_19.html">Android开发</a> 
+      <a href="/article/list_68.html">IOS开发</a> 
+      <a href="/article/list_69.html">Windows Phone开发</a> 
+      <a href="/article/list_70.html">Python教程</a> 
+      <a href="/article/list_71.html">Ruby教程</a> 
+      <a href="/article/list_106.html">移动开发</a> 
+      <a href="/article/list_108.html">其他编程教程</a> 
+     </dd> 
+    </dl> 
+    <dl> 
+     <dt>
+      <a href="/article/index.html"> 网页制作</a>
+     </dt> 
+     <dd> 
+      <a href="/article/list_20.html">HTML教程</a> 
+      <a href="/article/list_21.html">CSS教程</a> 
+      <a href="/article/list_22.html">Dreamweaver教程</a> 
+      <a href="/article/list_23.html">FrontPages教程</a> 
+      <a href="/article/list_24.html">Javascript教程</a> 
+      <a href="/article/list_25.html">web前端</a> 
+     </dd> 
+    </dl> 
+    <dl> 
+     <dt>
+      <a href="/article/index.html"> 数据库</a>
+     </dt> 
+     <dd> 
+      <a href="/article/list_26.html">SqlServer</a> 
+      <a href="/article/list_27.html">MySql</a> 
+      <a href="/article/list_28.html">Oracle</a> 
+      <a href="/article/list_29.html">Access</a> 
+      <a href="/article/list_30.html">DB2</a> 
+      <a href="/article/list_31.html">SQLite</a> 
+      <a href="/article/list_107.html">其他数据库</a> 
+     </dd> 
+    </dl> 
+    <dl> 
+     <dt>
+      <a href="/article/index.html"> 图形设计</a>
+     </dt> 
+     <dd> 
+      <a href="/article/list_32.html">photoshop教程</a> 
+      <a href="/article/list_33.html">Fireworks教程</a> 
+      <a href="/article/list_34.html">CorelDraw教程</a> 
+      <a href="/article/list_35.html">Illustrator教程</a> 
+      <a href="/article/list_36.html">AutoCad教程</a> 
+      <a href="/article/list_37.html">FLASH教程</a> 
+     </dd> 
+    </dl> 
+    <dl> 
+     <dt>
+      <a href="/article/index.html"> 操作系统</a>
+     </dt> 
+     <dd> 
+      <a href="/article/list_38.html">Windows xp教程</a> 
+      <a href="/article/list_39.html">Windows 7教程</a> 
+      <a href="/article/list_40.html">Windows 8教程</a> 
+      <a href="/article/list_41.html">Windows 2003教程</a> 
+      <a href="/article/list_42.html">Windows Server 2008教程</a> 
+      <a href="/article/list_43.html">Linux教程</a> 
+      <a href="/article/list_79.html">Windows 10</a> 
+     </dd> 
+    </dl> 
+    <dl> 
+     <dt>
+      <a href="/article/index.html"> 网站运营</a>
+     </dt> 
+     <dd> 
+      <a href="/article/list_44.html">建站经验</a> 
+      <a href="/article/list_45.html">SEO优化</a> 
+      <a href="/article/list_46.html">站长心得</a> 
+      <a href="/article/list_47.html">网赚技巧</a> 
+      <a href="/article/list_48.html">网站推广</a> 
+      <a href="/article/list_49.html">站长故事</a> 
+     </dd> 
+    </dl> 
+    <dl> 
+     <dt>
+      <a href="/article/index.html"> 手机学院</a>
+     </dt> 
+     <dd> 
+      <a href="/article/list_104.html">手机速递</a> 
+      <a href="/article/list_50.html">安卓教程</a> 
+      <a href="/article/list_51.html">iphone教程</a> 
+      <a href="/article/list_52.html">手机评测</a> 
+      <a href="/article/list_53.html">手机技巧</a> 
+      <a href="/article/list_54.html">手机知识</a> 
+      <a href="/article/list_99.html">手机应用</a> 
+      <a href="/article/list_105.html">手机游戏</a> 
+      <a href="/article/list_114.html">手机导购</a> 
+     </dd> 
+    </dl> 
+    <dl> 
+     <dt>
+      <a href="/article/index.html"> 网店宝典</a>
+     </dt> 
+     <dd> 
+      <a href="/article/list_55.html">开店指导</a> 
+      <a href="/article/list_56.html">开店经验</a> 
+      <a href="/article/list_57.html">网店装修</a> 
+      <a href="/article/list_58.html">网店推广</a> 
+      <a href="/article/list_59.html">网店seo</a> 
+      <a href="/article/list_60.html">网购技巧</a> 
+     </dd> 
+    </dl> 
+    <dl> 
+     <dt>
+      <a href="/article/index.html"> 软件教程</a>
+     </dt> 
+     <dd> 
+      <a href="/article/list_62.html">办公软件</a> 
+      <a href="/article/list_63.html">系统工具</a> 
+      <a href="/article/list_64.html">媒体工具</a> 
+      <a href="/article/list_65.html">压缩工具</a> 
+      <a href="/article/list_66.html">图文处理</a> 
+      <a href="/article/list_67.html">文件管理</a> 
+     </dd> 
+    </dl> 
+    <dl> 
+     <dt>
+      <a href="/fanwen/index.html"> 范文之家</a>
+     </dt> 
+     <dd> 
+      <a href="/fanwen/list_81.html">自我介绍</a> 
+      <a href="/fanwen/list_82.html">自我鉴定</a> 
+      <a href="/fanwen/list_83.html">写作模板</a> 
+      <a href="/fanwen/list_84.html">合同范本</a> 
+      <a href="/fanwen/list_85.html">工作总结</a> 
+      <a href="/fanwen/list_86.html">贺词祝福语</a> 
+      <a href="/fanwen/list_87.html">演讲致辞</a> 
+      <a href="/fanwen/list_88.html">思想汇报</a> 
+      <a href="/fanwen/list_89.html">入党申请书</a> 
+      <a href="/fanwen/list_90.html">实习报告</a> 
+      <a href="/fanwen/list_91.html">心得体会</a> 
+      <a href="/fanwen/list_92.html">工作计划</a> 
+      <a href="/fanwen/list_93.html">简历模板</a> 
+      <a href="/fanwen/list_94.html">工作报告</a> 
+      <a href="/fanwen/list_95.html">导游词</a> 
+      <a href="/fanwen/list_96.html">评语寄语</a> 
+      <a href="/fanwen/list_97.html">口号大全</a> 
+      <a href="/fanwen/list_98.html">策划书范文</a> 
+     </dd> 
+    </dl> 
+    <dl> 
+     <dt>
+      <a href="/article/index.html"> 信息工程</a>
+     </dt> 
+     <dd> 
+      <a href="/article/list_110.html">软件工程</a> 
+      <a href="/article/list_111.html">企业开发</a> 
+      <a href="/article/list_112.html">系统运维</a> 
+      <a href="/article/list_113.html">软件测试</a> 
+     </dd> 
+    </dl> 
+    <dl> 
+     <dt>
+      <a href="/yimin/index.html"> 移民之家</a>
+     </dt> 
+     <dd> 
+      <a href="/yimin/list_116.html">移民动态</a> 
+      <a href="/yimin/list_117.html">移民政策</a> 
+      <a href="/yimin/list_118.html">移民百科</a> 
+      <a href="/yimin/list_119.html">移民生活</a> 
+      <a href="/yimin/list_120.html">技术移民</a> 
+      <a href="/yimin/list_121.html">投资移民</a> 
+     </dd> 
+    </dl> 
+    <dl> 
+     <dt>
+      <a href="/kl/index.html"> 知识大全</a>
+     </dt> 
+     <dd> 
+      <a href="/kl/list_126.html">母婴</a> 
+      <a href="/kl/list_127.html">数码</a> 
+      <a href="/kl/list_128.html">摄影</a> 
+      <a href="/kl/list_129.html">装修</a> 
+      <a href="/kl/list_130.html">美文</a> 
+      <a href="/kl/list_131.html">常识</a> 
+      <a href="/kl/list_132.html">时尚</a> 
+      <a href="/kl/list_133.html">婚嫁</a> 
+      <a href="/kl/list_134.html">美食</a> 
+      <a href="/kl/list_135.html">养生</a> 
+      <a href="/kl/list_136.html">旅游</a> 
+      <a href="/kl/list_137.html">兴趣</a> 
+      <a href="/kl/list_138.html">职场</a> 
+      <a href="/kl/list_139.html">教育</a> 
+      <a href="/kl/list_256.html">文学</a> 
+      <a href="/kl/list_265.html">健康</a> 
+     </dd> 
+    </dl> 
+    <dl> 
+     <dt>
+      <a href="/wd/index.html"> 问答大全</a>
+     </dt> 
+     <dd> 
+      <a href="/wd/list_141.html">电脑网络</a> 
+      <a href="/wd/list_142.html">手机数码</a> 
+      <a href="/wd/list_156.html">QQ专区</a> 
+      <a href="/wd/list_143.html">生活</a> 
+      <a href="/wd/list_144.html">游戏</a> 
+      <a href="/wd/list_145.html">体育运动</a> 
+      <a href="/wd/list_146.html">娱乐明星</a> 
+      <a href="/wd/list_147.html">休闲爱好</a> 
+      <a href="/wd/list_148.html">文化艺术</a> 
+      <a href="/wd/list_149.html">社会民生</a> 
+      <a href="/wd/list_150.html">教育科学</a> 
+      <a href="/wd/list_151.html">健康医疗</a> 
+      <a href="/wd/list_152.html">商业理财</a> 
+      <a href="/wd/list_153.html">情感家庭</a> 
+      <a href="/wd/list_154.html">地区问题</a> 
+      <a href="/wd/list_155.html">其他</a> 
+     </dd> 
+    </dl> 
+    <dl> 
+     <dt>
+      <a href="/itwd/index.html"> 编程问答</a>
+     </dt> 
+     <dd> 
+      <a href="/itwd/list_158.html">IOS</a> 
+      <a href="/itwd/list_159.html">Android</a> 
+      <a href="/itwd/list_160.html">.NET</a> 
+      <a href="/itwd/list_161.html">Java</a> 
+      <a href="/itwd/list_171.html">C/C++</a> 
+      <a href="/itwd/list_172.html">Delphi</a> 
+      <a href="/itwd/list_173.html">VC/MFC</a> 
+      <a href="/itwd/list_174.html">其他语言</a> 
+      <a href="/itwd/list_162.html">PHP</a> 
+      <a href="/itwd/list_163.html">MSSQL</a> 
+      <a href="/itwd/list_164.html">MYSQL</a> 
+      <a href="/itwd/list_165.html">Oracle</a> 
+      <a href="/itwd/list_175.html">其他数据库</a> 
+      <a href="/itwd/list_166.html">Web开发</a> 
+      <a href="/itwd/list_167.html">Windows</a> 
+      <a href="/itwd/list_168.html">Linux</a> 
+      <a href="/itwd/list_169.html">硬件/嵌入开发</a> 
+      <a href="/itwd/list_170.html">网络通信</a> 
+      <a href="/itwd/list_176.html">移动开发</a> 
+      <a href="/itwd/list_177.html">云计算</a> 
+      <a href="/itwd/list_178.html">企业IT</a> 
+      <a href="/itwd/list_179.html">游戏开发</a> 
+     </dd> 
+    </dl> 
+    <dl> 
+     <dt>
+      <a href="/joke/index.html"> 笑话大全</a>
+     </dt> 
+     <dd> 
+      <a href="/joke/list_267.html">幽默笑话</a> 
+      <a href="/joke/list_268.html">爱情笑话</a> 
+      <a href="/joke/list_269.html">成人笑话</a> 
+      <a href="/joke/list_270.html">校园笑话</a> 
+      <a href="/joke/list_271.html">爆笑笑话</a> 
+      <a href="/joke/list_272.html">综合笑话</a> 
+      <a href="/joke/list_273.html">古代笑话</a> 
+      <a href="/joke/list_274.html">现代笑话</a> 
+      <a href="/joke/list_275.html">国外笑话</a> 
+     </dd> 
+    </dl> 
+   </div> 
+   <header> 
+    <a href="/" class="logo"><img width="145px" src="/img/logo.gif" /></a> 
+    <a href="javascript:;" id="icon-menu"></a> 
+   </header> 
+   <nav> 
+    <a href="/circle/index.html">业界</a> 
+    <a href="/dev/index.html">编程</a> 
+    <a href="/web/index.html">网页</a> 
+    <a href="/db/index.html">数据库</a> 
+    <a href="/photo/index.html">设计</a> 
+    <a href="/os/index.html">系统</a> 
+    <a href="/zhang/index.html">运营</a> 
+    <a href="/mobile/index.html">手机</a> 
+    <a href="/eshop/index.html">网店</a> 
+    <a href="/softuse/index.html">软件</a> 
+   </nav> 
+   <div class="main"> 
+    <dl class="article-list"> 
+     <dd class="menu" style="-webkit-margin-start: 0px;"> 
+      <a href="/article/list_10.html"> ASP教程</a> 
+      <a href="/article/list_11.html"> .NET教程</a> 
+      <a href="/article/list_12.html"> PHP教程</a> 
+      <a href="/article/list_13.html"> JSP教程</a> 
+      <a href="/article/list_14.html"> C#教程</a> 
+      <a href="/article/list_15.html"> Java教程</a> 
+      <a href="/article/list_16.html"> Delphi教程</a> 
+      <a href="/article/list_17.html"> VB教程</a> 
+      <a href="/article/list_18.html"> C/C++教程</a> 
+      <a href="/article/list_19.html"> Android开发</a> 
+      <a href="/article/list_68.html"> IOS开发</a> 
+      <a href="/article/list_69.html"> Windows Phone开发</a> 
+      <a href="/article/list_70.html"> Python教程</a> 
+      <a href="/article/list_71.html"> Ruby教程</a> 
+      <a href="/article/list_106.html"> 移动开发</a> 
+      <a href="/article/list_108.html"> 其他编程教程</a> 
+     </dd> 
+    </dl> 
+    <h1 class="article-title"> Android使用LruCache缓存图片</h1> 
+    <div class="article-base-info">
+      来源：互联网&nbsp;&nbsp;时间：2016-3-29 14:05:42 
+    </div> 
+    <script type="text/javascript">
+    var cpro_id = "u2298499";
+    (window["cproStyleApi"] = window["cproStyleApi"] || {})[cpro_id] = { at: "3", hn: "1", wn: "2", imgRatio: "1.7", scale: "20.8", pat: "6", tn:
+"template_inlay_all_mobile_lu_native", rss1: "#FFFFFF", adp: "1", ptt: "0", titFF: "%E5%BE%AE%E8%BD%AF%E9%9B%85%E9%BB%91", titFS: "14", rss2: "#FFFFFF", titSU: "0",
+        ptbg: "70", ptp: "1"
+    }
+</script> 
+    <script src="http://cpro.baidustatic.com/cpro/ui/cm.js" type="text/javascript"></script> 
+    <script type="text/javascript" src="http://g.codes51.com/vt3a1ec599ffc9f131db173e88aefa32fc00b3930734ef.js"></script> 
+    <div class="article-content"> 
+     <p></p>
+     <p>最近做项目遇到了一个频繁加载图片导致OOM的问题，做了一个多张图片轮播的东西，点击每张图片跳转浏览器打开网页，退出浏览器后又重新加载图片进行轮播，这样进行多次，因为上次加载使用的内存没有释放掉，导致每次占用的内存都会多一点，最后直接就报停了。 <br /> 如图： <br /><img src="http://image.codes51.com/Article/image/20160330/20160330000542_1931.png" alt="Android使用LruCache缓存图片" title="" /></p>
+     <p>在过去，我们经常会使用一种非常流行的内存缓存技术的实现，即软引用或弱引用 (SoftReference or WeakReference)。但是现在已经不再推荐使用这种方式了，因为从 Android 2.3 (API Level 9)开始，垃圾回收器会更倾向于回收持有软引用或弱引用的对象，这让软引用和弱引用变得不再可靠。另外，Android 3.0 (API Level 11)中，图片的数据会存储在本地的内存当中，因而无法用一种可预见的方式将其释放，这就有潜在的风险造成应用程序的内存溢出并崩溃。</p>
+     <p>而内存缓存技术对那些大量占用应用程序宝贵内存的图片提供了快速访问的方法。其中最核心的类是LruCache (此类在android-support-v4的包中提供) 。这个类非常适合用来缓存图片，它的主要算法原理是把最近使用的对象用强引用存储在 LinkedHashMap 中，并且把最近最少使用的对象在缓存值达到预设定值之前从内存中移除。</p>
+     <p>于是决定使用LruCache解决这个问题，先将图片缓存，每次加载直接从缓存读入。</p>
+     <p>下面是使用LruCache来缓存图片的方法：</p>
+     <pre><code><span>package</span> com.android.xxxxx;
+
+<span>import</span> android.graphics.Bitmap;
+<span>import</span> android.support.v4.util.LruCache;
+
+
+<span>public</span><span><span>class</span><span>LruCacheUtil</span> {</span><span>private</span><span>static</span> LruCache&lt;String, Bitmap&gt; mMemoryCache;
+
+    <span>// 获取到可用内存的最大值，使用内存超出这个值会引起OutOfMemory异常。</span><span>private</span><span>static</span><span>int</span> mTotalSize = (<span>int</span>) Runtime.getRuntime().totalMemory();
+
+    <span>//初始化</span><span>public</span><span>static</span> LruCache&lt;String , Bitmap&gt; <span>initCache</span>(){
+
+        <span>// 使用最大可用内存值的1/5作为缓存的大小</span>
+        mMemoryCache = <span>new</span> LruCache&lt;String, Bitmap&gt;(mTotalSize/<span>5</span>) {
+            <span>@Override</span><span>protected</span><span>int</span><span>sizeOf</span>(String key, Bitmap bitmap) {
+
+                <span>// 重写此方法来衡量每张图片的大小，默认返回图片数量。</span><span>return</span> bitmap.getByteCount() / <span>1024</span>;
+            }
+        };
+        <span>return</span> mMemoryCache;
+    }
+
+    <span>//添加图片到缓存</span><span>public</span><span>static</span><span>synchronized</span><span>void</span><span>addBitmapToMemoryCache</span>(String key, Bitmap bitmap) {
+        <span>if</span> (getBitmapFromMemCache(key) == <span>null</span>) {
+            <span>if</span>(key != <span>null</span> &amp;&amp; bitmap != <span>null</span>){
+                mMemoryCache.put(key, bitmap);
+            }
+        }
+    }
+
+    <span>//从缓存获取图片</span><span>public</span><span>static</span><span>synchronized</span> Bitmap <span>getBitmapFromMemCache</span>(String key) {
+        <span>if</span>(key != <span>null</span>){
+            <span>return</span> mMemoryCache.get(key);
+        }<span>else</span> {
+            <span>return</span><span>null</span>;
+        }
+    }
+
+    <span>//清除缓存</span><span>public</span><span>static</span><span>void</span><span>clearCache</span>() {
+        <span>if</span> (mMemoryCache != <span>null</span>) {
+            <span>if</span> (mMemoryCache.size() &gt; <span>0</span>) {
+                mMemoryCache.evictAll();
+            }
+            mMemoryCache = <span>null</span>;
+        }
+    }
+
+    <span>//获取添加到缓存的图片数量</span><span>public</span><span>static</span><span>int</span><span>getPutCount</span>(){
+        <span>return</span> mMemoryCache.putCount();
+    }
+
+}
+</code></pre>
+     <p>LruCache的源码在/frameworks/support/v4/java/android/support/v4/util/LruCache.java：</p>
+     <pre><code><span>/* * Copyright (C) 2011 The Android Open Source Project * * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;); * you may not use this file except in compliance with the License. * You may obtain a copy of the License at * * http://www.apache.org/licenses/LICENSE-2.0 * * Unless required by applicable law or agreed to in writing, software * distributed under the License is distributed on an &quot;AS IS&quot; BASIS, * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. * See the License for the specific language governing permissions and * limitations under the License. */</span><span>package</span> android.support.v4.util;
+
+<span>import</span> java.util.LinkedHashMap;
+<span>import</span> java.util.Map;
+
+<span>/** * Static library version of {<span>@link</span> android.util.LruCache}. Used to write apps * that run on API levels prior to 12. When running on API level 12 or above, * this implementation is still used; it does not try to switch to the * framework's implementation. See the framework SDK documentation for a class * overview. */</span>
+public <span><span>class</span><span>LruCache</span>&lt;<span>K</span>, <span>V</span>&gt; {</span><span>private</span><span>final</span> LinkedHashMap&lt;K, V&gt; map;
+
+    <span>/** Size of this cache in units. Not necessarily the number of elements. */</span><span>private</span> int size;
+    <span>private</span> int maxSize;
+
+    <span>private</span> int putCount;
+    <span>private</span> int createCount;
+    <span>private</span> int evictionCount;
+    <span>private</span> int hitCount;
+    <span>private</span> int missCount;
+
+    <span>/** * <span>@param</span> maxSize for caches that do not override {<span>@link</span> #sizeOf}, this is * the maximum number of entries in the cache. For all other caches, * this is the maximum sum of the sizes of the entries in this cache. */</span>
+    public LruCache(int maxSize) {
+        <span>if</span> (maxSize &lt;= <span>0</span>) {
+            <span>throw</span><span>new</span> IllegalArgumentException(<span>&quot;maxSize &lt;= 0&quot;</span>);
+        }
+        <span>this</span>.maxSize = maxSize;
+        <span>this</span>.map = <span>new</span> LinkedHashMap&lt;K, V&gt;(<span>0</span>, <span>0.75</span>f, <span>true</span>);
+    }
+
+    <span>/** * Sets the size of the cache. * * <span>@param</span> maxSize The new maximum size. */</span>
+    public void resize(int maxSize) {
+        <span>if</span> (maxSize &lt;= <span>0</span>) {
+            <span>throw</span><span>new</span> IllegalArgumentException(<span>&quot;maxSize &lt;= 0&quot;</span>);
+        }
+
+        synchronized (<span>this</span>) {
+            <span>this</span>.maxSize = maxSize;
+        }
+        trimToSize(maxSize);
+    }
+
+    <span>/** * Returns the value for {<span>@code</span> key} if it exists in the cache or can be * created by {<span>@code</span> #create}. If a value was returned, it is moved to the * head of the queue. This returns null if a value is not cached and cannot * be created. */</span>
+    public <span>final</span> V get(K key) {
+        <span>if</span> (key == <span>null</span>) {
+            <span>throw</span><span>new</span> NullPointerException(<span>&quot;key == null&quot;</span>);
+        }
+
+        V mapValue;
+        synchronized (<span>this</span>) {
+            mapValue = map.get(key);
+            <span>if</span> (mapValue != <span>null</span>) {
+                hitCount++;
+                <span>return</span> mapValue;
+            }
+            missCount++;
+        }
+
+        <span>/* * Attempt to create a value. This may take a long time, and the map * may be different when create() returns. If a conflicting value was * added to the map while create() was working, we leave that value in * the map and release the created value. */</span>        V createdValue = create(key);
+        <span>if</span> (createdValue == <span>null</span>) {
+            <span>return</span><span>null</span>;
+        }
+
+        synchronized (<span>this</span>) {
+            createCount++;
+            mapValue = map.put(key, createdValue);
+
+            <span>if</span> (mapValue != <span>null</span>) {
+                <span>// There was a conflict so undo that last put</span>
+                map.put(key, mapValue);
+            } <span>else</span> {
+                size += safeSizeOf(key, createdValue);
+            }
+        }
+
+        <span>if</span> (mapValue != <span>null</span>) {
+            entryRemoved(<span>false</span>, key, createdValue, mapValue);
+            <span>return</span> mapValue;
+        } <span>else</span> {
+            trimToSize(maxSize);
+            <span>return</span> createdValue;
+        }
+    }
+
+    <span>/** * Caches {<span>@code</span> value} for {<span>@code</span> key}. The value is moved to the head of * the queue. * * <span>@return</span> the previous value mapped by {<span>@code</span> key}. */</span>
+    public <span>final</span> V put(K key, V value) {
+        <span>if</span> (key == <span>null</span> || value == <span>null</span>) {
+            <span>throw</span><span>new</span> NullPointerException(<span>&quot;key == null || value == null&quot;</span>);
+        }
+
+        V previous;
+        synchronized (<span>this</span>) {
+            putCount++;
+            size += safeSizeOf(key, value);
+            previous = map.put(key, value);
+            <span>if</span> (previous != <span>null</span>) {
+                size -= safeSizeOf(key, previous);
+            }
+        }
+
+        <span>if</span> (previous != <span>null</span>) {
+            entryRemoved(<span>false</span>, key, previous, value);
+        }
+
+        trimToSize(maxSize);
+        <span>return</span> previous;
+    }
+
+    <span>/** * Remove the eldest entries until the total of remaining entries is at or * below the requested size. * * <span>@param</span> maxSize the maximum size of the cache before returning. May be -1 * to evict even 0-sized elements. */</span>
+    public void trimToSize(int maxSize) {
+        <span>while</span> (<span>true</span>) {
+            K key;
+            V value;
+            synchronized (<span>this</span>) {
+                <span>if</span> (size &lt; <span>0</span> || (map.isEmpty() &amp;&amp; size != <span>0</span>)) {
+                    <span>throw</span><span>new</span> IllegalStateException(getClass().getName()
+                            + <span>&quot;.sizeOf() is reporting inconsistent results!&quot;</span>);
+                }
+
+                <span>if</span> (size &lt;= maxSize || map.isEmpty()) {
+                    <span>break</span>;
+                }
+
+                Map.Entry&lt;K, V&gt; toEvict = map.entrySet().iterator().next();
+                key = toEvict.getKey();
+                value = toEvict.getValue();
+                map.remove(key);
+                size -= safeSizeOf(key, value);
+                evictionCount++;
+            }
+
+            entryRemoved(<span>true</span>, key, value, <span>null</span>);
+        }
+    }
+
+    <span>/** * Removes the entry for {<span>@code</span> key} if it exists. * * <span>@return</span> the previous value mapped by {<span>@code</span> key}. */</span>
+    public <span>final</span> V remove(K key) {
+        <span>if</span> (key == <span>null</span>) {
+            <span>throw</span><span>new</span> NullPointerException(<span>&quot;key == null&quot;</span>);
+        }
+
+        V previous;
+        synchronized (<span>this</span>) {
+            previous = map.remove(key);
+            <span>if</span> (previous != <span>null</span>) {
+                size -= safeSizeOf(key, previous);
+            }
+        }
+
+        <span>if</span> (previous != <span>null</span>) {
+            entryRemoved(<span>false</span>, key, previous, <span>null</span>);
+        }
+
+        <span>return</span> previous;
+    }
+
+    <span>/** * Called for entries that have been evicted or removed. This method is * invoked when a value is evicted to make space, removed by a call to * {<span>@link</span> #remove}, or replaced by a call to {<span>@link</span> #put}. The default * implementation does nothing. * * &lt;p&gt;The method is called without synchronization: other threads may * access the cache while this method is executing. * * <span>@param</span> evicted true if the entry is being removed to make space, false * if the removal was caused by a {<span>@link</span> #put} or {<span>@link</span> #remove}. * <span>@param</span> newValue the new value for {<span>@code</span> key}, if it exists. If non-null, * this removal was caused by a {<span>@link</span> #put}. Otherwise it was caused by * an eviction or a {<span>@link</span> #remove}. */</span><span>protected</span> void entryRemoved(boolean evicted, K key, V oldValue, V newValue) {}
+
+    <span>/** * Called after a cache miss to compute a value for the corresponding key. * Returns the computed value or null if no value can be computed. The * default implementation returns null. * * &lt;p&gt;The method is called without synchronization: other threads may * access the cache while this method is executing. * * &lt;p&gt;If a value for {<span>@code</span> key} exists in the cache when this method * returns, the created value will be released with {<span>@link</span> #entryRemoved} * and discarded. This can occur when multiple threads request the same key * at the same time (causing multiple values to be created), or when one * thread calls {<span>@link</span> #put} while another is creating a value for the same * key. */</span><span>protected</span> V create(K key) {
+        <span>return</span><span>null</span>;
+    }
+
+    <span>private</span> int safeSizeOf(K key, V value) {
+        int result = sizeOf(key, value);
+        <span>if</span> (result &lt; <span>0</span>) {
+            <span>throw</span><span>new</span> IllegalStateException(<span>&quot;Negative size: &quot;</span> + key + <span>&quot;=&quot;</span> + value);
+        }
+        <span>return</span> result;
+    }
+
+    <span>/** * Returns the size of the entry for {<span>@code</span> key} and {<span>@code</span> value} in * user-defined units. The default implementation returns 1 so that size * is the number of entries and max size is the maximum number of entries. * * &lt;p&gt;An entry's size must not change while it is in the cache. */</span><span>protected</span> int sizeOf(K key, V value) {
+        <span>return</span><span>1</span>;
+    }
+
+    <span>/** * Clear the cache, calling {<span>@link</span> #entryRemoved} on each removed entry. */</span>
+    public <span>final</span> void evictAll() {
+        trimToSize(-<span>1</span>); <span>// -1 will evict 0-sized elements</span>
+    }
+
+    <span>/** * For caches that do not override {<span>@link</span> #sizeOf}, this returns the number * of entries in the cache. For all other caches, this returns the sum of * the sizes of the entries in this cache. */</span>
+    public synchronized <span>final</span> int size() {
+        <span>return</span> size;
+    }
+
+    <span>/** * For caches that do not override {<span>@link</span> #sizeOf}, this returns the maximum * number of entries in the cache. For all other caches, this returns the * maximum sum of the sizes of the entries in this cache. */</span>
+    public synchronized <span>final</span> int maxSize() {
+        <span>return</span> maxSize;
+    }
+
+    <span>/** * Returns the number of times {<span>@link</span> #get} returned a value that was * already present in the cache. */</span>
+    public synchronized <span>final</span> int hitCount() {
+        <span>return</span> hitCount;
+    }
+
+    <span>/** * Returns the number of times {<span>@link</span> #get} returned null or required a new * value to be created. */</span>
+    public synchronized <span>final</span> int missCount() {
+        <span>return</span> missCount;
+    }
+
+    <span>/** * Returns the number of times {<span>@link</span> #create(Object)} returned a value. */</span>
+    public synchronized <span>final</span> int createCount() {
+        <span>return</span> createCount;
+    }
+
+    <span>/** * Returns the number of times {<span>@link</span> #put} was called. */</span>
+    public synchronized <span>final</span> int putCount() {
+        <span>return</span> putCount;
+    }
+
+    <span>/** * Returns the number of values that have been evicted. */</span>
+    public synchronized <span>final</span> int evictionCount() {
+        <span>return</span> evictionCount;
+    }
+
+    <span>/** * Returns a copy of the current contents of the cache, ordered from least * recently accessed to most recently accessed. */</span>
+    public synchronized <span>final</span> Map&lt;K, V&gt; snapshot() {
+        <span>return</span><span>new</span> LinkedHashMap&lt;K, V&gt;(map);
+    }
+
+    <span>@Override</span> public synchronized <span>final</span> String toString() {
+        int accesses = hitCount + missCount;
+        int hitPercent = accesses != <span>0</span> ? (<span>100</span> * hitCount / accesses) : <span>0</span>;
+        <span>return</span> String.format(<span>&quot;LruCache[maxSize=%d,hits=%d,misses=%d,hitRate=%d%%]&quot;</span>,
+                maxSize, hitCount, missCount, hitPercent);
+    }
+}
+</code></pre>
+     <p></p>').addClass('pre-numbering').hide(); $(this).addClass('has-numbering').parent().append($numbering); for (i = 1; i &lt;= lines; i++) { $numbering.append($('
+     <li></li>').text(i)); }; $numbering.fadeIn(1700); }); });  
+     <p class="clear"> </p> 
+    </div> 
+    <div class="clear"> 
+    </div> 
+    <div style="height: 80px; padding-left: 10px; line-height: 22px; background: #fff;
+        overflow: hidden; white-space: nowrap; text-overflow: ellipsis;"> 
+     <br />
+     <b>上一篇</b>：
+     <a href="detail_533213.html">Day44--Android高级UI控件之RatingBar的使用</a> 
+     <br />
+     <b>下一篇</b>：
+     <a href="detail_533217.html" class="link1">关于使用AIDL出现空指针的解决办法</a> 
+    </div> 
+    <div class="clear"> 
+    </div> 
+    <dl class="article-list"> 
+     <dt>
+      明星图片
+     </dt> 
+     <div class="coupon_body"> 
+      <div class="coupon_box1" style="float: left; background-color: #fff; margin-top: 10px;
+                        margin-left: 2px; width: 46%; "> 
+       <div style="width: 100%; height: 200px"> 
+        <a href="/yule/photo/222815.html" target="_blank" class="index-goods-img"> <img src="http://image.codes51.com/article/image/20151118/20151118231344_3593.jpg" alt="一路向西女主角舒沁妍激情剧照全裸尺度惊人" title="一路向西女主角舒沁妍激情剧照全裸尺度惊人" width="100%" height="200px" /> </a> 
+       </div> 
+       <div class="coupon_note1" style="width: 100%; padding-left: 5px; padding-right: 0px;"> 
+        <ul> 
+         <li><a href="/yule/photo/222815.html" target="_blank" title="一路向西女主角舒沁妍激情剧照全裸尺度惊人"> 一路向西女主角舒沁妍激情剧照全裸尺度惊人</a></li> 
+        </ul> 
+       </div> 
+      </div> 
+      <div class="coupon_box1" style="float: left; background-color: #fff; margin-top: 10px;
+                        margin-left: 2px; width: 46%; margin-left:10px"> 
+       <div style="width: 100%; height: 200px"> 
+        <a href="/yule/photo/222830.html" target="_blank" class="index-goods-img"> <img src="http://image.codes51.com/Article/image/20151118/20151118232155_0937.jpg" alt="温碧霞身穿白裙俯身露点走光被拍" title="温碧霞身穿白裙俯身露点走光被拍" width="100%" height="200px" /> </a> 
+       </div> 
+       <div class="coupon_note1" style="width: 100%; padding-left: 5px; padding-right: 0px;"> 
+        <ul> 
+         <li><a href="/yule/photo/222830.html" target="_blank" title="温碧霞身穿白裙俯身露点走光被拍"> 温碧霞身穿白裙俯身露点走光被拍</a></li> 
+        </ul> 
+       </div> 
+      </div> 
+      <div class="coupon_box1" style="float: left; background-color: #fff; margin-top: 10px;
+                        margin-left: 2px; width: 46%; "> 
+       <div style="width: 100%; height: 200px"> 
+        <a href="/yule/photo/222880.html" target="_blank" class="index-goods-img"> <img src="http://image.codes51.com/article/image/20151118/20151118232825_9062.jpg" alt="干露露照片,演唱会真空爆乳中门大开" title="干露露照片,演唱会真空爆乳中门大开" width="100%" height="200px" /> </a> 
+       </div> 
+       <div class="coupon_note1" style="width: 100%; padding-left: 5px; padding-right: 0px;"> 
+        <ul> 
+         <li><a href="/yule/photo/222880.html" target="_blank" title="干露露照片,演唱会真空爆乳中门大开"> 干露露照片,演唱会真空爆乳中门大开</a></li> 
+        </ul> 
+       </div> 
+      </div> 
+      <div class="coupon_box1" style="float: left; background-color: #fff; margin-top: 10px;
+                        margin-left: 2px; width: 46%; margin-left:10px"> 
+       <div style="width: 100%; height: 200px"> 
+        <a href="/yule/photo/231793.html" target="_blank" class="index-goods-img"> <img src="http://image.codes51.com/Article/image/20151130/20151130100430_9085.jpg" alt="全裸男模抓着JJ走秀，日本妹妹看到流口水" title="全裸男模抓着JJ走秀，日本妹妹看到流口水" width="100%" height="200px" /> </a> 
+       </div> 
+       <div class="coupon_note1" style="width: 100%; padding-left: 5px; padding-right: 0px;"> 
+        <ul> 
+         <li><a href="/yule/photo/231793.html" target="_blank" title="全裸男模抓着JJ走秀，日本妹妹看到流口水"> 全裸男模抓着JJ走秀，日本妹妹看到流口水</a></li> 
+        </ul> 
+       </div> 
+      </div> 
+      <div class="clear"> 
+      </div> 
+     </div> 
+    </dl> 
+    <div class="clear"> 
+    </div> 
+    <dl class="other-article-list"> 
+     <dt>
+      相关文章
+     </dt> 
+     <dd> 
+      <ul> 
+       <li><a href="/article/detail_130962.html" target="_blank"> 手把手教你用android studio创建第一个安卓程序加载html5页面（一）</a></li> 
+       <li><a href="/article/detail_96204.html" target="_blank"> 关于 WheelView 组件的源码分析</a></li> 
+       <li><a href="/article/detail_144474.html" target="_blank"> Toolbar的完全自定义</a></li> 
+       <li><a href="/article/detail_163576.html" target="_blank"> Android内存优化（使用SparseArray和ArrayMap代替HashMap）</a></li> 
+       <li><a href="/article/detail_138004.html" target="_blank"> Android MediaCodec实现摄像头数据硬编解码全过程</a></li> 
+       <li><a href="/article/detail_109647.html" target="_blank"> ViewDragHelper实例学习笔记</a></li> 
+      </ul> 
+     </dd> 
+    </dl> 
+    <script>
+    var baiduImagePlus = {
+        unionId: 'u2298357',
+        formList: [{ formId: 21 }, { formId: 22 }, { formId: 23}]
+    };
+</script> 
+    <script src="http://cpro.baidustatic.com/cpro/ui/mi.js"></script> 
+   </div> 
+   <footer> 
+    <script type="text/javascript" src="http://g.codes51.com/xx3a1ec094ffc2f03bdb173e88aefa32fc00b3930734ef.js"></script> 
+    <div class="m"> 
+     <a href="/">首页</a> 
+     <a href="#">返回头部</a> 
+    </div> 
+   </footer> 
+   <img src="http://c.cnzz.com/wapstat.php?siteid=1256267280&amp;r=&amp;rnd=1858431499" width="0" height="0" /> 
+   <script type="text/javascript" src="http://g.codes51.com/ik3a1ec393f0cff138db173e88aefa32fc00b3930734ef.js"></script> 
+   <div style=" color:Gray; text-align:center; padding:5px 5px; line-height:25px; font-size:12px;"> 
+    <span id="lblfootTitle">《Android使用LruCache缓存图片》由码蚁之家搜集整理于网络，</span>
+    <br /> 联系邮箱：mxgf168#qq.com(#改为@) 
+   </div>   
+   <script type="text/javascript">
+    /*度宝 创建于2016-08-31*/
+    var cpro_id = "u2748922";
+</script> 
+   <script src="http://cpro.baidustatic.com/cpro/ui/cm.js" type="text/javascript"></script>
+  </metaname="applicable-device">
+ </body>
+</html>

@@ -1,0 +1,459 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+ <head> 
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+  <title>用户评论：保鲜冷库</title> 
+  <link href="/templets/new/style/dedecms.css" rel="stylesheet" media="screen" type="text/css" /> 
+  <script language="javascript" type="text/javascript" src="/include/dedeajax2.js"></script> 
+  <script language="javascript">
+function postBadGood(ftype,fid)
+{
+	var taget_obj = document.getElementById(ftype+fid);
+	var saveid = GetCookie('badgoodid');
+	if(saveid != null)
+	{
+		 var saveids = saveid.split(',');
+		 var hasid = false;
+		 saveid = '';
+		 j = 1;
+		 for(i=saveids.length-1;i>=0;i--)
+		 {
+		 	  if(saveids[i]==fid && hasid) continue;
+		 	  else {
+		 	  	if(saveids[i]==fid && !hasid) hasid = true;
+		 	  	saveid += (saveid=='' ? saveids[i] : ','+saveids[i]);
+		 	  	j++;
+		 	  	if(j==10 && hasid) break;
+		 	  	if(j==9 && !hasid) break;
+		 	  }
+		 }
+     if(hasid) { alert('您刚才已表决过了喔！'); return false; }
+     else saveid += ','+fid;
+		 SetCookie('badgoodid',saveid,1);
+	}
+	else
+	{
+		SetCookie('badgoodid',fid,1);
+	}
+	//document.write("feedback.php?action="+ftype+"&fid="+fid);
+	//return;
+  myajax = new DedeAjax(taget_obj,false,false,'','','');
+  myajax.SendGet2("feedback.php?aid=1441&action="+ftype+"&fid="+fid);
+  DedeXHTTP = null;
+}
+
+function ajaxFeedback(aid, fid, type)
+{
+	
+	var taget_obj = $DE('ajaxfeedback_'+fid);
+	if(taget_obj.innerHTML == '')
+	{
+		var myajax = new DedeAjax(taget_obj, true, true, '', 'x');
+		myajax.SendGet2("/plus/feedback.php?aid="+aid+"&fid="+fid+"&action=quote&type=ajax");
+		eval('var result = typeof CKEDITOR.instances.msg_'+fid);
+		if(result != 'undefined')
+		{
+			// 删除实例
+			eval('var edit = CKEDITOR.instances.msg_'+fid);
+			CKEDITOR.remove(edit);
+		}
+		CKEDITOR.replace(document.getElementById('msg_'+fid) , CKEDITOR.instances.msg.config);
+		scroll(0, taget_obj.offsetTop - 120);
+		var formname = 'f = document.ajaxfeedback_'+fid;
+		eval(formname);
+		if(f.validate)
+		{
+			if($DE('vdimg_'+fid)) $DE('vdimg_'+fid).src = "/include/vdimgck.php?"+f.validate.value;
+			f.validate.value = '';
+		}
+		
+		DedeXHTTP = null;
+	}
+}
+
+function ajaxQuotePost(fid)
+{
+	var formname = 'f = document.ajaxfeedback_'+fid;
+	eval(formname);
+	//var f = document.formname;
+	//var f = f[0];
+	var nvalidate = '';
+	var nnotuser = '';
+	var nusername = '';
+	var npwd = '';
+	var taget_obj = $DE('commetcontentNew');
+	var waithtml = "<div style='line-height:30px'><img src='/images/loadinglit.gif' />正在发送中...</div>";
+	eval('var msg = CKEDITOR.instances.msg_'+fid+'.getData()');
+
+	if(f.validate)
+	{
+		if(f.validate.value=='') {
+			alert("请填写验证码！");
+			return;
+		}
+		else {
+			nvalidate = f.validate.value;
+		}
+	}
+	var myajax = new DedeAjax(taget_obj, false, true, '', '', waithtml);
+	
+	if(f.notuser.checked) nnotuser = '1';
+	if(f.username) nusername = f.username.value;
+	if(f.pwd) npwd = f.pwd.value;
+	
+	myajax.sendlang = 'utf-8';
+	myajax.AddKeyN('dopost', 'send');
+	myajax.AddKeyN('aid', '1441');
+	myajax.AddKeyN('fid', f.fid.value);
+	myajax.AddKeyN('type', 'ajax');
+	myajax.AddKeyN('comtype', f.comtype.value);
+	myajax.AddKeyN('isconfirm','yes');
+	
+	myajax.AddKeyN('typeid', f.typeid.value);
+	myajax.AddKeyN('quotemsg', f.quotemsg.value);
+	myajax.AddKeyN('validate', nvalidate);
+	myajax.AddKeyN('notuser', nnotuser);
+	myajax.AddKeyN('username', nusername);
+	myajax.AddKeyN('pwd', npwd);
+	myajax.AddKeyN('msg', msg);
+	myajax.SendPost2('/plus/feedback_ajax.php');
+	//alert(f.quotemsg.value);
+	if($DE('ajaxfeedback_'+fid).innerHTML != null)
+	{
+		$DE('ajaxfeedback_'+fid).innerHTML = '';
+	}
+	scroll(0, taget_obj.offsetTop);
+	taget_obj.removeAttribute('id');
+
+}
+</script> 
+ </head>
+ <body class="commentpage"> 
+  <div class="header"> 
+   <div class="top w960 center"> 
+    <div class="title"> 
+     <h1><a href="http://www.jingquanzhileng.com" title="廊坊京泉制冷_冷库保温板冷库门_河北冷库制作设计冷冻库_库板门户网站"><img src="/templets/new/images/logo.gif" height="54" width="216" alt="廊坊京泉制冷_冷库保温板冷库门_河北冷库制作设计冷冻库_库板门户网站" /></a> </h1> 
+    </div> 
+    <!-- /title --> 
+    <div class="welcome">
+      您好,欢迎来到本网站,您还没有登陆,请先
+     <a href="/member/index.php">登陆</a>或者
+     <a href="/member/index_do.php?fmdo=user&amp;dopost=regnew">注册</a>. 
+    </div> 
+    <!-- /banner --> 
+   </div> 
+   <!-- /top --> 
+  </div> 
+  <!-- /nav -->  
+  <!-- /header --> 
+  <div class="w960 clear center mt1 cmt-box"> 
+   <div class="sp-title"> 
+    <h2>评论:<a href="/lingkufenlei/lingkuxilie/1441.html">保鲜冷库</a></h2> 
+   </div> 
+   <div> 
+    <dl class="tbox"> 
+     <dt> 
+      <strong>评论列表（网友评论仅供网友表达个人看法，并不表明本站同意其观点或证实其描述）</strong> 
+      <span class="label"> <a href="feedback.php?aid=1441&amp;ftype=good">只看好评</a> <a href="feedback.php?aid=1441&amp;ftype=bad">只看差评</a> <a href="feedback.php?aid=1441&amp;ftype=feedback">只看中立</a> <a href="feedback.php?aid=1441" class="thisclass">全部评论</a> </span> 
+     </dt> 
+     <dd> 
+      <div class="dede_comment"> 
+       <div class="decmt-box1"> 
+        <ul> 
+         <li id="commetcontentNew"></li> 
+         <li> <a href="#" class="plpic"><img src="/member/templets/images/dfboy.png" height="40" width="40" /></a> <span class="title"> 匿名<img src="/templets/new/images/cmt-neu.gif" /></span> 
+          <div class="comment_act">
+           <span class="fr"> <span id="goodfb2492"><a href="#" onclick="postBadGood('goodfb',2492)">支持</a>[0]</span> <span id="badfb2492"><a href="#" onclick="postBadGood('badfb',2492)">反对</a>[0]</span> <span class="quote"><a href="javascript:ajaxFeedback(2492,2492,'quote');">引用</a></span></span> 03-28 22:54发表
+          </div> <p> <a href="http://www.av.seb.tw" target="_blank">小雪视讯聊天秀视频</a><a href="http://www.woman.seb.tw" target="_blank">聊天室破解</a><a href="http://sex.twseb.tv" target="_blank">台湾佬娱乐中文网站</a><a href="http://poba.tv" target="_blank">視訊辣妹網</a><a href="http://www.ipad.com.tw" target="_blank">台湾美女视频聊天交友网站</a><a href="http://www.free.twseb.tv" target="_blank">真人视频聊天软件排行</a><a href="http://cn.kimoav.tv" target="_blank">超碰在线视频</a>[url=http://</p> </li> 
+         <div id="ajaxfeedback_2492"></div> 
+         <li> <a href="#" class="plpic"><img src="/member/templets/images/dfboy.png" height="40" width="40" /></a> <span class="title"> 匿名<img src="/templets/new/images/cmt-neu.gif" /></span> 
+          <div class="comment_act">
+           <span class="fr"> <span id="goodfb2490"><a href="#" onclick="postBadGood('goodfb',2490)">支持</a>[0]</span> <span id="badfb2490"><a href="#" onclick="postBadGood('badfb',2490)">反对</a>[0]</span> <span class="quote"><a href="javascript:ajaxFeedback(2490,2490,'quote');">引用</a></span></span> 03-28 01:52发表
+          </div> <p> <a href="http://live.twseb.tv" target="_blank">视频聊天软件你懂的</a><a href="https://www.avclub.tv/index.php">秋元友美</a><a href="http://www.mario.com.tw" target="_blank">最新国产视讯聊天室</a><a href="http://seb.tw" target="_blank">韩国美女视讯网站</a><a href="http://www.amy.seb.tw" target="_blank">台湾视频秀聊天室</a><a href="http://going.com.tw" target="_blank">78aiai色哥哥</a><a href="http://candy.seb.tw" target="_blank">爱魔豆vip破解</a>[url=htt</p> </li> 
+         <div id="ajaxfeedback_2490"></div> 
+         <li> <a href="#" class="plpic"><img src="/member/templets/images/dfboy.png" height="40" width="40" /></a> <span class="title"> 匿名<img src="/templets/new/images/cmt-neu.gif" /></span> 
+          <div class="comment_act">
+           <span class="fr"> <span id="goodfb2469"><a href="#" onclick="postBadGood('goodfb',2469)">支持</a>[0]</span> <span id="badfb2469"><a href="#" onclick="postBadGood('badfb',2469)">反对</a>[0]</span> <span class="quote"><a href="javascript:ajaxFeedback(2469,2469,'quote');">引用</a></span></span> 03-26 01:27发表
+          </div> <p> <a href="http://sister.twseb.tv" target="_blank">韩国三女视讯聊天秀</a><a href="http://g8show.net" target="_blank">ut辣妹台湾聊天室</a><a href="http://angel.seb.tw" target="_blank">台湾聊天软件能截图</a><a href="https://av18.tw/index.php">高清</a><a href="http://www.enjoy.com.tw" target="_blank">上海乖乖overblog</a><a href="http://love.seb.tw" target="_blank">台湾视频聊天网站</a><a href="http://www.i30.tw" target="_blank">天空交友</a>[url=http://sex</p> </li> 
+         <div id="ajaxfeedback_2469"></div> 
+         <li> <a href="#" class="plpic"><img src="/member/templets/images/dfboy.png" height="40" width="40" /></a> <span class="title"> 匿名<img src="/templets/new/images/cmt-neu.gif" /></span> 
+          <div class="comment_act">
+           <span class="fr"> <span id="goodfb2468"><a href="#" onclick="postBadGood('goodfb',2468)">支持</a>[0]</span> <span id="badfb2468"><a href="#" onclick="postBadGood('badfb',2468)">反对</a>[0]</span> <span class="quote"><a href="javascript:ajaxFeedback(2468,2468,'quote');">引用</a></span></span> 03-26 01:27发表
+          </div> <p> <a href="https://18.av18.com.tw/index.php">免費約炮</a><a href="http://gg.2sex.tw" target="_blank">成人情趣專賣</a><a href="http://www.clover.com.tw" target="_blank">视讯聊天视频种子</a><a href="http://www.sex.twseb.tv" target="_blank">聊天室网站</a><a href="http://www.free.seb.tw" target="_blank">女人找男按摩师视频</a><a href="http://show.seb.tw" target="_blank">聊天机器人小黄鸡</a><a href="http://tv.seb.tw" target="_blank">聊天机器人源码</a>[url=http:</p> </li> 
+         <div id="ajaxfeedback_2468"></div> 
+         <li> <a href="#" class="plpic"><img src="/member/templets/images/dfboy.png" height="40" width="40" /></a> <span class="title"> 匿名<img src="/templets/new/images/cmt-neu.gif" /></span> 
+          <div class="comment_act">
+           <span class="fr"> <span id="goodfb2459"><a href="#" onclick="postBadGood('goodfb',2459)">支持</a>[0]</span> <span id="badfb2459"><a href="#" onclick="postBadGood('badfb',2459)">反对</a>[0]</span> <span class="quote"><a href="javascript:ajaxFeedback(2459,2459,'quote');">引用</a></span></span> 03-26 01:25发表
+          </div> <p> <a href="http://woman.seb.tw" target="_blank">视频聊天工具哪个好</a><a href="https://www.big2.tw">乖乖水</a><a href="http://www.tv.seb.tw" target="_blank">kenzo视讯聊天</a><a href="https://www.av18.tw">人人碰超碰免费视频</a><a href="http://video.seb.tw" target="_blank">台湾免费视讯聊天</a><a href="http://clover.com.tw" target="_blank">聊天英文怎么写</a><a href="http://mario.com.tw" target="_blank">台湾佬娱乐11xxoo删除删除删除</a>[url=https:/</p> </li> 
+         <div id="ajaxfeedback_2459"></div> 
+         <li> <a href="#" class="plpic"><img src="/member/templets/images/dfboy.png" height="40" width="40" /></a> <span class="title"> 匿名<img src="/templets/new/images/cmt-neu.gif" /></span> 
+          <div class="comment_act">
+           <span class="fr"> <span id="goodfb2458"><a href="#" onclick="postBadGood('goodfb',2458)">支持</a>[0]</span> <span id="badfb2458"><a href="#" onclick="postBadGood('badfb',2458)">反对</a>[0]</span> <span class="quote"><a href="javascript:ajaxFeedback(2458,2458,'quote');">引用</a></span></span> 03-26 01:25发表
+          </div> <p> <a href="http://www.webcam.seb.tw" target="_blank">在线聊天室你懂的</a><a href="http://sextoy18.com" target="_blank">情趣自慰杯</a><a href="http://show.seb.tw" target="_blank">总裁老公太完美</a><a href="http://poba.tw" target="_blank">免费台湾美女交友网</a><a href="http://ogc18tw.sexy-more.com" target="_blank">情趣用品三重區實體店</a><a href="https://high.tw">線上壯陽藥品</a><a href="http://friend.seb.tw" target="_blank">聊天室免费的</a>[url=http://dapoba.t</p> </li> 
+         <div id="ajaxfeedback_2458"></div> 
+         <li> <a href="#" class="plpic"><img src="/member/templets/images/dfboy.png" height="40" width="40" /></a> <span class="title"> 匿名<img src="/templets/new/images/cmt-neu.gif" /></span> 
+          <div class="comment_act">
+           <span class="fr"> <span id="goodfb2433"><a href="#" onclick="postBadGood('goodfb',2433)">支持</a>[0]</span> <span id="badfb2433"><a href="#" onclick="postBadGood('badfb',2433)">反对</a>[0]</span> <span class="quote"><a href="javascript:ajaxFeedback(2433,2433,'quote');">引用</a></span></span> 03-24 06:02发表
+          </div> <p> <a href="http://porn.twseb.tv" target="_blank">免费视频找女人聊天qq</a><a href="http://www.icue.tw" target="_blank">聊天室友哪些</a><a href="http://italk.com.tw" target="_blank">视频面对面聊天</a><a href="http://tokyo.twseb.tv" target="_blank">聊天室免费讲课炒股</a><a href="http://www.sweet.twseb.tv" target="_blank">台湾丽人视频网</a><a href="http://www.chat.twseb.tv" target="_blank">ut男同志视讯聊天</a><a href="http://www.twseb.tv" target="_blank">超碰人人碰公开视频</a>[url=</p> </li> 
+         <div id="ajaxfeedback_2433"></div> 
+         <li> <a href="#" class="plpic"><img src="/member/templets/images/dfboy.png" height="40" width="40" /></a> <span class="title"> 匿名<img src="/templets/new/images/cmt-neu.gif" /></span> 
+          <div class="comment_act">
+           <span class="fr"> <span id="goodfb2415"><a href="#" onclick="postBadGood('goodfb',2415)">支持</a>[0]</span> <span id="badfb2415"><a href="#" onclick="postBadGood('badfb',2415)">反对</a>[0]</span> <span class="quote"><a href="javascript:ajaxFeedback(2415,2415,'quote');">引用</a></span></span> 03-22 17:46发表
+          </div> <p> <a href="http://8dgo.tw" target="_blank">美眉交友</a><a href="http://models.com.tw" target="_blank">台湾爱妃网破解</a><a href="http://tokyo.sex18.tw/index.php" target="_blank">免費成人下載</a><a href="https://song.boki.tw">早洩治療</a><a href="https://boy.boki.tw">快樂藥</a><a href="http://www.tv.seb.tw" target="_blank">293真人秀场</a><a href="http://www.tokyo.twseb.tv" target="_blank">视讯overblogcom</a>[url=http://www.</p> </li> 
+         <div id="ajaxfeedback_2415"></div> 
+         <li> <a href="#" class="plpic"><img src="/member/templets/images/dfboy.png" height="40" width="40" /></a> <span class="title"> 匿名<img src="/templets/new/images/cmt-neu.gif" /></span> 
+          <div class="comment_act">
+           <span class="fr"> <span id="goodfb2407"><a href="#" onclick="postBadGood('goodfb',2407)">支持</a>[0]</span> <span id="badfb2407"><a href="#" onclick="postBadGood('badfb',2407)">反对</a>[0]</span> <span class="quote"><a href="javascript:ajaxFeedback(2407,2407,'quote');">引用</a></span></span> 03-21 16:38发表
+          </div> <p> <a href="http://webcam.twseb.tv" target="_blank">台湾视讯网站破解</a><a href="http://tokyo.twseb.tv" target="_blank">韩国视讯聊天室qvod</a><a href="http://g8show.com" target="_blank">台湾语音交友</a><a href="https://tokyo.happyav.tw/index.php">色情影片</a><a href="http://www.female.twseb.tv" target="_blank">聊天室vip破解是真的</a><a href="http://www.live.seb.tw" target="_blank">聊天软件电脑版</a>[url=http://www.jerry.tw]ktv聊天室[/</p> </li> 
+         <div id="ajaxfeedback_2407"></div> 
+         <li> <a href="#" class="plpic"><img src="/member/templets/images/dfboy.png" height="40" width="40" /></a> <span class="title"> 匿名<img src="/templets/new/images/cmt-neu.gif" /></span> 
+          <div class="comment_act">
+           <span class="fr"> <span id="goodfb2401"><a href="#" onclick="postBadGood('goodfb',2401)">支持</a>[0]</span> <span id="badfb2401"><a href="#" onclick="postBadGood('badfb',2401)">反对</a>[0]</span> <span class="quote"><a href="javascript:ajaxFeedback(2401,2401,'quote');">引用</a></span></span> 03-21 10:48发表
+          </div> <p> he <a href="http://outdoorfurnitures-sydney.com.au/images/Patrick-Patterson-Authentic-Red-Jersey--Mens-Patrick-Patterson-NBA-Toronto-Raptors-Jersey_6624.php" target="_blank">Patrick Patterson Authentic Red Jersey</a> blackness which [url=http://sonder-bv.nl/Heren-New-Balance-580-Print-Zwart-Grijs-Schoenen-Bestellen_49</p> </li> 
+         <div id="ajaxfeedback_2401"></div> 
+         <li> <a href="#" class="plpic"><img src="/member/templets/images/dfboy.png" height="40" width="40" /></a> <span class="title"> 匿名<img src="/templets/new/images/cmt-neu.gif" /></span> 
+          <div class="comment_act">
+           <span class="fr"> <span id="goodfb2365"><a href="#" onclick="postBadGood('goodfb',2365)">支持</a>[0]</span> <span id="badfb2365"><a href="#" onclick="postBadGood('badfb',2365)">反对</a>[0]</span> <span class="quote"><a href="javascript:ajaxFeedback(2365,2365,'quote');">引用</a></span></span> 03-19 02:50发表
+          </div> <p> <a href="http://member.seb.tw" target="_blank">台湾视频网站</a><a href="http://girl.seb.tw" target="_blank">台湾 视讯聊天室</a><a href="https://tokyo.happyav.tv">辣妹自慰</a><a href="http://www.dapoba.tw" target="_blank">免费台湾视频聊天网站</a><a href="https://18sex.tw/index.php">成人電影</a><a href="http://www.mario.com.tw" target="_blank">聊天室vip破解视频教程</a><a href="https://18.av18.com.tw">本土正妹</a>[url=htt</p> </li> 
+         <div id="ajaxfeedback_2365"></div> 
+         <li> <a href="#" class="plpic"><img src="/member/templets/images/dfboy.png" height="40" width="40" /></a> <span class="title"> 匿名<img src="/templets/new/images/cmt-neu.gif" /></span> 
+          <div class="comment_act">
+           <span class="fr"> <span id="goodfb2346"><a href="#" onclick="postBadGood('goodfb',2346)">支持</a>[0]</span> <span id="badfb2346"><a href="#" onclick="postBadGood('badfb',2346)">反对</a>[0]</span> <span class="quote"><a href="javascript:ajaxFeedback(2346,2346,'quote');">引用</a></span></span> 03-19 02:47发表
+          </div> <p> <a href="https://www.avclub.tv">南波杏川濱奈美</a><a href="http://www.italk.com.tw" target="_blank">台湾视频聊天下载</a><a href="http://www.going.com.tw" target="_blank">奇摩女孩免费视频美女</a><a href="http://www.vip.seb.tw" target="_blank">聊天室下载</a><a href="http://jp.twseb.tv" target="_blank">台湾视讯网站破解</a><a href="http://mario.com.tw" target="_blank">交友征婚</a><a href="http://dapoba.tw" target="_blank">免費視訊聊天網站</a>[url=http://icue.t</p> </li> 
+         <div id="ajaxfeedback_2346"></div> 
+         <li> <a href="#" class="plpic"><img src="/member/templets/images/dfboy.png" height="40" width="40" /></a> <span class="title"> 匿名<img src="/templets/new/images/cmt-neu.gif" /></span> 
+          <div class="comment_act">
+           <span class="fr"> <span id="goodfb2344"><a href="#" onclick="postBadGood('goodfb',2344)">支持</a>[0]</span> <span id="badfb2344"><a href="#" onclick="postBadGood('badfb',2344)">反对</a>[0]</span> <span class="quote"><a href="javascript:ajaxFeedback(2344,2344,'quote');">引用</a></span></span> 03-19 02:47发表
+          </div> <p> <a href="http://hot.twseb.tv" target="_blank">想找个女人视频聊天</a><a href="http://www.show.seb.tw" target="_blank">爱魔豆账号</a><a href="http://www.love.seb.tw" target="_blank">午夜聊天视频</a><a href="https://18sex.tw">本土正妹</a><a href="http://www.free.twseb.tv" target="_blank">英文聊天网站</a><a href="http://mei.seb.tw" target="_blank">国产视讯合集</a><a href="http://mario.com.tw" target="_blank">fc2视讯聊天秀视频20170429v1</a>[url=http://se</p> </li> 
+         <div id="ajaxfeedback_2344"></div> 
+         <li> <a href="#" class="plpic"><img src="/member/templets/images/dfboy.png" height="40" width="40" /></a> <span class="title"> 匿名<img src="/templets/new/images/cmt-neu.gif" /></span> 
+          <div class="comment_act">
+           <span class="fr"> <span id="goodfb2337"><a href="#" onclick="postBadGood('goodfb',2337)">支持</a>[0]</span> <span id="badfb2337"><a href="#" onclick="postBadGood('badfb',2337)">反对</a>[0]</span> <span class="quote"><a href="javascript:ajaxFeedback(2337,2337,'quote');">引用</a></span></span> 03-19 02:46发表
+          </div> <p> <a href="http://www.clover.com.tw" target="_blank">台湾色B脱衣美女裸聊</a><a href="http://www.going.com.tw" target="_blank">语音视频</a><a href="https://boy.boki.tw">樂威壯</a><a href="http://free.18sex.tw/index.php" target="_blank">成人DVD</a><a href="http://enjoy.com.tw" target="_blank">情人视频网</a><a href="http://g8sohw.com" target="_blank">diy聊天室网站</a><a href="http://cn.kimoav.tv" target="_blank">a片</a>[url=http://clover.co</p> </li> 
+         <div id="ajaxfeedback_2337"></div> 
+         <li> <a href="#" class="plpic"><img src="/member/templets/images/dfboy.png" height="40" width="40" /></a> <span class="title"> 匿名<img src="/templets/new/images/cmt-neu.gif" /></span> 
+          <div class="comment_act">
+           <span class="fr"> <span id="goodfb2287"><a href="#" onclick="postBadGood('goodfb',2287)">支持</a>[0]</span> <span id="badfb2287"><a href="#" onclick="postBadGood('badfb',2287)">反对</a>[0]</span> <span class="quote"><a href="javascript:ajaxFeedback(2287,2287,'quote');">引用</a></span></span> 03-16 18:34发表
+          </div> <p> <a href="http://italk.com.tw" target="_blank">最好的英语聊天室</a><a href="http://jerry.tw" target="_blank">美女視訊聊天</a><a href="http://poba.tw" target="_blank">台灣成人視頻聊天室</a><a href="http://www.girls.seb.tw" target="_blank">台湾色哥导航</a><a href="http://www.amy.seb.tw" target="_blank">台湾佬娱乐中文网hiyoko</a><a href="http://www.tw.twseb.tv" target="_blank">台湾丽人视频网站</a><a href="https://sex18.tw/index.php">超碰線上影片</a>[url=https:/</p> </li> 
+         <div id="ajaxfeedback_2287"></div> 
+         <li> <a href="#" class="plpic"><img src="/member/templets/images/dfboy.png" height="40" width="40" /></a> <span class="title"> 匿名<img src="/templets/new/images/cmt-neu.gif" /></span> 
+          <div class="comment_act">
+           <span class="fr"> <span id="goodfb2245"><a href="#" onclick="postBadGood('goodfb',2245)">支持</a>[0]</span> <span id="badfb2245"><a href="#" onclick="postBadGood('badfb',2245)">反对</a>[0]</span> <span class="quote"><a href="javascript:ajaxFeedback(2245,2245,'quote');">引用</a></span></span> 03-15 14:49发表
+          </div> <p> <a href="http://www.mei.twseb.tv" target="_blank">视频聊天软件排行</a><a href="http://i40.tw" target="_blank">視訊網</a><a href="http://www.jerry.tw" target="_blank">美女主播</a><a href="https://www.rush.tw">綠版山羊RAM PPP</a><a href="http://www.angel.seb.tw" target="_blank">台湾视频直播</a><a href="http://free.seb.tw" target="_blank">台湾佬色图片</a><a href="https://www.sex18.tw">裡美由梨香</a>[url=https://www.happyav.tv]a片論</p> </li> 
+         <div id="ajaxfeedback_2245"></div> 
+         <li> <a href="#" class="plpic"><img src="/member/templets/images/dfboy.png" height="40" width="40" /></a> <span class="title"> 匿名<img src="/templets/new/images/cmt-neu.gif" /></span> 
+          <div class="comment_act">
+           <span class="fr"> <span id="goodfb2240"><a href="#" onclick="postBadGood('goodfb',2240)">支持</a>[0]</span> <span id="badfb2240"><a href="#" onclick="postBadGood('badfb',2240)">反对</a>[0]</span> <span class="quote"><a href="javascript:ajaxFeedback(2240,2240,'quote');">引用</a></span></span> 03-14 02:54发表
+          </div> <p> <a href="http://www.italk.tw" target="_blank">免费台湾视频聊天网</a><a href="http://www.amy.seb.tw" target="_blank">qq聊天机器人电脑版</a><a href="http://g8sohw.net" target="_blank">聊天室网站怎么创建</a><a href="http://sex.seb.tw" target="_blank">台湾丽人视</a><a href="http://www.avclub.tw" target="_blank">成年视频</a><a href="http://www.icue.tw" target="_blank">免费视讯聊天</a><a href="http://video.seb.tw" target="_blank">影音视讯聊天室破解</a>[url=http://hot.kimoav.tv]</p> </li> 
+         <div id="ajaxfeedback_2240"></div> 
+         <li> <a href="#" class="plpic"><img src="/member/templets/images/dfboy.png" height="40" width="40" /></a> <span class="title"> 匿名<img src="/templets/new/images/cmt-neu.gif" /></span> 
+          <div class="comment_act">
+           <span class="fr"> <span id="goodfb2214"><a href="#" onclick="postBadGood('goodfb',2214)">支持</a>[0]</span> <span id="badfb2214"><a href="#" onclick="postBadGood('badfb',2214)">反对</a>[0]</span> <span class="quote"><a href="javascript:ajaxFeedback(2214,2214,'quote');">引用</a></span></span> 03-13 19:50发表
+          </div> <p> <a href="http://sweet.twseb.tv" target="_blank">聊天室 直播</a><a href="http://sextoy.idv.tw" target="_blank">情趣用品專賣店</a><a href="http://www.girls.twseb.tv" target="_blank">聊天室网站排行榜</a><a href="http://seb.tw" target="_blank">免费台湾美女视频交友网</a><a href="https://tokyo.happyav.tw/index.php">正妹自拍</a><a href="http://video.twseb.tv" target="_blank">台湾聊天室ft82</a><a href="http://www.poba.tw" target="_blank">在线聊天</a>[url=htt</p> </li> 
+         <div id="ajaxfeedback_2214"></div> 
+         <li> <a href="#" class="plpic"><img src="/member/templets/images/dfboy.png" height="40" width="40" /></a> <span class="title"> 匿名<img src="/templets/new/images/cmt-neu.gif" /></span> 
+          <div class="comment_act">
+           <span class="fr"> <span id="goodfb2197"><a href="#" onclick="postBadGood('goodfb',2197)">支持</a>[0]</span> <span id="badfb2197"><a href="#" onclick="postBadGood('badfb',2197)">反对</a>[0]</span> <span class="quote"><a href="javascript:ajaxFeedback(2197,2197,'quote');">引用</a></span></span> 03-12 23:01发表
+          </div> <p> <a href="http://happy.gg94song.com" target="_blank">levitra</a><a href="http://sex.18sex.tw/index.php" target="_blank">線上A片站</a><a href="http://www.chat.twseb.tv" target="_blank">聊天软件下载免费</a><a href="http://www.clover.com.tw" target="_blank">视频聊天网站哪个国家的都有</a><a href="http://porn.twseb.tv" target="_blank">台湾聊天软件能截图</a><a href="http://woman.twseb.tv" target="_blank">台湾妹娱乐中文</a>[url=http://www.free.twseb.tv]</p> </li> 
+         <div id="ajaxfeedback_2197"></div> 
+         <li> <a href="#" class="plpic"><img src="/member/templets/images/dfboy.png" height="40" width="40" /></a> <span class="title"> 匿名<img src="/templets/new/images/cmt-neu.gif" /></span> 
+          <div class="comment_act">
+           <span class="fr"> <span id="goodfb2190"><a href="#" onclick="postBadGood('goodfb',2190)">支持</a>[0]</span> <span id="badfb2190"><a href="#" onclick="postBadGood('badfb',2190)">反对</a>[0]</span> <span class="quote"><a href="javascript:ajaxFeedback(2190,2190,'quote');">引用</a></span></span> 03-12 08:33发表
+          </div> <p> <a href="http://6625.twseb14.com" target="_blank">人人操在线观看</a><a href="http://sweet.twseb.tv" target="_blank">最新聊天室vip破解</a><a href="http://www.amy.seb.tw" target="_blank">爱魔豆视频聊天</a><a href="https://free.av18.tw">日本a片</a><a href="http://amy.seb.tw" target="_blank">聊天室免费程序</a><a href="http://g8sohw.net" target="_blank">女孩视频</a><a href="http://seb.tw" target="_blank">一对一台湾聊天</a>[url=http://italk.tw]angelalala</p> </li> 
+         <div id="ajaxfeedback_2190"></div> 
+         <div class="pagelistbox"> 
+          <span>共 5 页/82条记录 </span>
+          <span class="indexPage">首页 </span>
+          <strong>1</strong> 
+          <a href="/plus/feedback.php?aid=1441&amp;action=show&amp;totalresult=82&amp;pageno=2">2</a> 
+          <a href="/plus/feedback.php?aid=1441&amp;action=show&amp;totalresult=82&amp;pageno=3">3</a> 
+          <a href="/plus/feedback.php?aid=1441&amp;action=show&amp;totalresult=82&amp;pageno=4">4</a> 
+          <a href="/plus/feedback.php?aid=1441&amp;action=show&amp;totalresult=82&amp;pageno=5">5</a> 
+          <a class="nextPage" href="/plus/feedback.php?aid=1441&amp;action=show&amp;totalresult=82&amp;pageno=2">下页</a> 
+          <a class="endPage" href="/plus/feedback.php?aid=1441&amp;action=show&amp;totalresult=82&amp;pageno=5">末页</a> 
+         </div> 
+        </ul> 
+       </div> 
+      </div> 
+      <!-- /dede_comment --> 
+     </dd> 
+    </dl> 
+   </div> 
+   <div class="mt1"> 
+    <dl class="tbox"> 
+     <dt> 
+      <strong>发表评论</strong> 
+     </dt> 
+     <dd> 
+      <div class="dede_comment_post"> 
+       <form action="feedback.php" method="post" name="feedback"> 
+        <input type="hidden" name="action" value="send" /> 
+        <input type="hidden" name="comtype" value="comments" /> 
+        <input type="hidden" name="aid" value="1441" /> 
+        <input type="hidden" name="isconfirm" value="yes" /> 
+        <div class="dcmp-title"> 
+         <small>请自觉遵守互联网相关的政策法规，严禁发布色情、暴力、反动的言论。</small> 
+        </div> 
+        <!-- /dcmp-title --> 
+        <div class="dcmp-stand"> 
+         <strong>评价:</strong> 
+         <input type="radio" name="feedbacktype" checked="1" value="feedback" id="dcmp-stand-neu" /> 
+         <label for="dcmp-stand-neu"><img src="/templets/new/images/cmt-neu.gif" />中立</label> 
+         <input type="radio" name="feedbacktype" value="good" id="dcmp-stand-good" /> 
+         <label for="dcmp-stand-good"><img src="/templets/new/images/cmt-good.gif" />好评</label> 
+         <input type="radio" name="feedbacktype" value="bad" id="dcmp-stand-bad" /> 
+         <label for="dcmp-stand-bad"><img src="/templets/new/images/cmt-bad.gif" />差评</label> 
+        </div> 
+        <!-- /dcmp-stand --> 
+        <div class="clr"></div> 
+        <!-- /dcmp-mood --> 
+        <div class="dcmp-content1"> 
+         <script type="text/javascript">
+					//<![CDATA[
+					window.CKEDITOR_BASEPATH='/include/ckeditor/';
+					//]]>
+                    </script> 
+         <script type="text/javascript" src="/include/ckeditor/ckeditor.js?t=B8DJ5M3"></script> 
+         <script type="text/javascript">//<![CDATA[
+CKEDITOR.config.ubb_smiley = {"高兴":"{s:1}","撇嘴":"{s:2}","抓狂":"{s:3}","汗":"{s:4}","惊恐":"{s:5}","奋斗":"{s:6}","疑问":"{s:7}","晕":"{s:8}","偷笑":"{s:9}","可爱":"{s:10}","疑惑":"{s:11}","酷":"{s:12}","暴汗":"{s:13}","呕吐":"{s:14}","大笑":"{s:15}","色":"{s:16}"}
+//]]></script> 
+         <textarea name="msg" rows="8" cols="60"></textarea> 
+         <script type="text/javascript">//<![CDATA[
+CKEDITOR.replace('msg', {"extraPlugins":"dedepage,multipic,addon,bbcode","fontSize_sizes":"30\/30%;50\/50%;100\/100%;120\/120%;150\/150%;200\/200%;300\/300%","disableObjectResizing":"true","smiley_path":"\/images\/smiley\/","smiley_images":["1.gif","2.gif","3.gif","4.gif","5.gif","6.gif","7.gif","8.gif","9.gif","10.gif","11.gif","12.gif","13.gif","14.gif","15.gif","16.gif"],"smiley_descriptions":["高兴","撇嘴","抓狂","汗","惊恐","奋斗","疑问","晕","偷笑","可爱","疑惑","酷","暴汗","呕吐","大笑","色"],"toolbar":[["Source","-","Bold","Italic","Underline","-"],["FontSize","TextColor"],["Link","Unlink","Smiley"]],"height":100,"skin":"kama"});
+//]]></script> 
+        </div> 
+        <!-- /dcmp-content --> 
+        <div class="dcmp-post"> 
+         <!--未登陆--> 
+         <div class="dcmp-userinfo">
+           用户名： 
+          <input name="username" type="text" id="username" size="10" class="nb" /> （
+          <a href="../member/index_do.php?fmdo=user&amp;dopost=regnew" target="_blank"><u>注册新用户</u></a>） 
+          <input name="notuser" type="checkbox" id="notuser" value="1" /> 匿名评论 验证码： 
+          <input name="validate" type="text" id="validate" size="10" style="height:18px;width:60px;margin-right:6px;text-transform:uppercase;" class="nb" /> 
+          <img src="../include/vdimgck.php" width="60" height="24" style="cursor:pointer" onclick="this.src=this.src+'?'" title="点击我更换图片" alt="点击我更换图片" /> 
+          <button type="submit" class="btn-2">发表评论</button> 
+         </div> 
+         <!-- /dcmp-submit --> 
+        </div> 
+        <!-- /dcmp-post --> 
+       </form> 
+      </div> 
+      <!-- /dede_comment_post --> 
+     </dd> 
+    </dl> 
+   </div> 
+  </div> 
+  <!-- //底部模板 --> 
+  <div class="footer w960 center mt1 clear"> 
+   <!-- 
+		为了支持织梦团队的发展,请您保留织梦内容管理系统的链接信息.
+		我们对支持织梦团队发展的朋友表示真心的感谢!织梦因您更精彩!
+	--> 
+   <div class="footer_left"></div> 
+   <div class="footer_body"> 
+    <p class="powered"> Powered by <a href="http://www.dedecms.com" title="织梦内容管理系统(DedeCms)--国内最专业的PHP网站管理系统，轻松建站的首选利器。" target="_blank"><strong>DedeCMS_V57_UTF8</strong></a> &copy; 2004-2011 <a href="http://www.desdev.cn/" target="_blank">DesDev</a> Inc.<br /></p>
+    <div class="copyright">
+     版权所有：北京黎达丽业制冷设备有限公司 地址：河北省廊坊市永清县管家务开发区
+     <br /> 服务热线总机：0316-6528268 网站邮箱：jingquanzhileng@163.com 网站管理QQ：2093265772
+     <br /> 
+     <a href="http://www.jingquanzhileng.com/chanpinzhanshi/lengkuxilie/">冷库设计制作,</a> 
+     <a href="http://www.jingquanzhileng.com/chanpinzhanshi/peitaochanpin/">冷库设备,</a>
+     <a href="http://www.jingquanzhileng.com/chanpinzhanshi/lengkuban/">冷库板,</a>
+     <a href="http://www.jingquanzhileng.com/gongchenganli/">冷库,</a>
+     <a href="http://www.jingquanzhileng.com">河北廊坊库板网,</a>
+     <a href="http://www.jingquanzhileng.com/gongsijianjie/">京泉制冷</a> 
+     <a href="http://www.dedecms.com" target="_blank">Power by DedeCms</a>&nbsp;&nbsp;京ICP备12017024号-1
+    </div>
+    <p></p> 
+    <!-- /powered --> 
+   </div> 
+   <div class="footer_right"></div> 
+  </div> 
+  <div style="text-indent:-9992px;"> 
+   <a href="http://www.srzc.com/news/srxw/shehuijingwei/2013/0305/1504336.html">白癜风治疗用什么方法好，白癜风治疗最好方法</a> 
+   <a href="http://www.lfnews.cn/viewnews-2039848.html">白癜风治疗用什么方法好，白癜风治疗</a> 
+   <a href="http://www.srzc.com/news/srxw/shehuijingwei/2013/0305/1504330.html">白癜风治疗最好医院，白癜风治疗医院</a> 
+   <a href="http://www.lfnews.cn/viewnews-1962416.html">白癜风终于治好了</a> 
+  </div>
+  <div style="text-indent:-9992px;"> 
+   <a href="http://www.srzc.com/news/srxw/shehuijingwei/2013/0305/1504337.html">白癜风终于治好了，白癜风治疗最好医院</a> 
+   <a href="http://www.srzc.com/news/srxw/shehuijingwei/2013/0305/1504324.html">白癜风专科哪里最好，白癜风专科医院</a> 
+   <a href="http://www.meizhou.cn/a/yiwei/2013/0314/2612054.html">白癜风专科哪里最好，郑州治疗白癜风的医院</a> 
+   <a href="http://zx.cnhan.com/health/jyzn/20130301402003.html">北京白癜风治疗最好医院，白癜风专科医院</a> 
+  </div>
+  <div style="text-indent:-9992px;"> 
+   <a href="http://www.tongren.gov.cn/html/2013/0305/xyqz3254419.html">北京白癜风治疗最好医院，北京白癜风医院</a> 
+   <a href="http://yx.nen.com.cn/jkzx/20130307244872.html">白癜风治疗要花多少钱</a> 
+   <a href="http://www.meizhou.cn/a/yiwei/2013/0309/2558101.html">白癜风能治好吗，白癜风能治愈吗</a> 
+   <a href="http://zx.cnhan.com/health/jyzn/20130301402001.html">白癜风能治好吗，白癜风治疗医院</a> 
+  </div>
+  <div style="text-indent:-9992px;"> 
+   <a href="http://yx.nen.com.cn/jkzx/20130301237564.html">北京白癜风专科医院，白癜风专科医院</a> 
+   <a href="http://www.meizhou.cn/a/yiwei/2013/0305/2505584.html">北京白癜风专科医院，北京白癜风医院</a> 
+   <a href="http://www.lfnews.cn/viewnews-2019403.html">北京白癜风医院，北京白癜风医院哪家好</a> 
+   <a href="http://yx.nen.com.cn/jkzx/20130301237561.html">治疗白癜风最好的医院，白癜风治疗最好医院</a> 
+  </div>
+  <div style="text-indent:-9992px;"> 
+   <a href="http://www.lfnews.cn/viewnews-1936801.html">白癜风能治愈吗，白癜风能治好吗</a> 
+   <a href="http://www.meizhou.cn/a/yiwei/2013/0307/2534605.html">白癜风能治愈吗，白癜风最好的治疗方法</a> 
+   <a href="http://health.yunnan.cn/96856/2013/03/20130309199165.html">白癫风，白癫风如何治愈</a> 
+   <a href="http://www.lfnews.cn/viewnews-1936775.html">北京治疗白癜风最好的医院，治疗白癜风最好医院</a> 
+  </div>
+  <div style="text-indent:-9992px;"> 
+   <a href="http://www.srzc.com/news/srxw/shehuijingwei/2013/0308/1518929.html">白斑病的症状，白斑病症状</a> 
+   <a href="http://news.liao1.com/shenghuo/2013/0309/89146.html">白斑病的症状</a> 
+   <a href="http://www.lfnews.cn/viewnews-1936785.html">白斑病治疗医院，白斑病医院 </a>
+   <a href="http://news.liao1.com/shenghuo/2013/0309/89145.html">白斑病怎样治疗最好，白斑病怎样治疗</a> 
+  </div>
+  <div style="text-indent:-9992px;"> 
+   <a href="http://yx.nen.com.cn/jkzx/20130305241141.html">白癜风的早期症状，白癜风早期症状</a> 
+   <a href="http://www.srzc.com/news/srxw/shehuijingwei/2013/0308/1518950.html">白癜风的早期症状</a> 
+   <a href="http://www.tongren.gov.cn/html/2013/0301/xyqz3199333.html">白癜风的危害</a> 
+   <a href="http://news.liao1.com/shenghuo/2013/0309/89147.html">白癜风的危害有哪些</a> 
+  </div>
+  <div style="text-indent:-9992px;"> 
+   <a href="http://www.newsyc.com/xwzx/ycxw/bdxw/2013-03/29/content_1588353.htm">白癜风早期能治愈吗，白癜风能治愈吗</a> 
+   <a href="http://health.yunnan.cn/96856/2013/02/20130227190665.html">北京最好的白癜风医院，北京白癜风医院</a> 
+   <a href="http://news.liao1.com/shenghuo/2013/0305/86765.html">北京最好的白癜风医院，北京最好白癜风医院</a> 
+   <a href="http://www.meizhou.cn/a/yiwei/2013/0227/2444115.html">白癜风治疗用什么方法好，白癜风治疗</a> 
+  </div>
+  <div style="text-indent:-9992px;"> 
+   <a href="http://www.meizhou.cn/a/yiwei/2013/0227/2444111.html">白癜风治疗最好医院，白癜风医院</a> 
+   <a href="http://www.meizhou.cn/a/yiwei/2013/0221/2389355.html">白癜风专科哪里最好，白癜风专科医院</a> 
+   <a href="http://www.hynews.net/2013/0309/1645191.shtml">白癜风十大专业医院，杭州白癜风治疗最好医院</a> 
+   <a href="http://www.meizhou.cn/a/yiwei/2013/0302/2485227.html">白癜风治疗要花多少钱，白癜风</a> 
+  </div>
+  <div style="text-indent:-9992px;"> 
+   <a href="http://www.hynews.net/2013/0309/1645195.shtml">白癜风治疗要花多少钱，温州白癜风治疗最好医院</a> 
+   <a href="http://www.sz.js.cn/jksh/3693621.shtml">白癜风能治好吗，北京治疗白癜风医院</a> 
+   <a href="http://health.yunnan.cn/96856/2013/03/20130319207802.html">白癜风能治好吗，上海治疗白癜风专科医院</a> 
+   <a href="http://news.xmnn.cn/hxxw/sx/201303/t20130318_3128558.htm">白斑病的症状，珠海最好的白癜风医院</a> 
+  </div>
+  <div style="text-indent:-9992px;"> 
+   <a href="http://www.tongren.gov.cn/html/2013/0314/xyqz3442015.html">白斑病的症状，唐山治疗白癜风医院</a> 
+   <a href="http://www.lfnews.cn/viewnews-1736931.html">南京治疗白癜风最好的医院，治疗白癜风最好的医院</a> 
+   <a href="http://www.sz.js.cn/jksh/3650375.shtml">治疗白癜风最好的医院，郑州白癜风专科医院</a> 
+   <a href="http://www.cz001.com.cn/health/2013-03/19/content_1856213.htm">白癜风能治愈吗，上海白癜风专科医院</a> 
+  </div>
+  <div style="text-indent:-9992px;"> 
+   <a href="http://www.gdzjdaily.com.cn/cooperate/jkkc/2013-03/26/content_1026824.htm">白癜风能治愈吗，治疗白癜风最好的医院</a> 
+   <a href="http://www.sz.js.cn/jksh/3702574.shtml">白癫风，丽水白癜风治疗最好医院</a> 
+   <a href="http://www.lfnews.cn/viewnews-2030015.html">南京白癜风，南京白癜风最好的医院</a> 
+   <a href="http://www.sz.js.cn/jksh/3702571.shtml">白斑病的症状，白癜风治疗最好医院</a> 
+  </div>
+  <div style="text-indent:-9992px;"> 
+   <a href="http://www.xnnews.com.cn/jk/jjzs/201303/t20130327_1017249.htm">白斑病的症状，白癜风专科哪里最好</a> 
+   <a href="http://www.gdzjdaily.com.cn/cooperate/jkkc/2013-03/26/content_1026842.htm">白斑病怎样治，白斑病</a> 
+   <a href="http://www.lfnews.cn/viewnews-2061851.html">白癜风的早期症状，白癜风专科哪里最好</a> 
+   <a href="http://www.sz.js.cn/jksh/3671447.shtml">白癜风的危害，治疗白癜风</a> 
+  </div>
+  <div style="text-indent:-9992px;"> 
+   <a href="http://www.hynews.net/2013/0309/1645186.shtml">杭州治疗白癜风医院，白癜风早期能治愈吗</a> 
+   <a href="http://www.zjrb.cn/news/2013-3/4/b18624_1.htm">南京最好的白癜风医院，南京白癜风医院</a> 
+   <a href="http://www.zjrb.cn/woman/2013-3/20/f181623_1.html">南昌白癜风医院，治疗白癜风最好医院</a> 
+   <a href="http://www.zjrb.cn/woman/2013-3/15/f176805_1.html">治疗白癜风医院哪家好，白斑病能治好吗</a> 
+  </div>
+  <!-- /footer -->  
+ </body>
+</html>

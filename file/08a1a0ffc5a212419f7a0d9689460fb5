@@ -1,0 +1,555 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head><title>
+	国家科技成果转化项目库
+</title><meta http-equiv="X-UA-Compatible" content="IE=Edge" /><link rel="stylesheet" type="text/css" href="css/main.css" />
+    <script src="js/jquery-1.8.2.min.js" type="text/javascript"></script>
+    <script type="text/javascript" src="js/tools.tabs-1.0.4.min.js"></script>
+    <script type="text/javascript"src="js/jquery.kxbdmarquee.js" ></script>
+    <script type="text/javascript" src="Dialog/zDialog.js"></script>
+    <script type="text/javascript" src="Dialog/zDrag.js"></script>
+    <link href="css/paginations.css" rel="stylesheet" />
+
+    <style type="text/css">
+		.imgbox
+		{
+			width: 300px;
+			height: 200px;
+			margin: 10px 0 10px 4px;
+			border: 0px #CCCCCC solid;  
+			text-align: center;
+		}
+		.imgbox .list
+        {
+            display: none;
+        }
+        #marquee{height:135px; overflow:hidden;}
+        #marquee ul li{float:left; width:280px;line-height:20px;}
+	</style>
+    <script type="text/javascript">
+        var name = '';
+        $(function () {
+            $('.theme-poptit .close').click(function () {
+                $('.theme-popover-mask').fadeOut(100);
+                $('.theme-popover').slideUp(200);
+            })
+            $('#btn_Cancel').click(function () {
+                $('.theme-popover-mask').fadeOut(100);
+                $('.theme-popover').slideUp(200);
+            })
+            
+           
+
+           // marqueen('roll').start(100);
+        });
+//        $(function () {
+//            $("#txt").val("您将在70090项成果信息中查询").addClass("fontColor").focus(function () { $("#txt").val("").removeClass("fontColor"); }).blur(function () { if ($("#txt").val() == "") $("#txt").val("您将在70090项成果信息中查询").addClass("fontColor"); });
+
+//            $(":input").bind("keyup", function (event) {
+//                if (event.keyCode == "13") {
+//                    Query();
+//                }
+//            });
+//        });
+
+//        function Query() {
+//            var txt = $("#txt").val();
+//            if (txt != "" && txt != "您将在70090项成果信息中查询") {
+//                location.href = "SearchLists.aspx?cgmc=" + escape(txt);
+//            } else {
+//                $("#txt").val("您将在70090项成果信息中查询").addClass("fontColor");
+//                //setTimeout(ClearColor, 5000);
+//            }
+//        }
+//        function ClearColor() {
+//            $("#txt").val("").removeClass("fontColor");
+        //        }
+
+        function PublicLogin() {
+            var msg = "";
+            type = '';
+           
+            if (type == "") {
+                $.ajax({
+                    type: "POST",
+                    dataType: "text",
+                    async: false,
+                    data: { "action": "PublicLogin" },
+                    url: "/ashx/Register.ashx",
+                    success: function (data) {
+                        if (data == 'yes')
+                        {
+                            location.href = "cgAdvancedsearch.aspx";
+                        }
+                    }
+                });
+            }
+            if (type == "s")
+            {
+                location.href = "cgAdvancedsearch.aspx";
+            }
+
+        }
+        function JudgeUrl(t) {
+            var type = "";
+            if (name == "") {
+                location.href = "Login.aspx?type=" + t;
+            }
+            else {
+                
+                type = '';
+                var msg = "";
+                if (type == t) {
+                    var url = '';
+                    if (url != "") {
+                        location.href = url;
+                    }
+
+                }
+                else {
+
+                    msg = "您现在是" + GetName(type) + "账号,是否要重新登录?";
+                    var gnl = confirm(msg);
+                    if (gnl == true) { Quit(); }
+
+                }
+
+            }
+        }
+        
+        function Quit() {
+            $.ajax({
+                type: "Post",
+                url: url + "ashx/User.ashx",
+                data: { status: "quit" },
+                success: function (back) {
+                    if (back == "ok")
+                        location.href = 'Login.aspx';
+                }
+            });
+        }
+        function FeedBackContent(con) {
+            $.ajax({
+                type: "post",
+                url: "Index.aspx/FeedBack",
+                data: "{'content':'" + con + "'}",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data) {
+                    var result = data.d;
+                    alert(result);
+                    
+                }
+
+            });
+        }
+        function FeedBack() {
+            $('#ipt').val("");
+            if (name != "") {
+                var diag = new Dialog();
+                diag.Width = 600;
+                diag.Height = 280;
+                diag.Title = "意见反馈";
+                diag.InvokeElementId = "div_feedback"
+                diag.OKEvent = function () {
+                    if ($.trim($('#ipt').val()) != "")
+                    {
+                        FeedBackContent($.trim($('#ipt').val()));
+                        diag.close();
+                    }
+                    else {
+                        Dialog.alert("请输入意见反馈内容！");
+                    }
+                };    //点击确定后调用的方法
+                diag.show();
+            }
+            else
+                alert("请先登录！");
+           
+        }
+        function GetName(type) {
+            var Name = "";
+            switch (type) {
+                case "s":
+                    Name = "社会公众";
+                    break;
+                case "z":
+                    Name = "中介机构";
+                    break;
+                case "t":
+                    Name = "投融资机构";
+                    break;
+                case "c":
+                    Name = "成果持有机构";
+                    break;
+                case "k":
+                    Name = "科技管理机构";
+                    break;
+
+            }
+            return Name;
+        }
+        
+        function GOCGMC(txt) {
+            //location.href = "detail.aspx?pid=" + escape(txt);
+            window.open("detail.aspx?pid=" + escape(txt));
+        }
+        function GOHY(code,name) {
+            //location.href = "SearchLists.aspx?hy=" + escape(txt);
+            window.open("Navigation.aspx?hy=" + escape(code+","+name));
+        }
+        function GODQ(txt) {
+            location.href = "SearchLists.aspx?cgdywcdw=" + escape(txt);
+            //window.open("Navigation.aspx?cgdywacdw1=1&cgdywcdw=" + escape(txt));
+        }
+        function GOCGLY(txt) {
+            //location.href = "SearchLists.aspx?cgly=" + escape(txt);
+            window.open("Navigation.aspx?cgly=" + escape(txt));
+        }
+        function GOCGDQ(txt) {
+            //location.href = "SearchLists.aspx?cgly=" + escape(txt);
+            window.open("Navigation.aspx?cgDQ=" + escape(txt));
+        }
+        function Open(url) {
+            window.open(url);
+        }
+
+        (function ($) {
+            $.fn.extend({
+                'imgbox': function (options) {
+                    var defaultSetting = {
+                        'changeTime': 5
+                    };
+                    options = $.extend(defaultSetting, options || {})
+                    return this.each(function () {
+                        var $obj = $(this);
+                        $obj.css('position', 'relative');
+                        var $list = $('div.list', $obj).find('a');
+                        var t = 3;
+                        var len = $list.length;
+                        var i = len;
+                        var w = parseInt($obj.css('width'));
+                        var h = parseInt($obj.css('height')) - 30;
+                        show_imgbox();
+                        var tid = window.setInterval(function () {
+                            show_imgbox();
+                        }, t * 1000);
+                        function show_imgbox() {
+                            i += 1;
+                            if (i >= len) i = 0;
+                            var $img = $($list[i]);
+                            var title = $img.attr('title');
+                            var url = $img.attr('href');
+                            var src = $img.find('img').attr('src');
+                            var $panel = $('div.imgbox_panel', $obj);
+                            if ($panel.length == 0) {
+                                $panel = $('<div><a href="#"><img src="" border="0" /></a><p style="height:23px;line-height:23px; padding-left:5px;padding-right:5px;text-align:center;margin:0 auto;background:#EEE;position:absolute;"><a href="#" style="font-weight:400;color:#034da2">loading...</a></p></div>').attr('class', 'imgbox_panel');
+                                $panel.find('p').css({
+                                    'width': w - 20 + 'px',
+                                    'left': '3px',
+                                    'top': h + 5 + 'px'
+                                });
+                                $panel.find('img').css({
+                                    'width': w + 'px',
+                                    'height': h + 'px',
+                                    'border': 0
+                                }).attr('width', w + 'px').attr('height', h + 'px');
+                                $obj.append($panel);
+                                $panel.mouseover(function (e) {
+                                    window.clearInterval(tid);
+                                }).mouseout(function (e) {
+                                    tid = window.setInterval(function () {
+                                        show_imgbox();
+                                    }, t * 1000);
+                                });
+                            }
+                            $panel.find('img').attr('src', src);
+                            $panel.find('a').attr('href', url).attr('title', title);
+                            var showTitle = title.length > 18 ? (title.substring(0, 17) + '...') : title;
+                            $panel.find('a:last').html(showTitle);
+                            var $u = $('ul.imgbox_num', $obj);
+                            if ($u.length == 0) {
+                                $u = $('<ul style="display:block;list-style-type:none;overflow:hidden;zoom:1;position:absolute;left:0;top:0;visibility:hidden;text-align:left;padding:0;margin:0;" />').attr('class', 'imgbox_num').css('width', len * 29 + 'px');
+                                for (var i2 = 1; i2 <= len; i2++) {
+                                    $('<li style="display:block;width:15px;height:15px;line-height:15px;text-align:center;vertical-align:middle;float:left;margin:0 3px;border:1px #777 solid;font-weight:700;color:#000;cursor:pointer;" />').html(i2).appendTo($u);
+                                }
+                                $u.css({
+                                    'left': (w - $u.width() + 10) + 'px',
+                                    'top': (h - $u.height() - $panel.find('p').height() - 0) + 'px',
+                                    'visibility': 'visible'
+                                });
+                                $obj.append($u);
+                                $u.find('li').mouseover(function (e) {
+                                    window.clearInterval(tid);
+                                    i = parseInt($(this).html()) - 2;
+                                    if (i < 0) i = len;
+                                    show_imgbox();
+                                }).mouseout(function (e) {
+                                    tid = window.setInterval(function () {
+                                        show_imgbox();
+                                    }, t * 1000);
+                                });
+                            }
+                            var $uli = $u.find('li');
+                            $uli.css({
+                                'border': '1px #777 solid', //background-color:#f8990d;
+                                'background': '#f8990d',
+                                'color': ''
+                            });
+                            $($uli[i]).css({
+                                'border': '1px #F60 solid',
+                                'background': '#3d3934',
+                                'color': '#f60'
+                            });
+                        }
+                    });
+                }
+            });
+        })(jQuery);
+        jQuery(function ($) {
+            $('div.imgbox').imgbox();
+        });
+
+    </script>
+</head>
+<body class="CGZH2014_body_all">
+    <form name="form1" method="post" action="index.aspx" id="form1">
+<div>
+<input type="hidden" name="__VIEWSTATE" id="__VIEWSTATE" value="/wEPDwUKLTg3MjI0NDYxNA9kFgICAw9kFgJmD2QWAmYPFgQeCWlubmVyaHRtbGUeB1Zpc2libGVoZGSH1tiOxD102NvaSl9g6Iuhnk2XOw==" />
+</div>
+
+<div>
+
+	<input type="hidden" name="__EVENTVALIDATION" id="__EVENTVALIDATION" value="/wEWAgKV8efMDAKNhpDCCQiikbKfOLC5/vPg3J/gKOaYtyTh" />
+</div>
+   
+    <div class="CGZH2014_div_all">
+
+	<!-- 头部 -->
+	
+
+    
+<script type="text/javascript">
+    var url = window.location.protocol + '//' + window.location.host + '/';
+   
+    function LogOut() {
+        $.ajax({
+            type: "Post",
+            url: url + "ashx/User.ashx",
+            data: { status: "quit" },
+            success: function(back) {
+                if (back == "ok")
+                    location.href = url + 'index.aspx';
+            }
+        });
+    }
+    function GoUrl(destination) {
+        window.open(url + destination);
+        //location.href = url + destination;
+    }
+</script>
+
+<div class="CGZH2014_hd">
+		<div class="CGZH2014_banner">
+             
+			<div id="ucHeader_NoValidation" class="link" style="font-size:0">
+				<a href="javascript:GoUrl('RegisterType.aspx');" style="margin: 0 3px 5px 0"><img src="images/header_button1.gif"></a>
+				<a href="../Login.aspx"><img src="images/header_button2.gif"></a>
+				
+			</div>
+           
+		</div>
+        
+		<div class="CGZH2014_nav">
+            <ul>
+				<li><a id = "dh" class="a1" href="/Navigation.aspx">成果导航</a></li>
+				<li><a id ="js"class="a1" href="/cgAdvancedsearch.aspx">成果检索</a></li>
+				
+				<li><a id ="dt" class="a1" href="/news_default.aspx?cate=001003">新闻动态</a></li>
+				<li><a id="zc"class="a2" href="/policy.aspx">政策解读</a></li>
+				 
+			</ul>
+			
+			
+			
+			
+			
+            
+            
+             
+             <script type="text/javascript">
+                 var name = '';
+                 if (name != "") {
+                     $(".a1").width(199);
+                     $(".a2").width(198);
+                 }
+             </script>	
+			<div class="CGZH2014_clear"></div>
+		</div>
+	</div>
+	<!-- 主体 -->
+	<div class="CGZH2014_bd">
+		<!-- 左侧 -->
+		<div class="CGZH2014_Aleft">
+			<div class="CGZH2014_leftnav" style="height: 692px; overflow: hidden">
+				<div class="ln_top">分类导航</div>
+				 
+				<div class="a1_open">
+					<a href="/Navigation.aspx" style="font-size: 12px; font-weight: normal; background-color: #E2E0E1; float: right; color: #888888">更多</a>
+					按行业
+				</div>
+                    <ul class="ul1">
+						<li><a href="javascript:GOHY('A','农、林、牧、渔业');">农、林、牧、渔业</a></li><li><a href="javascript:GOHY('Q','卫生、社会保障和社会福利业');">卫生、社会保障和社会福利业</a></li><li><a href="javascript:GOHY('C','制造业');">制造业</a></li><li><a href="javascript:GOHY('M','科学研究、技术服务和地质勘查业');">科学研究、技术服务和地质勘查业</a></li><li><a href="javascript:GOHY('G','信息传输、计算机服务和软件业');">信息传输、计算机服务和软件业</a></li><li><a href="javascript:GOHY('N','水利、环境和公共设施管理业');">水利、环境和公共设施管理业</a></li><li><a href="javascript:GOHY('F','交通运输、仓储和邮政业');">交通运输、仓储和邮政业</a></li><li><a href="javascript:GOHY('E','建筑业');">建筑业</a></li><li><a href="javascript:GOHY('B','采矿业');">采矿业</a></li><li><a href="javascript:GOHY('D','电力、燃气及水的生产和供应业');">电力、燃气及水的生产和供应业</a></li>
+                    </ul>
+				<div class="a1_open" style="padding-right:40px">
+
+					按地区
+				</div>
+                <div>
+                   <table class="KJ2014_TB1">
+                        <tr><td><a  style="font-size:14px" href="javascript:GOCGDQ('北京');">北京</a></td><td><a  style="font-size:14px" href="javascript:GOCGDQ('山东');">山东</a></td><td><a  style="font-size:14px" href="javascript:GOCGDQ('上海');">上海</a></td></tr><tr><td><a  style="font-size:14px" href="javascript:GOCGDQ('湖北');">湖北</a></td><td><a  style="font-size:14px" href="javascript:GOCGDQ('江苏');">江苏</a></td><td><a  style="font-size:14px" href="javascript:GOCGDQ('浙江');">浙江</a></td></tr><tr><td><a  style="font-size:14px" href="javascript:GOCGDQ('陕西');">陕西</a></td><td><a  style="font-size:14px" href="javascript:GOCGDQ('辽宁');">辽宁</a></td><td><a  style="font-size:14px" href="javascript:GOCGDQ('河南');">河南</a></td></tr><tr><td><a  style="font-size:14px" href="javascript:GOCGDQ('天津');">天津</a></td><td><a  style="font-size:14px" href="javascript:GOCGDQ('广东');">广东</a></td><td><a  style="font-size:14px" href="javascript:GOCGDQ('四川');">四川</a></td></tr><tr><td><a  style="font-size:14px" href="javascript:GOCGDQ('安徽');">安徽</a></td><td><a  style="font-size:14px" href="javascript:GOCGDQ('吉林');">吉林</a></td><td><a  style="font-size:14px" href="javascript:GOCGDQ('湖南');">湖南</a></td></tr><tr><td><a  style="font-size:14px" href="javascript:GOCGDQ('重庆');">重庆</a></td><td><a  style="font-size:14px" href="javascript:GOCGDQ('河北');">河北</a></td><td><a  style="font-size:14px" href="javascript:GOCGDQ('甘肃');">甘肃</a></td></tr><tr><td><a  style="font-size:14px" href="javascript:GOCGDQ('黑龙江');">黑龙江</a></td><td><a  style="font-size:14px" href="javascript:GOCGDQ('福建');">福建</a></td><td><a  style="font-size:14px" href="javascript:GOCGDQ('江西');">江西</a></td></tr><tr><td><a  style="font-size:14px" href="javascript:GOCGDQ('海南');">海南</a></td><td><a  style="font-size:14px" href="javascript:GOCGDQ('宁夏');">宁夏</a></td><td><a  style="font-size:14px" href="javascript:GOCGDQ('广西');">广西</a></td></tr><tr><td><a  style="font-size:14px" href="javascript:GOCGDQ('山西');">山西</a></td><td><a  style="font-size:14px" href="javascript:GOCGDQ('云南');">云南</a></td><td><a  style="font-size:14px" href="javascript:GOCGDQ('新疆');">新疆</a></td></tr><tr><td><a  style="font-size:14px" href="javascript:GOCGDQ('青海');">青海</a></td><td><a  style="font-size:14px" href="javascript:GOCGDQ('内蒙古');">内蒙古</a></td><td><a  style="font-size:14px" href="javascript:GOCGDQ('贵州');">贵州</a></td></tr><tr><td><a  style="font-size:14px" href="javascript:GOCGDQ('西藏');">西藏</a></td></tr>
+                   </table>
+                 </div>
+				
+			</div>
+		</div>
+		
+		<!-- 右侧 -->
+		<div class="CGZH2014_Aright">
+			<div class="CGZH2014_adv1"><a href="http://www.nfttc.gov.cn/"><img alt="" src="images/adv1.jpg" style="width:750px"/></a></div>
+			<div class="CGZH2014_Amiddle1">
+				<div class="CGZH2014_word">
+					国家科技成果转化项目库（简称转化项目库）是由科技部和财政部建立，为国家科技成果转化提供信息支持服务的公益性数据库。转化项目库收录的成果信息是指财政性资金支持产生的、可转化的应用型科技成果信息，包括新技术、新产品、新工艺、新材料、新装置及其系统等。转化项目库将为用户提供不同层次的信息服务，欢迎社会各界提出宝贵意见。
+                    <a class="back" href="#" onclick="FeedBack()">意见反馈</a>
+				</div>
+				<div class="CGZH2014_module1">
+					<div class="m1_top" style='cursor:pointer' onclick="PublicLogin();"><span>社会公众</span></div>
+					<div class="m1_middle">
+						<div class="txt">
+							社会公众，可浏览科技成果的基本信息，了解国家财政资金投入所形成科技成果的基本情况。
+						</div>
+					</div>
+				</div>
+				<div class="CGZH2014_module1">
+					<div class="m1_top"  onclick="JudgeUrl('z')" style='cursor:pointer'><span>中介机构</span></div>
+					<div class="m1_middle">
+						<div class="txt">
+							中介机构，依申请，经核准即可检索查询成果详细信息、投融资意向的详细信息，并可获取分类统计信息。
+						</div>
+					</div>
+				</div>
+				<div class="CGZH2014_module1">
+					<div class="m1_top"  onclick="JudgeUrl('c')" style='cursor:pointer'><span>成果持有机构</span></div>
+					<div class="m1_middle">
+						<div class="txt">
+							成果持有机构，依申请，经核准即可在线填报和管理本单位的全部成果信息，浏览其他单位成果的基本信息，浏览投融资意向的全部信息。
+						</div>
+					</div>
+				</div>
+				<div class="CGZH2014_module1">
+					<div class="m1_top"  onclick="JudgeUrl('t')"  style='cursor:pointer'><span>投融资机构</span></div>
+					<div class="m1_middle">
+						<div class="txt">
+							投融资机构，依申请，经核准即可管理、发布投融资意向信息，浏览成果的详细信息，并可获取分类统计信息。
+						</div>
+					</div>
+				</div>
+				<div class="CGZH2014_module1">
+					<div class="m1_top"  onclick="JudgeUrl('k')" style='cursor:pointer'><span>科技管理机构</span></div>
+					<div class="m1_middle">
+						<div class="txt">
+							科技管理机构，依申请，经核准即可浏览下属机构填报成果的全部信息，并负责信息的审核和监管；浏览投融资意向的基本信息；获取全方位的统计分析数据。
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="CGZH2014_Amiddle2">
+				<div class="CGZH2014_module2">
+					<div class="m2_top">
+						<span class="tt">工作动态</span>
+						<a class="more" href="/news_default.aspx?cate=001003">更 多</a>
+						<div class="CGZH2014_clear"></div>
+					</div>
+
+                     <div class="imgbox">
+		                <div class="list">
+			                <a href="/NewsDetail.aspx?ID=408" title="《国家科技成果转化项目库》工作组召开高等学校科技成果转化工作座谈会"><img title="www" src="images/gzdt01.jpg" /></a>
+			                <a href="/NewsDetail.aspx?ID=408" title="《国家科技成果转化项目库》工作组召开高等学校科技成果转化工作座谈会"><img src="images/gzdt02.jpg" /></a>
+			                <a href="/NewsDetail.aspx?ID=409" title="科技部 财政部召开国家科技成果转化引导基金启动推进会"><img src="images/gzdt03.jpg" /></a>
+							
+		                </div>
+	                </div>
+                    <div class="m2_middle">
+						<ul class="ul1">
+                            <li><a href="/NewsDetail.aspx?ID=1762">我国科技成果转化技术交易首破万亿</a></li><li><a href="/NewsDetail.aspx?ID=1761">探索技术成果转化与创新创业相结合的新模式</a></li><li><a href="/NewsDetail.aspx?ID=1760">上海搭平台促科技成果转化</a></li>
+						</ul>
+					</div>
+                  
+				</div>
+				<div class="CGZH2014_module2">
+					<div class="m2_top">
+						<span class="tt">成果信息核实</span>
+						<div class="CGZH2014_clear"></div>
+					</div>
+					<div class="m2_middle">
+						<a href="/NewsDetail.aspx?ID=400" target="_blank" class="adv1">
+							关于确认国家科技成果转化项目库成果信息的通知
+						</a>
+						<div class="title1">最近更新</div>
+                        <div id="marquee">
+						<ul class="ul2" id="roll">
+							<li><a href="javascript:GODQ('北京奥伯特石油科技有限公司')">北京奥伯特石油科技有限公司</a></li><li><a href="javascript:GODQ('北京高能科迪科技有限公司')">北京高能科迪科技有限公司</a></li><li><a href="javascript:GODQ('北京均友欣业科技有限公司')">北京均友欣业科技有限公司</a></li><li><a href="javascript:GODQ('北京起步科技有限公司')">北京起步科技有限公司</a></li><li><a href="javascript:GODQ('北京师范大学')">北京师范大学</a></li><li><a href="javascript:GODQ('北京雅康博生物科技有限公司')">北京雅康博生物科技有限公司</a></li><li><a href="javascript:GODQ('北京亿信恒通科技有限公司')">北京亿信恒通科技有限公司</a></li><li><a href="javascript:GODQ('北京易飞华通科技开发有限公司')">北京易飞华通科技开发有限公司</a></li><li><a href="javascript:GODQ('长城汽车股份有限公司')">长城汽车股份有限公司</a></li><li><a href="javascript:GODQ('成都中医药大学')">成都中医药大学</a></li><li><a href="javascript:GODQ('大丰市大奇金属磨料有限公司')">大丰市大奇金属磨料有限公司</a></li><li><a href="javascript:GODQ('大连大学')">大连大学</a></li><li><a href="javascript:GODQ('大连科迪视频技术有限公司')">大连科迪视频技术有限公司</a></li><li><a href="javascript:GODQ('大连陆海科技股份有限公司')">大连陆海科技股份有限公司</a></li><li><a href="javascript:GODQ('大连圣力来监测技术有限公司')">大连圣力来监测技术有限公司</a></li><li><a href="javascript:GODQ('大同煤矿集团有限责任公司')">大同煤矿集团有限责任公司</a></li><li><a href="javascript:GODQ('东莞理工学院')">东莞理工学院</a></li><li><a href="javascript:GODQ('甘肃省商业科技研究所（有限公司）')">甘肃省商业科技研究所（有限公司）</a></li><li><a href="javascript:GODQ('广东迪美生物技术有限公司')">广东迪美生物技术有限公司</a></li><li><a href="javascript:GODQ('广东昭信半导体装备制造有限公司')">广东昭信半导体装备制造有限公司</a></li><li><a href="javascript:GODQ('广西柳工机械股份有限公司')">广西柳工机械股份有限公司</a></li><li><a href="javascript:GODQ('贵州海天环保科技新材料股份有限公司')">贵州海天环保科技新材料股份有限公司</a></li><li><a href="javascript:GODQ('国家海洋局第三海洋研究所')">国家海洋局第三海洋研究所</a></li><li><a href="javascript:GODQ('国家康复辅具研究中心')">国家康复辅具研究中心</a></li><li><a href="javascript:GODQ('哈尔滨电站设备成套设计研究所有限公司')">哈尔滨电站设备成套设计研究所有限公司</a></li><li><a href="javascript:GODQ('哈尔滨天硕建材工业有限公司')">哈尔滨天硕建材工业有限公司</a></li><li><a href="javascript:GODQ('湖北圣峰药业有限公司')">湖北圣峰药业有限公司</a></li><li><a href="javascript:GODQ('湖南福湘涂料化工科技有限公司')">湖南福湘涂料化工科技有限公司</a></li><li><a href="javascript:GODQ('华北科技学院')">华北科技学院</a></li><li><a href="javascript:GODQ('江苏耐斯数码科技股份有限公司')">江苏耐斯数码科技股份有限公司</a></li><li><a href="javascript:GODQ('江西金达莱环保股份有限公司')">江西金达莱环保股份有限公司</a></li><li><a href="javascript:GODQ('江西金世纪新材料股份有限公司')">江西金世纪新材料股份有限公司</a></li><li><a href="javascript:GODQ('江西省人民医院')">江西省人民医院</a></li><li><a href="javascript:GODQ('金坛市磁性材料有限公司')">金坛市磁性材料有限公司</a></li><li><a href="javascript:GODQ('昆明理工大学')">昆明理工大学</a></li><li><a href="javascript:GODQ('昆明市生产力促进中心')">昆明市生产力促进中心</a></li><li><a href="javascript:GODQ('廊坊开发区莱格光电仪器有限公司')">廊坊开发区莱格光电仪器有限公司</a></li><li><a href="javascript:GODQ('林泉航天电机有限公司（原国营林泉电机厂）')">林泉航天电机有限公司（原国营林泉电机厂）</a></li><li><a href="javascript:GODQ('领先生物农业股份有限公司(原秦皇岛领先科技发展有限公司)')">领先生物农业股份有限公司(原秦皇岛领先科技发展有限公司)</a></li><li><a href="javascript:GODQ('洛阳生产力促进中心')">洛阳生产力促进中心</a></li><li><a href="javascript:GODQ('洛阳智超机电科技有限公司')">洛阳智超机电科技有限公司</a></li><li><a href="javascript:GODQ('南京时恒电子科技有限公司')">南京时恒电子科技有限公司</a></li><li><a href="javascript:GODQ('青岛合力纤维有限公司')">青岛合力纤维有限公司</a></li><li><a href="javascript:GODQ('青岛崂山应用技术研究所')">青岛崂山应用技术研究所</a></li><li><a href="javascript:GODQ('青海省体育科学研究所')">青海省体育科学研究所</a></li><li><a href="javascript:GODQ('陕西省安康市生产力促进中心')">陕西省安康市生产力促进中心</a></li><li><a href="javascript:GODQ('上海大学')">上海大学</a></li><li><a href="javascript:GODQ('上海科炎光电技术有限公司')">上海科炎光电技术有限公司</a></li><li><a href="javascript:GODQ('上海杉兆网络科技有限公司')">上海杉兆网络科技有限公司</a></li><li><a href="javascript:GODQ('上海市环境科学研究院')">上海市环境科学研究院</a></li><li><a href="javascript:GODQ('上海雪鲤鱼计算机科技有限公司')">上海雪鲤鱼计算机科技有限公司</a></li><li><a href="javascript:GODQ('上海中药制药技术有限公司（国家中药制药工程技术研究中心）')">上海中药制药技术有限公司（国家中药制药工程技术研究中心）</a></li><li><a href="javascript:GODQ('深圳市安络科技有限公司')">深圳市安络科技有限公司</a></li><li><a href="javascript:GODQ('深圳市清泉水业股份有限公司')">深圳市清泉水业股份有限公司</a></li><li><a href="javascript:GODQ('深圳中视典数字科技有限公司')">深圳中视典数字科技有限公司</a></li><li><a href="javascript:GODQ('沈阳华人风电科技有限公司')">沈阳华人风电科技有限公司</a></li><li><a href="javascript:GODQ('首钢总公司')">首钢总公司</a></li><li><a href="javascript:GODQ('曙光信息产业股份有限公司')">曙光信息产业股份有限公司</a></li><li><a href="javascript:GODQ('四川明仿化工研究所')">四川明仿化工研究所</a></li><li><a href="javascript:GODQ('四川瑞驰投资管理有限公司')">四川瑞驰投资管理有限公司</a></li><li><a href="javascript:GODQ('四川省川东铸石有限责任公司')">四川省川东铸石有限责任公司</a></li><li><a href="javascript:GODQ('苏州热工研究院有限公司')">苏州热工研究院有限公司</a></li><li><a href="javascript:GODQ('泰兴市圣达铜业有限公司')">泰兴市圣达铜业有限公司</a></li><li><a href="javascript:GODQ('威仁（西安）仓储设备有限公司')">威仁（西安）仓储设备有限公司</a></li><li><a href="javascript:GODQ('卫生部北京医院')">卫生部北京医院</a></li><li><a href="javascript:GODQ('西安电力电子技术研究所')">西安电力电子技术研究所</a></li><li><a href="javascript:GODQ('西安健信电力电子陶瓷有限责任公司')">西安健信电力电子陶瓷有限责任公司</a></li><li><a href="javascript:GODQ('西安交大长天软件股份有限公司')">西安交大长天软件股份有限公司</a></li><li><a href="javascript:GODQ('西安生产力促进中心')">西安生产力促进中心</a></li><li><a href="javascript:GODQ('西安天城电力仪器设备有限责任公司')">西安天城电力仪器设备有限责任公司</a></li><li><a href="javascript:GODQ('西安天和防务技术股份有限公司')">西安天和防务技术股份有限公司</a></li><li><a href="javascript:GODQ('西安英威腾电机有限公司')">西安英威腾电机有限公司</a></li><li><a href="javascript:GODQ('新疆德蓝股份有限公司')">新疆德蓝股份有限公司</a></li><li><a href="javascript:GODQ('新疆希望电子有限公司')">新疆希望电子有限公司</a></li><li><a href="javascript:GODQ('郑州奥特科技有限公司')">郑州奥特科技有限公司</a></li><li><a href="javascript:GODQ('中船重工（重庆）海装风电设备有限公司')">中船重工（重庆）海装风电设备有限公司</a></li><li><a href="javascript:GODQ('中广电广播电影电视设计研究院')">中广电广播电影电视设计研究院</a></li><li><a href="javascript:GODQ('中国地质调查局西安地质调查中心（西安地质矿产研究所）')">中国地质调查局西安地质调查中心（西安地质矿产研究所）</a></li><li><a href="javascript:GODQ('中国航天科技集团公司第五研究院第五〇三研究所')">中国航天科技集团公司第五研究院第五〇三研究所</a></li><li><a href="javascript:GODQ('中国极地研究中心')">中国极地研究中心</a></li><li><a href="javascript:GODQ('中国科学院山西煤炭化学研究所')">中国科学院山西煤炭化学研究所</a></li><li><a href="javascript:GODQ('中国汽车工程研究院股份有限公司')">中国汽车工程研究院股份有限公司</a></li><li><a href="javascript:GODQ('中国社会科学院数量经济与技术经济研究所')">中国社会科学院数量经济与技术经济研究所</a></li><li><a href="javascript:GODQ('中国食品药品检定研究院（原中国药品生物制品检定所）')">中国食品药品检定研究院（原中国药品生物制品检定所）</a></li><li><a href="javascript:GODQ('中海油常州涂料化工研究院有限公司')">中海油常州涂料化工研究院有限公司</a></li><li><a href="javascript:GODQ('中机生产力促进中心')">中机生产力促进中心</a></li><li><a href="javascript:GODQ('中铁大桥局股份有限公司')">中铁大桥局股份有限公司</a></li><li><a href="javascript:GODQ('中铁西北科学研究院有限公司')">中铁西北科学研究院有限公司</a></li><li><a href="javascript:GODQ('中央财经大学')">中央财经大学</a></li><li><a href="javascript:GODQ('重庆川仪分析仪器有限公司')">重庆川仪分析仪器有限公司</a></li>
+						</ul>
+                        </div>
+                         <script type="text/javascript">
+                             $('#marquee').kxbdMarquee({ direction: 'up', isEqual: false, scrollDelay: 40 });           
+                         </script>
+					</div>
+				</div>
+			</div>
+		</div>
+        <div id="div_feedback" style="display:none;" >
+               <table class="TB1" cellspacing="15">
+                <tr>
+
+                    <td colspan="2">
+                        <textarea name="ipt" id="ipt" cols="70" rows="12" style="margin-top:40px"></textarea>
+                     </td>   
+                </tr>
+                </table>       
+        </div>
+	
+  
+	
+	
+	<div class="CGZH2014_clear"></div>
+	</div>
+	
+	<!-- 底部 -->
+	
+        
+    
+<div class="CGZH2014_ft">
+		<div class="link">
+			<a href="/About.aspx">关于我们</a>|<a href="/friends.aspx">友情链接</a><!--|<a href="#">网站地图</a>-->
+		</div>
+		地址：北京市海淀区复兴路15号&nbsp;&nbsp;&nbsp;&nbsp;邮编：100038&nbsp;&nbsp;&nbsp;&nbsp;咨询电话：010-58882026&nbsp;&nbsp;&nbsp;&nbsp;电子邮箱：kjcg@istic.ac.cn
+		<br/>中国科学技术信息研究所&nbsp;&nbsp;&nbsp;&nbsp;版权所有&nbsp;&nbsp;京ICP备10027328 
+	</div>
+    <script>
+        var _hmt = _hmt || [];
+        (function () {
+            var hm = document.createElement("script");
+            hm.src = "//hm.baidu.com/hm.js?6ae3b966c439c7c1564509bb36c92d94";
+            var s = document.getElementsByTagName("script")[0];
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+
+
+</div>
+  
+    </form>
+</body>
+</html>

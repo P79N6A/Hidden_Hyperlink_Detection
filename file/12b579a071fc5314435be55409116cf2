@@ -1,0 +1,878 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="zh-CN">
+ <head> 
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /> 
+  <title>Linux内核VPN实现源码分析(三) | 学步园</title> 
+  <meta name="description" content="&nbsp;&nbsp;&nbsp;&nbsp; 上篇简单介绍了一下ipip模块和隧道的初始化相关内容，现在开始转入正题，想些介绍ipip协议收发包的过程。" /> 
+  <meta name="keywords" content="" /> 
+  <link rel="stylesheet" href="http://cdn.xuebuyuan.com/wp-content/themes/HotNewspro/style.css" type="text/css" media="screen" /> 
+  <link rel="stylesheet" href="http://cdn.xuebuyuan.com/wp-content/themes/HotNewspro/css/css.css" /> 
+  <link rel="stylesheet" href="http://cdn.xuebuyuan.com/wp-content/themes/HotNewspro/css/highlight.css" /> 
+  <link rel="stylesheet" href="http://cdn.xuebuyuan.com/wp-content/themes/HotNewspro/css/img.css" /> 
+  <link rel="pingback" href="http://www.xuebuyuan.com/xmlrpc.php" /> 
+  <link rel="shortcut icon" href="http://cdn.xuebuyuan.com/wp-content/themes/HotNewspro/images/favicon.ico" /> 
+  <script type="text/javascript" src="http://cdn.xuebuyuan.com/wp-content/themes/HotNewspro/js/jquery.min.js"></script> 
+  <link rel="alternate" type="application/rss+xml" title="学步园 &raquo; Feed" href="http://www.xuebuyuan.com/feed" /> 
+  <link rel="alternate" type="application/rss+xml" title="学步园 &raquo; 评论Feed" href="http://www.xuebuyuan.com/comments/feed" /> 
+  <link rel="stylesheet" id="wp-syntax-css-css" href="http://www.xuebuyuan.com/wp-content/plugins/wp-syntax/css/wp-syntax.css?ver=1.0" type="text/css" media="all" /> 
+  <link rel="EditURI" type="application/rsd+xml" title="RSD" href="http://www.xuebuyuan.com/xmlrpc.php?rsd" /> 
+  <link rel="wlwmanifest" type="application/wlwmanifest+xml" href="http://www.xuebuyuan.com/wp-includes/wlwmanifest.xml" /> 
+  <link rel="prev" title="CCIR601与 CCIR656介绍" href="http://www.xuebuyuan.com/811283.html" /> 
+  <link rel="next" title="g++编译boost::asio时错误(boost service)" href="http://www.xuebuyuan.com/626557.html" /> 
+  <meta name="generator" content="WordPress 3.8" /> 
+  <link rel="canonical" href="http://www.xuebuyuan.com/815209.html" /> 
+  <link rel="shortlink" href="http://www.xuebuyuan.com/?p=815209" /> 
+  <link href="http://cdn.xuebuyuan.com/wp-content/themes/HotNewspro/styles/4-blue.css" rel="stylesheet" type="text/css" /> 
+  <style type="text/css">
+.banner img{
+	margin: 0 0 5px 0;
+}
+</style> 
+  <script type="text/javascript" src="http://cdn.xuebuyuan.com/wp-content/themes/HotNewspro/comments-ajax.js"></script> 
+  <script type="text/javascript" src="http://cdn.xuebuyuan.com/wp-content/themes/HotNewspro/js/reply.js"></script> 
+  <script type="text/javascript" src="http://cdn.xuebuyuan.com/wp-content/themes/HotNewspro/js/custom.js"></script> 
+  <script type="text/javascript" src="http://cdn.xuebuyuan.com/wp-content/themes/HotNewspro/js/superfish.js"></script> 
+  <script type="text/javascript" src="http://cdn.xuebuyuan.com/wp-content/themes/HotNewspro/js/mousewheel.js"></script> 
+  <script type="text/javascript" src="http://cdn.xuebuyuan.com/wp-content/themes/HotNewspro/js/fancybox.js"></script> 
+  <script type="text/javascript">
+	$(document).ready(function() {
+
+		$("a[rel=example_group]").fancybox({
+			'transitionIn'		: 'none',
+			'transitionOut'		: 'none',
+			'titlePosition' 	: 'over',
+			'titleFormat'		: function(title, currentArray, currentIndex, currentOpts) {
+				return '<span id="fancybox-title-over">共 ' + currentArray.length + ' 张图片，当前第 ' + (currentIndex + 1) +' 张 '+ (title.length ? ' &nbsp; ' + title : '') + '</span>';
+			}
+		});
+
+		$("#various").fancybox({
+			'padding'			: 0,
+			'autoScale'			: false,
+			'transitionIn'		: 'none',
+			'transitionOut'		: 'none'
+		});
+		$("#download").fancybox({
+			'transitionIn'		: 'none',
+			'transitionOut'		: 'none'
+		});
+	});
+</script> 
+  <script type="text/javascript">
+$(function () {
+$('.thumbnail img,.thumbnail_t img,.box_comment img,#slideshow img,.cat_ico,.cat_name,.r_comments img,.v_content_list img').hover(
+function() {$(this).fadeTo("fast", 0.5);},
+function() {$(this).fadeTo("fast", 1);
+});
+});
+</script> 
+  <!-- PNG --> 
+  <!--[if lt IE 7]>
+<script type="text/javascript" src="http://www.xuebuyuan.com/wp-content/themes/HotNewspro/js/pngfix.js"></script>
+<script type="text/javascript">
+DD_belatedPNG.fix('.boxCaption,.top_box,.logo,.reply,.imgcat,.banner img,#fancybox-left-ico,#fancybox-right-ico,#fancybox-close');
+</script>
+<![endif]--> 
+  <!-- 图片延迟加载 --> 
+  <script type="text/javascript" src="http://cdn.xuebuyuan.com/wp-content/themes/HotNewspro/js/lazyload.js"></script> 
+  <script type="text/javascript">
+	$(function() {          
+    	$(".entry_box img,.entry_box_h img,#entry img,.entry_b img").lazyload({
+            effect:"fadeIn",
+			failurelimit : 30
+          });
+    	});
+</script> 
+  <!-- IE6菜单 --> 
+  <script type="text/javascript"><!--//--><![CDATA[//><!--
+sfHover = function() {
+	if (!document.getElementsByTagName) return false;
+	var sfEls = document.getElementById("menu").getElementsByTagName("li");
+
+	for (var i=0; i<sfEls.length; i++) {
+		sfEls[i].onmouseover=function() {
+			this.className+=" sfhover";
+		}
+		sfEls[i].onmouseout=function() {
+			this.className=this.className.replace(new RegExp(" sfhover\\b"), "");
+		}
+	}	
+	var sfEls = document.getElementById("topnav").getElementsByTagName("li");
+	for (var i=0; i<sfEls.length; i++) {
+		sfEls[i].onmouseover=function() {
+			this.className+=" sfhover";
+		}
+	}
+}
+if (window.attachEvent) window.attachEvent("onload", sfHover);
+//--><!]]></script> 
+  <!-- 预加载 --> 
+ </head> 
+ <body class="single single-post postid-815209 single-format-standard zh"> 
+  <div id="wrapper"> 
+   <div id="top"> 
+    <div id="topnav"> 
+     <div class="left_top "> 
+      <div class="home_h">
+       <a href="http://www.xuebuyuan.com" title="首  页" class="home_h"></a>
+      </div> 
+      <div class="menu-%e5%af%bc%e8%88%aa-container">
+       <ul id="menu-%e5%af%bc%e8%88%aa" class="menu">
+        <li id="menu-item-1703978" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-1703978"><a href="http://www.xuebuyuan.com/category/web%e5%89%8d%e7%ab%af">web前端</a></li> 
+        <li id="menu-item-1703980" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-1703980"><a href="http://www.xuebuyuan.com/category/%e6%95%b0%e6%8d%ae%e5%ba%93">数据库</a></li> 
+        <li id="menu-item-1703982" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-1703982"><a href="http://www.xuebuyuan.com/category/%e7%bc%96%e7%a8%8b%e8%af%ad%e8%a8%80">编程语言</a></li> 
+        <li id="menu-item-1703979" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-1703979"><a href="http://www.xuebuyuan.com/category/%e6%90%9c%e7%b4%a2%e6%8a%80%e6%9c%af">搜索技术</a></li> 
+        <li id="menu-item-1810308" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-1810308"><a href="http://www.xuebuyuan.com/aboutus">关于本站</a></li> 
+       </ul>
+      </div> 
+     </div> 
+     <!-- end: left_top --> 
+     <div id="searchbar"> 
+      <form action="http://www.xuebuyuan.com/search" id="cse-search-box"> 
+       <div> 
+        <input type="hidden" name="cx" value="007504628711321185124:w-wufhldrhc" /> 
+        <input type="hidden" name="cof" value="FORID:10" /> 
+        <input type="text" onclick="this.value='';" name="q" id="q" class="swap_value" /> 
+        <input type="image" src="http://www.xuebuyuan.com/wp-content/themes/HotNewspro/images/go.gif" id="go" alt="Search" title="搜索" /> 
+       </div> 
+      </form> 
+     </div> 
+     <!-- end: searchbar --> 
+    </div> 
+    <!-- end: topnav --> 
+   </div> 
+   <!-- end: top --> 
+   <div id="header"> 
+    <div class="header_c"> 
+     <div class="login_t">
+      <a id="showbtn" onclick="showid('smallLay');">登录</a> 
+      <div id="smallLay"> 
+       <div id="smallLay_box"> 
+        <!-- if not logged --> 
+        <form action="http://www.xuebuyuan.com/wp-login.php?redirect_to=http%3A%2F%2Fwww.xuebuyuan.com%2F815209.html" method="post" id="loginform"> 
+         <div class="loginblock"> 
+          <p class="login"><input type="text" name="log" id="log" size="" tabindex="11" /></p> 
+          <p class="password"><input type="password" name="pwd" id="pwd" size="" tabindex="12" /></p> 
+          <p class="lefted"><button value="Submit" id="submit_t" type="submit" tabindex="13">登&nbsp;录</button></p> 
+         </div> 
+         <input type="hidden" name="redirect_to" value="/815209.html" /> 
+         <input type="checkbox" name="rememberme" id="modlogn_remember" value="yes" checked="checked" alt="Remember Me" />下次自动登录 
+        </form> 
+        <!-- end if not logged --> 
+       </div> 
+      </div> 
+     </div> 
+     <div class="time"> 
+      <script type="text/javascript">
+today=new Date();
+var day; var date; var hello;
+hour=new Date().getHours()
+if(hour < 6)hello='  凌晨好! '
+else if(hour < 9)hello=' 早上好! '
+else if(hour < 12)hello=' 上午好! '
+else if(hour < 14)hello=' 中午好! '
+else if(hour < 17)hello=' 下午好! '
+else if(hour < 19)hello=' 傍晚好! '
+else if(hour < 22)hello=' 晚上好! '
+else {hello='夜深了! '}
+var webUrl = webUrl;
+document.write(' '+hello);
+</script> 
+      <span id="localtime"> <script type="text/javascript">
+today=new Date(); var tdate,tday, x,year; var x = new Array("星期日", "星期一", "星期二", "星期三", "星期四", "星期五","星期六");
+var MSIE=navigator.userAgent.indexOf("MSIE");
+if(MSIE != -1)
+year =(today.getFullYear());
+else
+year = (today.getYear()+1900);
+tdate= year+ "年" + (today.getMonth() + 1 ) + "月" + today.getDate() + "日" + " " + x[today.getDay()];
+document.write(tdate);
+</script> </span> 
+     </div> 
+     <a href="http://www.xuebuyuan.com" title="学步园"><h1 class="logo">学步园</h1></a> 
+    </div> 
+    <div class="clear"></div> 
+    <!-- end: header_c --> 
+    <script type="text/javascript">
+var cpro_id="u2275153";
+(window["cproStyleApi"] = window["cproStyleApi"] || {})[cpro_id]={at:"3",rsi0:"980",rsi1:"250",pat:"6",tn:"baiduCustNativeAD",rss1:"#FFFFFF",conBW:"1",adp:"1",ptt:"0",titFF:"%E5%BE%AE%E8%BD%AF%E9%9B%85%E9%BB%91",titFS:"",rss2:"#000000",titSU:"0",ptbg:"90",piw:"0",pih:"0",ptp:"0"}
+</script> 
+    <script src="http://cpro.baidustatic.com/cpro/ui/c.js" type="text/javascript"></script> 
+   </div> 
+   <!-- end: header --> 
+   <!-- header_image --> 
+   <div class="banner"> 
+   </div> 
+   <!-- end:header_image --> 
+   <!-- scroll --> 
+   <ul class="scroll"> 
+    <li class="sct"> <a href="#">&nbsp;&nbsp;&nbsp;</a> 
+     <div>
+      <a class="scroll_t">返回顶部</a>
+     </div> </li> 
+    <li class="scc"> <a href="#">&nbsp;&nbsp;&nbsp;</a> 
+     <div>
+      <a class="scroll_c">查看留言</a>
+     </div> </li> 
+    <li class="scb"> <a href="#">&nbsp;&nbsp;&nbsp;</a> 
+     <div>
+      <a class="scroll_b">转到底部</a>
+     </div> </li> 
+   </ul>
+   <script type="text/javascript">
+    function doZoom(size) {
+        var zoom = document.all ? document.all['entry'] : document.getElementById('entry');
+        zoom.style.fontSize = size + 'px';
+    }
+</script> 
+   <div id="content"> 
+    <!-- menu --> 
+    <div id="map"> 
+     <div class="browse">
+      现在的位置: 
+      <a title="返回首页" href="http://www.xuebuyuan.com/">首页</a> &gt; 综合 &gt; 正文
+     </div> 
+     <div id="feed">
+      <a href="http://www.xuebuyuan.com/feed" title="RSS">RSS</a>
+     </div> 
+    </div> 
+    <!-- end: menu --> 
+    <div class="entry_box_s"> 
+     <div class="context"> 
+      <div class="context_t"> 
+       <span class="prev"></span> 
+       <span class="next"></span> 
+      </div> 
+     </div> 
+     <div class="entry_title_box"> 
+      <!-- 分类图标 --> 
+      <div class="ico"></div> 
+      <!-- end: 分类图标 --> 
+      <h2 class="entry_title">Linux内核VPN实现源码分析(三)</h2> 
+      <div class="archive_info"> 
+       <span class="date">2013年08月21日</span> 
+       <span class="category"> ⁄ 综合</span> ⁄ 共 7407字 ⁄ 字号 
+       <span class="font"><a href="javascript:doZoom(12)">小</a> <a href="javascript:doZoom(13)">中</a> <a href="javascript:doZoom(18)">大</a></span> 
+       <span class="comment"> ⁄ <span>评论关闭</span></span> 
+       <span class="edit"></span> 
+      </div> 
+     </div> 
+     <!-- end: entry_title_box --> 
+     <div class="entry"> 
+      <div id="entry"> 
+       <div class="ad_r"> 
+        <script type="text/javascript">
+    /*正文右侧中大矩形*/
+    var cpro_id = "u1788635";
+</script> 
+        <script type="text/javascript" src="http://cpro.baidustatic.com/cpro/ui/c.js"></script> 
+       </div> 
+       <div id="article_content" class="article_content"> 
+        <p><span style="font-size: medium;">&nbsp;&nbsp;&nbsp;&nbsp; 上篇简单介绍了一下ipip模块和隧道的初始化相关内容，现在开始转入正题，想些介绍ipip协议收发包的过程。</span> </p> 
+        <p><span style="font-size: medium;">&nbsp;&nbsp;&nbsp;&nbsp; 在讲解收发包之前，有一个问题值得注意，就是mtu的问题，由于数据包经过ipip协议后，会在原始的长度上加一个ipip包头的长度，所以使用ipip协议的mtu必须减少一个ipip包头的长度，<span class="wp_keywordlink"><a href="http://www.xuebuyuan.com/" title="代码" target="_blank">代码</a></span>如下。</span> </p> 
+        <p><span style="font-size: medium;">&nbsp;&nbsp;&nbsp;&nbsp; <textarea cols="50" rows="15" name="code" class="cpp:firstline[687]">static int ipip_tunnel_change_mtu(struct net_device *dev, int new_mtu)&lt;br /&gt;
+{&lt;br /&gt;
+	if (new_mtu &lt; 68 || new_mtu &gt; 0xFFF8 - sizeof(struct iphdr))&lt;br /&gt;
+		return -EINVAL;&lt;br /&gt;
+	dev-&gt;mtu = new_mtu;&lt;br /&gt;
+	return 0;&lt;br /&gt;
+}</textarea></span> </p> 
+        <p><span style="font-size: medium;">&nbsp;&nbsp;&nbsp; new_mtu &lt; 68是因为mtu最小长度为60字节，小于60字节的链路层包后面需要用0填充。</span> </p> 
+        <p><span style="font-size: medium;">&nbsp;&nbsp;&nbsp; 接收过程函数，过程比较清晰简单。</span> </p> 
+        <p><span style="font-size: medium;">&nbsp;&nbsp;&nbsp; <textarea cols="50" rows="15" name="code" class="cpp:firstline[349]">static int ipip_rcv(struct sk_buff *skb)&lt;br /&gt;
+{&lt;br /&gt;
+	struct ip_tunnel *tunnel;&lt;br /&gt;
+	const struct iphdr *iph = ip_hdr(skb);&lt;br /&gt;
+	read_lock(&amp;ipip_lock);&lt;br /&gt;
+	if ((tunnel = ipip_tunnel_lookup(dev_net(skb-&gt;dev),&lt;br /&gt;
+					iph-&gt;saddr, iph-&gt;daddr)) != NULL) {&lt;br /&gt;
+		if (!xfrm4_policy_check(NULL, XFRM_POLICY_IN, skb)) {&lt;br /&gt;
+			read_unlock(&amp;ipip_lock);&lt;br /&gt;
+			kfree_skb(skb);&lt;br /&gt;
+			return 0;&lt;br /&gt;
+		}&lt;br /&gt;
+		secpath_reset(skb);&lt;br /&gt;
+		skb-&gt;mac_header = skb-&gt;network_header;&lt;br /&gt;
+		skb_reset_network_header(skb);&lt;br /&gt;
+		skb-&gt;protocol = htons(ETH_P_IP);&lt;br /&gt;
+		skb-&gt;pkt_type = PACKET_HOST;&lt;br /&gt;
+		tunnel-&gt;dev-&gt;stats.rx_packets++;&lt;br /&gt;
+		tunnel-&gt;dev-&gt;stats.rx_bytes += skb-&gt;len;&lt;br /&gt;
+		skb-&gt;dev = tunnel-&gt;dev;&lt;br /&gt;
+		skb_dst_drop(skb);&lt;br /&gt;
+		nf_reset(skb);&lt;br /&gt;
+		ipip_ecn_decapsulate(iph, skb);&lt;br /&gt;
+		netif_rx(skb);&lt;br /&gt;
+		read_unlock(&amp;ipip_lock);&lt;br /&gt;
+		return 0;&lt;br /&gt;
+	}&lt;br /&gt;
+	read_unlock(&amp;ipip_lock);&lt;br /&gt;
+	return -1;&lt;br /&gt;
+}&lt;br /&gt;
+/</textarea><br /> &nbsp;</span> </p> 
+        <p><span style="font-size: medium;">&nbsp;&nbsp;&nbsp; 首先是利用ipip_tunnel_lookup函数根据源目的地址等信息查找所属隧道，如果查不到就bypass过去。然后就是剥去IPIP头，但IPIP并未真正剥去，只是调用skb-&gt;mac_header = skb-&gt;network_header;skb_reset_network_header(skb);“逻辑”上剥去了，剥去后设置成普通的IP协议，接下来调用netif_rx函数提交给上层的IP层处理。至此接收过程结束。</span> </p> 
+        <p><span style="font-size: medium;">&nbsp;&nbsp;&nbsp; </span><br /> <span style="font-size: medium;">查找隧道的函数ipip_tunnel_lookup<br /> 函数实现如下：</span> </p> 
+        <p><span style="font-size: medium;">&nbsp;&nbsp;&nbsp; <textarea cols="50" rows="15" name="code" class="cpp:firstline[139]">static struct ip_tunnel * ipip_tunnel_lookup(struct net *net,&lt;br /&gt;
+		__be32 remote, __be32 local)&lt;br /&gt;
+{&lt;br /&gt;
+	unsigned h0 = HASH(remote);&lt;br /&gt;
+	unsigned h1 = HASH(local);&lt;br /&gt;
+	struct ip_tunnel *t;&lt;br /&gt;
+	struct ipip_net *ipn = net_generic(net, ipip_net_id);&lt;br /&gt;
+	for (t = ipn-&gt;tunnels_r_l[h0^h1]; t; t = t-&gt;next) {&lt;br /&gt;
+		if (local == t-&gt;parms.iph.saddr &amp;&amp;&lt;br /&gt;
+		    remote == t-&gt;parms.iph.daddr &amp;&amp; (t-&gt;dev-&gt;flags&amp;IFF_UP))&lt;br /&gt;
+			return t;&lt;br /&gt;
+	}&lt;br /&gt;
+	for (t = ipn-&gt;tunnels_r[h0]; t; t = t-&gt;next) {&lt;br /&gt;
+		if (remote == t-&gt;parms.iph.daddr &amp;&amp; (t-&gt;dev-&gt;flags&amp;IFF_UP))&lt;br /&gt;
+			return t;&lt;br /&gt;
+	}&lt;br /&gt;
+	for (t = ipn-&gt;tunnels_l[h1]; t; t = t-&gt;next) {&lt;br /&gt;
+		if (local == t-&gt;parms.iph.saddr &amp;&amp; (t-&gt;dev-&gt;flags&amp;IFF_UP))&lt;br /&gt;
+			return t;&lt;br /&gt;
+	}&lt;br /&gt;
+	if ((t = ipn-&gt;tunnels_wc[0]) != NULL &amp;&amp; (t-&gt;dev-&gt;flags&amp;IFF_UP))&lt;br /&gt;
+		return t;&lt;br /&gt;
+	return NULL;&lt;br /&gt;
+}&nbsp;</textarea></span> </p> 
+        <p><span style="font-size: medium;">&nbsp;&nbsp;&nbsp;&nbsp; 其实就是一个根据隧道ip地址查找hash的过程（隧道ip就是没剥去IPIP头的源目的ip地址，不是原来未封装的数据的源目的IP地址）。</span> </p> 
+        <p><span style="font-size: medium;">&nbsp;&nbsp;&nbsp;&nbsp; 下面是数据发送函数。</span> </p> 
+        <p><span style="font-size: medium;">&nbsp;&nbsp;&nbsp;&nbsp; <textarea cols="50" rows="15" name="code" class="cpp:firstline[390]">static int ipip_tunnel_xmit(struct sk_buff *skb, struct net_device *dev)&lt;br /&gt;
+{&lt;br /&gt;
+	struct ip_tunnel *tunnel = netdev_priv(dev);&lt;br /&gt;
+	struct net_device_stats *stats = &amp;tunnel-&gt;dev-&gt;stats;&lt;br /&gt;
+	struct iphdr  *tiph = &amp;tunnel-&gt;parms.iph;&lt;br /&gt;
+	u8     tos = tunnel-&gt;parms.iph.tos;&lt;br /&gt;
+	__be16 df = tiph-&gt;frag_off;&lt;br /&gt;
+	struct rtable *rt;     			/* Route to the other host */&lt;br /&gt;
+	struct net_device *tdev;			/* Device to other host */&lt;br /&gt;
+	struct iphdr  *old_iph = ip_hdr(skb);&lt;br /&gt;
+	struct iphdr  *iph;			/* Our new IP header */&lt;br /&gt;
+	unsigned int max_headroom;		/* The extra header space needed */&lt;br /&gt;
+	__be32 dst = tiph-&gt;daddr;&lt;br /&gt;
+	int    mtu;&lt;br /&gt;
+	if (tunnel-&gt;recursion++) {&lt;br /&gt;
+		stats-&gt;collisions++;&lt;br /&gt;
+		goto tx_error;&lt;br /&gt;
+	}&lt;br /&gt;
+	if (skb-&gt;protocol != htons(ETH_P_IP))&lt;br /&gt;
+		goto tx_error;&lt;br /&gt;
+	if (tos&amp;1)&lt;br /&gt;
+		tos = old_iph-&gt;tos;&lt;br /&gt;
+	if (!dst) {&lt;br /&gt;
+		/* NBMA tunnel */&lt;br /&gt;
+		if ((rt = skb_rtable(skb)) == NULL) {&lt;br /&gt;
+			stats-&gt;tx_fifo_errors++;&lt;br /&gt;
+			goto tx_error;&lt;br /&gt;
+		}&lt;br /&gt;
+		if ((dst = rt-&gt;rt_gateway) == 0)&lt;br /&gt;
+			goto tx_error_icmp;&lt;br /&gt;
+	}&lt;br /&gt;
+	{&lt;br /&gt;
+		struct flowi fl = { .oif = tunnel-&gt;parms.link,&lt;br /&gt;
+				    .nl_u = { .ip4_u =&lt;br /&gt;
+					      { .daddr = dst,&lt;br /&gt;
+						.saddr = tiph-&gt;saddr,&lt;br /&gt;
+						.tos = RT_TOS(tos) } },&lt;br /&gt;
+				    .proto = IPPROTO_IPIP };&lt;br /&gt;
+		if (ip_route_output_key(dev_net(dev), &amp;rt, &amp;fl)) {&lt;br /&gt;
+			stats-&gt;tx_carrier_errors++;&lt;br /&gt;
+			goto tx_error_icmp;&lt;br /&gt;
+		}&lt;br /&gt;
+	}&lt;br /&gt;
+	tdev = rt-&gt;u.dst.dev;&lt;br /&gt;
+	if (tdev == dev) {&lt;br /&gt;
+		ip_rt_put(rt);&lt;br /&gt;
+		stats-&gt;collisions++;&lt;br /&gt;
+		goto tx_error;&lt;br /&gt;
+	}&lt;br /&gt;
+	if (tiph-&gt;frag_off)&lt;br /&gt;
+		mtu = dst_mtu(&amp;rt-&gt;u.dst) - sizeof(struct iphdr);&lt;br /&gt;
+	else&lt;br /&gt;
+		mtu = skb_dst(skb) ? dst_mtu(skb_dst(skb)) : dev-&gt;mtu;&lt;br /&gt;
+	if (mtu &lt; 68) {&lt;br /&gt;
+		stats-&gt;collisions++;&lt;br /&gt;
+		ip_rt_put(rt);&lt;br /&gt;
+		goto tx_error;&lt;br /&gt;
+	}&lt;br /&gt;
+	if (skb_dst(skb))&lt;br /&gt;
+		skb_dst(skb)-&gt;ops-&gt;update_pmtu(skb_dst(skb), mtu);&lt;br /&gt;
+	df |= (old_iph-&gt;frag_off&amp;htons(IP_DF));&lt;br /&gt;
+	if ((old_iph-&gt;frag_off&amp;htons(IP_DF)) &amp;&amp; mtu &lt; ntohs(old_iph-&gt;tot_len)) {&lt;br /&gt;
+		icmp_send(skb, ICMP_DEST_UNREACH, ICMP_FRAG_NEEDED, htonl(mtu));&lt;br /&gt;
+		ip_rt_put(rt);&lt;br /&gt;
+		goto tx_error;&lt;br /&gt;
+	}&lt;br /&gt;
+	if (tunnel-&gt;err_count &gt; 0) {&lt;br /&gt;
+		if (time_before(jiffies,&lt;br /&gt;
+				tunnel-&gt;err_time + IPTUNNEL_ERR_TIMEO)) {&lt;br /&gt;
+			tunnel-&gt;err_count--;&lt;br /&gt;
+			dst_link_failure(skb);&lt;br /&gt;
+		} else&lt;br /&gt;
+			tunnel-&gt;err_count = 0;&lt;br /&gt;
+	}&lt;br /&gt;
+	/*&lt;br /&gt;
+	 * Okay, now see if we can stuff it in the buffer as-is.&lt;br /&gt;
+	 */&lt;br /&gt;
+	max_headroom = (LL_RESERVED_SPACE(tdev)+sizeof(struct iphdr));&lt;br /&gt;
+	if (skb_headroom(skb) &lt; max_headroom || skb_shared(skb) ||&lt;br /&gt;
+	    (skb_cloned(skb) &amp;&amp; !skb_clone_writable(skb, 0))) {&lt;br /&gt;
+		struct sk_buff *new_skb = skb_realloc_headroom(skb, max_headroom);&lt;br /&gt;
+		if (!new_skb) {&lt;br /&gt;
+			ip_rt_put(rt);&lt;br /&gt;
+			stats-&gt;tx_dropped++;&lt;br /&gt;
+			dev_kfree_skb(skb);&lt;br /&gt;
+			tunnel-&gt;recursion--;&lt;br /&gt;
+			return 0;&lt;br /&gt;
+		}&lt;br /&gt;
+		if (skb-&gt;sk)&lt;br /&gt;
+			skb_set_owner_w(new_skb, skb-&gt;sk);&lt;br /&gt;
+		dev_kfree_skb(skb);&lt;br /&gt;
+		skb = new_skb;&lt;br /&gt;
+		old_iph = ip_hdr(skb);&lt;br /&gt;
+	}&lt;br /&gt;
+	skb-&gt;transport_header = skb-&gt;network_header;&lt;br /&gt;
+	skb_push(skb, sizeof(struct iphdr));&lt;br /&gt;
+	skb_reset_network_header(skb);&lt;br /&gt;
+	memset(&amp;(IPCB(skb)-&gt;opt), 0, sizeof(IPCB(skb)-&gt;opt));&lt;br /&gt;
+	IPCB(skb)-&gt;flags &amp;= ~(IPSKB_XFRM_TUNNEL_SIZE | IPSKB_XFRM_TRANSFORMED |&lt;br /&gt;
+			      IPSKB_REROUTED);&lt;br /&gt;
+	skb_dst_drop(skb);&lt;br /&gt;
+	skb_dst_set(skb, &amp;rt-&gt;u.dst);&lt;br /&gt;
+	/*&lt;br /&gt;
+	 *	Push down and install the IPIP header.&lt;br /&gt;
+	 */&lt;br /&gt;
+	iph 			=	ip_hdr(skb);&lt;br /&gt;
+	iph-&gt;version		=	4;&lt;br /&gt;
+	iph-&gt;ihl		=	sizeof(struct iphdr)&gt;&gt;2;&lt;br /&gt;
+	iph-&gt;frag_off		=	df;&lt;br /&gt;
+	iph-&gt;protocol		=	IPPROTO_IPIP;&lt;br /&gt;
+	iph-&gt;tos		=	INET_ECN_encapsulate(tos, old_iph-&gt;tos);&lt;br /&gt;
+	iph-&gt;daddr		=	rt-&gt;rt_dst;&lt;br /&gt;
+	iph-&gt;saddr		=	rt-&gt;rt_src;&lt;br /&gt;
+	if ((iph-&gt;ttl = tiph-&gt;ttl) == 0)&lt;br /&gt;
+		iph-&gt;ttl	=	old_iph-&gt;ttl;&lt;br /&gt;
+	nf_reset(skb);&lt;br /&gt;
+	IPTUNNEL_XMIT();&lt;br /&gt;
+	tunnel-&gt;recursion--;&lt;br /&gt;
+	return 0;&lt;br /&gt;
+tx_error_icmp:&lt;br /&gt;
+	dst_link_failure(skb);&lt;br /&gt;
+tx_error:&lt;br /&gt;
+	stats-&gt;tx_errors++;&lt;br /&gt;
+	dev_kfree_skb(skb);&lt;br /&gt;
+	tunnel-&gt;recursion--;&lt;br /&gt;
+	return 0;&lt;br /&gt;
+}&lt;br /&gt;
+sta</textarea></span> </p> 
+        <p><span style="font-size: medium;">&nbsp;&nbsp;&nbsp;&nbsp; 总得来看，发送过程主要包含两个方面，一是查找路由，另外一个按照IPIP协议构造新的IP包。</span> </p> 
+        <p><span style="font-size: medium;">&nbsp;&nbsp;&nbsp;&nbsp; 查找路由的过程这里就不详细介绍了，够造新的IPIP包首先使用skb_headroom检查剩余的skb buff空间是否能容纳IPIP头，不能容纳的话，重新使用skb_realloc_headroom分配一个buf空间，其实这个也可以用skb_copy_expand函数搞定。分配完毕后填充IPIP头字段即可。</span> </p> 
+        <p><span style="font-size: medium;">&nbsp;&nbsp;&nbsp;&nbsp; 至此，IPIP协议大部分逻辑已经描述清楚，下面还有一个函数值的注意。</span> </p> 
+        <p><span style="font-size: medium;">&nbsp;&nbsp;&nbsp;&nbsp; <textarea cols="50" rows="15" name="code" class="cpp:firstline[573]">static int&lt;br /&gt;
+ipip_tunnel_ioctl (struct net_device *dev, struct ifreq *ifr, int cmd)&lt;br /&gt;
+{&lt;br /&gt;
+	int err = 0;&lt;br /&gt;
+	struct ip_tunnel_parm p;&lt;br /&gt;
+	struct ip_tunnel *t;&lt;br /&gt;
+	struct net *net = dev_net(dev);&lt;br /&gt;
+	struct ipip_net *ipn = net_generic(net, ipip_net_id);&lt;br /&gt;
+	switch (cmd) {&lt;br /&gt;
+	case SIOCGETTUNNEL:&lt;br /&gt;
+		t = NULL;&lt;br /&gt;
+		if (dev == ipn-&gt;fb_tunnel_dev) {&lt;br /&gt;
+			if (copy_from_user(&amp;p, ifr-&gt;ifr_ifru.ifru_data, sizeof(p))) {&lt;br /&gt;
+				err = -EFAULT;&lt;br /&gt;
+				break;&lt;br /&gt;
+			}&lt;br /&gt;
+			t = ipip_tunnel_locate(net, &amp;p, 0);&lt;br /&gt;
+		}&lt;br /&gt;
+		if (t == NULL)&lt;br /&gt;
+			t = netdev_priv(dev);&lt;br /&gt;
+		memcpy(&amp;p, &amp;t-&gt;parms, sizeof(p));&lt;br /&gt;
+		if (copy_to_user(ifr-&gt;ifr_ifru.ifru_data, &amp;p, sizeof(p)))&lt;br /&gt;
+			err = -EFAULT;&lt;br /&gt;
+		break;&lt;br /&gt;
+	case SIOCADDTUNNEL:&lt;br /&gt;
+	case SIOCCHGTUNNEL:&lt;br /&gt;
+		err = -EPERM;&lt;br /&gt;
+		if (!capable(CAP_NET_ADMIN))&lt;br /&gt;
+			goto done;&lt;br /&gt;
+		err = -EFAULT;&lt;br /&gt;
+		if (copy_from_user(&amp;p, ifr-&gt;ifr_ifru.ifru_data, sizeof(p)))&lt;br /&gt;
+			goto done;&lt;br /&gt;
+		err = -EINVAL;&lt;br /&gt;
+		if (p.iph.version != 4 || p.iph.protocol != IPPROTO_IPIP ||&lt;br /&gt;
+		    p.iph.ihl != 5 || (p.iph.frag_off&amp;htons(~IP_DF)))&lt;br /&gt;
+			goto done;&lt;br /&gt;
+		if (p.iph.ttl)&lt;br /&gt;
+			p.iph.frag_off |= htons(IP_DF);&lt;br /&gt;
+		t = ipip_tunnel_locate(net, &amp;p, cmd == SIOCADDTUNNEL);&lt;br /&gt;
+		if (dev != ipn-&gt;fb_tunnel_dev &amp;&amp; cmd == SIOCCHGTUNNEL) {&lt;br /&gt;
+			if (t != NULL) {&lt;br /&gt;
+				if (t-&gt;dev != dev) {&lt;br /&gt;
+					err = -EEXIST;&lt;br /&gt;
+					break;&lt;br /&gt;
+				}&lt;br /&gt;
+			} else {&lt;br /&gt;
+				if (((dev-&gt;flags&amp;IFF_POINTOPOINT) &amp;&amp; !p.iph.daddr) ||&lt;br /&gt;
+				    (!(dev-&gt;flags&amp;IFF_POINTOPOINT) &amp;&amp; p.iph.daddr)) {&lt;br /&gt;
+					err = -EINVAL;&lt;br /&gt;
+					break;&lt;br /&gt;
+				}&lt;br /&gt;
+				t = netdev_priv(dev);&lt;br /&gt;
+				ipip_tunnel_unlink(ipn, t);&lt;br /&gt;
+				t-&gt;parms.iph.saddr = p.iph.saddr;&lt;br /&gt;
+				t-&gt;parms.iph.daddr = p.iph.daddr;&lt;br /&gt;
+				memcpy(dev-&gt;dev_addr, &amp;p.iph.saddr, 4);&lt;br /&gt;
+				memcpy(dev-&gt;broadcast, &amp;p.iph.daddr, 4);&lt;br /&gt;
+				ipip_tunnel_link(ipn, t);&lt;br /&gt;
+				netdev_state_change(dev);&lt;br /&gt;
+			}&lt;br /&gt;
+		}&lt;br /&gt;
+		if (t) {&lt;br /&gt;
+			err = 0;&lt;br /&gt;
+			if (cmd == SIOCCHGTUNNEL) {&lt;br /&gt;
+				t-&gt;parms.iph.ttl = p.iph.ttl;&lt;br /&gt;
+				t-&gt;parms.iph.tos = p.iph.tos;&lt;br /&gt;
+				t-&gt;parms.iph.frag_off = p.iph.frag_off;&lt;br /&gt;
+				if (t-&gt;parms.link != p.link) {&lt;br /&gt;
+					t-&gt;parms.link = p.link;&lt;br /&gt;
+					ipip_tunnel_bind_dev(dev);&lt;br /&gt;
+					netdev_state_change(dev);&lt;br /&gt;
+				}&lt;br /&gt;
+			}&lt;br /&gt;
+			if (copy_to_user(ifr-&gt;ifr_ifru.ifru_data, &amp;t-&gt;parms, sizeof(p)))&lt;br /&gt;
+				err = -EFAULT;&lt;br /&gt;
+		} else&lt;br /&gt;
+			err = (cmd == SIOCADDTUNNEL ? -ENOBUFS : -ENOENT);&lt;br /&gt;
+		break;&lt;br /&gt;
+	case SIOCDELTUNNEL:&lt;br /&gt;
+		err = -EPERM;&lt;br /&gt;
+		if (!capable(CAP_NET_ADMIN))&lt;br /&gt;
+			goto done;&lt;br /&gt;
+		if (dev == ipn-&gt;fb_tunnel_dev) {&lt;br /&gt;
+			err = -EFAULT;&lt;br /&gt;
+			if (copy_from_user(&amp;p, ifr-&gt;ifr_ifru.ifru_data, sizeof(p)))&lt;br /&gt;
+				goto done;&lt;br /&gt;
+			err = -ENOENT;&lt;br /&gt;
+			if ((t = ipip_tunnel_locate(net, &amp;p, 0)) == NULL)&lt;br /&gt;
+				goto done;&lt;br /&gt;
+			err = -EPERM;&lt;br /&gt;
+			if (t-&gt;dev == ipn-&gt;fb_tunnel_dev)&lt;br /&gt;
+				goto done;&lt;br /&gt;
+			dev = t-&gt;dev;&lt;br /&gt;
+		}&lt;br /&gt;
+		unregister_netdevice(dev);&lt;br /&gt;
+		err = 0;&lt;br /&gt;
+		break;&lt;br /&gt;
+	default:&lt;br /&gt;
+		err = -EINVAL;&lt;br /&gt;
+	}&lt;br /&gt;
+done:&lt;br /&gt;
+	return err;&lt;br /&gt;
+}&nbsp;</textarea></span> </p> 
+        <p><span style="font-size: medium;">&nbsp;&nbsp;&nbsp;&nbsp; 这个函数就是应用<span class="wp_keywordlink"><a href="http://www.xuebuyuan.com/" title="程序" target="_blank">程序</a></span>交互的地方，说白了，就是与linux系统命令ifconfig, ip命令借口的地方，创建隧道，删除隧道，改变ip地址，等等，本文就不详细介绍了。</span> </p> 
+        <p><span style="font-size: medium;">&nbsp;&nbsp;&nbsp;&nbsp; IPIP协议的所有内容已经介绍完毕，原理是不是很简单呢？其实IP_GRE协议与IPIP协议差不多，最先是由思科公司发明的一种协议，在linux实现代码在ip_gre.c中，具体实现与IPIP协议及其类似，这里也不多说了。至于open_swan 的IPSec协议实现稍稍复杂一些，多了一些加密过程，已经前面的密钥交换过程，大家可以仔细研究。《Linux内核VPN实现源码分析》就此完结，欢迎大家关注后续的内容。<br /></span> </p> 
+       </div> 
+       <div style="font-size:0px;height:0px;line-height:0px;margin:0;padding:0;clear:both"></div> 
+      </div> 
+     </div> 
+     <div class="back_b"> 
+      <a href="javascript:void(0);" onclick="history.back();">返回</a> 
+     </div> 
+     <div class="clear"></div> 
+     <!-- end: entry --> 
+     <i class="lt"></i> 
+     <i class="rt"></i> 
+    </div> 
+    <div class="entry_sb"> 
+     <i class="lb"></i> 
+     <i class="rb"></i> 
+    </div> 
+    <!-- ad_down --> 
+    <div class="ad_h"> 
+     <div class="ad_h_c"> 
+      <table> 
+       <tbody>
+        <tr> 
+         <td> <script type="text/javascript">
+    /*500宽矩形*/
+    var cpro_id = "u1507413";
+</script> <script src="http://cpro.baidustatic.com/cpro/ui/c.js" type="text/javascript"></script> </td> 
+         <td> <script type="text/javascript">
+    /*右侧小矩形*/
+    var cpro_id = "u1507403";
+</script> <script src="http://cpro.baidustatic.com/cpro/ui/c.js" type="text/javascript"></script> </td> 
+        </tr> 
+       </tbody>
+      </table> 
+      <div class="clear"></div> 
+     </div> 
+     <i class="lt"></i> 
+     <i class="rt"></i> 
+    </div> 
+    <div class="entry_box_b"> 
+     <i class="lb"></i> 
+     <i class="rb"></i> 
+    </div> 
+    <!-- ad --> 
+    <div class="ad_h"> 
+     <div class="ad_h_c"> 
+      <p align="center"></p>
+      <table align="center" width="90%"> 
+       <tbody>
+        <tr> 
+         <td> <script type="text/javascript">
+var cpro_id = "u1507366";
+</script> <script src="http://cpro.baidustatic.com/cpro/ui/c.js" type="text/javascript"></script> </td> 
+         <td> <script type="text/javascript">
+var cpro_id = "u1507366";
+</script> <script src="http://cpro.baidustatic.com/cpro/ui/c.js" type="text/javascript"></script> </td> 
+        </tr> 
+       </tbody>
+      </table> 
+      <script type="text/javascript">
+/*双侧飘窗*/
+var cpro_id = "u1507394";
+</script> 
+      <script src="http://cpro.baidustatic.com/cpro/ui/f.js" type="text/javascript"></script> 
+      <script type="text/javascript">
+    /*右下角悬浮视窗*/
+var cpro_id = "u1533898";
+</script> 
+      <script src="http://cpro.baidustatic.com/cpro/ui/f.js" type="text/javascript"></script> 
+      <p></p> 
+      <div class="clear"></div> 
+     </div> 
+     <i class="lt"></i> 
+     <i class="rt"></i> 
+    </div> 
+    <div class="entry_box_b"> 
+     <i class="lb"></i> 
+     <i class="rb"></i> 
+    </div> 
+    <!-- tuijian --> 
+    <div class="ad_h"> 
+     <div class="ad_h_c"> 
+      <h4>&nbsp;&nbsp;&nbsp;&nbsp;推荐文章:</h4> 
+      <table width="90%" style="margin:auto;"> 
+       <tbody>
+        <tr> 
+         <td width="50%"> <li><a href="http://www.xuebuyuan.com/2176448.html">清华大学期末复习方法</a></li> <li><a href="http://www.xuebuyuan.com/2176450.html">java中需要注意的东西（二）</a></li> <li><a href="http://www.xuebuyuan.com/2176452.html">C#中定义常量的两种方法</a></li> <li><a href="http://www.xuebuyuan.com/2176454.html">在Eclipse中配置tomcat</a></li> <li><a href="http://www.xuebuyuan.com/2176456.html">android关于AndroidManifest.xml详细分析</a></li> <li><a href="http://www.xuebuyuan.com/2176458.html">c++使用stmp协议发送邮件(163的邮箱，TTL非SSL)</a></li> <li><a href="http://www.xuebuyuan.com/2176460.html">一个debug lib库和libcmt.lib引发的血案</a></li> <li><a href="http://www.xuebuyuan.com/2176462.html">函数指针数组的例子</a></li> </td> 
+         <td> <li><a href="http://www.xuebuyuan.com/2176449.html">java笔记</a></li> <li><a href="http://www.xuebuyuan.com/2176451.html">不安全代码只会在使用/unsafe编译的情况下出现</a></li> <li><a href="http://www.xuebuyuan.com/2176453.html">ACM题集以及各种总结大全</a></li> <li><a href="http://www.xuebuyuan.com/2176455.html">Android中dip、dp、sp、pt和px的区别</a></li> <li><a href="http://www.xuebuyuan.com/2176457.html">Android之蓝牙编程开发详解</a></li> <li><a href="http://www.xuebuyuan.com/2176459.html">使用oschina的git服务器</a></li> <li><a href="http://www.xuebuyuan.com/2176461.html">代码的未来----读书笔记(1)</a></li> <li><a href="http://www.xuebuyuan.com/2176463.html">把代码传给函数</a></li> </td> 
+        </tr> 
+       </tbody>
+      </table> 
+      <div class="clear"></div> 
+     </div> 
+     <i class="lt"></i> 
+     <i class="rt"></i> 
+    </div> 
+    <div class="entry_box_b"> 
+     <i class="lb"></i> 
+     <i class="rb"></i> 
+    </div> 
+    <!--
+                <div class="ad_h">
+		<div class="ad_h_c">
+                        <h4>&nbsp;&nbsp;&nbsp;&nbsp;友情推荐:</h4> <table width="95%" style="margin:auto;">
+<tr>
+<td>
+&nbsp;&nbsp;<a style="color: #0196e3;" href = "http://www.carcube.com.cn/chanpin/weXEvryqxLfE4UxFRNewys61xg==.html">铃木吉姆尼LED装饰灯</a>
+&nbsp;&nbsp;<a style="color: #0196e3;" href = "http://www.carcube.com.cn/chanpin/t-HM79Ld1sJMRUTXsMrOtcY=.html">丰田逸致LED装饰灯</a>
+&nbsp;&nbsp;<a style="color: #0196e3;" href = "http://www.carcube.com.cn/chanpin/sb7M77fJtshMRUTXsMrOtcY=.html">本田飞度LED装饰灯</a>
+&nbsp;&nbsp;<a style="color: #0196e3;" href = "http://www.carcube.com.cn/chanpin/t-HM77-tw8DI8ExFRNewys61xg==.html">丰田凯美瑞LED装饰灯</a>
+&nbsp;&nbsp;<a style="color: #0196e3;" href = "http://www.carcube.com.cn/chanpin/wNfFtc6ztshMRUTXsMrOtcY=.html">雷诺纬度LED装饰灯</a>
+&nbsp;&nbsp;<a style="color: #0196e3;" href = "http://www.carcube.com.cn/chanpin/sb7M79HFuPNMRUTXsMrOtcY=.html">本田雅阁LED装饰灯</a>
+
+</td>
+</tr>
+</table>
+			<div class="clear"></div>
+		</div>
+	<i class="lt"></i>
+	<i class="rt"></i>
+</div>
+<div class="entry_box_b">
+	<i class="lb"></i>
+	<i class="rb"></i>
+</div>
+
+--> 
+    <div class="context_b">
+      【上篇】
+     <a href="http://www.xuebuyuan.com/811283.html" rel="prev">CCIR601与 CCIR656介绍</a>
+     <br />【下篇】
+     <a href="http://www.xuebuyuan.com/626557.html" rel="next">g++编译boost::asio时错误(boost service)</a> 
+     <i class="lt"></i> 
+     <i class="rt"></i> 
+     <i class="lb"></i> 
+     <i class="rb"></i> 
+    </div> 
+    <!-- relatedposts --> 
+    <!-- end: relatedposts --> 
+    <!-- entrymeta --> 
+    <div class="entrymeta"> 
+     <div class="authorbio"> 
+      <div class="author_pic"> 
+       <!--
+					<img alt='' src='http://0.gravatar.com/avatar/4767dfd3b68eb1384bf828e77ac4d29d?s=48&amp;d=wavatar&amp;r=G' class='avatar avatar-48 photo' height='48' width='48' />--> 
+      </div> 
+      <div class="clear"></div> 
+      <div class="author_text"> 
+       <h4>作者: <span><a href="http://www.xuebuyuan.com/author/vermilion" title="由vermilion发布" rel="author">vermilion</a></span></h4> 
+      </div> 
+     </div> 
+     <span class="spostinfo"> 
+      <ul> 
+       <li>该日志由 vermilion 于4年前发表在综合分类下，最后更新于 2013年08月21日.</li> 
+       <li>转载请注明: <a href="http://www.xuebuyuan.com/815209.html" rel="bookmark" title="本文固定链接 http://www.xuebuyuan.com/815209.html">Linux内核VPN实现源码分析(三) | 学步园</a><a href="#" onclick="copy_code('http://www.xuebuyuan.com/815209.html'); return false;"> +复制链接</a></li> 
+       <li class="content_tag"></li> 
+      </ul> </span> 
+     <i class="lt"></i> 
+     <i class="rt"></i> 
+     <div class="clear"></div> 
+    </div> 
+    <div class="entry_sb"> 
+     <i class="lb"></i> 
+     <i class="rb"></i> 
+    </div> 
+    <!-- end: entrymeta --> 
+    <div class="ct"></div> 
+    <!-- You can start editing here. --> 
+    <!-- If comments are closed. --> 
+    <p class="nocomments">抱歉!评论已关闭.</p> 
+   </div> 
+   <!-- end: content --> 
+   <div id="sidebar"> 
+    <div class="widget"> 
+    </div> 
+    <div class="widget"> 
+     <h3>本站推荐</h3> 
+     <div class="box"> 
+      <div class="scat_img"></div> 
+      <div id="scat"> 
+       <ul> 
+        <li><a href="http://www.xuebuyuan.com/2201282.html" rel="bookmark" title="详细阅读作业的提交和监控（二）">作业的提交和监控（二）</a></li> 
+       </ul> 
+       <ul> 
+        <li><a href="http://www.xuebuyuan.com/2201280.html" rel="bookmark" title="详细阅读作业的提交和监控（一）">作业的提交和监控（一）</a></li> 
+       </ul> 
+       <ul> 
+        <li><a href="http://www.xuebuyuan.com/2198208.html" rel="bookmark" title="详细阅读Electric-fence 介绍">Electric-fence 介绍</a></li> 
+       </ul> 
+       <ul> 
+        <li><a href="http://www.xuebuyuan.com/2198206.html" rel="bookmark" title="详细阅读原子操作浅谈">原子操作浅谈</a></li> 
+       </ul> 
+       <ul> 
+        <li><a href="http://www.xuebuyuan.com/2198205.html" rel="bookmark" title="详细阅读C++模板显式实例化">C++模板显式实例化</a></li> 
+       </ul> 
+       <ul> 
+        <li><a href="http://www.xuebuyuan.com/2198204.html" rel="bookmark" title="详细阅读Hadoop Local 模式运行 Pipes 程序">Hadoop Local 模式运行 Pipes 程</a></li> 
+       </ul> 
+       <ul> 
+        <li><a href="http://www.xuebuyuan.com/2198202.html" rel="bookmark" title="详细阅读Hadoop I/O 上 SequenceFile 类在 Pipes 上的应用">Hadoop I/O 上 SequenceFile 类</a></li> 
+       </ul> 
+       <ul> 
+        <li><a href="http://www.xuebuyuan.com/2198273.html" rel="bookmark" title="详细阅读Boost – Function 分析">Boost – Function 分析</a></li> 
+       </ul> 
+      </div> 
+      <div class="clear"></div> 
+     </div> 
+     <div class="box-bottom"> 
+      <i class="lb"></i> 
+      <i class="rb"></i> 
+     </div> 
+     <script type="text/javascript">
+var c,_=Function;
+with(o=document.getElementById("scat")){ innerHTML+=innerHTML; onmouseover=_("c=1"); onmouseout=_("c=0");}
+(F=_("if(#%26||!c)#++,#%=o.scrollHeight>>1;setTimeout(F,#%26?10:3500);".replace(/#/g,"o.scrollTop")))();
+</script>
+     <div class="random_r"> 
+      <h3>随便看看</h3> 
+      <div class="box_r"> 
+       <ul>
+        <ul class="random-post-link"> 
+         <li class="random-post-link"> <a href="http://www.xuebuyuan.com/zt/36067392.html" title="inline hook">inline hook</a> </li> 
+         <li class="random-post-link"> <a href="http://www.xuebuyuan.com/zt/36067950.html" title="evince">evince</a> </li> 
+         <li class="random-post-link"> <a href="http://www.xuebuyuan.com/zt/36068620.html" title="双系统启动菜单工具">双系统启动菜单工具</a> </li> 
+         <li class="random-post-link"> <a href="http://www.xuebuyuan.com/zt/36069601.html" title="c++符号">c++符号</a> </li> 
+         <li class="random-post-link"> <a href="http://www.xuebuyuan.com/zt/36071267.html" title="c语言类型转换">c语言类型转换</a> </li> 
+         <li class="random-post-link"> <a href="http://www.xuebuyuan.com/zt/36072200.html" title="诺基亚手机的密码">诺基亚手机的密码</a> </li> 
+         <li class="random-post-link"> <a href="http://www.xuebuyuan.com/zt/36073408.html" title="android 标题栏">android 标题栏</a> </li> 
+         <li class="random-post-link"> <a href="http://www.xuebuyuan.com/zt/36075260.html" title="单链表的基本操作">单链表的基本操作</a> </li> 
+         <li class="random-post-link"> <a href="http://www.xuebuyuan.com/zt/36075481.html" title="6.61b 下载">6.61b 下载</a> </li> 
+         <li class="random-post-link"> <a href="http://www.xuebuyuan.com/zt/36075524.html" title="程序流程图符号">程序流程图符号</a> </li> 
+         <ul> 
+         </ul> 
+         <div class="clear"></div> 
+        </ul>
+       </ul>
+      </div> 
+      <div class="box-bottom"> 
+       <i class="lb"></i> 
+       <i class="rb"></i> 
+      </div> 
+     </div>
+     <div class="ad"> 
+      <div class="ads"> 
+       <div class="box_top"> 
+        <i class="rt"></i> 
+        <i class="lt"></i> 
+       </div> 
+       <div class="ads_c">
+        <p align="center"><script type="text/javascript">
+var cpro_id="u2385005";
+(window["cproStyleApi"] = window["cproStyleApi"] || {})[cpro_id]={at:"3",rsi0:"220",rsi1:"500",pat:"6",tn:"baiduCustNativeAD",rss1:"#FFFFFF",conBW:"1",adp:"1",ptt:"0",titFF:"%E5%BE%AE%E8%BD%AF%E9%9B%85%E9%BB%91",titFS:"14",rss2:"#000000",titSU:"0",ptbg:"90",piw:"0",pih:"0",ptp:"0"}
+</script> <script src="http://cpro.baidustatic.com/cpro/ui/c.js" type="text/javascript"></script> <script type="text/javascript">
+    /*右侧悬停广告*/
+    var cpro_id = "u2386663";
+</script> <script src="http://cpro.baidustatic.com/cpro/ui/c.js" type="text/javascript"></script> </p> 
+        <div class="clear"></div> 
+       </div> 
+       <div class="box-bottom"> 
+        <i class="lb"></i> 
+        <i class="rb"></i> 
+       </div> 
+      </div> 
+     </div> 
+    </div> 
+    <div class="widget"> 
+    </div> 
+    <div class="widget"> 
+    </div> 
+    <div class="clear"></div> 
+   </div>
+   <div class="clear"></div> 
+   <div class="footer_top"> 
+    <div id="menu"> 
+     <div class="menu-%e5%af%bc%e8%88%aa-container">
+      <ul id="menu-%e5%af%bc%e8%88%aa-1" class="menu">
+       <li class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-1703978"><a href="http://www.xuebuyuan.com/category/web%e5%89%8d%e7%ab%af">web前端</a></li> 
+       <li class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-1703980"><a href="http://www.xuebuyuan.com/category/%e6%95%b0%e6%8d%ae%e5%ba%93">数据库</a></li> 
+       <li class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-1703982"><a href="http://www.xuebuyuan.com/category/%e7%bc%96%e7%a8%8b%e8%af%ad%e8%a8%80">编程语言</a></li> 
+       <li class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-1703979"><a href="http://www.xuebuyuan.com/category/%e6%90%9c%e7%b4%a2%e6%8a%80%e6%9c%af">搜索技术</a></li> 
+       <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-1810308"><a href="http://www.xuebuyuan.com/aboutus">关于本站</a></li> 
+      </ul>
+     </div> 
+    </div> 
+    <h2 class="blogtitle"> <a href="http://www.xuebuyuan.com/" title="学步园">返回首页</a></h2> 
+    <big class="lt"></big> 
+    <big class="rt"></big> 
+   </div> 
+   <!-- 页脚 --> 
+   <div class="footer_bottom_a">
+     Copyright &copy; 2013-2014 学步园&nbsp;&nbsp;保留所有权利. 
+    <big class="lb"></big> 
+    <big class="rb"></big> 
+   </div> 
+   <!-- 首页页脚 --> 
+   <div class="clear"></div> 
+  </div>  
+  <script type="text/javascript">
+var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3Fc0f0742eeb83d6ab6614a81723b00197' type='text/javascript'%3E%3C/script%3E"));
+</script> 
+ </body>
+</html>

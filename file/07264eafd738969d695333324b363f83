@@ -1,0 +1,1104 @@
+<html><head></head><body><pre style="word-wrap: break-word; white-space: pre-wrap;">//
+//                                  _oo8oo_
+//                                 o8888888o
+//                                 88" . "88
+//                                 (| -_- |)
+//                                 0\  =  /0
+//                               ___/'==='\___
+//                             .' \\|     |// '.
+//                            / \\|||  :  |||// \
+//                           / _||||| -:- |||||_ \
+//                          |   | \\\  -  /// |   |
+//                          | \_|  ''\---/''  |_/ |
+//                          \  .-\__  '-'  __/-.  /
+//                        ___'. .'  /--.--\  '. .'___
+//                     ."" '&lt;  '.___\_&lt;|&gt;_/___.'  &gt;' "".
+//                    | | :  `- \`.:`\ _ /`:.`/ -`  : | |
+//                    \  \ `-.   \_ __\ /__ _/   .-` /  /
+//                =====`-.____`.___ \_____/ ___.`____.-`=====
+//                                  `=---=`
+//
+//
+//                          佛祖保佑         永无bug
+//
+var topApp = angular.module('topApp', ['ui.router', 'infinite-scroll']);
+var baseUri = '//m.topit.me';
+var appVersion = 502;
+var nextPageUrl;
+var nextOffset;
+
+topApp.run(['$rootScope', '$state', '$stateParams', function($rootScope, $state, $stateParams){
+        var iOS = ( navigator.userAgent.match(/(iPad|iPhone|iPod)/g) ? true : false );
+        $rootScope.$state = $state;
+        $rootScope.$stateParams = $stateParams;
+        $rootScope.loaded = false;
+        $rootScope.weixin = /MicroMessenger/i.test(navigator.userAgent);
+        $rootScope.weixinClicked = false;
+
+        if(iOS){
+            $rootScope.wxiOS = $rootScope.weixin &amp;&amp; true;
+            $rootScope.download = 'http://a.app.qq.com/o/simple.jsp?pkgname=me.topit.TopAndroid2&amp;g_f=991653';
+        } else {
+            $rootScope.wxAndroid = $rootScope.weixin &amp;&amp; true;
+            $rootScope.download = 'http://a.app.qq.com/o/simple.jsp?pkgname=me.topit.TopAndroid2&amp;g_f=991653';
+        }
+    }])
+    .config(['$stateProvider', '$urlRouterProvider', '$compileProvider',
+        function($stateProvider, $urlRouterProvider, $compileProvider){
+
+            // config the App schema
+            $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|file|javascript|topitme):/);
+            $urlRouterProvider
+                .otherwise('/home');
+
+            $stateProvider
+                .state("home", {
+                    url: "/home",
+                    templateUrl: 'partials/home.html'
+                })
+                .state("app", {
+                    url: "/app/:channel",
+                    templateUrl: 'partials/app.html'
+                })
+                .state('category', {
+                    url: '/category',
+                    templateUrl: 'partials/category.html'
+                })
+                .state('about', {
+                    url: '/about',
+                    templateUrl: 'partials/about.html'
+                })
+                .state('subcategory', {
+                    url: '/category/:id',
+                    templateUrl: 'partials/subcategory.html'
+                })
+                .state('item', {
+                    url: '/item/:id',
+                    templateUrl: 'partials/item.html',
+                })
+                .state('album', {
+                    url: '/album/:id',
+                    templateUrl: 'partials/album.html'
+                })
+                .state('profile', {
+                    url: '/profile/:id',
+                    templateUrl: 'partials/profile.html'
+                })
+                .state('topic', {
+                    url: '/topic/:id',
+                    templateUrl: 'partials/topic.html'
+                })
+                .state('tag', {
+                    url: '/tag/:id',
+                    templateUrl: 'partials/tag.html'
+                })
+                .state('activity', {
+                    url: '/activity/:id',
+                    templateUrl: 'partials/activity.html'
+                })
+                .state('groups', {
+                    url: '/group',
+                    templateUrl: 'partials/groups.html'
+                })
+                .state('group', {
+                    url: '/group/:id',
+                    templateUrl: 'partials/group.html'
+                });
+        }
+    ]);
+
+// 首页推荐
+topApp.controller('homeCtrl', ['$scope', 'Item', '$rootScope', function($scope, Item, $rootScope){
+    var item = new Item();
+    $scope.item = item;
+    $rootScope.loaded = item.loaded;
+    // 轮播图
+    $scope.$on('ngRepeatFinished', function(){
+        var mySwiper = new Swiper('.swiper-container', {
+            pagination: '.swiper-pagination',
+            paginationClickable: true,
+            mode: 'horizontal',
+            loop: true,
+            autoplay: 5000,
+            autoplayDisableOnInteraction: false,
+            keyboardControl: true,
+            mousewheelControl: true,
+            onClick: function(swiper){
+                // alert('ok');
+                // location.href = 'http://baidu.com';
+            },
+            onSlideClick: function(swiper){
+                angular.element(swiper.clickedSlide).scope().clicked(angular.element(swiper.clickedSlide).scope().$index)
+            }
+        });
+    });
+}]);
+
+// 分类
+topApp.controller('categoryCtrl', ['$http', '$scope', '$rootScope', function($http, $scope, $rootScope){
+    $http.get(baseUri + '/mt/?method=recommends.get&amp;appVersion=' + appVersion)
+        .success(function(data, status, headers, config){
+            $rootScope.loaded = true;
+            $scope.categories = data.item;
+        });
+}]);
+
+// 子分类
+topApp.controller('subCategoryCtrl', ['Page', '$http', '$stateParams', '$scope', '$rootScope', function(Page, $http, $stateParams, $scope, $rootScope){
+    var id = $stateParams.id;
+    var page = new Page;
+    $rootScope.loaded = page.loaded;
+    $scope.pages = page;
+    nextPageUrl = '/mt/?method=recommend.get&amp;id=' + id;
+    nextOffset = 30;
+
+    $http.get(baseUri + '/mt/?method=recommend.get&amp;appVersion=' + appVersion + '&amp;id=' + id)
+        .success(function(data, status, headers, config){
+            $rootScope.loaded = true;
+            $scope.data = data.info;
+            $scope.openApp = 'topitme://?method=recommend.get&amp;id=' + id;
+
+            $scope.subcateSectionClass = function(index){
+                var dataType = data.info.category[index].displayType;
+                if(dataType == 'MixCategoryHorizontalView'){
+                    return 'categoryHorizontal';
+                }
+                if(dataType == 'MixCategoryImageTextView'){
+                    return 'categoryImageText';
+                }
+            }
+
+            $scope.subcateLink = function(index,indexLink){
+                var cateNextHttp = data.info.category[index].item[indexLink].next.slice(19);
+                var rSplitMethod = cateNextHttp.split('=')[1].split('.');
+                var rSplitId = cateNextHttp.split('id=')[1].split('&amp;');
+                $scope.cateMethod = rSplitMethod[0];
+                $scope.cateId = rSplitId[0];
+                
+                if(rSplitMethod[0] == 'post')
+                {
+                   	$scope.cateMethod = 'topic';
+                }
+                if((rSplitMethod[0] == 'user'))
+                {
+                   	$scope.cateMethod = 'profile';
+                }                
+            }
+        });
+
+    $scope.$on('ngRepeatFinished', function(){
+        var mySwiper = new Swiper('.swiper-container', {
+            freeMode: true,
+            slidesPerView: 'auto',
+            keyboardControl: true,
+            mousewheelControl: true,
+            onSlideClick: function(swiper){
+                angular.element(swiper.clickedSlide).scope().clicked(angular.element(swiper.clickedSlide).scope().$index)
+            }
+        });
+    });
+}]);
+
+// app
+topApp.controller('appCtrl', ['$http', '$stateParams', '$scope', '$rootScope', function($http, $stateParams, $scope, $rootScope){
+    var channel = $stateParams.channel;
+    // console.log(channel);
+    // console.log('aaa');
+}]);
+
+// 图片详情页
+topApp.controller('itemCtrl', ['$http', '$stateParams', '$scope', '$rootScope', '$location',
+    function($http, $stateParams, $scope, $rootScope, $location){
+        var id = $stateParams.id;
+        $http.get(baseUri + '/mt/?method=item.get&amp;appVersion=' + appVersion + '&amp;id=' + id)
+            .success(function(data, status, headers, config){
+                $rootScope.loaded = true;
+                $scope.info = data.item[0];
+                $scope.openApp = 'topitme://?method=item.get&amp;id=' + id;
+            });
+
+        // 拉取评论
+        // TODO后期改为服务
+        var comments = [];
+        var count = 0;
+        $http.get(baseUri + '/mt/?method=item.getComments&amp;appVersion=' + appVersion + '&amp;id=' + id)
+            .success(function(data, status, headers, config){
+                $scope.loaded = true;               
+                comments = data.item;
+                $scope.comments = comments;
+                $scope.count = data.info.num;
+                // 默认显示10条
+                // if(data.info.num &gt; 10){
+                //     $scope.loadMore = true;
+                // } else {
+                //     $scope.loadMore = false;
+                // }
+            });
+
+        // var offset = 10;
+        // $scope.nextPage = function(){           
+        //     $http.get(baseUri + '/mt/?method=item.getComments&amp;appVersion=' + appVersion + '&amp;offset=' + offset + '&amp;id=' + id)
+        //         .success(function(data, status, headers, config){
+        //             offset += 10;
+        //             if(offset &gt;= data.info.num){
+        //                 $scope.loadMore = false;
+        //             } else {
+        //                 $scope.loadMore = true;
+        //             }
+        //             if((offset-10) &lt; data.info.num){
+        //                 for(var i in data.item){
+        //                     comments.push(data.item[i]);
+        //                 }
+        //             }
+        //             $scope.comments = comments;
+        //         });
+        // }
+
+        $scope.$on('ngRepeatFinished', function(){
+            var mySwiper = new Swiper('.swiper-container', {
+                freeMode: true,
+                slidesPerView: 'auto',
+                keyboardControl: true,
+                mousewheelControl: true,
+                onSlideClick: function(swiper){
+                    angular.element(swiper.clickedSlide).scope().clicked(angular.element(swiper.clickedSlide).scope().$index)
+                }
+            });
+        });
+    }
+]);
+
+// 专辑详情页
+topApp.controller('albumCtrl', ['Page', '$http', '$stateParams', '$scope', '$rootScope', function(Page, $http, $stateParams, $scope, $rootScope){
+    var id = $stateParams.id;	
+	var page = new Page;
+    $rootScope.loaded = page.loaded;
+    $scope.pages = page;
+    nextPageUrl = '/mt/?method=album.get&amp;id=' + id;
+    nextOffset = 30;
+
+    $http.get(baseUri + '/mt/?method=album.get&amp;appVersion=' + appVersion + '&amp;id=' + id)
+        .success(function(data, status, headers, config){
+            $rootScope.loaded = true;
+            $scope.info = data.info;                
+            $scope.openApp = 'topitme://?method=album.get&amp;id=' + id;
+
+            var len = data.info.sbj.bio.txt.length;
+            if(len &amp;&amp; len &gt; 100){
+                $scope.more = true;
+            } else {
+                $scope.more = false;
+            }
+
+            $scope.showMore = function(){
+                $scope.more = !$scope.more;
+            }
+        });
+}]);
+
+// 热门小组
+topApp.controller('groupsCtrl', ['Page', '$scope', '$rootScope', function(Page, $scope, $rootScope){
+    var page = new Page;
+    $rootScope.loaded = page.loaded;
+    $scope.pages = page;
+    nextPageUrl = '/mt/?method=groups.get&amp;type=0';
+    nextOffset = 30;
+}]);
+
+// 小组详情页
+topApp.controller('groupCtrl', ['$http', '$stateParams', '$scope', '$rootScope', function($http, $stateParams, $scope, $rootScope){
+    var id = $stateParams.id;
+    var items;
+    $http.get(baseUri + '/mt/?method=group.get&amp;appVersion=' + appVersion + '&amp;id=' + id)
+        .success(function(data, status, headers, config){
+            $rootScope.loaded = true;
+            $scope.info = data.info;
+            items = data.item;
+            $scope.items = items;
+            $scope.openApp = 'topitme://?method=group.get&amp;id=' + id;
+            
+            $scope.showTips = function(){
+                console.log('weixin app click');
+                // if($rootScope.winxin){
+                    $rootScope.weixinClicked = true;
+                    // console.log($rootScope.weixin);
+                    // console.log($rootScope.weixinClicked);
+                // }                
+            }
+        });
+}]);
+
+// 话题
+topApp.controller('topicCtrl', ['$http', '$stateParams', '$scope', '$rootScope', function($http, $stateParams, $scope, $rootScope){
+    var id = $stateParams.id;
+    $http.get(baseUri + '/mt/?method=post.get&amp;appVersion=' + appVersion + '&amp;id=' + id)
+        .success(function(data, status, headers, config){
+            $rootScope.loaded = true;
+            $scope.info = data.info;
+            $scope.item = data.item;
+        });
+}]);
+
+// 个人主页
+topApp.controller('profileCtrl', ['$http', '$stateParams', '$scope', '$rootScope', function($http, $stateParams, $scope, $rootScope){
+    var id = $stateParams.id;
+    $http.get(baseUri + '/mt/?method=user.get&amp;appVersion=' + appVersion + '&amp;id=' + id)
+        .success(function(data, status, headers, config){
+            $rootScope.loaded = true;
+            $scope.data = data;
+            $scope.openApp = 'topitme://?method=user.get&amp;id=' + id; 
+
+            $scope.profileSectionClass = function(index){
+                var dataType = data.info.category[index].displayType;
+                if(dataType == 'MixAlbumImageView'){
+                    return 'albumImageView';
+                }
+                if(dataType == 'MixActivityLargeIconView'){
+                    return 'activityLargeIcon';
+                }
+            }         
+        });
+}]);
+
+// 标签页&amp;标签页
+topApp.controller('tagCtrl', ['Page', '$http', '$stateParams', '$scope', '$rootScope', function(Page, $http, $stateParams, $scope, $rootScope){
+    var id = $stateParams.id;
+    var page = new Page;
+    var tagType = angular.element('h2').text();
+	nextOffset = 30;
+	$rootScope.loaded = page.loaded;
+
+	if(tagType == '标签'){
+		nextPageUrl = '/mt/?method=tag.get&amp;type=2&amp;sort=hot&amp;appVersion=' + appVersion + '&amp;id=' + id;
+		$scope.openApp = 'topitme://?method=tag.get&amp;type=1&amp;appVersion' + appVersion + '&amp;id=' + id;
+		$scope.hots = page;
+		$scope.type = 'hot';
+	}
+	if(tagType == '活动'){
+		nextPageUrl = '/mt/?method=tag.get&amp;sort=new&amp;appVersion=' + appVersion + '&amp;id=' + id;
+		$scope.openApp = 'topitme://?method=tag.get&amp;type=2&amp;appVersion' + appVersion + '&amp;id=' + id;
+		$scope.news = page;
+		$scope.type = 'new';
+	}
+       
+    // 防止快速点击
+    var stat = false;
+    $http.get(baseUri + '/mt/?method=tag.get&amp;appVersion=' + appVersion + '&amp;id=' + id)
+        .success(function(data, status, headers, config){           
+            $rootScope.loaded = true;
+            $scope.info = data.info;
+        });
+
+    $scope.tabs = [{
+        title: '推荐',
+        type: 'hot'
+    }, {
+        title: '最新',
+        type: 'new'
+    }, {
+        title: '排行',
+        type: 'rank'
+    }, {
+        title: '讨论',
+        type: 'comment'
+    }];
+
+    $scope.tabsAct = [{
+        title: '最新',
+        type: 'new'
+    }, {
+        title: '推荐',
+        type: 'hot'
+    }, {
+        title: '排行',
+        type: 'rank'
+    }, {
+        title: '讨论',
+        type: 'comment'
+    }];
+
+    $scope.onClickTab = function(tab){
+        
+    	$(window).scrollTop(10);
+
+        if(stat){
+            return;
+        }
+
+        stat = true;
+        if(tab.type == $scope.type){
+            return;
+        }
+
+        $scope.type = tab.type;       
+             	
+        if($scope.type == 'new'){
+        	var page = new Page;
+        	stat = false;
+        	nextPageUrl = '/mt/?method=tag.get&amp;sort=new&amp;appVersion' + appVersion + '&amp;id=' + id;
+        	$scope.news = page;
+        }
+        else if($scope.type == 'rank'){
+        	var page = new Page;
+        	stat = false;        	       	
+        	nextPageUrl = '/mt/?method=tag.get&amp;sort=rank&amp;appVersion' + appVersion + '&amp;id=' + id;
+        	$scope.ranks = page;
+        }
+        else if($scope.type == 'comment'){
+        	var page = new Page;
+        	stat = false;        	        	
+        	nextPageUrl = '/mt/?method=tag.getComments&amp;appVersion' + appVersion + '&amp;id=' + id;
+        	$scope.comments = page;
+        }
+        else {	           
+        	var page = new Page;
+        	stat = false;        	        	
+        	nextPageUrl = '/mt/?method=tag.get&amp;type=2&amp;sort=hot&amp;appVersion' + appVersion + '&amp;id=' + id; 
+        	$scope.hots = page;          	               
+        }
+    }
+
+    $scope.isActiveTab = function(type){
+        return type == $scope.type;
+    }
+
+    $(window).scroll(function(){
+		var scrollTop = $(window).scrollTop();
+		$scope.tagTitleColor = function(){
+		    if(scrollTop &gt; 48){
+		    	angular.element('h2').text($scope.info.sbj.name);
+		    	return 'tagTitleColor';
+		    }else{
+		    	angular.element('h2').text(tagType);
+		    	return '';
+		    }
+		}
+		// $scope.tagTabPosition = function(){
+		// 	var tagHeadHeight = angular.element('.tag .head').height();
+		// 	if(scrollTop &gt; tagHeadHeight){
+		// 		return 'tagTabPosition';
+		// 	}
+		// }	    
+	});
+}]);
+
+// 推荐标签
+topApp.controller('recommendTagCtrl', ['$http', '$stateParams', '$scope', '$rootScope', function($http, $stateParams, $scope, $rootScope){
+    var id = $stateParams.id;
+    $http.get(baseUri + '/mt/?method=tag.get&amp;id=' + id + '&amp;type=hot&amp;auth=4140d1cc816b024a4da95bc43d309bee+1448971')
+        .success(function(data, status, headers, config){
+            $rootScope.loaded = true;
+            $scope.item = data.item;
+        });
+}]);
+
+// 最新标签
+topApp.controller('recommendTagCtrl', ['$http', '$stateParams', '$scope', '$rootScope', function($http, $stateParams, $scope, $rootScope){
+    var id = $stateParams.id;
+    $http.get(baseUri + '/mt/?method=tag.get&amp;id=' + id + '&amp;type=new&amp;auth=4140d1cc816b024a4da95bc43d309bee+1448971')
+        .success(function(data, status, headers, config){
+            $rootScope.loaded = true;
+            $scope.item = data.item;
+        });
+}]);
+
+topApp.directive('endRepeat', ['$timeout', function($timeout){
+    return {
+        restrict: 'A',
+        link: function(scope, element, attr){
+            if(scope.$last === true){
+                $timeout(function(){
+                    scope.$emit('ngRepeatFinished');
+                });
+            }
+        }
+    }
+}]);
+
+topApp.directive('scrollOnClick', function(){
+    return {
+        restrict: 'A',
+        link: function(scope, $elm){
+            $elm.on('click', function(){
+                $("body").animate({
+                    scrollTop: 0
+                }, "slow");
+            });
+        }
+    }
+});
+
+// 回到顶部处理
+topApp.directive("scroll", function($window){
+    return function(scope, element, attrs){
+        angular.element($window).bind("scroll", function(){
+            if(this.pageYOffset &gt;= 1000){
+                scope.boolChangeClass = true;
+            } else {
+                scope.boolChangeClass = false;
+            }
+            scope.$apply();
+        });
+    };
+});
+
+topApp.factory('Item', function($http){
+    var Item = function(){
+        this.items = [];
+        this.banner = [];
+        this.busy = false;
+        this.offset = 0;
+        this.count = 0;
+        this.loaded = true;
+    };
+
+    Item.prototype.nextPage = function(){
+        if(this.busy) return;
+        this.busy = true;
+        this.loaded = false;
+
+        if(this.offset &lt;= this.count){
+            $http.get(baseUri + '/mt/?method=uranus.items.get&amp;appVersion=' + appVersion + '&amp;offset=' + this.offset)
+                .success(function(data, status, headers, config){
+                	this.loaded = true;
+                    if(this.offset == 0){
+                        this.count = data.info.num;
+                        this.items = data.item;
+                        this.banners = data.info.banner;
+                        for(var i = 0, len = this.banners.length; i&lt; len; i++){
+                            var value = gup('method', this.banners[i].next);
+                            var id = gup('id', this.banners[i].next);
+                            var type = gup('type', this.banners[i].next);
+                            var link;
+                            switch(value){
+                                case 'album.get':
+                                    link = baseUri+'/#/album/'+id;
+                                    break;
+                                case 'post.get':
+                                    link = baseUri+'/#/topic/'+id;
+                                    break;
+                                case 'tag.get':                                   
+                                    switch(type){
+                                    	case '1':
+                                    		link = baseUri+'/#/tag/'+id;
+                                    		break;
+                                    	case '2':
+                                    		link = baseUri+'/#/activity/'+id;
+                                    		break;
+                                    }
+                                    break;                                                           
+                            }
+                            this.banners[i].link = link;
+                        }
+                    }
+
+                    if(this.offset){
+                        for(var i = 0, len = data.item.length; i &lt; len; i++){
+                            this.items.push(data.item[i]);
+                        }
+                    }
+                    this.offset += 30;
+                    this.busy = false;
+                    this.loaded = true;
+                }.bind(this));
+        }
+    };
+
+    return Item;
+});
+
+function gup( name, url ){
+  if(!url) url = location.href
+  name = name.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");
+  var regexS = "[\\?&amp;]"+name+"=([^&amp;#]*)";
+  var regex = new RegExp( regexS );
+  var results = regex.exec( url );
+  return results == null ? null : results[1];
+}
+
+// 下拉加载
+topApp.factory('Page', function($http){
+    var Page = function(){
+        this.items = [];
+        this.busy = false;
+        this.offset = 0;
+        this.count = 0;
+        this.loaded = true;
+        this.loadMore = true;
+    };
+
+    Page.prototype.nextPage = function(){
+        if(this.busy) return;
+        this.busy = true;
+        this.loaded = false;
+
+        if(this.offset &lt;= this.count){
+            $http.get(baseUri + nextPageUrl + '&amp;appVersion=' + appVersion + '&amp;offset=' + this.offset)
+                .success(function(data, status, headers, config){
+                	console.log(baseUri + nextPageUrl + '&amp;appVersion=' + appVersion + '&amp;offset=' + this.offset);
+                    this.loaded = true;
+                    if(this.offset == 0){
+                        this.count = data.info.num;
+                        this.items = data.item;
+                    }
+
+                    if(this.offset){
+                        for(var i = 0, len = data.item.length; i &lt; len; i++){
+                            this.items.push(data.item[i]);
+                        }
+                    }
+
+                    if((this.offset + nextOffset) &gt;= data.info.num){
+                        this.loadMore = false;
+                    } else {
+                        this.loadMore = true;
+                    }
+
+                    this.offset += nextOffset;
+                    this.busy = false;
+                    this.loaded = true;
+                }.bind(this));
+        }
+    };
+
+    return Page;
+});
+
+// 延迟加载图片
+// -------------------------------------------------- //
+// -------------------------------------------------- //
+
+
+// I lazily load the images, when they come into view.
+topApp.directive(
+    "bnLazySrc",
+    function($window, $document){
+
+
+        // I manage all the images that are currently being
+        // monitored on the page for lazy loading.
+        var lazyLoader = (function(){
+
+            // I maintain a list of images that lazy-loading
+            // and have yet to be rendered.
+            var images = [];
+
+            // I define the render timer for the lazy loading
+            // images to that the DOM-querying (for offsets)
+            // is chunked in groups.
+            var renderTimer = null;
+            var renderDelay = 100;
+
+            // I cache the window element as a jQuery reference.
+            var win = $($window);
+
+            // I cache the document document height so that
+            // we can respond to changes in the height due to
+            // dynamic content.
+            var doc = $document;
+            var documentHeight = doc.height();
+            var documentTimer = null;
+            var documentDelay = 2000;
+
+            // I determine if the window dimension events
+            // (ie. resize, scroll) are currenlty being
+            // monitored for changes.
+            var isWatchingWindow = false;
+
+
+            // ---
+            // PUBLIC METHODS.
+            // ---
+
+
+            // I start monitoring the given image for visibility
+            // and then render it when necessary.
+            function addImage(image){
+
+                images.push(image);
+
+                if(!renderTimer){
+
+                    startRenderTimer();
+
+                }
+
+                if(!isWatchingWindow){
+
+                    startWatchingWindow();
+
+                }
+
+            }
+
+
+            // I remove the given image from the render queue.
+            function removeImage(image){
+
+                // Remove the given image from the render queue.
+                for(var i = 0; i &lt; images.length; i++){
+
+                    if(images[i] === image){
+
+                        images.splice(i, 1);
+                        break;
+
+                    }
+
+                }
+
+                // If removing the given image has cleared the
+                // render queue, then we can stop monitoring
+                // the window and the image queue.
+                if(!images.length){
+
+                    clearRenderTimer();
+
+                    stopWatchingWindow();
+
+                }
+
+            }
+
+
+            // ---
+            // PRIVATE METHODS.
+            // ---
+
+
+            // I check the document height to see if it's changed.
+            function checkDocumentHeight(){
+
+                // If the render time is currently active, then
+                // don't bother getting the document height -
+                // it won't actually do anything.
+                if(renderTimer){
+
+                    return;
+
+                }
+
+                var currentDocumentHeight = doc.height();
+
+                // If the height has not changed, then ignore -
+                // no more images could have come into view.
+                if(currentDocumentHeight === documentHeight){
+
+                    return;
+
+                }
+
+                // Cache the new document height.
+                documentHeight = currentDocumentHeight;
+
+                startRenderTimer();
+
+            }
+
+
+            // I check the lazy-load images that have yet to
+            // be rendered.
+            function checkImages(){
+
+                // Log here so we can see how often this
+                // gets called during page activity.
+                // console.log("Checking for visible images...");
+
+                var visible = [];
+                var hidden = [];
+
+                // Determine the window dimensions.
+                var windowHeight = win.height();
+                var scrollTop = win.scrollTop();
+
+                // Calculate the viewport offsets.
+                var topFoldOffset = scrollTop;
+                var bottomFoldOffset = (topFoldOffset + windowHeight);
+
+                // Query the DOM for layout and seperate the
+                // images into two different categories: those
+                // that are now in the viewport and those that
+                // still remain hidden.
+                for(var i = 0; i &lt; images.length; i++){
+
+                    var image = images[i];
+
+                    if(image.isVisible(topFoldOffset, bottomFoldOffset)){
+
+                        visible.push(image);
+
+                    } else {
+
+                        hidden.push(image);
+
+                    }
+
+                }
+
+                // Update the DOM with new image source values.
+                for(var i = 0; i &lt; visible.length; i++){
+
+                    visible[i].render();
+
+                }
+
+                // Keep the still-hidden images as the new
+                // image queue to be monitored.
+                images = hidden;
+
+                // Clear the render timer so that it can be set
+                // again in response to window changes.
+                clearRenderTimer();
+
+                // If we've rendered all the images, then stop
+                // monitoring the window for changes.
+                if(!images.length){
+
+                    stopWatchingWindow();
+
+                }
+
+            }
+
+
+            // I clear the render timer so that we can easily
+            // check to see if the timer is running.
+            function clearRenderTimer(){
+
+                clearTimeout(renderTimer);
+
+                renderTimer = null;
+
+            }
+
+
+            // I start the render time, allowing more images to
+            // be added to the images queue before the render
+            // action is executed.
+            function startRenderTimer(){
+
+                renderTimer = setTimeout(checkImages, renderDelay);
+
+            }
+
+
+            // I start watching the window for changes in dimension.
+            function startWatchingWindow(){
+
+                isWatchingWindow = true;
+
+                // Listen for window changes.
+                win.on("resize.bnLazySrc", windowChanged);
+                win.on("scroll.bnLazySrc", windowChanged);
+
+                // Set up a timer to watch for document-height changes.
+                documentTimer = setInterval(checkDocumentHeight, documentDelay);
+
+            }
+
+
+            // I stop watching the window for changes in dimension.
+            function stopWatchingWindow(){
+
+                isWatchingWindow = false;
+
+                // Stop watching for window changes.
+                win.off("resize.bnLazySrc");
+                win.off("scroll.bnLazySrc");
+
+                // Stop watching for document changes.
+                clearInterval(documentTimer);
+
+            }
+
+
+            // I start the render time if the window changes.
+            function windowChanged(){
+
+                if(!renderTimer){
+
+                    startRenderTimer();
+
+                }
+
+            }
+
+
+            // Return the public API.
+            return ({
+                addImage: addImage,
+                removeImage: removeImage
+            });
+
+        })();
+
+
+        // ------------------------------------------ //
+        // ------------------------------------------ //
+
+        // I represent a single lazy-load image.
+        function LazyImage(element){
+
+            // I am the interpolated LAZY SRC attribute of
+            // the image as reported by AngularJS.
+            var source = null;
+
+            // I determine if the image has already been
+            // rendered (ie, that it has been exposed to the
+            // viewport and the source had been loaded).
+            var isRendered = false;
+
+            // I am the cached height of the element. We are
+            // going to assume that the image doesn't change
+            // height over time.
+            var height = null;
+
+
+            // ---
+            // PUBLIC METHODS.
+            // ---
+
+
+            // I determine if the element is above the given
+            // fold of the page.
+            function isVisible(topFoldOffset, bottomFoldOffset){
+
+                // If the element is not visible because it
+                // is hidden, don't bother testing it.
+                if(!element.is(":visible")){
+
+                    return (false);
+
+                }
+
+                // If the height has not yet been calculated,
+                // the cache it for the duration of the page.
+                if(height === null){
+
+                    height = element.height();
+
+                }
+
+                // Update the dimensions of the element.
+                var top = element.offset().top;
+                var bottom = (top + height);
+
+                // Return true if the element is:
+                // 1. The top offset is in view.
+                // 2. The bottom offset is in view.
+                // 3. The element is overlapping the viewport.
+                return (
+                    (
+                        (top &lt;= bottomFoldOffset) &amp;&amp;
+                        (top &gt;= topFoldOffset)
+                    ) ||
+                    (
+                        (bottom &lt;= bottomFoldOffset) &amp;&amp;
+                        (bottom &gt;= topFoldOffset)
+                    ) ||
+                    (
+                        (top &lt;= topFoldOffset) &amp;&amp;
+                        (bottom &gt;= bottomFoldOffset)
+                    )
+                );
+
+            }
+
+
+            // I move the cached source into the live source.
+            function render(){
+
+                isRendered = true;
+
+                renderSource();
+
+            }
+
+
+            // I set the interpolated source value reported
+            // by the directive / AngularJS.
+            function setSource(newSource){
+
+                source = newSource;
+
+                if(isRendered){
+
+                    renderSource();
+
+                }
+
+            }
+
+
+            // ---
+            // PRIVATE METHODS.
+            // ---
+
+
+            // I load the lazy source value into the actual
+            // source value of the image element.
+            function renderSource(){
+
+                element[0].src = source;
+
+            }
+
+
+            // Return the public API.
+            return ({
+                isVisible: isVisible,
+                render: render,
+                setSource: setSource
+            });
+
+        }
+
+
+        // ------------------------------------------ //
+        // ------------------------------------------ //
+
+
+        // I bind the UI events to the scope.
+        function link($scope, element, attributes){
+
+            var lazyImage = new LazyImage(element);
+
+            // Start watching the image for changes in its
+            // visibility.
+            lazyLoader.addImage(lazyImage);
+
+
+            // Since the lazy-src will likely need some sort
+            // of string interpolation, we don't want to
+            attributes.$observe(
+                "bnLazySrc",
+                function(newSource){
+
+                    lazyImage.setSource(newSource);
+
+                }
+            );
+
+
+            // When the scope is destroyed, we need to remove
+            // the image from the render queue.
+            $scope.$on(
+                "$destroy",
+                function(){
+
+                    lazyLoader.removeImage(lazyImage);
+
+                }
+            );
+
+        }
+
+
+        // Return the directive configuration.
+        return ({
+            link: link,
+            restrict: "A"
+        });
+
+    }
+);</pre></body></html>

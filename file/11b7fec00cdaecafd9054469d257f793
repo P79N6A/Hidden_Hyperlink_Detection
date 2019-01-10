@@ -1,0 +1,377 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html><head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8;">
+<title>广州市公安局网上车管所</title>
+<link rel="stylesheet" type="text/css" href="/cgs/css/index.css">
+<link rel="stylesheet" type="text/css" href="/cgs/js/jalert/jalert.css">
+<style type="text/css">
+  td{text-indent: 0px}
+  .notnull{color: red}
+  .left{text-align: left}
+  .right{text-align: right}
+  #email_title{width: 80%}
+  #email_content{width: 90%;}
+  .adresslist td{text-indent: 0px;}
+  .adresslist .backColor{background: #e5f6fd 0px 0px;}
+  .tip{color: red;display: none}
+  #infoTable{border:0px; width:50%;border: solid 1px #7FAAFF; background-color: #C5D9FF; padding: 2px;margin-top:8px;margin-left: 50px}
+  .swfupload{margin-left: 50px;margin-top: 20px}
+  #tip3{width: 80%;margin-left: 40px;}
+</style>
+<script type="text/javascript" src="/cgs/js/jquery-1.7.2.min.js"></script>
+<script type="text/javascript" src="/cgs/js/jalert/jalert.js"></script>
+<script type="text/javascript">
+$(function(){
+	
+	$('#send_btn').click(function(){
+		var title   =  $.trim($('#email_title').val());
+		var content =  $.trim($('#email_content').val());
+		var sender  =  $.trim($('#sender').val());
+		var mobile  =  $.trim($('#telnum').val());
+		var email_addr = $.trim($("#email_addr").val());
+		var path = "";
+		
+		var regEx = new RegExp(/^(([^\^\.<>%&',;=?$"':#@!~\]\[{}\\/`\|])*)$/); 
+		var re=/\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*/; 
+       // var result = name.match(regEx); 
+		
+		$('.tip').hide();
+		
+		if(title==""){
+			$('#tip1').html('标题不能为空').show();
+			return;
+		}
+		
+		if(title.length>200){
+		//	title = title.substring(0,200);
+			$('#tip1').html('标题过长').show();
+			$("#tip3").jalert("alert","标题过长，请控制在两百字符以内。");
+			return;
+		}
+		
+		
+		if(content==""){
+			$('#tip2').html('内容不能为空').show();
+			return;			
+		}
+		
+		if(content.length>200){
+		//	content = content.substring(0,200);
+		    $('#tip2').html('内容过长').show();
+			$("#tip3").jalert("alert","内容过长，请控制在两百字符以内。");
+			return;
+		}
+		
+		
+		
+		if(sender==""){
+			sender="匿名用户";
+		}
+		
+		if(mobile==""){
+			mobile="匿名号码";
+		}
+		
+		if(sender.length>20){
+			$("#tip3").jalert("alert","发件人姓名过长。");
+			return;
+		}
+		
+		if(mobile.length>20){
+			$("#tip3").jalert("alert","联系电话过长。");
+			return; 	
+		}
+		
+		if(title.match(regEx)==null){
+			$("#tip3").jalert("alert","标题中含有非法字符，请删除后继续操作。");
+			return;
+		}
+		
+		if(content.match(regEx)==null){
+			$("#tip3").jalert("alert","内容中含有非法字符，请删除后继续操作。");
+			return;
+		}
+		
+		if(sender.match(regEx)==null ||mobile.match(regEx)==null){
+			$("#tip3").jalert("alert","发件人或联系电话中含有非法字符，请删除后继续操作。");
+			return;
+		}
+		
+		if(email_addr==""){
+			$("#tip3").jalert("alert","联系邮箱不能为空，请填入您的邮箱。");
+			return;
+		}
+		
+		if( !re.test(email_addr) ){
+		       $("#tip3").jalert("alert" , "无效的电子邮箱。");
+		       return;
+		 }
+	      
+	      content = content + "       " + "联系邮箱：" + email_addr ;
+		
+		
+		var file_path = $('.targets');
+		for(var i=0;i<file_path.length;i++){
+			path =  path + $('.targets:eq(' + i + ')' ).html() + "@@";
+		}
+		path = path.replace(/\\/g, "$$");
+		//alert(path);
+		
+        var dataMap = {};
+        dataMap.title = title;
+        dataMap.content = content;
+        dataMap.sender = sender;
+        dataMap.mobile = mobile;
+        dataMap.path = path;
+        $.ajax({  
+      	  type: 'POST',
+             contentType:"application/json", 
+             url: "/cgs/user/sendEmail.htm?d=" + new Date()*1 ,
+             dataType:"json",  
+             data:jsonToStr(dataMap),      
+      	   beforeSend: function(XMLHttpRequest){
+              $("#send_btn").attr('disabled',true);
+      		},
+             success: function(data) { 
+               if(data.returnCode=="1"){
+            	 //  $("#tip3").html("邮件发送成功。");
+           		   $("#tip3").jalert("info","邮件发送成功。");
+            	   $("#infoTable").html("");
+           		   $("#email_title").val("");
+           		   $("#email_content").val("");
+           		   $("#sender").val("");
+           		   $("#telnum").val("");
+           		   $("#email_addr").val("");
+               }else if(data.returnCode=="1"){
+            	   $("#tip3").jalert("alert",data.returnMessage);
+               }else if(data.returnCode=="-1"){
+            	   $("#tip3").jalert("alert",data.returnMessage);
+               }else{
+            	  // $("#tip3").html("邮件发送失败。");
+            	   $("#tip3").jalert("alert","邮件发送失败。");
+               }
+
+             },
+         	  complete: function(XMLHttpRequest, textStatus){
+         		 $("#send_btn").attr('disabled',false);
+      	     },  
+             error: function() {  
+            	// $("#tip3").html("网络异常，请稍后再试。");
+            	 $("#tip3").jalert("alert","网络异常，请稍后再试。");
+             }
+      	});
+        
+	});
+	
+	
+	
+	$('.footer select').change(function(){
+		  var url = $(this).val();
+		  window.open(url)
+	  });
+});
+
+//转化对象
+function jsonToStr(obj){
+	if(typeof obj == "object"){
+		var arr=new Array();
+		for(var i in obj){
+			arr.push('"'+i+'":'+jsonToStr(obj[i]));
+		}
+		return "{"+arr.join(",")+"}";
+	}else{
+		return '"'+obj+'"';
+	}
+}
+</script>
+</head>
+
+<body>
+
+
+  <div id="main">
+       <!--header begin-->
+			<div class="top_header01" id="head" style="display:none;"><a href="#"><img src="../../images/top_close.gif" title="收起" id="up"></a></div>
+			<div class="top_header02" id="head2"><a href="#"><img src="../../images/top_open.gif" id="down" title="展开"></a></div>
+		<!--header End-->
+
+        <!--右侧 内容栏 s-->
+                 <div class="mapbanbg">
+                    <p class="mapban"><img src="/cgs/images/dot1.gif"><a href="/cgs/html/hall/index.html" target="_parent">首页</a> &gt; 所长信箱</p>
+                 </div>
+                 <table border="0" style="width: 90%" cellpadding="0" cellspacing="0" class="adresslist  left">
+                   <tbody><tr>
+                     <td align="right">收件人：</td>
+                     <td colspan="3">gzscgs2012@163.com</td>
+                     <td align="left"></td>
+                   </tr>
+                  
+                   <tr>
+                     <td class="backColor"><span class="notnull">*</span>标题：</td>
+                     <td colspan="3"><input type="text" id="email_title" value=""></td>
+                     <td align="left"><span id="tip1" class="tip"></span></td>
+                   </tr>
+                   
+                   <tr>
+                      <td class="backColor"><span class="notnull">*</span>内容：</td>
+                      <td colspan="3">
+                        <textarea rows="20" cols="100" id="email_content"></textarea> 
+                      </td>
+                      <td align="left"><span id="tip2" class="tip"></span></td>
+                   </tr>
+                 </tbody></table>
+                 
+                 <table>  
+                   <tbody><tr>
+                     <td style="width:45px"></td>
+                   
+                    <td style="width: 10%;margin-left: 20px">  <span class="backColor"><span style="color: red">*</span>联系邮箱：</span></td>
+                     <td>
+                       <input type="text" id="email_addr">
+                     </td>
+                     
+                     <td style="width: 13%;text-align: right"><span class="backColor">发件人姓名：</span></td>
+                     <td>
+                       <input type="text" id="sender">
+                     </td>
+
+                     <td style="width: 13%;text-align: right"><span class="backColor">联系电话：</span></td>
+
+                     <td>
+                       <input type="text" id="telnum">
+                                              <input type="submit" style="margin-left: 30px" class="btn-com" id="send_btn" value="发送">
+                     </td>
+                   
+
+                   </tr>
+                                
+                 </tbody></table>
+                 <div id="eTip" style="margin-left: 60px;margin-top: 10px;color: red;">
+                                                   为了网上车管所工作人员能够及时通过邮箱答复您的投诉和问题，
+                                                    请准确填写联系邮箱或通过您的个人邮箱给gzscgs2012@163.com反映投诉或意见。
+                 </div>
+                 <div id="tip3"></div>
+                                     
+             <!--      <span id="spanButtonPlaceholder" ></span>
+				    <div id="divFileProgressContainer" style="width:200;display:none;"></div>
+					<div id="thumbnails">
+					 <table id="infoTable"></table>  -->
+					</div>
+       <!--2.*************************left + Right End*************************************-->
+       <!--3.footer begin-->
+        <div id="footer" style="margin-top:10px;">
+           <div class="footer" style="padding-top:10px;">
+<select>
+                        	<option value="http://www.gzjd.gov.cn/">全国公安网</option>
+							
+                    		<option value="http://www.mps.gov.cn">公安部</option>
+                    		
+                    		<option value="http://www.gdga.gov.cn">广东省公安厅</option>
+                    		
+                    		<option value="http://www.bjgaj.gov.cn">北京市公安局</option>
+                    		
+                        </select>
+             <select>
+                        	<option value="1">省直部门政府网站</option>
+							
+                    		<option value="http://www.gdwst.gov.cn">省卫生厅</option>
+                    		
+                    		<option value="http://www.gd.gov.cn">省人民政府办公厅</option>
+                    		
+                    		<option value="http://www.gdga.gov.cn">省公安厅</option>
+                    		
+                    		<option value="http://www.gdsf.gov.cn">省司法厅</option>
+                    		
+                    		<option value="http://www.gdjyj.gd.gov.cn">省监狱管理局</option>
+                    		
+                    		<option value="http://www.gdhed.edu.cn">省教育厅</option>
+                    		
+                    		<option value="http://www.gdstc.gov.cn">省科学技术厅</option>
+                    		
+                    		<option value="http://www.mzzjw.gd.gov.cn">省民族宗教事务委员会</option>
+                    		
+                    		<option value="http://www.gdmz.gov.cn">省民政厅</option>
+                    		
+                    		<option value="http://www.gdczt.gov.cn">省财政厅</option>
+                    		
+                    		<option value="http://www.gdlr.gov.cn">省国土资源厅</option>
+                    		
+                    		<option value="http://www.gdcd.gov.cn">省交通厅</option>
+                    		
+                    		<option value="http://www.gdwater.gov.cn">省水利厅</option>
+                    		
+                        </select>
+
+
+<select>
+                        	<option value="1">地市政府站</option>
+							
+                    		<option value="http://www.gz.gov.cn">广州市政府网</option>
+                    		
+                    		<option value="http://www.sz.gov.cn">深圳政府在线</option>
+                    		
+                    		<option value="http://www.zhuhai.gov.cn">珠海信息网</option>
+                    		
+                    		<option value="http://www.shantou.gov.cn">汕头市政府信息网</option>
+                    		
+                    		<option value="http://www.foshan.gov.cn">佛山市政府网</option>
+                    		
+                    		<option value="http://www.yangjiang.gov.cn">阳江市政府信息网</option>
+                    		
+                    		<option value="http://www.huizhou.gov.cn">惠州市政府公众信息网</option>
+                    		
+                    		<option value="http://www.zhanjiang.gov.cn">湛江市政府公众网</option>
+                    		
+                    		<option value="http://www.maoming.gov.cn">茂名市信息网</option>
+                    		
+                    		<option value="http://www.zhaoqing.gov.cn">肇庆市政府信息网</option>
+                    		
+                    		<option value="http://www.gdqy.gov.cn">清远市政府公众网</option>
+                    		
+                    		<option value="http://www.chaozhou.gov.cn">潮州市政府公众网</option>
+                    		
+                    		<option value="http://www.yunfu.gov.cn">云浮市政府信息网</option>
+                    		
+                    		<option value="http://www.shaoguan.gov.cn">韶关市政府公众信息网</option>
+                    		
+                    		<option value="http://www.heyuan.gov.cn">河源市政府信息网</option>
+                    		
+                    		<option value="http://www.jiangmen.gov.cn">江门政务之窗</option>
+                    		
+                    		<option value="http://www.zs.gov.cn">中山市政府之窗</option>
+                    		
+                    		<option value="http://www.dongguan.gov.cn">东莞市政府公众网</option>
+                    		
+                    		<option value="http://www.meizhou.gov.cn">梅州市政府公众网</option>
+                    		
+                    		<option value="http://www.jieyang.gov.cn">揭阳市政府信息网</option>
+                    		
+                    		<option value="http://www.shanwei.gov.cn">汕尾市党政信息网</option>
+                    
+                        </select>
+
+<select>
+                        	<option value="1">友情链接</option>
+							
+                    		<option value="http://www.legalinfo.gov.cn/">中国普法网</option>
+                    		
+                    		<option value="http://gznet.gd.vnet.cn">广州视窗</option>
+                    		
+                    		<option value="http://www.96909.gd.cn/">广州社区服务网</option>
+                    
+                        </select>
+			<p>
+			<a target="_blank" href="http://www.gzjd.gov.cn/gzjdw/sy/lxfs_sy/20060407/detail-141682.shtml">联系方式</a>
+            <a target="_blank" href="http://www.gzjd.gov.cn/gzjdw/sy/yssm/20140928/detail-1321.shtml">隐私声明</a>
+            <a target="_blank" href="http://www.gzjd.gov.cn/cgs/html/map/map.html">网站地图</a>
+            运行管理：广州市公安局交警支队            
+        </p>
+        <p style="margin:0;">建议您使用IE8、FireFox、Google Chrome浏览 本网站，用户体验更好</p>
+    	<p>Copyright © 2006-2011 Guangzhou Public Security Bureau, All Rights Reserved 粤ICP备020032 广州市公安局版权所有</p>
+	</div>
+        </div>
+       <!--3.footer End-->
+  
+
+
+
+</body></html>

@@ -1,0 +1,751 @@
+<!DOCTYPE html><html lang="zh"><head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8;">
+    <title>光宇Go购 - 登录</title>
+    <link href="/Content/login/sg_style.css" rel="stylesheet">
+    <link href="/Content/chinaCaptcha.css" rel="stylesheet">
+    <script src="/Scripts/jquery-1.8.2.min.js"></script>
+    <script type="text/javascript">
+        $(function () {
+            /* 加载底部信息json */
+            $.ajax({
+                url: "/Advertisement/GetAdInfo/",
+                type: "GET",
+                dataType: "json",
+                data: { r: Math.random() },
+                success: function (d) {
+                    if (d.IsSuccess) {
+                        var h = '',
+                            n = '',
+                            a = '';
+                        if (d.DataHelp.length > 0) {
+                            h += '<li><dl class="sg_guide"><dt>3分钟学会光宇Go购</dt><dd>';
+                            for (var i = 0; i < d.DataHelp.length; i++) {
+                                if (i != d.DataHelp.length - 1 && d.DataHelp[i].url != "") {
+
+                                    h += '<a href="' + d.DataHelp[i].url + '" hidefocus="true" target="_blank">' + d.DataHelp[i].word + '</a> |';
+
+                                } else if (i != d.DataHelp.length - 1 && d.DataHelp[i].url == "") {
+
+                                    h += d.DataHelp[i].word + '|';
+
+                                } else if (i == d.DataHelp.length - 1 && d.DataHelp[i].url != "") {
+
+                                    h += '<a href="' + d.DataHelp[i].url + '" hidefocus="true" target="_blank">' + d.DataHelp[i].word + '</a>';
+
+                                } else if (i == d.DataHelp.length - 1 && d.DataHelp[i].url == "") {
+
+                                    h += d.DataHelp[i].word;
+                                }
+                            }
+                            h += '</dd></dl></li>';
+
+                        }
+
+                        if (d.DataActivity.length > 0) {
+                            a += '<li><dl class="sg_camp"><dt>最新活动</dt><dd>';
+                            for (var i = 0; i < d.DataActivity.length; i++) {
+                                if (i != d.DataActivity.length - 1 && d.DataActivity[i].url != "") {
+
+                                    a += '<a href="' + d.DataActivity[i].url + '" hidefocus="true" target="_blank">' + d.DataActivity[i].word + '</a> |';
+
+                                } else if (i != d.DataActivity.length - 1 && d.DataActivity[i].url == "") {
+
+                                    a += d.DataActivity[i].word + '|';
+
+                                } else if (i == d.DataActivity.length - 1 && d.DataActivity[i].url != "") {
+
+                                    a += '<a href="' + d.DataActivity[i].url + '" hidefocus="true" target="_blank">' + d.DataActivity[i].word + '</a>';
+
+                                } else if (i == d.DataActivity.length - 1 && d.DataActivity[i].url == "") {
+
+                                    a += d.DataActivity[i].word;
+                                }
+
+                            }
+                            a += '</dd></dl></li>';
+                        }
+                        if (d.DataNotice.length > 0) {
+                            n += '<li><dl class="sg_notice"><dt>公告</dt><dd>';
+                            if (d.DataNotice[0].url != "") {
+                                n += '<a href="' + d.DataNotice[0].url + '" hidefocus="true" target="_blank">' + d.DataNotice[0].word + '</a>';
+                            } else {
+                                n += d.DataNotice[0].word;
+                            }
+                            n += '</dd></dl></li>';
+                        }
+                        $(".sg_ad").append(h).append(a).append(n);
+                        $(".sg_ad li").hover(function () {
+                            $(this).addClass("ad_cur");
+                        }, function () {
+                            $(this).removeClass("ad_cur");
+                        });
+                    }
+                }
+            });
+            /* 加载底部信息json end */
+        })
+
+    </script>
+</head>
+<body>
+    <!--头部logo及导航  begin-->
+    <div class="sg_header">
+        <div class="menu_wrap">
+            <div class="sg_nav">
+                <ul class="sg_menu clearFix">
+                    <li class="nav_cur">
+                        <a href="https://gpay.gyyx.cn/" hidefocus="true">首页</a>
+                        <span></span>
+                    </li>
+                    <li>
+                        <a href="http://qibao.gyyx.cn/" hidefocus="true" target="_blank">奇宝斋</a>
+                        <span></span>
+                    </li>
+                    <li>
+                        <a href="http://kf.gyyx.cn" hidefocus="true" target="_blank">客服中心</a>
+                        <span></span>
+                    </li>
+                    <li>
+                        <a href="http://wd.gyyx.cn/huodong/qbz_bz/Go.html?menuIndex=6&amp;subIndex=0" hidefocus="true" target="_blank">常见问题</a>
+                        <span></span>
+                    </li>
+                    <li>
+                        <a href="http://wd.gyyx.cn/huodong/qbz_bz/Go.html" hidefocus="true" target="_blank">帮助中心</a>
+                        <span></span>
+                    </li>
+                    <li>
+                        <a href="http://static.gyyx.cn/qbz_video/index.shtml" hidefocus="true" target="_blank">视频教程</a>
+                        <span></span>
+                    </li>
+                </ul>
+            </div>
+            <a href="javascript:;" class="go_logo" hidefocus="true">
+                <img src="/Content/login/image/logo.jpg" alt="光宇Go购">
+            </a>
+        </div>
+    </div>
+    <!--头部logo及导航  end-->
+    
+
+<script type="text/javascript" src="../Scripts/addChinaCaptcha.js"></script>
+<script src="/Scripts/qrcode.js"></script>
+<script>
+
+    $(function () {
+        /*-------------------------------------------------------------------------
+        * author:师亚伟
+        * date:2016-01-15
+        * desc：更新登录验证码（三种类型）
+        -------------------------------------------------------------------------*/
+        var yzmType = function () {
+            //IE6下默认不缓存背景图片，CSS里每次更改图片的位置时都会重新发起请求，用这个方法告诉IE6缓存背景图片 
+            var isIE6 = /msie 6/i.test(navigator.userAgent);
+            if (isIE6) {
+                try { document.execCommand('BackgroundImageCache', false, true); } catch (e) { }
+            }
+
+            window.chinaCaptcha = new ChinaCaptcha($("#form_Pass"), {
+                bid: "login"
+            });
+            chinaCaptcha.init();
+        }
+        yzmType();
+
+
+
+        /* 加载轮播图json */
+        $.ajax({
+            url: "/Advertisement/GetAdInfo",
+            type: "GET",
+            dataType: "json",
+            data: { r: Math.random() },
+            success: function (d) {
+                if (d.IsSuccess && d.DataAdInfo.length > 0) {
+                    var s = "", v = "";
+                    for (var i = 0; i < d.DataAdInfo.length; i++) {
+                        if (i == 0) {
+                            if (d.DataAdInfo[i].url != "") {
+                                s += '<li class="current" style="display:block"><div class="div_focbg" style="background-image: url(' + d.DataAdInfo[i].img + ');"><a href="' + d.DataAdInfo[i].url + '" target="_blank" title="' + d.DataAdInfo[i].name + '"></a></div></li>';
+                            } else {
+                                s += '<li class="current" style="display:block"><div class="div_focbg" style="background-image: url(' + d.DataAdInfo[i].img + ');"></div></li>';
+                            }
+                            v += '<a class="current" href="javascript:;"></a>';
+                        } else {
+                            if (d.DataAdInfo[i].url != "") {
+                                s += '<li><div class="div_focbg" style="background-image: url(' + d.DataAdInfo[i].img + ');"><a href="' + d.DataAdInfo[i].url + '" target="_blank" title="' + d.DataAdInfo[i].name + '"></a></div></li>';
+                            } else {
+                                s += '<li><div class="div_focbg" style="background-image: url(' + d.DataAdInfo[i].img + ');"></div></li>';
+                            }
+                            v += '<a href="javascript:;"></a>';
+                        }
+                    }
+                    var str = '<div class="sg_focus">' +
+                              '<ul class="ul_focus">' + s +
+                              '</ul>' +
+                              '</div>' +
+                              '<div class="focsel clearFix">' + v +
+                              '</div>';
+                    $(".sg_main").append(str);
+
+
+                    /*图片淡隐淡现*/
+                    var defaultOpts = { interval: 8000, fadeInTime: 300, fadeOutTime: 200 };
+                    var _titles = $(".focsel a");
+                    var _bodies = $("ul.ul_focus li");
+                    var _count = _titles.length;
+                    var _current = 0;
+                    var _intervalID = null;
+
+                    var stop = function () {
+                        window.clearInterval(_intervalID);
+                    };
+
+                    var slide = function (opts) {
+                        if (opts) {
+                            _current = opts.current || 0;
+                        } else {
+                            _current = (_current >= (_count - 1)) ? 0 : (++_current);
+                        };
+                        _bodies.filter(":visible").fadeOut(defaultOpts.fadeOutTime, function () {
+                            _bodies.eq(_current).fadeIn(defaultOpts.fadeInTime);
+                            _bodies.removeClass("current").eq(_current).addClass("current");
+                        });
+                        _titles.removeClass("current").eq(_current).addClass("current");
+                    };
+
+                    var go = function () {
+                        stop();
+                        _intervalID = window.setInterval(function () {
+                            slide();
+                        }, defaultOpts.interval);
+                    };
+
+                    var itemMouseOver = function (target, items) {
+                        stop();
+                        var i = $.inArray(target, items);
+                        slide({ current: i });
+                    };
+
+                    _titles.click(function () {
+                        if ($(this).attr('class') != 'current') {
+                            itemMouseOver(this, _titles);
+                            go();
+                        }
+                    });
+
+                    _bodies.hover(stop, go);
+
+                    go();
+                    /*图片淡隐淡现 end*/
+                }
+            }
+        });
+        /* 加载轮播图json end */
+
+        /* 底部广告 */
+        $(".sg_ad").find("li").hover(function () {
+            $(this).addClass("ad_cur");
+        }, function () {
+            $(this).removeClass("ad_cur");
+        });
+        /* 底部广告 end */
+
+        /* 登陆层切换 */
+        $(".js_tablog a").click(function () {
+            var index = $(this).index();
+            $(".js_tablog a").removeClass("sign_cur");
+            $(this).addClass("sign_cur");
+            $(".formbox > div").hide().eq(index).show();
+            if ($(this).attr("data-id") == "js_ewm") {
+                if ($("#js_ewm_box").attr("data-status") == "1") {
+                    $("#js_ewm_box").attr('data-status', '0');
+                    getqrcode($("#js_ewm_box"));
+                }
+            }
+        });
+        getqrcode($("#js_ewm_box"));
+        function ewmLoginFn(oEwmbox) {
+            $.ajax({
+                url: "/QRCode/QRCodeValid",
+                type: 'GET',
+                data: { r: Math.random() },
+                success: function (d) {
+                    if (d.success) {
+                        if (getParamValue('orderId') != "") {
+                            window.location.href = "/Payment/Alipay/Index/?gpayOrderId=" + getParamValue('orderId');
+                        } else {
+                            window.location.href = "/UserCenter/index/";
+                        }
+                    } else {
+                        $('.ewmOverDue_box').show();
+                        $('.ewmtxt').html('二维码失效<br/>请点击刷新');
+                        oEwmbox.attr('data-status', '1');
+                    }
+                },
+                error: function () {
+                    $('.ewmOverDue_box').show();
+                    $('.ewmtxt').html('网络异常<br/>请点击刷新');
+                    oEwmbox.attr('data-status', '1');
+                }
+            })
+        }
+        function getqrcode(oEwmbox) {
+            if (oEwmbox.attr('data-status') == '1') {
+                oEwmbox.attr('data-status', '0');
+                $('.ewmOverDue_box').hide();
+                ajaxqrcode(oEwmbox)
+            } else {
+                $('.ewmOverDue_box').hide();
+                ajaxqrcode(oEwmbox)
+            }
+        };
+        function ajaxqrcode(oEwmbox) {
+            $.ajax({
+                url: "/QRCode/GetLoginQRCode",
+                type: 'GET',
+                data: {
+                    r: Math.random()
+                },
+                success: function (d) {
+                    if (d.success) {
+                        $('#js_ewm_box').empty();
+                        var qrcode = new QRCode('js_ewm_box', {
+                            text: d.content,
+                            width: 177,
+                            height: 177,
+                            colorDark: '#000',
+                            colorLight: '#ffffff',
+                            correctLevel: QRCode.CorrectLevel.H
+                        });
+                        if (oEwmbox.find('table').length == 1) {
+                            ewmLoginFn(oEwmbox)
+                        } else {
+                            oEwmbox.find('img').unbind('load').bind('load', function () {
+                                ewmLoginFn(oEwmbox)
+                            });
+                        }
+                    }
+                },
+                error: function () {
+                    $('.ewmOverDue_box').show();
+                    $('.ewmtxt').html('获取二维码失败<br/>请点击刷新');
+                    oEwmbox.attr('data-status', '1');
+                }
+            })
+        };
+        $('.ewmOverDue_box').unbind('click').bind('click', function () {
+            $(this).hide();
+            getqrcode($("#js_ewm_box"));
+        })
+
+
+        /* 登陆层切换 end */
+
+        /* 对输入框提示文字的处理 */
+        setTimeout(function () {
+            $.each($(".d_iptw input"), function (i, item) {
+                if ($(this).val() == "") {
+                    $(this).parents(".d_iptw").find(".tip_word").show();
+                } else {
+                    $(this).parents(".d_iptw").find(".tip_word").hide();
+                }
+            });
+        }, 1000);
+
+        $(".d_iptw input").focus(function () {
+            $(this).parents(".d_iptw").removeClass("d_iptw_err").addClass("d_iptw_foc");
+
+        }).blur(function () {
+            $(this).parents(".d_iptw").removeClass("d_iptw_foc");
+        }).live("keydown keyup", function () {
+            var _this = $(this);
+            if ($(this).val() != "") {
+                $(_this.parent(".d_iptw").find(".tip_word")).hide();
+            } else {
+                $(_this.parent(".d_iptw").find(".tip_word")).show();
+            }
+        });
+
+        $(".d_iptw input").bind("paste", function (e) {
+            var _this = $(this);
+            setTimeout(function () {
+                if (_this.val() != "") {
+                    $(_this.parent(".d_iptw").find(".tip_word")).hide();
+                } else {
+                    $(_this.parent(".d_iptw").find(".tip_word")).show();
+                }
+            }, 100);
+        });
+
+        $(".tip_word").click(function () {
+            $(this).parents(".d_iptw").find("input").focus();
+        });
+        /* 对输入框提示文字的处理 end */
+
+        $(":input[data-id=txtCaptchaCode]").live("keyup paste focus blur", function () {
+            var val = $(this).val();
+            var pattern = new RegExp("[^A-Za-z0-9]", "g");
+            $(this).val(val.replace(pattern, ''));
+        });
+
+        /* 帐号密码登陆 */
+        $("#form_Pass").submit(function () {
+            $(".js_ekey_err").hide().html("");
+            var exp = new RegExp("^[\u4e00-\u9fa5]{0,}$");
+
+            var account = $(":input[data-id=txtUserName]");
+            var password = $(":input[data-id=txtUserPassword]");
+            var captchaCode = $(":input[data-id=txtCaptchaCode]");
+
+            if (account.val() == "") {
+                $("#form_Pass").find(".errorbox").show().html("账号不能为空");
+                account.parent(".d_iptw").addClass("d_iptw_err");
+                return false;
+            } else if (exp.test(account.val())) {
+                $("#form_Pass").find(".errorbox").show().html("账号格式错误");
+                account.parent(".d_iptw").addClass("d_iptw_err");
+                return false;
+            } else if (password.val() == "") {
+                $("#form_Pass").find(".errorbox").show().html("密码不能为空");
+                password.parent(".d_iptw").addClass("d_iptw_err");
+                return false;
+            }
+
+            /*登录ajax*/
+            var ajaxLoginFn = function () {
+                $.ajax({
+                    url: "/Login/Index",
+                    type: "post",
+                    dataType: "json",
+                    data: {
+                        Account: account.val(),
+                        Password: password.val(),
+                        CaptchaCode: captchaCode.val(),
+                        KeyType: $(":input[name=KeyType]").val(),
+                        orderId: getParamValue('orderId'),
+                        r: Math.random()
+                    },
+                    beforeSend: function () { $("#form_Pass").find(":submit").attr("disabled", "disabled").val("正在登录..."); },
+                    success: function (d) {
+                        $("#form_Pass").find(":submit").removeAttr("disabled").val("登  录");
+                        if (d.IsSuccess) {
+
+                            window.location.href = d.ReturnUrl;
+
+                        } else {
+                            if ($('.js_login_type').val() == 1) {
+                                alert(d.Message);
+                            }
+                            $('#captcha_image').attr('src', '/Login/Create?bid=login&r=' + Math.random());
+                            chinaCaptcha.refreshCaptcha();//刷新
+                            $("#form_Pass").find(".errorbox").show().html(d.Message);
+                        }
+                    },
+                    error: function () {
+                        $("#form_Pass").find(":submit").removeAttr("disabled").val("登  录");
+                        $("#form_Pass").find(".errorbox").show().html("登录失败，请稍后重试。");
+                    }
+                });
+            }
+
+            if ($('.js_login_type').val() == 0) {
+                if (captchaCode.val() == "") {
+                    $("#form_Pass").find(".errorbox").show().html("验证码不能为空");
+                    captchaCode.parent(".d_iptw").addClass("d_iptw_err");
+                    return false;
+                }
+                ajaxLoginFn();
+            } else if ($('.js_login_type').val() == -1) {
+                ajaxLoginFn();
+            } else {
+                chinaCaptcha.createCaptchaPop();//创建弹层
+            }
+
+
+            ChinaCaptcha.prototype.subFn = ajaxLoginFn;
+            return false;
+        });
+        /* 帐号密码登陆 end */
+
+        /* 手机认证登陆 */
+        $("#form_PhoneValidate").submit(function () {
+
+            $(".js_phone_err").hide().html("");
+            var PhonePatt = /^[a-zA-Z0-9]{5}$/;
+            var exp = new RegExp("^[\u4e00-\u9fa5]{0,}$");
+            var account = $(":input[data-id=txtUserNamePhone]");
+            var dynamicKey = $(":input[data-id=txtPhoneNumber]");
+            var captchaCode = $(":input[data-id=txtCaptchaCodePhone]");
+
+            if (account.val() == "") {
+                $("#form_PhoneValidate").find(".errorbox").show().html("账号不能为空");
+                account.parent(".d_iptw").addClass("d_iptw_err");
+                return false;
+            } else if (exp.test(account.val())) {
+                $("#form_PhoneValidate").find(".errorbox").show().html("账号格式错误");
+                account.parent(".d_iptw").addClass("d_iptw_err");
+                return false;
+            } else if (dynamicKey.val() == "") {
+                $("#form_PhoneValidate").find(".errorbox").show().html("手机认证码不能为空");
+                dynamicKey.parent(".d_iptw").addClass("d_iptw_err");
+                return false;
+            } else if (!PhonePatt.test(dynamicKey.val())) {
+                $("#form_PhoneValidate").find(".errorbox").show().html("手机认证码错误");
+                dynamicKey.parent(".d_iptw").addClass("d_iptw_err");
+                return false;
+            } else {
+                $.ajax({
+                    url: "/Login/Index",
+                    type: "post",
+                    dataType: "json",
+                    data: { Account: account.val(), DynamicKey: dynamicKey.val(), CaptchaCode: captchaCode.val(), KeyType: $(":input[name=KeyTypephone]").val(), orderId: getParamValue('orderId'), r: Math.random() },
+                    beforeSend: function () { $("#form_PhoneValidate").find(":submit").attr("disabled", "disabled").val("正在登录..."); },
+                    success: function (d) {
+                        $("#form_PhoneValidate").find(":submit").removeAttr("disabled").val("登  录");
+                        if (d.IsSuccess) {
+                            window.location.href = d.ReturnUrl;
+                        } else {
+                            $("#form_PhoneValidate").find(".errorbox").show().html(d.Message);
+                            $("#captcha_image2").attr("src", "/Login/Create?fileName=" + Math.random());
+                        }
+                    },
+                    error: function () {
+                        $("#form_PhoneValidate").find(":submit").removeAttr("disabled").val("登  录");
+                        $("#form_PhoneValidate").find(".errorbox").show().html("登录失败，请稍后重试。");
+                    }
+                });
+
+                return false;
+            }
+
+            return false;
+        });
+        /* 手机认证登陆 end */
+
+        /* 判断获取验证码按钮是否能用 */
+        $(":input[data-id=txtUserNamePhone],:input[data-id=txtUserPasswordPhone]").keyup(function () {
+            if ($(":input[data-id=txtUserNamePhone]").val() != "" && $(":input[data-id=txtUserPasswordPhone]").val() != "") {
+                $(".js_sendbtn").removeClass("disb").removeAttr("disabled");
+            } else {
+                $(".js_sendbtn").addClass("disb").attr("disabled", "disabled");
+            }
+        });
+
+        $(":input[data-id=txtUserNamePhone],:input[data-id=txtUserPasswordPhone]").bind("paste", function () {
+            setTimeout(function () {
+                if ($(":input[data-id=txtUserNamePhone]").val() != "" && $(":input[data-id=txtUserPasswordPhone]").val() != "") {
+                    $(".js_sendbtn").removeClass("disb").removeAttr("disabled");
+                } else {
+                    $(".js_sendbtn").addClass("disb").attr("disabled", "disabled");
+                }
+            }, 300);
+        });
+        /* 判断获取验证码按钮是否能用 end */
+
+        /* 发送验证码 end */
+        $(".js_sendbtn").click(function () {
+            $("#form_PhoneValidate").find(".errorbox").hide().html("");
+
+            $.ajax({
+                url: "/Login/SenderSms",
+                type: "post",
+                dataType: "json",
+                data: { Account: $(":input[data-id=txtUserNamePhone]").val(), Password: $(":input[data-id=txtUserPasswordPhone]").val(), r: Math.random() },
+                beforeSend: function (d) {
+                    $(".js_sendbtn").addClass("disb").attr("disabled", "disabled").val("发送中...");
+                },
+                success: function (data) {
+                    if (data.IsSuccess) {
+                        $(":input[data-id=txtUserNamePhone]").attr("disabled", "disabled");
+                        $(".js_sendbtn").addClass("disb").attr("disabled", "disabled").val("重新获取（" + data.PushTime + "）");
+                        countDown($(".js_sendbtn"), data.PushTime);
+                    } else {
+                        $(":input[data-id=txtUserNamePhone]").removeAttr("disabled");
+                        $(".js_sendbtn").removeClass("disb").removeAttr("disabled").val("获取验证码");
+                        $("#form_PhoneValidate").find(".errorbox").show().html(data.Message);
+                    }
+
+                },
+                error: function () {
+                    $(":input[data-id=txtUserNamePhone]").removeAttr("disabled");
+                }
+            });
+        });
+        /* 发送验证码 end */
+    });
+
+    // 获取地址栏的参数数组
+    function getUrlParams() {
+        var search = window.location.search;
+        // 写入数据字典
+        var tmparray = search.substr(1, search.length).split("&");
+        var paramsArray = new Array;
+        if (tmparray != null) {
+            for (var i = 0; i < tmparray.length; i++) {
+                var reg = /[=|^==]/;    // 用=进行拆分，但不包括==
+                var set1 = tmparray[i].replace(reg, '&');
+                var tmpStr2 = set1.split('&');
+                var array = new Array;
+                array[tmpStr2[0]] = tmpStr2[1];
+                paramsArray.push(array);
+            }
+        }
+
+        // 将参数数组进行返回
+        return paramsArray;
+    }
+
+    // 根据参数名称获取参数值
+    function getParamValue(name) {
+        var paramsArray = getUrlParams();
+        if (paramsArray != null) {
+            for (var i = 0 ; i < paramsArray.length ; i++) {
+                for (var j in paramsArray[i]) {
+                    if (j == name) {
+                        return paramsArray[i][j];
+                    }
+                }
+            }
+        }
+        return "";
+    }
+
+    /* 短信定时器倒计时*/
+    function countDown(obj, seconds) {
+        var timer = setInterval(function () {
+            if (seconds > 1) {
+                seconds = seconds - 1;
+                obj.val("重新获取（" + seconds + "）");
+            } else {
+                clearInterval(timer);
+                $("#form_PhoneValidate").find(".errorbox").hide().html("");
+                $(":input[data-id=txtUserNamePhone]").removeAttr("disabled");
+                obj.removeAttr("disabled").removeClass("disb").val("获取验证码");
+            }
+        }, 1000);
+    }
+</script>
+
+<div class="sg_main">
+    <!--登录框 begin-->
+    <div class="sg_f_wrap">
+        <div class="boxopacity">
+            <div class="sg_f_box">
+                <h2 class="js_tablog">
+                    <a href="javascript:;" class="sign_cur" hidefocus="true" data-id="js_ewm">扫码登录</a>
+                    <a href="javascript:;" hidefocus="true" data-id="">密码登录</a>
+                    <a href="javascript:;" hidefocus="true" data-id="">短信登录</a>
+                </h2>
+                <div class="formbox">
+                    <div class="box_ewm">
+                        <form id="form_ewm" method="post">
+                            <div class="d_item" id="js_ewm_box" data-status="0" title="gyc://gyyx.cn/309380213fd7fa5b7571586?t=GP"><canvas width="177" height="177" style="display: none; "></canvas><img alt="Scan me!" style="display: block; " src="data:image/png;base64,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"></div>
+                            <div class="ewmOverDue_box" style="display: none; ">
+                                <p class="ewmOverDue"></p>
+                                <p class="ewmtxt"></p>
+                            </div>
+                            <div class="d_itemapp">
+                                使用<a target="_blank" href="http://wd.gyyx.cn/News/NewsDetail_New.aspx?NewsID=78899" style="color: #2783ea;">光宇游戏APP</a>扫描二维码安全登录
+                            </div>
+                        </form>
+                    </div>
+                    <div class="box_qks">
+                        <form id="form_Pass" method="post">
+                            <input type="hidden" name="KeyType" value="pass">
+                            <input class="js_login_type" type="hidden" value="1">
+                            <div class="errorbox js_ekey_err"></div>
+                            <div class="d_item">
+                                <div class="d_iptw">
+                                    <span class="tip_word" style="">社区账号</span>
+                                    <input type="text" value="" data-id="txtUserName" name="Account" autocomplete="off" maxlength="16">
+                                </div>
+                            </div>
+                            <div class="d_item">
+                                <div class="d_iptw">
+                                    <span class="tip_word" style="">社区密码</span>
+                                    <input type="password" value="" data-id="txtUserPassword" name="Password" autocomplete="off" maxlength="16">
+                                </div>
+                            </div>
+
+                            <div class="d_item d_iptcodew js_captcha_div" style="display: none; ">
+                                <div class="d_iptw">
+                                    <span class="tip_word">验证码</span>
+                                    
+                                </div>
+                                <a href="javascript:;" class="ckcode">
+                                    <img src="" id="captcha_image" class="js_captchaimg">
+                                </a>
+                            </div>
+                            <div class="d_item">
+                                <a href="javascript:;" class="btn_sign">
+                                    <input type="submit" value="登  录">
+                                </a>
+                            </div>
+                        <input type="hidden" name="captcha" value="" data-id="txtCaptchaCode" autocomplete="off" maxlength="5" id="Captcha"></form>
+                    </div>
+                    <div class="box_sj">
+                        <form id="form_PhoneValidate" method="post">
+                            <input type="hidden" name="KeyTypephone" value="phone">
+                            <div class="errorbox js_phone_err"></div>
+                            <div class="d_item">
+                                <div class="d_iptw">
+                                    <span class="tip_word" style="">社区账号</span>
+                                    <input type="text" value="" data-id="txtUserNamePhone" name="Account" autocomplete="off" maxlength="16">
+                                </div>
+                            </div>
+
+                            <div class="d_item d_iptcodew">
+                                <div class="d_iptw">
+                                    <span class="tip_word" style="">手机验证码</span>
+                                    <input type="text" value="" autocomplete="off" name="DynamicKey" data-id="txtPhoneNumber" maxlength="6">
+                                </div>
+                                <input type="button" value="获取验证码" class="getmobcode disb js_sendbtn" title="获取手机验证码，可能会有一分钟的延迟，请耐心等待" disabled="disabled">
+                            </div>
+
+                            <div class="d_item">
+                                <a href="javascript:;" class="btn_sign">
+                                    <input type="submit" value="登  录">
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+
+                </div>
+                <p class="quicklink">
+                    <a href="http://account.gyyx.cn/Member/Register/" hidefocus="true" target="_blank">免费注册</a> |
+                        <a href="http://account.gyyx.cn/UserCenter/ForgetPassword.aspx" hidefocus="true" target="_blank">找回密码</a> |
+                        <a href="http://wd.gyyx.cn/huodong/sjqks/index.html" hidefocus="true" target="_blank">获得乾坤锁</a> |
+                        <a href="http://hd.gyyx.cn/ntwg.v2/default.aspx?gameid=2" hidefocus="true" target="_blank">意见反馈</a>
+                </p>
+            </div>
+
+        </div>
+    </div>
+    <!--登录框 end-->
+
+<div class="sg_focus"><ul class="ul_focus"><li class="" style="display: none; "><div class="div_focbg" style="background-image: url(/Advertisement/GetImage/1);"><a href="/Advertisement/TransitStepForUpdateClickNum/1" target="_blank" title="gpay"></a></div></li><li style="display: list-item; " class="current"><div class="div_focbg" style="background-image: url(/Advertisement/GetImage/9);"><a href="/Advertisement/TransitStepForUpdateClickNum/9" target="_blank" title="gpay全新上线"></a></div></li></ul></div><div class="focsel clearFix"><a class="" href="javascript:;"></a><a href="javascript:;" class="current"></a></div></div>
+
+    <!--底部广告 begin-->
+    <ul class="sg_ad">
+    <li><dl class="sg_guide"><dt>3分钟学会光宇Go购</dt><dd><a href="/Advertisement/TransitStepForUpdateClickNum/4" hidefocus="true" target="_blank">常见问题</a> |<a href="/Advertisement/TransitStepForUpdateClickNum/3" hidefocus="true" target="_blank">帮助中心</a> |<a href="/Advertisement/TransitStepForUpdateClickNum/2" hidefocus="true" target="_blank">如何购物</a></dd></dl></li><li><dl class="sg_camp"><dt>最新活动</dt><dd><a href="/Advertisement/TransitStepForUpdateClickNum/6" hidefocus="true" target="_blank">九尾仙狐携礼降神州 燃情六月元灵送不停</a> |<a href="/Advertisement/TransitStepForUpdateClickNum/5" hidefocus="true" target="_blank">首次交易送礼包</a></dd></dl></li><li><dl class="sg_notice"><dt>公告</dt><dd><a href="/Advertisement/TransitStepForUpdateClickNum/7" hidefocus="true" target="_blank">奇宝斋宠物跨服交易测试说明</a></dd></dl></li></ul>
+    <!--底部广告 begin-->
+    <div class="footer">
+        <div class="foot">
+            <div class="fleft"></div>
+            <div class="ftxt">
+                <div class="gy_fNav"><a href="/tjlong/jianjie.html">公司简介</a>|<a href="/tjlong/flsm.html">法律声明</a>|<a href="http://kf.gyyx.cn/" target="_blank">客服帮助</a></div>
+                <p class="f01">ICP证 津B2-20120604</p>
+                <p class="f01"><a href="http://www.miitbeian.gov.cn/state/outPortal/loginPortal.action" target="_blank">津ICP备12004444号-1</a></p>
+                <p class="f01"><a href="/tjlong/jianhu/images/www.jpg" target="_blank">津网文[2016]4666-064号</a></p>
+                <p class="f02">天津盘龙科技有限责任公司 版权所有2011-2017</p>
+                <p class="f02">华苑产业区海泰发展六道6号海泰绿色产业基地A座501-10室</p>
+            </div>
+            <div class="fright">
+                <a href="/tjlong/jianhu/index.html" target="_blank">
+                    <img src="/Content/usercenter/images/jzjk.jpg" width="128" height="39"></a>
+            </div>
+        </div>
+    </div>
+
+
+</body></html>

@@ -1,0 +1,154 @@
+<!DOCTYPE html><html><head>
+	<meta name="viewport" content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+	<title>富德生命人寿-会员中心</title>
+	<link rel="stylesheet" href="/SL_ESSO/CacheableResource/app_css/mweb_css/global.css">
+	<style>
+		.login_error{
+			position: absolute;
+			color: #FF6F6F;
+			display: block;
+			font-size: 12px;
+			margin: 0;
+			z-index: 99999;
+			left: 20px;
+		}
+		.formul li{height:58px;padding-bottom:0;}
+	</style>
+</head>
+<body>
+
+<div class="toolBar"><a href="javascript:;" class="topCls" id="closeBtn"></a><img class="login_logo" src="/SL_ESSO/CacheableResource/app_images/mweb_images/login_logo.png" width="100"></div>
+
+<div class="main">
+
+<form id="myform" action="/SL_ESSO/Login.sso" method="post">
+ <input type="hidden" id="toURL" name="toURL" value="http://m.sino-life.com/SL_LES/mweb/mweb_html/policy/mpolicydetail.shtml?policyNo">
+<ul class="formul mt_12">
+    <li>
+      <div class="iptWrap dbox">
+      	<i class="i-account vm mr_10"></i>
+      <input class="ipt flexb" type="text" id="username" onfocus="hideErrorMsg(),hideUsername()" name="username" value="" onblur="validateUsername()" placeholder="手机/邮箱/身份证">
+      <input type="text" value="" name="username_" id="username_" onfocus="hideThis()" style="display: none; ">
+    </div>
+    <div id="validateUsername_" class="login_error" style="display: none">
+
+    </div>
+    </li>
+    <li>
+      <div class="iptWrap dbox">
+        <i class="i-code vm mr_10"></i>
+      <input class="ipt flexb" type="password" id="password" name="password" onfocus="hideErrorMsg();hidePassword()" onblur="validatePassword()" placeholder="密码">
+    </div>
+    <div class="ta_r">
+       <div id="validatePassword_" class="login_error" style="display: none;">
+
+       </div>
+                   <div id="errorMsg" name="errorMsg" class="login_error" style="display: none; "></div>
+				<a class="col_red" id="findPassword" href="https://m.sino-life.com/SL_EFS/mweb/member/setting/set_mobile.html?version=1.0" style="/*color:red;float: right;font-size: 12px;*/">忘记密码?</a>
+	</div>
+    </li>
+
+</ul>
+
+<div class="d-box">
+   <input class="mBtn_btn b-flex" style="width: 100%" type="button" id="login__" value="登录" onclick="hideErrorMsg()">
+</div>
+<div class="d-box">
+   <a href="https://m.sino-life.com/SL_EFS/mweb/member/register/register_mobile.html?version=1.0" id="registerMobile" class="kBtn mt_10" style="width: 100%">注册</a>
+</div>
+</form>
+</div>
+
+<script type="text/javascript" async="" src="https://www.google-analytics.com/plugins/ua/linkid.js"></script><script async="" src="//www.google-analytics.com/analytics.js"></script><script async="" src="//www.google-analytics.com/analytics.js"></script><script type="text/javascript" src="/SL_ESSO/CacheableResource/app_js/jquery-1.9.1.min.js"></script>
+<script type="text/javascript" src="/SL_ESSO/CacheableResource/app_js/mweb/public.js"></script>
+<script type="text/javascript" src="/SL_ESSO/CacheableResource/app_js/member/v1/public.js"></script>
+<script type="text/javascript" src="/SL_ESSO/EServiceUserLogin/getAppConfig.do"></script>
+<script type="text/javascript" src="/SL_ESSO/CacheableResource/app_js/mweb/logout.js?version=1.0"></script>
+<script language="JavaScript" type="text/javascript">
+	//var mobile=/^1[3|4|5|7|8][0-9]\d{8}$/;//手机号码
+	var email=/^(?:[a-z\d]+[_\-\+\.]?)*[a-z\d]+@(?:([a-z\d]+\-?)*[a-z\d]+\.)+([a-z]{2,})+$/i;//邮箱
+	var myCode=/\d{17}[\d|X]|\d{15}/;//身份证
+
+   $(document).ready(function(){
+	   var flag='';
+	   if(null==flag || ""==flag){
+		   $("#username_").focus();
+	   }else{
+		   $("#username_").hide();
+	   }
+
+       $("#findPassword").attr("href",viewHtmlPath+"/mweb/member/setting/set_mobile.html?"+appendVersion());
+       $("#registerMobile").attr("href",viewHtmlPath+"/mweb/member/register/register_mobile.html?"+appendVersion());
+
+       $("#login__").click(function(){
+    	    if(validateUsername()&&validatePassword()){
+    	    	$("#myform").submit();
+    	    }
+       });
+      $("#closeBtn").click(function(){
+    	  var ref= document.referrer ;
+    	  if(ref != "" ){
+    		  location.href = ref ;
+    	  }else{
+    		  closeWeixinWindow();
+    	  }
+
+      });
+
+   });
+
+   function validateUsername(){
+	   var username=$("#username").val();
+	   if(null==username||""==$.trim(username)){
+		   $("#validateUsername_").html("用户名不能为空")
+		   $("#validateUsername_").show();
+		   $("#username").parent().addClass('error_ipt_red');
+		   return false;
+	   }else if(!mobileRegx.test(username)&&!email.test(username)&&!myCode.test(username)){
+		   $("#validateUsername_").html("请输入手机/邮箱/身份证")
+		   $("#validateUsername_").show();
+		   $("#username").parent().addClass('error_ipt_red');
+		   return false;
+	   }else{
+		   return true;
+	   }
+   }
+
+   function hideUsername(){
+	   $("#validateUsername_").hide();
+	   removeError();
+   }
+
+   function validatePassword(){
+	   var password=$("#password").val();
+	   if(null==password||""==$.trim(password)){
+		   $("#validatePassword_").html("密码不能为空");
+		   $("#validatePassword_").show();
+		   $("#password").parent().addClass('error_ipt_red');
+		   return false;
+	   }else{
+
+		   return true;
+	   }
+   }
+
+   function hidePassword(){
+	   $("#validatePassword_").hide();
+	   removeError();
+   }
+
+   function hideErrorMsg(){
+	   $("#errorMsg").hide();
+   }
+
+   function hideThis(){
+	   $("#errorMsg").hide();
+	   $("#username_").hide();
+   }
+
+   function removeError(){
+		$('#myform').find('.error_ipt_red').removeClass('error_ipt_red');
+	}
+
+</script>
+</body></html>

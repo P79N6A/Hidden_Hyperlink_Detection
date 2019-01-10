@@ -1,0 +1,528 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd"><html><head>
+<title>友商助手</title>
+
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8;">
+<meta http-equiv="pragma" content="no-cache">
+<meta http-equiv="Cache-Control" content="no-cache, must-revalidate">
+<meta http-equiv="expires" content="0">
+
+
+
+<meta http-equiv="content-type" content="text/html;charset=utf-8;">
+<link rel="stylesheet" href="../resources/js/yui/button/button.css">
+<link rel="stylesheet" href="../resources/css/button.css">
+<link rel="stylesheet" href="../resources/css/container/container.css">
+<script src="../resources/js/jquery.js"></script>
+<script src="../resources/js/yui/utilities.js"></script>
+<script src="../resources/js/yui/element-beta-min.js"></script>
+<script src="../resources/js/yui/button/button-beta-min.js"></script>
+<script src="../resources/js/common-root.js"></script>
+<script src="../resources/js/provinceCity.js"></script>
+<script src="../resources/js/common.js"></script>
+<script src="../resources/js/yui/container/container-min.js"></script>
+<script src="../resources/js/pop-box.js"></script>
+<link type="text/css" rel="stylesheet" href="../css/common_v3.css">
+<link rel="stylesheet" href="https://sso.youshang.com/css/foot.css">
+<script type="text/javascript" src="../js/jquery.form.js"></script>
+<script type="text/javascript" src="../js/sso.jsp.js"></script>
+<script type="text/javascript" src="../js/common-tool.js"></script>
+<script type="text/javascript" src="../js/certificate.js"></script>
+<script type="text/javascript" src="../js/ys.js"></script>
+<link href="../css/global.css" rel="stylesheet" type="text/css">
+
+<script>
+//调用OCX控件进行签名
+function doCertLogin(){
+	 if (CheckUKSoft() != 0) {
+	 	return;
+	 }
+	 if (!IsOn()) {
+	 	return;
+	 }
+	 
+	 var pin = document.forms[0].ydpassword.value;
+	 var name = document.forms[0].ydname.value;
+	 if(pin == null || pin == ''|| name==null || name == ''){
+	 	document.getElementById("loginTipYd").innerHTML = '<img src="../images/guide_warning.gif" align="absmiddle">&nbsp;&nbsp;请输入用户名和友盾密码';
+		//alert("操作失败！您必须输入用户名和友盾密码");
+		document.getElementById("loginTipYd").style.display = "block"; 
+		return;
+	 }
+	 
+	 //JITDSignOcx.setPin(pin);
+	 if (!VerifyUserpin(document.forms[0].ydpassword))
+	 	return;
+	 var temp_Content_Result = JITDSignOcx.DetachSign("","E645D192859D36C01A90B8E689BCE41F");
+	 if(JITDSignOcx.GetErrorCode()!=0){
+	 	document.getElementById("loginTipYd").innerHTML = "<img src='../images/guide_warning.gif' align='absmiddle'>&nbsp;&nbsp;操作失败！错误信息："+JITDSignOcx.GetErrorMessage();
+		//alert("操作失败！请检查您的友盾是否正确的插入USB口中，错误码："+JITDSignOcx.GetErrorCode()+"　错误信息："+JITDSignOcx.GetErrorMessage());
+		return;
+		document.getElementById("loginTipYd").style.display = "block";
+	 }else{
+        //alert(escape(temp_Content_Result) );
+		document.loginForm.signedInfo.value=temp_Content_Result ;
+		login("cert");
+	 }		
+}
+</script>
+<script type="text/javascript">
+//var platform_assistant = "http://service.youshang.com";
+var platform_sso = "https://sso.youshang.com";
+//var platform_sso = "http://sso.youshang.com";
+
+var remember = false;
+
+function toRegister(url){
+  window.location.href=url;
+}
+ function getPwd(){
+   var form = document.forms[0];
+   var name = document.getElementById("name");
+   if(name.value != null || name.value.length!=0)
+   {
+   	  //PopPanel.alert("请输入登录名");
+   	  //return;
+	   	  
+   }
+   form.action="http://service.youshang.com/getpwd/retrievePwd.do";
+   form.submit();
+ }
+ function reset(){
+  var form = document.forms[0];
+  form.name.value="";
+  form.password.value="";
+  form.rememberName.checked=false;
+  document.getElementById("name").focus();
+ }
+ function refreshImg(){
+   document.getElementById("imgAuth").src="../image?id="+Math.random();
+ }
+
+ function createFTUCtrl(){
+	 var JITDSignOcx = document.getElementById("JITDSignOcx");		 
+	 if(JITDSignOcx == null){
+		 JITDSignOcx = document.createElement("object");
+		 JITDSignOcx.id = "JITDSignOcx";
+		 JITDSignOcx.classid = "clsid:06CA9432-D9BD-4867-8475-770B131E1759";
+		 JITDSignOcx.width = "1";
+		 JITDSignOcx.height = "1";			 
+		 document.body.appendChild(JITDSignOcx);
+	 }
+
+
+	 var FTUCtrl = document.getElementById("FTUCtrl");
+	 if(FTUCtrl == null){
+		 FTUCtrl = document.createElement("object");
+		 FTUCtrl.id = "FTUCtrl";
+		 FTUCtrl.classid = "clsid:4F92C99B-D0C7-4721-8BF1-1F28264E8C43";
+		 FTUCtrl.width = "1";
+		 FTUCtrl.height = "1";
+		 document.body.appendChild(FTUCtrl);
+	 }
+}
+$(function(){
+	var loginResult = $("#loginResult").val();
+	var userName = "";
+	if (loginResult!= "") {
+		checkLoginResult(loginResult);
+	}
+	if(userName!=""){
+		var form = document.forms[0];
+		  form.name.value= userName;
+		  form.password.value="";
+		  document.getElementById("name").focus();	
+	}
+});
+
+function init(){
+	var retryTime = 0;
+	document.getElementById("retryTime").value = retryTime;
+
+ 	
+	
+	if(remember)
+		document.getElementById("password").focus();
+	else
+     	document.getElementById("name").focus();
+	if(retryTime > 3){
+	   document.getElementById("needAuth").value="Y";
+	   showAuthByCode();
+	   document.getElementById("authRow").style.display="table-row";
+	}
+	
+	appUrl = "http://service.youshang.com";
+
+	
+	
+}
+
+//检测USBKEY的软件是否正常
+function CheckUKSoft() {
+	var ret = CheckUsbkeySoft();
+	if(ret != 0) {
+		if(ret == 25) {
+			document.getElementById("loginTipYd").innerHTML = '<img src="../images/guide_warning.gif" align="absmiddle">&nbsp;&nbsp;未安装USBKEY软件';
+			document.getElementById("loginTipYd").style.display = "block"; 
+			return ret;
+		}
+		if(ret == 32) {
+			document.getElementById("loginTipYd").innerHTML = '<img src="../images/guide_warning.gif" align="absmiddle">&nbsp;&nbsp;USBKEY的CSP服务程序没有启动，请先卸载并再安装一次USBKEY的软件';
+			document.getElementById("loginTipYd").style.display = "block";
+			return ret;
+		} else {//出现未定义的错误
+			document.getElementById("loginTipYd").innerHTML = '<img src="../images/guide_warning.gif" align="absmiddle">&nbsp;&nbsp;控件被拦截。或者控件并未成功地安装和注册';
+			document.getElementById("loginTipYd").style.display = "block";
+			return 110;
+		}
+	}
+	return 0;
+}
+
+//检查USBKEY是否已经连接
+function IsOn() {
+	if (IsOnline()) {
+		return true;
+	} else {
+		document.getElementById("loginTipYd").innerHTML = '<img src="../images/guide_warning.gif" align="absmiddle">&nbsp;&nbsp;没有检测到USB KEY硬件，请检查USB KEY硬件是否已经插好！';
+		document.getElementById("loginTipYd").style.display = "block";
+		return false;
+	}
+}
+
+
+function VerifyUserpin(userpin) {
+	if( userpin.value.length < 6 || userpin.value.length > 20) {
+		//alert("USBKEY密码的位数必须在6到20位之间,请检查你的输入");
+		document.getElementById("loginTipYd").innerHTML = '<img src="../images/guide_warning.gif" align="absmiddle">&nbsp;&nbsp;USBKEY密码的位数必须在6到20位之间,请检查你的输入';
+		document.getElementById("loginTipYd").style.display = "block";
+		userpin.focus();
+		return false;			
+	}
+	var ret = FTUCtrl.VerifyUserpin(userpin.value);
+	if(ret != 0) {
+		//alert("验证USBKEY密码失败");
+		document.getElementById("loginTipYd").innerHTML = '<img src="../images/guide_warning.gif" align="absmiddle">&nbsp;&nbsp;验证USBKEY密码失败';
+		document.getElementById("loginTipYd").style.display = "block";
+		return false;
+	}
+	//alert("验证USBKEY密码成功");
+	return true;
+}
+
+YAHOO.util.Event.onContentReady("mfzc", function(){
+	$("#mfzc").mouseover(
+		function () {
+			$(this).attr("src","images/btn_mfzc_02.gif");
+		}
+	);
+	$("#mfzc").mouseout(
+		function () {
+			$(this).attr("src","images/btn_mfzc_01.gif");
+		}
+	);
+});
+
+function OAuthLogin(type){
+	var relayState = "http://service.youshang.com/myaccount/StyleVersionAction.do?version=1";
+	if(type == "qq"){
+		window.location.href = "http://agent.youshang.com/federation/forConnect/qq.do?relayState=" + encodeURIComponent(relayState);		
+	}else if(type == "sina"){
+		window.location.href = "http://agent.youshang.com/federation/forConnect/sina.do?relayState=" + encodeURIComponent(relayState);
+	}else if(type == "kdc"){
+		window.location.href = "http://agent.youshang.com/federation/forConnect/kdcloud.do?relayState=" + encodeURIComponent(relayState);
+	}
+}
+
+YAHOO.util.Event.onContentReady("switchLogin", function(){
+	$("#ssoL").click(
+		function () {
+			$(this).removeAttr("class");
+			$(this).attr("class","l selected");
+			$("#ydL").removeAttr("class");
+			$("#ydL").attr("class","l normal");
+			
+			$("#ssoLoginFrame").css("display","block");
+			$("#ydLoginFrame").css("display","none");
+			
+			document.getElementById("loginTip").innerHTML = "";
+		}
+	);
+	$("#ydL").click(
+		function () {
+			$(this).removeAttr("class");
+			$(this).attr("class","l selected");
+			$("#ssoL").removeAttr("class");
+			$("#ssoL").attr("class","l normal");
+			
+			$("#ssoLoginFrame").css("display","none");
+			$("#ydLoginFrame").css("display","block");
+			
+			document.getElementById("loginTip").innerHTML = "";
+			if (CheckUKSoft() == 0) {
+			 	IsOn();
+			}
+		}
+	);
+	
+});
+function openIM(){
+			var url = "http://im.youshang.com/live800/chatClient/chatbox.jsp?companyID=10001&configID=11&enterurl="+encodeURIComponent("http://www.youshang.com/saas/");
+			window.open(url,'chatbox73303','toolbar=0,scrollbars=0,location=0,height=450,width=577');
+	};
+</script>
+<style>
+.rltv{position:relative;}
+.abslt{position:absolute;}
+.cter{margin:0 auto;}
+.bold{font-weight:bold;}
+.fs1{font-size:14px;}
+.fs2{font-size:20px;font-family:"黑体";}
+.c4{/* color:#FF7700; */float: left;/* margin-right: 25px; */}
+.bdr{display:block;height:1px;overflow:hidden;background-color:#CADAE7;margin-bottom:20px;}					
+.mainLoginPnl{background:url(../images/ssologinbk_zh.png) left center no-repeat;width:313px;height:310px;padding-top:40px;float:right;margin-top:50px;padding-right:30px;}
+.logintype{width:180px;height:31px;left:20px;top:6px;}	
+.logintype li{height:32px;line-height:32px;text-align:center;width:82px;cursor:pointer;}
+.selt{background:url(../images/tabsel.PNG) left top no-repeat;}
+		
+#ssoLoginFrame table, #ydLoginFrame table{margin-left:40px;}	
+#ssoLoginFrame .lh{line-height:35px;height:35px;}
+#ydLoginFrame .lh{line-height:30px;height:30px;}
+#ssoLoginFrame .ipt, #ydLoginFrame .ipt{border:1px solid #DADADA;height:20px;width:145px;}	
+.reg_tip{width: 260px;border-top: 1px dotted #cecece;position: absolute; top: 270px;right: 60px;height: 40px;line-height: 25px;}
+.reg_tip a{color: #FF7700;}
+.qq_sina_login{width: 260px;position: absolute; top: 230px;right: 60px;height: 40px;line-height: 25px;}
+#header .site_links li.last{border:none;}
+.sso_banner{padding:75px 0 0 20px;}
+.phone_icon1{display: block;height: 20px;padding-left: 24px;background: url(../images/sso_icon.png) no-repeat;background-position: -348px -2px;line-height: 17px;padding: 0px 24px;}
+.phone_icon2{display: block;height: 20px;padding-left: 24px;background: url(../images/sso_icon.png) no-repeat;background-position: -348px -121px;line-height: 17px;padding: 0px 24px;}
+.qq_icon1{display: block;height: 20px;padding-left: 24px;background: url(../images/sso_icon.png) no-repeat;background-position: -347px -90px;line-height: 17px;padding: 0px 24px;cursor: pointer;}
+.qq_icon2{display: block;height: 20px;padding-left: 24px;background: url(../images/sso_icon.png) no-repeat;background-position: -347px -90px;line-height: 17px;padding: 0px 24px;cursor: pointer;}
+</style>
+
+</head>
+
+<body onload="init();">
+<div id="container">
+<div id="header">
+		<div class="top clearfix">
+		<a class="lgpst abslt" href="http://www.youshang.com"><img src="https://sso.youshang.com/images/logo_youshang.jpg" alt="友商网，小企业之家"></a>
+			<div class="site_links_wrap">
+				<ul class="site_links clearfix">
+					<li class="last">
+						<p class="c4">
+							<span class="phone_icon1">销售:400-830-0755</span>
+							<span class="phone_icon2">售后:400-830-0780</span>
+						</p>
+						<!-- <p class="c4">
+							<span id="wpa_shouqian" class="qq_icon1">QQ售前咨询</span>
+							<span id="wpa_shouhou" class="qq_icon2">QQ售后咨询</span>
+						</p> -->
+						<p style="float: left;">
+				    		<a href="javascript:openIM();"><img src="../images/server.jpg"> 在线客服</a>
+				    	</p>
+			    	</li>
+				</ul>
+				<ul class="site_links clearfix">					
+					<li><a href="http://www.youshang.com/en" target="_blank" class="cart_lnk">英文站</a></li>
+					<li><a href="http://www.youshang.com/hk" target="_blank" class="cart_lnk">繁体站</a></li>
+					<li class="last"><a href="http://www.kingdee.com" target="_blank" class="cart_lnk">金蝶官网</a></li>
+					<!-- <li class="sub_menu_con">
+						<a href="http://www.youshang.com/channels/index/" target="_blank" class="sub_menu_title">渠道中心<span class="arrow"></span></a>
+						<ul class="sub_menu">
+							<li><a href="http://www.youshang.com/channels/index/" target="_blank">渠道加盟</a></li>
+							<li><a href="http://www.youshang.com/special/ykb/alliance/" target="_blank">迎客宝渠道伙伴</a></li>
+							<li class="last"><a href="http://www.youshang.com/star/" target="_blank">明星伙伴</a></li>
+						</ul>
+					</li> -->
+				</ul>
+			</div>
+		</div>
+</div>
+
+	<div id="main">
+		<div class="l sso_banner">
+            <!--<img src="../images/sso_end_year.png" />-->
+			<a href="http://www.youshang.com/online_invoicing/mobile/" target="_blank"><img src="../images/sso_banner.jpg"></a>
+		</div>
+		<div class="mainLoginPnl rltv">
+			<ul class="logintype abslt">
+				<li class="selt bold c4 l fs1" id="ssoLBtn">安全登录</li>
+				<li class="l fs1 bold" id="ydLBtn">友盾登录</li>
+			</ul>
+			<form id="loginForm" name="loginForm" method="post">
+				<input type="hidden" id="ReqID" name="ReqID" value="">
+				<input type="hidden" name="act">
+				<input type="hidden" name="signedInfo" id="signedInfo">				
+				<input type="hidden" name="needAuth" id="needAuth" value="N">
+				<input type="hidden" name="kickout" id="kickout">
+				<input type="hidden" name="loginResult" id="loginResult" value="">
+				<input type="hidden" name="entityId" value="kuaiji3_BJ">
+				<input type="hidden" name="assertHashType" value="3">
+				<input type="hidden" value="0" id="retryTime">
+				
+				<div id="ssoLoginFrame" class="mt">
+				<div id="loginTip" style="margin-left:20px;">&nbsp;</div>
+					<table>
+						<tbody><tr class="lh">
+							<td>用户名：</td>
+							<td style="width:170px;"><input type="text" name="name" id="name" class="ipt" value="" onkeydown="onEnterKeyDown(event, 'name')"></td>
+						</tr>
+						<tr class="lh">
+							<td>密<span class="loginMar">码</span>：</td>
+							<td><input type="password" name="password" id="password" class="ipt" onkeydown="onEnterKeyDown(event, 'password')"></td>
+						</tr>
+	                    <tr id="authRow" style="display:none;">
+							<td>验证码：</td>
+	                        <td>
+	                        	
+	                        	<input type="text" name="authCode" id="authCode" class="ipt" maxlength="4" onkeydown="onEnterKeyDown(event, '')" style="width:40px;float:left">&nbsp;
+	                        	<!--	<img id="imgAuth" src="../image"> -->
+	                        	<div style="display: block; float: left; height: 1px; width: 20%;">
+	                     			<img id="imgAuth1" style="margin:0px 0px 0px 0px; padding: 0px 0px 0px 0px; display:none;">
+									<img id="imgAuth2" style="margin:0px 0px 0px 0px; padding: 0px 0px 0px 0px; float:left;display:none;">
+								</div>
+								<div class="c1 ptr" id="tipChangeImg" onclick="getAuthByCode();" style="float:right;">换一张</div>
+	                        	
+	                        </td>
+	                    </tr>
+						<tr class="lh">
+							<td></td>
+							<td><input type="checkbox" name="rememberName" id="rememberName" align="absmiddle"><label for="rememberName">记住我</label></td>
+						</tr>
+						<tr>
+							<td></td>
+							<td>
+								<span class="loginBt"><a href="#" onclick="login('password');">登录</a></span>
+								<span class="loginMar"><a href="javascript:getPwd()"> 忘记密码？</a></span>							
+							</td>
+						</tr>						
+					</tbody></table>
+				</div>
+				<div id="ydLoginFrame" style="display:none;">
+				<div id="loginTipYd" style="margin-left:20px;"></div>
+					<table style="margin-top: 20px">
+							<tbody><tr class="lh">
+								<td>用户名：</td>
+								<td><input type="text" name="ydname" id="ydname" class="ipt" onkeydown="onEnterKeyDownYD(event, 'name')"></td>
+							</tr>
+							<tr class="lh">
+								<td>口<span class="loginMar">令</span>：</td>
+								<td><input type="password" name="ydpassword" id="ydpassword" class="ipt" onkeydown="onEnterKeyDownYD(event, 'password')"></td>
+							</tr>
+							<tr class="lh">
+								<td></td>
+								<td><a href="http://www.youshang.com/content/2011/05/24/101803.html" target="_blank">友盾丢失了？</a>
+								<a href="http://www.youshang.com/content/2011/05/24/101805.html" target="_blank"> 忘记口令？</a>
+								</td>
+							</tr>
+							<tr>
+								<td></td>
+								<td style="padding-top: 16px">
+									<span class="loginBt"><a href="#" onclick="doCertLogin();">登录</a></span>
+									<span class="loginBt loginMar"><a href="#" onclick="reset();">重置</a></span>
+								</td>
+							</tr>
+							<!-- <tr class="lh">	
+								<td colspan="2">
+									<span><a href="http://www.youshang.com/yudun">什么是友盾？>></a></span>&nbsp;&nbsp;&nbsp;
+									<span><a href="../crypto/ra/ePass3003-kingdee.zip">友盾管理工具下载>></a></span>
+								</td>
+							</tr>
+							<tr>	
+								<td colspan="2">
+									<a href="http://www.youshang.com/content/2014/02/27/130743.html" target="_blank">友盾使用说明书下载</a>&gt;&gt;
+								</td>
+							</tr> -->
+						</tbody></table>
+				</div>
+			</form>			
+		<div class="qq_sina_login"><a href="#" onclick="OAuthLogin('sina');" style="margin-right:10px;"><img src="../images/sina_btn1.png"></a><a href="#" onclick="OAuthLogin('qq');" style="margin-right:10px;"><img src="../images/qq_btn1.png"></a><a href="#" onclick="OAuthLogin('kdc');"><img src="../images/kdc_btn2.png"></a></div>
+		<div class="reg_tip">
+			<p><span>还不是友商网会员?</span></p>
+			<a style="margin-left: 60px;" href="http://service.youshang.com/common/register/register_person.jsp?finalValue=http%3A%2F%2Fvip1.youshang.com%2Fgl%2FbalanceReport%3Fm%3D"><img src="../images/register_btn.png"></a>			
+		</div>
+		</div>
+			
+		
+		
+		<div class="clear"></div>
+	</div>
+
+
+
+
+		<div id="footer">
+		<div class="links">
+			<a href="http://www.youshang.com/about.html">关于我们</a>|
+			<a href="http://www.youshang.com/partner.html">合作伙伴</a>|
+			<a href="http://www.youshang.com/sitemap.html">网站地图</a>|
+			<a href="http://www.youshang.com/contact.html">联系我们</a>|
+			<a href="http://www.youshang.com/law.html">法律声明</a>|
+			<a href="http://www.youshang.com/private.html">隐私条款</a>|
+			<a target="_blank" href="http://www.youshang.com/html/job/">诚聘英才</a>|
+			<a href="http://www.youshang.com/security.html">安全白皮书</a>
+		</div>
+		<p>
+			<a class="kingdee" href="http://www.kingdee.com" target="_blank" title="金蝶">
+				<img src="../images/foot_kingdee-logo.gif" alt="kingdee.com">
+			</a>
+			金蝶旗下网站
+			<span class="copy_right">深圳市金蝶精斗云网络科技有限公司版权所有© 2007-2012 </span>
+			<a href="http://www.youshang.com/icp.html">粤B2-20060528</a>　
+			<a href="http://www.miibeian.gov.cn/" target="_blank">粤ICP备08104176号</a>
+		</p>   
+		<div class="hexie">
+            <ul>
+                <li>
+                    <a href="http://www.sznet110.gov.cn" target="_blank"><img src="../images/sznet110gangting.gif" alt="深圳网警"></a>
+                    <p><a href="http://www.sznet110.gov.cn" target="_blank">深圳网警</a></p>
+                </li>
+                <li>
+                    <a href="http://www.sznet110.gov.cn/webrecord/innernet/Welcome.jsp?bano=4403101901151" target="_blank"><img src="../images/sznet110wangan.jpg" alt="网安备案"></a>
+                    <p><a href="http://www.sznet110.gov.cn/webrecord/innernet/Welcome.jsp?bano=4403101901151" target="_blank">网安备案</a></p>
+                </li>					
+                <li>
+                    <a href="http://www.itrust.org.cn/yz/pjwx.asp?wm=2102995717" target="_blank"><img src="../images/wangxin.png" alt="网信认证"></a>
+                    <p><a href="http://www.itrust.org.cn/yz/pjwx.asp?wm=2102995717" target="_blank">网信认证</a></p>
+                </li>					
+            </ul>
+        </div>     
+	</div>
+
+<!-- 游客访问跟踪代码-->
+
+<script src="https://sso.youshang.com/js/ga.js"></script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-2035756-2");
+pageTracker._setDomainName("youshang.com");
+pageTracker._initData();
+pageTracker._trackPageview();
+</script>
+
+</div>
+
+<script type="text/javascript">
+$(document).ready(function(){
+	$("#ssoLBtn").click(function(){
+		$(this).addClass("selt c4");
+		$("#ydLBtn").removeClass("selt c4");
+		$("#ssoLoginFrame").show();
+		$("#ydLoginFrame").hide();
+		
+	});
+
+	$("#ydLBtn").click(function(){
+		$(this).addClass("selt c4");
+		$("#ssoLBtn").removeClass("selt c4");
+		$("#ydLoginFrame").show();
+		$("#ssoLoginFrame").hide();
+		createFTUCtrl();
+		
+	});
+	
+});
+</script>
+
+
+
+</body></html>

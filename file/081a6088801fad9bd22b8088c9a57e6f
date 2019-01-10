@@ -1,0 +1,400 @@
+<!DOCTYPE html><html class="js cssanimations"><head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>新房-找房-透明家</title>
+<meta name="description" content="">
+<meta name="keywords" content="">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="renderer" content="webkit">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+<link rel="icon" type="image/png" href="../images/favicon.png">
+<link href="../../common/amaze/css/amazeui.min.css" rel="stylesheet" type="text/css">
+<link href="../css/app.css" rel="stylesheet" type="text/css">
+<link href="../css/font/iconfont.css" rel="stylesheet" type="text/css">
+<script src="../../cordova.js"></script>
+<script src="../../cordova_plugins.js"></script>
+<script src="../../common/jquery/jquery.min.js"></script>
+<script src="../../common/jquery/jquery.form.js"></script>
+<script src="../../common/amaze/js/amazeui.js"></script>
+<script src="../../common/config/config_init.js"></script>
+<script src="../../common/echarts/echarts.min.js"></script>
+<script src="../js/Loading.js"></script>
+<script src="../js/echarts.js"></script>
+<script src="../js/share.js"></script>
+<script src="../js/menu.js"></script>
+<script src="../js/mem.js"></script>
+<script src="../js/compare.js"></script>
+<script src="../js/footpoint.js"></script>
+<script src="http://api.map.baidu.com/api?type=quick&amp;ak=Tdny3Tb8Exs6ofLseO27b007&amp;v=1.3"></script><script type="text/javascript" src="http://api.map.baidu.com/getscript?type=quick&amp;file=api&amp;ak=Tdny3Tb8Exs6ofLseO27b007&amp;t=20140109092002"></script><script type="text/javascript" src="http://api.map.baidu.com/getscript?type=quick&amp;file=feature&amp;ak=Tdny3Tb8Exs6ofLseO27b007&amp;t=20140109092002"></script>
+<script src="http://api.map.baidu.com/library/SearchInfoWindow/1.5/src/SearchInfoWindow_min.js"></script>
+<script src="../js/map.js"></script>
+<!-- 楼盘订制JS -->
+<script src="../js/checkorder.js"></script>
+<script src="../js/sendmessage.js"></script>
+<script src="../js/weixindownload.js"></script>
+<script src="../js/buywish.js"></script>
+<script>
+	// 设置列表页为可缓存状态
+	localStorage.localcache_lock = 1;
+	var map;
+// 	var view720str = '';
+	var _groupbuytime = '';
+	var _newstime = '';
+	var _pricetime = '';
+	var _sellhousetime = '';
+	var _housetypetime = '';
+	
+	
+	var can_go_news = true;
+	var can_go_sellhouse = true;
+	var can_go_housetype = true;
+	var can_go_groupbuy = true;
+	var can_go_price = true;
+	var can_go_blys = true;
+	function loadinfo() {
+		$.getScript(_INIT_YUMING + '/tmj3/property_price.jspx?propertyid=' + getParameter('propertyid') + '&siteid=' + getParameter('siteid') + getDatecache(), function() {
+			$.getScript(_INIT_YUMING + '/tmj3/property_detail.jspx?linktype=1&propertyid=' + getParameter('propertyid') + '&siteid=' + getParameter('siteid') + getDatecache(), function() {
+				var obj = eval('(' + eval('(property_' + getParameter('propertyid') + ')').replace('\n', '') + ')');
+				var property = obj.cohProperty;
+				var tel;
+				if(property.selltel != '') {
+					var selltel = property.selltel.split(' ')[0];
+					if(selltel.substring(0, 4) == '0571') {
+						//售楼电话链接
+						tel = '<a href="tel:' + selltel + '" class="tm-block tm-padding-horizontal-sm"><i class="iconfont3 tm-green">&#xe672;</i> 售楼电话:' + selltel + '</a>';
+					} else {
+						tel = '<a href="tel:0571' + selltel + '" class="tm-block tm-padding-horizontal-sm"><i class="iconfont3 tm-green">&#xe672;</i> 售楼电话:0571-' + selltel + '</a>';
+					}
+					$('#selltel').html(tel);
+				} else {
+					$('#selltel').hide();
+				}
+				//数据填充
+				//楼盘名
+				$('#propertytitle').html(property.propertyabb || property.propertyname);
+				//楼盘名案名
+				$('#propertyabb').html(property.propertyabb || property.propertyname);
+				$('#propertyname').html('推广名：' + property.propertyname);
+				//均价
+				if(property.day30 > 0){
+					$('#day30').html('<font class="tm-orange">'+ parseInt(property.day30) +'</font><font class="tm-black02 tm-f28">元/㎡</font>');
+				}else{
+					$('#day30').html('<font class="tm-orange">近月无成交</font>');
+				}
+				//位置
+				$('#propertyaddr').html('<a href="#container"><div class="tm-house-positionw"><i class="iconfont1">&#xe629;</i>[位置]' + property.propertyaddr + '</div></a>');
+				//楼盘优惠信息
+				if (obj.blys != null && obj.blys.discountinfo && obj.blys.discountinfo != '') {
+					$('#groupbuy').show();
+					$('#groupbuy').html('<a href="javascript:buywish();" class="tm-block am-padding-sm"><font class="tm-list-tip1 tm-margin-right5">惠</font>' + obj.blys.discountinfo + '<i class="iconfont3 am-fr">&#xe607;</i></a>');
+				}
+				//最新动态
+				if (obj.newstr != '') {
+					$('#news').html(obj.newstr + '&nbsp;');
+				} else {
+					can_go_news = false;
+					$('#news').html('暂无');
+				}
+				//房源户型
+				if (obj.housestr != '') {
+					$('#housetype').html(obj.housestr + '&nbsp;');
+				} else {
+					can_go_housetype = false;
+					$('#housetype').html('暂无');
+				}
+				//可售房源
+				if (property.avanum != '') {
+					$('#sellhouse').html(property.avanum + '套');
+				} else {
+					can_go_sellhouse = false;
+					$('#sellhouse').html('暂无');
+				}
+				//星级
+				setrollingstar(obj.propertyrank);
+				// 加载鸟瞰图
+				loadniaokan();
+				//检查是否订制
+				_groupbuytime = obj.groupbuytime;
+				_newstime = obj.newstime;
+				_pricetime = obj.pricetime;
+				_sellhousetime = obj.sellhousetime;
+				_housetypetime = obj.housetypetime;
+				checkIsOrder(getParameter('propertyid'), 1, 'property');
+
+				//走势图
+				if(propertyY != '' && propertyY.length > 0 && propertyX != '' && propertyX.length > 0){
+					echart('linebox', propertyY, propertyX);
+				}else{
+					document.getElementById('linebox').innerHTML = '<img src="../images/nodata.jpg" width="100%" />';
+				}
+				// 加载相册
+				loadalbumlist(obj.albumlist);
+				// 加载地图
+				loadmap(property);
+				// 比一比
+				preparecompare(getParameter('propertyid'), 1, getParameter('siteid'), property.propertyabb || property.propertyname, property.day30);
+				saveFootpoint(property.propertyabb || property.propertyname, getParameter('propertyid'), 1, getParameter('siteid'));
+				setTimeout(function () {
+					$.ajax({url: _INIT_YUMING + '/tmj3/property_visitproperty.jspx?operation=1&linktype=1&linkid=' + getParameter('propertyid')});
+				}, 100);
+				$.MyCommon.PageLoaded();
+			});
+		});
+	}
+	
+	function loadalbumlist(albumlist) {
+		if (albumlist.length <= 0) {
+			var str = '<li><img src="../images/nopic.jpg" onerror="this.src=\'../images/nopic.jpg\'" style="max-height:300px"></li>';
+			$('#albumlist').html(str);
+			$('.am-slider').flexslider({"directionNav":false,"slideshow":false});
+			return;
+		} else {
+			var str = '';
+			var ahref = 'propertyphoto.html?propertyid=' + getParameter('propertyid') + '&siteid=' + getParameter('siteid');
+			var url = '';
+			var o;
+			for (var i = 0; i < albumlist.length && i < 4; i++) {
+				o = albumlist[i];
+				url = _HZ_IMG_YUMING + '/' + (o.url ? o.url.replace('=', '_800x600') : 'hzweb/esf/images/nopic.gif');
+				str += '<li><a href="' + ahref + '"><img src="' + url + '" onerror="this.src=\'../images/nopic.jpg\'" style="max-height:300px"></a></li>';
+			}
+			$('#albumlist').html(str);
+			$('.am-slider').flexslider({"directionNav":false,"slideshow":false});
+		}
+	}
+	function loadmap(property) {
+		map = new BMap.Map("container"); // 创建地图实例
+		point = new BMap.Point(property.prjx, property.prjy); // 创建点坐标
+		map.centerAndZoom(point, 17); // 初始化地图，设置中心点坐标和地图级别 
+		var propertyOverlay = new PropertyOverlay(point, property.propertyname);
+		map.addOverlay(propertyOverlay);
+	}
+	
+	// 设置评价的星级
+	function setrollingstar(propertyrank) {
+		var rollingstar = '';
+		/* if (propertyrank == '') {
+			rollingstar = '<i class="am-icon-star"></i><i class="am-icon-star"></i><i class="am-icon-star"></i><i class="am-icon-star"></i><i class="am-icon-star-o"></i>';
+		} else if (propertyrank < 0.5) {
+			rollingstar = '<i class="am-icon-star-o"></i><i class="am-icon-star-o"></i><i class="am-icon-star-o"></i><i class="am-icon-star-o"></i><i class="am-icon-star-o"></i>' + propertyrank + '分';
+		} else if (propertyrank < 1) {
+			rollingstar = '<i class="am-icon-star-half-empty"></i><i class="am-icon-star-o"></i><i class="am-icon-star-o"></i><i class="am-icon-star-o"></i><i class="am-icon-star-o"></i>' + propertyrank + '分';
+		} else if (propertyrank < 1.5) {
+			rollingstar = '<i class="am-icon-star"></i><i class="am-icon-star-o"></i><i class="am-icon-star-o"></i><i class="am-icon-star-o"></i><i class="am-icon-star-o"></i>' + propertyrank + '分';
+		} else if (propertyrank < 2) {
+			rollingstar = '<i class="am-icon-star"></i><i class="am-icon-star-half-empty"></i><i class="am-icon-star-o"></i><i class="am-icon-star-o"></i><i class="am-icon-star-o"></i>' + propertyrank + '分';
+		} else if (propertyrank < 2.5) {
+			rollingstar = '<i class="am-icon-star"></i><i class="am-icon-star"></i><i class="am-icon-star-o"></i><i class="am-icon-star-o"></i><i class="am-icon-star-o"></i>' + propertyrank + '分';
+		} else if (propertyrank < 3) {
+			rollingstar = '<i class="am-icon-star"></i><i class="am-icon-star"></i><i class="am-icon-star-half-empty"></i><i class="am-icon-star-o"></i><i class="am-icon-star-o"></i>' + propertyrank + '分';
+		} else if (propertyrank < 3.5) {
+			rollingstar = '<i class="am-icon-star"></i><i class="am-icon-star"></i><i class="am-icon-star"></i><i class="am-icon-star-o"></i><i class="am-icon-star-o"></i>' + propertyrank + '分';
+		} else if (propertyrank < 4) {
+			rollingstar = '<i class="am-icon-star"></i><i class="am-icon-star"></i><i class="am-icon-star"></i><i class="am-icon-star-half-empty"></i><i class="am-icon-star-o"></i>' + propertyrank + '分';
+		} else if (propertyrank < 4.5) {
+			rollingstar = '<i class="am-icon-star"></i><i class="am-icon-star"></i><i class="am-icon-star"></i><i class="am-icon-star"></i><i class="am-icon-star-o"></i>' + propertyrank + '分';
+		} else if (propertyrank < 5) {
+			rollingstar = '<i class="am-icon-star"></i><i class="am-icon-star"></i><i class="am-icon-star"></i><i class="am-icon-star"></i><i class="am-icon-star-half-empty"></i>' + propertyrank + '分';
+		} else {
+			rollingstar = '<i class="am-icon-star"></i><i class="am-icon-star"></i><i class="am-icon-star"></i><i class="am-icon-star"></i><i class="am-icon-star"></i>' + propertyrank + '分';
+		} */
+		rank = propertyrank || 4;
+		var s1 = parseInt(rank);
+		var s2 = parseInt(rank - s1 + 0.5);
+		var s3 = 5 - s1 - s2;
+		var str = '<i class="iconfont3 tm-yellow">';
+		for (i = 0; i < s1; i++) {
+			str += '&#xe610;';
+		}
+		for (i = 0; i < s2; i++) {
+			str += '&#xe611;';
+		}
+		for (i = 0; i < s3; i++) {
+			str += '&#xe69b;';
+		}
+		str += '</i>' + rank + '分';
+		$('#rollingstar').html(str);
+	}
+	function loadniaokan() {
+		$.getScript(_INIT_YUMING + '/tmj3/property_niaokan.jspx?linktype=1&propertyid=' + getParameter('propertyid') + '&siteid=' + getParameter('siteid') + getDatecache(), function() {
+			if (pics.length > 0) {
+				var str = '';
+				str += '<img src="' + _HZ_IMG_YUMING + '/' + pics[0].url + '" style="height:127px">';
+				$('#niaokanmask').html(str);
+			} else {
+				$('#niaokandiv').remove();
+			}
+		});
+	}
+	function gotopropertynews() {
+		if (can_go_news) {
+			window.location.href = 'propertynews.html?propertyid=' + getParameter('propertyid') + '&siteid=' + getParameter('siteid');
+		}
+	}
+	function gotohousetype() {
+		if (can_go_housetype) {
+			window.location.href = 'propertyhousetype.html?propertyid=' + getParameter('propertyid') + '&siteid=' + getParameter('siteid');
+		}
+	}
+	function gotosellhouse() {
+		if (can_go_sellhouse) {
+			window.location.href = 'propertysellhouse.html?propertyid=' + getParameter('propertyid') + '&siteid=' + getParameter('siteid');
+		}
+	}
+	function gotocomment() {
+		window.location.href = 'propertycomment.html?propertyid=' + getParameter('propertyid') + '&siteid=' + getParameter('siteid');
+	}
+	function gotomap() {
+		window.location.href = 'propertymap.html?propertyid=' + getParameter('propertyid') + '&siteid=' + getParameter('siteid');
+	}
+	function gotoniaokan() {
+		window.location.href = 'propertyniaokan.html?propertyid=' + getParameter('propertyid') + '&siteid=' + getParameter('siteid');
+	}
+	function gotoprice() {
+		window.location.href = 'propertyprice.html?propertyid=' + getParameter('propertyid') + '&siteid=' + getParameter('siteid');
+	}
+	
+	function gomarket(){
+		localStorage.propertynamelist = $('#propertytitle').html();
+		localStorage.propertyidlist = getParameter('propertyid');
+		window.location = '../market/index.html?fromproperty=1';
+	}
+	
+	$(function() {
+		$.MyCommon.PageLoading();
+		setTimeout(loadinfo, 100);
+		if(localStorage.resultmessage) {
+			alert(localStorage.resultmessage);
+			localStorage.resultmessage = '';
+		}
+	})	
+</script>
+</head>
+<body>
+<!--头部导航-->
+<div class="tm-top">
+	<header class="am-header tm-bg-green">
+		<div class="am-header-left am-header-nav tm-nav-icolink">
+			<a href="javascript:history.go(-1);">
+				<i class="iconfont1"></i>
+			</a>
+		</div>
+		<div class="am-header-title tm-white tm-f32" id="propertytitle">加载中...</div>
+		<div class="am-header-right am-header-nav tm-nav-icolink am-text-right">
+			<a href="javascript:void(0)" data-am-modal="{target: '#menu-popup'}">
+				<i class="iconfont1"></i>
+			</a>
+		</div>
+		<div class="tm-header-right2 am-header-nav tm-nav-icolink am-text-right">
+			<a href="javascript:void(0)" data-am-modal="{target: '#share-actions'}">
+				<i class="iconfont1"></i>
+			</a>
+		</div>
+	</header>
+</div>
+<!--楼盘详情主体区域-->
+<div class="tm-main1">
+	<!--比一比添加按钮-->
+	<a class="tm-house-addratio" href="#compare-offcanvas" data-am-offcanvas=""><i class="iconfont3"></i>加对比</a>
+	<!--详情页焦点图，展示当前楼盘各图片类型封面图各1张，如效果图、户型图、鸟瞰图等，点击相应图片链接进入改类型图库浏览-->
+	<div class="tm-ads2 am-slider am-slider-default tm-border-btn am-slider" style="margin:0;">
+		<ul class="am-slides" id="albumlist"></ul>
+	</div>
+	<!--楼盘名称、位置及均价展示区域，此处均价为当前楼盘近30日签约均价-->
+	<div class="tm-border-btn am-padding-sm tm-bg-wht tm-pr">
+		<div class="am-fl tm-black01 tm-f32 tm-house-positionw" id="propertyabb">加载中...</div>
+		<div class="am-fr tm-f32" id="day30">加载中...</div>
+		<div class="tm-clear"></div>
+		<div class="tm-f24 tm-lhg24 tm-black03" id="propertyname">加载中...</div>
+		<div class="tm-f24 tm-lhg24 tm-black03" id="propertyaddr">加载中...</div>
+		<a href="../my/calculator.html" class="tm-house-tool"><i class="iconfont4"></i>算房贷</a>
+	</div>
+	<!-- 售楼电话 -->
+	<div class="tm-border-btn tm-f28 tm-black02 tm-hg44 tm-lhg44" id="selltel"></div>
+	<!--全景样板房，仅当后台有维护内容时展示-->
+<!--     <div class="tm-border-be tm-f28 tm-black02 tm-hg44 tm-lhg44" id="view720" style="display:none;"> -->
+<!--     </div> -->
+	<!--楼盘优惠信息，仅当后台维护有内容时展示-->
+	<div class="tm-border-btn tm-f28 tm-black02" id="groupbuy" style="display:none;"></div>
+	<div class="tm-bg-grey tm-hg10 tm-border-btn"></div>
+	<!--详情子页面入口，动态部分内容按每日统计更新-->
+	<ul class="am-avg-sm-2 tm-black01 tm-bg-wht tm-border-btn">
+		<!--最新动态入口，描述信息取最新1条动态部分文字内容-->
+		<li class="am-avg-sm-6 am-u-sm-6 tm-border-re tm-border-be am-padding-vertical-sm tm-pr tm-padding-horizontal-sm">
+			<a href="javascript:gotopropertynews();">
+				<div class="tm-f28">最新动态</div>
+				<div class="tm-grey tm-text tm-f24 tm-padding-top-5" id="news">加载中...</div>
+			</a>
+		</li>
+		<!--主力户型入口，描述信息取当前楼盘所有户型分类-->
+		<li class="am-avg-sm-6 am-u-sm-6 tm-border-be am-padding-vertical-sm tm-pr tm-padding-horizontal-sm">
+			<a href="javascript:gotohousetype();">
+				<div class="tm-f28">主力户型</div>
+				<div class="tm-grey tm-text tm-f24 tm-padding-top-5" id="housetype">加载中...</div>
+			</a>
+		</li>
+		<!--可售房源入口，描述信息取当前楼盘已领出预售证的所有幢信息-->
+		<li class="am-avg-sm-6 am-u-sm-6 tm-border-re am-padding-vertical-sm tm-pr tm-padding-horizontal-sm">
+			<a href="javascript:gotosellhouse();">
+				</a><div class="tm-f28"><a href="javascript:gotosellhouse();">可售房源
+				<div class="tm-grey tm-text tm-f24 tm-padding-top-5" id="sellhouse">加载中...</div>
+			</a>
+		</div></li>
+		<!--网友评价入口，描述信息取当前楼盘综合得分-->
+		<li class="am-avg-sm-6 am-u-sm-6 am-padding-vertical-sm tm-pr tm-padding-horizontal-sm">
+			<a href="javascript:gotocomment();">
+				<div class="tm-f28">网友评价</div>
+				<div class="tm-grey tm-text tm-f24" id="rollingstar">加载中...</div>
+			</a>
+		</li>
+	</ul>
+	<div class="tm-bg-grey tm-hg10 tm-border-btn"></div>
+	<!--房价走势区域，展示当前楼盘近6月签约均价走势-->
+	<div class="tm-border-btn tm-padding-horizontal-sm tm-bg-wht am-padding-top-sm">
+		<a href="javascript:gotoprice();"><div class="tm-f28 tm-black02">价格走势<i class="iconfont3 am-fr"></i></div></a>
+		<div class="am-margin-top-sm am-margin-bottom-sm">
+			<!--echarts 走势图区域-->
+			<div id="linebox" style="width: 100%; height:180px;"></div>
+		</div>
+	</div>
+	<div class="tm-bg-grey tm-hg10 tm-border-btn"></div>
+	<!--位置配套区域，展示当前楼盘位置地图缩略图，点击图片后方进入位置配套页地图查看-->
+	<div class="tm-border-btn tm-padding-horizontal-sm tm-bg-wht am-padding-top-sm">
+		<a href="javascript:gotomap();"><div class="tm-f28 tm-black02">位置配套<i class="iconfont3 am-fr"></i></div></a>
+		<div class="am-margin-top-sm am-margin-bottom-sm" style="height:150px" id="container"></div>
+	</div>
+	<div class="tm-bg-grey tm-hg10 tm-border-btn"></div>
+	<!--楼幢鸟瞰区域，展示当前楼盘瞰图及各幢标签，点击标签后进入该楼盘鸟瞰页，并展示相应标签详情信息-->
+	<div class="tm-border-btn tm-padding-horizontal-sm tm-bg-wht am-padding-top-sm" id="niaokandiv">
+		<a href="javascript:gotoniaokan();"><div class="tm-f28 tm-black02">楼幢鸟瞰<i class="iconfont3 am-fr"></i></div></a>
+		<div class="am-margin-top-sm am-margin-bottom-sm tm-map-img">
+			<!--鸟瞰展示-->
+			<div class="tm-map-mask" id="niaokanmask"></div>
+		</div>
+	</div>
+</div>
+<div class="am-g tm-footer tm-bg-wht am-g-collapse tm-black02">
+	<div class="am-u-sm-2 tm-border-re">
+		<div class="tm-foot-btn">
+			<div class="tm-f24 tm-lhg16 tm-margin-top8" id="iwantorder_div"><i class="iconfont3"></i><br>加关注</div>
+		</div>
+	</div>
+	<div class="am-u-sm-2">
+		<a href="javascript:gotoprice();" class="tm-foot-btn ">
+			<div class="tm-f24 tm-lhg16 tm-margin-top8"><i class="iconfont3"></i><br>查房价</div>
+		</a>
+	</div>
+	<div class="am-u-sm-4 tm-bg-orange">
+		<a href="javascript:buywish();" class="tm-foot-btn">
+			<div class="tm-lhg48 tm-white tm-f28">我要买房</div>
+	   </a>
+	</div>
+	<div class="am-u-sm-4 tm-bg-green">
+		<a href="javaScript:gomarket();" class="tm-foot-btn">
+			<div class="tm-lhg48 tm-white tm-f28">我要推荐</div>
+	  	</a>
+	</div>
+</div>
+
+
+<div class="am-modal-actions" id="share-actions" style="z-index:9999; background:#FFFFFF; display: none;"><div class="am-modal-actions-group" style="z-index:9999;"><ul class="tm-lp-list am-avg-sm-4" style="z-index:9999; border-bottom: none;"><li class="tm-green am-share-wx-contact" style="display: none; "><div><i class="iconfont"></i></div><div class="tm-line28 tm-f24">微信好友</div></li><li class="tm-green am-share-wx-moments" style="display: none; "><div><i class="iconfont"></i></div><div class="tm-line28 tm-f24">微信朋友圈</div></li></ul></div><div class="am-modal-actions-group tm-bg-grey" style="margin: 0; padding: 0;"><button class="am-btn am-btn-block tm-bt-grey tm-border-btn2" data-am-modal-close="" style=" color: #333333;">取消</button></div></div></body></html>

@@ -1,0 +1,299 @@
+<!DOCTYPE html><html><head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8;">
+<meta name="viewport" content="width=device-width,initial-scale=1.0, minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="format-detection" content="telephone=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="white">
+<meta name="wap-font-scale" content="no">        
+<title>最新故事漫画漫画 - 517漫画网</title>
+<meta name="keywords" content="故事漫画漫画,好看的故事漫画漫画,故事漫画漫画大全">
+<link href="../../../../template/skin7_20110501/images/m/css/global.css" rel="stylesheet" type="text/css">
+<link type="text/css" href="../../../../template/skin7_20110501/images/m/css/style.css" rel="stylesheet">
+<script src="http://push.zhanzhang.baidu.com/push.js"></script><script type="text/javascript">var qTcms3g={dir:"../../../../",images:"../../../../template/skin7_20110501/images/m/",topjs:"/wap/comic/one/page_waptop.js",wapdir:"/wap/",wapsearch:"/wap/comic/one/page_wapss.html"}</script>
+<script type="text/javascript" src="../../../../template/skin7_20110501/images/m/js/jquery-1.9.1.min.js"></script>
+<script type="text/javascript" src="../../../../template/skin7_20110501/images/m/js/jquery.cookie.js" charset="utf-8"></script>
+<script type="text/javascript" src="../../../../template/skin7_20110501/images/m/js/common.js"></script>
+<script type="text/javascript" src="../../../../template/skin7_20110501/images/m/js/domain.js"></script>
+<script type="text/javascript" src="../../../../template/skin7_20110501/images/m/js/m_reader.js"></script>
+<script type="text/javascript" src="../../../../template/skin7_20110501/images/m/js/TSB.js"></script>
+<script type="text/javascript" src="../../../../template/skin7_20110501/images/m/js/main.js"></script>
+<script type="text/javascript" src="/wap/comic/one/page_waptop.js"></script>
+</head>
+
+<body>
+
+
+    <!--head-->
+    <div class="header">
+        <!--搜索-->
+        <div class="serCh" id="serCh">
+            <form id="searchForm" action="/wap/comic/one/page_wapss.html" method="get">
+                <a href="javascript:void(0);" onclick="m_global.closed('serCh')" class="searClose"></a>
+                <a href="javascript:void(0);" onclick="serchAction()" class="searBtn"></a>
+                <div class="serChinputBox"><input type="search" class="searInput" placeholder="漫画名或作者" autocomplete="off" id="searInput" name="key"></div>
+            </form>
+        </div>
+        <div class="messagSjr">
+            <ul class="keyTit" id="messagelist"></ul>
+            <p id="hotTit">大家都在搜:</p>
+            <ul class="tag" id="HotTag"></ul>
+        </div>
+        <!--搜索 end-->
+        <!--导航入口-->
+		
+        <!--导航入口 end-->
+        <div class="logo"><a href="/"><img src="../../../../template/skin7_20110501/images/logo_wap.png" width="105" height="44"></a></div>
+        <!--<a href="#" title="" class="icon setup" onClick="m_global.Open('menuBar')"></a>-->
+        <a href="javascript:;" title="" class="icon serch" onclick="m_global.serchAction('serCh')"></a>
+        
+    </div>
+    <!--head end-->
+
+	    <ul class="nav autoHeight">
+        <li><a href="/wap/" id="menu_a0">首页</a></li>
+        <li><a href="/wap/comic/one/page_waprecent.html" id="menu_a10">更新</a></li>
+        <li><a href="/wap/comic/one/page_waphit.html" id="menu_a11">排行</a></li>
+        <li><a href="/wap/comic/one/page_waplistindex.html" id="menu_a3" class="cur">分类</a></li>       
+        <li class="nobor"><a href="/wap/comic/one/page_wapdlmh.html" id="menu_a1">国漫</a></li>
+    </ul>
+	    <script type="text/javascript" src="../../../../template/skin7_20110501/images/m/js/m_classify.js"></script>
+    <script type="text/javascript">
+		
+		
+        var htmlTemplate =
+                '<li>' +
+                    '<a class="ImgA autoHeight" href="{href}">' +
+                        '<img src="{img_src}" width="100%">' +
+                        '{is_over}' +
+                    '</a>' +
+                    '<a class="txtA">{name}</a>' +
+                    '<span class="info">{author}</span>' +
+                '</li>';
+
+        //请求分类数据
+        function requestData2(flag) {
+			$(window).unbind('scroll', request_classify_func);	
+            $("#classCon").hide();
+            $(".show_c").hide();
+
+            url = qTcms3g.images+'html/?a=2&q=' + flag + '';
+            T.restGet(url, {}, function(data) {
+				
+                var html = '';
+                for (var i = 0; i < data.length; i++) {
+                    var temp = htmlTemplate;
+                    var comic = data[i];
+
+                    var href = comic['m_url'];
+                    temp = temp.replace('{href}', href);
+
+                    var img_src = comic['cover'];
+                    temp = temp.replace('{img_src}', img_src);
+
+                    var author = comic['authors'];
+                    temp = temp.replace('{author}', author);
+
+                    var comic_name = comic['name'];
+                    temp = temp.replace('{name}', comic_name);
+
+                    var is_over = comic['status']=='已完结' ? '<em></em>' : '';
+                    temp = temp.replace('{is_over}', is_over);
+
+                    html += temp;
+                }
+
+//                console.log(currFlag);
+                if(currFlag.lastObject() > 0) {
+                    $("#classify_container").append(html);
+                } else {
+                    $("#classify_container").html(html);
+                }
+				imgStyle();
+
+                if(data.length==0){
+                    $("#loadding").show().text("已经没有了");
+                    $(window).unbind('scroll', request_classify_func);
+//                    return false;
+                }else{
+                    $(window).bind('scroll', request_classify_func);
+                    $("#loadding").hide();
+                }
+				
+            },function(){
+				$(window).bind('scroll', request_classify_func);
+			});
+        }
+		
+        //请求分类数据
+        function requestData(flag) {
+			$(window).unbind('scroll', request_classify_func);	
+            $("#classCon").hide();
+            $(".show_c").hide();
+
+            url = qTcms3g.images+'html/';
+            T.ajaxJsonp(url, {a:2,"q":flag}, function(data) {
+				
+                var html = '';
+                for (var i = 0; i < data.length; i++) {
+                    var temp = htmlTemplate;
+                    var comic = data[i];
+
+                    var href = comic['m_url'];
+                    temp = temp.replace('{href}', href);
+
+                    var img_src = comic['cover'];
+                    temp = temp.replace('{img_src}', img_src);
+
+                    var author = comic['authors'];
+                    temp = temp.replace('{author}', author);
+
+                    var comic_name = comic['name'];
+                    temp = temp.replace('{name}', comic_name);
+
+                    var is_over = comic['status']=='已完结' ? '<em></em>' : '';
+                    temp = temp.replace('{is_over}', is_over);
+
+                    html += temp;
+                }
+
+//                console.log(currFlag);
+                if(currFlag.lastObject() > 0) {
+                    $("#classify_container").append(html);
+                } else {
+                    $("#classify_container").html(html);
+                }
+				imgStyle();
+
+                if(data.length==0){
+                    $("#loadding").show().text("已经没有了");
+                    $(window).unbind('scroll', request_classify_func);
+//                    return false;
+                }else{
+                    $(window).bind('scroll', request_classify_func);
+                    $("#loadding").hide();
+                }
+				
+            },function(){
+				$(window).bind('scroll', request_classify_func);
+			});
+        }
+				
+		
+		
+		$(window).bind('scroll', request_classify_func);
+    </script>
+	<script>itemClickAction(0,"13")</script>
+	<script>if(document.getElementById("menu_a3"))document.getElementById("menu_a3").className="cur"</script>
+
+    <div class="show_c" style="height: 600px; display: none; "></div>
+    <!--操作-->
+    <div class="classBox autoHeight">
+        <ul class="OperaBar" id="classTit">
+            <li><a href="javascript:void(0);">故事漫画</a></li>
+            <li><a href="javascript:void(0);">读者群</a></li>
+            <li><a href="javascript:void(0);">进度</a></li>
+            <li><a href="javascript:void(0);">地域</a></li>
+        </ul>
+        <div class="classopen" id="classCon">
+            <ul>
+            <li><a onclick="itemClickAction(0, 100)">题材</a></li>
+            
+                <li><a onclick="itemClickAction(0, 1)">热血</a></li>
+            
+                <li><a onclick="itemClickAction(0, 3)">科幻</a></li>
+            
+                <li><a onclick="itemClickAction(0, 10)">恋爱</a></li>
+            
+                <li><a onclick="itemClickAction(0, 9)">少女</a></li>
+            
+                <li><a onclick="itemClickAction(0, 7)">恐怖</a></li>
+            
+                <li><a onclick="itemClickAction(0, 8)">耽美</a></li>
+            
+                <li><a onclick="itemClickAction(0, 11)">生活</a></li>
+            
+                <li><a onclick="itemClickAction(0, 13)">故事</a></li>
+            
+                <li><a onclick="itemClickAction(0, 15)">韩国</a></li>
+            
+                <li><a onclick="itemClickAction(0, 16)">中国</a></li>
+            
+                <li><a onclick="itemClickAction(0, 14)">其他</a></li>
+            
+                <li><a onclick="itemClickAction(0, 5)">搞笑</a></li>
+            
+                <li><a onclick="itemClickAction(0, 6)">推理</a></li>
+            
+                <li><a onclick="itemClickAction(0, 4)">竞技</a></li>
+            
+                <li><a onclick="itemClickAction(0, 2)">格斗</a></li>
+            
+                <li><a onclick="itemClickAction(0, 12)">战争</a></li>
+            
+            </ul>
+            <ul>
+                <li><a onclick="itemClickAction(1, 100)">读者群</a></li>
+                <li><a onclick="itemClickAction(1, 0)">少年</a></li>
+                <li><a onclick="itemClickAction(1, 1)">少女</a></li>
+                <li><a onclick="itemClickAction(1, 2)">白领</a></li>
+                <li><a onclick="itemClickAction(1, 3)">同人</a></li>
+            </ul>
+            <ul>
+                <li><a onclick="itemClickAction(2, 100)">进度</a></li>
+                <li><a onclick="itemClickAction(2, 1)">连载</a></li>
+                <li><a onclick="itemClickAction(2, 0)">完结</a></li>
+            </ul>
+            <ul>
+                <li><a onclick="itemClickAction(3, 100)">地域</a></li>
+                <li><a onclick="itemClickAction(3, 0)">日韩</a></li>
+                <li><a onclick="itemClickAction(3, 1)">港台</a></li>
+                <li><a onclick="itemClickAction(3, 2)">欧美</a></li>
+                <li><a onclick="itemClickAction(3, 3)">内地</a></li>
+                <li><a onclick="itemClickAction(3, 4)">其他</a></li>
+            </ul>
+        </div>
+    </div>
+    <!--显示内容-->
+    <div class="imgBox">
+
+        <div class="Sub_H2 classify">
+            <span class="Title classify">筛选结果</span>
+            <a class="iconUpd" onclick="sortClickAction(3,this)">人气</a>
+            <a class="iconUpd cur" onclick="sortClickAction(0,this)">更新</a>
+        </div>
+        <ul class="col_3_1" id="classify_container"><li><a class="ImgA autoHeight" href="/wap/comic/11143/"><img src="/upload/2016-03-28/2016328233246567.jpg" width="100%" style="height: 0px; "></a><a class="txtA">不死者</a><span class="info">第145话 闹呢?你配叫不死者?</span></li><li><a class="ImgA autoHeight" href="/wap/comic/12031/"><img src="/upload/2016-11-08/2016118151744417.jpg" width="100%" style="height: 0px; "></a><a class="txtA">欲望重生</a><span class="info">第45话  宴会终</span></li><li><a class="ImgA autoHeight" href="/wap/comic/12666/"><img src="/upload/2017-03-02/20173223451130.jpg" width="100%" style="height: 0px; "></a><a class="txtA">代嫁丞相</a><span class="info">第5话 前朝往事（上）</span></li><li><a class="ImgA autoHeight" href="/wap/comic/12385/"><img src="/upload/2017-01-23/201712312415318.jpg" width="100%" style="height: 0px; "></a><a class="txtA">女神的真面目</a><span class="info">第11话 该死之人</span></li><li><a class="ImgA autoHeight" href="/wap/comic/13033/"><img src="/upload/2017-03-26/2017326184415574.jpg" width="100%" style="height: 0px; "></a><a class="txtA">俞净意公遇灶神记</a><span class="info">第一章 问天</span></li><li><a class="ImgA autoHeight" href="/wap/comic/12912/"><img src="/upload/2017-03-13/2017313134526324.jpg" width="100%" style="height: 0px; "></a><a class="txtA">非典型偶像</a><span class="info">第17话</span></li><li><a class="ImgA autoHeight" href="/wap/comic/12583/"><img src="/upload/2017-02-24/2017224184850644.jpg" width="100%" style="height: 0px; "></a><a class="txtA">遵命女王陛下</a><span class="info">第26话 误会解除（下）</span></li><li><a class="ImgA autoHeight" href="/wap/comic/12854/"><img src="/upload/2017-03-11/201731119151306.jpg" width="100%" style="height: 0px; "></a><a class="txtA">偶像饲养手册·出道吧!OAO</a><span class="info">第10话 来自地狱的召唤</span></li><li><a class="ImgA autoHeight" href="/wap/comic/12449/"><img src="/upload/2017-02-18/201721818025846.jpg" width="100%" style="height: 0px; "></a><a class="txtA">小透明生存法则</a><span class="info">第29话 震惊！昔日好友竟是变态！</span></li><li><a class="ImgA autoHeight" href="/wap/comic/11599/"><img src="/upload/2016-08-01/20168172139158.jpg" width="100%" style="height: 0px; "></a><a class="txtA">美人为将</a><span class="info">拒绝暴君专宠：凶猛王妃</span></li><li><a class="ImgA autoHeight" href="/wap/comic/12978/"><img src="/upload/2017-03-16/201731603751103.jpg" width="100%" style="height: 0px; "></a><a class="txtA">据说我是王的女儿2017</a><span class="info">据说我是王的女儿2017</span></li><li><a class="ImgA autoHeight" href="/wap/comic/12977/"><img src="/upload/2017-03-16/201731602553778.png" width="100%" style="height: 0px; "></a><a class="txtA">出轨俱乐部2017</a><span class="info">密会情人2017</span></li><li><a class="ImgA autoHeight" href="/wap/comic/12973/"><img src="/upload/2017-03-15/2017315104454467.jpg" width="100%" style="height: 0px; "></a><a class="txtA">安家有女</a><span class="info">第1话 正大镖局</span></li><li><a class="ImgA autoHeight" href="/wap/comic/11166/"><img src="/upload/2016-03-31/2016331159606.jpg" width="100%" style="height: 0px; "></a><a class="txtA">学分战争</a><span class="info">第19话</span></li><li><a class="ImgA autoHeight" href="/wap/comic/12873/"><img src="/upload/2017-03-12/2017312101118854.jpg" width="100%" style="height: 0px; "></a><a class="txtA">暴扣革命</a><span class="info">第11话（4）</span></li><li><a class="ImgA autoHeight" href="/wap/comic/12872/"><img src="/upload/2017-03-12/2017312101116806.jpg" width="100%" style="height: 0px; "></a><a class="txtA">灵异事件簿</a><span class="info">第9话</span></li><li><a class="ImgA autoHeight" href="/wap/comic/10100/"><img src="/upload/2016-02-05/201625125142995.jpg" width="100%" style="height: 0px; "></a><a class="txtA">热舞飞扬</a><span class="info">第16话4</span></li><li><a class="ImgA autoHeight" href="/wap/comic/12867/"><img src="/upload/2017-03-12/201731210110691.jpg" width="100%" style="height: 0px; "></a><a class="txtA">马丽苏与我</a><span class="info">第8话</span></li><li><a class="ImgA autoHeight" href="/wap/comic/12438/"><img src="/upload/2017-02-17/2017217231839112.jpg" width="100%" style="height: 0px; "></a><a class="txtA">武神空间</a><span class="info">第5话 藏书阁</span></li><li><a class="ImgA autoHeight" href="/wap/comic/12523/"><img src="/upload/2017-02-23/2017223131635301.png" width="100%" style="height: 0px; "></a><a class="txtA">九重紫</a><span class="info">第13话</span></li><li><a class="ImgA autoHeight" href="/wap/comic/12827/"><img src="/upload/2017-03-09/201739162120972.png" width="100%" style="height: 0px; "></a><a class="txtA">琥珀时间</a><span class="info">第11话</span></li><li><a class="ImgA autoHeight" href="/wap/comic/10687/"><img src="/upload/2016-02-23/2016223204825964.jpg" width="100%" style="height: 0px; "></a><a class="txtA">达人传</a><span class="info">第67话</span></li><li><a class="ImgA autoHeight" href="/wap/comic/12410/"><img src="/upload/2017-02-06/201726142531181.jpg" width="100%" style="height: 0px; "></a><a class="txtA">阡陌间</a><span class="info">第9话 神秘人</span></li><li><a class="ImgA autoHeight" href="/wap/comic/12779/"><img src="/upload/2017-03-07/20173755245357.jpg" width="100%" style="height: 0px; "></a><a class="txtA">石更传奇</a><span class="info">第12话 美人计（上）</span></li><li><a class="ImgA autoHeight" href="/wap/comic/12721/"><img src="/upload/2017-03-05/201735145945536.jpg" width="100%" style="height: 0px; "></a><a class="txtA">汪姐和喵弟的日常</a><span class="info">第3话</span></li><li><a class="ImgA autoHeight" href="/wap/comic/12644/"><img src="/upload/2017-03-01/201731132343512.jpg" width="100%" style="height: 0px; "></a><a class="txtA">修仙直播间</a><span class="info">第15话</span></li><li><a class="ImgA autoHeight" href="/wap/comic/12182/"><img src="/upload/2016-12-12/20161212135430378.jpg" width="100%" style="height: 0px; "></a><a class="txtA">超品相师</a><span class="info">第14话</span></li><li><a class="ImgA autoHeight" href="/wap/comic/11146/"><img src="/upload/2016-03-29/201632902031180.jpg" width="100%" style="height: 0px; "></a><a class="txtA">云中歌</a><span class="info">第34话 彼美孟姜，德音不忘</span></li><li><a class="ImgA autoHeight" href="/wap/comic/12601/"><img src="/upload/2017-02-25/2017225142933858.jpg" width="100%" style="height: 0px; "></a><a class="txtA">薛的世界：薛之谦</a><span class="info">向天再要500话</span></li><li><a class="ImgA autoHeight" href="/wap/comic/12561/"><img src="/upload/2017-02-24/2017224184715959.jpg" width="100%" style="height: 0px; "></a><a class="txtA">红丝带物语</a><span class="info">第10话</span></li><li><a class="ImgA autoHeight" href="/wap/comic/12181/"><img src="/upload/2016-12-12/20161212132610602.jpg" width="100%" style="height: 0px; "></a><a class="txtA">夜天子</a><span class="info">第18话</span></li><li><a class="ImgA autoHeight" href="/wap/comic/12550/"><img src="/upload/2017-02-24/201722415059826.jpg" width="100%" style="height: 0px; "></a><a class="txtA">超没用能力者</a><span class="info">第2话</span></li><li><a class="ImgA autoHeight" href="/wap/comic/12531/"><img src="/upload/2017-02-23/2017223172741564.jpg" width="100%" style="height: 0px; "></a><a class="txtA">一早起来变成了女孩子</a><span class="info">第1话</span></li><li><a class="ImgA autoHeight" href="/wap/comic/12465/"><img src="/upload/2017-02-19/2017219195053969.jpg" width="100%" style="height: 0px; "></a><a class="txtA">时光逝去 向桥而行</a><span class="info">第1话</span></li><li><a class="ImgA autoHeight" href="/wap/comic/11629/"><img src="/upload/2016-08-10/2016810154453128.jpg" width="100%" style="height: 0px; "></a><a class="txtA">约定的梦幻岛</a><span class="info">第23话 砸个粉碎</span></li><li><a class="ImgA autoHeight" href="/wap/comic/12049/"><img src="/upload/2016-11-11/2016111102222587.png" width="100%" style="height: 0px; "></a><a class="txtA">记忆操纵师</a><span class="info">第14话 陷阱</span></li><li><a class="ImgA autoHeight" href="/wap/comic/12337/"><img src="/upload/2017-01-17/2017117124426603.png" width="100%" style="height: 0px; "></a><a class="txtA">恋爱中的白熊</a><span class="info">第4话</span></li><li><a class="ImgA autoHeight" href="/wap/comic/12285/"><img src="/upload/2017-01-13/201711319194424.jpg" width="100%" style="height: 0px; "></a><a class="txtA">上位法则</a><span class="info">第四话 鲶鱼法则2</span></li><li><a class="ImgA autoHeight" href="/wap/comic/11773/"><img src="/upload/2016-09-20/2016920175857946.jpg" width="100%" style="height: 0px; "></a><a class="txtA">神笔马尚</a><span class="info">第11话 开大了！</span></li><li><a class="ImgA autoHeight" href="/wap/comic/12043/"><img src="/upload/2016-11-10/2016111011557613.png" width="100%" style="height: 0px; "></a><a class="txtA">死亡聚会</a><span class="info">第7话 姐姐我等不了你……</span></li><li><a class="ImgA autoHeight" href="/wap/comic/11571/"><img src="/upload/2016-07-21/2016721101636845.jpg" width="100%" style="height: 0px; "></a><a class="txtA">天下第二就挺好</a><span class="info">第13话 当真是天下第一村！</span></li><li><a class="ImgA autoHeight" href="/wap/comic/12025/"><img src="/upload/2016-11-06/201611622372963.png" width="100%" style="height: 0px; "></a><a class="txtA">时间回归</a><span class="info">第10话 拖走</span></li></ul>
+    </div>
+	<div id="loadding" style="display: none; ">正在加载中...</div>
+
+    	<div class="bottom">
+        <div class="pageLine"><img src="../../../../template/skin7_20110501/images/m/images/head_line.gif" width="100%"></div>
+        <p class="record">©517漫画网  <a href="/wap/"><span style="color:#5a5858">返回首页</span></a></p>
+	</div>
+    <div style="display:none"><script src="../../../../template/skin7_20110501/images/g_js/tongji.js"></script><script src="http://s11.cnzz.com/z_stat.php?id=1260304838&amp;web_id=1260304838" language="JavaScript"></script><script src="http://c.cnzz.com/core.php?web_id=1260304838&amp;t=z" charset="utf-8" type="text/javascript"></script><a href="http://www.cnzz.com/stat/website.php?web_id=1260304838" target="_blank" title="站长统计">站长统计</a>
+</div>
+    
+<script>
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+<script>
+(function(){
+   var src = (document.location.protocol == "http:") ? "http://js.passport.qihucdn.com/11.0.1.js?aa82aac69d904b54458e9c0023a1b228":"https://jspassport.ssl.qhimg.com/11.0.1.js?aa82aac69d904b54458e9c0023a1b228";
+   document.write('<script src="' + src + '" id="sozz"><\/script>');
+})();
+</script><script src="http://js.passport.qihucdn.com/11.0.1.js?aa82aac69d904b54458e9c0023a1b228" id="sozz"></script><script charset="utf-8" src="http://s7.qhres.com/static/ab77b6ea7f3fbf79.js"></script>
+
+
+
+</body></html>

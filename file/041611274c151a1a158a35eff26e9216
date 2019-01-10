@@ -1,0 +1,1468 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+<meta http-equiv="X-UA-Compatible" content="IE=100"/>
+
+<link rel="stylesheet" href="/css/iwind-theme.min.css">
+<link rel="stylesheet" href="/css/main.css"> 
+<link rel="stylesheet" href="/css/public.css" />
+<script src="/js/jquery-1.10.2.min.js"></script>
+<link rel="stylesheet" href="/css/jquery-ui.min.css" /> 
+<link rel="stylesheet" href="/css/validationEngine.jquery.css" />
+<link href="/img/favicon.ico" rel="shortcut icon">
+<!-- 验证框架  validationEngine-->
+<script src="/js/jquery.validationEngine-zh_CN.js"></script> 
+<script src="/js/jquery.validationEngine.js"></script>
+<script src="/js/html5shiv.js"></script>
+<script type="text/javascript" src="//s.union.360.cn/3546.js"></script>
+<script type="text/javascript" src="/js/layer/layer.js"></script>
+<script type="text/javascript">
+//2015.12.31 lijinya start
+function toPCTFundRecord(){
+	window.location.href='/link.action?page=/front/PCTFundRecord';
+}
+//2015.12.31 lijinya end
+	var path = "";
+	
+	/**
+	 * 返回台返回json数据 Filter
+	 **/
+	function dataFilter(data,calback){
+		if((typeof data=='string')&&(data.constructor==String)){
+			data = eval('('+data+')');
+		}
+		if(data.state){
+		    if(data.state=="SUCCESS"){
+		    	return calback(data.content);
+		    }else{
+		    	return;
+		    }
+		}else{
+			return data;
+		}
+	}
+	
+	//解析返回的数据
+	function parseData(data){
+		if((typeof data=='string')&&(data.constructor==String)){
+			data = eval('('+data+')');
+		}else{
+			return data;
+		}
+	}
+	
+	//数据成功与否结果
+	function dataResult(data){
+		if((typeof data=='string')&&(data.constructor==String)){
+			data = eval('('+data+')');
+		}
+		if(data.state){
+		    if(data.state=="SUCCESS"){
+		    	return true;
+		    }else{
+		    	return false;
+		    }
+		}else{
+			return false;
+		}
+	}
+	
+	//修改验证码
+	function changeValidateCode(imgEle){
+		$("#"+imgEle).attr("src",path+"/image/validateCode.action?temp="+Math.floor(Math.random() * ( 10000 + 1)));
+	}
+	
+	//当钱为空时 返回0.00
+	function  Verification(s)
+	{
+		 if(s==null||s=="")
+		 {
+			 return 0.00
+		 }
+		 return s;
+	}
+	
+	
+	//时间搓
+	function timestr(){
+		var timestamp = Date.parse(new Date());
+		return timestamp;
+	}
+	
+	
+	
+	//充值是否认证
+	function toRecharge(parame){
+		//$(this).css("background-color","gray");
+		return;
+		 var json = getuser();
+	     var type=json.content.idType;
+	    
+	     
+	     if(type!=null&&type!=""&&type!="0")
+	     {
+	    	//2015.12.30 lijinya start
+	    	 //window.open("/link.action?page=/front/PCTFundRecharge");  
+	    	window.open("/requestparam.action?page=/usercenter/front/PCTFundRecharge&Parameter="+parame);  
+	    	//2015.12.30 lijinya end
+// 	    	window.open("/portal/yeepay/toRecharge.action?cmId=");  
+	    		//询问框
+	    		layer.confirm('是否充值成功？', {
+	    		    btn: ['成功','失败']//按钮
+					,offset: [window.screen.availHeight/2-80,window.screen.availWidth/2-130]
+	    		}, function(){
+	    		   location.href=location.href;
+	    		}, function(){
+	    			 location.href=location.href;
+	    		});
+			
+				
+	     }else{
+	        	layer.alert("为了您的账户安全请进行实名认证",{
+	        		offset: [window.screen.availHeight/2-80,window.screen.availWidth/2-130]
+	        	}, function(){
+	        												location.href="/requestparam.action?page=/usercenter/front/PCBrowseName"; 
+	        											})
+	        		}
+		}
+
+	//提现是否认证
+	function tixian(parame){
+		 var json = getuser();
+	    var type=json.content.idType;
+	    var tiecard=json.content.isTiecard;
+	     var withdrawalDisabled = json.content.withdrawalDisabled;
+	     if(withdrawalDisabled == 0){
+	        		if(type!=null&&type!=""&&type!="0")
+	        		{
+	        			
+	        			if(tiecard!=null&&tiecard!=""&&tiecard!="0")
+        				{
+	        				
+	        				//2015.12.30 lijinya start
+		        		    	 	//window.open("/link.action?page=/front/PCTFundWithdraw"); 
+		        		    	 	window.open("/requestparam.action?page=/front/PCTFundWithdraw&Parameter="+parame);  
+		        		    	 	//2015.12.30 lijinya end
+		        		    	 	/* layer.confirm('是否提现成功？', {
+		        		    		    btn: ['成功','失败'] //按钮
+		        		    		}, function(){
+		        		    		   location.href=location.href;
+		        		    		}, function(){
+		        		    		});
+ */
+		        				 
+		        			
+
+        				
+        				}else{
+        					layer.alert("同江金融提供银行级安全保障，需验证您本人对银行卡的操作权！认证成功后，您可通过该卡进行取现。"
+        							,function(){
+        								 window.open("/link.action?page=front/checkBank");  
+        								 layer.closeAll();
+									}
+        					);
+        				}
+	        			
+	        		
+	        		}else{
+	        			layer.alert("为了您的账户安全请进行实名认证", function(){
+								location.href="/requestparam.action?page=/usercenter/front/PCBrowseName"; 
+								
+								})
+	        		}
+	        		
+	        		}else{
+	        			layer.alert("提现恢复时间待定，给您带来的不便，深表歉意！");
+	        		}
+	}  
+	
+	//绑卡认证
+	function  bangka()
+	 {
+			 var json = getuser();
+		     var type=json.content.idType;
+		     if(type!=null&&type!=""&&type!="0")
+		     {
+		    	 if(json.content.isTiecard=="1"){
+		    		 window.location.href="/link.action?page=/front/my_bankCard";  
+		    	 }else{
+		    		 
+		    		 window.location.href="/link.action?page=/front/my_bankCard_NO";  
+		    	 }
+		     }else{
+			        layer.alert("为了您的账户安全请进行实名认证", function(){
+					location.href="/requestparam.action?page=/usercenter/front/PCBrowseName"; 
+				})
+	 		 }	
+	 }
+	
+	//修改交易密码验证
+	function updatepassword(){
+		var json = getuser();
+	    var type=json.content.idType;
+	  
+	     if(type!=null&&type!=""&&type!="0"){
+		      if(json.content.payPassword==null||json.content.payPassword==""){
+		    	  window.open("/link.action?page=front/setPayPassword")
+		    	  return;
+		      }
+		          window.open("/portal/FcustomAction/updateTradingPassword.action");
+		       
+	      }else{
+	        	layer.alert("为了您的账户安全请进行实名认证", function(){
+				location.href="/requestparam.action?page=/usercenter/front/PCBrowseName"; 
+			})
+	     }
+	}
+	//修改手机号验证
+	function updatephone(){
+		var json = getuser();
+	    var type=json.content.idType;
+	     if(type!=null&&type!=""&&type!="0"){
+		      
+		    	window.open("/portal/FcustomAction/changPhone.action?phId=1");
+		       
+	      }else{
+	        	layer.alert("为了您的账户安全请进行实名认证", function(){
+				location.href="/requestparam.action?page=/usercenter/front/PCBrowseName"; 
+			})
+	     }
+	     
+	 	 
+	}
+		//修改手机号验证
+	function UExPhone(){
+		var json = getuser();
+	    var type=json.content.idType;
+	     if(type!=null&&type!=""&&type!="0"){
+		      
+		       window.open("/portal/FcustomAction/changPhone.action?phId=2");
+		       
+	      }else{
+	        	layer.alert("为了您的账户安全请进行实名认证", function(){
+				location.href="/requestparam.action?page=/usercenter/front/PCBrowseName"; 
+			})
+	     }
+	}
+
+	//修改手机号验证
+	function Lostphone(){
+		var json = getuser();
+	    var type=json.content.idType;
+	  
+	     if(type!=null&&type!=""&&type!="0"){
+		      
+		        		 window.open("/portal/FcustomAction/changPhone.action?phId=3");
+		       
+	      }else{
+	        	layer.alert("为了您的账户安全请进行实名认证", function(){
+				location.href="/requestparam.action?page=/usercenter/front/PCBrowseName"; 
+			})
+	     }
+	}
+
+	//返回用户
+	function getuser()
+	{
+		var userjson="";
+		$.ajax({
+	         type: "POST",
+	         url:path+'/portal/FcustomAction/queryById.action?cmId='+'&time='+timestr(),
+	         async:false,
+	         dataType : "json",
+	         success: function(json) {
+	        	 userjson=json;
+	      	 }
+	    });
+		return userjson;
+	}
+	
+	//返回用户金额
+	function getUserMoney(){
+		var userjson="";
+		 $.ajax({
+	         type: "POST",
+	         url:path+'/portal/faccountAction/queryByUserId.action?userId='+'',
+	         async:false,
+	         dataType : "json",
+	         success: function(json) {
+	        	 userjson=json;
+	      	 }
+	    });
+		 return userjson;
+	}
+	
+	
+	function renzheng()
+	{
+		location.href='/requestparam.action?page=/usercenter/front/PCBrowseName&Parameter=';
+	}
+	
+	$(function(){
+		
+		//2015.12.30 lijinya start
+// 		$("#chongzhi").click(function(){ toRecharge(); });
+// 		$("#tixian").click(function(){ tixian(); });
+		$("#chongzhi").click(function(){
+			var parame= $(this).attr("parame");
+			if(parame == null || parame == ''){
+				parame=0;
+			}
+			toRecharge(parame); 
+		});
+		
+		$("#tixian").click(function(){ 
+			  var parame = $(this).attr("parame");
+			  if( parame == null || parame==''){
+				  parame = 0;
+			  }
+				tixian(parame);
+		});
+		//2015.12.30 lijinya end
+		$("#card").click(function(){ bangka(); });
+		$("#updatepassword").click(function(){ updatepassword(); });
+		$("#updatephone").click(function(){ updatephone(); });
+		$("#existPhone").click(function(){ UExPhone(); });
+   		$("#lostPhone").click(function(){ Lostphone(); });
+	})
+	
+	
+
+	
+	function GetUrlRelativePath() {
+		var url = document.location.toString();
+		var arrUrl = url.split("//");
+		var start = arrUrl[1].indexOf("/");
+		var relUrl = arrUrl[1].substring(start);//stop省略，截取从start开始到结尾的所有字符
+	 
+		return relUrl;
+	}
+	var jsonuser = getuser();
+	var customerType=jsonuser.content.flag;
+	var customerIdType=jsonuser.content.idType;
+	var cardNumber=jsonuser.content.cardNumber;
+	if(customerType=='1' && customerIdType!='1'){
+			 if(GetUrlRelativePath()!='/'&&GetUrlRelativePath()!='/link.action?page=/front/home'&&GetUrlRelativePath()!='/portal/yeepay/EnterpriseRegistered.action?&authParam=1'&&GetUrlRelativePath()!='/portal/yeepay/EnterpriseRegistered.action?&authParam=2'){
+				 location.href="/";
+			 }
+				
+			//location.href="/"; 
+	 
+	}
+</script>
+<!--
+<script type="text/javascript" src="http://s.union.360.cn/3546.js"></script>
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?e4b5f0dad6a089a38bd5d3bbbfd9d14f";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+-->
+ 
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="renderer" content="ie-comp" />  
+<meta name="description" content="同江金融是同江投资旗下互联网金融平台，在健全的风险管控体系基础上，为企业及个人提供专业，可信赖的投资理财、P2P理财、贷款、信贷等服务。成立至今，理财类产品实现完美兑付">
+ <meta name="keywords" content="同江金融|互联网投资理财|网上理财|互联网金融|小额贷款">
+<link rel="stylesheet" href="/css/index_new.css" />
+<title>同江金融-同江投资旗下互联网金融平台</title>
+<script src="/js/jquery.kinMaxShow-1.1.src.js" type="text/javascript" charset="utf-8"></script>
+<script src="/js/jquery.kinMaxShow-1.1.min.js" type="text/javascript" charset="utf-8"></script>
+	<script type="text/javascript">
+		 $(function() {
+			 var $this = $("#wzggA");
+			 var scrollTimer;
+			 $this.hover(function() {
+			 clearInterval(scrollTimer);
+			 }, function() {
+			 scrollTimer = setInterval(function() {
+			 scrollNews($this);
+			 }, 3000);
+			 }).trigger("mouseleave");
+
+			 function scrollNews(obj) {
+			 var $self = obj.find("#wzgg");
+			 var lineHeight = $self.find(".wzggC:first").height();
+			 $self.animate({
+			 "marginTop": "0px"
+			 }, 600, function() {
+			 $self.css({
+			 marginTop: 0
+			 }).find(".wzggC:first").appendTo($self);
+			 })
+			 }
+			 }) 
+		 </script>
+   <script type="text/javascript">
+    if(IsPC()==false){
+  		location.href='http://m.coriver.cn/';
+  	}
+    function IsPC() {
+     		if('null'=="true")
+     			return true; 
+
+        var userAgentInfo = navigator.userAgent;
+        var Agents = ["Android", "iPhone",
+                    "SymbianOS", "Windows Phone",
+                    "iPad", "iPod"];
+        var flag = true;
+        for (var v = 0; v < Agents.length; v++) {
+            if (userAgentInfo.indexOf(Agents[v]) > 0) {
+                flag = false;
+                break;
+            }
+        }
+        return flag;
+    }
+    </script>
+<script>
+  (function($){
+	$.fn.myScroll = function(options){
+	//默认配置
+	var defaults = {
+		speed:10,  //滚动速度,值越大速度越慢
+		rowHeight:800//每行的高度
+		
+	};
+	
+	var opts = $.extend({}, defaults, options),intId = [];
+	
+	function marquee(obj, step){
+		
+		obj.find("#myli").animate({
+			marginTop: '-=2'
+		},0,function(){
+				var s = Math.abs(parseInt($(this).css("margin-top")));
+				if(s >= step){
+					$(this).find("li").slice(0, 1).appendTo($(this));
+					$(this).css("margin-top", 0);
+				}
+			});
+		}
+	
+		this.each(function(i){
+			var sh = opts["rowHeight"],speed = opts["speed"],_this = $(this);
+			intId[i] = setInterval(function(){
+				if(_this.find("#myli").height()<=_this.height()){
+					clearInterval(intId[i]);
+				}else{
+					marquee(_this, sh);
+				}
+			}, speed);
+
+			_this.hover(function(){
+				clearInterval(intId[i]);
+			},function(){
+				intId[i] = setInterval(function(){
+					if(_this.find("#myli").height()<=_this.height()){
+						clearInterval(intId[i]);
+					}else{
+						marquee(_this, sh);
+					}
+				}, speed);
+			});
+		
+		});
+
+	}
+	
+})(jQuery);
+</script>
+       
+<script type="text/javascript">
+$(function(){	
+	$("#kinMaxShow").kinMaxShow();
+});
+</script>
+ <script type="text/javascript">
+    	$(document).ready(function(){
+    		$.ajax({
+    			type: "POST",
+		         url:path+'/portal/information/queryByCount.action?',
+		         dataType : "json",
+		         success: function(json) {
+		        	 var oSpan=document.getElementById("oSpan");
+		        		var d=json[0].count+5000;//结束的位置
+		        		var s= parseInt(oSpan.innerHTML);//起始位置
+		        		var time=3000;  //所用时间 1000毫秒（ 在1秒内 数值增加到d）;
+		        		var outTime=0;  //所消耗的时间
+		        		var interTime=30;
+		        		var timer = setInterval(function(){
+		        			outTime+=interTime;
+		        			if(outTime<time){
+		        				oSpan.innerHTML= parseInt(d/time*outTime);
+		        			}else{
+		        				oSpan.innerHTML=d;
+		        			}
+		        			},interTime);
+		        	// $("#oSpan").html(json[0].count);
+		        	 //$("#oSpan1").html(json[0].sum);
+		        		var oSpan1=document.getElementById("oSpan1");
+		        		var d1=json[0].sum.toFixed(0);//结束的位置
+		        		var s1= parseInt(oSpan1.innerHTML);//起始位置
+		        		var time1=3000;  //所用时间 1000毫秒（ 在1秒内 数值增加到d）;
+		        		var outTime1=0;  //所消耗的时间
+		        		var interTime1=30;
+		        		var timer1 = setInterval(function(){
+		        			outTime1+=interTime1;
+		        			if(outTime1<time1){
+		        				oSpan1.innerHTML= parseInt(d1/time1*outTime1);
+		        			}else{
+		        				oSpan1.innerHTML=d1;
+		        			}
+		        			},interTime1);
+		         }
+    		})
+    	})	
+    </script>
+   
+ <style type="text/css">
+    	.font{
+    	margin-top:-7px;
+		font-size: 12px;
+		
+    	}
+    	.index_new_con3_left_top_con h2 {
+	    width: 186px;
+	    height: 38px;
+	    text-align: center;
+	    line-height: 48px;
+	    margin-top: 5px;
+		}
+ #demo1 li:nth-child(even){ background:#F0F2F3;}
+ td{
+ 		line-height:1.2;
+ }
+    </style>
+</head>
+<body>
+ <div class="hshade">
+</div>
+<div class="hFrontFrame">
+   <div class="hFrontContent">
+      <img class="hFrontClose" src="/images/close_03.png"  alt="同江金融">   
+      <div class="hredpacketFrame">
+          <div class="hredpacketshow">
+              <img class="hcaidai" src="/images/caidai.png" alt="同江金融">
+              <span class="hrpstitle" style="display:none">恭喜您获得红包~稍后可以到个人中心查看<a href="/link.action?page=/front/PCredpacket"><font class="hrpfont">红包管理</font></span></a>
+          </div>   
+      </div>
+   </div>
+</div>
+
+
+
+
+
+<div class="head" style="font-size:12px;">
+  <div class="haed_top" >
+    <div class="head_top_con">
+     
+	    	
+	    	
+	    		<div class="head_top_left fl">
+       		<p style="font-size:12px">7×12小时服务热线 4008-110-586（工作日 9:00-21:00）<a href="/link.action?page=/usercenter/front/login" style="font-size:12px">[登录]</a>
+       		 <a href="/link.action?page=/front/registered-z" style="font-size:12px">[注册]</a>
+       		 <a href="/link.action?page=/front/enRegistered-z" style="font-size:12px">[企业注册]</a>
+       		 </p>
+   				 </div>
+	    	
+	     
+   
+    <ul class="head_top_right fr" >
+       <li><a href="/link.action?page=/front/NoviceGuide" style="font-size:12px" target="_blank">新手引导</a></li>
+       <li><a href="/portal/articleAction/queryByArtType.action?artType=11" style="font-size:12px" target="_blank">帮助中心</a></li>
+       <li><a href="/app.jsp" style="font-size:12px" target="_blank">手机版APP</a></li>
+       <li><a href="http://m.coriver.cn/" target="_blank" style="font-size:12px" target="_blank"><img src="/images/head2.png" alt="同江金融"/>手机版</a></li>
+       <li><a href="#" id="hov" style="font-size:12px"><img src="/images/head4.png" alt="同江金融"/> 微信</a></li>
+    </ul>
+    </div>
+  </div>
+  <div class="haed_bottom">
+     <div class="head_bottom_left fl"><a href="/"><img src="/images/logo.png" alt="同江金融，百分百完美兑付"/></a></div>
+     <div class="navlist fr">
+     <ul>
+        <li class="menu2"  onMouseOut="this.className='menu2'"><a href="/">首页</a></li>
+        <li class="menu2" onMouseOver="this.className='menu2'" ><a href="/link.action?page=/front/OfficialFinance">官方理财</a>
+        </li>
+        <li class="menu2"  onMouseOut="this.className='menu2'"> <a href="/link.action?page=/front/rrf/rrfBuy" class="index_xl_nav">日日丰</a></li>
+        <li class="menu2"  onMouseOut="this.className='menu2'"><a href="/link.action?page=/front/zhuanRang/assignment">转让频道</a></li>
+        <!--
+        <li class="menu2" onMouseOver="this.className='menu1'" onMouseOut="this.className='menu2'"><a href="/link.action?page=/front/BusinessHallMap">经营机构 <img src="/images/nav_dowm.png" /></a>
+          <div class="index_nav_list">
+        <a href="/portal/Fcompany/queryFCompanyByPage.action?rows=6&city=2" class="index_xl_nav">北京</a><br />
+        <a href="/portal/Fcompany/queryFCompanyByPage.action?rows=6&city=22" class="index_xl_nav">天津</a><br />
+        <a href="/portal/Fcompany/queryFCompanyByPage.action?rows=6&city=577" class="index_xl_nav">大连</a><br />
+        <a href="/portal/Fcompany/queryFCompanyByPage.action?rows=6&city=62" class="index_xl_nav">重庆</a><br />
+        <a href="#" class="index_xl_nav">深圳(筹建中)</a><br />
+	    </div>
+        </li>
+         -->
+        <li class="menu2"  onMouseOut="this.className='menu2'"><a href="/link.action?page=/front/aboutmy-gsjj">关于我们</a></li>
+        
+	    	
+     		
+     		<li class="menu2"  onMouseOut="this.className='menu2'"><a href="/link.action?page=/usercenter/front/PCBrowse">个人中心</a></li>
+     		
+     	 
+     </ul>
+     </div>
+  </div>
+</div>
+<script>
+$("#logout").click(function(){
+	$.ajax({
+	   	url: path + "/portal/FcustomLogin/logout.action",
+	   	async: false,
+	   	type:"post"
+	});
+	window.location.reload();
+});
+</script>
+<div class="banner_con">
+    <div id="kinMaxShow">
+    	<div>
+        	<a href="/link.action?page=/front/activity/new_year_day" target="_blank" title="同江金融" ><img src="/images/banner0101.jpg"  alt="同江金融"  /></a>
+        </div> 
+    	 <div>
+        	<a href="/link.action?page=/front/activity/renewactivity" target="_blank" title="同江金融" ><img src="/images/xbanner0118.jpg"  alt="同江金融"  /></a>
+        </div>
+    	<div>
+        	<a href="/portal/fproduct/queryById.action?productId=3C0E1DBA-0C94-6647-4D83-B98B6FF91907" target="_blank" title="同江金融" ><img src="/images/3.jpg"  alt="同江金融"  /></a>
+        </div>  
+    	<div>
+        	<a href="/link.action?page=front/RiRiFeng_details" target="_blank" title="同江金融" ><img src="/images/rrfbanner.jpg"  alt="同江金融"  /></a>
+        </div>  
+    
+		
+         
+       	        
+        <div>
+        	<a href="/app.jsp" target="_blank" title="同江金融" ><img src="/images/5.jpg"  alt="同江金融"  /></a>
+        </div>
+       
+        <!-- <div>
+        	<a href="http://www.lanrentuku.com" target="_blank"><img src="images/6.jpg"   /></a>
+        </div>		 -->     
+    </div>
+    
+    
+    
+    <div class="index_new_dl">
+        <div class="index_new_dl_con">
+              
+               <div class="index_new_dl_box"></div>
+               <div class="index_new_dl_box_bt">
+                <span class="index_new_dl_box_nx">成立<span class="/index_new_dl_box_nian">5</span>周年</span>，投资者累计
+               </div>
+               <div class="index_new_dl_box_bt2">
+                共赚取收益<span>1.68亿元</span>人民币
+               </div>
+               <div class="index_new_dl_hygl"><img src="images/new_hygl.png" /></div>
+               <a href="/link.action?page=/front/registered-z" class="index_new_dl_rig">免费注册</a>
+               <div class="index_new_dlzc">已有账户？&nbsp;&nbsp;&nbsp;&nbsp;<a href="/link.action?page=/usercenter/front/login" class="index_new_denglu">立即登录</a></div>
+              
+               </div>
+           </div>
+           
+            
+    
+    </div>
+    <div class="data_record">
+       <div class="data_record_left fl">一周交易数据</div>
+       <div class="data_record_center fl">
+          <img src="images/data_peple.png" /> <span class="data_bs" id="oSpan">5366</span> 人成功投资
+       </div>
+       <div class="data_record_center2 fl">
+          <img src="images/data_bx.png" /> 共收取本息<span class="data_bs" id="oSpan1">6032821</span> 元
+       </div>
+       <div class="data_record_right fr"><a href="/link.action?page=/front/transaction_data" class="home_gd">查看更多>></a></div>
+    </div>
+    <div class="home_aqss">
+       <div class="home_aqss_con">
+         <div class="home_aqss_con_left fl">
+            
+            <div class="home_aqss_con_left_con1 fl">
+            <a href="/link.action?page=/front/activity/activity_zone" target="_blank"  onfocus="this.blur();" >
+               <div class="home_aqss_pic"><img src="images/home_activity.png" /></div>
+               <div class="home_aqss_bt">活动专区</div>
+               <div class="home_aqss_bt_sub">礼品多到心碎</div>
+               </a>
+            </div>
+            
+            
+            <div class="home_aqss_con_left_con1 fl">
+            <a href="/link.action?page=/front/share" target="_blank"  onfocus="this.blur();">
+              <div class="home_aqss_pic"><img src="images/home_spread.png" /></div>
+               <div class="home_aqss_bt">分享推广</div>
+               <div class="home_aqss_bt_sub">现金拿到手软</div>
+               </a>
+            </div>
+            
+            
+            <div class="home_aqss_con_left_con1 fl">
+            <a href="/link.action?page=/front/SecurityAssurance" target="_blank"  onfocus="this.blur();">
+              <div class="home_aqss_pic"><img src="images/home_safe.png" /></div>
+               <div class="home_aqss_bt">资金安全</div>
+               <div class="home_aqss_bt_sub">就是这么靠谱</div>
+               </a>
+            </div>
+            
+         </div>
+         <!--  快速搜索产品-->
+         <div class="home_aqss_con_right fr">
+           <div class="container-min r-1">
+		     <h6>快速筛选适合您的理财产品</h6>
+		     <form id="OfficialFinance" action="" method="post">
+			 <div class="container-min r-2">
+			   <span class="right4">起投金额：</span>
+			   <select name="lowest" id="lowest"><option value="0">全部金额</option><option value="100-100">100</option><option value="1000-1000">1000</option><option value="50000-50000">50000</option></select>
+			 </div>
+			 <div class="container-min r-2">
+			   <span class="right4">投资期限：</span>
+			   <select name="expire" id="expire"><option value="0-30">一月以内</option><option value="30-90">1-3月</option><option value="90-180">3-6月</option><option value="180-270">6-9月</option><option value="270-360">9-12月</option><option value="360-99999">一年以上</option></select>
+			 </div>
+			 <div class="container-min r-2">
+			   <span class="right4">产品种类：</span>
+			   <select id="Buytype" onchange="buytype()"><option value="1">官方理财</option><option value="2">日日丰</option><option value="3">理财转让</option></select>
+			 </div>
+		     </form>
+			 <span class="signbtn" onclick="OfficialFinanceSubmit()" style="cursor: pointer">搜索</span>
+		   </div>
+         </div>
+       </div>
+    </div>
+ <!--网站公告  -->   
+    
+     <div class="home_notice" id="wzggA">
+        <div class="home_notice_left fl">网站公告&nbsp;&nbsp;&nbsp;&nbsp;|</div>
+        <div >
+        <div class="home_notice_center_wzgg_con_ggggd fl" id="wzgg" >       
+        </div>    
+   		</div>
+   		<div ></div>
+        <div class="home_notice_right fl"><a href="/portal/articleAction/queryByArtType.action?artType=1" class="home_gd2" target="_blank">查看更多>></a></div>
+   
+    </div>
+
+<!-- 条件搜索  -->
+<div class="index_new_con3">
+   <div class="index_new_con3_left fl">
+      <div class="index_new_con3_left_top">
+         <div class="index_new_con3_left_top_con fl">
+            <h2><span style="font-size:18px;color:black"><b>T+0</b> </span><span style="color:black">赎回</span></h2>
+            <p class="yjh_syl">5.0<span>%以上</span></p>
+            <p class="yjh_syl_bt">年化收益率</p>
+            <div class="yjh_syl_an"><a href="/link.action?page=/front/rrf/rrfBuy" class="yjh_syl_touzi" target="_blank">投资</a></div>
+         </div>
+         <div class="index_new_con3_left_top_con fl">
+            <h2><span style="font-size:18px;color:black"><b>1-3</b> </span><span style="color:black">个月</span></h2>
+            <p class="yjh_syl">7.0-8.0<span>%</span></p>
+            <p class="yjh_syl_bt">年化收益率</p>
+            <div class="yjh_syl_an"><a href="/link.action?page=/front/OfficialFinance&expire=0-90" class="yjh_syl_touzi" target="_blank">投资</a></div>
+         </div>
+         <div class="index_new_con3_left_top_con fl">
+            <h2><span style="font-size:18px;color:black"><b>6-9</b> </span><span style="color:black">个月</span></h2>
+            <p class="yjh_syl">9.5-10.0<span>%</span></p>
+            <p class="yjh_syl_bt">年化收益率</p>
+            <div class="yjh_syl_an"><a href="/link.action?page=/front/OfficialFinance&expire=180-270" class="yjh_syl_touzi" target="_blank">投资</a></div>
+         </div>
+         <div class="index_new_con3_left_top_con fl">
+            <h2><span style="font-size:18px;color:black"><b>12-60</b> </span><span style="color:black">个月</span></h2>
+            <p class="yjh_syl">10.0-12.0<span>%</span></p>
+            <p class="yjh_syl_bt">年化收益率</p>
+            <div class="yjh_syl_an"><a href="/link.action?page=/front/OfficialFinance&expire=360-1800" class="yjh_syl_touzi" target="_blank">投资</a></div>
+         </div>
+      </div>
+      <!--日日丰  -->
+      <div class="index_new_con3_left_bottom">
+         <div class="index_rrf_left fl"><a href="/link.action?page=/front/rrf/rrfBuy" target="_blank"><img src="images/index_rrf_bg.png" /></a></div>
+         <div class="index_rrf_right fr">
+            <div class="index_rrf_right_left fl">
+               <div class="index_rrf_right_left_con fl">
+                  <div class="index_rrf_r_sylv" id="rrf_rate">6.160<span>%</span></div>
+                  <div class="index_rrf_r_sylv_zs">年化收益率</div>
+               </div>
+               <div class="index_rrf_right_left_con fl">
+                  <div class="index_rrf_r_sylv2">活期</div>
+                  <div class="index_rrf_r_sylv_zs">项目期限</div>
+               </div>
+               <div class="index_rrf_right_left_con fl">
+                  <div class="index_rrf_r_sylv3">100<span>元</span></div>
+                  <div class="index_rrf_r_sylv_zs">起投金额</div>
+               </div>
+            </div>
+            <div class="index_rrf_right_right fr">
+              <a href="/link.action?page=/front/rrf/rrfBuy" target="_blank">立即申购</a>
+            </div>
+         </div>
+      </div>
+   </div>
+  <!-- 交易记录 --> 
+   <div class="index_new_con3_jiaoyi fr">
+      <div class="index_new_con3_jiaoyi_bt">
+         <span class="fl">投资交易记录</span>
+         <a href="#" class="fr"></a>
+      </div>
+
+<div class="list_lh" id="demo" >
+        <div id="demo1">
+			<ul>
+				        
+			</ul>
+            </div>
+            <div id="demo2"></div>
+           
+		</div>
+		
+
+
+		<!-- 代码开始 -->
+		<!-- <div class="list_lh">
+			<ul id="myli">     
+			</ul>
+		</div> -->
+		<!-- 代码结束 -->
+        
+   </div>
+</div>    
+
+<!--官方理财  -->
+<div class="index_new_con4">
+   <div class="index_new_con4_top">
+      <div class="index_new_chanpin fl">
+         <div class="index_new_chanpin_bt">
+            <h2 class="index_new_chanpin_bt_l fl">官方理财</h2>
+            <a href="/link.action?page=/front/OfficialFinance" class="index_new_chanpin_gengduo fr" target="_blank">查看更多>></a>
+         </div>
+         <div id="gflc">
+         
+	</div>
+      </div>
+      <!--行业新闻 -->
+      <div class="index_new_hyxw fr">
+         <div class="index_new_con3_jiaoyi_bt">
+         <span class="fl">行业新闻</span>
+         <a href="/hyxw.html" class="fr" target="_blank">更多>></a>
+      </div>
+      <div class="index_new_hyxw_con">
+         <table width="96%" border="0" cellspacing="0" cellpadding="0"  style="margin:0 auto" align="center" id="hyxw">              
+                  
+            </table>
+      </div>
+      </div>
+   </div>
+   <!-- 债权转让 -->
+   <div class="index_new_con4_bottom">
+     <div class="index_new_con4_bottom_l fl">
+        <div class="index_new_chanpin_bt">
+            <h2 class="index_new_chanpin_bt_l fl">理财转让</h2>
+            <a href="/link.action?page=/front/zhuanRang/assignment" class="index_new_chanpin_gengduo fr" target="_blank">查看更多>></a>
+         </div>
+        <div id="zhuanrang"></div>
+    
+     </div>
+     <div class="index_new_con4_bottom_r fr">
+        <a href="/link.action?page=/front/registered-z" class="index_sub_banner1"><img src="images/sub_baneer1.png" /></a>
+        <a href="app.jsp" class="index_sub_banner2"><img src="images/sub_baneer2.png" /></a>
+     </div>
+   </div>
+</div>
+<div class="index_new_con5">
+   <div class="index_new_con5_con">
+      <div class="index_new_con5_con_bt"></div>
+      <div class="index_new_con5_tjfc">
+        <div class="index_new_con5_tjfc_con fl">
+          <div class="index_new_con5_tjfc_img"><img src="images/index_tjfc_pic1.png"  alt="同江风采"/></div>
+          <div class="index_new_con5_tjfc_bgbt">
+             同江金融董事长出席中国互联网金融
+             协会拟会员代表大会预备会议
+          </div>
+          <div class="index_new_con5_tjfc_bgcon">
+            日前，中国互联网金融协会（筹）在北京召开第一次拟会员代表大会预备会议。中国互联网金融协会筹建领导小组组长......
+            <br/>
+            <!-- <a href="#" class="tjfc_ckgd fl">查看更多>></a> -->
+          </div>
+        </div>
+        <div class="index_new_con5_tjfc_con fl">
+          <div class="index_new_con5_tjfc_img"><img src="images/index_tjfc_pic2.png"  alt="同江风采"/></div>
+          <div class="index_new_con5_tjfc_bgbt">2015年同江金融对外经贸大学双选会圆满落幕</div>
+          <div class="index_new_con5_tjfc_bgcon">
+            近日，同江金融(www.coriver)2016年校园招聘会在对外经贸大学成功举办。同江金融招聘团队向同学们传递了同江投资.......
+            <br/>
+            <!-- <a href="#" class="tjfc_ckgd fl">查看更多>></a> -->
+          </div>
+        </div>
+        <div class="index_new_con5_tjfc_con fl">
+          <div class="index_new_con5_tjfc_img"><img src="images/index_tjfc_pic3.png"  alt="同江风采"/></div>
+          <div class="index_new_con5_tjfc_bgbt">2016感恩回馈-同江金融举办新老客户答谢会</div>
+          <div class="index_new_con5_tjfc_bgcon">
+            为了感谢客户对我们公司的大力支持，在1月17日这一天，我们公司在珠江帝景豪廷酒店三层开了贵宾客户答谢会，参会......<br/>
+            <!-- <a href="#" class="tjfc_ckgd fl">查看更多>></a> -->
+          </div>
+        </div>
+      </div>
+   </div>
+</div>
+<div class="index_new_con6">
+    <div class="index_new_hzhb">合作伙伴</div>
+    <div class="index_new_hzhb_con">
+       <a href="http://bank.ecitic.com/" class="fl" target="_blank" rel="nofollow"><img src="images/hzhb_pic1.png" /></a>
+       <a href="http://www.ccb.com/" class="fl" target="_blank" rel="nofollow"><img src="images/hzhb_pic2.png" /></a>
+       <a href="http://www.fuiou.com/" class="fl" target="_blank" rel="nofollow"><img src="images/hzhb_pic6.png" /></a>
+       <a href="http://cctv.cntv.cn/" class="fl" target="_blank" rel="nofollow"><img src="images/hzhb_pic4.png" /></a>
+       <a href="http://www.cmbc.com.cn/" class="fr" style="margin:0" target="_blank" rel="nofollow"><img src="images/hzhb_pic5.png" /></a>
+    </div>
+</div>
+
+
+
+
+
+<!-- 
+	attribute：我们自定义标签的属性 
+	name:属性的名称
+	type：属性类型
+	required:属性是否必须的
+-->
+
+
+
+<div class="row-3 footer">
+	 <div class="container footer">
+	   <div class="container footer1">
+	    <div class="container footern1">
+	     <div class="container-min footer1-1">
+		  <div class="container-min footer1-1-1">
+		   <a href="/link.action?page=/front/aboutmy-gsjj" target="_blank"><span class="footer1 change">关于我们</span></a>
+		   <a href="/portal/articleAction/queryByArtType.action?artType=1" target="_blank"><span class="footer1 change">网站公告</span></a>
+		   <a href="/link.action?page=/front/aboutmy-lxwm" target="_blank"><span class="footer1 change">联系我们</span></a>
+		   <a href="/portal/articleAction/queryByArtType.action?artType=3" target="_blank"><span class="footer1 change">行业新闻</span></a>
+		   <a href="/portal/articleAction/queryByArtType.action?artType=4" target="_blank"><span class="footer1 change">招贤纳士</span></a>
+		   <a href="/link.action?page=/front/aboutmy-qyfc" target="_blank"><span class="footer1 change">企业风采</span></a>
+		   <a href="/sitemap.jsp" target="_blank"><span class="footer1 change">网站地图</span></a>
+		  </div>
+		  <div class="container-min footer1-1-1">
+		   <div class="container-min footer1-1-1-1">
+		    <span class="footer1">关注我们</span>
+			<img class="footercode" src="/img/footercode.png" />
+		   </div>
+		   <div class="container-min footer1-1-1-2">
+		    <span class="footer1">手机上同江</span>
+			<img class="footerphone" src="/img/footerandroid.png" />
+			<img class="footerphone" src="/img/footerios.png" />
+		   </div>
+		  </div>
+		 </div>
+		 <div class="container-min footer1-2">
+		   <span class="footer2">客服热线(工作时间：9:00-21:00)</span>
+		   <img class="footercall" src="/img/footercall.png" />
+		   <span class="footer3">4008-110-586</span>
+		   <span class="footer5">客服邮箱</span>
+		   <a href=""><img class="footerphone2" src="/img/footeremail.png" /></a>
+		   <span class="footer5">在线QQ</span>
+		   <a href="http://wpa.b.qq.com/cgi/wpa.php?ln=1&key=XzkzODAxNjc0NV8zMjg3MTJfNDAwODExMDU4Nl8yXw"><img class="footerphone2" src="/img/footerqq.png" /></a>
+		 </div>
+		</div>
+	   </div>
+	   <div class="container footer2">
+	      <div class="container footer2-1">
+		    <a href="" target="_blank"><span class="footer2-1">友情链接:</span></a>
+			<!-- <a href="http://www.etongdai.com/" target="_blank"><span class="footer2-1 change">易通贷</span></a>
+			<a href="https://www.jimubox.com/?f=baidu_pz&ag_kwid=871-8-c8cad40c736b6296.c0f5a5fd0d6188c3" target="_blank"><span class="footer2-1 change">积木盒子</span></a>
+			<a href="http://www.touna.cn/?utm_source=SEM-bdpz-pc&utm_medium=by&utm_campaign=title" target="_blank"><span class="footer2-1 change">投哪网</span></a>
+			<a href="http://www.hc360.com/" target="_blank"><span class="footer2-1 change">慧聪网</span></a> -->
+			<a href="http://www.nifa.org.cn/" target="_blank"><span class="footer2-1 change">中国互联网金融协会</span></a>
+			<a href="http://www.p2pchina.com/" target="_blank"><span class="footer2-1 change">网贷中国</span></a>
+			<a href="http://www.daichuqu.com/" target="_blank"><span class="footer2-1 change">贷出去多赚</span></a>
+			<a href="http://www.itjuzi.com/" target="_blank"><span class="footer2-1 change">IT桔子</span></a>
+			<a href="http://www.sztnf.com/" target="_blank"><span class="footer2-1 change">p2p网贷理财</span></a>
+			<a href="http://www.dianpifa.com/" target="_blank"><span class="footer2-1 change">p2p理财</span></a>
+			<a href="http://p2p.haoinvest.com/" target="_blank"><span class="footer2-1 change">e学堂</span></a> 
+			<a href="http://www.51wangdai.com/" target="_blank"><span class="footer2-1 change">51网贷</span></a>
+			<a href="http://www.01p2p.net/" target="_blank"><span class="footer2-1 change">第一网贷</span></a>
+			<a href="http://www.wdzj.com/" target="_blank"><span class="footer2-1 change">网贷之家</span></a>
+			
+		  </div>
+		  <div class="container footer2-2">
+		    <a herf="#"><span class="footer2-2">北京同江投资管理有限公司  Copyright Reserved 2011-2016  京ICP备13029806号-1 | 京ICP证(备案中)<span class="footer2-zztj"> <script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_1256105165'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s4.cnzz.com/z_stat.php%3Fid%3D1256105165%26show%3Dpic1' type='text/javascript'%3E%3C/script%3E"));</script></span></span>
+		    
+		    </a>
+		    <a herf="#"><span class="footer2-2"  style="margin-left:120px">投资有风险  入市需谨慎  最终收益以实际为准</span>
+		    </a>
+		  </div>
+		  <div class="container footer2-3">
+		    <div class="ui-footer-section last">      	
+             <div class="ui-footer-verification ui-footer-narrow-hide fn-clear">
+              <a class="ui-footer-verification-item fn-left credibility" title="" href="https://credit.szfw.org/CX20151201012868590118.html" target="_blank"></a>
+              <a class="ui-footer-verification-item fn-left trust" title="" href="http://www.anquan.org/authenticate/cert/?site=www.coriver.cn&at=business" target="_blank"></a>
+              <a class="ui-footer-verification-item fn-left internet" title="" href="http://webscan.360.cn/index/checkwebsite/url/www.coriver.cn" target="_blank"></a>
+              <a class="ui-footer-verification-item fn-left itrust" title="" href="https://evwebverify.cfca.com.cn/WebVerify/webVerifyServlet?domain=www.coriver.cn" target="_blank"></a>
+              <a class="ui-footer-verification-item fn-left norton" title="" href="" target="_blank"></a>
+              <a class="ui-footer-verification-item fn-left police" title="" href="" target="_blank"></a>         
+		     </div>
+		      
+            </div>
+		  </div>
+	   </div>
+	 </div>
+	</div>
+<script type="text/javascript">
+var _py = _py || [];
+_py.push(['a', 'Zbs..3ozfUTZ7XceVbxweLAiob_']);
+_py.push(['domain','stats.ipinyou.com']);
+_py.push(['e','']);
+-function(d) {
+var s = d.createElement('script'),
+e = d.body.getElementsByTagName('script')[0]; e.parentNode.insertBefore(s, e),
+f = 'https:' == location.protocol;
+s.src = (f ? 'https' : 'http') + '://'+(f?'fm.ipinyou.com':'fm.p0y.cn')+'/j/adv.js';
+}(document);
+
+
+</script>
+<script type="text/javascript">
+    window._pt_lt = new Date().getTime();
+    window._pt_sp_2 = [];
+    _pt_sp_2.push('setAccount,79a8c7d0');
+    var _protocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+    (function() {
+        var atag = document.createElement('script'); atag.type = 'text/javascript'; atag.async = true;
+        atag.src = _protocol + 'js.ptengine.cn/79a8c7d0.js';
+        var s = document.getElementsByTagName('script')[0];
+        s.parentNode.insertBefore(atag, s);
+    })();
+</script>
+<noscript><img src="//stats.ipinyou.com/adv.gif?a=Zbs..3ozfUTZ7XceVbxweLAiob_&e=" style="display:none;"/></noscript>
+	
+
+
+<!-- 
+	attribute：我们自定义标签的属性 
+	name:属性的名称
+	type：属性类型
+	required:属性是否必须的
+-->
+
+
+<div class="go-top" id="go-top">
+    <a href="http://wpa.b.qq.com/cgi/wpa.php?ln=1&key=XzkzODAxNjc0NV8zMjg3MTJfNDAwODExMDU4Nl8yXw" target="_blank" class="uc-2vm"></a>
+    <a href="/portal/articleAction/queryByArtType.action?artType=11" target="_blank" class="feedback"></a>
+    <a href="javascript:;" class="go dn"></a>
+</div>
+<div class="wp_ForShowEWM">
+	<div class="wp_ForShowEWMX">
+		<div class="container IndexHeadShowEWM">
+		<img class="IndexHeadShow_erweimaImg" src="/images/erweima.png">
+		</div>
+	</div>
+</div>
+  
+<script>
+$(function(){
+	$(window).on('scroll',function(){
+		var st = $(document).scrollTop();
+		if( st>0 ){
+			if( $('#main-container').length != 0  ){
+				var w = $(window).width(),mw = $('#main-container').width();
+				if( (w-mw)/2 > 70 )
+					$('#go-top').css({'left':(w-mw)/2+mw+20});
+				else{
+					$('#go-top').css({'left':'auto'});
+				}
+			}
+			$('.go').fadeIn(function(){
+				$(this).removeClass('dn');
+			});
+		}else{
+			$('.go').fadeOut(function(){
+				$(this).addClass('dn');
+			});
+		}	
+	});
+	$('.go').on('click',function(){
+		$('html,body').animate({'scrollTop':0},500);
+	});
+
+	
+});
+</script>
+	
+<script>
+   //function IndexHeadShowEWM(){$(".IndexHeadShowEWM").show();}
+  // function IndexHeadShowEWMX(){$(".IndexHeadShowEWM").hide();}
+	$("#hov").hover(function(){
+     $(".IndexHeadShowEWM").toggle();
+   });
+	
+	 
+	if(customerType=='1'&&customerIdType!='1'){
+	 
+		layer.alert("为了您的账户安全请设置交易密码", function(){
+			window.open("/portal/yeepay/EnterpriseRegistered.action?&authParam=2"); 
+		});
+	}
+ </script>	
+
+<div class="theme-popover-mask"></div>
+ <div class="wp_ForShowEWM">
+	<div class="wp_ForShowEWMX">
+    <div class="container IndexHeadShowEWM">
+    <img class="IndexHeadShow_erweimaImg" src="images/erweima.png">
+    </div>
+    </div>
+    </div>
+   
+  <script>
+
+	
+	$(function(){
+		var session_value = 'null';
+		
+		if( session_value == 'zccg' ){
+			showredpacket();
+			$.ajax({
+		        type: "POST",
+		        url:path+'/portal/FuserBonusAction/changeNewUser.action',
+		        dataType : "json",
+		        success: function(json) {
+		       	
+		     	 }
+		   });
+		}
+	})
+  </script>
+  <script type="text/javascript">
+  $(function(){
+	  
+	//可用余额
+		if(""){
+			$.ajax({
+		         type: "POST",
+		         url:path+'/portal/faccountAction/queryByUserId.action?userId='+'',
+		         dataType : "json",
+		         success: function(json) {
+		        	 $("#useMoney").html(fmoney(json.content.useMoney,2));
+		      	 }
+		    });
+			$.ajax({
+		         type: "POST",
+		         url:path+'/portal/FcustomAction/queryById.action?cmId='+'',
+		         dataType : "json",
+		         success: function(json) {
+		        	document.getElementById("pic").src=""+json.content.picUrl;
+		         }
+		    });
+		}
+  
+  
+  //行业新闻
+  $.ajax({type: "POST",
+		url:path+'/portal/articleAction/queryByPage.action?artType=3',
+		dataType : "json",
+		success: function(json) {
+			str="";
+			for (var i = 0; i <7; i++) {
+				if(i<json.content.rows.length){
+					var title = json.content.rows[i].title;
+					if(json.content.rows[i].title.length>13){
+						title = json.content.rows[i].title.substr(0, 12) + "...";
+					}
+					str+="<tr>"+
+		                "<td width='12%' align='center' class='renming'><img src='images/xw_xb.png' /></td>"+
+		                "<td width='88%' class='hyxw_con'><a href='/hyxw_"+json.content.rows[i].artId+".html'>"+title+"</a></td>"+                
+		              	"</tr>"
+					
+					//document.getElementById('hyxw'+(i+1)).href="/portal/articleAction/queryByArtId.action?artId="+json.content.rows[i].artId;
+//					$('#hyxw').append('<li><a href="/portal/articleAction/queryByArtId.action?artId='+json.content.rows[i].artId+'"><span class="right12">'+title+'</span></a></li>');
+				}else{
+					$('#hyxw').html("暂无新闻");
+				}
+			}
+			$('#hyxw').html(str);
+		}
+	});
+  
+  
+//官方理财 gflc
+	$.ajax({type: "POST",
+		
+		url:path+'/portal/fproduct/queryByPage1.action',
+		data:{order:0},
+		dataType : "json",
+		success: function(json) {
+			for (var i = 0; i < 3; i++) {
+				var expire;
+				if(json.content.rows[i].productType==1){
+					expire="<span>"+json.content.rows[i].investExpire+"</span>";
+				}else {
+					expire="<span>"+json.content.rows[i].investExpire/30+"</span>";
+				}
+				var img = '';
+				var day='(个月)';
+				if(json.content.rows[i].productType==1){
+					img = '<img src="/images/hot_xk.png" />';
+					day='(天)';
+				}
+				if(i<json.content.rows.length){
+					var apr=json.content.rows[i].apr.toFixed(3);
+					var apr1=apr.substring(0,apr.lastIndexOf('.')+3) ;
+					$("#gflc").append(
+							 "<div class='index_new_chanpin_list'>"+
+					           " <div class='index_new_chanpin_list_l fl'>"+
+					              "<div class='index_new_chanpin_list_bt'>"+json.content.rows[i].productName+""+img+"</div>"+
+					              "<div class='index_new_chanpin_list_con'>"+
+					                 "<div class='index_new_chanpin_list_concc fl'>  投资期限 <span class='chanpin_hong'>"+expire+"</span>"+day+"</div>"+
+					                 "<div class='index_new_chanpin_list_concc fl'>年化收益率 <span class='chanpin_hong2'>"+apr1+"%</span></div>"+
+					                 "<div class='index_new_chanpin_list_concc fl'>  起投金额 <span class='chanpin_hong3'>"+parseInt(json.content.rows[i].lowestAccount).toFixed(2)+"</span>（元）</div>"+
+					             " </div>"+
+					            "</div>"+
+					            "<a href='/portal/fproduct/queryById.action?productId="+json.content.rows[i].productId+"' class='index_new_chanpin_list_wytz fr'>我要投资</a>"+
+					         "</div>"
+							);
+					
+				}
+			}
+		}
+	}); 
+//转让
+	$.ajax({type: "POST",
+		url:path+'/portal/FOfficialTurnAction/queryByPage.action',
+		data:{column :"1",by:"xia"},
+		dataType : "json",
+		success: function(json) {
+			if(json.content.rows.length>=2){json.content.rows.length=2}
+			for (var i = 0; i <json.content.rows.length; i++) {
+			
+ 					if(json.content.rows[i].status=="1"){
+ 			
+					$('#zhuanrang').append(
+							'<div class="index_new_chanpin_list">'+
+				            '<div class="index_new_chanpin_list_l fl">'+
+				             ' <div class="index_new_chanpin_list_bt">'+json.content.rows[i].productName+'</div>'+
+				              '<div class="index_new_chanpin_list_con">'+
+				                ' <div class="index_new_chanpin_list_concc fl">投资期限 <span class="chanpin_hong">'+json.content.rows[i].surplusFinancialDays+'</span>（天）</div>'+
+				                 '<div class="index_new_chanpin_list_concc fl"> 年化收益率 <span class="chanpin_hong2">'+json.content.rows[i].actualApr.toFixed(2)+'%</span></div>'+
+				                 '<div class="index_new_chanpin_list_concc fl"> 起投金额 <span class="chanpin_hong3">'+parseInt(json.content.rows[i].startMoney).toFixed(2)+'</span>（元）</div>'+
+				              '</div>'+
+				            '</div>'+
+				            '<a href="/portal/FOfficialTurnAction/getOfficialTurn.action?officialTurnId='+json.content.rows[i].officialTurnId+'" class="index_new_chanpin_list_wytz fr">我要投资</a>'+
+				         '</div>'
+				         );
+ 						}
+ 					
+				
+			}
+		}
+	}); 
+	
+	//网站公告 
+	$.ajax({type: "POST",
+		url:path+'/portal/articleAction/queryByPage.action?artType=1',
+		dataType : "json",
+		success: function(json) {
+			var sum='';
+			
+			for (var i = 0; i <5; i++) {
+				if(i<json.content.rows.length){
+					var title = json.content.rows[i].title;
+/* 					if(json.content.rows[i].title.length>13){
+						title = json.content.rows[i].title.substr(0, 12) + "...";
+					} */
+					var xin="";
+					if(i==0){
+						xin='<img src="/images/w-073.gif">'
+					}
+					sum+='<div class="home_notice_center_wzgg_con wzggC" ><div class="home_notice_center fl" ><a href="/portal/articleAction/queryByArtId.action?artId='+json.content.rows[i].artId+'"   target="_blank">'+title+'&nbsp;&nbsp;'+xin+'</a></div>'+
+			        '<div class="home_notice_center1 fl" id="ggTime">'+json.content.rows[i].publishTime.substring(0,10)+'</div></div>'
+						
+				
+				}else{
+					$('#wzgg').html("暂无公告");
+				}
+			}
+			$('#wzgg').html(sum);
+			
+		}
+	});
+  });	
+	//日日丰
+		$(function(){
+		$.ajax({
+			type: "POST",
+	         url:path+'/portal/rrfManagerAction/queryRRFSetting.action',
+	         dataType : "json",
+	         success: function(res) {
+	        	 if(res.state=="SUCCESS"){
+	        		 var params = res.content;
+	        		 if(params!=null && params!=""){
+	        			 var ccbRate = params.ccb_rate;
+	        			 var tjScale = params.tj_scale;
+	        			 var tjRate = params.tj_rate;
+	        			 var yebRate = params.yeb_rate;
+	        			 var rrf_rate = ccbRate*(1-tjScale*0.01)+tjRate*tjScale*0.01;
+	        			 $("#rrf_rate").html(rrf_rate.toFixed(3)+"%");
+	        			 //$("#yeb_rate").html((parseFloat(yebRate)).toFixed(3)+"%");
+	        		 }
+	        	 }
+	         }
+		});
+		
+	});
+	
+	//快速搜索
+	function buytype(){
+	if($('#Buytype').val()==1){
+		$('#OfficialFinance').attr("action","/link.action?page=/front/OfficialFinance");
+// 		expire
+		$('#expire').html('<option value="0-30">一月以内</option><option value="30-90">1-3月</option><option value="90-180">3-6月</option><option value="180-270">6-9月</option><option value="270-360">9-12月</option><option value="360-99999">一年以上</option>');
+// 		lowest
+		$('#lowest').html('<option value="100-100">100</option>');
+		
+	}else if($('#Buytype').val()==2){
+		$('#OfficialFinance').attr("action","/link.action?page=/front/rrf/rrfBuy");
+// 		expire
+		$('#expire').html('<option>一天起</option>');
+// 		lowest
+		$('#lowest').html('<option value="100-100">100</option>');
+
+	}else if($('#Buytype').val()==3){
+		$('#OfficialFinance').attr("action","/link.action?page=/front/zhuanRang/assignment");
+
+		$('#expire').html('<option value="0">全部</option><option value="0-90">3个月以内</option><option value="90-180">3-6月</option><option value="180-270">6-9月</option><option value="270-365">9-12月</option>');
+
+		$('#lowest').html('<option value="100-100">100</option>');
+	}
+		
+}
+	function OfficialFinanceSubmit(){
+		$("#OfficialFinance").submit();
+	}
+	$(function(){
+		buytype();
+	})
+  </script>
+   <script type="text/javascript">
+    	$(function(){
+    		$.ajax({
+    			type: "POST",
+		         url:path+'/portal/information/queryByContent.action?',
+		         dataType : "json",
+		         success: function(json) {
+		        	 var  str="";
+		        	 for (var int = 0; int <json.length; int++) {
+		        		 str+='<li>'+
+							'<p class="font"><span class="tzr fl">'+json[int].username.substring(0,1)+'***</span>'+
+							'<span class="tzmc fl">'+json[int].productname+'</span>'+ 
+							'<span class="tzje fl">'+json[int].money.toFixed(0)+'</span></p>'
+						    ' </li>'
+
+		        	 }
+		                  $("#demo1").html(str);
+		         }
+    		})
+    	})	
+    	
+    	/* $(document).ready(function(){
+    		$.ajax({
+    			type: "POST",
+		         url:path+'/portal/images/queryBydescription.action?',
+		         dataType : "json",
+		         success: function(json) {
+		        		 $("#banner1_path").prop("href","/"+json[0].url);
+				         $("#banner1").prop("src",json[0].path);
+				         $("#banner2_path").prop("href","/"+json[1].url);
+				         $("#banner2").prop("src",json[1].path);
+				         $("#banner3_path").prop("href","/"+json[2].url);
+				         $("#banner3").prop("src",json[2].path);
+				         $("#banner4_path").prop("href","/"+json[3].url);
+				         $("#banner4").prop("src",json[3].path);
+				         $("#banner5_path").prop("href","/"+json[4].url);
+				         $("#banner5").prop("src",json[4].path);
+		        	
+		         }
+    		})
+    	})	 */
+    </script>
+  
+    <script type="text/javascript">
+//保留两位小数
+function fmoney(s, n)   
+{   
+   n = n > 0 && n <= 20 ? n : 2;   
+   s = parseFloat((s + "").replace(/[^\d\.-]/g, "")).toFixed(n) + "";   
+   var l = s.split(".")[0].split("").reverse(),   
+   r = s.split(".")[1];   
+   t = "";   
+   for(i = 0; i < l.length; i ++ )   
+   {   
+      t += l[i] + ((i + 1) % 3 == 0 && (i + 1) != l.length ? "," : "");   
+   }   
+   return t.split("").reverse().join("") + "." + r;   
+} 
+</script>
+<script>
+
+//showredpacket 为打开红包弹窗的调用函数
+function showredpacket(){
+		$(".hshade").show();
+		$(".hFrontFrame").show();
+		$(".hFrontContent").show();
+		redpacket();
+}
+
+function redpacket(){
+$(".hcaidai").animate(
+{marginTop:31},300,function(){$(".hrpstitle").fadeIn();});
+}
+$(function(){
+$(".hFrontClose").click(function(){	
+	$(".hshade").hide();
+	$(".hFrontFrame").hide();
+	$(".hFrontContent").hide();})
+})
+
+</script>
+<script type="text/javascript">
+$(function(){
+	$('#myli li:even').addClass('lieven');
+})
+$(function(){
+	$("div.list_lh").myScroll({
+		//auto:[true,1000],
+		speed:150, 
+		rowHeight:800 //li的高度
+	});
+});
+</script>
+   <script>
+	/* $("#hov").hover(function(){
+      $(".IndexHeadShowEWM").toggle();
+    }); */
+  </script>
+   <script>
+   var speed=30;
+   demo2.innerHTML=demo1.innerHTML;
+   function Marquee(){
+	   if(demo2.offsetTop-demo.scrollTop<=0){
+			demo.scrollTop-=demo1.offsetHeight;
+	   }else{
+			demo.scrollTop++;
+	   }
+   }
+   var MyMar=setInterval(Marquee,speed)
+   demo.onmouseover=function() {clearInterval(MyMar)}
+   demo.onmouseout=function() {MyMar=setInterval(Marquee,speed)}
+   </script>
+</body>
+</html>

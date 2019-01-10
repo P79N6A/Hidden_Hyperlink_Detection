@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+ <head> 
+  <meta charset="UTF-8" /> 
+  <meta name="viewport" content="width=device-width, initial-scale=1" /> 
+  <title>PHP 设计模式系列 —— 依赖注入模式（Dependency Injection）  –  Laravel学院</title> 
+  <meta name="keywords" content="Laravel学院,Laravel,Lumen,PHP,PHP框架,文档,教程,中文,资源,学习" /> 
+  <meta name="description" content="Laravel学院致力于提供优质Laravel中文学习资源" /> 
+  <link rel="profile" href="http://gmpg.org/xfn/11" /> 
+  <link rel="pingback" href="http://laravelacademy.org/xmlrpc.php" /> 
+  <link rel="shortcut icon" href="/favicon.png" title="Favicon" /> 
+  <link rel="dns-prefetch" href="//s.w.org" /> 
+  <link rel="alternate" type="application/rss+xml" title="Laravel学院 &raquo; Feed" href="http://laravelacademy.org/feed" /> 
+  <link rel="alternate" type="application/rss+xml" title="Laravel学院 &raquo; 评论Feed" href="http://laravelacademy.org/comments/feed" /> 
+  <link rel="alternate" type="application/rss+xml" title="Laravel学院 &raquo; PHP 设计模式系列 —— 依赖注入模式（Dependency Injection）评论Feed" href="http://laravelacademy.org/post/2792.html/feed" /> 
+  <script type="text/javascript">
+			window._wpemojiSettings = {"baseUrl":"https:\/\/s.w.org\/images\/core\/emoji\/2.2.1\/72x72\/","ext":".png","svgUrl":"https:\/\/s.w.org\/images\/core\/emoji\/2.2.1\/svg\/","svgExt":".svg","source":{"concatemoji":"http:\/\/laravelacademy.org\/wp-includes\/js\/wp-emoji-release.min.js?ver=4.7.3"}};
+			!function(a,b,c){function d(a){var b,c,d,e,f=String.fromCharCode;if(!k||!k.fillText)return!1;switch(k.clearRect(0,0,j.width,j.height),k.textBaseline="top",k.font="600 32px Arial",a){case"flag":return k.fillText(f(55356,56826,55356,56819),0,0),!(j.toDataURL().length<3e3)&&(k.clearRect(0,0,j.width,j.height),k.fillText(f(55356,57331,65039,8205,55356,57096),0,0),b=j.toDataURL(),k.clearRect(0,0,j.width,j.height),k.fillText(f(55356,57331,55356,57096),0,0),c=j.toDataURL(),b!==c);case"emoji4":return k.fillText(f(55357,56425,55356,57341,8205,55357,56507),0,0),d=j.toDataURL(),k.clearRect(0,0,j.width,j.height),k.fillText(f(55357,56425,55356,57341,55357,56507),0,0),e=j.toDataURL(),d!==e}return!1}function e(a){var c=b.createElement("script");c.src=a,c.defer=c.type="text/javascript",b.getElementsByTagName("head")[0].appendChild(c)}var f,g,h,i,j=b.createElement("canvas"),k=j.getContext&&j.getContext("2d");for(i=Array("flag","emoji4"),c.supports={everything:!0,everythingExceptFlag:!0},h=0;h<i.length;h++)c.supports[i[h]]=d(i[h]),c.supports.everything=c.supports.everything&&c.supports[i[h]],"flag"!==i[h]&&(c.supports.everythingExceptFlag=c.supports.everythingExceptFlag&&c.supports[i[h]]);c.supports.everythingExceptFlag=c.supports.everythingExceptFlag&&!c.supports.flag,c.DOMReady=!1,c.readyCallback=function(){c.DOMReady=!0},c.supports.everything||(g=function(){c.readyCallback()},b.addEventListener?(b.addEventListener("DOMContentLoaded",g,!1),a.addEventListener("load",g,!1)):(a.attachEvent("onload",g),b.attachEvent("onreadystatechange",function(){"complete"===b.readyState&&c.readyCallback()})),f=c.source||{},f.concatemoji?e(f.concatemoji):f.wpemoji&&f.twemoji&&(e(f.twemoji),e(f.wpemoji)))}(window,document,window._wpemojiSettings);
+		</script> 
+  <style type="text/css">
+img.wp-smiley,
+img.emoji {
+	display: inline !important;
+	border: none !important;
+	box-shadow: none !important;
+	height: 1em !important;
+	width: 1em !important;
+	margin: 0 .07em !important;
+	vertical-align: -0.1em !important;
+	background: none !important;
+	padding: 0 !important;
+}
+</style> 
+  <link rel="stylesheet" id="font-awesome-css" href="http://laravelacademy.org/wp-content/themes/wp-knowledge-base/lib/bootstrap/css/font-awesome.css" type="text/css" media="screen" /> 
+  <link rel="stylesheet" id="wp-pagenavi-css" href="http://laravelacademy.org/wp-content/plugins/wp-pagenavi/pagenavi-css.css?ver=2.70" type="text/css" media="all" /> 
+  <link rel="stylesheet" id="ipt_kb-style-css" href="http://laravelacademy.org/wp-content/themes/wp-knowledge-base/style.css?ver=1.6.0" type="text/css" media="all" /> 
+  <link rel="stylesheet" id="ipt_kb-bootstrap-css" href="http://laravelacademy.org/wp-content/themes/wp-knowledge-base/lib/bootstrap/css/bootstrap.min.css?ver=1.6.0" type="text/css" media="all" /> 
+  <link rel="stylesheet" id="ipt_kb-bootstrap-theme-css" href="http://laravelacademy.org/wp-content/themes/wp-knowledge-base/lib/bootstrap/css/bootstrap-theme.min.css?ver=1.6.0" type="text/css" media="all" /> 
+  <link rel="stylesheet" id="ipt_kb-icomoon-css" href="http://laravelacademy.org/wp-content/themes/wp-knowledge-base/lib/icomoon/style.css?ver=1.6.0" type="text/css" media="all" /> 
+  <link rel="stylesheet" id="ipt_kb-fix-css" href="http://laravelacademy.org/wp-content/themes/wp-knowledge-base/lib/fix/fix.css?ver=1.6.0-1.6.3" type="text/css" media="all" /> 
+  <script type="text/javascript" src="http://laravelacademy.org/wp-includes/js/jquery/jquery.js?ver=1.12.4"></script> 
+  <script type="text/javascript" src="http://laravelacademy.org/wp-includes/js/jquery/jquery-migrate.min.js?ver=1.4.1"></script> 
+  <script type="text/javascript" src="http://laravelacademy.org/wp-content/themes/wp-knowledge-base/lib/bootstrap/js/bootstrap.min.js?ver=1.6.0"></script> 
+  <script type="text/javascript" src="http://laravelacademy.org/wp-content/themes/wp-knowledge-base/lib/bootstrap/js/jquery.ipt-kb-bootstrap.js?ver=1.6.0"></script> 
+  <script type="text/javascript" src="http://laravelacademy.org/wp-content/themes/wp-knowledge-base/lib/sticky-kit/jquery.sticky-kit.min.js?ver=1.6.0"></script> 
+  <script type="text/javascript">
+/* <![CDATA[ */
+var iptKBJS = {"ajaxurl":"http:\/\/laravelacademy.org\/wp-admin\/admin-ajax.php","ajax_error":"Oops, some problem to connect. Try again?"};
+/* ]]> */
+</script> 
+  <script type="text/javascript" src="http://laravelacademy.org/wp-content/themes/wp-knowledge-base/js/ipt-kb.js?ver=1.6.0"></script> 
+  <link rel="https://api.w.org/" href="http://laravelacademy.org/wp-json/" /> 
+  <link rel="EditURI" type="application/rsd+xml" title="RSD" href="http://laravelacademy.org/xmlrpc.php?rsd" /> 
+  <link rel="wlwmanifest" type="application/wlwmanifest+xml" href="http://laravelacademy.org/wp-includes/wlwmanifest.xml" /> 
+  <link rel="prev" title="[ Laravel 5.2 文档 ] 基础 —— HTTP 路由" href="http://laravelacademy.org/post/2784.html" /> 
+  <link rel="next" title="[ Laravel 5.2 文档 ] 基础 —— HTTP 中间件" href="http://laravelacademy.org/post/2803.html" /> 
+  <meta name="generator" content="WordPress 4.7.3" /> 
+  <link rel="canonical" href="http://laravelacademy.org/post/2792.html" /> 
+  <link rel="shortlink" href="http://laravelacademy.org/?p=2792" /> 
+  <link rel="alternate" type="application/json+oembed" href="http://laravelacademy.org/wp-json/oembed/1.0/embed?url=http%3A%2F%2Flaravelacademy.org%2Fpost%2F2792.html" /> 
+  <link rel="alternate" type="text/xml+oembed" href="http://laravelacademy.org/wp-json/oembed/1.0/embed?url=http%3A%2F%2Flaravelacademy.org%2Fpost%2F2792.html&amp;format=xml" /> 
+  <style>
+.scroll-back-to-top-wrapper {
+    position: fixed;
+	opacity: 0;
+	visibility: hidden;
+	overflow: hidden;
+	text-align: center;
+	z-index: 99999999;
+    background-color: #e74430;
+	color: #eeeeee;
+	width: 50px;
+	height: 48px;
+	line-height: 48px;
+	right: 30px;
+	bottom: 30px;
+	padding-top: 2px;
+	border-top-left-radius: 10px;
+	border-top-right-radius: 10px;
+	border-bottom-right-radius: 10px;
+	border-bottom-left-radius: 10px;
+	-webkit-transition: all 0.5s ease-in-out;
+	-moz-transition: all 0.5s ease-in-out;
+	-ms-transition: all 0.5s ease-in-out;
+	-o-transition: all 0.5s ease-in-out;
+	transition: all 0.5s ease-in-out;
+}
+.scroll-back-to-top-wrapper:hover {
+	background-color: #f4645f;
+  color: #eeeeee;
+}
+.scroll-back-to-top-wrapper.show {
+    visibility:visible;
+    cursor:pointer;
+	opacity: 1.0;
+}
+.scroll-back-to-top-wrapper i.fa {
+	line-height: inherit;
+}
+.scroll-back-to-top-wrapper .fa-lg {
+	vertical-align: 0;
+}
+</style>
+  <script type="text/javascript">
+	window._wp_rp_static_base_url = 'https://wprp.zemanta.com/static/';
+	window._wp_rp_wp_ajax_url = "http://laravelacademy.org/wp-admin/admin-ajax.php";
+	window._wp_rp_plugin_version = '3.6.3';
+	window._wp_rp_post_id = '2792';
+	window._wp_rp_num_rel_posts = '5';
+	window._wp_rp_thumbnails = false;
+	window._wp_rp_post_title = 'PHP+%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E7%B3%BB%E5%88%97+%E2%80%94%E2%80%94+%E4%BE%9D%E8%B5%96%E6%B3%A8%E5%85%A5%E6%A8%A1%E5%BC%8F%EF%BC%88Dependency+Injection%EF%BC%89';
+	window._wp_rp_post_tags = ['%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F', '%E4%BE%9D%E8%B5%96%E6%B3%A8%E5%85%A5', 'ioc%E5%AE%B9%E5%99%A8', '%E9%9D%A2%E5%90%91%E6%8E%A5%E5%8F%A3', '%E6%8E%A7%E5%88%B6%E5%8F%8D%E8%BD%AC', 'php', '%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F', 'span', 'depend', 'php', 'loos', 'connect', 'storag', 'return', 'inject'];
+	window._wp_rp_promoted_content = true;
+</script> 
+  <link rel="stylesheet" href="http://laravelacademy.org/wp-content/plugins/wordpress-23-related-posts-plugin/static/themes/modern.css?version=3.6.3" /> 
+  <style type="text/css">.recentcomments a{display:inline !important;padding:0 !important;margin:0 !important;}</style> 
+ </head> 
+ <body class="post-template-default single single-post postid-2792 single-format-standard group-blog"> 
+  <div id="page" class="hfeed site"> 
+   <header id="masthead" class="site-header" role="banner"> 
+    <nav class="navbar navbar-default navbar-static-top main-navigation" role="navigation" id="site_navigation"> 
+     <div class="container"> 
+      <!-- Brand and toggle get grouped for better mobile display --> 
+      <div class="navbar-header"> 
+       <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse"> <span class="sr-only">Toggle navigation</span> <span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span> </button> 
+       <a class="site-anchor" href="http://laravelacademy.org/"> <img src="http://laravelacademy.org/wp-content/themes/wp-knowledge-base/logo.png" width="200" height="50" alt="" /> </a> 
+      </div> 
+      <!-- Collect the nav links, forms, and other content for toggling --> 
+      <div class="collapse navbar-collapse navbar-ex1-collapse"> 
+       <ul id="menu-%e5%af%bc%e8%88%aa%e8%8f%9c%e5%8d%95" class="nav navbar-nav">
+        <li id="menu-item-7" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-has-children menu-item-7 dropdown"><a title="文档" href="#" data-toggle="dropdown" class="dropdown-toggle">文档 <span class="caret"></span></a> 
+         <ul role="menu" class=" dropdown-menu"> 
+          <li id="menu-item-6676" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-6676"><a title="Laravel 5.4" href="http://laravelacademy.org/laravel-docs-5_4">Laravel 5.4</a></li> 
+          <li id="menu-item-5711" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-5711"><a title="Laravel 5.3" href="http://laravelacademy.org/laravel-docs-5_3">Laravel 5.3</a></li> 
+          <li id="menu-item-2931" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-2931"><a title="Laravel 5.2" href="http://laravelacademy.org/laravel-docs-5_2">Laravel 5.2</a></li> 
+          <li id="menu-item-285" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-285"><a title="Laravel 5.1" href="http://laravelacademy.org/laravel-docs-5_1">Laravel 5.1</a></li> 
+          <li id="menu-item-508" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-508"><a title="Lumen" href="http://laravelacademy.org/lumen-docs">Lumen</a></li> 
+         </ul> </li> 
+        <li id="menu-item-3168" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-has-children menu-item-3168 dropdown"><a title="教程" href="#" data-toggle="dropdown" class="dropdown-toggle">教程 <span class="caret"></span></a> 
+         <ul role="menu" class=" dropdown-menu"> 
+          <li id="menu-item-948" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-948"><a title="基础教程" href="http://laravelacademy.org/laravel-tutorial-5_1">基础教程</a></li> 
+          <li id="menu-item-2122" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-2122"><a title="博客系列" href="http://laravelacademy.org/tutorials/blog">博客系列</a></li> 
+          <li id="menu-item-3513" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-3513"><a title="新特性系列" href="http://laravelacademy.org/tutorials/feature">新特性系列</a></li> 
+          <li id="menu-item-5612" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-5612"><a title="Vue入门教程" href="http://laravelacademy.org/tutorials/vuejs">Vue入门教程</a></li> 
+         </ul> </li> 
+        <li id="menu-item-671" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-has-children menu-item-671 dropdown"><a title="项目" href="#" data-toggle="dropdown" class="dropdown-toggle">项目 <span class="caret"></span></a> 
+         <ul role="menu" class=" dropdown-menu"> 
+          <li id="menu-item-2044" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-2044"><a title="网站" href="http://laravelacademy.org/project/website">网站</a></li> 
+          <li id="menu-item-1327" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-1327"><a title="扩展包" href="http://laravelacademy.org/project/packages">扩展包</a></li> 
+         </ul> </li> 
+        <li id="menu-item-159" class="menu-item menu-item-type-taxonomy menu-item-object-category current-post-ancestor menu-item-has-children menu-item-159 dropdown"><a title="资源" href="#" data-toggle="dropdown" class="dropdown-toggle">资源 <span class="caret"></span></a> 
+         <ul role="menu" class=" dropdown-menu"> 
+          <li id="menu-item-2482" class="menu-item menu-item-type-taxonomy menu-item-object-category current-post-ancestor current-menu-parent current-post-parent menu-item-2482"><a title="设计模式" href="http://laravelacademy.org/resources/design-patterns">设计模式</a></li> 
+          <li id="menu-item-644" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-644"><a title="代码片段" href="http://laravelacademy.org/resources/code">代码片段</a></li> 
+          <li id="menu-item-3187" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-3187"><a title="运维部署" href="http://laravelacademy.org/resources/linux">运维部署</a></li> 
+          <li id="menu-item-3178" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-3178"><a title="编辑器" href="http://laravelacademy.org/resources/editor">编辑器</a></li> 
+          <li id="menu-item-680" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-680"><a title="工具系列" href="http://laravelacademy.org/resources/tools">工具系列</a></li> 
+          <li id="menu-item-5343" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-5343"><a title="读书笔记" href="http://laravelacademy.org/resources/notebook">读书笔记</a></li> 
+          <li id="menu-item-410" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-410"><a title="相关下载" href="http://laravelacademy.org/resources-download">相关下载</a></li> 
+         </ul> </li> 
+        <li id="menu-item-4225" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-has-children menu-item-4225 dropdown"><a title="现代PHP" href="#" data-toggle="dropdown" class="dropdown-toggle">现代PHP <span class="caret"></span></a> 
+         <ul role="menu" class=" dropdown-menu"> 
+          <li id="menu-item-4226" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-4226"><a title="新特性" href="http://laravelacademy.org/modern-php/feature-modern-php">新特性</a></li> 
+          <li id="menu-item-4513" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-4513"><a title="最佳实践" href="http://laravelacademy.org/modern-php/best-practice">最佳实践</a></li> 
+          <li id="menu-item-4496" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-4496"><a title="编码规范" href="https://github.com/PizzaLiu/PHP-FIG">编码规范</a></li> 
+          <li id="menu-item-2397" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-2397"><a title="PHP 7" href="http://laravelacademy.org/resources/php7">PHP 7</a></li> 
+         </ul> </li> 
+        <li id="menu-item-3999" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-3999"><a title="问答" href="http://forum.laravelacademy.org">问答</a></li> 
+        <li id="menu-item-6268" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-6268"><a title="招聘" href="http://forum.laravelacademy.org/t/job">招聘</a></li> 
+        <li id="menu-item-599" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-599"><a title="新闻" href="http://laravelacademy.org/news">新闻</a></li> 
+        <li id="menu-item-6287" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-6287"><a title="投稿" href="http://forum.laravelacademy.org/t/tutorial">投稿</a></li> 
+        <li id="menu-item-1939" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-1939"><a title="捐赠" href="http://laravelacademy.org/donate-us">捐赠</a></li> 
+        <li id="menu-item-38" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-38"><a title="关于学院" href="http://laravelacademy.org/about-us">关于学院</a></li> 
+       </ul> 
+      </div> 
+     </div> 
+    </nav> 
+   </header>
+   <!-- #masthead --> 
+   <div id="content" class="site-content container"> 
+    <ol id="breadcrumbs" class="breadcrumb" xmlns:v="http://rdf.data-vocabulary.org/#"> 
+     <li typeof="v:Breadcrumb"> <a rel="v:url" property="v:title" href="http://laravelacademy.org/">首页</a> </li> 
+     <li typeof="v:Breadcrumb"> <a rel="v:url" property="v:title" href="http://laravelacademy.org/resources">资源</a> </li> 
+     <li typeof="v:Breadcrumb"> <a rel="v:url" property="v:title" href="http://laravelacademy.org/resources/design-patterns">设计模式</a> </li> 
+     <li class="active" typeof="v:Breadcrumb"> <span property="v:title">PHP 设计模式系列 —— 依赖注入模式（Dependency Injection）</span> </li> 
+    </ol> 
+    <div id="primary" class="content-area col-md-8"> 
+     <main id="main" class="site-main" role="main"> 
+      <article id="post-2792" class="post-2792 post type-post status-publish format-standard has-post-thumbnail hentry category-design-patterns tag-ioc tag-php tag-29 tag-296 tag-454 tag-510"> 
+       <header class="entry-header page-header"> 
+        <h1 class="entry-title">PHP 设计模式系列 —— 依赖注入模式（Dependency Injection）</h1> 
+        <div class="entry-meta text-muted"> 
+         <span class="posted-on"><i class="glyphicon glyphicon-calendar"></i> Posted on <a href="http://laravelacademy.org/post/2792.html" rel="bookmark"><time class="entry-date published" datetime="2015-12-24T22:14:39+00:00">2015年12月24日</time><time class="updated" datetime="2015-12-24T23:55:29+00:00">2015年12月24日</time></a></span>
+         <span class="byline"> by <span class="author vcard"><i class="glyphicon glyphicon-user"></i> <a class="url fn n" href="http://laravelacademy.org/post/author/nonfu">学院君</a></span></span> 
+        </div>
+        <!-- .entry-meta --> 
+       </header>
+       <!-- .entry-header --> 
+       <div class="entry-content"> 
+        <h3 id="ipt_kb_toc_2792_0"><strong>1、模式定义</strong></h3> 
+        <p><a href="http://laravelacademy.org/tags/%e4%be%9d%e8%b5%96%e6%b3%a8%e5%85%a5" title="View all posts in 依赖注入" target="_blank">依赖注入</a>（Dependency Injection）是<a href="http://laravelacademy.org/tags/%e6%8e%a7%e5%88%b6%e5%8f%8d%e8%bd%ac" title="View all posts in 控制反转" target="_blank">控制反转</a>（Inversion of Control）的一种实现方式。</p> 
+        <p>我们先来看看什么是控制反转。</p> 
+        <p>当调用者需要被调用者的协助时，在传统的程序设计过程中，通常由调用者来创建被调用者的实例，但在这里，创建被调用者的工作不再由调用者来完成，而是将被调用者的创建移到调用者的外部，从而反转被调用者的创建，消除了调用者对被调用者创建的控制，因此称为控制反转。</p> 
+        <p>要实现控制反转，通常的解决方案是将创建被调用者实例的工作交由&nbsp;IoC 容器来完成，然后在调用者中注入被调用者（通过构造器/方法注入实现），这样我们就实现了调用者与被调用者的解耦，该过程被称为依赖注入。</p> 
+        <p>依赖注入不是目的，它是一系列工具和手段，最终的目的是帮助我们开发出松散耦合（loose coupled）、可维护、可测试的代码和程序。这条原则的做法是大家熟知的<a href="http://laravelacademy.org/tags/%e9%9d%a2%e5%90%91%e6%8e%a5%e5%8f%a3" title="View all posts in 面向接口" target="_blank">面向接口</a>，或者说是面向抽象编程。</p> 
+        <h3 id="ipt_kb_toc_2792_1"><strong>2、UML 类图</strong></h3> 
+        <p><img class="alignnone size-full wp-image-2793" src="http://laravelacademy.org/wp-content/uploads/2015/12/Dependency-Injection-UML.png" alt="Dependency-Injection-UML" width="306" height="399" srcset="http://laravelacademy.org/wp-content/uploads/2015/12/Dependency-Injection-UML.png 306w, http://laravelacademy.org/wp-content/uploads/2015/12/Dependency-Injection-UML-230x300.png 230w" sizes="(max-width: 306px) 100vw, 306px" /></p> 
+        <h3 id="ipt_kb_toc_2792_2"><strong>3、示例代码</strong></h3> 
+        <p>在本例中，我们在 Connection 类（调用者）的构造方法中依赖注入 Parameters 接口的实现类（被调用者），如果不使用依赖注入的话，则必须在 Connection 中创建该接口的实现类实例，这就形成紧耦合代码，如果我们要切换成该接口的其它实现类则必须要修改代码，这对到测试和扩展而言都是极为不利的。</p> 
+        <h4 id="ipt_kb_toc_2792_3"><strong>AbstractConfig.php</strong></h4> 
+        <pre><span class="cp">&lt;?php</span>
+
+<span class="k">namespace</span> <span class="nx">DesignPatterns\Structural\DependencyInjection</span><span class="p">;</span>
+
+<span class="sd">/**</span>
+<span class="sd"> * AbstractConfig类</span>
+<span class="sd"> */</span>
+<span class="k">abstract</span> <span class="k">class</span> <span class="nc">AbstractConfig</span>
+<span class="p">{</span>
+    <span class="sd">/**</span>
+<span class="sd">     * @var Storage of data</span>
+<span class="sd">     */</span>
+    <span class="k">protected</span> <span class="nv">$storage</span><span class="p">;</span>
+
+    <span class="k">public</span> <span class="k">function</span> <span class="nf">__construct</span><span class="p">(</span><span class="nv">$storage</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">storage</span> <span class="o">=</span> <span class="nv">$storage</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span></pre> 
+        <h4 id="ipt_kb_toc_2792_4"><strong>Parameters.php</strong></h4> 
+        <pre><span class="cp">&lt;?php</span>
+
+<span class="k">namespace</span> <span class="nx">DesignPatterns\Structural\DependencyInjection</span><span class="p">;</span>
+
+<span class="sd">/**</span>
+<span class="sd"> * Parameters接口</span>
+<span class="sd"> */</span>
+<span class="k">interface</span> <span class="nx">Parameters</span>
+<span class="p">{</span>
+    <span class="sd">/**</span>
+<span class="sd">     * 获取参数</span>
+<span class="sd">     *</span>
+<span class="sd">     * @param string|int $key</span>
+<span class="sd">     *</span>
+<span class="sd">     * @return mixed</span>
+<span class="sd">     */</span>
+    <span class="k">public</span> <span class="k">function</span> <span class="nf">get</span><span class="p">(</span><span class="nv">$key</span><span class="p">);</span>
+
+    <span class="sd">/**</span>
+<span class="sd">     * 设置参数</span>
+<span class="sd">     *</span>
+<span class="sd">     * @param string|int $key</span>
+<span class="sd">     * @param mixed      $value</span>
+<span class="sd">     */</span>
+    <span class="k">public</span> <span class="k">function</span> <span class="nf">set</span><span class="p">(</span><span class="nv">$key</span><span class="p">,</span> <span class="nv">$value</span><span class="p">);</span>
+<span class="p">}</span></pre> 
+        <h4 id="ipt_kb_toc_2792_5"><strong>ArrayConfig.php</strong></h4> 
+        <pre><span class="cp">&lt;?php</span>
+
+<span class="k">namespace</span> <span class="nx">DesignPatterns\Structural\DependencyInjection</span><span class="p">;</span>
+
+<span class="sd">/**</span>
+<span class="sd"> * ArrayConfig类</span>
+<span class="sd"> *</span>
+<span class="sd"> * 使用数组作为数据源</span>
+<span class="sd"> */</span>
+<span class="k">class</span> <span class="nc">ArrayConfig</span> <span class="k">extends</span> <span class="nx">AbstractConfig</span> <span class="k">implements</span> <span class="nx">Parameters</span>
+<span class="p">{</span>
+    <span class="sd">/**</span>
+<span class="sd">     * 获取参数</span>
+<span class="sd">     *</span>
+<span class="sd">     * @param string|int $key</span>
+<span class="sd">     * @param null $default</span>
+<span class="sd">     * @return mixed</span>
+<span class="sd">     */</span>
+    <span class="k">public</span> <span class="k">function</span> <span class="nf">get</span><span class="p">(</span><span class="nv">$key</span><span class="p">,</span> <span class="nv">$default</span> <span class="o">=</span> <span class="k">null</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nb">isset</span><span class="p">(</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="na">storage</span><span class="p">[</span><span class="nv">$key</span><span class="p">]))</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">storage</span><span class="p">[</span><span class="nv">$key</span><span class="p">];</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="nv">$default</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="sd">/**</span>
+<span class="sd">     * 设置参数</span>
+<span class="sd">     *</span>
+<span class="sd">     * @param string|int $key</span>
+<span class="sd">     * @param mixed $value</span>
+<span class="sd">     */</span>
+    <span class="k">public</span> <span class="k">function</span> <span class="nf">set</span><span class="p">(</span><span class="nv">$key</span><span class="p">,</span> <span class="nv">$value</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">storage</span><span class="p">[</span><span class="nv">$key</span><span class="p">]</span> <span class="o">=</span> <span class="nv">$value</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span></pre> 
+        <h4 id="ipt_kb_toc_2792_6"><strong>Connection.php</strong></h4> 
+        <pre><span class="cp">&lt;?php</span>
+
+<span class="k">namespace</span> <span class="nx">DesignPatterns\Structural\DependencyInjection</span><span class="p">;</span>
+
+<span class="sd">/**</span>
+<span class="sd"> * Connection类</span>
+<span class="sd"> */</span>
+<span class="k">class</span> <span class="nc">Connection</span>
+<span class="p">{</span>
+    <span class="sd">/**</span>
+<span class="sd">     * @var Configuration</span>
+<span class="sd">     */</span>
+    <span class="k">protected</span> <span class="nv">$configuration</span><span class="p">;</span>
+
+    <span class="sd">/**</span>
+<span class="sd">     * @var Currently connected host</span>
+<span class="sd">     */</span>
+    <span class="k">protected</span> <span class="nv">$host</span><span class="p">;</span>
+
+    <span class="sd">/**</span>
+<span class="sd">     * @param Parameters $config</span>
+<span class="sd">     */</span>
+    <span class="k">public</span> <span class="k">function</span> <span class="nf">__construct</span><span class="p">(</span><span class="nx">Parameters</span> <span class="nv">$config</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">configuration</span> <span class="o">=</span> <span class="nv">$config</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="sd">/**</span>
+<span class="sd">     * connection using the injected config</span>
+<span class="sd">     */</span>
+    <span class="k">public</span> <span class="k">function</span> <span class="nf">connect</span><span class="p">()</span>
+    <span class="p">{</span>
+        <span class="nv">$host</span> <span class="o">=</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">configuration</span><span class="o">-&gt;</span><span class="na">get</span><span class="p">(</span><span class="s1">'host'</span><span class="p">);</span>
+        <span class="c1">// connection to host, authentication etc...</span>
+
+        <span class="c1">//if connected</span>
+        <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">host</span> <span class="o">=</span> <span class="nv">$host</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="cm">/*</span>
+<span class="cm">     * 获取当前连接的主机</span>
+<span class="cm">     *</span>
+<span class="cm">     * @return string</span>
+<span class="cm">     */</span>
+    <span class="k">public</span> <span class="k">function</span> <span class="nf">getHost</span><span class="p">()</span>
+    <span class="p">{</span>
+        <span class="k">return</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">host</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span></pre> 
+        <h3 id="ipt_kb_toc_2792_7"><strong>4、测试代码</strong></h3> 
+        <h4 id="ipt_kb_toc_2792_8"><strong>Tests/DependencyInjectionTest.php</strong></h4> 
+        <pre><span class="cp">&lt;?php</span>
+
+<span class="k">namespace</span> <span class="nx">DesignPatterns\Structural\DependencyInjection\Tests</span><span class="p">;</span>
+
+<span class="k">use</span> <span class="nx">DesignPatterns\Structural\DependencyInjection\ArrayConfig</span><span class="p">;</span>
+<span class="k">use</span> <span class="nx">DesignPatterns\Structural\DependencyInjection\Connection</span><span class="p">;</span>
+
+<span class="k">class</span> <span class="nc">DependencyInjectionTest</span> <span class="k">extends</span> <span class="nx">\<a href="http://laravelacademy.org/tags/php" title="View all posts in PHP" target="_blank">PHP</a>Unit_Framework_TestCase</span>
+<span class="p">{</span>
+    <span class="k">protected</span> <span class="nv">$config</span><span class="p">;</span>
+    <span class="k">protected</span> <span class="nv">$source</span><span class="p">;</span>
+
+    <span class="k">public</span> <span class="k">function</span> <span class="nf">setUp</span><span class="p">()</span>
+    <span class="p">{</span>
+        <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">source</span> <span class="o">=</span> <span class="k">include</span> <span class="s1">'config.php'</span><span class="p">;</span>
+        <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">config</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">ArrayConfig</span><span class="p">(</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="na">source</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="k">public</span> <span class="k">function</span> <span class="nf">testDependencyInjection</span><span class="p">()</span>
+    <span class="p">{</span>
+        <span class="nv">$connection</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Connection</span><span class="p">(</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="na">config</span><span class="p">);</span>
+        <span class="nv">$connection</span><span class="o">-&gt;</span><span class="na">connect</span><span class="p">();</span>
+        <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">assertEquals</span><span class="p">(</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="na">source</span><span class="p">[</span><span class="s1">'host'</span><span class="p">],</span> <span class="nv">$connection</span><span class="o">-&gt;</span><span class="na">getHost</span><span class="p">());</span>
+    <span class="p">}</span>
+<span class="p">}</span></pre> 
+        <h4 id="ipt_kb_toc_2792_9"><strong>Tests/config.php</strong></h4> 
+        <pre><span class="cp">&lt;?php</span>
+
+<span class="k">return</span> <span class="k">array</span><span class="p">(</span><span class="s1">'host'</span> <span class="o">=&gt;</span> <span class="s1">'github.com'</span><span class="p">);</span></pre> 
+        <h3 id="ipt_kb_toc_2792_10"><strong>5、总结</strong></h3> 
+        <p>依赖注入模式需要在调用者外部完成容器创建以及容器中接口与实现类的运行时绑定工作，在 Laravel 中该容器就是服务容器，而接口与实现类的运行时绑定则在服务提供者中完成。此外，除了在调用者的构造函数中进行依赖注入外，还可以通过在调用者的方法中进行依赖注入。</p> 
+       </div>
+       <!-- .entry-content --> 
+       <footer class="entry-meta text-muted well well-sm">
+         分类： 
+        <i class="glyphicon glyphicon-folder-open"></i>&nbsp;&nbsp;
+        <a href="http://laravelacademy.org/resources/design-patterns" rel="category tag">设计模式</a> 
+        <div class="clearfix"></div> 标签： 
+        <i class="glyphicon glyphicon-tags"></i>&nbsp;&nbsp;
+        <a href="http://laravelacademy.org/tags/ioc%e5%ae%b9%e5%99%a8" rel="tag">IoC容器</a>, 
+        <a href="http://laravelacademy.org/tags/php" rel="tag">PHP</a>, 
+        <a href="http://laravelacademy.org/tags/%e4%be%9d%e8%b5%96%e6%b3%a8%e5%85%a5" rel="tag">依赖注入</a>, 
+        <a href="http://laravelacademy.org/tags/%e6%8e%a7%e5%88%b6%e5%8f%8d%e8%bd%ac" rel="tag">控制反转</a>, 
+        <a href="http://laravelacademy.org/tags/%e8%ae%be%e8%ae%a1%e6%a8%a1%e5%bc%8f" rel="tag">设计模式</a>, 
+        <a href="http://laravelacademy.org/tags/%e9%9d%a2%e5%90%91%e6%8e%a5%e5%8f%a3" rel="tag">面向接口</a>
+        <div class="clearfix"></div> 
+        <div class="share-jiathis">
+         <span class="share-jiathis-label">分享：</span>
+         <div class="jiathis_style"> 
+          <a class="jiathis_button_weixin"></a> 
+          <a class="jiathis_button_tsina"></a> 
+          <a class="jiathis_button_qzone"></a> 
+          <a class="jiathis_button_douban"></a> 
+          <a class="jiathis_button_googleplus"></a> 
+          <a class="jiathis_button_fb"></a> 
+          <a class="jiathis_button_twitter"></a> 
+          <a class="jiathis_button_evernote"></a> 
+          <a class="jiathis_button_ydnote"></a> 
+          <a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jtico jtico_jiathis" target="_blank"></a> 
+          <a class="jiathis_counter_style"></a> 
+         </div>
+        </div>
+        <div class="clearfix"></div> 
+        <div>
+         声明： 原创文章，未经允许，禁止转载！
+        </div> 
+       </footer>
+       <!-- .entry-meta --> 
+      </article>
+      <!-- #post-## --> 
+      <p class="hidden-xs"> <span class="ipt_kb_like_article_info pull-right text-info"><i class="glyphicon glyphicon-fire"></i>&nbsp;&nbsp;6 人觉得这篇文章很有用</span> <button type="button" data-loading-text="请稍等" class="btn btn-success ipt_kb_like_article" data-postid="2792" data-nonce="502fdc5a10"> <i class="glyphicon glyphicon-thumbs-up"></i> <span class="text">这篇文章对我很有帮助</span> </button> </p> 
+      <p class="visible-xs"> <button type="button" data-loading-text="请稍等" class="btn btn-success btn-block ipt_kb_like_article" data-postid="2792" data-nonce="502fdc5a10"> <i class="glyphicon glyphicon-thumbs-up"></i> <span class="text">这篇文章对我很有帮助</span> </button> </p> 
+      <p class="ipt_kb_like_article_info text-info text-center visible-xs"><i class="glyphicon glyphicon-fire"></i>&nbsp;&nbsp;6 觉得这篇文章很有用</p> 
+      <ul role="navigation" id="nav-below" class="post-navigation pager"> 
+       <li class="screen-reader-text">Post navigation</li> 
+       <li class="nav-previous previous"><a href="http://laravelacademy.org/post/2760.html" rel="prev"><span class="meta-nav"><span class="glyphicon glyphicon-arrow-left"></span></span> PHP 设计模式系列 —— 装饰器模式（Decorator）</a></li> 
+       <li class="nav-next next"><a href="http://laravelacademy.org/post/2807.html" rel="next">PHP 设计模式系列 —— 门面模式（Facade） <span class="meta-nav"><span class="glyphicon glyphicon-arrow-right"></span></span></a></li> 
+      </ul>
+      <!-- #nav-below --> 
+      <div class="well author-meta"> 
+       <div class="author-avatar text-center pull-left"> 
+        <a href="http://laravelacademy.org/post/author/nonfu"><img alt="" src="http://0.gravatar.com/avatar/699bfa8486547de4b21d7984876627f6?s=96&amp;d=retro&amp;r=g" srcset="http://0.gravatar.com/avatar/699bfa8486547de4b21d7984876627f6?s=192&amp;d=retro&amp;r=g 2x" class="avatar avatar-96 photo" height="96" width="96" /></a> 
+       </div> 
+       <h4 class="author-meta-title"> 学院君 has written <a href="http://laravelacademy.org/post/author/nonfu">614</a> articles </h4> 
+       <div class="author-meta-bio"> 
+        <p>资深PHP工程师，Laravel学院院长</p> 
+       </div> 
+       <div class="author-meta-buttons text-right"> 
+        <div class="btn-group"> 
+         <a href="http://laravelacademy.org" class="btn btn-info bstooltip" title="Website"><span class="glyphicon ipt-icon-home"></span></a> 
+        </div> 
+       </div> 
+       <div class="clearfix"></div> 
+      </div> 
+      <div class="google-ads" style="margin-bottom:8px;"> 
+       <script async="" src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script> 
+       <!-- Laravel学院详情页底部横幅广告 --> 
+       <ins class="adsbygoogle" style="display:inline-block;width:728px;height:90px" data-ad-client="ca-pub-6544917749399342" data-ad-slot="4898369711"></ins> 
+       <script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script> 
+      </div> 
+      <!-- 多说评论框 start --> 
+      <!-- 多说评论框 end --> 
+      <div id="comments" class="comments-area"> 
+       <h4 class="comments-title"> 6 thoughts on “<span>PHP 设计模式系列 —— 依赖注入模式（Dependency Injection）</span>” </h4> 
+       <ol class="comment-list"> 
+        <li id="comment-6180" class="comment even thread-even depth-1 parent"> 
+         <article id="div-comment-6180" class="comment-body panel panel-default"> 
+          <div class="panel-heading comment-meta"> 
+           <div class="comment-author vcard pull-left"> 
+            <img alt="" src="http://0.gravatar.com/avatar/cc1eef3521761373f3ed0a602d0ca5e9?s=32&amp;d=retro&amp;r=g" srcset="http://0.gravatar.com/avatar/cc1eef3521761373f3ed0a602d0ca5e9?s=64&amp;d=retro&amp;r=g 2x" class="avatar avatar-32 photo" height="32" width="32" /> 
+            <cite class="fn"><a href="http://t.qq.com/w1991cj" rel="external nofollow" class="url">l-study</a></cite> 
+            <span class="says">says:</span> 
+           </div>
+           <!-- .comment-author --> 
+           <div class="clearfix"></div> 
+          </div> 
+          <div class="comment-content panel-body"> 
+           <p>这个uml工具是怎么添加上图标的？</p> 
+          </div> 
+          <div class="panel-footer"> 
+           <div class="pull-right"> 
+            <div class="reply text-right">
+             <a rel="nofollow" class="comment-reply-link btn btn-info btn-sm" href="http://laravelacademy.org/post/2792.html?replytocom=6180#respond" onclick="return addComment.moveForm( &quot;div-comment-6180&quot;, &quot;6180&quot;, &quot;respond&quot;, &quot;2792&quot; )" aria-label="回复给l-study"><i class="glyphicon ipt-icon-reply"></i>&nbsp;&nbsp;回复</a>
+            </div> 
+           </div> 
+           <div class="comment-metadata"> 
+            <a href="http://laravelacademy.org/post/2792.html#comment-6180"> <time datetime="2016-09-05T16:49:46+00:00"> <i class="glyphicon glyphicon-calendar"></i>&nbsp;&nbsp;2016年9月5日 at 下午4:49 </time> </a> 
+           </div>
+           <!-- .comment-metadata --> 
+           <div class="clearfix"></div> 
+          </div> 
+         </article>
+         <!-- .comment-body --> 
+         <ol class="children"> 
+          <li id="comment-6188" class="comment byuser comment-author-nonfu bypostauthor odd alt depth-2"> 
+           <article id="div-comment-6188" class="comment-body panel panel-info"> 
+            <div class="panel-heading comment-meta"> 
+             <div class="comment-author vcard pull-left"> 
+              <img alt="" src="http://0.gravatar.com/avatar/699bfa8486547de4b21d7984876627f6?s=32&amp;d=retro&amp;r=g" srcset="http://0.gravatar.com/avatar/699bfa8486547de4b21d7984876627f6?s=64&amp;d=retro&amp;r=g 2x" class="avatar avatar-32 photo" height="32" width="32" /> 
+              <cite class="fn"><a href="http://laravelacademy.org/" rel="external nofollow" class="url">学院君</a></cite> 
+              <span class="says">says:</span> 
+             </div>
+             <!-- .comment-author --> 
+             <div class="clearfix"></div> 
+            </div> 
+            <div class="comment-content panel-body"> 
+             <p>使用yFiles</p> 
+            </div> 
+            <div class="panel-footer"> 
+             <div class="pull-right"> 
+              <div class="reply text-right">
+               <a rel="nofollow" class="comment-reply-link btn btn-info btn-sm" href="http://laravelacademy.org/post/2792.html?replytocom=6188#respond" onclick="return addComment.moveForm( &quot;div-comment-6188&quot;, &quot;6188&quot;, &quot;respond&quot;, &quot;2792&quot; )" aria-label="回复给学院君"><i class="glyphicon ipt-icon-reply"></i>&nbsp;&nbsp;回复</a>
+              </div> 
+             </div> 
+             <div class="comment-metadata"> 
+              <a href="http://laravelacademy.org/post/2792.html#comment-6188"> <time datetime="2016-09-05T22:02:14+00:00"> <i class="glyphicon glyphicon-calendar"></i>&nbsp;&nbsp;2016年9月5日 at 下午10:02 </time> </a> 
+             </div>
+             <!-- .comment-metadata --> 
+             <div class="clearfix"></div> 
+            </div> 
+           </article>
+           <!-- .comment-body --> </li>
+          <!-- #comment-## --> 
+         </ol>
+         <!-- .children --> </li>
+        <!-- #comment-## --> 
+        <li id="comment-2020" class="comment even thread-odd thread-alt depth-1 parent"> 
+         <article id="div-comment-2020" class="comment-body panel panel-default"> 
+          <div class="panel-heading comment-meta"> 
+           <div class="comment-author vcard pull-left"> 
+            <img alt="" src="http://1.gravatar.com/avatar/?s=32&amp;d=retro&amp;r=g" srcset="http://2.gravatar.com/avatar/?s=64&amp;d=retro&amp;r=g 2x" class="avatar avatar-32 photo avatar-default" height="32" width="32" /> 
+            <cite class="fn"><a href="http://t.qq.com/fengdeqiao" rel="external nofollow" class="url">小乔</a></cite> 
+            <span class="says">says:</span> 
+           </div>
+           <!-- .comment-author --> 
+           <div class="clearfix"></div> 
+          </div> 
+          <div class="comment-content panel-body"> 
+           <p>初学者，看着都蛋疼。。。好深奥</p> 
+          </div> 
+          <div class="panel-footer"> 
+           <div class="pull-right"> 
+            <div class="reply text-right">
+             <a rel="nofollow" class="comment-reply-link btn btn-info btn-sm" href="http://laravelacademy.org/post/2792.html?replytocom=2020#respond" onclick="return addComment.moveForm( &quot;div-comment-2020&quot;, &quot;2020&quot;, &quot;respond&quot;, &quot;2792&quot; )" aria-label="回复给小乔"><i class="glyphicon ipt-icon-reply"></i>&nbsp;&nbsp;回复</a>
+            </div> 
+           </div> 
+           <div class="comment-metadata"> 
+            <a href="http://laravelacademy.org/post/2792.html#comment-2020"> <time datetime="2015-12-25T14:40:03+00:00"> <i class="glyphicon glyphicon-calendar"></i>&nbsp;&nbsp;2015年12月25日 at 下午2:40 </time> </a> 
+           </div>
+           <!-- .comment-metadata --> 
+           <div class="clearfix"></div> 
+          </div> 
+         </article>
+         <!-- .comment-body --> 
+         <ol class="children"> 
+          <li id="comment-2031" class="comment byuser comment-author-nonfu bypostauthor odd alt depth-2 parent"> 
+           <article id="div-comment-2031" class="comment-body panel panel-info"> 
+            <div class="panel-heading comment-meta"> 
+             <div class="comment-author vcard pull-left"> 
+              <img alt="" src="http://0.gravatar.com/avatar/699bfa8486547de4b21d7984876627f6?s=32&amp;d=retro&amp;r=g" srcset="http://0.gravatar.com/avatar/699bfa8486547de4b21d7984876627f6?s=64&amp;d=retro&amp;r=g 2x" class="avatar avatar-32 photo" height="32" width="32" /> 
+              <cite class="fn"><a href="http://laravelacademy.org/" rel="external nofollow" class="url">学院君</a></cite> 
+              <span class="says">says:</span> 
+             </div>
+             <!-- .comment-author --> 
+             <div class="clearfix"></div> 
+            </div> 
+            <div class="comment-content panel-body"> 
+             <p>一开始确实比较难懂。。。</p> 
+            </div> 
+            <div class="panel-footer"> 
+             <div class="pull-right"> 
+              <div class="reply text-right">
+               <a rel="nofollow" class="comment-reply-link btn btn-info btn-sm" href="http://laravelacademy.org/post/2792.html?replytocom=2031#respond" onclick="return addComment.moveForm( &quot;div-comment-2031&quot;, &quot;2031&quot;, &quot;respond&quot;, &quot;2792&quot; )" aria-label="回复给学院君"><i class="glyphicon ipt-icon-reply"></i>&nbsp;&nbsp;回复</a>
+              </div> 
+             </div> 
+             <div class="comment-metadata"> 
+              <a href="http://laravelacademy.org/post/2792.html#comment-2031"> <time datetime="2015-12-25T23:12:04+00:00"> <i class="glyphicon glyphicon-calendar"></i>&nbsp;&nbsp;2015年12月25日 at 下午11:12 </time> </a> 
+             </div>
+             <!-- .comment-metadata --> 
+             <div class="clearfix"></div> 
+            </div> 
+           </article>
+           <!-- .comment-body --> 
+           <ol class="children"> 
+            <li id="comment-2070" class="comment even depth-3 parent"> 
+             <article id="div-comment-2070" class="comment-body panel panel-default"> 
+              <div class="panel-heading comment-meta"> 
+               <div class="comment-author vcard pull-left"> 
+                <img alt="" src="http://0.gravatar.com/avatar/?s=32&amp;d=retro&amp;r=g" srcset="http://0.gravatar.com/avatar/?s=64&amp;d=retro&amp;r=g 2x" class="avatar avatar-32 photo avatar-default" height="32" width="32" /> 
+                <cite class="fn"><a href="http://t.qq.com/fengdeqiao" rel="external nofollow" class="url">小乔</a></cite> 
+                <span class="says">says:</span> 
+               </div>
+               <!-- .comment-author --> 
+               <div class="clearfix"></div> 
+              </div> 
+              <div class="comment-content panel-body"> 
+               <p>从方法中依赖注入可以不用new吗？<br /> public function testDependencyInjection(Connection $con)<br /> {</p> 
+               <p> $this-&gt;connection = $con;</p> 
+               <p> }<br /> 这样可以创建对象不？</p> 
+              </div> 
+              <div class="panel-footer"> 
+               <div class="pull-right"> 
+                <div class="reply text-right">
+                 <a rel="nofollow" class="comment-reply-link btn btn-info btn-sm" href="http://laravelacademy.org/post/2792.html?replytocom=2070#respond" onclick="return addComment.moveForm( &quot;div-comment-2070&quot;, &quot;2070&quot;, &quot;respond&quot;, &quot;2792&quot; )" aria-label="回复给小乔"><i class="glyphicon ipt-icon-reply"></i>&nbsp;&nbsp;回复</a>
+                </div> 
+               </div> 
+               <div class="comment-metadata"> 
+                <a href="http://laravelacademy.org/post/2792.html#comment-2070"> <time datetime="2015-12-28T18:19:58+00:00"> <i class="glyphicon glyphicon-calendar"></i>&nbsp;&nbsp;2015年12月28日 at 下午6:19 </time> </a> 
+               </div>
+               <!-- .comment-metadata --> 
+               <div class="clearfix"></div> 
+              </div> 
+             </article>
+             <!-- .comment-body --> 
+             <ol class="children"> 
+              <li id="comment-2073" class="comment byuser comment-author-nonfu bypostauthor odd alt depth-4"> 
+               <article id="div-comment-2073" class="comment-body panel panel-info"> 
+                <div class="panel-heading comment-meta"> 
+                 <div class="comment-author vcard pull-left"> 
+                  <img alt="" src="http://0.gravatar.com/avatar/699bfa8486547de4b21d7984876627f6?s=32&amp;d=retro&amp;r=g" srcset="http://0.gravatar.com/avatar/699bfa8486547de4b21d7984876627f6?s=64&amp;d=retro&amp;r=g 2x" class="avatar avatar-32 photo" height="32" width="32" /> 
+                  <cite class="fn"><a href="http://laravelacademy.org/" rel="external nofollow" class="url">学院君</a></cite> 
+                  <span class="says">says:</span> 
+                 </div>
+                 <!-- .comment-author --> 
+                 <div class="clearfix"></div> 
+                </div> 
+                <div class="comment-content panel-body"> 
+                 <p>这是测试方法 在具体实现类中可以 前提是先实例化Connection然后作为参数传进来</p> 
+                </div> 
+                <div class="panel-footer"> 
+                 <div class="pull-right"> 
+                  <div class="reply text-right">
+                   <a rel="nofollow" class="comment-reply-link btn btn-info btn-sm" href="http://laravelacademy.org/post/2792.html?replytocom=2073#respond" onclick="return addComment.moveForm( &quot;div-comment-2073&quot;, &quot;2073&quot;, &quot;respond&quot;, &quot;2792&quot; )" aria-label="回复给学院君"><i class="glyphicon ipt-icon-reply"></i>&nbsp;&nbsp;回复</a>
+                  </div> 
+                 </div> 
+                 <div class="comment-metadata"> 
+                  <a href="http://laravelacademy.org/post/2792.html#comment-2073"> <time datetime="2015-12-28T20:31:20+00:00"> <i class="glyphicon glyphicon-calendar"></i>&nbsp;&nbsp;2015年12月28日 at 下午8:31 </time> </a> 
+                 </div>
+                 <!-- .comment-metadata --> 
+                 <div class="clearfix"></div> 
+                </div> 
+               </article>
+               <!-- .comment-body --> </li>
+              <!-- #comment-## --> 
+             </ol>
+             <!-- .children --> </li>
+            <!-- #comment-## --> 
+           </ol>
+           <!-- .children --> </li>
+          <!-- #comment-## --> 
+         </ol>
+         <!-- .children --> </li>
+        <!-- #comment-## --> 
+       </ol>
+       <!-- .comment-list --> 
+       <div id="respond" class="comment-respond"> 
+        <span class="pull-right"><a class="btn btn-danger btn-sm" rel="nofollow" id="cancel-comment-reply-link" href="/post/2792.html#respond" style="display:none;">取消回复</a></span> 
+        <h3 id="reply-title" class="comment-reply-title">发表评论</h3> 
+        <form action="http://laravelacademy.org/wp-comments-post.php" method="post" id="commentform" class="comment-form form-horizontal" novalidate=""> 
+         <p class="comment-notes alert alert-info"> 标记为<span class="required">*</span>的字段是必填项（邮箱地址不会被公开）</p> 
+         <div class="col-sm-5"> 
+          <div class="form-group comment-form-author">
+           <label class="sr-only control-label" for="author">名字 <span class="required">*</span></label> 
+           <div class="input-group">
+            <span class="input-group-addon"><span class="glyphicon ipt-icon-user"></span></span>
+            <input placeholder="名字 *" class="form-control" id="author" name="author" type="text" value="" size="30" aria-required="true" />
+           </div>
+          </div> 
+          <div class="form-group comment-form-email">
+           <label class="sr-only control-label" for="email">邮箱 <span class="required">*</span></label> 
+           <div class="input-group">
+            <span class="input-group-addon"><span class="glyphicon ipt-icon-mail"></span></span>
+            <input placeholder="邮箱 *" class="form-control" id="email" name="email" type="email" value="" size="30" aria-required="true" />
+           </div>
+          </div> 
+          <div class="form-group comment-form-url">
+           <label class="sr-only control-label" for="url">站点</label> 
+           <div class="input-group">
+            <span class="input-group-addon"><span class="glyphicon ipt-icon-link"></span></span>
+            <input placeholder="站点" class="form-control" id="url" name="url" type="url" value="" size="30" />
+           </div>
+          </div> 
+         </div> 
+         <div class="col-sm-7"> 
+          <div class="comment-form-comment form-group">
+           <label class="sr-only control-label" for="comment">评论内容</label>
+           <textarea placeholder="评论内容" class="form-control" id="comment" name="comment" rows="6" aria-required="true"></textarea>
+          </div> 
+         </div> 
+         <div class="clearfix"></div> 
+         <div class="col-sm-12"> 
+         </div> 
+         <div class="clearfix"></div> 
+         <p class="form-allowed-tags well well-sm">你可以使用这些<abbr title="HyperText Markup Language">HTML</abbr> 标签和属性: <code>&lt;a href=&quot;&quot; title=&quot;&quot;&gt; &lt;abbr title=&quot;&quot;&gt; &lt;acronym title=&quot;&quot;&gt; &lt;b&gt; &lt;blockquote cite=&quot;&quot;&gt; &lt;cite&gt; &lt;code&gt; &lt;del datetime=&quot;&quot;&gt; &lt;em&gt; &lt;i&gt; &lt;q cite=&quot;&quot;&gt; &lt;s&gt; &lt;strike&gt; &lt;strong&gt; </code></p> 
+         <p class="form-submit text-right"> <button name="submit" class="btn btn-primary" type="submit" id="submit">提交评论</button> <input type="hidden" name="comment_post_ID" value="2792" id="comment_post_ID" /> <input type="hidden" name="comment_parent" id="comment_parent" value="0" /> </p> 
+         <p style="display: none;"><input type="hidden" id="akismet_comment_nonce" name="akismet_comment_nonce" value="a53cf556be" /></p>
+         <p style="display: none;"><input type="hidden" id="ak_js" name="ak_js" value="12" /></p> 
+        </form> 
+       </div>
+       <!-- #respond --> 
+      </div>
+      <!-- #comments --> 
+     </main>
+     <!-- #main --> 
+    </div>
+    <!-- #primary --> 
+    <div id="secondary" class="widget-area col-md-4" role="complementary"> 
+     <div class="company-ads" style="margin-bottom:5px;"> 
+      <a href="https://www.mysubmail.com/sms?s=laravelacademy" target="_blank"><img src="http://laravelacademy.org/wp-content/uploads/2016/12/submail_ad_for_larvavel_700x180.jpg" width="350" /></a> 
+     </div> 
+     <!--<div class="forum-20160919142357">
+                           <a href="http://www.henghost.com/ul-xinyunhost.shtml" target="_blank">
+                               <img src="http://laravelacademy.org/wp-content/uploads/2016/09/20160919142222.gif" width="100%" border="0" alt="恒创主机"/>
+                           </a>
+                        </div>--> 
+     <div class="forum-20160919142357">
+      <script charset="utf-8" language="JavaScript" type="text/javascript" src="https://adman.henghost.com/data/forum-20160919142357.js"></script>
+     </div> 
+     <div class="google-ads" style="text-align:center;margin-bottom:10px;margin-top:10px;"> 
+      <script async="" src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script> 
+      <!-- Laravel侧边栏大矩形广告 --> 
+      <ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-6544917749399342" data-ad-slot="6375165315"></ins> 
+      <script>
+				(adsbygoogle = window.adsbygoogle || []).push({});
+				</script> 
+     </div> 
+     <aside id="ipt_kb_affix-2" class="widget ipt_kb_affix panel panel-default">
+      <div class="panel-heading">
+       <h3 class="widget-title panel-title">资源</h3>
+      </div>
+      <div class="panel-body"> 
+       <!-- Stick it or not --> 
+       <input type="hidden" class="dontfix" value="1" /> 
+       <!-- Search form --> 
+       <form role="search" method="get" class="search-form" action="http://laravelacademy.org/"> 
+        <input type="hidden" name="cat" value="110" /> 
+        <div class="form-group"> 
+         <div class="input-group input-group-sm"> 
+          <input type="search" class="search-field form-control" placeholder="搜索…" value="" name="s" /> 
+          <span class="input-group-btn"><button type="submit" class="btn btn-default"><span class="ipt-icon-search"></span></button></span> 
+         </div> 
+        </div> 
+       </form> 
+       <!-- TOC for single posts --> 
+       <div class="text-muted ipt-kb-toc"> 
+        <a href="#ipt-kb-toc-scrollspy" title="点击显示/隐藏内容目录" class="bstooltip pull-right btn btn-xs btn-default accordion-toggle ipt-kb-sub-toc-toggle" data-toggle="collapse"><i class="glyphicon ipt-icon-menu"></i></a> 
+        <h4> 内容目录 </h4> 
+        <div class="clearfix"></div> 
+       </div> 
+       <nav id="ipt-kb-toc-scrollspy" class="collapse in"> 
+        <ul class="nav"> 
+         <li> <a href="#ipt_kb_toc_2792_0">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1、模式定义</a></li> 
+         <li> <a href="#ipt_kb_toc_2792_1">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2、UML 类图</a></li> 
+         <li> <a href="#ipt_kb_toc_2792_2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3、示例代码</a></li> 
+         <li> <a href="#ipt_kb_toc_2792_3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AbstractConfig.php</a></li> 
+         <li> <a href="#ipt_kb_toc_2792_4">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Parameters.php</a></li> 
+         <li> <a href="#ipt_kb_toc_2792_5">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ArrayConfig.php</a></li> 
+         <li> <a href="#ipt_kb_toc_2792_6">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Connection.php</a></li> 
+         <li> <a href="#ipt_kb_toc_2792_7">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;4、测试代码</a></li> 
+         <li> <a href="#ipt_kb_toc_2792_8">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Tests/DependencyInjectionTest.php</a></li> 
+         <li> <a href="#ipt_kb_toc_2792_9">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Tests/config.php</a></li> 
+         <li> <a href="#ipt_kb_toc_2792_10">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;5、总结</a></li> 
+        </ul> 
+       </nav> 
+       <!-- Get support --> 
+       <!-- Category Listing --> 
+       <div class="list-group"> 
+        <a href="http://laravelacademy.org/resources/php7" class="list-group-item "> <i class="glyphicon ipt-icon-books"></i> PHP 7 系列</a> 
+        <a href="http://laravelacademy.org/resources/code" class="list-group-item "> <i class="glyphicon ipt-icon-books"></i> 代码片段</a> 
+        <a href="http://laravelacademy.org/resources/rightway" class="list-group-item "> <i class="glyphicon ipt-icon-books"></i> 学习方法</a> 
+        <a href="http://laravelacademy.org/resources/tools" class="list-group-item "> <i class="glyphicon ipt-icon-books"></i> 工具系列</a> 
+        <a href="http://laravelacademy.org/resources/editor" class="list-group-item "> <i class="glyphicon ipt-icon-books"></i> 编辑器</a> 
+        <div class="list-group-item active-cat"> 
+         <a href="#ipt-kb-affix-active-post" title="点击显示/隐藏当前所属分类下的所有文章" class="bstooltip accordion-toggle pull-right btn btn-default btn-xs text-center ipt-kb-sub-cat-toggle collapsed" data-toggle="collapse"> <i class="glyphicon ipt-icon-enter"></i> </a> 
+         <i class="glyphicon ipt-icon-books"></i> 设计模式
+        </div> 
+        <div id="ipt-kb-affix-active-post" class="collapse">
+         <a href="http://laravelacademy.org/post/2465.html" class="list-group-item ">PHP 设计模式系列 —— 概述及常用设计模式大全</a> 
+         <a href="http://laravelacademy.org/post/2471.html" class="list-group-item ">PHP 设计模式系列 —— 抽象工厂模式（Abstract Factory）</a> 
+         <a href="http://laravelacademy.org/post/2489.html" class="list-group-item ">PHP 设计模式系列 —— 建造者模式（Builder）</a> 
+         <a href="http://laravelacademy.org/post/2506.html" class="list-group-item ">PHP 设计模式系列 —— 工厂方法模式（Factory Method）</a> 
+         <a href="http://laravelacademy.org/post/2519.html" class="list-group-item ">PHP 设计模式系列 —— 多例模式（Multiton）</a> 
+         <a href="http://laravelacademy.org/post/2532.html" class="list-group-item ">PHP 设计模式系列 —— 对象池模式（Object Pool）</a> 
+         <a href="http://laravelacademy.org/post/2546.html" class="list-group-item ">PHP 设计模式系列 —— 原型模式（Prototype）</a> 
+         <a href="http://laravelacademy.org/post/2599.html" class="list-group-item ">PHP 设计模式系列 —— 单例模式（Singleton）</a> 
+         <a href="http://laravelacademy.org/post/2643.html" class="list-group-item ">PHP 设计模式系列 —— 简单工厂模式（Simple Factory）</a> 
+         <a href="http://laravelacademy.org/post/2647.html" class="list-group-item ">PHP 设计模式系列 —— 静态工厂模式（Static Factory）</a> 
+         <a href="http://laravelacademy.org/post/2660.html" class="list-group-item ">PHP 设计模式系列 —— 适配器模式（Adapter / Wrapper）</a> 
+         <a href="http://laravelacademy.org/post/2680.html" class="list-group-item ">PHP 设计模式系列 —— 桥梁模式（Bridge）</a> 
+         <a href="http://laravelacademy.org/post/2699.html" class="list-group-item ">PHP 设计模式系列 —— 组合模式（Composite）</a> 
+         <a href="http://laravelacademy.org/post/2739.html" class="list-group-item ">PHP 设计模式系列 —— 数据映射模式（Data Mapper）</a> 
+         <a href="http://laravelacademy.org/post/2760.html" class="list-group-item ">PHP 设计模式系列 —— 装饰器模式（Decorator）</a> 
+         <a href="http://laravelacademy.org/post/2792.html" class="list-group-item active">PHP 设计模式系列 —— 依赖注入模式（Dependency Injection）</a> 
+         <a href="http://laravelacademy.org/post/2807.html" class="list-group-item ">PHP 设计模式系列 —— 门面模式（Facade）</a> 
+         <a href="http://laravelacademy.org/post/2820.html" class="list-group-item ">PHP 设计模式系列 —— 服务定位器模式（Service Locator）</a> 
+         <a href="http://laravelacademy.org/post/2828.html" class="list-group-item ">PHP 设计模式系列 —— 流接口模式（Fluent Interface）</a> 
+         <a href="http://laravelacademy.org/post/2841.html" class="list-group-item ">PHP 设计模式系列 —— 代理模式（Proxy）</a> 
+         <a href="http://laravelacademy.org/post/2850.html" class="list-group-item ">PHP 设计模式系列 —— 注册模式（Registry）</a> 
+         <a href="http://laravelacademy.org/post/2858.html" class="list-group-item ">PHP 设计模式系列 —— 责任链模式（Chain Of Responsibilities）</a> 
+         <a href="http://laravelacademy.org/post/2871.html" class="list-group-item ">PHP 设计模式系列 —— 命令模式（Command）</a> 
+         <a href="http://laravelacademy.org/post/2882.html" class="list-group-item ">PHP 设计模式系列 —— 迭代器模式（Iterator）</a> 
+         <a href="http://laravelacademy.org/post/2894.html" class="list-group-item ">PHP 设计模式系列 —— 中介者模式（Mediator）</a> 
+         <a href="http://laravelacademy.org/post/2903.html" class="list-group-item ">PHP 设计模式系列 —— 备忘录模式（Memento）</a> 
+         <a href="http://laravelacademy.org/post/2912.html" class="list-group-item ">PHP 设计模式系列 —— 空对象模式（Null Object）</a> 
+         <a href="http://laravelacademy.org/post/2935.html" class="list-group-item ">PHP 设计模式系列 —— 观察者模式（Observer）</a> 
+         <a href="http://laravelacademy.org/post/2960.html" class="list-group-item ">PHP 设计模式系列 —— 规格模式（Specification）</a> 
+         <a href="http://laravelacademy.org/post/2971.html" class="list-group-item ">PHP 设计模式系列 —— 状态模式（State）</a> 
+         <a href="http://laravelacademy.org/post/2990.html" class="list-group-item ">PHP 设计模式系列 —— 策略模式（ Strategy）</a> 
+         <a href="http://laravelacademy.org/post/3006.html" class="list-group-item ">PHP 设计模式系列 —— 模板方法模式（Template Method）</a> 
+         <a href="http://laravelacademy.org/post/3024.html" class="list-group-item ">PHP 设计模式系列 —— 访问者模式（Visitor）</a> 
+         <a href="http://laravelacademy.org/post/3038.html" class="list-group-item ">PHP 设计模式系列 —— 委托模式（ Delegation）</a> 
+         <a href="http://laravelacademy.org/post/3053.html" class="list-group-item ">PHP 设计模式系列 —— 资源库模式（Repository）</a> 
+         <a href="http://laravelacademy.org/post/3063.html" class="list-group-item ">在 Laravel 5 中使用 Repository 模式实现业务逻辑和数据访问的分离</a> 
+         <a href="http://laravelacademy.org/post/3088.html" class="list-group-item ">Laravel 中管道设计模式的使用 —— 中间件实现原理探究</a> 
+        </div> 
+        <a href="http://laravelacademy.org/resources/notebook" class="list-group-item "> <i class="glyphicon ipt-icon-books"></i> 读书笔记</a> 
+        <a href="http://laravelacademy.org/resources/linux" class="list-group-item "> <i class="glyphicon ipt-icon-books"></i> 运维部署</a> 
+       </div> 
+      </div>
+     </aside>
+     <div class="pin-wrapper">
+      <div class="pinned">
+       <aside id="wp_related_posts_widget" class="widget widget_wp_related_posts panel panel-default"> 
+        <div class="panel-heading">
+         <h3 class="widget-title panel-title">相关文章</h3>
+        </div>
+        <div class="panel-body">
+         <div class="list-group">
+          <a href="http://laravelacademy.org/post/2820.html" class="wp_rp_title list-group-item kb-list-date kb-post-list"><h3><span class="glyphicon ipt-icon-file"></span> PHP 设计模式系列 —— 服务定位器模式（Service Locator）</h3><span class="clearfix"></span></a>
+          <a href="http://laravelacademy.org/post/769.html" class="wp_rp_title list-group-item kb-list-date kb-post-list"><h3><span class="glyphicon ipt-icon-file"></span> Laravel 服务容器实例教程 —— 深入理解控制反转（IoC）和依赖注入（DI）</h3><span class="clearfix"></span></a>
+          <a href="http://laravelacademy.org/post/2807.html" class="wp_rp_title list-group-item kb-list-date kb-post-list"><h3><span class="glyphicon ipt-icon-file"></span> PHP 设计模式系列 —— 门面模式（Facade）</h3><span class="clearfix"></span></a>
+          <a href="http://laravelacademy.org/post/2910.html" class="wp_rp_title list-group-item kb-list-date kb-post-list"><h3><span class="glyphicon ipt-icon-file"></span> [ Laravel 5.2 文档 ] 架构 —— 服务容器</h3><span class="clearfix"></span></a>
+          <a href="http://laravelacademy.org/post/2990.html" class="wp_rp_title list-group-item kb-list-date kb-post-list"><h3><span class="glyphicon ipt-icon-file"></span> PHP 设计模式系列 —— 策略模式（ Strategy）</h3><span class="clearfix"></span></a>
+         </div> 
+        </div>
+       </aside> 
+       <div class="google-ads" style="text-align:center;"> 
+        <script async="" src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script> 
+        <!-- Laravel侧边栏矩形滚动广告 --> 
+        <ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-6544917749399342" data-ad-slot="3421636513"></ins> 
+        <script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script> 
+       </div> 
+      </div>
+     </div> 
+    </div>
+    <!-- #secondary --> 
+   </div>
+   <!-- #content --> 
+   <footer id="colophon" class="site-footer" role="contentinfo"> 
+    <div class="site-info"> 
+     <p class="copyright text-muted"> &copy; 2015-2017 Laravel Academy | <a href="http://www.miitbeian.gov.cn/" target="_blank">浙ICP备16003554号</a> | <a href="http://forum.laravelacademy.org" target="_blank">社区</a> | <a href="http://laravelacademy.org/feed">订阅</a> | <a href="http://laravelacademy.org/about-us#ads">广告</a> | <a href="http://laravelacademy.org/donate-us">捐赠</a> | <a href="http://gjsq.me/15561494" target="_blank">VPN</a> | <script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_1256294264'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s4.cnzz.com/stat.php%3Fid%3D1256294264' type='text/javascript'%3E%3C/script%3E"));</script> </p> 
+    </div>
+    <!-- .site-info --> 
+    <div class="scroll-back-to-top-wrapper"> 
+     <span class="scroll-back-to-top-inner"> <i class="fa fa-2x fa-arrow-up"></i> </span> 
+    </div>
+    <script type="text/javascript" src="http://laravelacademy.org/wp-content/plugins/akismet/_inc/form.js?ver=3.3"></script> 
+    <script type="text/javascript">
+/* <![CDATA[ */
+var scrollBackToTop = {"scrollDuration":"500","fadeDuration":"0.5"};
+/* ]]> */
+</script> 
+    <script type="text/javascript" src="http://laravelacademy.org/wp-content/plugins/scroll-back-to-top/assets/js/scroll-back-to-top.js"></script> 
+    <script type="text/javascript">
+/* <![CDATA[ */
+var viewsCacheL10n = {"admin_ajax_url":"http:\/\/laravelacademy.org\/wp-admin\/admin-ajax.php","post_id":"2792"};
+/* ]]> */
+</script> 
+    <script type="text/javascript" src="http://laravelacademy.org/wp-content/plugins/wp-postviews/postviews-cache.js?ver=1.68"></script> 
+    <script type="text/javascript" src="http://laravelacademy.org/wp-content/themes/wp-knowledge-base/js/skip-link-focus-fix.js?ver=1.6.0"></script> 
+    <script type="text/javascript" src="http://laravelacademy.org/wp-content/themes/wp-knowledge-base/js/jquery.pin.js?ver=1.6.0"></script> 
+    <script type="text/javascript" src="http://laravelacademy.org/wp-includes/js/comment-reply.min.js?ver=4.7.3"></script> 
+    <script type="text/javascript" src="http://laravelacademy.org/wp-includes/js/wp-embed.min.js?ver=4.7.3"></script> 
+   </footer>
+   <!-- #colophon --> 
+  </div>
+  <!-- #page --> 
+  <script type="text/javascript">
+        jQuery(document).ready(function() {
+            var s = jQuery(".pinned");
+            var pos = s.position();
+            jQuery(window).scroll(function() {
+                var windowpos = jQuery(window).scrollTop();
+                if (windowpos >= pos.top) {
+                    s.addClass("stick");
+                } else {
+                    s.removeClass("stick");
+                }
+            });
+        });
+    </script> 
+  <script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script> 
+  <script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?0149df826a6be49c34721817692bbf7f";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script> 
+  <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-66519426-1', 'auto');
+    ga('send', 'pageview');
+
+</script>   
+  <!-- Dynamic page generated in 0.272 seconds. --> 
+  <!-- Cached page generated by WP-Super-Cache on 2017-03-27 04:26:12 --> 
+  <!-- Super Cache dynamic page detected but late init not set. See the readme.txt for further details. --> 
+  <!-- Dynamic Super Cache --> 
+  <!-- Compression = gzip -->
+ </body>
+</html>

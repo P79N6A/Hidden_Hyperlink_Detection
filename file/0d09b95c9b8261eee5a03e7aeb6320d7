@@ -1,0 +1,198 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head>
+    <title>找回密码</title>
+    
+	<meta http-equiv="pragma" content="no-cache">
+	<meta http-equiv="cache-control" content="no-cache">
+	<meta http-equiv="expires" content="0">    
+	<meta http-equiv="keywords" content="keyword1,keyword2,keyword3">
+	<meta http-equiv="description" content="This is my page">
+	<!--
+	<link rel="stylesheet" type="text/css" href="styles.css">
+	-->
+	<link href="../login/css1/style.css" rel="stylesheet" type="text/css">
+	<style>
+		.error{padding-right: 10px;min-width: 120px;left: 315px;top: 0;color: #ff6600;position: absolute;line-height: 38px;}
+	</style>
+	<script type="text/javascript" async="" src="http://site.cdnmaster.cn/sitemaster/collect.js"></script><script src="../login/js/jquery-1.7.2.min.js"></script>
+	<script src="../login/js/main.js"></script>
+	<script src="../js/cdnmaster.js"></script>	
+	<script type="text/javascript">
+		var hrefUrl = location.href;
+		var indexNum = hrefUrl.indexOf("/", hrefUrl.indexOf("/", 10)+1);
+		var servletUrl = hrefUrl.substring(0, indexNum) + "/change/service";
+		var servletUrl1 = hrefUrl.substring(0, indexNum) + "/register/service";
+		
+		var getAjax = false; //提交
+		var getMark = false; //验证码
+		function checkInfo(){
+			//if(!getMark) return;
+	    	//if(getAjax) return;
+			//changeStyle("usernameSty", "<i class=\"wico\"></i>请输入登录名", "wtip");
+			//changeStyle("usernameSty", "","tright");
+			var username = $.trim($("#username").val());
+	    	if(username == "" || username == "证件号/用户名/手机号/邮箱"){
+				changeStyle("usernameSty", "<i class=\"wico\"></i>请输入登录名", "wtip");
+				return false;			
+			}
+			var mark = $.trim($("#mark").val());
+	    	if(mark == ""){
+				//alert("请输入验证码");
+				changeStyle("markError", "<i class=\"wico\"></i>请输入验证码", "wtip");
+				return false;			
+			}
+	    	getAjax = true;
+	    	
+	    	$.ajax({
+	    		'url':servletUrl,
+	    		'type':'post',
+	    		'data':'function_code=checkMark&check_type_key=checkMember_username&username='+username+'&mark='+mark,
+	    		'dataType':'json',
+	    		'cache':false,
+	    		'success':function(data,statusText){
+	    	   		if(data.result == "0000"){
+	    	   			//alert(data.info.member_mobile+"|"+data.info.member_email);
+	    	   			//location.href = "./findpwd2.jsp?mobile="+data.info.member_mobile+"&email="+data.info.member_email;
+	    	   			setCookieCommon("findpwd_mobile", data.info.member_mobile);
+	    	   			setCookieCommon("findpwd_email", data.info.member_email);
+	    	   			location.href = "../register/findpwd22.jsp";
+	    	   		}else{
+	    	   			getAjax = false;
+	    	   			if(data.result == "1111"){
+	    	   				changeStyle("usernameSty", "<i class=\"wico\"></i>"+data.errordesc, "wtip");
+	    	   				$("#mark").val("");
+	    	   			}else if(data.result == "0009"){
+	    	   				changeStyle("markError", "<i class=\"wico\"></i>"+data.errordesc, "wtip");
+	    	   				getRandomGif();
+	    	   			}else{
+	    	   				changeStyle("usernameSty", "<i class=\"wico\"></i>"+data.errordesc, "wtip");
+	    	   			}
+	    	   		}
+	    	    }
+	    	});	 
+	    	//location.href = "< %=path%>/register/findpwd22.jsp";
+		}
+		
+		
+		function getRandomGif(){	
+	  		var times = Math.random()+0.01;
+	  		var url = hrefUrl.substring(0, indexNum)+"/logon/image?now="+times;
+			document.getElementById("yzcode").src = url;
+		}
+		
+		function initUserInfo(){
+			var errorIndex = hrefUrl.indexOf("?error");
+			var error = hrefUrl.substring(errorIndex+7);
+			//alert(error);	
+			if(errorIndex > 0){
+				$("#countDiv").hide();
+				$("#errorDiv").show();
+				if(error == "0003"){
+					changeStyle("error", "<i class=\"wico\"></i>无效链接", "");
+				}else if(error == "0008"){
+					changeStyle("error", "<i class=\"wico\"></i>链接已经失效", "");
+				}
+			}		
+		}
+		
+// 		/* function changeStyle(id,text,classSty,errorsty,errortext){
+// 			$("#"+id+"Text").removeClass();
+// 			$("#"+id+"Text").html("");
+// 			$("#"+id+"Sty").removeClass();
+// 			if("" == classSty){
+// 				$("#"+id+"Text").removeClass().addClass(errorsty);
+// 		    	$("#"+id+"Text").html(errortext+text);
+// 			}else{
+// 				$("#"+id+"Sty").removeClass().addClass(classSty);
+// 			}
+	    	
+// 	    } */
+		
+		function changeStyle(id,text,classSty){
+	    	$("#"+id).removeClass().addClass(classSty);
+	    	$("#"+id).html(text);
+	    }
+		
+		function changeText($this){
+			var value = $this.value;  
+			if(value == "" || value == "证件号/用户名/手机号/邮箱"){
+				changeStyle("usernameSty", "<i class=\"wico\"></i>请输入登录名", "wtip");
+				return false;			
+			}else{
+				changeStyle("usernameSty", "","tright");
+			}
+		}
+		
+		function checkTmark($this){
+			var tmark = $this.value;
+			if(""==tmark){
+				changeStyle("markError", "<i class=\"wico\"></i>请输入验证码", "wtip");
+				return;
+			}
+			changeStyle("markError", "", "tright");
+			getMark = true;
+   			/*$.ajax({
+	    		'url':servletUrl1,
+	    		'type':'post',
+	    		'data':'function_code=checkTmark&tmark='+tmark,
+	    		'dataType':'json',
+	    		'cache':false,
+	    		'success':function(data,statusText){
+	    	   		if(data.result == "0000"){
+	    	   			getMark = true;
+	    	   			changeStyle("markError", "", "tright");
+	    	   		}else{
+	    	   			getRandomGif();
+	    	   			getMark = false;
+	    	   			changeStyle("markError", "<i class=\"wico\"></i>"+data.errordesc, "wtip");
+	    	   		}
+	    	    }
+	    	});*/
+		}
+	</script>
+	
+  </head>
+  
+  <body onload="getRandomGif();initUserInfo();">
+     <div class="wrapper header"><img src="../login/images/logo.gif">重置密码</div>
+<div class="wrapper reg forget">
+	<ul class="nav clearfix">
+		<li class="active"><span><i>1</i>输入登录名</span></li>
+		<li><span><i>2</i>身份验证</span></li>
+		<li><span><i>3</i>重置密码</span></li>
+		<li><span><i>4</i>完成</span></li>
+	</ul>
+	<div class="formarea" id="countDiv">
+		<dl class="clearfix">
+			<dt>登录名</dt>
+			<dd><input type="text" class="text" value="证件号/用户名/手机号/邮箱" id="username" onblur="changeText(this)" style="color: rgb(204, 204, 204); ">
+			<span id="usernameSty" style=""></span><!-- class="tright" style="display: none" -->
+			<!-- <span id="usernameText"></span>  --><!-- class="wtip" style="display: none"  <i class="wico"></i>请填写正确的登录名-->
+			</dd>
+		</dl>
+		<dl class="clearfix">
+			<dt>验证码</dt>
+			<dd><input type="text" class="text text2" id="mark" onblur="checkTmark(this)" style="color: rgb(204, 204, 204); "><img src="" class="yzcode" id="yzcode" onclick="getRandomGif()" style="cursor: pointer;"><!-- <a class="btnref" onclick="getRandomGif()"></a> -->
+			<span class="" id="markError"></span>
+			</dd>
+		</dl>
+		<dl class="tm35 clearfix">
+			<dt></dt>
+			<dd><input type="button" value="下一步" class="btn1 op8" onclick="checkInfo()"></dd>
+		</dl>
+	</div>
+	<div id="errorDiv" style="display: none" class="formarea">
+		<span class="" id="error" style="color: #ff6600;padding-left: 230px;font-size: 16px;"></span>
+	</div>
+</div>
+<div class="wrapper footer">
+	<p>版权所有 © 泰康在线财产保险股份有限公司未经许可不得复制、转载或摘编，违者必究!</p>
+	<p>京ICP备09074081号-19 Copyright © Tk.cn Insurance CO.,LTD. All Rights Reserved</p>
+</div>
+<script>
+$(function(){
+	modeLogin.defaultValue($('.formarea input[type=text]'));
+})
+</script>
+  
+
+</body></html>

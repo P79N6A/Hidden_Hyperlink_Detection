@@ -1,0 +1,528 @@
+<html><head></head><body><pre style="word-wrap: break-word; white-space: pre-wrap;">
+var group = [{"groupId":"G12P001001","groupName":"翠烟山"},{"groupId":"G12P001002","groupName":"独步天下"},{"groupId":"G12P001003","groupName":"龙争虎斗"},{"groupId":"G12P001004","groupName":"巴陵县"},{"groupId":"G12P001005","groupName":"洛道"}];
+var server = [{"serverid":"G12P001001","servername":"翠烟山"},{"serverid":"G12P001002","servername":"独步天下"},{"serverid":"G12P001003","servername":"龙争虎斗"},{"serverid":"G12P001004","servername":"巴陵县"},{"serverid":"G12P001005","servername":"洛道"}];
+
+/* 仅输入数字 */
+function Num(obj){
+	obj.value = obj.value.replace(/[^\d]/g,""); //清除"数字"和"."以外的字符
+	obj.value = obj.value.replace(/^\./g,""); //验证第一个字符是数字而不是
+	obj.value = obj.value.replace(/^0[0-9]*$/g,"$"); //验证第一个字符是数字而不是
+	obj.value = obj.value.replace(".","$#$").replace(/\./g,"").replace("$#$",".");
+	obj.value = obj.value.replace(/^(\-)*(\d+)\.(\d\d\d\d\d\d).*$/,'$1$2.$3'); //只能输入两个小数
+};
+
+//游戏区服
+$(function(){
+	
+	//自动加载区服+商品列表
+	var w_href = window.location.href;
+	var gameId = getQueryString("gameId");
+	var goodType = getQueryString("goodType");
+	var groupId = getQueryString("groupId");
+	var serverId = getQueryString("serverId");
+	if(groupId!=null &amp;&amp; serverId!=null){
+		loadGoods(gameId,goodType,groupId,serverId);
+	} 
+
+	//下单，提交显示隐藏切换
+	$(".place").show();
+	$(".submission").hide();
+	
+	$("#return-modify").click(function(){
+		//点击返回修改
+		/*$(".place").show();
+		$(".submission").hide();
+		$(".gs-btn").text("立即出货");
+		*/
+		var params = {gameId:$("#gameId").text(),goodType:$("#goodType").text()};
+		window.location.href="/shipment/orderPlace.htm?gameId="+$("#gameId").text()+"&amp;goodType="+$("#goodType").text();
+//		postForm("/shipment/orderPlace.htm",params);
+	});
+	
+	
+	$.ajax({//点击取游戏区信息
+		url : '/base/ajax/getGroups.htm',
+		async : false,
+		type : 'POST',
+		data : {
+			"gameId" : $("#gameId").text()
+		},
+		success : function(data) {
+			var str = eval('(' + data + ')');
+			group1 = JSON.stringify(str.supportGroupList);
+			group = eval(group1);//list转成对象
+		}
+	});
+	
+	var unit = $("#unit").text();
+	var temp = "";
+	$.each(group,function(k,v) {
+		temp+='&lt;li data-value='+v.groupId+'&gt;'+v.groupName+'&lt;/li&gt;';
+	});
+	$(".qu-list").find("ul").html(temp);
+	
+	$(".qu-flag").click(function(){ //点击 请选择游戏区服
+		$(".fu-pop").hide();
+		$(".fu-flag").removeClass("on");
+		if($(this).hasClass("on")){
+			$(this).removeClass("on");
+			$(".qu-pop").hide();
+		}else{
+			$(this).addClass("on");
+			//Ajax 加载游戏区;以下代码是Ajax加载成功后执行;
+			$(".qu-pop").show();
+		};
+	});
+	$(".fu-flag").click(function(){ //点击 游戏服
+		$(".qu-pop").hide();
+		$(".qu-flag").removeClass("on");
+		if($(this).hasClass("on")){
+			$(this).removeClass("on");
+			$(".fu-pop").hide();
+		}else{
+			$(".fu-pop").show();
+			$(this).addClass("on");
+		}
+	});
+	$(document).on("click",".qf-pop-bot li",function(){ //选中区服
+		var flag = $(this).parent("ul").parent(".qf-pop-bot").parent(".gs-pop").data("type");
+		if(flag == "qu"){ //如果选中下拉列表的某个游戏区
+			var txt= $(this).text();
+			var temp = "";
+			$(".qu-flag").find("b").text(txt);
+			$(".fu-flag").show();
+			$(".qu-pop").hide();
+			$(".fu-flag").find("b").text("请选择服");
+			$(".fu-list").find("ul").empty();
+			//Ajax 加载游戏服;以下代码是Ajax加载成功后执行;
+			$.ajax({
+				url : '/base/ajax/getService.htm',
+				async : false,
+				type : 'POST',
+				data : {
+					"gameId" : $("#gameId").text(),
+					"groupId":$(this).data("value")
+				},
+				success : function(data) {
+					var data = eval('('+data+')');
+					server = data.supportServers;
+				} // 成功执行方法
+			});
+/*从这开始*/  $(".fu-flag").addClass("on");
+			$(".fu-pop").show();
+			$(".fu-pop").find(".all-qufu").show();
+			$(".fu-pop").find(".search-qufu").hide();
+			$(".fu-search").val(""); //清空服搜索
+			$(".fu-search").parent(".quick_select").find("label").show(); //清空服搜索
+			$.each(server,function(k,v) {
+				temp+='&lt;li data-value='+v.serverid+'&gt;'+v.servername+'&lt;/li&gt;';
+			});
+			$(".fu-list").find("ul").html(temp);
+			$("#groupId").text($(this).data("value"));
+			$("#groupName").text($(this).text());
+			
+		}else{ //如果选中下拉列表的某个游戏服
+			$(".fu-pop").hide();
+			var txt= $(this).text();
+			$(".fu-flag").find("b").text(txt);
+			$(this).parent().parent().parent().parent().parent().find(".error").hide();
+			$("#serverId").text($(this).data("value"));
+			$("#serverName").text($(this).text());
+			// Ajax 根据特色购点击的选项 调取出相应的出货选择的列表的第一个单价、收货数量和出货选择的列表；以下代码是Ajax加载成功后执行;
+				$.ajax({
+					url : '/shipment/ajax/orderPlaceTrade.htm',
+					async : false,
+					type : 'POST',
+					data : {
+						"gameId" : $("#gameId").text(),
+						"groupId" : $("#groupId").text(),
+						"serverId" : $(this).data("value"),
+						"goodType" : $("#goodType").text()
+					},
+					success : function(data) {
+						var data = eval('('+data+')');
+						var data =data.goodsRes.list;
+						
+						//赋值前清空显示数据：出货列表，出货单价，元/金，隐藏价格，
+						$(".shipment-list-ul").html("");
+						$(".num-one").text(""); // 选中的单价    1元 = 0.112金
+						$(".num-tot").text(""); //  选中的收货数量
+						$(".small-b").text("");
+						$("#price").text("");
+						
+						if(data!=''){
+							$(".gs-btn").removeClass("no-goods");
+							var temp = "";
+							$.each(data,function(k,v) {
+								if(k==0){
+									temp+='&lt;li&gt;&lt;span class="lispan-01"&gt;&amp;nbsp;&lt;input type="radio" checked name="shipinput" value="" &gt;&lt;/span&gt;&lt;span class="lispan-02"   data-goodsid='+v.id+' data-money="'+Digit.floor(v.price/100,6)+'" data-price="'+v.price+'"&gt;&lt;i style="width:250px;"&gt;'+v.title+'&lt;/i&gt;&lt;b style="display:none;"&gt;（'+Digit.floor(v.price/100,6)+'元/'+v.unit+'）&lt;/b&gt;&lt;/span&gt;&lt;span class="lispan-03"&gt;'+v.minRecipient+'-'+v.recipientAmount+
+									'&lt;/span&gt;&lt;/li&gt;';
+									$(this).find("input:radio").attr("checked",true);
+									var num_two = Digit.floor(v.price/100,6);//单价：元 取6位
+									$("#goodsid").text(v.id);
+									var num_tot = (v.minRecipient+'-'+v.recipientAmount);
+									var hs_num = '（'+num_two+'元/'+v.unit+'）';
+									$(".num-one").text(Digit.floor((1/(v.price/100)),2)); // 选中的单价    1元 = 0.112金
+									$(".num-tot").text(num_tot); //  选中的收货数量
+									$(".small-b").text(hs_num);
+									$("#price").text(v.price);
+									Calculated_price_01();
+								}else{
+									temp+='&lt;li&gt;&lt;span class="lispan-01"&gt;&amp;nbsp;&lt;input type="radio" name="shipinput" value="" &gt;&lt;/span&gt;&lt;span class="lispan-02"   data-goodsid='+v.id+' data-money="'+Digit.floor(v.price/100,6)+'" data-price="'+v.price+'"&gt;&lt;i style="width:250px;"&gt;'+v.title+'&lt;/i&gt;&lt;b style="display:none;"&gt;（'+Digit.floor(v.price/100,6)+'元/'+v.unit+'）&lt;/b&gt;&lt;/span&gt;&lt;span class="lispan-03"&gt;'+v.minRecipient+'-'+v.recipientAmount+
+									'&lt;/span&gt;&lt;/li&gt;';
+								}
+							});
+							$(".shipment-list-ul").html(temp);
+						}else{
+							$(".gs-btn").addClass("no-goods");
+							/*Alert('当前区服暂无收货需求');*/
+						}
+					}
+				});
+				Calculated_price_01(); // 如果输入数字 应立即算出价格
+		}
+	});
+	$(".gs-btn").on("click",non_null); //绑定提交的判断事件
+	
+	//选择不同出货选择 计算不同的价格
+	$(".shipment-list-ul").on("click","li",function(){
+		$(this).find("input:radio").attr("checked",true);
+		var num_one = $(this).find(".lispan-02").data("price");// 单价： 元 取6位
+		$("#goodsid").text($(this).find(".lispan-02").data("goodsid"));
+		var num_tot = $(this).find(".lispan-03").text();
+		var hs_num = $(this).find("b").text();
+		$(".num-one").text(Digit.floor((1/(num_one/100)),2)); // 选中的单价    1元 = 0.112金
+		$(".num-tot").text(num_tot); //  选中的收货数量
+		$(".small-b").text(hs_num);
+		
+		Calculated_price_01();
+	});
+	
+	// 引导图片
+	layer.open({
+		type: 1,
+		title: false,
+		closeBtn: 0,
+		shadeClose: true,
+		area: "676px",
+		skin: 'loadGuide-wrap',
+		fix: false,
+		offset: ['67px', '464px'],
+		content: $('.loadGuide-box'),
+		success: function(){
+	    	$(".loadGuide-box").find("a").click(function(){
+	    		layer.closeAll();
+	    	});
+	  	}
+	});
+	
+});
+function seaRes(val,obj){ //搜索游戏区服
+	if(val==""){
+		$(obj).parent(".quick_select").parent(".qf-pop-top").parent(".gs-pop").find(".all-qufu").show();
+		$(obj).parent(".quick_select").parent(".qf-pop-top").parent(".gs-pop").find(".search-qufu").hide();
+	}else{
+		var flag = $(obj).parent(".quick_select").parent(".qf-pop-top").parent(".gs-pop").data("type");
+		if(flag=="qu"){ //循环查找包含关键字区
+			$(".qu-res").find("ul").empty();
+			for( var p in group){
+				if( group[p].groupName.toLowerCase().indexOf(val) &gt; -1){
+					$(".qu-res").find("ul").append("&lt;li data-value="+group[p].groupId+"&gt;"+group[p].groupName+"&lt;/li&gt;");
+				};
+			};
+			$(obj).parent(".quick_select").parent(".qf-pop-top").parent(".gs-pop").find(".search-qufu").show();
+			$(obj).parent(".quick_select").parent(".qf-pop-top").parent(".gs-pop").find(".all-qufu").hide();
+			if($(".qu-res").find("ul").find("li").length !== 0){
+				$(obj).parent(".quick_select").parent(".qf-pop-top").parent(".gs-pop").find(".search-qufu").find(".no-res").hide()
+			}else{
+				$(obj).parent(".quick_select").parent(".qf-pop-top").parent(".gs-pop").find(".search-qufu").find(".no-res").show()
+			}
+		}else{ //循环查找包含关键字服
+			$(".fu-res").find("ul").empty();
+			for( var p in server){
+				if( server[p].servername.toLowerCase().indexOf(val) &gt; -1){
+					$(".fu-res").find("ul").append("&lt;li data-value="+server[p].serverid+"&gt;"+server[p].servername+"&lt;/li&gt;");
+				};
+			};
+			$(obj).parent(".quick_select").parent(".qf-pop-top").parent(".gs-pop").find(".search-qufu").show();
+			$(obj).parent(".quick_select").parent(".qf-pop-top").parent(".gs-pop").find(".all-qufu").hide();
+			if($(".fu-res").find("ul").find("li").length !== 0){
+				$(obj).parent(".quick_select").parent(".qf-pop-top").parent(".gs-pop").find(".search-qufu").find(".no-res").hide();
+			}else{
+				$(obj).parent(".quick_select").parent(".qf-pop-top").parent(".gs-pop").find(".search-qufu").find(".no-res").show();
+			}
+		}
+	}
+};
+function non_null(){ //点击去支付 循环判断必填项的非空以及非空提示
+	var len = $(".must-val").length-1;
+	if(userid==""){
+		login();
+	}else if($(".gs-btn").hasClass("no-goods")){
+		Alert('当前区服暂无收货需求');
+	}else{
+		$(".must-val").each(function(index){
+			if($(this).hasClass("must-txt")){
+				var inputval = $(this).text();
+				if(inputval == "请选择服"){
+					$(this).parent().parent().parent().parent().find(".error").show();
+				}else{
+					$(this).parent().parent().parent().parent().find(".error").hide();
+				}
+			}else if($(this).hasClass("blonone-input")){
+				var inputval = $(this).val();
+				disflag = $(this).parent().parent().parent().css("display");
+				if(disflag == "block"){
+					if(inputval == ""){
+						$(this).addClass("err-input");
+						$(this).parent().parent().find(".error").show();
+					}else{
+						$(this).parent().parent().find(".error").hide();
+					}
+				}
+			}else{
+				inputval = $(this).val();
+				if(inputval == ""){
+					$(this).addClass("err-input");
+					$(this).parent().parent().find(".error").show();
+				}else{
+					$(this).parent().parent().find(".error").hide();
+				}
+			};
+			if(index == len){
+				$(".error").each(function(index){
+					if($(this).css("display") == "block"){
+						return false;
+					}else{
+						if(index == len){
+							var min = $(".num-tot").text().split("-")[0];
+							var max = $(".num-tot").text().split("-")[1];
+							var account = $(".blonone-input").val();
+							var unitNum = $("#unitNum").text();
+							if(parseFloat(account) % unitNum !== 0){
+								Alert('出货数量需为'+unitNum+'的整数倍');
+							}
+							else if(parseFloat(account)&lt;parseFloat(min)){
+								Alert('出货数量不能低于'+min);
+							}
+							else if(parseFloat(account)&gt;parseFloat(max)){
+								Alert('出货数量不能高于'+max);
+							}
+							else{
+								$(".gs-btn").text("正在处理...");
+								$("#return-modify").show();
+								/*$(".gs-btn").off("click",non_null); //解绑判断事件 (意图是禁止重复提交)
+*/								//所有验证通过 开发执行下一步操作
+								$("#orgblod").text($("#orgblod0").text());
+								$(".submission").show();
+								$(".place").hide();
+								$(".blue").text($("#gameName").text()+'/'+$("#groupName").text()+'/'+$("#serverName").text());
+								$(".blue-org").text($(".blonone-input").val());
+								$(".blue-span1").text($("#unit").text());
+								$(".blue-span2").text($(".small-b").text());
+							}
+						}
+					}
+					
+				});
+			};
+		});
+	}
+};
+
+function post(URL, PARAMS) {        
+    var temp = document.createElement("form");        
+    temp.action = URL;        
+    temp.method = "post";        
+    temp.style.display = "none";        
+    for (var x in PARAMS) {        
+        var opt = document.createElement("textarea");        
+        opt.name = x;        
+        opt.value = PARAMS[x];        
+        // alert(opt.name)        
+        temp.appendChild(opt);        
+    }        
+    document.body.appendChild(temp);        
+    temp.submit();        
+    return temp;        
+}   
+
+function Calculated_price_01(){ // 如果输入数字 计算价格
+	var _val = $(".blonone-input").val();
+	
+	if(_val !==""){
+		var _djflag;
+		$(".lispan-01").each(function(){
+			if($(this).find("input").attr("checked")){
+				_djflag=parseFloat($(this).next().data("price"));
+				return _djflag;
+			}
+		});
+		if(isNaN(_djflag)){
+		}else{
+			var s = addCalc(_val ,_djflag);
+			var s = addCalc(s,0.01);
+			var totnum = Digit.ceil(s,2);
+			$(".orgblod").text(totnum);
+		}
+	}
+};
+
+function Calculated_price_02(val,obj){ // 输入数字计算价格
+	var _val = $(obj).val().replace(/[^0-9.]/g,'');
+	if(_val!==""){
+		var _djflag;
+		$(".lispan-01").each(function(){
+			if($(this).find("input").attr("checked")){
+				_djflag=parseFloat($(this).next().data("price"));
+				$("#price").text(_djflag);//传给后台的单价：高精度
+				return _djflag;
+			}
+		});
+		if(isNaN(_djflag)){
+		}else{
+			var s = addCalc(_val ,_djflag);
+			var s = addCalc(s,0.01);
+			var totnum = Digit.ceil(s,2);
+			$(obj).parent().parent().parent().find(".orgblod").text(totnum);
+		}
+	}else{
+		$(obj).parent().parent().parent().find(".orgblod").text("-");
+	}
+};
+
+function Alert(txt){
+	layer.alert(txt,{
+		title :'提 示',
+		move:false,
+		btn: '确 认',
+	    skin: 'com-alert'
+	})
+};
+
+//自动加载商品：根据游戏，物品类型，区 ， 服
+function loadGoods(gameId,goodType,groupId,serverId){
+	
+	//加载商品信息列表
+	$.ajax({
+		url : '/shipment/ajax/orderPlaceTrade.htm',
+		async : false,
+		type : 'POST',
+		data : {
+			"gameId" : gameId,
+			"goodType" : goodType,
+			"groupId" : groupId,
+			"serverId" : serverId
+		},
+		success : function(data) {
+			
+			var data = eval('('+data+')');
+			var data =data.goodsRes.list;
+			
+			//赋值前清空显示数据：出货列表，出货单价，元/金，隐藏价格，
+			$(".shipment-list-ul").html("");
+			$(".num-one").text(""); // 选中的单价    1元 = 0.112金
+			$(".num-tot").text(""); //  选中的收货数量
+			$(".small-b").text("");
+			$("#price").text("");
+			
+			if(data!=''){
+				$(".gs-btn").removeClass("no-goods");
+				var temp = "";
+				$.each(data,function(k,v) {
+					if(k==0){
+						temp+='&lt;li&gt;&lt;span class="lispan-01"&gt;&amp;nbsp;&lt;input type="radio" checked name="shipinput" value="" &gt;&lt;/span&gt;&lt;span class="lispan-02"   data-goodsid='+v.id+' data-money="'+Digit.floor(v.price/100,6)+'" data-price="'+v.price+'"&gt;&lt;i style="width:250px;"&gt;'+v.title+'&lt;/i&gt;&lt;b style="display:none;"&gt;（'+Digit.floor(v.price/100,6)+'元/'+v.unit+'）&lt;/b&gt;&lt;/span&gt;&lt;span class="lispan-03"&gt;'+v.minRecipient+'-'+v.recipientAmount+
+						'&lt;/span&gt;&lt;/li&gt;';
+						$(this).find("input:radio").attr("checked",true);
+						var num_two = Digit.floor(v.price/100,6);//单价：元 取6位
+						$("#goodsid").text(v.id);
+						var num_tot = (v.minRecipient+'-'+v.recipientAmount);
+						var hs_num = '（'+num_two+'元/'+v.unit+'）';
+						$(".num-one").text(Digit.floor((1/(v.price/100)),2)); // 选中的单价    1元 = 0.112金
+						$(".num-tot").text(num_tot); //  选中的收货数量
+						$(".small-b").text(hs_num);
+						$("#price").text(v.price);
+						Calculated_price_01();
+					}else{
+						temp+='&lt;li&gt;&lt;span class="lispan-01"&gt;&amp;nbsp;&lt;input type="radio" name="shipinput" value="" &gt;&lt;/span&gt;&lt;span class="lispan-02"   data-goodsid='+v.id+' data-money="'+Digit.floor(v.price/100,6)+'" data-price="'+v.price+'"&gt;&lt;i style="width:250px;"&gt;'+v.title+'&lt;/i&gt;&lt;b style="display:none;"&gt;（'+Digit.floor(v.price/100,6)+'元/'+v.unit+'）&lt;/b&gt;&lt;/span&gt;&lt;span class="lispan-03"&gt;'+v.minRecipient+'-'+v.recipientAmount+
+						'&lt;/span&gt;&lt;/li&gt;';
+					}
+				});
+				$(".shipment-list-ul").html(temp);
+			}else{
+				$(".gs-btn").addClass("no-goods");
+				/*Alert('当前区服暂无收货需求');*/
+			}
+		}
+	});
+	
+	$.ajax({//自动给区显示值
+		url : '/base/ajax/getGroups.htm',
+		async : false,
+		type : 'POST',
+		data : {
+			"gameId" : $("#gameId").text()
+		},
+		success : function(data) {
+			var str = eval('(' + data + ')');
+			group1 = JSON.stringify(str.supportGroupList);
+			var group_s = eval(group1);//list转成对象
+			for(key in group_s){
+				if(groupId==group_s[key].groupId){
+					$(".fu-flag").addClass("on");//显示服
+					$(".fu-flag").show();
+					$(".qu-flag").find("b").text(group_s[key].groupName);
+					//自动给隐藏区赋值
+					$("#groupId").text(groupId);
+					$("#groupName").text(group_s[key].groupName);
+				}
+			}
+		}
+	});
+	$.ajax({//自动给服显示数据
+		url : '/base/ajax/getService.htm',
+		async : false,
+		type : 'POST',
+		data : {
+			"gameId" : gameId,
+			"groupId": groupId
+		},
+		success : function(data) {
+			var data = eval('('+data+')');
+			var server_s = data.supportServers;
+			for(key in server_s){
+				if(serverId==server_s[key].serverid){
+					$(".fu-flag").addClass("on");//显示服
+					$(".fu-flag").show();
+					$(".fu-flag").find("b").text(server_s[key].servername);
+					//自动给隐藏区赋值
+					$("#serverId").text(serverId);
+					$("#serverName").text(server_s[key].servername);
+				}
+			}
+				
+			var temp="";
+			$(".fu-pop").find(".all-qufu").show();
+			$(".fu-pop").find(".search-qufu").hide();
+			$(".fu-search").val(""); //清空服搜索
+			$(".fu-search").parent(".quick_select").find("label").show(); //清空服搜索
+			$.each(server_s,function(k,v) {
+				temp+='&lt;li data-value='+v.serverid+'&gt;'+v.servername+'&lt;/li&gt;';
+			});
+			$(".fu-list").find("ul").html(temp);
+				
+		} // 成功执行方法
+	});
+	
+ 
+}
+
+
+function getQueryString(name) { 
+	var reg = new RegExp("(^|&amp;)" + name + "=([^&amp;]*)(&amp;|$)", "i"); 
+	var r = window.location.search.substr(1).match(reg); 
+	if (r != null) return unescape(r[2]); return null; 
+} 
+	
+
+</pre></body></html>

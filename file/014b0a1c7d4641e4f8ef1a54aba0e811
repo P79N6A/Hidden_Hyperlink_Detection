@@ -1,0 +1,89 @@
+<!DOCTYPE html PUBLIC "-//WAPFORUM//DTD XHTML Mobile 1.0//EN" "http://www.wapforum.org/DTD/xhtml-mobile10.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8;">
+    <meta name="viewport" content="user-scalable=no, initial-scale=1.0, maximum-scale=1.0, width=device-width">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>商品归类查询</title>
+    <link rel="stylesheet" type="text/css" href="../css/common.css">
+    <script src="../../../js/jquery.min.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        $(function () {
+            $("#imgcode").click(function () {
+                $(this).attr("src", '/vcode.aspx?f=12&a=' + Math.random());
+            })
+            $("#search").click(function () {
+                var flag = true;
+                var code = $("#productName").val();
+                if ($.trim(code) == '') {
+                    $('#tip').text('商品名称不能为空！').css("color", "red");
+                    return false;
+                }
+                var verifyCode = $("#verifyCode").val();
+                if ($.trim(verifyCode) == "") {
+                    $('#tip').text('请输入验证码！').css("color", "red");
+                    return false;
+                }
+                $.ajax({
+                    type: 'post',
+                    url: 'CheckCode.aspx',
+                    data: { verifyCode: verifyCode },
+                    async: false,
+                    success: function (data) {
+                        if (data.toString() == "False") {
+                            alert("验证码不正确");
+                            flag = false;
+                            $("#imgcode").trigger("click");
+                        }
+
+                    }
+                })
+
+                return flag;
+            });
+            $(".botAd").css("height", $(window).height() - $(".sub_tit").height() - $(".content").height() - $("h2.h2_tit").height() - 38 + "px");
+            $("div.botAd").load("WxImages.aspx?imageCate=ImageCate");
+        });
+    </script>
+</head>
+<body>
+    <form action="/OnLineSearch/Gateway/weixin/weixinProductClassResult.aspx" method="POST">
+    <h2 class="h2_tit" style="">
+        商品归类查询</h2>
+    <div id="containter">
+        <div class="sub_tit">
+            商品名称</div>
+        <div class="content" style="">
+            <div class="searchbor">
+                <div class="searchbg">
+                    <input id="productName" name="productName" type="text" class="inp"></div>
+            </div>
+            <div class="tishi">
+                <img src="../images/dot_icon.gif" alt="">
+                <span id="tip">请输入商品名称 </span>
+            </div>
+            <div align="center" style="margin-top: 15px">
+                <label style="clear: left">
+                    验证码：
+                    <input type="text" name="verifyCode" class="inp" id="verifyCode" style="border: 1px solid #7f9db9;
+                        color: #666; width: 64px; height: 25px; line-height: 25px;">
+                    <img align="absMiddle" src="/vcode.aspx" id="imgcode" style="cursor: pointer;" width="60" height="25" title="点击更换验证码" alt="">
+                </label>
+            </div>
+            <div class="btnbox">
+                <input id="search" name="" type="submit" class="btnbg" value="查 询"></div>
+        </div>
+        <div class="botAd"></div>
+    </div>
+    </form>
+
+<!--<script src="http://www.google-analytics.com/urchin.js" type="text/javascript">
+</script>
+<script type="text/javascript">
+    _uacct = "UA-5430752-2";
+    try {
+        urchinTracker();
+    }
+    catch (e)
+{ }
+</script>-->
+
+</body></html>

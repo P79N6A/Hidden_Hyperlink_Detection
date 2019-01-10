@@ -1,0 +1,285 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8;">
+<title>北京同城交友网|交友|交友网|同城交友|同城约会|交友qq群|缘来客|约会出租|伴游网</title>
+<meta name="keywords" content="浙江杭州交友,交友网,同城交友,同城交友网,同城约会,交友QQ群">
+<meta name="description" content="缘来客同城交友网是口碑相传的男女交友网站，专为同城男女提供方便的同城交友服务，免费注册，诚信安全；缘来客交友网主打同城约会的交友方式，交友遍布全国332个地区，其中70%为白领会员，是都市男女的最佳交友选择。">
+<link href="http://img1.ylike.com/Ad/Pc/css/adReg.css" rel="stylesheet" type="text/css">
+<script charset="utf-8" src="https://tag.baidu.com/vcard/v.js?siteid=7857202&amp;url=http%3A%2F%2Fwww.ylike.com%2Fad%2Fbd01.do&amp;source=&amp;rnd=373937443&amp;hm=1"></script><script src="//hm.baidu.com/hm.js?05b65e4f73cb381dad867e4b7a93af1e"></script><script type="text/javascript" src="http://img1.ylike.com/js/jquery-1.9.1.min.js"></script>
+<script type="text/javascript" src="http://img1.ylike.com/Js/jquery.form.js"></script>
+<script type="text/javascript" src="http://img1.ylike.com/Js/jquery.ajax.app.js"></script>
+<script type="text/javascript" src="http://img1.ylike.com/Js/checkform.js"></script>
+<script type="text/javascript" src="http://img1.ylike.com/Js/provinceV2.js"></script>
+<script language="JavaScript">
+<!--
+	var gpm = new GlobalProvincesModule ;
+
+	$(function(){
+		$('#User_Name').bind("blur", userNameBlur);
+		$('#User_Name').bind("focus", userNameFocus);
+		$('#BtnSubmitMan').click(function(){
+			//showLoading("正在提交中...",2);
+			saveRegister(1);
+		});
+		$('#BtnSubmitWoman').click(function(){
+			//showLoading("正在提交中...",2);
+			saveRegister(0);
+		});
+
+		gpm.setCityId = $("#regCityArea02");
+		gpm.setTownId = $("#regTownArea02");
+		gpm.getCity1('北京');		
+	});
+	function saveRegister(claId){
+		var error = 0 ,returnTel ,returnval;
+		if($("#Canton").val() == "" || $("#Canton").val() == "选择地区"){
+			error++;
+			view_checkError($("#area_tip"),"请填写所在省份");
+		}
+		if($("#City").val() == "" || $("#City").val() == "---"){
+			error++;
+			view_checkError($("#area_tip"),"请填写所在城市");
+		}else{
+			view_checkError($("#area_tip"),"");
+		}
+		if("|北京|天津|上海|重庆|".indexOf($("#Canton").val()) == -1){
+			if($("#Town").val() == "" || $("#Town").val() == "选择"){
+				error++;
+				view_checkError($("#area_tip"),"请填写所在区县");
+			}
+		}
+		returnTel = checkUserNameTel() ;
+		if(returnTel != "OK"){
+			error++;
+			view_checkError($("#Username_tip"),returnTel);
+		}else{
+			view_checkError($("#Username_tip"),"");
+		}
+	   if(error == 0) {
+			claId == 0?$("#Sex").val("女"):$("#Sex").val("男");
+			if (claId == 0){
+				$("#Sex").val("女");
+				$("#aStep").val("no2woman");
+			}else{
+				$("#Sex").val("男");
+				$("#aStep").val("no2man");
+			}
+			$("form:first").attr("action","/RegV2/Reg_Base_2.do?action=OK");
+			$("form:first").submit();
+	   }
+	}
+	function view_checkError(obj,enote){
+		if (enote != ""){
+			obj.html("<i>！</i>&nbsp;" + enote);
+			obj.css("display","");
+		}else{
+			obj.html("<i>！</i>&nbsp;");
+			obj.css("display","none");
+		}
+	}
+	function checkUserName(str){
+		// [\u4E00-\uFA29]|[\uE7C7-\uE7F3]汉字编码范围
+		var re1 = new RegExp("^([1][0-9]{10,10})$");
+		if (!re1.test(str)){
+			return false;
+		}
+		return true;
+	}
+	function userNameBlur() {
+		var reval,str;
+		str = $("#User_Name").val();
+		if (str == ""){
+			$("User_Name").focus();
+			$('#User_Name').val("输入手机号，探测我的附近");
+			view_checkError($("#Username_tip"),"请输入“手机号”！");
+		}else if(checkUserName(str) == false) {
+			$("User_Name").focus();
+			view_checkError($("#Username_tip"),"填写“手机号”有误！")
+		}else{
+			view_checkError($("#Username_tip"),"");
+		}
+		return true;
+	}
+	function userNameFocus(){
+		if($('#User_Name').val() == "输入手机号，探测我的附近"){
+			$("#User_Name").val("");
+		}
+		checkArea()==false ? view_checkError($("#area_tip"),"请选择地区"):view_checkError($("#area_tip"),"");
+	}
+	function checkArea(){
+		var eTempCanton ,eTempCity,eTempTown ;
+		eTempCanton = $.trim($("#Canton").val());
+		eTempCity = $.trim($("#City").val());
+		eTempTown = $.trim($("#Town").val());
+		if (eTempCanton == "选择" || eTempCity == "选择" || eTempCanton == "" || eTempCity == ""){
+			return false;
+		}else if ("|北京|天津|上海|重庆|".indexOf(eTempCanton) == 0){
+			if (eTempTown == ""){
+				return false;
+			}
+		}
+		return true;
+	}
+	function checkUserNameTel(){
+		var  returnval ;
+		if(checkUserName($("#User_Name").val())){
+			var ajax = {
+				url: "/g/getCheck_Data.do?dt=" + navyFun.getdatetime(), data:{ cln: "UserName",val: escape($("#User_Name").val())},
+				type: 'Post',  dataType: 'text', cache: false,
+				success: function(data, statusText) {
+					if (data == "OK") {
+						returnval = "OK";
+					}else{
+						returnval = data;
+					}
+				},
+				async:false
+			};
+			$.ajax(ajax);
+		}else{
+			returnval = "手机号有误!";
+		}
+		return returnval ;
+	}
+//-->
+</script>
+<!--[if IE 6]>
+	<script type="text/javascript" src="http://img1.ylike.com/js/DD_belatedPNG.js" ></script>
+	
+	<script type="text/javascript">
+	DD_belatedPNG.fix('.logo img');
+	</script>
+<![endif]-->
+</head>
+
+<body>
+<div class="ad_new">
+
+<div class="top">
+<div class="logo"><img src="http://img1.ylike.com/Ad/Pc/images/regV2/logo.png" alt="缘来客同城交友网"><a href="http://www.ylike.com/UserLogin.do?a=unlogin_reg" target="_top">老用户登陆</a></div>
+</div>
+
+<div class="main">
+<form id="form1" name="form1" method="post" target="_top" action="">
+
+<dl>
+<dt>约会神器</dt>
+<dd class="dd01">私密</dd>
+<dd class="dd02">附近哪些美女帅哥特别孤单？</dd>
+
+<!-----地区  开始----->
+<dd class="dd03"><span class="s01">地区：</span>
+<span class="s02" style="position:relative;">
+<input type="hidden" name="Sex" id="Sex">
+<input type="hidden" name="aStep" id="aStep" value="no2">
+<input class="put01" name="Canton" type="text" id="Canton" onclick="inputCantonVal($(this));" value="北京">
+<input class="put02" name="City" type="text" id="City" onclick="inputCityVal($(this));" value="选择">
+<input class="put03" name="Town" type="text" id="Town" onclick="inputTownVal($(this));" value="选择">
+
+<!-----地区报错  开始----->
+<div class="baocuo" id="area_tip" style="display:none;"><i>！</i>&nbsp;请选择地区</div>
+<!-----地区报错  结束----->
+
+<!-----地区一级  开始----->
+<div class="d01" id="regCantonArea" style="display:none;">
+<ul>
+<li><span class="s03">华东</span><a href="javascript:void(0);" onclick="cantonValButton($(this));">上海</a><a href="javascript:void(0);" onclick="cantonValButton($(this));">江苏</a><a href="javascript:void(0);" onclick="cantonValButton($(this));">浙江</a><a href="javascript:void(0);" onclick="cantonValButton($(this));">山东</a><a href="javascript:void(0);" onclick="cantonValButton($(this));">福建</a><a href="javascript:void(0);" onclick="cantonValButton($(this));">安徽</a><a href="javascript:void(0);" onclick="cantonValButton($(this));">江西</a></li>
+<li><span class="s03">华北</span><a href="javascript:void(0);" onclick="cantonValButton($(this));">北京</a><a href="javascript:void(0);" onclick="cantonValButton($(this));">天津</a><a href="javascript:void(0);" onclick="cantonValButton($(this));">河北</a><a href="javascript:void(0);" onclick="cantonValButton($(this));">山西</a><a href="javascript:void(0);" onclick="cantonValButton($(this));">内蒙古</a></li>
+<li><span class="s03">华南</span><a href="javascript:void(0);" onclick="cantonValButton($(this));">广东</a><a href="javascript:void(0);" onclick="cantonValButton($(this));">广西</a><a href="javascript:void(0);" onclick="cantonValButton($(this));">海南</a></li>
+<li><span class="s03">华中</span><a href="javascript:void(0);" onclick="cantonValButton($(this));">河南</a><a href="javascript:void(0);" onclick="cantonValButton($(this));">湖北</a><a href="javascript:void(0);" onclick="cantonValButton($(this));">湖南</a></li>
+<li><span class="s03">东北</span><a href="javascript:void(0);" onclick="cantonValButton($(this));">吉林</a><a href="javascript:void(0);" onclick="cantonValButton($(this));">辽宁</a><a href="javascript:void(0);" onclick="cantonValButton($(this));">黑龙江</a></li>
+<li><span class="s03">西南</span><a href="javascript:void(0);" onclick="cantonValButton($(this));">四川</a><a href="javascript:void(0);" onclick="cantonValButton($(this));">重庆</a><a href="javascript:void(0);" onclick="cantonValButton($(this));">云南</a><a href="javascript:void(0);" onclick="cantonValButton($(this));">贵州</a><a href="javascript:void(0);" onclick="cantonValButton($(this));">西藏</a></li>
+<li><span class="s03">西北</span><a href="javascript:void(0);" onclick="cantonValButton($(this));">陕西</a><a href="javascript:void(0);" onclick="cantonValButton($(this));">甘肃</a><a href="javascript:void(0);" onclick="cantonValButton($(this));">宁夏</a><a href="javascript:void(0);" onclick="cantonValButton($(this));">青海</a><a href="javascript:void(0);" onclick="cantonValButton($(this));">新疆</a></li>
+</ul>
+</div>
+<!-----地区一级  结束----->
+
+
+<!-----地区二级  开始----->
+<div class="d02" id="regCityArea01" style="display:none;">
+<ul>
+<li><span class="s03">选择地区：</span>
+<div style="clear:both;"></div>
+
+<div id="regCityArea02"><a href="javascript:void(0);" onclick="gpm.getTown1('北京','昌平');cityValButton($(this));">昌平</a><a href="javascript:void(0);" onclick="gpm.getTown1('北京','朝阳');cityValButton($(this));">朝阳</a><a href="javascript:void(0);" onclick="gpm.getTown1('北京','崇文');cityValButton($(this));">崇文</a><a href="javascript:void(0);" onclick="gpm.getTown1('北京','大兴');cityValButton($(this));">大兴</a><a href="javascript:void(0);" onclick="gpm.getTown1('北京','东城');cityValButton($(this));">东城</a><a href="javascript:void(0);" onclick="gpm.getTown1('北京','房山');cityValButton($(this));">房山</a><a href="javascript:void(0);" onclick="gpm.getTown1('北京','丰台');cityValButton($(this));">丰台</a><a href="javascript:void(0);" onclick="gpm.getTown1('北京','海淀');cityValButton($(this));">海淀</a><a href="javascript:void(0);" onclick="gpm.getTown1('北京','怀柔');cityValButton($(this));">怀柔</a><a href="javascript:void(0);" onclick="gpm.getTown1('北京','门头沟');cityValButton($(this));">门头沟</a><a href="javascript:void(0);" onclick="gpm.getTown1('北京','密云');cityValButton($(this));">密云</a><a href="javascript:void(0);" onclick="gpm.getTown1('北京','平谷');cityValButton($(this));">平谷</a><a href="javascript:void(0);" onclick="gpm.getTown1('北京','石景山');cityValButton($(this));">石景山</a><a href="javascript:void(0);" onclick="gpm.getTown1('北京','顺义');cityValButton($(this));">顺义</a><a href="javascript:void(0);" onclick="gpm.getTown1('北京','通州');cityValButton($(this));">通州</a><a href="javascript:void(0);" onclick="gpm.getTown1('北京','西城');cityValButton($(this));">西城</a><a href="javascript:void(0);" onclick="gpm.getTown1('北京','宣武');cityValButton($(this));">宣武</a><a href="javascript:void(0);" onclick="gpm.getTown1('北京','延庆');cityValButton($(this));">延庆</a></div>
+
+</li>
+</ul>
+</div>
+<!-----地区二级  结束----->
+
+
+<!-----地区三级  开始----->
+<div class="d02" id="regTownArea01" style="display:none;">
+<ul>
+<li><span class="s03">选择地区：</span>
+<div style="clear:both;"></div>
+
+<div id="regTownArea02"></div>
+
+</li>
+</ul>
+</div>
+<!-----地区三级  结束----->
+</span></dd>
+<!-----地区  结束----->
+
+<!-----手机  开始----->
+
+<dd class="dd04">
+<span class="s01">我的手机号：</span><span class="s02">
+  <input name="User_Name" type="text" id="User_Name" maxlength="11" value="输入手机号，探测我的附近">
+<!-----手机报错  开始----->
+<div class="baocuo" id="Username_tip" style="display:none;"><i>！</i>&nbsp;请输入正确的手机号码</div>
+<!-----手机报错  结束----->
+</span></dd>
+
+<!-----手机 结束----->
+
+
+<dd class="dd05"><input name="button" type="button" class="w" id="BtnSubmitMan" value="探测美女">
+<input name="button" type="button" class="m" id="BtnSubmitWoman" value="探测帅哥">
+</dd>
+</dl>
+</form>
+</div>
+<div style="clear:both;"></div>
+
+
+
+<div class="foot">
+缘来客同城交友网，致力于通过真实方便的 <a href="http://www.ylike.com/?name=交友" title="交友" target="_top">交友</a>、<a href="http://www.ylike.com/?name=同城交友" title="同城交友" target="_top">同城交友</a>、<a href="http://www.ylike.com/?name=同城约会" title="同城约会" target="_top">同城约会</a>、<a href="http://www.ylike.com/?name=同城交友QQ群" title="同城交友QQ群" target="_top">同城交友QQ群</a>服务，帮助广大用户找到心仪伴侣！
+<br>
+<br>
+专注于同城交友同城约会，帮助您寻找浪漫真爱
+<br>
+<br>
+Copyright <span style="font-family: Arial,宋体;">©</span> 2009-2015  <a href="http://www.ylike.com/?name=交友" title="Ylike" target="_top">Ylike.com</a>  <a href="http://www.ylike.com/?name=缘来客同城交友网" title="缘来客同城交友网" target="_top">缘来客同城交友网</a>  版权所有
+<br>
+<br>
+<br>
+运营商：杭州朗迈网络科技有限公司   客服热线: 400-6677-512
+ </div>
+ 
+ 
+
+</div>
+
+	<span style="display: none;">
+	<script src="http://s5.cnzz.com/stat.php?id=5855942&amp;web_id=5855942" language="JavaScript"></script><script src="http://c.cnzz.com/core.php?web_id=5855942&amp;t=z" charset="utf-8" type="text/javascript"></script><a href="http://www.cnzz.com/stat/website.php?web_id=5855942" target="_blank" title="站长统计">站长统计</a>
+	</span>
+
+<span style="display: none;">
+	<script>
+	var _hmt = _hmt || [];
+	(function() {
+	  var hm = document.createElement("script");
+	  hm.src = "//hm.baidu.com/hm.js?05b65e4f73cb381dad867e4b7a93af1e";
+	  var s = document.getElementsByTagName("script")[0]; 
+	  s.parentNode.insertBefore(hm, s);
+	})();
+	</script>
+</span>
+
+
+
+</body></html>

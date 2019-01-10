@@ -1,0 +1,131 @@
+<!DOCTYPE html><html lang="en" xmlns="http://www.w3.org/1999/xhtml"><head>
+  <meta charset="UTF-8">
+  <meta name="Generator" content="EditPlus®">
+  <meta name="Author" content="yaochuanlu">
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8;">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta content="always" name="referrer">
+  <title>广告</title>
+<style type="text/css">
+body,div {
+margin:0; padding:0;
+}
+</style>
+  <script>
+	var index = 0;//当前显示iframe序号
+	var initindex = 0;
+	var objarr = null ;
+	var offset = 0;//动画中偏移量
+	var currentiframe = null;//当前显示的iframe
+	var nextiframe = null;//下个要显示的iframe
+	var iframe1 ;//第一个显示的iframe
+	var changeInterval = 10000;//设置广告切换时间为10S
+	var parentDiv;//需要插入的父级元素
+	var srcarr =  new Array("http://sta.jcjk0451.com/cl/html/250x250bd.html");//所有需要加载的广告src
+	var iframewidth = 250;
+	var iframeheight = 250;
+
+	function change()
+	{
+		if(objarr == null)init();//如果没有初始化则进行初始化
+		currentiframe = objarr[index];//当前需要展示的iframe序号
+		nextiframe = objarr[getindex()];
+		move();
+	};
+	function move()
+	{
+		//设置平移效果
+		offset -= 20;
+		currentiframe.style.left = offset + "px";
+		nextiframe.style.left = iframewidth + offset + "px";
+		nextiframe.style.width = Math.abs(offset) + "px";
+		
+		if(offset <= -1*iframewidth)
+		{
+			offset = 0;
+			nextiframe.style.left = 0 + "px";
+			nextiframe.style.width = iframewidth + "px";
+			return;
+		}
+		else
+		{
+			window.setTimeout("move()",50);
+		}
+
+	};
+	function init()
+	{
+		objarr = new Array();//定义存储iframe的数组
+		parentDiv = window.document.getElementById("main");
+		if(parentDiv == null || parentDiv == "underfined")
+		{
+			//发送异常则停止
+			return;
+		}
+		//初始化第一个iframe，加载src资源
+		iframe1 = window.document.getElementById("external-frame");
+
+		if(iframe1 != null)
+		{
+			iframe1.setAttribute("src",srcarr[initindex++]);
+			iframe1.style.height = 250 + "px";
+			objarr.push(iframe1);
+		}
+		else
+		{
+			return window.setTimeout( "init()", 1000);
+		}
+	
+		/*
+			添加延迟加载功能，延迟加载前两个广告位
+			防止一次打开多个iframe造成卡顿现象
+		*/
+//		window.setTimeout("addChildAdTask()",3000);//动态加载需要展示的广告
+		//开始定时轮播广告
+//		window.setInterval( "change()", changeInterval);
+	}
+
+	function getindex()
+	{
+		if(index == objarr.length -1)
+		{
+			index = 0;
+			return index;
+		}
+		else
+		{
+			return ++index;
+		}
+	};
+	function addChildAdTask()
+	{
+		var childiframe = document.createElement("iframe");
+		childiframe.style.position = "absolute";
+		childiframe.style.left = -250 + "px";
+		childiframe.style.top =  0 + "px";
+		childiframe.style.width = 250 + "px";
+		childiframe.style.height = 250 + "px";
+		childiframe.scrolling = "no";
+		childiframe.marginWidth= "0";
+		childiframe.marginHeight="0";
+		childiframe.frameBorder="0";
+		childiframe.src = srcarr[initindex++];
+		parentDiv.appendChild(childiframe);
+		objarr.push(childiframe);
+		if(initindex < srcarr.length)window.setTimeout("addChildAdTask()",3000);
+	};
+	
+	window.onload = function () 
+	{
+		//网页加载完成1秒之后开始延迟初始化
+		window.setTimeout( "init()", 50);
+	};
+  </script>
+ </head>
+ <body>
+	<div id="main" style="padding: 0px; width: 250px; height: 250px;">
+		<iframe id="external-frame" scrolling="no" frameborder="0" marginwidth="0" marginheight="0" style="position:absolute; left: 0px; top: 0px; padding: 0px; width: 250px; height: 250px;"></iframe>
+	</div>
+ 
+
+</body></html>

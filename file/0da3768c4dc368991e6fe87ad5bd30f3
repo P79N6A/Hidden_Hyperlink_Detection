@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+ <head> 
+  <meta charset="UTF-8" /> 
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" /> 
+  <meta http-equiv="Cache-Control" content="no-transform" /> 
+  <meta http-equiv="Cache-Control" content="no-siteapp" /> 
+  <title>CentOS6.5部署L2TP over IPSec | web开发乐园</title> 
+  <meta name="description" content="本文为大家分享CentOS6.5部署L2TP over IPSec，通过本文您将了解到有关CentOS6.5，L2TP，over的相关内容，下面开始文章正文。" /> 
+  <meta name="keywords" content="centos6.5,ipsec,L2TP,Over" /> 
+  <link rel="shortcut icon" href="http://www.web520.cn/wp-content/themes/begin1.8/img/favicon.ico" /> 
+  <link rel="apple-touch-icon" sizes="114x114" href="http://www.web520.cn/wp-content/themes/begin1.8/img/favicon.png" /> 
+  <link rel="profile" href="http://gmpg.org/xfn/11" /> 
+  <link rel="pingback" href="http://www.web520.cn/xmlrpc.php" /> 
+  <!--[if lt IE 9]>
+<script src="http://www.web520.cn/wp-content/themes/begin1.8/js/html5.js"></script>
+<script src="http://www.web520.cn/wp-content/themes/begin1.8/js/css3-mediaqueries.js"></script>
+<![endif]--> 
+  <script type="text/javascript">
+    (function(win,doc){
+        var s = doc.createElement("script"), h = doc.getElementsByTagName("head")[0];
+        if (!win.alimamatk_show) {
+            s.charset = "gbk";
+            s.async = true;
+            s.src = "http://a.alimama.cn/tkapi.js";
+            h.insertBefore(s, h.firstChild);
+        };
+        var o = {
+            pid: "mm_48544784_9938851_55586594",/*推广单元ID，用于区分不同的推广渠道*/
+            appkey: "",/*通过TOP平台申请的appkey，设置后引导成交会关联appkey*/
+            unid: "",/*自定义统计字段*/
+            type: "click" /* click 组件的入口标志 （使用click组件必设）*/
+        };
+        win.alimamatk_onload = win.alimamatk_onload || [];
+        win.alimamatk_onload.push(o);
+    })(window,document);
+</script> 
+  <!-- baidu --> 
+  <script type="text/javascript">
+    /*120*270 创建于 2015-06-12*/
+var cpro_id = "u2152594";
+</script> 
+  <script src="http://cpro.baidustatic.com/cpro/ui/f.js" type="text/javascript"></script> 
+  <script type="text/javascript">
+    /*250*200 创建于 2015-06-12*/
+var cpro_id = "u2152091";
+</script> 
+  <script src="http://cpro.baidustatic.com/cpro/ui/f.js" type="text/javascript"></script> 
+  <link rel="stylesheet" id="style-css" href="http://www.web520.cn/wp-content/themes/begin1.8/style.css?ver=1.8" type="text/css" media="all" /> 
+  <link rel="stylesheet" id="highlight-css" href="http://www.web520.cn/wp-content/themes/begin1.8/css/highlight.css?ver=2016.1.28" type="text/css" media="all" /> 
+  <script type="text/javascript" src="http://www.web520.cn/wp-content/themes/begin1.8/js/jquery.min.js?ver=1.10.1"></script> 
+  <script type="text/javascript" src="http://www.web520.cn/wp-content/themes/begin1.8/js/jquery.qrcode.min.js?ver=2016.1.28"></script> 
+  <script type="text/javascript" src="http://www.web520.cn/wp-content/themes/begin1.8/js/echo.min.js?ver=2016.1.28"></script> 
+  <script type="text/javascript">
+/* <![CDATA[ */
+var wpl_ajax_url = "http:\/\/www.web520.cn\/wp-admin\/admin-ajax.php";
+/* ]]> */
+</script> 
+  <script type="text/javascript" src="http://www.web520.cn/wp-content/themes/begin1.8/js/script.js?ver=2016.1.28"></script> 
+  <script type="text/javascript" src="http://www.web520.cn/wp-content/themes/begin1.8/js/fancybox.js?ver=2016.1.28"></script> 
+  <script type="text/javascript" src="http://www.web520.cn/wp-content/themes/begin1.8/js/comments-ajax-qt.js?ver=2016.1.28"></script> 
+  <link rel="canonical" href="http://www.web520.cn/archives/25716" /> 
+ </head> 
+ <body class="single single-post postid-25716 single-format-standard"> 
+  <div id="page" class="hfeed site"> 
+   <header id="masthead" class="site-header"> 
+    <nav id="top-header"> 
+     <div class="top-nav"> 
+      <div id="user-profile">
+        欢迎光临！ 
+       <span class="nav-set"> <span class="nav-login"> <a href="#login" class="flatbtn" id="login-main">登录</a> </span> </span> 
+      </div> 
+     </div> 
+    </nav>
+    <!-- #top-header --> 
+    <div id="menu-box"> 
+     <div id="top-menu"> 
+      <span class="nav-search"><i class="fa fa-search"></i></span> 
+      <span class="mobile-login"><a href="#login" id="login-mobile"><i class="fa fa-sun-o"></i></a></span> 
+      <hgroup class="logo-site"> 
+       <p class="site-title"> <a href="http://www.web520.cn/"><img src="http://www.web520.cn/wp-content/themes/begin1.8/img/logo.png" width="220" height="50" alt="web开发乐园" /></a> </p> 
+      </hgroup>
+      <!-- .logo-site --> 
+      <div id="site-nav-wrap"> 
+       <div id="sidr-close">
+        <a href="#sidr-close" class="toggle-sidr-close">&times;</a>
+       </div> 
+       <nav id="site-nav" class="main-nav"> 
+        <a href="#sidr-main" id="navigation-toggle" class="bars"><i class="fa fa-bars"></i></a> 
+        <div class="menu-1-container">
+         <ul id="menu-1" class="down-menu nav-menu">
+          <li id="menu-item-260" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-260"><a href="http://www.web520.cn/">首页</a></li> 
+          <li id="menu-item-259" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-259"><a href="http://www.web520.cn/archives/category/zixun/">WEB技术资讯</a></li> 
+          <li id="menu-item-256" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-has-children menu-item-256"><a href="http://www.web520.cn/archives/category/webfront/">WEB前端开发</a> 
+           <ul class="sub-menu"> 
+            <li id="menu-item-409" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-409"><a href="http://www.web520.cn/archives/category/webfront/HTML/">HTML</a></li> 
+            <li id="menu-item-408" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-408"><a href="http://www.web520.cn/archives/category/webfront/CSS/">CSS</a></li> 
+            <li id="menu-item-410" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-410"><a href="http://www.web520.cn/archives/category/webfront/javascript-webfront/">javascript</a></li> 
+            <li id="menu-item-411" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-411"><a href="http://www.web520.cn/archives/category/webfront/jquery-webfront/">jQuery</a></li> 
+           </ul> </li> 
+          <li id="menu-item-257" class="menu-item menu-item-type-taxonomy menu-item-object-category current-post-ancestor current-menu-parent current-post-parent menu-item-has-children menu-item-257"><a href="http://www.web520.cn/archives/category/webserver/">WEB服务器技术</a> 
+           <ul class="sub-menu"> 
+            <li id="menu-item-407" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-407"><a href="http://www.web520.cn/archives/category/webserver/webserveros/">操作系统</a></li> 
+           </ul> </li> 
+          <li id="menu-item-258" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-has-children menu-item-258"><a href="http://www.web520.cn/archives/category/language/">WEB编程语言</a> 
+           <ul class="sub-menu"> 
+            <li id="menu-item-413" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-413"><a href="http://www.web520.cn/archives/category/language/dotnet/">.NET</a></li> 
+            <li id="menu-item-414" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-414"><a href="http://www.web520.cn/archives/category/language/c/">C++，C#</a></li> 
+            <li id="menu-item-415" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-415"><a href="http://www.web520.cn/archives/category/language/java/">java</a></li> 
+            <li id="menu-item-416" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-416"><a href="http://www.web520.cn/archives/category/language/php/">PHP</a></li> 
+            <li id="menu-item-417" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-417"><a href="http://www.web520.cn/archives/category/language/python/">Python</a></li> 
+            <li id="menu-item-418" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-418"><a href="http://www.web520.cn/archives/category/language/ruby/">Ruby</a></li> 
+           </ul> </li> 
+         </ul>
+        </div> 
+       </nav>
+       <!-- #site-nav --> 
+      </div>
+      <!-- #site-nav-wrap --> 
+     </div>
+     <!-- #top-menu --> 
+    </div>
+    <!-- #menu-box --> 
+   </header>
+   <!-- #masthead --> 
+   <div id="search-main"> 
+    <div id="searchbar"> 
+     <form method="get" id="searchform" action="http://www.web520.cn/"> 
+      <input type="text" value="" name="s" id="s" placeholder="输入搜索内容" required="" /> 
+      <button type="submit" id="searchsubmit">搜索</button> 
+     </form> 
+    </div> 
+    <div class="clear"></div> 
+   </div> 
+   <nav class="breadcrumb"> 
+    <a title="返回首页" href="http://www.web520.cn">首页</a>
+    <i class="fa fa-angle-right"></i>
+    <a href="http://www.web520.cn/archives/category/webserver/" rel="category tag">WEB服务器技术</a>
+    <i class="fa fa-angle-right"></i>正文 
+   </nav> 
+   <div id="content" class="site-content"> 
+    <div class="ad-pc ad-site">
+     <a href="https://bandwagonhost.com/aff.php?aff=3845" target="_blank"><img src="/wp-content/uploads/ads/bandwagonhost.png" /></a> 
+     <script async="" src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script> 
+     <!-- web520-index-2 --> 
+     <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-3448386324334527" data-ad-slot="8049541423" data-ad-format="auto"></ins> 
+     <script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+    </div> 
+    <div class="clear"></div> 
+    <div id="primary" class="content-area"> 
+     <main id="main" class="site-main" role="main"> 
+      <article id="post-25716" class="post-25716 post type-post status-publish format-standard hentry category-webserver tag-centos65 tag-ipsec tag-L2TP tag-Over"> 
+       <header class="entry-header"> 
+        <h1 class="entry-title">CentOS6.5部署L2TP over IPSec</h1> 
+       </header>
+       <!-- .entry-header --> 
+       <div class="entry-content"> 
+        <div class="single-content"> 
+         <div class="ad-pc ad-site">
+          <a href="http://s.click.taobao.com/t?e=m%3D2%26s%3DFLnLvuPvrv8cQipKwQzePCperVdZeJviEViQ0P1Vf2kguMN8XjClArfYVDW2najCFIS4hJeadWm1%2F%2BPtz9%2B5EEFSfALhmtOmWs%2FpUT%2B4Dc%2Bx9nYqvZ46m%2Bdn1BbglxZYxUhy8exlzcq9AmARIwX9K%2BnbtOD3UdznPV1H2z0iQv9NkKVMHClW0R0UfDzlkg%2B9vjQXzzpXdTHGJe8N%2FwNpGw%3D%3D" target="_blank"><img src="/wp-content/uploads/ads/img/728-90.jpg" /></a>
+         </div> 
+         <p>本文为大家分享CentOS6.5部署<a href="http://www.web520.cn/archives/tag/L2TP/" title="查看与 L2TP 相关的文章" target="_blank">L2TP</a> over IPSec，通过本文您将了解到有关CentOS6.5，L2TP，over的相关内容，下面开始文章正文。</p> 
+         <p><strong>一、环境介绍：</strong></p> 
+         <p>　　1、CentOS 6.5 （要求双网卡做软路由，如果只是做VPN可以单网卡）</p> 
+         <pre>　　　　a、外网IP：192.168.0.133/24　　　　b、内网IP：10.10.10.1/8</pre> 
+         <p>&nbsp;</p> 
+         <p>　　2、Window 10 主机一台做为一台内网测试软路由使用；</p> 
+         <pre>　　　　a、内网IP：10.10.10.10/8</pre> 
+         <p>&nbsp;</p> 
+         <p><strong>二、开始前的网络测试：</strong></p> 
+         <p>　　1、CentOS 6.5（以下简称VPN-Server）测试：</p> 
+         <p>　　　　a、测试外网网络是否联通；</p> 
+         <pre>#&nbsp;ping&nbsp;www.baidu.com</pre> 
+         <p>　　　　b、测试内网网络：</p> 
+         <pre>#&nbsp;ping&nbsp;10.10.10.10</pre> 
+         <p>　　2、Windows 10 （以下简称Client）测试：</p> 
+         <p>　　　　a、测试是否可以联通VPN-Server:</p> 
+         <pre>#&nbsp;ping&nbsp;10.10.10.1</pre> 
+         <p>　　　　b、测试是否可以上网（现在不能上网）：</p> 
+         <pre>#&nbsp;ping&nbsp;www.baidu.com</pre> 
+         <p>&nbsp;</p> 
+         <p><strong>三、开始安装部署：</strong></p> 
+         <p>　　以下操作在VPN-Server上操作：</p> 
+         <p>　　1、安装epel源：</p> 
+         <pre>　　　　#&nbsp;cd&nbsp;/etc/yum.repos.d/　　　　
+　　　　#&nbsp;wget&nbsp;
+　　　　#&nbsp;yum&nbsp;-y&nbsp;install&nbsp;epel-release</pre> 
+         <p>　　2、安装必须的软件（openswan、ppp、xl2tpd)；</p> 
+         <p>　　　　openswan：提供IPSec加密</p> 
+         <p>　　　　ppp：提供密码认证</p> 
+         <p>　　　　xl2tpd：提供VPN服务</p> 
+         <pre>#&nbsp;yum&nbsp;-y&nbsp;install&nbsp;openswan&nbsp;ppp&nbsp;xl2tpd</pre> 
+         <p><strong>　　3、修改<a href="http://www.web520.cn/archives/tag/ipsec/" title="查看与 ipsec 相关的文章" target="_blank">ipsec</a>的配置文件：</strong>　　</p> 
+         <pre>#&nbsp;cd&nbsp;/etc/<a href="http://www.web520.cn/archives/tag/ipsec/" title="查看与 ipsec 相关的文章" target="_blank">ipsec</a>.d/#&nbsp;ls&nbsp;./*.conf|xargs&nbsp;-I&nbsp;{}&nbsp;mv&nbsp;{}&nbsp;{}.bak
+#&nbsp;vim&nbsp;L2TP.conf
+
+conn&nbsp;L2TP-PSK-NAT
+&nbsp;&nbsp;&nbsp;&nbsp;rightsubnet=vhost:%priv
+&nbsp;&nbsp;&nbsp;&nbsp;also=L2TP-PSK-noNAT
+&nbsp;
+conn&nbsp;L2TP-PSK-noNAT
+&nbsp;&nbsp;&nbsp;&nbsp;authby=secret
+&nbsp;&nbsp;&nbsp;&nbsp;pfs=no
+&nbsp;&nbsp;&nbsp;&nbsp;auto=add
+&nbsp;&nbsp;&nbsp;&nbsp;keyingtries=3
+&nbsp;&nbsp;&nbsp;&nbsp;rekey=no
+&nbsp;&nbsp;&nbsp;&nbsp;ikelifetime=8h
+&nbsp;&nbsp;&nbsp;&nbsp;keylife=1h
+&nbsp;&nbsp;&nbsp;&nbsp;type=transport
+&nbsp;&nbsp;&nbsp;&nbsp;left=192.168.0.133
+&nbsp;&nbsp;&nbsp;&nbsp;leftprotoport=17/1701
+&nbsp;&nbsp;&nbsp;&nbsp;right=%any
+&nbsp;&nbsp;&nbsp;&nbsp;rightprotoport=17/%any</pre> 
+         <p></p> 
+         <p>　　</p> 
+         <p>　<strong>　4、配置ipsec的密钥：</strong></p> 
+         <pre>#&nbsp;vim&nbsp;/etc/ipsec.d/L2TP.secrets192.168.0.133&nbsp;%any:&nbsp;PSK&nbsp;&quot;YourPsk&quot;</pre> 
+         <p>　　<span style="color:rgb(255,0,0);">注：IP为你的服务器外网IP，“YourPsk”修改为你想要的密钥</span></p> 
+         <p>&nbsp;</p> 
+         <p></p> 
+         <p>　<strong>　5、修改Forward转发：</strong></p> 
+         <p></p> 
+         <pre>#&nbsp;vim&nbsp;/etc/sysctl.conf
+
+net.ipv4.ip_forward&nbsp;=&nbsp;1
+net.ipv4.conf.default.rp_filter&nbsp;=&nbsp;0
+net.ipv4.conf.all.send_redirects&nbsp;=&nbsp;0
+net.ipv4.conf.default.send_redirects&nbsp;=&nbsp;0
+net.ipv4.conf.all.log_martians&nbsp;=&nbsp;0
+net.ipv4.conf.default.log_martians&nbsp;=&nbsp;0
+net.ipv4.conf.default.accept_source_route&nbsp;=&nbsp;0
+net.ipv4.conf.all.accept_redirects&nbsp;=&nbsp;0
+net.ipv4.conf.default.accept_redirects&nbsp;=&nbsp;0
+net.ipv4.icmp_ignore_bogus_error_responses&nbsp;=&nbsp;1
+
+#&nbsp;sysctl&nbsp;-p</pre> 
+         <p></p> 
+         <p>&nbsp;</p> 
+         <p><strong>　　6、验证ipsec的运行状态</strong></p> 
+         <p></p> 
+         <pre>#&nbsp;service&nbsp;ipsec&nbsp;start
+#&nbsp;ipsec&nbsp;verify
+
+Checking&nbsp;your&nbsp;system&nbsp;to&nbsp;see&nbsp;if&nbsp;IPsec&nbsp;got&nbsp;installed&nbsp;and&nbsp;started&nbsp;correctly:
+Version&nbsp;check&nbsp;and&nbsp;ipsec&nbsp;on-path&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[OK]
+Linux&nbsp;Openswan&nbsp;U2.6.32/K2.6.32-431.el6.x86_64&nbsp;(netkey)
+Checking&nbsp;for&nbsp;IPsec&nbsp;support&nbsp;in&nbsp;kernel&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[OK]
+&nbsp;SAref&nbsp;kernel&nbsp;support&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[N/A]
+&nbsp;NETKEY:&nbsp;&nbsp;Testing&nbsp;for&nbsp;disabled&nbsp;ICMP&nbsp;send_redirects&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[OK]
+NETKEY&nbsp;detected,&nbsp;testing&nbsp;for&nbsp;disabled&nbsp;ICMP&nbsp;accept_redirects&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[OK]
+Checking&nbsp;that&nbsp;pluto&nbsp;is&nbsp;running&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[OK]
+&nbsp;Pluto&nbsp;listening&nbsp;for&nbsp;IKE&nbsp;on&nbsp;udp&nbsp;500&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[OK]
+&nbsp;Pluto&nbsp;listening&nbsp;for&nbsp;NAT-T&nbsp;on&nbsp;udp&nbsp;4500&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[OK]
+Checking&nbsp;for&nbsp;'ip'&nbsp;command&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[OK]
+Checking&nbsp;/bin/sh&nbsp;is&nbsp;not&nbsp;/bin/dash&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[OK]
+Checking&nbsp;for&nbsp;'iptables'&nbsp;command&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[OK]
+Opportunistic&nbsp;Encryption&nbsp;Support&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[DISABLED]</pre> 
+         <p>　<span style="color:rgb(255,0,0);">　注：只要没有Faild就可以了</span></p> 
+         <p>　　</p> 
+         <p>　<strong>　7、编辑/etc/xl2tpd/xl2tpd.conf</strong></p> 
+         <p></p> 
+         <pre>#&nbsp;vim&nbsp;/etc/xl2tpd/xl2tpd.conf
+
+[global]
+ipsec&nbsp;saref&nbsp;=&nbsp;yes
+listen-addr&nbsp;=&nbsp;192.168.0.133
+[lns&nbsp;default]
+ip&nbsp;range&nbsp;=&nbsp;10.10.10.100-10.10.10.200
+local&nbsp;ip&nbsp;=&nbsp;10.10.10.1
+refuse&nbsp;chap&nbsp;=&nbsp;yes
+refuse&nbsp;pap&nbsp;=&nbsp;yes
+require&nbsp;authentication&nbsp;=&nbsp;yes
+ppp&nbsp;debug&nbsp;=&nbsp;yes
+pppoptfile&nbsp;=&nbsp;/etc/ppp/options.xl2tpd
+length&nbsp;bit&nbsp;=&nbsp;y</pre> 
+         <p>&nbsp;</p> 
+         <p><strong>　　8、编辑&nbsp;/etc/ppp/options.xl2tpd</strong></p> 
+         <p></p> 
+         <pre>#&nbsp;vim&nbsp;/etc/ppp/options.xl2tpd
+
+require-mschap-v2
+ms-dns&nbsp;223.5.5.5
+ms-dns&nbsp;114.114.114.114
+asyncmap&nbsp;0
+auth
+crtscts
+lock
+hide-password
+modem
+debug
+name&nbsp;l2tpd
+proxyarp
+lcp-echo-interval&nbsp;30
+lcp-echo-failure&nbsp;4</pre> 
+         <p></p> 
+         <p>&nbsp;</p> 
+         <p><strong>　　9、编辑 /etc/ppp/chap-secrets &nbsp;（此配置文件是设置VPN的用户名,密码）</strong></p> 
+         <p><a title="复制代码"></a></p> 
+         <pre>#&nbsp;vim&nbsp;/etc/ppp/chap-secrets
+
+#&nbsp;Secrets&nbsp;for&nbsp;authentication&nbsp;using&nbsp;CHAP
+#&nbsp;client&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;server&nbsp;&nbsp;　　secret&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IP&nbsp;addresses
+&nbsp;&nbsp;&nbsp;&nbsp;admin&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;admin&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*</pre> 
+         <p></p> 
+         <p>&nbsp;</p> 
+         <p><strong>　　10、启动相应的服务：</strong></p> 
+         <pre>#&nbsp;service&nbsp;xl2tpd&nbsp;start
+#&nbsp;service&nbsp;ipsec&nbsp;start</pre> 
+         <p>　　</p> 
+         <p><strong>　　11、iptables修改：</strong></p> 
+         <p>　</p> 
+         <p></p> 
+         <pre>#&nbsp;iptables&nbsp;-A&nbsp;FORWARD&nbsp;-s&nbsp;10.0.0.0/8&nbsp;-p&nbsp;tcp&nbsp;-m&nbsp;tcp&nbsp;--tcp-flags&nbsp;FIN,SYN,RST,ACK&nbsp;SYN&nbsp;-j&nbsp;TCPMSS&nbsp;--set-mss&nbsp;1356
+#&nbsp;iptables&nbsp;-t&nbsp;nat&nbsp;-A&nbsp;POSTROUTING&nbsp;-s&nbsp;10.0.0.0/8&nbsp;-j&nbsp;SNAT&nbsp;--to-source&nbsp;192.168.0.133
+#&nbsp;iptables&nbsp;-I&nbsp;INPUT&nbsp;-p&nbsp;udp&nbsp;-m&nbsp;udp&nbsp;-m&nbsp;state&nbsp;--state&nbsp;NEW&nbsp;--dport&nbsp;1701&nbsp;-j&nbsp;ACCEPT
+#&nbsp;iptables&nbsp;-I&nbsp;INPUT&nbsp;-p&nbsp;udp&nbsp;-m&nbsp;udp&nbsp;-m&nbsp;state&nbsp;--state&nbsp;NEW&nbsp;--dport&nbsp;500&nbsp;-j&nbsp;ACCEPT
+#&nbsp;iptables&nbsp;-I&nbsp;INPUT&nbsp;-p&nbsp;udp&nbsp;-m&nbsp;udp&nbsp;-m&nbsp;state&nbsp;--state&nbsp;NEW&nbsp;--dport&nbsp;500&nbsp;-j&nbsp;ACCEPT
+#&nbsp;iptables&nbsp;-I&nbsp;INPUT&nbsp;-p&nbsp;esp&nbsp;-j&nbsp;ACCEPT
+#&nbsp;/etc/init.d/iptables&nbsp;save
+#&nbsp;/etc/init.d/iptables&nbsp;restart</pre> 
+         <p></p> 
+         <p>　　修改后的iptables 例子：</p> 
+         <pre>#&nbsp;Generated&nbsp;by&nbsp;iptables-save&nbsp;v1.4.7&nbsp;on&nbsp;Tue&nbsp;Jan&nbsp;19&nbsp;06:18:56&nbsp;2016*filter
+:INPUT&nbsp;ACCEPT&nbsp;[0:0]
+:FORWARD&nbsp;ACCEPT&nbsp;[12:720]
+:OUTPUT&nbsp;ACCEPT&nbsp;[25:2380]-A&nbsp;INPUT&nbsp;-p&nbsp;esp&nbsp;-j&nbsp;ACCEPT
+-A&nbsp;INPUT&nbsp;-m&nbsp;state&nbsp;--state&nbsp;RELATED,ESTABLISHED&nbsp;-j&nbsp;ACCEPT
+-A&nbsp;INPUT&nbsp;-p&nbsp;udp&nbsp;-m&nbsp;udp&nbsp;--dport&nbsp;1701&nbsp;-m&nbsp;state&nbsp;--state&nbsp;NEW&nbsp;-j&nbsp;ACCEPT
+-A&nbsp;INPUT&nbsp;-p&nbsp;udp&nbsp;-m&nbsp;udp&nbsp;--dport&nbsp;4500&nbsp;-m&nbsp;state&nbsp;--state&nbsp;NEW&nbsp;-j&nbsp;ACCEPT
+-A&nbsp;INPUT&nbsp;-p&nbsp;udp&nbsp;-m&nbsp;udp&nbsp;--dport&nbsp;500&nbsp;-m&nbsp;state&nbsp;--state&nbsp;NEW&nbsp;-j&nbsp;ACCEPT
+-A&nbsp;INPUT&nbsp;-p&nbsp;icmp&nbsp;-j&nbsp;ACCEPT
+-A&nbsp;INPUT&nbsp;-i&nbsp;lo&nbsp;-j&nbsp;ACCEPT
+-A&nbsp;INPUT&nbsp;-p&nbsp;tcp&nbsp;-m&nbsp;state&nbsp;--state&nbsp;NEW&nbsp;-m&nbsp;tcp&nbsp;--dport&nbsp;22&nbsp;-j&nbsp;ACCEPT
+-A&nbsp;INPUT&nbsp;-j&nbsp;REJECT&nbsp;--reject-with&nbsp;icmp-host-prohibited
+-A&nbsp;FORWARD&nbsp;-s&nbsp;10.0.0.0/8&nbsp;-p&nbsp;tcp&nbsp;-m&nbsp;tcp&nbsp;--tcp-flags&nbsp;FIN,SYN,RST,ACK&nbsp;SYN&nbsp;-j&nbsp;TCPMSS&nbsp;--set-mss&nbsp;1356COMMIT
+#&nbsp;Completed&nbsp;on&nbsp;Tue&nbsp;Jan&nbsp;19&nbsp;06:18:56&nbsp;2016
+#&nbsp;Generated&nbsp;by&nbsp;iptables-save&nbsp;v1.4.7&nbsp;on&nbsp;Tue&nbsp;Jan&nbsp;19&nbsp;06:18:56&nbsp;2016*nat
+:PREROUTING&nbsp;ACCEPT&nbsp;[55:8845]
+:POSTROUTING&nbsp;ACCEPT&nbsp;[1:108]
+:OUTPUT&nbsp;ACCEPT&nbsp;[1:108]
+-A&nbsp;POSTROUTING&nbsp;-s&nbsp;10.0.0.0/8&nbsp;-j&nbsp;SNAT&nbsp;--to-source&nbsp;192.168.0.133COMMIT
+#&nbsp;Completed&nbsp;on&nbsp;Tue&nbsp;Jan&nbsp;19&nbsp;06:18:56&nbsp;2016</pre> 
+         <p></p> 
+         <p>&nbsp;</p> 
+         <p>　　到此VPN-Server的部署已经全部完成；可以在Client机器上测试是否可以上网，然后在其它要中拨号试下是否成功！祝大家成功！</p> 
+         <p></p> 
+         <p>&nbsp; &nbsp;如有问题可以直接在本文下方回复。</p> 
+         <p></p> 
+         <p>友情连接：<a href="http://www.cnblogs.com/zlyang/p/6073488.html" title="" target="_blank"><span style="text-decoration:underline;">www.cnblogs.com/zlyang/p/6073488.html</span></a></p> 
+         <p></p> 
+         <p>本文出自 “Elephant” 博客，请务必保留此出处http://zlyang.blog.51cto.com/1196234/1873868</p> 
+         <p>有关CentOS6.5部署L2TP over IPSec的文章就介绍到这儿，如有差错，敬请指正，谢谢！</p> 
+        </div> 
+        <div class="ad-pc ad-site">
+         <a href="https://bandwagonhost.com/aff.php?aff=3845" target="_blank"><img src="/wp-content/uploads/ads/bandwagonhost.png" /></a> 
+         <script async="" src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script> 
+         <!-- web520-index-1 --> 
+         <ins class="adsbygoogle" style="display:inline-block;width:728px;height:90px" data-ad-client="ca-pub-3448386324334527" data-ad-slot="8263194220"></ins> 
+         <script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+        </div> 
+        <div class="clear"></div> 
+        <div id="social"> 
+         <div class="social-main"> 
+          <span class="like"> <a href="javascript:;" data-action="ding" data-id="25716" title="我赞" class="favorite"><i class="fa fa-thumbs-up"></i>赞 <i class="count"> 0</i> </a> </span> 
+          <span class="shang-p"><a href="#shang" id="shang-p" title="赞助本站">赏</a></span> 
+          <span class="share-s"><a href="#share" id="share-s" title="分享"><i class="fa fa-share-alt"></i>分享</a></span> 
+          <div class="clear"></div> 
+         </div> 
+         <div id="share"> 
+          <div class="bdsharebuttonbox"> 
+           <a title="分享到QQ空间" class="fa fa-qq" data-cmd="qzone" href="#"></a> 
+           <a title="分享到新浪微博" class="fa fa-weibo" data-cmd="tsina"></a> 
+           <a title="分享到腾讯微博" class="fa fa-pinterest-square" data-cmd="tqq"></a> 
+           <a title="分享到人人网" class="fa fa-renren" data-cmd="renren"></a> 
+           <a title="分享到微信" class="fa fa-weixin" data-cmd="weixin"></a> 
+           <a title="更多" class="bds_more fa fa-plus-square" data-cmd="more"></a> 
+          </div> 
+         </div> 
+         <div id="shang"> 
+          <div class="shang-main"> 
+           <h4>您可以选择一种方式赞助本站</h4> 
+          </div> 
+         </div> 
+        </div> 
+        <footer class="single-footer"> 
+         <ul class="single-meta"> 
+          <li class="comment"><a href="http://www.web520.cn/archives/25716#respond"><i class="fa fa-comment-o"></i> 评论</a></li> 
+          <li class="views"><i class="fa fa-eye"></i> 31</li> 
+          <li class="r-hide"><a href="javascript:pr()" title="侧边栏"><i class="fa fa-caret-left"></i> <i class="fa fa-caret-right"></i></a></li> 
+         </ul> 
+         <ul id="fontsize">
+          A+
+         </ul> 
+         <div class="single-cat-tag"> 
+          <div class="single-cat">
+           发布日期：2016年11月18日&nbsp;&nbsp;所属分类：
+           <a href="http://www.web520.cn/archives/category/webserver/" rel="category tag">WEB服务器技术</a>
+          </div> 
+          <div class="single-tag">
+           标签：
+           <a href="http://www.web520.cn/archives/tag/centos65/" rel="tag">centos6.5</a>
+           <a href="http://www.web520.cn/archives/tag/ipsec/" rel="tag">ipsec</a>
+           <a href="http://www.web520.cn/archives/tag/L2TP/" rel="tag">L2TP</a>
+           <a href="http://www.web520.cn/archives/tag/Over/" rel="tag">Over</a>
+          </div> 
+         </div> 
+        </footer>
+        <!-- .entry-footer --> 
+        <div class="clear"></div> 
+       </div>
+       <!-- .entry-content --> 
+      </article>
+      <!-- #post --> 
+      <div class="authorbio"> 
+       <ul class="spostinfo"> 
+        <li><strong>版权声明：</strong>本站原创文章，于4个月前，由<a href="http://www.web520.cn/archives/author/admin/" title="由admin发布" rel="author">admin</a>发表，共 5213字。</li> 
+        <li><strong>转载请注明：</strong><a href="http://www.web520.cn/archives/25716" rel="bookmark" title="本文固定链接 http://www.web520.cn/archives/25716">CentOS6.5部署L2TP over IPSec | web开发乐园</a><a href="#" onclick="copy_code('http://www.web520.cn/archives/25716'); return false;"> +复制链接</a></li> 
+       </ul> 
+      </div> 
+      <div id="related-img"> 
+       <div class="r4"> 
+        <div class="related-site"> 
+         <figure class="related-site-img"> 
+          <a href="http://www.web520.cn/archives/23814"><img src="http://imgs.web520.cn/web520/2016/10/31/99F92090.png" alt="理解OVER子句" /></a> 
+         </figure> 
+         <div class="related-title">
+          <a href="http://www.web520.cn/archives/23814">理解OVER子句</a>
+         </div> 
+        </div> 
+       </div> 
+       <div class="r4"> 
+        <div class="related-site"> 
+         <figure class="related-site-img"> 
+          <a href="http://www.web520.cn/archives/21182"><img src="http://www.web520.cn/wp-content/themes/begin1.8/img/random/3.jpg" alt="树莓派：L2TP/IPsec VPN 服务器一键安装脚本" /></a> 
+         </figure> 
+         <div class="related-title">
+          <a href="http://www.web520.cn/archives/21182">树莓派：L2TP/IPsec VPN 服务器一键安装脚本</a>
+         </div> 
+        </div> 
+       </div> 
+       <div class="r4"> 
+        <div class="related-site"> 
+         <figure class="related-site-img"> 
+          <a href="http://www.web520.cn/archives/20179"><img src="http://www.web520.cn/wp-content/themes/begin1.8/img/random/14.jpg" alt="Windows 10不能拨L2TP协议的VPN" /></a> 
+         </figure> 
+         <div class="related-title">
+          <a href="http://www.web520.cn/archives/20179">Windows 10不能拨L2TP协议的VPN</a>
+         </div> 
+        </div> 
+       </div> 
+       <div class="r4"> 
+        <div class="related-site"> 
+         <figure class="related-site-img"> 
+          <a href="http://www.web520.cn/archives/18521"><img src="http://www.web520.cn/wp-content/themes/begin1.8/img/random/5.jpg" alt="开窗函数 --over（）" /></a> 
+         </figure> 
+         <div class="related-title">
+          <a href="http://www.web520.cn/archives/18521">开窗函数 –over（）</a>
+         </div> 
+        </div> 
+       </div> 
+       <div class="clear"></div> 
+      </div> 
+      <div id="single-widget"> 
+       <aside id="related_post-6" class="widget widget_related_post">
+        <h3 class="widget-title">
+         <div class="s-icon"></div>相关文章</h3> 
+        <div id="related_post_widget"> 
+         <ul> 
+          <li><a href="http://www.web520.cn/archives/23814">理解OVER子句</a></li> 
+          <li><a href="http://www.web520.cn/archives/21182">树莓派：L2TP/IPsec VPN 服务器一键安装脚本</a></li> 
+          <li><a href="http://www.web520.cn/archives/20179">Windows 10不能拨L2TP协议的VPN</a></li> 
+          <li><a href="http://www.web520.cn/archives/18521">开窗函数 –over（）</a></li> 
+          <li><a href="http://www.web520.cn/archives/12305">Repodata is over 2 weeks old. Install yum-cron? Or run: yum makecache fast</a></li> 
+         </ul> 
+        </div> 
+        <div class="clear"></div>
+       </aside>
+       <aside id="random_post-3" class="widget widget_random_post">
+        <h3 class="widget-title">
+         <div class="s-icon"></div>随机文章</h3> 
+        <div id="random_post_widget"> 
+         <ul> 
+          <li><a href="http://www.web520.cn/archives/22261" rel="bookmark">Linux进程间通信：消息队列</a></li> 
+          <li><a href="http://www.web520.cn/archives/18020" rel="bookmark">深入理解DOM节点操作</a></li> 
+          <li><a href="http://www.web520.cn/archives/10690" rel="bookmark">禁止复制与粘贴</a></li> 
+          <li><a href="http://www.web520.cn/archives/17489" rel="bookmark">第二十三章 springboot + 全局异常处理</a></li> 
+          <li><a href="http://www.web520.cn/archives/11637" rel="bookmark">Lync server 2013高可用环境快速查看客户端的版本信息及连接状态</a></li> 
+         </ul> 
+        </div> 
+        <div class="clear"></div>
+       </aside> 
+       <div class="clear"></div> 
+      </div> 
+      <div class="ad-pc ad-site">
+       <a data-type="2" biz-keyword="网站建设" data-tmpl="720x220" data-tmplid="209" data-rd="2" data-style="2" data-border="1" href="#"></a>
+      </div> 
+      <nav class="nav-single"> 
+       <a href="http://www.web520.cn/archives/25638" rel="prev"><span class="meta-nav"><span class="post-nav"><i class="fa fa-angle-left"></i> 上一篇</span><br />openstack-mitaka的allinone模式私有云平台</span></a>
+       <a href="http://www.web520.cn/archives/25714" rel="next"><span class="meta-nav"><span class="post-nav">下一篇 <i class="fa fa-angle-right"></i></span><br />VMware ESXi 6.5 的一个小bug-原有Linux中VMware Tools无法更新</span></a> 
+       <div class="clear"></div> 
+      </nav> 
+      <nav class="nav-single-c"> 
+       <nav class="navigation post-navigation" role="navigation"> 
+        <h2 class="screen-reader-text">文章导航</h2> 
+        <div class="nav-links">
+         <div class="nav-previous">
+          <a href="http://www.web520.cn/archives/25708" rel="prev"><span class="meta-nav-r" aria-hidden="true"><i class="fa fa-angle-left"></i></span> </a>
+         </div>
+         <div class="nav-next">
+          <a href="http://www.web520.cn/archives/25730" rel="next"><span class="meta-nav-l" aria-hidden="true"><i class="fa fa-angle-right"></i></span> </a>
+         </div>
+        </div> 
+       </nav> 
+      </nav> 
+      <!-- 引用 --> 
+      <div class="scroll-comments"></div> 
+      <div id="comments" class="comments-area"> 
+       <div id="respond" class="comment-respond"> 
+        <h3 id="reply-title" class="comment-reply-title"><i class="fa fa-pencil-square-o"></i>发表评论<small><a rel="nofollow" id="cancel-comment-reply-link" href="/archives/25716#respond" style="display:none;">取消回复</a></small></h3> 
+        <form action="http://www.web520.cn/wp-comments-post.php" method="post" id="commentform"> 
+         <div id="comment-author-info"> 
+          <p class="comment-form-author"> <input type="text" name="author" id="author" class="commenttext" value="" tabindex="1" /> <label for="author">昵称（必填）</label> </p> 
+          <p class="comment-form-email"> <input type="text" name="email" id="email" class="commenttext" value="" tabindex="2" /> <label for="email">邮箱（必填）</label> </p> 
+          <p class="comment-form-url"> <input type="text" name="url" id="url" class="commenttext" value="" tabindex="3" /> <label for="url">网址</label> </p> 
+         </div> 
+         <p class="emoji-box"><script type="text/javascript">
+/* <![CDATA[ */
+    function grin(tag) {
+    	var myField;
+    	tag = ' ' + tag + ' ';
+        if (document.getElementById('comment') && document.getElementById('comment').type == 'textarea') {
+    		myField = document.getElementById('comment');
+    	} else {
+    		return false;
+    	}
+    	if (document.selection) {
+    		myField.focus();
+    		sel = document.selection.createRange();
+    		sel.text = tag;
+    		myField.focus();
+    	}
+    	else if (myField.selectionStart || myField.selectionStart == '0') {
+    		var startPos = myField.selectionStart;
+    		var endPos = myField.selectionEnd;
+    		var cursorPos = endPos;
+    		myField.value = myField.value.substring(0, startPos)
+    					  + tag
+    					  + myField.value.substring(endPos, myField.value.length);
+    		cursorPos += tag.length;
+    		myField.focus();
+    		myField.selectionStart = cursorPos;
+    		myField.selectionEnd = cursorPos;
+    	}
+    	else {
+    		myField.value += tag;
+    		myField.focus();
+    	}
+    }
+/* ]]> */
+</script> <a href="javascript:grin(':?:')"><img src="http://www.web520.cn/wp-content/themes/begin1.8/img/smilies/icon_question.gif" alt=":?:" title="疑问" /></a> <a href="javascript:grin(':razz:')"><img src="http://www.web520.cn/wp-content/themes/begin1.8/img/smilies/icon_razz.gif" alt=":razz:" title="调皮" /></a> <a href="javascript:grin(':sad:')"><img src="http://www.web520.cn/wp-content/themes/begin1.8/img/smilies/icon_sad.gif" alt=":sad:" title="难过" /></a> <a href="javascript:grin(':evil:')"><img src="http://www.web520.cn/wp-content/themes/begin1.8/img/smilies/icon_evil.gif" alt=":evil:" title="抠鼻" /></a> <a href="javascript:grin(':!:')"><img src="http://www.web520.cn/wp-content/themes/begin1.8/img/smilies/icon_exclaim.gif" alt=":!:" title="吓" /></a> <a href="javascript:grin(':smile:')"><img src="http://www.web520.cn/wp-content/themes/begin1.8/img/smilies/icon_smile.gif" alt=":smile:" title="微笑" /></a> <a href="javascript:grin(':oops:')"><img src="http://www.web520.cn/wp-content/themes/begin1.8/img/smilies/icon_redface.gif" alt=":oops:" title="憨笑" /></a> <a href="javascript:grin(':grin:')"><img src="http://www.web520.cn/wp-content/themes/begin1.8/img/smilies/icon_biggrin.gif" alt=":grin:" title="坏笑" /></a> <a href="javascript:grin(':eek:')"><img src="http://www.web520.cn/wp-content/themes/begin1.8/img/smilies/icon_surprised.gif" alt=":eek:" title="惊讶" /></a> <a href="javascript:grin(':shock:')"><img src="http://www.web520.cn/wp-content/themes/begin1.8/img/smilies/icon_eek.gif" alt=":shock:" title="发呆" /></a> <a href="javascript:grin(':???:')"><img src="http://www.web520.cn/wp-content/themes/begin1.8/img/smilies/icon_confused.gif" alt=":???:" title="撇嘴" /></a> <a href="javascript:grin(':cool:')"><img src="http://www.web520.cn/wp-content/themes/begin1.8/img/smilies/icon_cool.gif" alt=":cool:" title="大兵" /></a> <a href="javascript:grin(':lol:')"><img src="http://www.web520.cn/wp-content/themes/begin1.8/img/smilies/icon_lol.gif" alt=":lol:" title="偷笑" /></a> <a href="javascript:grin(':mad:')"><img src="http://www.web520.cn/wp-content/themes/begin1.8/img/smilies/icon_mad.gif" alt=":mad:" title="咒骂" /></a> <a href="javascript:grin(':twisted:')"><img src="http://www.web520.cn/wp-content/themes/begin1.8/img/smilies/icon_twisted.gif" alt=":twisted:" title="发怒" /></a> <a href="javascript:grin(':roll:')"><img src="http://www.web520.cn/wp-content/themes/begin1.8/img/smilies/icon_rolleyes.gif" alt=":roll:" title="白眼" /></a> <a href="javascript:grin(':wink:')"><img src="http://www.web520.cn/wp-content/themes/begin1.8/img/smilies/icon_wink.gif" alt=":wink:" title="鼓掌" /></a> <a href="javascript:grin(':idea:')"><img src="http://www.web520.cn/wp-content/themes/begin1.8/img/smilies/icon_idea.gif" alt=":idea:" title="酷" /></a> <a href="javascript:grin(':arrow:')"><img src="http://www.web520.cn/wp-content/themes/begin1.8/img/smilies/icon_arrow.gif" alt=":arrow:" title="擦汗" /></a> <a href="javascript:grin(':neutral:')"><img src="http://www.web520.cn/wp-content/themes/begin1.8/img/smilies/icon_neutral.gif" alt=":neutral:" title="亲亲" /></a> <a href="javascript:grin(':cry:')"><img src="http://www.web520.cn/wp-content/themes/begin1.8/img/smilies/icon_cry.gif" alt=":cry:" title="大哭" /></a> <a href="javascript:grin(':mrgreen:')"><img src="http://www.web520.cn/wp-content/themes/begin1.8/img/smilies/icon_mrgreen.gif" alt=":mrgreen:" title="呲牙" /></a> <br /></p> 
+         <div class="clear"></div> 
+         <div class="qaptcha"></div> 
+         <p class="comment-form-comment"><textarea id="comment" name="comment" rows="4" tabindex="4"></textarea></p> 
+         <p class="comment-tool"> <a class="tool-img" href="javascript:embedImage();" title="插入图片"><i class="icon-img"></i><i class="fa fa-picture-o"></i></a> <a class="emoji" href="" title="插入表情"><i class="fa fa-meh-o"></i></a> </p> 
+         <p class="form-submit"> <input id="submit" name="submit" type="submit" tabindex="5" value="提交评论" /> <input type="hidden" name="comment_post_ID" value="25716" id="comment_post_ID" /> <input type="hidden" name="comment_parent" id="comment_parent" value="0" /> </p> 
+        </form> 
+       </div> 
+      </div> 
+      <!-- #comments --> 
+     </main>
+     <!-- .site-main --> 
+    </div>
+    <!-- .content-area --> 
+    <div id="sidebar" class="widget-area"> 
+     <aside id="advert-2" class="widget widget_advert"> 
+      <div id="advert_widget"> 
+       <script async="" src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script> 
+       <!-- web520-300X250 --> 
+       <ins class="adsbygoogle" style="display:inline-block;width:300px;height:250px" data-ad-client="ca-pub-3448386324334527" data-ad-slot="3340676629"></ins> 
+       <script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      </div> 
+      <div class="clear"></div>
+     </aside>
+     <aside id="hot_post-3" class="widget widget_hot_post">
+      <h3 class="widget-title"><i class="fa fa-bars"></i>热门文章</h3> 
+      <div id="hot_post_widget"> 
+       <ul> 
+        <li><span class="li-icon li-icon-1">1</span><a href="http://www.web520.cn/archives/31875">Influxdb原理详解</a></li>
+        <li><span class="li-icon li-icon-2">2</span><a href="http://www.web520.cn/archives/31077">ELK5—Elasticsearch Cluster的搭建</a></li>
+        <li><span class="li-icon li-icon-3">3</span><a href="http://www.web520.cn/archives/34954">elasticsearch-5.2.1在windows下的安装方法</a></li>
+        <li><span class="li-icon li-icon-4">4</span><a href="http://www.web520.cn/archives/35854">mysql 5.7以上版本下载及安装</a></li>
+        <li><span class="li-icon li-icon-5">5</span><a href="http://www.web520.cn/archives/36106">数据库基本操作~</a></li> 
+       </ul> 
+      </div> 
+      <div class="clear"></div>
+     </aside> 
+     <div class="sidebar-roll"> 
+      <aside id="advert-5" class="widget widget_advert"> 
+       <div id="advert_widget"> 
+        <script async="" src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script> 
+        <!-- web520-300X250 --> 
+        <ins class="adsbygoogle" style="display:inline-block;width:300px;height:250px" data-ad-client="ca-pub-3448386324334527" data-ad-slot="3340676629"></ins> 
+        <script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+       </div> 
+       <div class="clear"></div>
+      </aside> 
+      <aside id="recent-posts-3" class="widget widget_recent_entries"> 
+       <h3 class="widget-title"><i class="fa fa-bars"></i>近期文章</h3> 
+       <ul> 
+        <li> <a href="http://www.web520.cn/archives/38744">redhat ls操作等命令，文件件卡住了</a> </li> 
+        <li> <a href="http://www.web520.cn/archives/38739">Resteasy</a> </li> 
+        <li> <a href="http://www.web520.cn/archives/38738">Redis 数据类型和简单命令实用介绍</a> </li> 
+        <li> <a href="http://www.web520.cn/archives/38736">HTML中的align和valign这两个属性</a> </li> 
+        <li> <a href="http://www.web520.cn/archives/38731">Linux基础-管理用户和文件权限</a> </li> 
+       </ul> 
+       <div class="clear"></div>
+      </aside> 
+     </div> 
+     <aside id="advert-3" class="widget widget_advert"> 
+      <div id="advert_widget"> 
+       <script type="text/javascript">
+    /*300*250 创建于 2015-06-11*/
+    var cpro_id = "u2150796";
+</script> 
+       <script src="http://cpro.baidustatic.com/cpro/ui/c.js" type="text/javascript"></script> 
+      </div> 
+      <div class="clear"></div>
+     </aside> 
+    </div> 
+    <div class="clear"></div> 
+    <div class="clear"></div> 
+   </div>
+   <!-- .site-content --> 
+   <div id="footer-widget-box"> 
+    <div class="footer-widget"> 
+     <aside id="php_text-2" class="widget widget_php_text">
+      <div class="textwidget widget-text">
+       友链/业务QQ：231303888
+      </div>
+      <div class="clear"></div>
+     </aside> 
+     <div class="clear"></div> 
+    </div> 
+   </div> 
+   <footer id="colophon" class="site-footer" role="contentinfo"> 
+    <div class="site-info">
+      Copyright &copy;2014-2016&nbsp;&nbsp;
+     <a href="http://www.web520.cn">WEB开发乐园</a>&nbsp;&nbsp;苍南君友网络科技有限公司版权所有. 
+     <span class="add-info"> <a href="http://s.click.taobao.com/t?e=m%3D2%26s%3Df5Z1Jjvq8BAcQipKwQzePCperVdZeJviEViQ0P1Vf2kguMN8XjClAgYgLYp539Uc68fTScoFPty1%2F%2BPtz9%2B5EEFSfALhmtOmWs%2FpUT%2B4Dc%2Bx9nYqvZ46m%2Bdn1BbglxZYxUhy8exlzcpAFEHVckI7b3VyxRO0gvF4QxJtmCgOmCLXl8Q7TEjBF%2BX11FSyvDCnQiv%2BJKjlPObGDmntuH4VtA%3D%3D"><strong>本网站服务器由阿里云</strong></a>提供 | <a href="http://www.miibeian.gov.cn/">浙icp备14000834号-1</a>
+      <div style="width:300px;margin:0 auto; padding:20px 0;">
+       <a target="_blank" href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=33032702000366" style="display:inline-block;text-decoration:none;height:20px;line-height:20px;"><img src="" style="float:left;" /><p style="float:left;height:20px;line-height:20px;margin: 0px 0px 0px 5px; color:#939393;">浙公网安备 33032702000366号</p></a>
+      </div> <script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_3956676'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s11.cnzz.com/stat.php%3Fid%3D3956676%26show%3Dpic' type='text/javascript'%3E%3C/script%3E"));</script> </span> 
+    </div>
+    <!-- .site-info --> 
+   </footer>
+   <!-- .site-footer --> 
+   <div id="login"> 
+    <div class="login-t">
+     用户登录
+    </div> 
+    <form action="http://www.web520.cn/wp-login.php?redirect_to=http%3A%2F%2Fwww.web520.cn%2Farchives%2F25716" method="post" id="loginform"> 
+     <input type="text" name="log" id="log" placeholder="名称" required="" /> 
+     <input type="password" name="pwd" id="pwd" placeholder="密码" required="" /> 
+     <input type="submit" id="submit" value="登录" /> 
+     <input type="hidden" name="redirect_to" value="/archives/25716" /> 
+     <label><input type="checkbox" name="rememberme" id="modlogn_remember" value="yes" checked="checked" alt="Remember Me" />自动登录</label> 
+     <a href="http://www.web520.cn/wp-login.php?action=lostpassword">&nbsp;&nbsp;忘记密码？</a> 
+    </form> 
+    <div class="login-b"></div> 
+   </div> 
+   <script>window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"1","bdSize":"16"},"share":{"bdSize":16}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];</script> 
+   <ul id="scroll"> 
+    <li><a class="scroll-h" title="返回顶部"><i class="fa fa-angle-up"></i></a></li> 
+    <li><a class="scroll-c" title="评论"><i class="fa fa-comment-o"></i></a></li> 
+    <li><a class="scroll-b" title="转到底部"><i class="fa fa-angle-down"></i></a></li> 
+    <li><a class="qr" title="二维码"><i class="fa fa-qrcode"></i></a></li>
+   </ul> 
+   <span class="qr-img">
+    <div id="output">
+     <img class="alignnone" src="http://www.web520.cn/wp-content/themes/begin1.8/img/favicon.png" />
+    </div></span> 
+   <script type="text/javascript">$(document).ready(function(){if(!+[1,]){present="table";} else {present="canvas";}$('#output').qrcode({render:present,text:window.location.href,width:"150",height:"150"});});</script> 
+   <script type="text/javascript" src="http://www.web520.cn/wp-content/themes/begin1.8/js/jquery-ui.min.js"></script> 
+   <script type="text/javascript" src="http://www.web520.cn/wp-content/themes/begin1.8/js/qaptcha.jquery.js"></script> 
+   <script type="text/javascript">var QaptchaJqueryPage="http://www.web520.cn/wp-content/themes/begin1.8/inc/functions/qaptcha.jquery.php"</script> 
+   <script type="text/javascript">
+		$(document).ready(function(){
+			$('.qaptcha').QapTcha({disabledSubmit:true,autoRevert:true,autoSubmit:true});});
+		</script> 
+   <script type="text/javascript" src="http://www.web520.cn/wp-content/themes/begin1.8/js/superfish.js?ver=2016.1.28"></script>  
+  </div>
+ </body>
+</html>

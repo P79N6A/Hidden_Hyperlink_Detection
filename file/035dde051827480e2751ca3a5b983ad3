@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+ <head>
+  <!--[if lt IE 9]><style>body {display: none; background: none !important} </style><meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/"/><![endif]-->
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
+  <meta name="format-detection" content="telephone=no" />
+  <meta name="author" content="Chuck" />
+  <meta name="description" content="如果导入音乐时设置了不把文件复制到iTunes库中，之后自己整理音乐时，又删除过若干文件的话（比如，音乐存放在移动硬盘上，拿到Windows机器上整理过.）这样，iTunes库里就出现了无效的曲目，而iTunes不像不少Windows下的音乐播放软件那样，并未提供简单的清理无效曲目的方法。清理这些无效的曲目，需要走些弯路。有人提供了清理的Apple Scripts，比如Dead Link Clea" />
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="【zz】清理iTunes库里无效的曲目" />
+  <meta property="og:url" content="http://blog.tapasy.com/clean-up-the-itunes-library-in-the-invalid-tracks.html" />
+  <meta property="og:site_name" content="Chuck's Blog" />
+  <meta property="og:description" content="如果导入音乐时设置了不把文件复制到iTunes库中，之后自己整理音乐时，又删除过若干文件的话（比如，音乐存放在移动硬盘上，拿到Windows机器上整理过.）这样，iTunes库里就出现了无效的曲目，而iTunes不像不少Windows下的音乐播放软件那样，并未提供简单的清理无效曲目的方法。清理这些无效的曲目，需要走些弯路。有人提供了清理的Apple Scripts，比如Dead Link Clea" />
+  <meta property="og:image" content="http://blog.tapasy.com/usr/uploads/2013/03/itunesscreensnapz001-300x121.png" />
+  <meta property="og:image" content="http://blog.tapasy.com/usr/uploads/2013/03/itunesscreensnapz002-300x121.png" />
+  <meta property="og:updated_time" content="2017-01-30T09:41:04.115Z" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="【zz】清理iTunes库里无效的曲目" />
+  <meta name="twitter:description" content="如果导入音乐时设置了不把文件复制到iTunes库中，之后自己整理音乐时，又删除过若干文件的话（比如，音乐存放在移动硬盘上，拿到Windows机器上整理过.）这样，iTunes库里就出现了无效的曲目，而iTunes不像不少Windows下的音乐播放软件那样，并未提供简单的清理无效曲目的方法。清理这些无效的曲目，需要走些弯路。有人提供了清理的Apple Scripts，比如Dead Link Clea" />
+  <meta name="twitter:image" content="http://blog.tapasy.com/usr/uploads/2013/03/itunesscreensnapz001-300x121.png" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <link rel="alternate" href="/atom.xml" title="Chuck's Blog" type="application/atom+xml" />
+  <link rel="shortcut icon" href="/files/favicon.png" />
+  <link href="//cdn.tapasy.com/animate.min.css" rel="stylesheet" />
+  <link href="//cdn.tapasy.com/jquery.fancybox.min.css" rel="stylesheet" />
+  <script src="//cdn.tapasy.com/pace.min.js"></script>
+  <link href="//cdn.bootcss.com/pace/1.0.2/themes/blue/pace-theme-minimal.css" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/style.css" />
+  <link href="//cdn.tapasy.com/font-awesome.min.css" rel="stylesheet" />
+  <title>【zz】清理iTunes库里无效的曲目 | Chuck's Blog</title>
+  <script src="//cdn.tapasy.com/jquery.min.js"></script>
+  <script src="//cdn.tapasy.com/clipboard.min.js"></script>
+  <script>var yiliaConfig={fancybox:!0,animate:!0,isHome:!1,isPost:!0,isArchive:!1,isTag:!1,isCategory:!1,fancybox_js:"//cdn.tapasy.com/jquery.fancybox.min.js",scrollreveal:"//cdn.tapasy.com/scrollreveal.min.js",search:!0}</script>
+  <script>yiliaConfig.jquery_ui=[!1]</script>
+  <script>yiliaConfig.rootUrl="/"</script>
+  <script>var _hmt=_hmt||[];!function(){var e=document.createElement("script");e.src="//hm.baidu.com/hm.js?c28d2cf52ad5667630f13de17cd56a7e";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)}()</script>
+ </head>
+ <body>
+  <div id="container">
+   <div class="left-col">
+    <div class="overlay"></div>
+    <div class="intrude-less">
+     <header id="header" class="inner"> 
+      <a href="/" class="profilepic"><img src="/img/avatar.png" class="animated zoomIn" /></a>
+      <hgroup>
+       <h1 class="header-author"><a href="/">Chuck</a></h1>
+      </hgroup>
+      <form id="search-form"> 
+       <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="false" />
+       <i class="fa fa-times" onclick="resetSearch()"></i>
+      </form>
+      <div id="local-search-result"></div>
+      <p class="no-result">No results found<i class="fa fa-spinner fa-pulse"></i></p>
+      <div id="switch-btn" class="switch-btn">
+       <div class="icon">
+        <div class="icon-ctn">
+         <div class="icon-wrap icon-house" data-idx="0">
+          <div class="birdhouse"></div>
+          <div class="birdhouse_holes"></div>
+         </div>
+         <div class="icon-wrap icon-ribbon hide" data-idx="1">
+          <div class="ribbon"></div>
+         </div>
+         <div class="icon-wrap icon-me hide" data-idx="3">
+          <div class="user"></div>
+          <div class="shoulder"></div>
+         </div>
+        </div>
+       </div>
+       <div class="tips-box hide">
+        <div class="tips-arrow"></div>
+        <ul class="tips-inner">
+         <li>菜单</li>
+         <li>标签</li>
+         <li>关于我</li>
+        </ul>
+       </div>
+      </div>
+      <div id="switch-area" class="switch-area">
+       <div class="switch-wrap">
+        <section class="switch-part switch-part1">
+         <nav class="header-menu">
+          <ul>
+           <li><a href="/">主页</a></li>
+           <li><a href="/archives/">所有文章</a></li>
+           <li><a href="/tags/">标签云</a></li>
+           <li><a href="/music.html">我的音乐</a></li>
+           <li><a href="http://gfw.tapasy.com">翻墙神器</a></li>
+           <li><a href="/contact.html">联系我</a></li>
+          </ul>
+         </nav>
+         <nav class="header-nav">
+          <ul class="social">
+           <a class="fa Email" href="mailto:owhnet@qq.com" title="Email"></a>
+           <a class="fa 新浪微博" href="http://weibo.com/gischuck" title="新浪微博"></a>
+           <a class="fa GitHub" href="https://github.com/gischuck" title="GitHub"></a>
+           <a class="fa RSS" href="/atom.xml" title="RSS"></a>
+           <a class="fa Twitter" href="https://twitter.com/gischuck" title="Twitter"></a>
+          </ul>
+         </nav>
+        </section>
+        <section class="switch-part switch-part2">
+         <div class="widget tagcloud" id="js-tagcloud">
+          <ul class="tag-list">
+           <li class="tag-list-item"><a class="tag-list-link" href="/tags/ASP-NET/">ASP.NET</a></li>
+           <li class="tag-list-item"><a class="tag-list-link" href="/tags/Alfred/">Alfred</a></li>
+           <li class="tag-list-item"><a class="tag-list-link" href="/tags/ArcEngine/">ArcEngine</a></li>
+           <li class="tag-list-item"><a class="tag-list-link" href="/tags/ArcGIS/">ArcGIS</a></li>
+           <li class="tag-list-item"><a class="tag-list-link" href="/tags/ArcGlobe/">ArcGlobe</a></li>
+           <li class="tag-list-item"><a class="tag-list-link" href="/tags/C/">C#</a></li>
+           <li class="tag-list-item"><a class="tag-list-link" href="/tags/Cocoa/">Cocoa</a></li>
+           <li class="tag-list-item"><a class="tag-list-link" href="/tags/DES/">DES</a></li>
+           <li class="tag-list-item"><a class="tag-list-link" href="/tags/ENVI/">ENVI</a></li>
+           <li class="tag-list-item"><a class="tag-list-link" href="/tags/EndNote/">EndNote</a></li>
+           <li class="tag-list-item"><a class="tag-list-link" href="/tags/Fedora/">Fedora</a></li>
+           <li class="tag-list-item"><a class="tag-list-link" href="/tags/Flex/">Flex</a></li>
+           <li class="tag-list-item"><a class="tag-list-link" href="/tags/GIS/">GIS</a></li>
+           <li class="tag-list-item"><a class="tag-list-link" href="/tags/GIT/">GIT</a></li>
+           <li class="tag-list-item"><a class="tag-list-link" href="/tags/GOGO6/">GOGO6</a></li>
+           <li class="tag-list-item"><a class="tag-list-link" href="/tags/GPS/">GPS</a></li>
+           <li class="tag-list-item"><a class="tag-list-link" href="/tags/GeekTool/">GeekTool</a></li>
+           <li class="tag-list-item"><a class="tag-list-link" href="/tags/GoogleEarth/">GoogleEarth</a></li>
+           <li class="tag-list-item"><a class="tag-list-link" href="/tags/HTML/">HTML</a></li>
+           <li class="tag-list-item"><a class="tag-list-link" href="/tags/IDL/">IDL</a></li>
+           <li class="tag-list-item"><a class="tag-list-link" href="/tags/IIS/">IIS</a></li>
+           <li class="tag-list-item"><a class="tag-list-link" href="/tags/Infragistics/">Infragistics</a></li>
+           <li class="tag-list-item"><a class="tag-list-link" href="/tags/InstallShield/">InstallShield</a></li>
+           <li class="tag-list-item"><a class="tag-list-link" href="/tags/JIRA/">JIRA</a></li>
+           <li class="tag-list-item"><a class="tag-list-link" href="/tags/JavaScript/">JavaScript</a></li>
+           <li class="tag-list-item"><a class="tag-list-link" href="/tags/LibLAS/">LibLAS</a></li>
+           <li class="tag-list-item"><a class="tag-list-link" href="/tags/Lidar/">Lidar</a></li>
+           <li class="tag-list-item"><a class="tag-list-link" href="/tags/Lightroom/">Lightroom</a></li>
+           <li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/">Linux</a></li>
+           <li class="tag-list-item"><a class="tag-list-link" href="/tags/Mac技巧/">Mac技巧</a></li>
+           <li class="tag-list-item"><a class="tag-list-link" href="/tags/Mac软件/">Mac软件</a></li>
+           <li class="tag-list-item"><a class="tag-list-link" href="/tags/Mogrify/">Mogrify</a></li>
+           <li class="tag-list-item"><a class="tag-list-link" href="/tags/MyApps/">MyApps</a></li>
+           <li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/">MySQL</a></li>
+           <li class="tag-list-item"><a class="tag-list-link" href="/tags/Oracle/">Oracle</a></li>
+           <li class="tag-list-item"><a class="tag-list-link" href="/tags/PHP/">PHP</a></li>
+           <li class="tag-list-item"><a class="tag-list-link" href="/tags/Python/">Python</a></li>
+           <li class="tag-list-item"><a class="tag-list-link" href="/tags/Quant/">Quant</a></li>
+           <li class="tag-list-item"><a class="tag-list-link" href="/tags/RSA/">RSA</a></li>
+           <li class="tag-list-item"><a class="tag-list-link" href="/tags/SQLServer/">SQLServer</a></li>
+           <li class="tag-list-item"><a class="tag-list-link" href="/tags/Sublime/">Sublime</a></li>
+           <li class="tag-list-item"><a class="tag-list-link" href="/tags/SuperMap/">SuperMap</a></li>
+           <li class="tag-list-item"><a class="tag-list-link" href="/tags/Unity/">Unity</a></li>
+           <li class="tag-list-item"><a class="tag-list-link" href="/tags/Windows技巧/">Windows技巧</a></li>
+           <li class="tag-list-item"><a class="tag-list-link" href="/tags/WordPress/">WordPress</a></li>
+           <li class="tag-list-item"><a class="tag-list-link" href="/tags/X-Japan/">X-Japan</a></li>
+           <li class="tag-list-item"><a class="tag-list-link" href="/tags/Xcode/">Xcode</a></li>
+           <li class="tag-list-item"><a class="tag-list-link" href="/tags/cocos2d/">cocos2d</a></li>
+           <li class="tag-list-item"><a class="tag-list-link" href="/tags/cocos3d/">cocos3d</a></li>
+           <li class="tag-list-item"><a class="tag-list-link" href="/tags/iOS/">iOS</a></li>
+           <li class="tag-list-item"><a class="tag-list-link" href="/tags/iPad/">iPad</a></li>
+           <li class="tag-list-item"><a class="tag-list-link" href="/tags/iPhone/">iPhone</a></li>
+           <li class="tag-list-item"><a class="tag-list-link" href="/tags/iTunes/">iTunes</a></li>
+           <li class="tag-list-item"><a class="tag-list-link" href="/tags/p2pSearcher/">p2pSearcher</a></li>
+           <li class="tag-list-item"><a class="tag-list-link" href="/tags/typecho/">typecho</a></li>
+           <li class="tag-list-item"><a class="tag-list-link" href="/tags/开发/">开发</a></li>
+           <li class="tag-list-item"><a class="tag-list-link" href="/tags/心情日记/">心情日记</a></li>
+           <li class="tag-list-item"><a class="tag-list-link" href="/tags/效率/">效率</a></li>
+           <li class="tag-list-item"><a class="tag-list-link" href="/tags/比特币/">比特币</a></li>
+           <li class="tag-list-item"><a class="tag-list-link" href="/tags/算法/">算法</a></li>
+           <li class="tag-list-item"><a class="tag-list-link" href="/tags/迅雷/">迅雷</a></li>
+           <li class="tag-list-item"><a class="tag-list-link" href="/tags/量化/">量化</a></li>
+           <li class="tag-list-item"><a class="tag-list-link" href="/tags/验证码/">验证码</a></li>
+          </ul>
+         </div>
+        </section>
+        <section class="switch-part switch-part3">
+         <div id="js-aboutme">
+          Everyone is dominated by their own God, if would like to conquer the world, you must first conquer themselves.
+         </div>
+        </section>
+       </div>
+      </div>
+     </header>
+    </div>
+   </div>
+   <div class="mid-col">
+    <nav id="mobile-nav">
+     <div class="overlay">
+      <div class="slider-trigger"></div>
+      <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页">Chuck</a></h1>
+     </div>
+     <div class="intrude-less">
+      <header id="header" class="inner"> 
+       <a href="/" class="profilepic"><img src="/img/avatar.png" class="animated zoomIn" /></a>
+       <hgroup>
+        <h1 class="header-author"><a href="/" title="回到主页">Chuck</a></h1>
+       </hgroup>
+       <nav class="header-menu">
+        <ul>
+         <li><a href="/">主页</a></li>
+         <li><a href="/archives/">所有文章</a></li>
+         <li><a href="/tags/">标签云</a></li>
+         <li><a href="/music.html">我的音乐</a></li>
+         <li><a href="http://gfw.tapasy.com">翻墙神器</a></li>
+         <li><a href="/contact.html">联系我</a></li>
+         <div class="clearfix"></div>
+        </ul>
+       </nav>
+       <nav class="header-nav">
+        <ul class="social">
+         <a class="fa Email" target="_blank" href="mailto:owhnet@qq.com" title="Email"></a>
+         <a class="fa 新浪微博" target="_blank" href="http://weibo.com/gischuck" title="新浪微博"></a>
+         <a class="fa GitHub" target="_blank" href="https://github.com/gischuck" title="GitHub"></a>
+         <a class="fa RSS" target="_blank" href="/atom.xml" title="RSS"></a>
+         <a class="fa Twitter" target="_blank" href="https://twitter.com/gischuck" title="Twitter"></a>
+        </ul>
+       </nav>
+      </header>
+     </div>
+     <link class="menu-list" tags="标签" friends="友情链接" about="关于我" />
+    </nav>
+    <div class="body-wrap">
+     <article id="post-clean-up-the-itunes-library-in-the-invalid-tracks" class="article article-type-post" itemscope="" itemprop="blogPost">
+      <div class="article-meta"> 
+       <a href="/clean-up-the-itunes-library-in-the-invalid-tracks.html" class="article-date"><time datetime="2013-03-02T14:00:40.000Z" itemprop="datePublished">2013-03-02</time></a>
+      </div>
+      <div class="article-inner"> 
+       <input type="hidden" class="isFancy" />
+       <header class="article-header">
+        <h1 class="article-title" itemprop="name"> 【zz】清理iTunes库里无效的曲目</h1>
+       </header>
+       <div class="article-info article-info-post">
+        <div class="article-category tagcloud"> 
+         <a class="article-category-link" href="/categories/Dev/">Dev</a>
+        </div>
+        <div class="article-tag tagcloud">
+         <ul class="article-tag-list">
+          <li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Mac技巧/">Mac技巧</a></li>
+         </ul>
+        </div>
+        <div class="clearfix"></div>
+       </div>
+       <div class="article-entry" itemprop="articleBody">
+        <p>如果导入音乐时设置了不把文件复制到iTunes库中，之后自己整理音乐时，又删除过若干文件的话（比如，音乐存放在移动硬盘上，拿到Windows机器上整理过.）这样，iTunes库里就出现了无效的曲目，而iTunes不像不少Windows下的音乐播放软件那样，并未提供简单的清理无效曲目的方法。<br />清理这些无效的曲目，需要走些弯路。有人提供了清理的Apple Scripts，比如Dead Link Cleaner。这里说的方法是采用iTunes自己的Smart Playlist的方法。</p>
+        <ul>
+         <br />
+         <li>创建一个智能播放列表，名为“All Files”，规则是“表演者”不包含“1234567893”（或者随便什么别的你的库里不存在的表演者）；</li>
+         <br />
+         <br />
+         <a href="/usr/uploads/2013/03/itunesscreensnapz001.png"><img class="attachment-medium" alt="itunesscreensnapz001" src="/usr/uploads/2013/03/itunesscreensnapz001-300x121.png" width="300" height="121" /></a>
+         <br />
+         <br />
+         <li>创建一个播放列表，名为“All Live Files”；<br />创建一个智能播放列表，名为“Missing Files”，规则是“播放列表”“不是”“All Live Files”；</li>
+         <br />
+         <br />
+         <a href="/usr/uploads/2013/03/itunesscreensnapz002.png"><img class="attachment-medium" alt="itunesscreensnapz002" src="/usr/uploads/2013/03/itunesscreensnapz002-300x121.png" width="300" height="121" /></a>
+         <br />
+         <br />
+         <li>选中“All Files”里的所有文件，拖到“All Live Files”，此过程不会复制无效曲目的链接；</li>
+         <br />
+         <br />
+         <li>“Missing Files”下就是所有无效的曲目，全选之后删除即可，现在又有一个干净的iTunes库了。</li>
+         <br />
+        </ul>
+        <p>#如何从播放列表中删除文件</p>
+        <ul>
+         <br />
+         <li>Windows：SHIFT DEL</li>
+         <br />
+         <li>Mac：⌥ DEL</li>
+         <br />
+        </ul>
+       </div>
+      </div>
+      <div class="copyright">
+       <p><span>本文标题:</span><a href="/clean-up-the-itunes-library-in-the-invalid-tracks.html">【zz】清理iTunes库里无效的曲目</a></p>
+       <p><span>文章作者:</span><a href="/" title="回到主页">Chuck</a></p>
+       <p><span>发布时间:</span>2013-03-02, 22:00:40</p>
+       <p><span>最后更新:</span>2017-01-30, 17:41:04</p>
+       <p> <span>原始链接:</span><a class="post-url" href="/clean-up-the-itunes-library-in-the-invalid-tracks.html" title="【zz】清理iTunes库里无效的曲目">http://blog.tapasy.com/clean-up-the-itunes-library-in-the-invalid-tracks.html</a><span class="copy-path" data-clipboard-text="原文: http://blog.tapasy.com/clean-up-the-itunes-library-in-the-invalid-tracks.html　　作者: Chuck" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span><script>var clipboard=new Clipboard(".copy-path")</script></p>
+       <p> <span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target="_blank">&quot;署名-非商用-相同方式共享 4.0&quot;</a> 转载请保留原文链接及作者。</p>
+      </div>
+      <nav id="article-nav">
+       <div id="article-nav-newer" class="article-nav-title"> 
+        <a href="/dedecms-for-dedelist-tag-supports-weight-weight-sorting.html">DedeCMS让{dede:list}标签支持weight权重排序</a>
+       </div>
+       <div id="article-nav-older" class="article-nav-title"> 
+        <a href="/wordpress-customized-links-adds-smooth-movement.html">【zz】wordpress自定义链接添加平滑移动效果</a>
+       </div>
+      </nav>
+     </article>
+     <div id="toc" class="toc-article"> 
+      <strong class="toc-title">文章目录</strong>
+     </div>
+     <style>.left-col .switch-area,.left-col .switch-btn{display:none}.toc-level-3 i,.toc-level-3 ol{display:none!important}</style> 
+     <input type="button" id="tocButton" value="隐藏目录" title="点击按钮隐藏或者显示文章目录" />
+     <script>yiliaConfig.toc=["隐藏目录","显示目录",!0]</script>
+     <div class="share">
+      <div class="bdsharebuttonbox">
+       <a href="#" class="fa fa-twitter bds_twi" data-cmd="twi" title="分享到推特"></a>
+       <a href="#" class="fa fa-weibo bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+       <a href="#" class="fa fa-qq bds_sqq" data-cmd="sqq" title="分享给 QQ 好友"></a>
+       <a href="#" class="fa fa-files-o bds_copy" data-cmd="copy" title="复制网址"></a>
+       <a href="#" class="fa fa fa-envelope-o bds_mail" data-cmd="mail" title="通过邮件分享"></a>
+       <a href="#" class="fa fa-weixin bds_weixin" data-cmd="weixin" title="生成文章二维码"></a>
+       <a href="#" class="fa fa-share-alt bds_more" data-cmd="more"></a>
+      </div>
+      <script>with(window._bd_share_config={common:{bdSnsKey:{},bdText:"【zz】清理iTunes库里无效的曲目　| Chuck's Blog　",bdMini:"2",bdMiniList:!1,bdPic:"",bdStyle:"0",bdSize:"24"},share:{}},document)(0)[(getElementsByTagName("head")[0]||body).appendChild(createElement("script")).src="http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion="+~(-new Date/36e5)]</script>
+     </div>
+     <div class="duoshuo" id="comments">
+      <div id="comment-box"></div>
+      <div class="ds-thread" id="ds-thread" data-thread-key="clean-up-the-itunes-library-in-the-invalid-tracks.html" data-title="【zz】清理iTunes库里无效的曲目" data-url="http://blog.tapasy.com/clean-up-the-itunes-library-in-the-invalid-tracks.html"></div>
+      <script>var duoshuoQuery={short_name:"tapasy"},loadComment=function(){var t=document,o=t.createElement("script");o.src=("https:"==document.location.protocol?"https:":"http:")+"//static.duoshuo.com/embed.js",o.async=!0,o.charset="UTF-8",(t.head||t.body).appendChild(o)}</script>
+      <script>loadComment()</script>
+     </div>
+     <div class="scroll" id="post-nav-button">
+      <a href="/dedecms-for-dedelist-tag-supports-weight-weight-sorting.html" title="上一篇: DedeCMS让{dede:list}标签支持weight权重排序"><i class="fa fa-angle-left"></i></a>
+      <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+      <a href="/wordpress-customized-links-adds-smooth-movement.html" title="下一篇: 【zz】wordpress自定义链接添加平滑移动效果"><i class="fa fa-angle-right"></i></a>
+     </div>
+     <ul class="post-list">
+      <li class="post-list-item"><a class="post-list-link" href="/typecho-comments-to-duoshuo.html">Typecho评论导入到多说</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/from-typecho-to-hexo.html">迁移博客到HEXO咯</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/solution-unknown-encoding-cp0-python.html">解决Python unknown encoding:cp0</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/go-with-the-flow.html">Go With The Flow</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/chrome-theme-for-newsmth.html">在Chrome刷水木的好主题</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/samsung-display-no-signal.html">三星显示器开机显示无信号，插信号线黑屏</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/modify-centos7-boot-kernel.html">修改CENTOS7启动内核</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/shadowsocksmanyuser-open-udp-support.html">Shadowsocks-ManyUser开启UDP支持</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/use-gitblit-in-windows-to-deploy-your-git-server.html">利用Gitblit 在Windows 上部署你私有的Git Server</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/quant-study-2.html">Quant量化学习【2】</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/quant-study-1.html">Quant量化学习【1】</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/baiduslug.html">TYPECHO 自动翻译SLUG插件</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/apache_python_mod_wsgi_webpy.html">搞定Apache+Python+mod_wsgi+web.py环境配置</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/firewalld-on-centos.html">【zz】CentOS7下firewalld的基本使用方法</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/a-new-domain-name-tapasycom.html">换个新域名TAPASY.COM</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/new-start.html">New Start</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/arcgis-in-the-field-calculator-to-generate-a-random-number.html">在ArcGIS的Field Calculator生成随机数字段</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/zz-c-socket-communication-between-flex-and-policy-file-request-solutions.html">【zz】C++与Flex之间socket通信policy-file-request解决方案</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/zzios-simple-push-notification-push-notification-to-achieve.html">【zz】iOS上简单推送通知（Push Notification）的实现</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/mac-remote-access-iphone-and-password-changes.html">Mac远程登陆iphone，和密码修改</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/mac-install-macports.html">Mac下安装MacPorts</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/zz-resolve-fb4-debugging-in-chrome-has-the-blank-page-problem.html">【zz】解决Flash Builder 4在Chrome下调试出现空白页的问题</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/btcchinaapp.html">闲来无事写个比特币的买卖程序</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/how-to-increase-the-mac-dock-bar-space.html">如何在Mac的DOCK栏增加空格</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/arcgis-unable-to-delete-license-manager.html">ArcGIS无法删除License Manager</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/zziphone-downloads-in-the-app-store-application-very-slow-solution.html">【zz】iPhone在App Store里下载应用很慢解决方法</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/zz-error1935-or-installation-of-msvc-sp1-failed-setup-will-exit-to-resolve-error.html">【zz】Error1935或installation of MSVC_SP1_x86 failed错误解决</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/make-yourself-a-little-yellow-chick-playing.html">自己做个小黄鸡玩玩</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/write-own-exchange-rates-for-alfred-workflow.html">自己写一个汇率查询&amp;换算Alfred Workflow</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/zz-shortcut-keys-to-change-the-launchpad-background-effects.html">【zz】快捷键更改 Launchpad 背景效果</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/quick-launch-under-mac-artifacts-alfred2.html">Mac下的快速启动神器Alfred2</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/geektool-used-things.html">GeekTool中使用Things</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/zz-wordpress-pages-after-landing-before-returning-to-land.html">【zz】WordPress登陆之后返回登陆前的页面</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/zz-mac-use-apple-itunes-to-intercept-any-of-the-music-part-of-the-skill-method.html">【zz】Mac技巧之用苹果iTunes截取音乐任意部分的方法</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/zz-sublime-text-3-installation-packages-control.html">【zz】Sublime Text 3安装Packages Control</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/ios-uiimageview-show-basic-usage-of-the-network-picture.html">iOS中UIImageView显示网络图片的基础用法</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/know-net-is-finally-out-of-the-mac-version-cajviewer.html">知网终于出了Mac版的CajViewer了</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/in-ios-devices-for-streaming.html">在iOS设备中播放流媒体</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/nspredicate-usage.html">NSPredicate的用法</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/arcgis-runtime-sdk-for-ios-2-layer-loading-and-browsing.html">ArcGIS Runtime SDK for iOS学习【2】- 图层加载&amp;浏览</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/homemade-pdf-bulk-export-jpg-mac-os-x-tools.html">用 Mac OS X 自制 PDF 批量导出JPG工具</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/zz-resolve-mac-lost-under-word-pages-in-chinese-characters-pinyin-and-chinese-characters-appear-with-the.html">【zz】解决Mac中在Word/Pages下输汉字，拼音和汉字一起出现</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/arcgis-runtime-sdk-for-ios-studies-1.html">ArcGIS Runtime SDK for iOS学习【1】- 环境配置</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/dede-arclist-increased-sorting-by-weight-dedecms-v5-6-increases-the-page-tag-dedelist-the-list-sorted-by-weight-labels.html">DEDE【arclist】增加按权重排序 dedecms v5.6列表页标签{dede:list}增加按权重排序标签</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/dedecms-for-dedelist-tag-supports-weight-weight-sorting.html">DedeCMS让{dede:list}标签支持weight权重排序</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/clean-up-the-itunes-library-in-the-invalid-tracks.html">【zz】清理iTunes库里无效的曲目</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/wordpress-customized-links-adds-smooth-movement.html">【zz】wordpress自定义链接添加平滑移动效果</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/zz-wordpress-theme-analysis-of-malicious-code-looks-like-a-lot-of-people-got-in.html">【zz】一段WordPress主题恶意代码分析（貌似很多人中招了）</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/high-school-blog.html">高中的一篇日志</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/garageband-instruments-and-apple-loops-download.html">GarageBand Instruments and Apple Loops 的下载地址</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/python-diffs-between-2-and-3.html">【zz】Python 版本2与版本3的区别</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/python-print-chinese.html">Python中print中文</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/sublime-text-keys-and-plugins.html">在Sublime Text 2 使用快捷键和插件</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/sublime-text-2-crack.html">Sublime Text 2 破解</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/js-marquee.html">利用JS代码实现HTML中Marquee滚动效果</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/eclipse-pydev-python-config.html">Mac配置Python开发环境（Eclipse +Pydev+Python）</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/oracle-fields-together.html">Oracle中字段相加</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/i-like-the-endless-rain.html">本人最喜欢的Endless Rain~ ~</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/retro-x-japan-rustynail.html">怀旧X-Japan现场RustyNail</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/x-japan-say-anything.html">X-JAPAN Say Anything</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/experience-mogrify-for-lightroom-plug-in.html">小试一把Lightroom的Mogrify插件</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/idl-raster-data-change-into-shp-or-evf-vector-files.html">IDL中将栅格数据转为SHP和EVF矢量文件</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/idl-image-pixels-will-be-stored-as-the-array.html">IDL中将影像像素存为数组</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/how-to-delete-windows-services.html">Windows中如何删除服务</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/no-plug-in-implements-the-wordpress-comment-reply-notifications.html">不用插件实现wordpress评论回复邮件通知</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/setting-your-gravatar.html">设置你的Gravatar全球通用头像</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/recommended-wordpress-plugin.html">WordPress插件推荐</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/how-to-exclude-specific-category-the-wordpress-home-page-articles.html">如何在Wordpress的主页排除指定类别文章</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/seo-of-wordpress-links.html">SEO：更换wordpress固定链接</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/installshield-pack-arcenginesql-server.html">Installshield打包ArcEngine&amp;SQL Server</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/thu2012-graduate-film.html">《敢不敢带上梦想，一起滚蛋？》- 清华大学2012届毕业电影</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/mac-pm2-5-viewer.html">Mac下的空气质量(PM2.5)查看程序</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/songs-by-yiruma.html">Songs by Yiruma</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/installshield-setup-log.html">InstallShield 创建安装日志</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/secret-base-zone.html">secret base ～君がくれたもの～-Zone</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/delete-ds-store-files.html">刪除.DS_Store文件</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/the-correct-version-of-the-harvard-library-twenty-words.html">The correct version of the harvard library twenty words</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/geektools-experience.html">GeekTools体验</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/response-expectedcontentlength-return-1.html">response expectedContentLength return -1</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/gundum.html">深夜适合怀旧</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/oracle-pwd-out-of-date.html">oracle密码过期的处理办法</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/christmas-night.html">Christmas night</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/crucify-my-love.html">Crucify my love</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/endnote-x6-pages-format.html">EndNote X6 格式（附学位论文样式）</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/startstop-oracle.html">Start/Stop oracle</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/http-helper-for-synchronousrequest.html">HTTP Helper for SynchronousRequest</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/wordpress-warn-low-memory.html">wordpress提示内存不足的解决方法</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/move-from-baidu.html">终于把百度空间的文章搬完了</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/code-recognition.html">关于验证码识别的问题</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/arcglobe-generating-arcid-module.html">解决ArcGlobe的Generating ArcID Module问题</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/asp-net-response-write.html">关于ASP.NET中用Response.Write()方法响应导致页面字体变大</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/httpwebrequest-conflict.html">关于HttpWebRequest发生服务器协议冲突的解决办法</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/remove-thunder-infowindow.html">如何去除迅雷的资源信息一栏</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/xp-sql-sever2005.html">XP下安装SQL SEVER2005时发生错误的解决办法</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/response-write.html">Response.Write()方法响应导致页面字体变大的解决办法</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/google-earth-points.html">卫星照片(google earth世界各地景点坐标)</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/rsa.html">RSA算法</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/sql-sever-same-instance.html">安装SQL SEVER时出现了同名实例问题的解决办法</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/server-application-error.html">IIS出现server application error的解决方法</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/c-many-file-merge.html">C# 多文件合并</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/linux-fullanalyze.html">Linux安装FullAnalyze的问题</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/jira-lock.html">解决JIRA的lock错误</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/supermap-scalebar.html">SuperMap ScaleBar无法显示的解决办法</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/xp-configuration-wireless.html">【原创】XP下配置无线局域网，无线共享上网</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/supermap-is-net-map.html">关于SuperMap IS.NET中地图显示不了的解决办法</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/sogou-proxy.html">【原创+转载】Sogou代理的用法...</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/csharp-des-class.html">c#中DES加密解密的类</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/mysql-sensitivity-of-the-case.html">MySQL 大小写的敏感性</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/e00-open-methods.html">E00格式文件打开的3种方法</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/ancel-windows-startup-scanning-disk.html">修改注册表取消windows开机扫描磁盘</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/csharp-excel-and-analysis.html">c#导入EXCEL并分析，绘出饼状图的研究</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/gridview-page-code.html">解决Gridview在未绑定数据源时进行分页的代码</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/csharp-single-instance.html">如何限制C#程序只能运行单个实例？</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/some-common-gis-and-remote-sensing-information-journals.html">一些常见的GIS和遥感期刊的信息</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/extraction-by-shapefile.html">利用现有shapefile数据提取轮廓线</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/icbc-u-shield.html">【zz】U盾 请选择您要用的证书 解决工行U盾在XP3和WIN7下不能用</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/notepad-method-reg.html">点击右键没有新建记事本的解决方法</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/windows-7-error-1935-hresult-0x800736fd.html">Windows 7 安装软件错误：“Error 1935 ...HRESULT:0x800736FD” 的解决办法</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/win7-sql-2005.html">WIN7下安装SQL 2005</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/php-mplayer.html">PHP中mplayer播放不了的解决办法</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/color-turn-gray-algorithm-study-thoroughly.html">【转帖】彩色转灰度算法彻底学习</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/csharp-liblas-5.html">C#调用LibLAS的方法（五）</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/csharp-liblas-4.html">C#调用LibLAS的方法（四）</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/csharp-liblas-3.html">C#调用LibLAS的方法（三）</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/csharp-liblas-2.html">C#调用LibLAS的方法（二）</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/csharp-liblas-1.html">C#调用LibLAS的方法（一）</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/windows-api-2.html">windows api 大全（二）</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/windows-api-1.html">windows api 大全（一）</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/win7-arcgis-server-9-3.html">WIN7 下安装ARCGIS SERVER 9.3</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/free-download-xiami.html">简单方法免费下载虾米音乐【转】</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/ephemeris-calculation-and-drawing.html">星历计算和绘制</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/coordinate-conversion-and-gps-time-calculation.html">坐标换算和GPS时间计算</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/ftp-server-permission-to-access-error.html">访问FTP服务器时发生错误:“请检查是否有权限访问该文件夹”的故障排除</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/gps-pseudorange-single-point-positioning.html">GPS伪距单点定位</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/asp-net-oracle-64-bit-error-solution.html">ASP.NET在64位系统下访问Oracle32位出错的解决办法</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/windows7-bios-ahci.html">Windows7在BIOS中开启AHCI模式后蓝屏重启的解决方法</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/win7-mtp-usb.html">解决WIN7下 MTP USB设备不能安装的问题</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/keypress-corresponding-ascii-code.html">【zz】键盘按键对应的ASCII码</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/map-war-hacker.html">这周没事搞了个WAR的全图</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/vista-win7-thunder-error.html">【zz】解决Vista/Win7下迅雷运行错误或无法运行问题</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/mac-macport-error.html">MAC下安装MacPort卡在最后一点。。。</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/p2p-searcher-emule.html">【zz】彻底解决p2p searcher无法连接eMule网络的方法</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/mac-gogo6.html">【ZZ】MAC下安装GOGO6～</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/fedora-font-optimization.html">【zz】fedora 字体优化</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/fedaro-17-menu-lst.html">安装Fedaro 17的menu.lst</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/fedora-linux-rhythmbox-chinese.html">【zz】三步搞定Fedora Linux下Rhythmbox中文显示乱码的问题</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/fedora-17-gnome-shell.html">【zz】Fedora 17 Gnome 3 配置与gnome-shell扩展介绍</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/linux-double-display-shows-method.html">【zz】Linux双显示器显示方法</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/windows7-exe-lose-icon.html">Windows7系统中.exe(程序)图标丢失修复方法</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/fedora-en-ibus-ch.html">【zz】Fedora如何在英文环境下使用ibus中文输入法</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/fedora-17-fonts.html">Fedora 17字体配置</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/fedora-hybird-fetion.html">Fedora上安装Hybird飞信</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/fedora17-gui-root.html">fedora17 使用GUI登录ROOT</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/fedora-windows-partition.html">Fedora自动挂载Windows分区</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/vmware-mac-lion-xcode4-2.html">在Vmware Mac Lion下安装XCODE4.2</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/wine-caj-viewer.html">Wine的中文环境配置（Caj阅读器）</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/fedora-unrar.html">fedora 使用unrar</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/fedora-17-flash-player.html">Fedora 17安装Flash Player</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/linux-bluetooth.html">Linux启动/关闭蓝牙服务</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/fedora-unversal-access-icon.html">去除Fedora任務欄上的Unversal Access Icon</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/vista-win7-nfragistics-netadvantage-could-not-access-network-location-wwwroot.html">关于vista win7安装Infragistics NetAdvantage，报Error 1606 Could Not Access Network Location %SystemDrive%/inetpub/wwwroot/ 的错误解决方案</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/os-x-mountain-lion-apache-mysql-php.html">OS X Mountain Lion 系统配置 Apache+Mysql+PHP 详细教程</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/mac-modify-hosts-file.html">5种方法在mac系统修改hosts文件</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/net-framework-3-5-sp1offline-setup.html">【zz】解决.NET Framework 3.5 sp1离线安装</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/objective-c-knowledg.html">Objective-C基础知识</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/absinthe-mac-10-8-mountain-lion.html">关于absinthe在10.8ML中闪退的解决办法</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/disk-mount-for-mac.html">DISK MOUNT FOR MAC</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/mac-transmission-ip-filter.html">如何在Mac下对Transmission进行IP过滤</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/eject-secondary-internal-hard-drive-on-boot-wake-on-a-mac-using-launchagent-scripts.html">Eject secondary internal hard drive on boot &amp; wake on a Mac, using LaunchAgent scripts</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/objective-c-terminal-cmd.html">在objective-c中调用terminal命令</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/mac-isatap-ipv6.html">MAC下用ISATAP上IPV6</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/delete-mac-hibernate-file.html">删除MAC里的休眠文件</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/mac-tsinghu-netgate.html">花了3天做个Mac版的Thu登录器</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/nsstring.html">NSString的一些用法</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/app-indicator.html">在App调用菊花或加载条</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/webview-javascript.html">webView中调用JavaScript脚本</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/menubar-app-icon.html">在系统的菜单栏上添加App的图标</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/sheet-window.html">实现Sheet效果的Window</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/mac-os-x-lion-library-folder.html">显示Mac OS X Lion中隐藏的Library文件夹</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/unity-homework.html">用Unity做的图形学作业</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/cocos2d-cocos3d-config.html">cocos2d&amp;cocos3d安装配置</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/gps-in-ios.html">使用GPS在iOS中定位</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/ios-asyncsocket-connection.html">做了第二个App，异步Sockets连接</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/ios-tsinghua-netgate.html">自己做的第一个App-清华网关&amp;info服务</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/mac-os-x-packet-dump.html">Mac OS X下的截包的工具</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/ios-switch-webview-usage.html">iOS开发之开关，分段，web控件使用</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/ios-animation-uiimageview.html">iOS开发之创建并管理图像动画</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/mountain-lion-safari-user-agent.html">在Mountain Lion中设置Safari默认的User Agent</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/retain-copy-difference.html">retain和copy的区别</a></li>
+      <li class="post-list-item"><a class="post-list-link" href="/opening-my-sites.html">Opening My Sites</a></li>
+     </ul>
+     <script></script>
+    </div>
+    <footer id="footer">
+     <div class="outer">
+      <div id="footer-info">
+       <div class="footer-left">
+        <i class="fa fa-copyright"></i> 2012-2017 Chuck
+       </div>
+       <div class="footer-right"> 
+        <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a> Theme 
+        <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE
+        <i class="fa fa-heart animated infinite pulse"></i> 
+        <a href="http://www.miitbeian.gov.cn">京ICP备15045161号</a>
+       </div>
+      </div>
+      <div class="visit">
+       <span id="busuanzi_container_site_pv" style="display:none"><span id="site-visit" title="本站到访数"><i class="fa fa-user" aria-hidden="true"></i><span id="busuanzi_value_site_uv"></span></span></span> 
+       <span>|</span>
+       <span id="busuanzi_container_page_pv" style="display:none"><span id="page-visit" title="本页阅读量"><i class="fa fa-eye animated infinite pulse" aria-hidden="true"></i><span id="busuanzi_value_page_pv"></span></span></span>
+      </div>
+     </div>
+    </footer>
+   </div>
+   <script data-main="/js/main.js" src="//cdn.tapasy.com/require.min.js"></script>
+   <script>$(document).ready(function(){var a=window.navigator.userAgent.indexOf("iPad");if(a>-1||"none"===$(".left-col").css("display")){var c=["#9db3f4","#414141","#e5a859","#f5dfc6","#c084a0","#847e72","#cd8390","#996731"],e=Math.ceil(Math.random()*(c.length-1));$("body").css({"background-color":c[e],"background-size":"cover"})}else{var d=1,o="url(/background/bg-x.jpg)".replace(/x/gi,Math.ceil(Math.random()*d));$("body").css({background:o,"background-attachment":"fixed","background-size":"cover"})}})</script>
+   <div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide()" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+   </div>
+   <script>var oOpenInNew={archives:".archive-article-title",miniArchives:"a.post-list-link",friends:"#js-friends a",socail:".social a"};for(var x in oOpenInNew)$(oOpenInNew[x]).attr("target","_blank")</script>
+   <script async="" src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+  </div>
+ </body>
+</html>

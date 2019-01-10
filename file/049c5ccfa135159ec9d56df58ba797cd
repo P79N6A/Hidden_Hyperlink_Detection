@@ -1,0 +1,289 @@
+<!DOCTYPE html><html><head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8;">
+<meta name="viewport" content="initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
+<title>聚优惠</title>
+<script type="text/javascript" src="/award/?action=getUserinfo&amp;sync=1"></script>
+
+    <link rel="stylesheet" type="text/css" href="static/css/base_29bc094.css">
+    <link rel="stylesheet" type="text/css" href="static/css/common_2ea7b62.css">
+    <link rel="stylesheet" type="text/css" href="static/css/create_1a60685.css">
+</head>
+<body><header id="header"><span class="back"></span><span class="text">聚优惠</span></header>
+    <div style="position:absolute;left:-99999px;top:-99999px;width:0px;height:0px;line-height:0px;overflow:hidden;z-index:-1;"><img width="300" height="300" src="//chi.nuomi.com/award/static/images/nuomi-300X300-ico.png"></div>
+    <a id="banner" class="banner fake-action" fake-action="topBannerClicked" href="javascript:;"></a>
+    <!--
+    <section class="module step mt10">
+        <div class="step-text clearfix">
+            <span class="fl">选择聚餐时间</span>
+            <span class="lightgray">支付发起聚餐</span>
+            <span class="lightgray fr">邀友AA领返现</span>
+        </div>
+    </section>
+    -->
+    <!--
+    <div class="create-name">
+        <span>发起人姓名</span>
+        <input type="text" value="请填写您的姓名"></input>
+    </div>
+    -->
+    <div class="loading" style="display: none; ">努力加载中...</div>
+    <!-- 常规流程 -->
+    <div id="content" class="content">         <div class="con-err err-fail" style="height:-90px;">             <div class="con-tip">                 <div class="con-msg">好像出了点问题~</div>                 <a id="btn-retry" class="btn-retry" href="javascript:;">重试</a>             </div>         </div>     </div>
+    <!-- 通用流程 -->
+    <div id="currency-content" class="currency-content"></div>
+    <a id="bg-mask" class="bg-mask" href="javascript:;"></a>
+    <div id="award-tips" class="award-tips">
+        <a id="btn-award-tips-close" class="btn-award-tips-close fake-action" fake-action="topBannerButtonClicked" href="javascript:;"></a>
+        <a id="btn-award-tips-circular-close" class="btn-award-tips-circular-close" href="javascript:;"></a>
+    </div>
+    <div id="select-time" class="select-time">
+        <div class="select-time-header">
+            <div class="select-time-title">日期和时间</div>
+            <div id="select-time-note" class="select-time-note"></div>
+            <a id="btn-select-time-close" class="btn-select-time-close" href="javascript:;"></a>
+            <a id="btn-select-time-submit" class="btn-select-time-submit" href="javascript:;">完成</a>
+        </div>
+        <div class="line"></div>
+        <div class="clearfix">
+            <div id="date-selector" class="time-selector fl">
+                <ul class="time-selector-date"></ul>
+                <div class="bg-mask-top"></div>
+                <div class="bg-mask-bottom"></div>
+            </div>
+            <div id="time-selector" class="time-selector fr">
+                <ul class="time-selector-time"></ul>
+                <div class="bg-mask-top"></div>
+                <div class="bg-mask-bottom"></div>
+            </div>
+        </div>
+    </div>
+    <!-- 团单详细内容弹层 -->
+    <div class="dealDetail"></div>
+    <!-- 聚餐说明 -->
+    <div id="dinnerexplain" class="popup-content popup-rule" style="display: none;"></div>
+    <!-- 模板 通用流程填写信息 start -->
+    <script id="tmpl_form" type="text/template">
+        <section class="module condition">
+            <a id="btn-select-poi" class="module-item clearfix" href="javascript:;">
+                <span class="module-item-name">主题</span>
+                <input type="text" id="form-subject" value="<%= data.subject || ''%>" placeholder="<%= app.subject%>" maxlength="15" class="module-item-content currency-input module-item currency-input-focus" />
+            </a>            
+            <a id="btn-select-poi" class="module-item clearfix border-top" href="javascript:;">
+                <span class="module-item-name">发起人</span>
+                <input type="text" id="form-name" value="<%= data.realName || '' %>" placeholder="<%= '请填写您的姓名' %>"  maxlength="10" class="module-item-content currency-input module-item currency-input-focus" />
+            </a>
+            <% var time = app.time || data.time || {}; %>
+            <a id="btn-select-time" class="module-item clearfix list-tag" style="margin-top: 10px;" href="javascript:;">
+                <span class="module-item-name">聚会时间</span>
+                <span class="module-item-content currency-input <%= time.attrid ? "checked" : "greay" %>" attrid="<%= time.attrid %>"><%= time.attrname || time.name || "选择聚会时间" %></span>
+            </a>
+            <a id="btn-select-poi" class="module-item clearfix border-top" href="javascript:;">
+                <span class="module-item-name">地点</span>
+                <span class="module-item-content checked currency-input" style="<%= !data.poi ? 'color:#ccc;' : ''%>"><%= data.poi ? data.poi.name : '店铺已下线' %></span>
+            </a>
+            <% if(data.poi && data.poi.phone){ %>
+            <div class="condition-text">
+                </span><% if(data.poi.phone){ %>如需订座，请<a id="contact-poi" class="red" href="javascript:;" data-phone="<%= data.poi.phone %>">联系商家</a><% } %>
+            </div>
+            <% } %>
+
+        </section>
+    </script>
+    <!-- 模板 通用流程填写信息 end -->
+    <!-- 模板 团单信息弹层 start -->
+    <script id="tmpl_dealDetail" type="text/template">
+        <h2><%=data.dealName || ''%><a href="javascript:;" class="deal-close"></a></h2>
+        <% var dataAll = data || {}; %>
+        <% var data = data.buyContent || {}; %>
+        <% var buyContent = dataAll.buyContent || {}; %>
+        <% var structTime = dataAll.structTime || []; %>
+        <% var consumerTip = dataAll.consumerTip || []; %>
+        <div class="line"></div>
+        <% if(buyContent.group_content && buyContent.group_content[0] || structTime[0] || consumerTip[0]){ %>
+        <div class="dealDetail-scroll">
+            <div class="dealDetail-content">
+                <h2></h2>
+                <span class="subTitle"><%= data.group_name &&  '(' + data.group_name + ')' || ''%></span>
+                <% (data.group_content || []).forEach(function(item,key){ %>
+                    <span class="deal-title"><%= item.group_name || ''%></span>
+                    <div class="dealDetail-list">
+                        <% (item.group_content || [item]).forEach(function(item,key){ %>
+                        <% if(item.group_name) {%>
+                        <div class="deal-subTitle"><span><%= item.group_name || ''%></span></div>
+                        <% } %>
+                        <ul>
+                            <% (item.group_content || [item]).forEach(function(item,key){%>
+                            <li>
+                                <span><%= item.fuwu_name || ''%></span>
+                                <span>x<%= item.fuwu_count/1000 || '' %></span>
+                            </li>
+                            <%});%>
+                        </ul>
+                        <%});%>
+                    </div>
+                <%});%>
+                <% if((data.group_content || [])[0]){ %>
+                <div class="line"></div>
+                <% } %>
+                <% if(data.ext_info && data.ext_info[0]){ %>
+                <span class="ruleTitle">套餐说明</span>
+                <div class="useRule">
+                    <% data.ext_info.forEach(function(item,key){%>
+                        <span><%= item %></span>
+                    <%});%>
+                </div>
+                <% } %>
+                <% if(dataAll.structTime[0]){ %>
+                <div class="uptime">
+                    <div class="uptime-content">
+                        <span><%= dataAll.structTime[1].label || ''%></span>
+                        <p><%= (dataAll.structTime[1].comptickettime || '') + (dataAll.structTime[0].compreceptiondatelimit || '') %></p>
+                        <span><%= dataAll.structTime[0].label || ''%></span>
+                        <p><%= dataAll.structTime[0].compreceptiondatelimit %></p> 
+                    </div>
+                </div>
+                <% } %>
+                <% if(dataAll.consumerTip[0]){ %>
+                <span class="ruleTitle">使用规则</span>
+                <div class="useRule">
+                    <% dataAll.consumerTip.forEach(function(item,key){%>
+                        <span><%= item %></span>
+                    <%});%>
+                </div>
+                <% } %>
+            </div>
+        </div>
+        <% } else{%>
+        <div class="noDate">团单详情请到团单页中查看噢~</div>
+        <% } %>
+    </script>
+    <!-- 模板 - Banner start -->
+    <script id="tmpl_banner" type="text/template">
+        <!-- <div class="banner-text">2人以上拼团，100%返现，人越多返现越多，最高免单！</div> -->
+        <a id="btn-close" class="btn-close" href="javascript:;"></a>
+    </script>
+    <!-- 模板 - Banner end -->
+    <!-- 模板 - 商家 start -->
+    <script id="tmpl_poi" type="text/template">
+        <section id="condition" class="module condition">
+            <a id="btn-select-poi" class="module-item clearfix<%= app.urlParams.poiId ? "" : " list-tag" %>" href="javascript:;">
+                <span class="module-item-name"><%= app.temp_content.shop_name %></span>
+                <span class="module-item-content checked module-item-address fake-action" fake-action="poiAdressClicked" data-id="<%= data.id %>"><%= data.name %></span>
+            </a>
+            <% var time = data.time || app.time || {}; %>
+            <a id="btn-select-time" class="module-item clearfix border-top list-tag" href="javascript:;">
+                <span class="module-item-name"><%= app.temp_content.shop_time %></span>
+                <span class="module-item-content fake-action <%= time.attrid ? "checked" : "red" %>" attrid="<%= time.attrid %>" fake-action="poiTimeClicked"><%= time.attrname || time.name || "请选择" %></span>
+            </a>
+            <% if(time.attrid){ %>
+            <div class="condition-text">
+                </span><% if(data.phone){ %>如需订座，请<a id="contact-poi" class="red fake-action" fake-action="poiTelClicked" href="javascript:;" data-phone="<%= data.phone %>">联系商家</a><% } %>
+            </div>
+            <% } %>
+        </section>
+    </script>
+    <!-- 模板 - 商家 end -->
+    <!-- 模板 - 商家电话 start -->
+    <script id="tmpl_phones" type="text/template">
+        <% phones.length && $.each(phones, function(i, phone){ %>
+            <a href="tel:<%= (phone || "").toString().replace(/-/g, "") %>"><%= phone %></a>
+        <% }); %>
+    </script>
+    <!-- 模板 - 商家电话 end -->
+    <!-- 模板 - 菜单 start -->
+    <script id="tmpl_menu" type="text/template">
+        <section id="menu" class="module menu mt10">
+            <%
+            var deal = deal.deal || [],
+                len = deal.length;
+            app.checkedMenu = 0;
+            %>
+            <div class="module-item">团单<% if(!deal[0]){ %><span class="menu-title">当前时间没有可用团单</span><% } %></div>
+            <div class="ml10 clearfix">
+                <% len && $.each(deal, function(i, item){ %>
+                <div class="line"></div>
+                <div class="menu-item<%= item.id == (app.menu && app.menu.id) || (i < 1 && app.urlParams.type == 1 && !(app.menu && app.menu.id) && (app.menu = item)) || (i < 1 && app.urlParams.type == 2 && (app.menu = item)) ? (app.checkedMenu = 1) && " checked" : i > 1 ? " more" : "" %>" data-tuanname="<%= item.name || "" %>" data-tuanid="<%= item.id || "" %>" data-tinyurl="<%= item.tinyUrl || "" %>">
+                    <a class="menu-img fake-action" fake-action="dealContentLeftClicked" href="javascript:;"><div class="menu-img-box"><img src="<%= item.imgUrl %>"></div></a>
+                    <a class="menu-con fake-action" fake-action="dealContentRightClicked" href="javascript:;">
+                        <div class="menu-name"><%= item.name %></div>
+                        <div class="menu-price clearfix">
+                            <div class="menu-two-price fl">
+                                <span class="menu-current-price">&yen;<em><%= +item.promotePrice ? +item.promotePrice / 100 : "" %></em></span>
+                            </div>
+                            <% if(item.promoteText){ %><div class="menu-off-box fl"><div class="menu-off red"><span><%= item.promoteText %></span></div></div><% } %>
+                            <div class="menu-market-price-box fl"><span class="menu-market-price lightgray"><%= +item.price ? +item.price / 100 : "" %></span></div>
+                        </div>
+                    </a>
+                    <div class="dotline"></div>
+                    <a class="menu-note fake-action" fake-action="dealDescriptionClicked" href="javascript:;">
+                        <div class="menu-note-box clearfix">
+                            <div class="menu-note-con"><%= item.validTime %></div>
+                        </div>
+                    </a>
+                </div>
+                <% }); %>
+                <% if(len > 2){ %>
+                <div id="menu-other-box">
+                    <div class="line"></div>
+                    <a id="menu-other" class="menu-other" href="javascript:;"><span>其他<%= deal.length - 2 %>个团购</span><i class="arrow-down"></i></a>
+                </div>
+                <% } %>
+            </div>
+        </section>
+    </script>
+    <!-- 模板 - 菜单 end -->
+    <!-- 模板 - 通用流程提交按钮 start -->
+    <script id="tmpl_currencySubmit" type="text/template">
+        <section id="submit" class="submit mv15">
+            <div class="line"></div>
+            <a id="btn-submit-currency"  class="enabled" href="javascript:;">发起聚会</a>
+        </section>
+    </script>
+    <!-- 模板 - 通用流程提交按钮 end -->
+    <!-- 模板 - 提交按钮 start -->
+    <script id="tmpl_submit" type="text/template">
+        <div class="detail-dinnerexplain">
+            <a id="btn-dinnerexplain" class="fake-action" fake-action="explainButtonClicked" href="javascript:;">聚会说明</a>
+        </div>
+        <section id="submit" class="submit mv15">
+            <div class="line"></div>
+            <a id="btn-submit-buy" style="<%= dealType !=1 ? "display:none" : ""%>" class="btn-submit-buy fake-action <%= status ? "enabled" : "" %>" fake-action="submitAaButtonClicked" href="javascript:;">AA组局</a>
+            <a id="btn-submit-treat" style="<%= dealType <2 ? "display:none" : ""%>" class="btn-submit-treat enabled fake-action" fake-action="submitTreatButtonClicked" href="javascript:;">我要请客</a>
+        </section>
+    </script>
+    <!-- 模板 - 提交按钮 end -->
+    <script id="tmpl_dinnerexplain" type="text/template">
+        <div class="popup-rule-title">
+            聚会说明
+            <a id="btn-dinnerexplain-close" href="javascript:;" class="popup-rule-close close"></a>
+        </div>
+        <div class="popup-rule-text">
+            <p>1.活动有效时间：2016年9月1日00:00-2017年12月31日24:00；</p>
+            <p>2.参与聚优惠的用户需在选定时间当天的有效时间范围内验券消费，方可获得返现或随机面额的抵用券红包，返现金额随机，将自动打入糯米余额；</p>
+            <p>3.预计奖励金额（返现或抵用券红包）是用户本次聚会中最多可以获得的奖励金额，因用户验券数量少于购买数量、活动力度调整等原因，用户实际获取的返现金额或抵用券红包面额，以实际收到的金额/面额为准；</p>
+            <p>4.使用AA聚会的用户每人需要支付自己的团单，发起者和参与者都将获得返现；</p>
+            <p>5.使用请客聚会的用户仅发起者买单，发起者将获得返现或随机面额的抵用券红包，参与者每人可以获得美食抵用券；</p>
+            <p>6.针对同一门店、同一时间段内的同一团单，每位用户只能购买一份AA或请客团单；</p>
+            <p>7.每人每天最多获得两次返现；</p>
+            <p>8.参与人数：2人及以上可享受优惠；</p>
+            <p>9.在法律允许的范围内，百度糯米有权对活动规则进行解释。</p>
+        </div>
+    </script>
+    <!-- 模板 - 错误处理 start -->
+    <script id="tmpl_err" type="text/template">
+        <div class="con-err <%= errType == 1 ? "err-norecord" : errType == 2 ? "err-disconnect" : "err-fail" %>" style="height:<%= app.winHeight - $("#content").offset().top %>px;">
+            <div class="con-tip">
+                <div class="con-msg"><%= msg || "好像出了点问题~" %></div>
+                <a id="btn-retry" class="btn-retry" href="javascript:;">重试</a>
+            </div>
+        </div>
+    </script>
+    <!-- 模板 - 错误处理 end -->
+    
+
+<script type="text/javascript" src="static/js/lib/base_a5adc26.js"></script>
+<script type="text/javascript" src="widget/base_ed4e364.js"></script>
+<script type="text/javascript">var $=require("widget/lib/zepto.min.js"),util=require("widget/lib/util.js"),ajax=require("widget/lib/ajax.js"),Scope=require("widget/lib/run.scope.js"),Selector=require("widget/lib/selector.js"),Dialog=require("widget/lib/dialog.js"),toast=require("widget/lib/toast.js"),config=require("widget/lib/config.js"),createConfig=require("widget/dataConf/createConfig.js"),login=require("widget/common/login.js"),wxUrl=encodeURIComponent(window.location.href.split("#")[0]),wxShare;window.App=new Scope({el:"body",unixTime:window.user&&!isNaN(window.user.unixTime)&&1e3*+window.user.unixTime,tipsName:"catering_award_create_tips_switch",selectData:"catering_award_create_select_data",urlParams:util.getQuery(window.location.search),isApp:function(){var t=util.getEnv();return t.isNuomi||t.isWeixin||t.isBDBox}(),$body:$("body"),timeOffset:"000500",todayStamp:0,userDate:"",userTime:"",temp_content:"",windowHeight:$(window).height(),init:function(){var t=this,e={},a=$(window).width(),i=$(window).height();if(this.winWidth=Math.min(document.documentElement&&document.documentElement.clientWidth||document.body.clientWidth||a,a),this.winHeight=Math.min(document.documentElement&&document.documentElement.clientHeight||document.body.clientHeight||i,i),t.syncTime(),BNJS)BNJS.page.getData(function(a){e=t.urlParams=$.extend(e,t.urlParams,a||{}),!e.areaId&&e.areaid&&(e.areaId=e.areaid),!e.poiId&&e.poiid&&(e.poiId=e.poiid),!e.dealId&&e.dealid&&(e.dealId=e.dealid),!e.awardfrom&&e.awardFrom&&(e.awardfrom=e.awardFrom),e.tsmcid=e.tid?e.tid:"",e.areaId?(util.checkIOS()&&t.$body.addClass("platform-ios"),t.getMenu()):t.renderErr()});else{wxShare=require("widget/wap/wxShare.js"),util.setTitle(document.title),e=t.urlParams||{},!e.areaId&&e.areaid&&(e.areaId=e.areaid),!e.poiId&&e.poiid&&(e.poiId=e.poiid),!e.dealId&&e.dealid&&(e.dealId=e.dealid),!e.awardfrom&&e.awardFrom&&(e.awardfrom=e.awardFrom),e.tsmcid=e.tid?e.tid:"";var r=e.channel||e.cid;util.cookie("channel",r,{domain:".nuomi.com",path:"/"}),e.areaId?(util.checkIOS()&&t.$body.addClass("platform-ios"),t.getMenu()):t.renderErr()}!t.hasBindFixed&&(t.hasBindFixed=1)&&$(window).on("scroll",function(){clearTimeout(t.fixedScroll),t.fixedScroll=setTimeout(function(){t.fixedBottom()},100)}),Date.prototype.Format=function(t){var e={"M+":this.getMonth()+1,"d+":this.getDate(),"h+":this.getHours(),"m+":this.getMinutes(),"s+":this.getSeconds(),"q+":Math.floor((this.getMonth()+3)/3),S:this.getMilliseconds()};/(y+)/.test(t)&&(t=t.replace(RegExp.$1,(this.getFullYear()+"").substr(4-RegExp.$1.length)));for(var a in e)new RegExp("("+a+")").test(t)&&(t=t.replace(RegExp.$1,1==RegExp.$1.length?e[a]:("00"+e[a]).substr((""+e[a]).length)));return t}},gotoLogin:function(t){var e=this,a=e.urlParams.awardfrom||"";login.gotoLogin(BNJS,window.location.protocol+"//"+window.location.host+"/award/user/loginRedirect?redirectUrl="+encodeURIComponent(window.location.href+"&awardfrom="+a),1,t||function(){e.getMenu()})},syncTime:function(){if(!this.inSyncTime&&this.unixTime){var t=5e3;setInterval(function(){this.unixTime+=t},t),this.inSyncTime=1}},getTimestamp:function(){return this.unixTime||Date.now()},getTimeParams:function(t){var e=this.getTimestamp(),a=util.getTime({timestamp:e,format:"Y-M-D,hms"}).split(","),i=a[0],r=+new Date(i.replace(/T/i," ").replace(/\..+$/,"").replace(/-|\./g,"/")).getDay(),n=a[1],o=[],s=["今天","明天","后天"],d=7,c=4,l=0,m=this.timeOffset||0;if(m){var u=+m.substr(0,2),p=+m.substr(2,2),h=+m.substr(4);u>0&&(u+=76),p>0&&(p+=40),h>0&&(h+=40),m=+(this.formatter(u)+this.formatter(p)+this.formatter(h))}n>21e4-m?(a=util.getTime({timestamp:e+=864e5,format:"Y-M-D,hms"}).split(","),i=a[0],r=(r+1)%7,n=1,s.shift()):n=11e4-m>n?1:15e4-m>n?2:17e4-m>n?3:4;var f,g={date:i,day:r,time:n};if(1==t)return{start:g};for(;d>l;l++){for(f={date:{attrid:i,attrname:i+"("+this.getDay(r)+") "},times:[]};c+1>n;n++)f.times.push({attrid:n,attrname:this.getTime(n)});o.push(f),a=util.getTime({timestamp:e+=864e5,format:"Y-M-D,hms"}).split(","),i=a[0],r=(r+1)%7,n=1}return{list:o,start:g,dayList:s}},formatter:function(t){return"string"==typeof t&&(t=parseInt(t,10)),10>t?"0"+t:t},getDay:function(t){return"周"+(1==t?"一":2==t?"二":3==t?"三":4==t?"四":5==t?"五":6==t?"六":"日")},getTime:function(t){return(t||"").toString().replace(/1/,"上午").replace(/2/,"中午").replace(/3/,"下午").replace(/4/,"晚上")},checkShowTips:function(t){var e=this;BNJS?BNJS.localStorage.getItem(e.tipsName,function(e){t&&t("1"!=e.data)},function(){t&&t("1"!=util.cookie(e.tipsName))},6048e5):t&&t("1"!=util.cookie(e.tipsName))},getMenu:function(t){function e(t){if(BNJS)!l&&BNJS.location.latitude&&(l=BNJS.location.latitude+","+BNJS.location.longitude),BNJS.localStorage.getItem(r.selectData,function(e){h=e.data||{},BNJS.localStorage.removeItem(r.selectData,function(){t()},function(){util.cookie(r.selectData,""),t()})});else{h=util.getQuery(util.cookie(r.selectData)),util.cookie(r.selectData,"");var e;!l&&(e=window.navigator.geolocation)?e.getCurrentPosition(function(e){e&&e.coords&&e.coords.latitude&&(l=e.coords.latitude+","+e.coords.longitude),t()},t,{timeout:3e3}):t()}}function a(){!r.secTime&&(r.secTime=h.timeAttrid?{attrid:h.timeAttrid,attrname:h.timeName}:{attrid:"",attrname:"请选择"}),ajax({url:(BNJS?config.httpsHost:"/")+"award/",data:$.extend({action:"establishAward",type:o,poiId:s||"",dealId:d||"",areaId:c||"",pos:r.pos=l||"",date:r.secTime.attrid.substr(0,10)||"",time:r.secTime.attrid.substr(11)||""},BNJS?{bduss:user.bduss}:{}),publicParams:{awardfrom:r.urlParams.awardfrom},dataType:"json",success:function(t){if(p.hide(),0==t.errno){var e=t.data||{};if(r.data=e,r.flag=n.flag||e.cateFlag,r.checkShowTips(function(t){t&&r.showTips()}),r.cateFlag=1==e.cateFlag&&"catering"||2==e.cateFlag&&"ktv"||3==e.cateFlag&&"recreation"||e.cateFlag>=4&&"tourism",r.isSupportParty=e.isSupportParty,e&&(r.poi=h.poiId&&h.poiName&&h.poiPhone?{id:h.poiId,name:h.poiName,phone:h.poiPhone}:r.poi||e.poi&&e.poi.id&&e.poi)&&(r.deal=e.deal||[])){if(e.date&&e.time){var a=r.remindTimeFormat(new Date(e.date.replace(/T/i," ").replace(/\..+$/,"").replace(/-|\./g,"/")),e.time,e.today);r.time={attrid:e.date+","+e.time,attrname:e.date+"("+a.day_def+") "+r.getTime(e.time)},r.userDate=e.date,r.userTime=e.time,r.todayStamp=e.today}else r.time=r.secTime;var i=r.menu;i&&r.deal.forEach(function(t,e){return t.id==i.id&&e>0?(r.deal.splice(e,1),r.deal.unshift(t),!1):void 0}),r.renderContent(),r.isFreeAppointment(),r.syncStatus()}else r.renderErr(1);if(!BNJS){r.temp_content.app_share_title=createConfig(r.cateFlag).share_title+(r.menu&&r.menu.name||""),r.temp_content.app_share_subTitle=createConfig(r.cateFlag).share_desc;var o={title:r.temp_content.app_share_title,desc:r.temp_content.app_share_subTitle,link:window.location.href+"&awardfrom=wap_share_wx"};u={url:wxUrl,title:o.title,desc:o.desc,link:o.link,imgUrl:config.httpsHost+"award/static/images/nuomi-300X300-ico.png"}}}else 70002005==t.errno?r.gotoLogin():r.renderErr();!BNJS&&wxShare&&wxShare(u)},error:function(){p.hide(),r.renderErr(2),!BNJS&&wxShare&&wxShare(u)}})}function i(){!r.secTime&&(r.secTime=h.timeAttrid?{attrid:h.timeAttrid,attrname:h.timeName}:{attrid:"",attrname:"选择聚会时间"}),ajax({url:(BNJS?config.httpsHost:"/")+"award/general/establishAwardGeneral",data:$.extend({type:o,poiId:s||"",dealId:d||"",cityId:c||"",pos:r.pos=l||"",date:r.secTime.attrid.substr(0,10)||"",time:r.secTime.attrid.substr(11)||""},BNJS?{bduss:user.bduss}:{}),publicParams:{awardfrom:r.urlParams.awardfrom},dataType:"json",success:function(t){function e(t){BNJS?BNJS.localStorage.getItem("FORM_INFO",function(e){var e=e.data||{};r.data=e,r.checkShowTips(function(t){t&&r.showTips()});var d="string"==typeof e&&e&&e.split(",")||"";"string"==typeof e&&e&&(d&&d[0]&&1e3*s.today-d[0]>=12096e5&&r.removeLocalstorage(["subject","realName","date","time"]),a=d&&d[1]||"",i=d&&d[2]||"",n=d&&d[3]||"",o=d&&d[4]||"",$("body").trigger("cache"),t&&t())},function(){$("body").trigger("cache"),t&&t()},"2.7"):(a=d&&d[0]||"",i=d&&d[1]||"",n=d&&d[2]||"",o=d&&d[3]||"",$("body").trigger("cache"),t&&t())}p.hide();var a,i,n,o,s=t.data||{},d=util.cookie("FORM_INFO")&&decodeURIComponent(util.cookie("FORM_INFO")).split(",");r.data=s,r.setBanner("common"),$("body").on("cache",function(){if(s.date&&s.time){n=r.secTime.attrid.substr(0,10)||"",o=r.secTime.attrid.substr(11)||"",s.subject=$("#form-subject").val()||a||"",s.realName=$("#form-name").val()||i||"";var t=r.remindTimeFormat(new Date(s.date.replace(/T/i," ").replace(/\..+$/,"").replace(/-|\./g,"/")),o||s.time,s.today);r.time={attrid:s.date+","+s.time,attrname:s.date+"("+t.day_def+") "+r.getTime(s.time)},r.userDate=s.date,r.userTime=s.time,r.todayStamp=s.today}else r.time=r.secTime;r.subject=r.randomSubject(),r.renderCurrencyContent(s),$(".currency-input-focus").on("focus",function(){var t=$(this).val(),e=this;setTimeout(function(){$(e).val(t)},10)})}),0==t.errno?e():70007013==t.errno?(e(function(){$("#btn-submit-currency").addClass("noBackground").html("店铺已下线")}),toast.create("抱歉，店铺已下线")):r.renderErr()},error:function(){p.hide(),r.renderErr(2)}})}var r=this,n=r.urlParams,o=n.type||1,s=n.poiId,d=n.dealId,c=n.areaId,l=r.pos||(r.pos=n.pos||""),m=window.location.href,u={},p=(t&&/btn-select-time-submit/gi.test(t.currentTarget.id)||"",$(".loading"));p.show(),!BNJS&&(u={title:"参加聚会拿返现啦！",desc:"我在聚优惠组织了一次聚会，加入就有红包拿，快来参加吧！",link:m+(/\?/.test(m)?/\?.+/.test(m)?"&":"":"?")+"awardfrom=wap_share_wx"});var h,f=r.getTimeParams(1);r.startDate=f.start.date,r.startDay=f.start.day,r.startTime=f.start.time,ajax({url:(BNJS?config.httpsHost:"/")+"award/general/getFrontendType",data:{poiId:s},publicParams:{awardfrom:r.urlParams.awardfrom},dataType:"json",success:function(t){0==t.errno?1==t.data.general?(e(i),r.urlParams.general=1):0==t.data.general&&+c&&(2==o&&d||s)?e(a):r.renderErr():r.renderErr()},error:function(){r.renderErr(2)}})},fakeAction:function(t){var e=$(t.currentTarget),a=e.attr("fake-action")||"",i=this.urlParams.awardfrom||"";ajax({url:(BNJS?config.httpsHost:"/")+"award/common/?action=fakeAction",data:$.extend({fakeAction:a},BNJS?{bduss:user.bduss}:{}),publicParams:{awardfrom:i},dataType:"json",timeout:1e3,success:function(){},error:function(){}})},removeLocalstorage:function(t){($.isArray(t)?t:[t]).forEach(function(t){BNJS.localStorage.removeItem(t)})},setBanner:function(t){var e=createConfig(t),a=e.banner_bg,i=e.banner_text,r=e.tips_bg,n=e.tips_button;this.temp_content=e,$("#banner").css({"background-image":"url("+a+")","background-color":"#f3f6f5","background-size":"contain","background-repeat":"no-repeat"}).html("<p>"+i+"</p>"),$("#award-tips").css({"background-image":"url("+r+")","background-size":"contain","background-repeat":"no-repeat"}),$("#btn-award-tips-close").html(n)},randomSubject:function(){var t=["好久不见，一起聚会吧","小聚怡情，乐享盛宴","独乐乐不如众乐乐，快来约会"];return t[Math.floor(3*Math.random())]},isFreeAppointment:function(){var t=[],e=$.isArray(this.deal)?this.deal:[];e.forEach(function(e){e.id&&t.push(e.id)}),ajax({url:(BNJS?config.httpsHost:"/")+"award/",data:{action:"freeAppointment",dealId:t.join(",")},dataType:"json",success:function(t){if(0==t.errno){var e=t.data||{},a=$(".menu-item");a.each(function(t){var a=$(this).attr("data-tuanid");1==e[t][a]&&$(this).find(".menu-img-box").addClass("FreeAppointment")})}}})},renderContent:function(){this.setBanner(this.cateFlag),$("#content").html(this.renderPoi(this.poi,1)+this.renderMenu({deal:this.deal},1)+this.renderSubmit(0,1)),this.fixedBottom();var t=$(".menu-item.checked .menu-note-box");t.height(t.find(".menu-note-con").height()),$(".menu-con").width(this.winWidth-145)},renderCurrencyContent:function(t){$("#currency-content").html(util.tmpl("tmpl_form",{data:t,app:this})+this.renderCurrencySubmit(t))},renderPoi:function(t,e){var a=util.tmpl("tmpl_poi",{data:t||{},app:this});if(e)return a;var i=$("#condition");i.length?i.replaceWith(a):$("#condition").html(a)},renderMenu:function(t,e){var a=util.tmpl("tmpl_menu",{deal:t||[],app:this});if(e)return a;var i=$("#menu");i.length?i.replaceWith(a):$("#menu").html(a)},renderSubmit:function(t,e){var a=this,i=util.tmpl("tmpl_submit",{status:t,dealType:a.menu?a.menu.dealType:"",app:this});if(e)return i;var r=$("#submit");r.length?r.replaceWith(i):(r=$("#submit")).html(i),this.fixedBottom()},renderCurrencySubmit:function(t){return util.tmpl("tmpl_currencySubmit",{data:t,app:this})},renderDealDetail:function(t){$(".dealDetail").html(util.tmpl("tmpl_dealDetail",{data:t,app:this})).css({display:"block",bottom:0}),$(".dealDetail-scroll").css("max-height",$(window).height()/3*2)},renderErr:function(t,e){var a=$(3==this.urlParams.type?"#currency-content":"#content");$(".loading").hide(),BNJS?BNJS.ui.showErrorPage("",1):a.html(util.tmpl("tmpl_err",{errType:t,msg:e,app:this}))},syncStatus:function(t){var e="undefined"==typeof t?!!(this.poi&&this.time&&this.time.attrid&&this.menu&&this.checkedMenu):!!t,a=$("#btn-submit-buy"),i=$("#btn-submit-treat");return this.menu&&1==this.menu.dealType?(a.show(),i[+this.isSupportParty?"show":"hide"](),i.addClass("marginLeft10")):this.menu&&this.menu.dealType>=2&&(i.show(),a.hide(),i.removeClass("marginLeft10")),$("#btn-submit-buy,#btn-submit-treat")[e?"addClass":"removeClass"]("enabled"),e},fixedBottom:function(){var t=$("#btn-dinnerexplain"),e=t.offset().top+100,a=e>this.winHeight?"addClass":"removeClass";$("#submit")[a]("ofixed")},events:{"click #btn-retry":"getRetry","click #banner":"showTips","click #btn-award-tips-close":"closeTips","click #btn-dinnerexplain":"showDinnerexplain","click #btn-dinnerexplain-close":"hideDinnerexplain","click #btn-select-poi.list-tag":"openPoiList","click #btn-select-time.list-tag":"openSelector","click #btn-select-time-close":"closeSelector","click #btn-select-time-submit":"confirmSelector","click #contact-poi":"contactPoi","click #menu-other":"showAllMenu","click .menu-img,.menu-con":"selectMenu","click .menu-note":"dealPopup","click #bg-mask":"hideMask","click #btn-submit-buy.enabled,#btn-submit-treat.enabled":"joinAward","click .fake-action":"fakeAction","click .deal-close":"dealClose","click #btn-submit-currency":"createTreat","click #btn-award-tips-circular-close":"closeTips"},dealClose:function(){$(".dealDetail").css("bottom",0),$("#bg-mask").removeClass("show")},dealPopup:function(t){var e=this,a=$(t.currentTarget),i=a.parent().attr("data-tuanid"),r=$(".uptime");/checked/.test(a.parent().attr("class"))&&"34382066"!=a.parent().attr("data-tuanid")&&ajax({url:(BNJS?config.httpsHost:"/")+"award/treat/getDealInfo",data:{dealId:i||""},dataType:"json",success:function(t){0==t.errno?(t.data.dealName=a.parent().attr("data-tuanname")||"",$(".bg-mask").addClass("show"),e.renderDealDetail(t.data||{})):r.hide()},error:function(){r.hide()}})},getRetry:function(){this.init()},showTips:function(){$("#award-tips").show(),$("#bg-mask").addClass("show"),BNJS?BNJS.statistic.addLog({actionID:"establishAward_show_jucanpopup"}):(new Image).src="//m.nuomi.com/s.gif?actionID=establishAward_show_jucanpopup_wap"},closeTips:function(){var t=this;$("#award-tips").hide(),$("#bg-mask").removeClass("show"),BNJS?(BNJS.localStorage.setItem(t.tipsName,"1",function(){},function(){util.cookie(t.tipsName,"1",{expires:7,path:"/"})}),BNJS.statistic.addLog({actionID:"establishAward_click_jucanpopup"})):(util.cookie(t.tipsName,"1",{expires:7,path:"/"}),(new Image).src="//m.nuomi.com/s.gif?actionID=establishAward_click_jucanpopup_wap")},showDinnerexplain:function(){$("#dinnerexplain").html(util.tmpl("tmpl_dinnerexplain",{app:this})).show(),$("#bg-mask").addClass("show")},hideDinnerexplain:function(){$("#dinnerexplain").hide(),$("#bg-mask").removeClass("show")},openPoiList:function(t){var e=this,a=e.urlParams||{},i=a.awardfrom||"",r=$(t.currentTarget),n="areaId="+a.areaId+"&poiId="+e.poi.id+"&dealId="+a.dealId+"&pos="+(e.pos||"");BNJS?(!e.hasRegisterReceiver&&(e.hasRegisterReceiver=1)&&BNJS.page.registerReceiver("catering_award_create_poi",function(t){if(0==t.errno&&t.data){var a=t.data||{},i=a.poiId||"",r=a.poiName||"",n=a.poiPhone||"";i&&r&&n&&($("#btn-select-poi").find(".module-item-content").attr("data-id",i).text(r),$("#contact-poi").attr("data-phone",n),e.poi={id:i,name:r,phone:n})}}),BNJS.page.start(config.na_poilist+"&"+n+"&awardfrom="+i)):(util.cookie(e.selectData,"timeAttrid="+(e.time&&e.time.attrid||"")+"&timeName="+(e.time&&e.time.attrname||e.time.name||"")),r.attr("href","poilist.html?"+n+"&returnUrl="+encodeURIComponent(window.location.href+"&awardfrom="+i)))},openSelector:function(){$("#select-time").show().css({bottom:0}),$("#bg-mask").addClass("show"),this.selectTime()},closeSelector:function(){var t=$("#select-time");t.css({bottom:-t.height()-10+"px"}),$("#bg-mask").removeClass("show")},confirmSelector:function(t){var e=this;this.closeSelector(),this.syncStatus(0);var a=this.dateSelector,i=this.timeSelector;this.renderPoi($.extend(a&&i?{time:this.secTime={attrid:a.value.attrid?a.value.attrid+","+(i.value.attrid||""):"",attrname:(a.value.attrname||"")+(i.value.attrname||"")}}:{},this.poi)),2==e.urlParams.type?ajax({url:(BNJS?config.httpsHost:"/")+"award/",data:$.extend({action:"isTimeValid",dealId:e.menu&&e.menu.id||"",dealName:e.menu&&e.menu.name||"",date:e.secTime.attrid.substr(0,10)||"",time:e.secTime.attrid.substr(11)||""},BNJS?{bduss:user.bduss}:{}),publicParams:{awardfrom:e.urlParams.awardfrom},dataType:"json",success:function(t){70002005==t.errno?e.gotoLogin():0!=t.errno||t.data?(e.time=e.secTime,e.userDate=e.secTime.attrid.substr(0,10)||"",e.userTime=e.secTime.attrid.substr(11)||"",e.syncStatus()):e.rebackTime()},error:function(){e.rebackTime()}}):($("#menu").html('<div class="loading">努力加载中...</div>'),e.getMenu(t))},selectTime:function(){var t=this,e=this.time.attrid,a=e&&e.substr(0,10),i=e&&e.substr(11);this.dateSelector?a&&this.dateSelector.setCurrent({attrid:a}):this.dateSelector=new Selector({selector:"#date-selector",itemHeight:34,getItems:function(e){var a=t.getTimeParams().list,i=t.getTimeParams().dayList;a.forEach(function(t,e){t=t.date;var r=t.attrname||t.name,n=r.substr(5,2),o=r.substr(8,2),s=i[e]?i[e]:r.replace(/.+\((.{2})\).+/,"$1");s&&(t.attrname=(t.attrname||"").replace(/\(.*\)/,"("+s+")")),t.name="<span>"+ +n+"月"+ +o+'日</span><span class="ml10">'+s+"</span>",a[e]=t}),e(a)},afterInit:function(){a&&this.setCurrent({attrid:a})},afterChange:function(e,a,i){var r=t.timeSelector;if(r){var n=r.allList[i];r.index=0,r.setItems(n),r.setCurrent(0)}}}),this.timeSelector?i&&this.timeSelector.setCurrent({attrid:i}):this.timeSelector=new Selector({selector:"#time-selector",itemHeight:34,getItems:function(e){var a=t.getTimeParams().list;a.forEach(function(t,e){t=t.times,t.forEach(function(t){var e=t.attrname||t.name,a=e.replace(/.+\s(.{2})$/,"$1");t.name='<span class="right">'+a+"</span>"}),a[e]=t}),this.allList=a,e(a[0])},afterInit:function(){var e=t.dateSelector;e&&this.setItems(this.allList[e.index]),i&&this.setCurrent({attrid:i})},afterChange:function(t){$("#select-time-note").html(t.attrid<3?'当日<span class="red">15:00</span>前验券可在糯米余额中获返现':"当日验券，次日发放返现")}})},rebackTime:function(){var t=this;t.renderPoi($.extend({time:t.time},t.poi)),t.syncStatus(),t.secTimeTipDialog=Dialog({hideHeader:!0,content:'<div class="recorder">您选择的时间与当前团购可用时间不符合，请确认后重新选择</div>',width:264,buttons:{confirm:{label:"好的",handler:function(){t.secTimeTipDialog&&t.secTimeTipDialog.destory(),t.secTimeTipDialog=null}}},clickOnMaskClose:!0,showCloseBtn:!1})},contactPoi:function(t){var e=$(t.currentTarget).attr("data-phone"),a=e&&e.replace(/\|/g,",").split(",")||[];this.contactPoiDialog=Dialog({hideHeader:!0,klass:"tel-dialog",content:'<div class="tel-header">选择电话</div><div class="tel-list">'+util.tmpl("tmpl_phones",{phones:a})+"</div>",width:264,buttons:{cancel:{label:"关闭",handler:function(){}}},clickOnMaskClose:!0,showCloseBtn:!1})},showAllMenu:function(){$("#menu-other-box").hide(),$(".menu-item.more").removeClass("more"),this.fixedBottom()},selectMenu:function(t){var e=$(t.currentTarget).parent(),a="checked",i=e.hasClass(a),r=e.find(".menu-note-box");e[i?"removeClass":"addClass"](a),i?(this.menu=void 0,this.checkedMenu=0,r.css({height:"auto"})):(this.menu=this.deal[$(".menu-item").index(e)],this.checkedMenu=1,r.height(r.height()),e.siblings(".menu-item").removeClass(a)),this.syncStatus(),this.fixedBottom()},openDetail:function(t){var e=this,a=$(t.currentTarget).parents(".menu-item").attr("data-tuanid");BNJS?BNJS.page.start("bainuo://tuandetail?tuanid="+a):window.location.href=config.wap_m_nuomi_com+"webapp/tuan/detail?deal_id="+a+"&changeCity="+e.urlParams.areaId},setSubmiting:function(t,e){this.submiting=e?1:0,t[e?"removeClass":"addClass"]("enabled")},remindTimeFormat:function(t,e,a){var i=this,r=new Date,n=new Date(t),o=Date.parse(n),s=new Date(1e3*parseInt(a)).Format("yyyy-MM-dd"),d=Date.parse(new Date(s));r.setTime(o);var c=r.getMonth()+1+"月"+r.getDate()+"日",l=Math.round((d-o)/1e3/86400),m={"-2":"后天","-1":"明天",0:"今天"}[l.toString()]||(l>=-30&&-2>l?i.getDay(n.getDay()):""),u=(e||"").toString().replace(/[12]/,"中午").replace(/[34]/,"晚上");return{monthDate:c,day_def:m,time:u}},createTreat:function(){var t=this,e=t.urlParams,a=e.areaId||"",i=t.time.attrid.substr(0,10)||"",r=t.time.attrid.substr(11)||"",n=e.poiId||"",o=$("#form-subject"),s=o.val()||o.attr("placeholder"),d=$("#form-name").val()||"",c=t.todayStamp||"";return tsmcid=$.trim(t.urlParams.tsmcid.replace(/[|]/g,"").toString()||""),awardfrom=t.urlParams.awardfrom||"",universalFlow=3==t.urlParams.type||1==t.urlParams.general?1:0,params={},BNJS?BNJS.localStorage.setItem("FORM_INFO",c+","+s+","+d+","+i+","+r):util.cookie("FORM_INFO",encodeURIComponent(s+","+d+","+i+","+r),{expires:14}),user.isLogin?void(n&&a&&i&&r&&ajax({url:(BNJS?config.httpsHost:"/")+"award/general/createTreatGeneral",data:$.extend(params,{cityId:a,poiId:n,date:i,time:r,inviteTitle:s,realName:d},BNJS?{bduss:user.bduss}:{}),publicParams:{awardfrom:t.urlParams.awardfrom},dataType:"json",success:function(e){var a=e.data||{},i="inviteCode="+(a.inviteCode||"")+"&tsmcid="+tsmcid+"&universalFlow="+universalFlow;if(0==e.errno)BNJS?BNJS.page.start(config.na_detail+"&"+i+"&awardfrom="+awardfrom):window.location.href="detail.html?"+i+"&awardfrom="+awardfrom;else if(70006404==e.errno)t.gotoLogin();else{if(70006406==e.errno)return void Dialog({hideHeader:!0,content:"<div>您已参加过相同的活动了</div>",width:264,buttons:{confirm:{label:"好的",handler:function(){}}},clickOnMaskClose:!0,showCloseBtn:!1});t.renderErr()}},error:function(){t.renderErr()}})):void this.gotoLogin()},joinAward:function(t){var e=($(t.currentTarget),this);ajax({url:(BNJS?config.httpsHost:"/")+"award/",data:$.extend({action:"hasJoinAward",dealId:$.trim(e.menu.id.toString()||""),poiId:$.trim(e.poi.id.toString()||""),time:e.time.attrid.substr(11)||"",date:e.userDate,type:e.urlParams.type},BNJS?{bduss:user.bduss}:{}),dataType:"json",success:function(a){if(0==a.errno&&a.data){var i=a.data;if(0==i.isLogin)return void e.gotoLogin();1==i.hasJoin?Dialog({hideHeader:!0,content:"<div>您已参加过相同的活动了</div>",width:264,buttons:{confirm:{label:"好的",handler:function(){}}},clickOnMaskClose:!0,showCloseBtn:!1}):0==i.hasJoin&&e.timeRemind(t)}else toast.create("请求失败，请重试！")},error:function(){e.renderErr()}})},timeRemind:function(t){{var e=this;this.remindTimeFormat(this.userDate,this.userTime,this.todayStamp),createConfig(this.cateFlag).kind_name}e.gotoDetail(t)},gotoDetail:function(t){function e(){BNJS?BNJS.page.start(config.na_detail+"&"+g+"&awardfrom="+c):window.location.href="detail.html?"+g+"&awardfrom="+c}if(!user.isLogin)return void this.gotoLogin();var a=this,i=$(t.currentTarget),r=$.trim(a.menu.id.toString()||""),n=$.trim(a.poi.id.toString()||""),o=$.trim(a.urlParams.areaId.toString()||""),s=a.time.attrid.substr(0,10)||"",d=a.time.attrid.substr(11)||"",c=a.urlParams.awardfrom||"",l=$.trim(a.urlParams.tsmcid.replace(/[|]/g,"").toString()||""),m=a.flag&&"flag_"+a.flag||"",u="btn-submit-treat"===i[0].id?"host":"aa",p=u?"kind="+u+"&":"",h={},f="host"===u&&"establishTreatButtonClicked"||"aa"===u&&"establishAaButtonClicked",g=p+"&flag="+m+"&areaId="+o+"&dealId="+r+"&poiId="+n+"&date="+s+"&time="+d+"&pos="+(a.pos||"")+"&tsmcid="+l;a.syncStatus(0),ajax({url:(BNJS?config.httpsHost:"/")+"award/common/?action=fakeAction",data:$.extend(h,{fakeAction:f,dealId:r,areaId:o,flag:a.flag||""},BNJS?{bduss:user.bduss}:{}),publicParams:{awardfrom:c},dataType:"json",timeout:1e3,success:function(){e()},error:function(){e()}}),a.syncStatus(1)},hideMask:function(){$("#select-time,#dinnerexplain,.dealDetail").hide(),$("#bg-mask").removeClass("show"),this.closeTips()}}),util.resetUrl(),window.ready(function(){window.user||(window.user={}),BNJS&&(BNJS.ui.title.setTitle("聚优惠"),BNJS.ui.hideLoadingPage(),BNJS.page.setPageId({pageId:"award_create"}),$.extend(user,{isLogin:BNJS.account.isLogin,uid:BNJS.account.uid,userName:BNJS.account.uName,bduss:BNJS.account.bduss})),new App});</script>
+
+
+<script> var _trace_page_logid = 0670628897; </script></body></html><!--06706288970543999754040202-->

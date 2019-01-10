@@ -1,0 +1,1703 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="no-js">
+ <head> 
+  <meta charset="UTF-8" /> 
+  <meta name="viewport" content="width=device-width" /> 
+  <link rel="profile" href="http://gmpg.org/xfn/11" /> 
+  <link rel="pingback" href="http://dorole.com/xmlrpc.php" /> 
+  <!--[if lt IE 9]>
+	<script src="http://dorole.com/wp-content/themes/twentyfifteen/js/html5.js"></script>
+	<![endif]--> 
+  <script>(function(html){html.className = html.className.replace(/\bno-js\b/,'js')})(document.documentElement);</script> 
+  <title>使用Spring Session做分布式会话管理</title> 
+  <!-- All in One SEO Pack 2.3.12.1 by Michael Torbert of Semper Fi Web Design[486,544] --> 
+  <meta name="keywords" content="redis,session,spring-session,web开发,分布式session" /> 
+  <link rel="canonical" href="http://dorole.com/1422/" /> 
+  <!-- /all in one seo pack --> 
+  <link rel="dns-prefetch" href="//s.w.org" /> 
+  <link rel="alternate" type="application/rss+xml" title="Dorole's Blog &raquo; Feed" href="http://dorole.com/feed/" /> 
+  <link rel="alternate" type="application/rss+xml" title="Dorole's Blog &raquo; 评论Feed" href="http://dorole.com/comments/feed/" /> 
+  <link rel="alternate" type="application/rss+xml" title="Dorole's Blog &raquo; 使用Spring Session做分布式会话管理评论Feed" href="http://dorole.com/1422/feed/" /> 
+  <script type="text/javascript">
+			window._wpemojiSettings = {"baseUrl":"https:\/\/s.w.org\/images\/core\/emoji\/2.2.1\/72x72\/","ext":".png","svgUrl":"https:\/\/s.w.org\/images\/core\/emoji\/2.2.1\/svg\/","svgExt":".svg","source":{"concatemoji":"http:\/\/dorole.com\/wp-includes\/js\/wp-emoji-release.min.js?ver=4.7.3"}};
+			!function(a,b,c){function d(a){var b,c,d,e,f=String.fromCharCode;if(!k||!k.fillText)return!1;switch(k.clearRect(0,0,j.width,j.height),k.textBaseline="top",k.font="600 32px Arial",a){case"flag":return k.fillText(f(55356,56826,55356,56819),0,0),!(j.toDataURL().length<3e3)&&(k.clearRect(0,0,j.width,j.height),k.fillText(f(55356,57331,65039,8205,55356,57096),0,0),b=j.toDataURL(),k.clearRect(0,0,j.width,j.height),k.fillText(f(55356,57331,55356,57096),0,0),c=j.toDataURL(),b!==c);case"emoji4":return k.fillText(f(55357,56425,55356,57341,8205,55357,56507),0,0),d=j.toDataURL(),k.clearRect(0,0,j.width,j.height),k.fillText(f(55357,56425,55356,57341,55357,56507),0,0),e=j.toDataURL(),d!==e}return!1}function e(a){var c=b.createElement("script");c.src=a,c.defer=c.type="text/javascript",b.getElementsByTagName("head")[0].appendChild(c)}var f,g,h,i,j=b.createElement("canvas"),k=j.getContext&&j.getContext("2d");for(i=Array("flag","emoji4"),c.supports={everything:!0,everythingExceptFlag:!0},h=0;h<i.length;h++)c.supports[i[h]]=d(i[h]),c.supports.everything=c.supports.everything&&c.supports[i[h]],"flag"!==i[h]&&(c.supports.everythingExceptFlag=c.supports.everythingExceptFlag&&c.supports[i[h]]);c.supports.everythingExceptFlag=c.supports.everythingExceptFlag&&!c.supports.flag,c.DOMReady=!1,c.readyCallback=function(){c.DOMReady=!0},c.supports.everything||(g=function(){c.readyCallback()},b.addEventListener?(b.addEventListener("DOMContentLoaded",g,!1),a.addEventListener("load",g,!1)):(a.attachEvent("onload",g),b.attachEvent("onreadystatechange",function(){"complete"===b.readyState&&c.readyCallback()})),f=c.source||{},f.concatemoji?e(f.concatemoji):f.wpemoji&&f.twemoji&&(e(f.twemoji),e(f.wpemoji)))}(window,document,window._wpemojiSettings);
+		</script> 
+  <style type="text/css">
+img.wp-smiley,
+img.emoji {
+	display: inline !important;
+	border: none !important;
+	box-shadow: none !important;
+	height: 1em !important;
+	width: 1em !important;
+	margin: 0 .07em !important;
+	vertical-align: -0.1em !important;
+	background: none !important;
+	padding: 0 !important;
+}
+</style> 
+  <link rel="stylesheet" id="genericons-css" href="http://dorole.com/wp-content/themes/twentyfifteen/genericons/genericons.css?ver=3.2" type="text/css" media="all" /> 
+  <link rel="stylesheet" id="twentyfifteen-style-css" href="http://dorole.com/wp-content/themes/twentyfifteen/style.css?ver=4.7.3" type="text/css" media="all" /> 
+  <style id="twentyfifteen-style-inline-css" type="text/css">
+	/* Color Scheme */
+
+	/* Background Color */
+	body {
+		background-color: #ffe5d1;
+	}
+
+	/* Sidebar Background Color */
+	body:before,
+	.site-header {
+		background-color: #e53b51;
+	}
+
+	/* Box Background Color */
+	.post-navigation,
+	.pagination,
+	.secondary,
+	.site-footer,
+	.hentry,
+	.page-header,
+	.page-content,
+	.comments-area,
+	.widecolumn {
+		background-color: #ffffff;
+	}
+
+	/* Box Background Color */
+	button,
+	input[type="button"],
+	input[type="reset"],
+	input[type="submit"],
+	.pagination .prev,
+	.pagination .next,
+	.widget_calendar tbody a,
+	.widget_calendar tbody a:hover,
+	.widget_calendar tbody a:focus,
+	.page-links a,
+	.page-links a:hover,
+	.page-links a:focus,
+	.sticky-post {
+		color: #ffffff;
+	}
+
+	/* Main Text Color */
+	button,
+	input[type="button"],
+	input[type="reset"],
+	input[type="submit"],
+	.pagination .prev,
+	.pagination .next,
+	.widget_calendar tbody a,
+	.page-links a,
+	.sticky-post {
+		background-color: #352712;
+	}
+
+	/* Main Text Color */
+	body,
+	blockquote cite,
+	blockquote small,
+	a,
+	.dropdown-toggle:after,
+	.image-navigation a:hover,
+	.image-navigation a:focus,
+	.comment-navigation a:hover,
+	.comment-navigation a:focus,
+	.widget-title,
+	.entry-footer a:hover,
+	.entry-footer a:focus,
+	.comment-metadata a:hover,
+	.comment-metadata a:focus,
+	.pingback .edit-link a:hover,
+	.pingback .edit-link a:focus,
+	.comment-list .reply a:hover,
+	.comment-list .reply a:focus,
+	.site-info a:hover,
+	.site-info a:focus {
+		color: #352712;
+	}
+
+	/* Main Text Color */
+	.entry-content a,
+	.entry-summary a,
+	.page-content a,
+	.comment-content a,
+	.pingback .comment-body > a,
+	.author-description a,
+	.taxonomy-description a,
+	.textwidget a,
+	.entry-footer a:hover,
+	.comment-metadata a:hover,
+	.pingback .edit-link a:hover,
+	.comment-list .reply a:hover,
+	.site-info a:hover {
+		border-color: #352712;
+	}
+
+	/* Secondary Text Color */
+	button:hover,
+	button:focus,
+	input[type="button"]:hover,
+	input[type="button"]:focus,
+	input[type="reset"]:hover,
+	input[type="reset"]:focus,
+	input[type="submit"]:hover,
+	input[type="submit"]:focus,
+	.pagination .prev:hover,
+	.pagination .prev:focus,
+	.pagination .next:hover,
+	.pagination .next:focus,
+	.widget_calendar tbody a:hover,
+	.widget_calendar tbody a:focus,
+	.page-links a:hover,
+	.page-links a:focus {
+		background-color: #352712; /* Fallback for IE7 and IE8 */
+		background-color: rgba( 53, 39, 18, 0.7);
+	}
+
+	/* Secondary Text Color */
+	blockquote,
+	a:hover,
+	a:focus,
+	.main-navigation .menu-item-description,
+	.post-navigation .meta-nav,
+	.post-navigation a:hover .post-title,
+	.post-navigation a:focus .post-title,
+	.image-navigation,
+	.image-navigation a,
+	.comment-navigation,
+	.comment-navigation a,
+	.widget,
+	.author-heading,
+	.entry-footer,
+	.entry-footer a,
+	.taxonomy-description,
+	.page-links > .page-links-title,
+	.entry-caption,
+	.comment-author,
+	.comment-metadata,
+	.comment-metadata a,
+	.pingback .edit-link,
+	.pingback .edit-link a,
+	.post-password-form label,
+	.comment-form label,
+	.comment-notes,
+	.comment-awaiting-moderation,
+	.logged-in-as,
+	.form-allowed-tags,
+	.no-comments,
+	.site-info,
+	.site-info a,
+	.wp-caption-text,
+	.gallery-caption,
+	.comment-list .reply a,
+	.widecolumn label,
+	.widecolumn .mu_register label {
+		color: #352712; /* Fallback for IE7 and IE8 */
+		color: rgba( 53, 39, 18, 0.7);
+	}
+
+	/* Secondary Text Color */
+	blockquote,
+	.logged-in-as a:hover,
+	.comment-author a:hover {
+		border-color: #352712; /* Fallback for IE7 and IE8 */
+		border-color: rgba( 53, 39, 18, 0.7);
+	}
+
+	/* Border Color */
+	hr,
+	.dropdown-toggle:hover,
+	.dropdown-toggle:focus {
+		background-color: #352712; /* Fallback for IE7 and IE8 */
+		background-color: rgba( 53, 39, 18, 0.1);
+	}
+
+	/* Border Color */
+	pre,
+	abbr[title],
+	table,
+	th,
+	td,
+	input,
+	textarea,
+	.main-navigation ul,
+	.main-navigation li,
+	.post-navigation,
+	.post-navigation div + div,
+	.pagination,
+	.comment-navigation,
+	.widget li,
+	.widget_categories .children,
+	.widget_nav_menu .sub-menu,
+	.widget_pages .children,
+	.site-header,
+	.site-footer,
+	.hentry + .hentry,
+	.author-info,
+	.entry-content .page-links a,
+	.page-links > span,
+	.page-header,
+	.comments-area,
+	.comment-list + .comment-respond,
+	.comment-list article,
+	.comment-list .pingback,
+	.comment-list .trackback,
+	.comment-list .reply a,
+	.no-comments {
+		border-color: #352712; /* Fallback for IE7 and IE8 */
+		border-color: rgba( 53, 39, 18, 0.1);
+	}
+
+	/* Border Focus Color */
+	a:focus,
+	button:focus,
+	input:focus {
+		outline-color: #352712; /* Fallback for IE7 and IE8 */
+		outline-color: rgba( 53, 39, 18, 0.3);
+	}
+
+	input:focus,
+	textarea:focus {
+		border-color: #352712; /* Fallback for IE7 and IE8 */
+		border-color: rgba( 53, 39, 18, 0.3);
+	}
+
+	/* Sidebar Link Color */
+	.secondary-toggle:before {
+		color: #ffffff;
+	}
+
+	.site-title a,
+	.site-description {
+		color: #ffffff;
+	}
+
+	/* Sidebar Text Color */
+	.site-title a:hover,
+	.site-title a:focus {
+		color: rgba( 255, 255, 255, 0.7);
+	}
+
+	/* Sidebar Border Color */
+	.secondary-toggle {
+		border-color: #ffffff; /* Fallback for IE7 and IE8 */
+		border-color: rgba( 255, 255, 255, 0.1);
+	}
+
+	/* Sidebar Border Focus Color */
+	.secondary-toggle:hover,
+	.secondary-toggle:focus {
+		border-color: #ffffff; /* Fallback for IE7 and IE8 */
+		border-color: rgba( 255, 255, 255, 0.3);
+	}
+
+	.site-title a {
+		outline-color: #ffffff; /* Fallback for IE7 and IE8 */
+		outline-color: rgba( 255, 255, 255, 0.3);
+	}
+
+	/* Meta Background Color */
+	.entry-footer {
+		background-color: #f1f1f1;
+	}
+
+	@media screen and (min-width: 38.75em) {
+		/* Main Text Color */
+		.page-header {
+			border-color: #352712;
+		}
+	}
+
+	@media screen and (min-width: 59.6875em) {
+		/* Make sure its transparent on desktop */
+		.site-header,
+		.secondary {
+			background-color: transparent;
+		}
+
+		/* Sidebar Background Color */
+		.widget button,
+		.widget input[type="button"],
+		.widget input[type="reset"],
+		.widget input[type="submit"],
+		.widget_calendar tbody a,
+		.widget_calendar tbody a:hover,
+		.widget_calendar tbody a:focus {
+			color: #e53b51;
+		}
+
+		/* Sidebar Link Color */
+		.secondary a,
+		.dropdown-toggle:after,
+		.widget-title,
+		.widget blockquote cite,
+		.widget blockquote small {
+			color: #ffffff;
+		}
+
+		.widget button,
+		.widget input[type="button"],
+		.widget input[type="reset"],
+		.widget input[type="submit"],
+		.widget_calendar tbody a {
+			background-color: #ffffff;
+		}
+
+		.textwidget a {
+			border-color: #ffffff;
+		}
+
+		/* Sidebar Text Color */
+		.secondary a:hover,
+		.secondary a:focus,
+		.main-navigation .menu-item-description,
+		.widget,
+		.widget blockquote,
+		.widget .wp-caption-text,
+		.widget .gallery-caption {
+			color: rgba( 255, 255, 255, 0.7);
+		}
+
+		.widget button:hover,
+		.widget button:focus,
+		.widget input[type="button"]:hover,
+		.widget input[type="button"]:focus,
+		.widget input[type="reset"]:hover,
+		.widget input[type="reset"]:focus,
+		.widget input[type="submit"]:hover,
+		.widget input[type="submit"]:focus,
+		.widget_calendar tbody a:hover,
+		.widget_calendar tbody a:focus {
+			background-color: rgba( 255, 255, 255, 0.7);
+		}
+
+		.widget blockquote {
+			border-color: rgba( 255, 255, 255, 0.7);
+		}
+
+		/* Sidebar Border Color */
+		.main-navigation ul,
+		.main-navigation li,
+		.widget input,
+		.widget textarea,
+		.widget table,
+		.widget th,
+		.widget td,
+		.widget pre,
+		.widget li,
+		.widget_categories .children,
+		.widget_nav_menu .sub-menu,
+		.widget_pages .children,
+		.widget abbr[title] {
+			border-color: rgba( 255, 255, 255, 0.1);
+		}
+
+		.dropdown-toggle:hover,
+		.dropdown-toggle:focus,
+		.widget hr {
+			background-color: rgba( 255, 255, 255, 0.1);
+		}
+
+		.widget input:focus,
+		.widget textarea:focus {
+			border-color: rgba( 255, 255, 255, 0.3);
+		}
+
+		.sidebar a:focus,
+		.dropdown-toggle:focus {
+			outline-color: rgba( 255, 255, 255, 0.3);
+		}
+	}
+</style> 
+  <!--[if lt IE 9]>
+<link rel='stylesheet' id='twentyfifteen-ie-css'  href='http://dorole.com/wp-content/themes/twentyfifteen/css/ie.css?ver=20141010' type='text/css' media='all' />
+<![endif]--> 
+  <!--[if lt IE 8]>
+<link rel='stylesheet' id='twentyfifteen-ie7-css'  href='http://dorole.com/wp-content/themes/twentyfifteen/css/ie7.css?ver=20141010' type='text/css' media='all' />
+<![endif]--> 
+  <script type="text/javascript" src="http://dorole.com/wp-includes/js/jquery/jquery.js?ver=1.12.4"></script> 
+  <script type="text/javascript" src="http://dorole.com/wp-includes/js/jquery/jquery-migrate.min.js?ver=1.4.1"></script> 
+  <link rel="https://api.w.org/" href="http://dorole.com/wp-json/" /> 
+  <link rel="EditURI" type="application/rsd+xml" title="RSD" href="http://dorole.com/xmlrpc.php?rsd" /> 
+  <link rel="wlwmanifest" type="application/wlwmanifest+xml" href="http://dorole.com/wp-includes/wlwmanifest.xml" /> 
+  <link rel="prev" title="闪光灯那些事（二）" href="http://dorole.com/1416/" /> 
+  <link rel="next" title="为hitu.me开启全站https" href="http://dorole.com/1425/" /> 
+  <meta name="generator" content="WordPress 4.7.3" /> 
+  <link rel="shortlink" href="http://dorole.com/?p=1422" /> 
+  <link rel="alternate" type="application/json+oembed" href="http://dorole.com/wp-json/oembed/1.0/embed?url=http%3A%2F%2Fdorole.com%2F1422%2F" /> 
+  <link rel="alternate" type="text/xml+oembed" href="http://dorole.com/wp-json/oembed/1.0/embed?url=http%3A%2F%2Fdorole.com%2F1422%2F&amp;format=xml" /> 
+  <style type="text/css" id="syntaxhighlighteranchor"></style> 
+  <link rel="icon" href="http://dorole.com/wp-content/uploads/2010/04/400-150x150.jpg" sizes="32x32" /> 
+  <link rel="icon" href="http://dorole.com/wp-content/uploads/2010/04/400-300x300.jpg" sizes="192x192" /> 
+  <link rel="apple-touch-icon-precomposed" href="http://dorole.com/wp-content/uploads/2010/04/400-300x300.jpg" /> 
+  <meta name="msapplication-TileImage" content="http://dorole.com/wp-content/uploads/2010/04/400-300x300.jpg" /> 
+ </head> 
+ <body class="post-template-default single single-post postid-1422 single-format-standard"> 
+  <div id="page" class="hfeed site"> 
+   <a class="skip-link screen-reader-text" href="#content">跳至内容</a> 
+   <div id="sidebar" class="sidebar"> 
+    <header id="masthead" class="site-header" role="banner"> 
+     <div class="site-branding"> 
+      <p class="site-title"><a href="http://dorole.com/" rel="home">Dorole's Blog</a></p> 
+      <p class="site-description">影像，不因时间而消逝</p> 
+      <button class="secondary-toggle">菜单和挂件</button> 
+     </div>
+     <!-- .site-branding --> 
+    </header>
+    <!-- .site-header --> 
+    <div id="secondary" class="secondary"> 
+     <div id="widget-area" class="widget-area" role="complementary"> 
+      <aside id="nav_menu-3" class="widget widget_nav_menu">
+       <div class="menu-main-menu-container">
+        <ul id="menu-main-menu" class="menu">
+         <li id="menu-item-554" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-554"><a href="http://dorole.com/">首页</a></li> 
+         <li id="menu-item-1405" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-1405"><a href="https://hitu.me/">花图</a></li> 
+         <li id="menu-item-1195" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-1195"><a href="http://dorole.com/weixin-lyric-style/">歌词 Style</a></li> 
+         <li id="menu-item-556" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-556"><a href="http://dorole.com/about/">关于</a></li> 
+        </ul>
+       </div>
+      </aside>
+      <aside id="calendar-2" class="widget widget_calendar">
+       <h2 class="widget-title">Calendar</h2>
+       <div id="calendar_wrap" class="calendar_wrap">
+        <table id="wp-calendar"> 
+         <caption>
+          2017年三月
+         </caption> 
+         <thead> 
+          <tr> 
+           <th scope="col" title="星期日">日</th> 
+           <th scope="col" title="星期一">一</th> 
+           <th scope="col" title="星期二">二</th> 
+           <th scope="col" title="星期三">三</th> 
+           <th scope="col" title="星期四">四</th> 
+           <th scope="col" title="星期五">五</th> 
+           <th scope="col" title="星期六">六</th> 
+          </tr> 
+         </thead> 
+         <tfoot> 
+          <tr> 
+           <td colspan="3" id="prev"><a href="http://dorole.com/date/2017/02/">&laquo; 2月</a></td> 
+           <td class="pad">&nbsp;</td> 
+           <td colspan="3" id="next" class="pad">&nbsp;</td> 
+          </tr> 
+         </tfoot> 
+         <tbody> 
+          <tr> 
+           <td colspan="3" class="pad">&nbsp;</td>
+           <td>1</td>
+           <td>2</td>
+           <td>3</td>
+           <td>4</td> 
+          </tr> 
+          <tr> 
+           <td>5</td>
+           <td>6</td>
+           <td>7</td>
+           <td>8</td>
+           <td>9</td>
+           <td>10</td>
+           <td>11</td> 
+          </tr> 
+          <tr> 
+           <td>12</td>
+           <td>13</td>
+           <td>14</td>
+           <td>15</td>
+           <td><a href="http://dorole.com/date/2017/03/16/" aria-label="于2017年3月16日上发布的文章">16</a></td>
+           <td>17</td>
+           <td>18</td> 
+          </tr> 
+          <tr> 
+           <td>19</td>
+           <td>20</td>
+           <td>21</td>
+           <td>22</td>
+           <td>23</td>
+           <td>24</td>
+           <td>25</td> 
+          </tr> 
+          <tr> 
+           <td>26</td>
+           <td>27</td>
+           <td id="today">28</td>
+           <td>29</td>
+           <td>30</td>
+           <td>31</td> 
+           <td class="pad" colspan="1">&nbsp;</td> 
+          </tr> 
+         </tbody> 
+        </table>
+       </div>
+      </aside>
+      <aside id="text-8" class="widget widget_text">
+       <h2 class="widget-title">Toys</h2> 
+       <div class="textwidget">
+        <script>
+document.write(unescape('%3Cscript src="http://u.dji.com/ads/769"%3E%3C/script%3E'));
+</script>
+       </div> 
+      </aside>
+      <aside id="text-9" class="widget widget_text">
+       <h2 class="widget-title">VPN</h2> 
+       <div class="textwidget">
+        <a href="http://inviteyt.com/?r=6faf2514e4cbd2fa" target="_blank">Across the Great Wall we can reach every corner in the world.</a>
+       </div> 
+      </aside>
+      <aside id="search-4" class="widget widget_search">
+       <h2 class="widget-title">Search</h2>
+       <form role="search" method="get" class="search-form" action="http://dorole.com/"> 
+        <label> <span class="screen-reader-text">搜索：</span> <input type="search" class="search-field" placeholder="搜索…" value="" name="s" /> </label> 
+        <input type="submit" class="search-submit screen-reader-text" value="搜索" /> 
+       </form>
+      </aside>
+      <aside id="categories-11" class="widget widget_categories">
+       <h2 class="widget-title">Categories</h2> 
+       <ul> 
+        <li class="cat-item cat-item-225"><a href="http://dorole.com/category/photography/" title="随拍，风景，等等">Photography</a> (29) </li> 
+        <li class="cat-item cat-item-3"><a href="http://dorole.com/category/programming/" title="关于编程的各个方面">Programming</a> (31) </li> 
+        <li class="cat-item cat-item-11"><a href="http://dorole.com/category/record/" title="写点见解之类的">Record</a> (104) </li> 
+        <li class="cat-item cat-item-24"><a href="http://dorole.com/category/ubuntu/" title="一些ubuntu linux系统的技巧">Ubuntu</a> (10) </li> 
+        <li class="cat-item cat-item-1"><a href="http://dorole.com/category/uncategorized/" title="放置其他方面的技术心得">Uncategorized</a> (35) </li> 
+        <li class="cat-item cat-item-36"><a href="http://dorole.com/category/video/" title="分享有趣的视频">Video</a> (11) </li> 
+       </ul> 
+      </aside>
+      <aside id="archives-4" class="widget widget_archive">
+       <h2 class="widget-title">Archives</h2> 
+       <ul> 
+        <li><a href="http://dorole.com/date/2017/03/">2017年三月</a>&nbsp;(1)</li> 
+        <li><a href="http://dorole.com/date/2017/02/">2017年二月</a>&nbsp;(3)</li> 
+        <li><a href="http://dorole.com/date/2017/01/">2017年一月</a>&nbsp;(1)</li> 
+        <li><a href="http://dorole.com/date/2016/12/">2016年十二月</a>&nbsp;(1)</li> 
+        <li><a href="http://dorole.com/date/2016/11/">2016年十一月</a>&nbsp;(1)</li> 
+        <li><a href="http://dorole.com/date/2016/10/">2016年十月</a>&nbsp;(1)</li> 
+        <li><a href="http://dorole.com/date/2016/09/">2016年九月</a>&nbsp;(1)</li> 
+        <li><a href="http://dorole.com/date/2016/07/">2016年七月</a>&nbsp;(1)</li> 
+        <li><a href="http://dorole.com/date/2016/06/">2016年六月</a>&nbsp;(4)</li> 
+        <li><a href="http://dorole.com/date/2016/05/">2016年五月</a>&nbsp;(4)</li> 
+        <li><a href="http://dorole.com/date/2016/01/">2016年一月</a>&nbsp;(3)</li> 
+        <li><a href="http://dorole.com/date/2015/12/">2015年十二月</a>&nbsp;(2)</li> 
+        <li><a href="http://dorole.com/date/2015/11/">2015年十一月</a>&nbsp;(1)</li> 
+        <li><a href="http://dorole.com/date/2015/10/">2015年十月</a>&nbsp;(1)</li> 
+        <li><a href="http://dorole.com/date/2015/09/">2015年九月</a>&nbsp;(2)</li> 
+        <li><a href="http://dorole.com/date/2015/08/">2015年八月</a>&nbsp;(2)</li> 
+        <li><a href="http://dorole.com/date/2015/07/">2015年七月</a>&nbsp;(1)</li> 
+        <li><a href="http://dorole.com/date/2015/05/">2015年五月</a>&nbsp;(1)</li> 
+        <li><a href="http://dorole.com/date/2015/04/">2015年四月</a>&nbsp;(1)</li> 
+        <li><a href="http://dorole.com/date/2015/02/">2015年二月</a>&nbsp;(2)</li> 
+        <li><a href="http://dorole.com/date/2015/01/">2015年一月</a>&nbsp;(3)</li> 
+        <li><a href="http://dorole.com/date/2014/11/">2014年十一月</a>&nbsp;(2)</li> 
+        <li><a href="http://dorole.com/date/2014/09/">2014年九月</a>&nbsp;(1)</li> 
+        <li><a href="http://dorole.com/date/2014/07/">2014年七月</a>&nbsp;(1)</li> 
+        <li><a href="http://dorole.com/date/2014/06/">2014年六月</a>&nbsp;(3)</li> 
+        <li><a href="http://dorole.com/date/2014/01/">2014年一月</a>&nbsp;(3)</li> 
+        <li><a href="http://dorole.com/date/2013/12/">2013年十二月</a>&nbsp;(5)</li> 
+        <li><a href="http://dorole.com/date/2013/11/">2013年十一月</a>&nbsp;(2)</li> 
+        <li><a href="http://dorole.com/date/2013/10/">2013年十月</a>&nbsp;(2)</li> 
+        <li><a href="http://dorole.com/date/2013/09/">2013年九月</a>&nbsp;(1)</li> 
+        <li><a href="http://dorole.com/date/2013/08/">2013年八月</a>&nbsp;(1)</li> 
+        <li><a href="http://dorole.com/date/2013/07/">2013年七月</a>&nbsp;(2)</li> 
+        <li><a href="http://dorole.com/date/2013/06/">2013年六月</a>&nbsp;(1)</li> 
+        <li><a href="http://dorole.com/date/2013/05/">2013年五月</a>&nbsp;(2)</li> 
+        <li><a href="http://dorole.com/date/2013/04/">2013年四月</a>&nbsp;(1)</li> 
+        <li><a href="http://dorole.com/date/2013/03/">2013年三月</a>&nbsp;(1)</li> 
+        <li><a href="http://dorole.com/date/2013/01/">2013年一月</a>&nbsp;(2)</li> 
+        <li><a href="http://dorole.com/date/2012/12/">2012年十二月</a>&nbsp;(1)</li> 
+        <li><a href="http://dorole.com/date/2012/11/">2012年十一月</a>&nbsp;(1)</li> 
+        <li><a href="http://dorole.com/date/2012/10/">2012年十月</a>&nbsp;(1)</li> 
+        <li><a href="http://dorole.com/date/2012/09/">2012年九月</a>&nbsp;(1)</li> 
+        <li><a href="http://dorole.com/date/2012/08/">2012年八月</a>&nbsp;(1)</li> 
+        <li><a href="http://dorole.com/date/2012/06/">2012年六月</a>&nbsp;(1)</li> 
+        <li><a href="http://dorole.com/date/2012/05/">2012年五月</a>&nbsp;(1)</li> 
+        <li><a href="http://dorole.com/date/2012/04/">2012年四月</a>&nbsp;(2)</li> 
+        <li><a href="http://dorole.com/date/2012/03/">2012年三月</a>&nbsp;(2)</li> 
+        <li><a href="http://dorole.com/date/2012/02/">2012年二月</a>&nbsp;(3)</li> 
+        <li><a href="http://dorole.com/date/2012/01/">2012年一月</a>&nbsp;(2)</li> 
+        <li><a href="http://dorole.com/date/2011/12/">2011年十二月</a>&nbsp;(3)</li> 
+        <li><a href="http://dorole.com/date/2011/11/">2011年十一月</a>&nbsp;(10)</li> 
+        <li><a href="http://dorole.com/date/2011/10/">2011年十月</a>&nbsp;(4)</li> 
+        <li><a href="http://dorole.com/date/2011/09/">2011年九月</a>&nbsp;(8)</li> 
+        <li><a href="http://dorole.com/date/2011/08/">2011年八月</a>&nbsp;(1)</li> 
+        <li><a href="http://dorole.com/date/2011/07/">2011年七月</a>&nbsp;(5)</li> 
+        <li><a href="http://dorole.com/date/2011/06/">2011年六月</a>&nbsp;(4)</li> 
+        <li><a href="http://dorole.com/date/2011/05/">2011年五月</a>&nbsp;(2)</li> 
+        <li><a href="http://dorole.com/date/2011/04/">2011年四月</a>&nbsp;(3)</li> 
+        <li><a href="http://dorole.com/date/2011/03/">2011年三月</a>&nbsp;(4)</li> 
+        <li><a href="http://dorole.com/date/2011/02/">2011年二月</a>&nbsp;(3)</li> 
+        <li><a href="http://dorole.com/date/2011/01/">2011年一月</a>&nbsp;(3)</li> 
+        <li><a href="http://dorole.com/date/2010/12/">2010年十二月</a>&nbsp;(3)</li> 
+        <li><a href="http://dorole.com/date/2010/11/">2010年十一月</a>&nbsp;(3)</li> 
+        <li><a href="http://dorole.com/date/2010/10/">2010年十月</a>&nbsp;(3)</li> 
+        <li><a href="http://dorole.com/date/2010/09/">2010年九月</a>&nbsp;(7)</li> 
+        <li><a href="http://dorole.com/date/2010/08/">2010年八月</a>&nbsp;(9)</li> 
+        <li><a href="http://dorole.com/date/2010/07/">2010年七月</a>&nbsp;(7)</li> 
+        <li><a href="http://dorole.com/date/2010/06/">2010年六月</a>&nbsp;(7)</li> 
+        <li><a href="http://dorole.com/date/2010/05/">2010年五月</a>&nbsp;(10)</li> 
+        <li><a href="http://dorole.com/date/2010/04/">2010年四月</a>&nbsp;(5)</li> 
+       </ul> 
+      </aside>
+      <aside id="linkcat-2" class="widget widget_links">
+       <h2 class="widget-title">Links</h2> 
+       <ul class="xoxo blogroll"> 
+        <li><a href="https://www.deleak.com/blog/" rel="friend" target="_blank">delectate's blog</a></li> 
+        <li><a href="http://www.freetstar.com/" rel="friend" title="loving Freedom + + loving Linux" target="_blank">FreeTstar</a> loving Freedom + + loving Linux</li> 
+        <li><a href="https://www.ulumen.com/" rel="friend" title="一枚伪Geek，爱折腾，会捣鼓OS X和Linux" target="_blank">Lumen</a> 一枚伪Geek，爱折腾，会捣鼓OS X和Linux</li> 
+        <li><a href="http://www.5dimn.com/" rel="friend" title="Live for art’s sake" target="_blank">Quinta Diminuita</a> Live for art’s sake</li> 
+        <li><a href="http://beautycss.net/" rel="friend" title="前端仔 拍照人 运动爱好者" target="_blank">Reno's Blog</a> 前端仔 拍照人 运动爱好者</li> 
+        <li><a href="http://fengyongzhi.com/" rel="friend" title="关心粮食和蔬菜 关心事实与真相" target="_blank">冯言疯语</a> 关心粮食和蔬菜 关心事实与真相</li> 
+       </ul> 
+      </aside> 
+      <aside id="meta-2" class="widget widget_meta">
+       <h2 class="widget-title">Meta</h2> 
+       <ul> 
+        <li><a href="http://dorole.com/wp-login.php">登录</a></li> 
+        <li><a href="http://dorole.com/feed/">文章<abbr title="Really Simple Syndication">RSS</abbr></a></li> 
+        <li><a href="http://dorole.com/comments/feed/">评论<abbr title="Really Simple Syndication">RSS</abbr></a></li> 
+        <li><a href="https://cn.wordpress.org/" title="基于WordPress，一个优美、先进的个人信息发布平台。">WordPress.org</a></li> 
+       </ul> 
+      </aside>
+      <aside id="text-6" class="widget widget_text">
+       <h2 class="widget-title">China</h2> 
+       <div class="textwidget">
+        <script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?e2d3fbd62c0638ac3b7717c7b8920ca8";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script> 粤ICP备13026098号-1
+       </div> 
+      </aside> 
+     </div>
+     <!-- .widget-area --> 
+    </div>
+    <!-- .secondary --> 
+   </div>
+   <!-- .sidebar --> 
+   <div id="content" class="site-content"> 
+    <div id="primary" class="content-area"> 
+     <main id="main" class="site-main" role="main"> 
+      <article id="post-1422" class="post-1422 post type-post status-publish format-standard hentry category-programming tag-redis tag-session tag-spring-session tag-web"> 
+       <header class="entry-header"> 
+        <h1 class="entry-title">使用Spring Session做分布式会话管理</h1> 
+       </header>
+       <!-- .entry-header --> 
+       <div class="entry-content"> 
+        <p>　　在Web项目开发中，会话管理是一个很重要的部分，用于存储与用户相关的数据。通常是由符合session规范的容器来负责存储管理，也就是一旦容器关闭，重启会导致会话失效。因此打造一个高可用性的系统，必须将session管理从容器中独立出来。而这实现方案有很多种，下面简单介绍下：</p> 
+        <p>　　第一种是使用容器扩展来实现，大家比较容易接受的是通过容器插件来实现，比如基于Tomcat的<a href="https://github.com/jcoleman/tomcat-redis-session-manager" target="_blank">tomcat-redis-session-manager</a>，基于Jetty的<a href="https://github.com/Ovea/jetty-session-redis" target="_blank">jetty-session-redis</a>等等。好处是对项目来说是透明的，无需改动代码。不过前者目前还不支持Tomcat 8，或者说不太完善。个人觉得由于过于依赖容器，一旦容器升级或者更换意味着又得从新来过。并且代码不在项目中，对开发者来说维护也是个问题。</p> 
+        <p>　　第二种是自己写一套会话管理的工具类，包括Session管理和Cookie管理，在需要使用会话的时候都从自己的工具类中获取，而工具类后端存储可以放到Redis中。很显然这个方案灵活性最大，但开发需要一些额外的时间。并且系统中存在两套Session方案，很容易弄错而导致取不到数据。</p> 
+        <p>　　第三种是使用框架的会话管理工具，也就是本文要说的<a href="http://docs.spring.io/spring-session/docs/current/reference/html5/" target="_blank">spring-session</a>，可以理解是替换了Servlet那一套会话管理，既不依赖容器，又不需要改动代码，并且是用了spring-data-redis那一套连接池，可以说是最完美的解决方案。当然，前提是项目要使用Spring Framework才行。</p> 
+        <p>　　这里简单记录下整合的过程：</p> 
+        <p>　　如果项目之前没有整合过spring-data-redis的话，这一步需要先做，在maven中添加这两个依赖：</p> 
+        <pre class="brush: xml; title: ; notranslate" title="">
+&lt;dependency&gt;
+	&lt;groupId&gt;org.springframework.data&lt;/groupId&gt;
+	&lt;artifactId&gt;spring-data-redis&lt;/artifactId&gt;
+	&lt;version&gt;1.5.2.RELEASE&lt;/version&gt;
+&lt;/dependency&gt;
+&lt;dependency&gt;
+	&lt;groupId&gt;org.springframework.session&lt;/groupId&gt;
+	&lt;artifactId&gt;spring-session&lt;/artifactId&gt;
+	&lt;version&gt;1.0.2.RELEASE&lt;/version&gt;
+&lt;/dependency&gt;
+</pre> 
+        <p>　　再在applicationContext.xml中添加以下bean，用于定义redis的连接池和初始化redis模版操作类，自行替换其中的相关变量。</p> 
+        <pre class="brush: xml; title: ; notranslate" title="">
+&lt;!-- redis --&gt;
+&lt;bean id=&quot;jedisPoolConfig&quot; class=&quot;redis.clients.jedis.JedisPoolConfig&quot;&gt;
+&lt;/bean&gt;
+
+&lt;bean id=&quot;jedisConnectionFactory&quot;
+	class=&quot;org.springframework.data.redis.connection.jedis.JedisConnectionFactory&quot;&gt;
+	&lt;property name=&quot;hostName&quot; value=&quot;${redis.host}&quot; /&gt;
+	&lt;property name=&quot;port&quot; value=&quot;${redis.port}&quot; /&gt;
+	&lt;property name=&quot;password&quot; value=&quot;${redis.pass}&quot; /&gt;
+	&lt;property name=&quot;timeout&quot; value=&quot;${redis.timeout}&quot; /&gt;
+	&lt;property name=&quot;poolConfig&quot; ref=&quot;jedisPoolConfig&quot; /&gt;
+	&lt;property name=&quot;usePool&quot; value=&quot;true&quot; /&gt;
+&lt;/bean&gt;
+
+&lt;bean id=&quot;redisTemplate&quot; class=&quot;org.springframework.data.redis.core.StringRedisTemplate&quot;&gt;
+	&lt;property name=&quot;connectionFactory&quot; ref=&quot;jedisConnectionFactory&quot; /&gt;
+&lt;/bean&gt;
+
+&lt;!-- 将session放入redis --&gt;
+&lt;bean id=&quot;redisHttpSessionConfiguration&quot;
+class=&quot;org.springframework.session.data.redis.config.annotation.web.http.RedisHttpSessionConfiguration&quot;&gt;
+	&lt;property name=&quot;maxInactiveIntervalInSeconds&quot; value=&quot;1800&quot; /&gt;
+&lt;/bean&gt;
+</pre> 
+        <p>　　这里前面几个bean都是操作redis时候使用的，最后一个bean才是spring-session需要用到的，其中的id可以不写或者保持不变，这也是一个约定优先配置的体现。这个bean中又会自动产生多个bean，用于相关操作，极大的简化了我们的配置项。其中有个比较重要的是springSessionRepositoryFilter，它将在下面的代理filter中被调用到。maxInactiveIntervalInSeconds表示超时时间，默认是1800秒。写上述配置的时候我个人习惯采用xml来定义，官方文档中有采用注解来声明一个配置类。</p> 
+        <p>　　然后是在web.xml中添加一个session代理filter，通过这个filter来包装Servlet的getSession()。需要注意的是<strong>这个filter需要放在所有filter链最前面</strong>。</p> 
+        <pre class="brush: xml; title: ; notranslate" title="">
+&lt;!-- delegatingFilterProxy --&gt;
+&lt;filter&gt;
+	&lt;filter-name&gt;springSessionRepositoryFilter&lt;/filter-name&gt;
+	&lt;filter-class&gt;org.springframework.web.filter.DelegatingFilterProxy&lt;/filter-class&gt;
+&lt;/filter&gt;
+&lt;filter-mapping&gt;
+	&lt;filter-name&gt;springSessionRepositoryFilter&lt;/filter-name&gt;
+	&lt;url-pattern&gt;/*&lt;/url-pattern&gt;
+&lt;/filter-mapping&gt;
+</pre> 
+        <p>　　这样便配置完毕了，需要注意的是，spring-session要求<strong>Redis Server版本不低于2.8</strong>。</p> 
+        <p>　　验证：使用redis-cli就可以查看到session key了，且浏览器Cookie中的jsessionid已经替换为session。</p> 
+        <pre class="brush: plain; title: ; notranslate" title="">
+127.0.0.1:6379&gt; KEYS *
+1) &quot;spring:session:expirations:1440922740000&quot;
+2) &quot;spring:session:sessions:35b48cb4-62f8-440c-afac-9c7e3cfe98d3&quot;
+</pre> 
+        <div style="margin-top: 25px; text-align:right"> 
+         <p><strong>本文链接地址：</strong><a href="http://dorole.com/1422/">http://dorole.com/1422/</a></p> 
+         <p>来自：<a href="http://dorole.com/">Dorole's Blog</a></p> 
+        </div> 
+       </div>
+       <!-- .entry-content --> 
+       <div class="author-info"> 
+        <h2 class="author-heading">发布者</h2> 
+        <div class="author-avatar"> 
+        </div>
+        <!-- .author-avatar --> 
+        <div class="author-description"> 
+         <h3 class="author-title">Steven Yang</h3> 
+         <p class="author-bio"> 爱coding，爱摄影，爱旅游，爱音乐 <a class="author-link" href="http://dorole.com/author/admin/" rel="author"> 查看Steven Yang的所有文章 </a> </p>
+         <!-- .author-bio --> 
+        </div>
+        <!-- .author-description --> 
+       </div>
+       <!-- .author-info --> 
+       <footer class="entry-footer"> 
+        <span class="posted-on"><span class="screen-reader-text">发布于 </span><a href="http://dorole.com/1422/" rel="bookmark"><time class="entry-date published updated" datetime="2015-08-30T16:41:09+00:00">2015年8月30日</time></a></span>
+        <span class="byline"><span class="author vcard"><span class="screen-reader-text">作者 </span><a class="url fn n" href="http://dorole.com/author/admin/">Steven Yang</a></span></span>
+        <span class="cat-links"><span class="screen-reader-text">分类 </span><a href="http://dorole.com/category/programming/" rel="category tag">Programming</a></span>
+        <span class="tags-links"><span class="screen-reader-text">标签 </span><a href="http://dorole.com/tag/redis/" rel="tag">redis</a>、<a href="http://dorole.com/tag/session/" rel="tag">session</a>、<a href="http://dorole.com/tag/spring-session/" rel="tag">spring-session</a>、<a href="http://dorole.com/tag/web%e5%bc%80%e5%8f%91/" rel="tag">web开发</a>、<a href="http://dorole.com/tag/%e5%88%86%e5%b8%83%e5%bc%8fsession/" rel="tag">分布式session</a></span> 
+       </footer>
+       <!-- .entry-footer --> 
+      </article>
+      <!-- #post-## --> 
+      <div id="comments" class="comments-area"> 
+       <h2 class="comments-title"> 《使用Spring Session做分布式会话管理》有29个想法 </h2> 
+       <ol class="comment-list"> 
+        <li id="comment-38873" class="comment even thread-even depth-1"> 
+         <article id="div-comment-38873" class="comment-body"> 
+          <footer class="comment-meta"> 
+           <div class="comment-author vcard"> 
+            <b class="fn">黄豆</b>
+            <span class="says">说道：</span> 
+           </div>
+           <!-- .comment-author --> 
+           <div class="comment-metadata"> 
+            <a href="http://dorole.com/1422/#comment-38873"> <time datetime="2017-01-16T13:10:34+00:00"> 2017年1月16日 13:10 </time> </a> 
+           </div>
+           <!-- .comment-metadata --> 
+          </footer>
+          <!-- .comment-meta --> 
+          <div class="comment-content"> 
+           <p>context-param 中contextConfigLocation需要引入 spring-mvc.xml的路径</p> 
+          </div>
+          <!-- .comment-content --> 
+          <div class="reply">
+           <a rel="nofollow" class="comment-reply-link" href="http://dorole.com/1422/?replytocom=38873#respond" onclick="return addComment.moveForm( &quot;div-comment-38873&quot;, &quot;38873&quot;, &quot;respond&quot;, &quot;1422&quot; )" aria-label="回复给黄豆">回复</a>
+          </div> 
+         </article>
+         <!-- .comment-body --> </li>
+        <!-- #comment-## --> 
+        <li id="comment-38761" class="comment odd alt thread-odd thread-alt depth-1 parent"> 
+         <article id="div-comment-38761" class="comment-body"> 
+          <footer class="comment-meta"> 
+           <div class="comment-author vcard"> 
+            <b class="fn">A_yes</b>
+            <span class="says">说道：</span> 
+           </div>
+           <!-- .comment-author --> 
+           <div class="comment-metadata"> 
+            <a href="http://dorole.com/1422/#comment-38761"> <time datetime="2017-01-09T10:44:31+00:00"> 2017年1月9日 10:44 </time> </a> 
+           </div>
+           <!-- .comment-metadata --> 
+          </footer>
+          <!-- .comment-meta --> 
+          <div class="comment-content"> 
+           <p>用spring-session的时候如果再使用 session范围的bean 会爆不能序列化异常 遇到过吗？</p> 
+          </div>
+          <!-- .comment-content --> 
+          <div class="reply">
+           <a rel="nofollow" class="comment-reply-link" href="http://dorole.com/1422/?replytocom=38761#respond" onclick="return addComment.moveForm( &quot;div-comment-38761&quot;, &quot;38761&quot;, &quot;respond&quot;, &quot;1422&quot; )" aria-label="回复给A_yes">回复</a>
+          </div> 
+         </article>
+         <!-- .comment-body --> 
+         <ol class="children"> 
+          <li id="comment-38763" class="comment byuser comment-author-admin bypostauthor even depth-2"> 
+           <article id="div-comment-38763" class="comment-body"> 
+            <footer class="comment-meta"> 
+             <div class="comment-author vcard"> 
+              <b class="fn"><a href="http://dorole.com" rel="external nofollow" class="url">Steven Yang</a></b>
+              <span class="says">说道：</span> 
+             </div>
+             <!-- .comment-author --> 
+             <div class="comment-metadata"> 
+              <a href="http://dorole.com/1422/#comment-38763"> <time datetime="2017-01-09T11:36:22+00:00"> 2017年1月9日 11:36 </time> </a> 
+             </div>
+             <!-- .comment-metadata --> 
+            </footer>
+            <!-- .comment-meta --> 
+            <div class="comment-content"> 
+             <p>没试过</p> 
+            </div>
+            <!-- .comment-content --> 
+            <div class="reply">
+             <a rel="nofollow" class="comment-reply-link" href="http://dorole.com/1422/?replytocom=38763#respond" onclick="return addComment.moveForm( &quot;div-comment-38763&quot;, &quot;38763&quot;, &quot;respond&quot;, &quot;1422&quot; )" aria-label="回复给Steven Yang">回复</a>
+            </div> 
+           </article>
+           <!-- .comment-body --> </li>
+          <!-- #comment-## --> 
+         </ol>
+         <!-- .children --> </li>
+        <!-- #comment-## --> 
+        <li id="comment-35822" class="pingback odd alt thread-even depth-1"> 
+         <div class="comment-body">
+           Pingback： 
+          <a href="http://www.mekau.com/index.php/uncategory/pandy_2614.html" rel="external nofollow" class="url">使用Spring Session做分布式会话管理 - 不静之心</a> 
+         </div> </li>
+        <!-- #comment-## --> 
+        <li id="comment-35815" class="comment even thread-odd thread-alt depth-1 parent"> 
+         <article id="div-comment-35815" class="comment-body"> 
+          <footer class="comment-meta"> 
+           <div class="comment-author vcard"> 
+            <b class="fn">cen</b>
+            <span class="says">说道：</span> 
+           </div>
+           <!-- .comment-author --> 
+           <div class="comment-metadata"> 
+            <a href="http://dorole.com/1422/#comment-35815"> <time datetime="2016-07-20T10:18:25+00:00"> 2016年7月20日 10:18 </time> </a> 
+           </div>
+           <!-- .comment-metadata --> 
+          </footer>
+          <!-- .comment-meta --> 
+          <div class="comment-content"> 
+           <p>我这里也出现了No bean named ‘springSessionRepositoryFilter’ is defined 可以发一个demo给我邮箱吗？万分感谢！！</p> 
+          </div>
+          <!-- .comment-content --> 
+          <div class="reply">
+           <a rel="nofollow" class="comment-reply-link" href="http://dorole.com/1422/?replytocom=35815#respond" onclick="return addComment.moveForm( &quot;div-comment-35815&quot;, &quot;35815&quot;, &quot;respond&quot;, &quot;1422&quot; )" aria-label="回复给cen">回复</a>
+          </div> 
+         </article>
+         <!-- .comment-body --> 
+         <ol class="children"> 
+          <li id="comment-35828" class="comment odd alt depth-2 parent"> 
+           <article id="div-comment-35828" class="comment-body"> 
+            <footer class="comment-meta"> 
+             <div class="comment-author vcard"> 
+              <b class="fn">t+</b>
+              <span class="says">说道：</span> 
+             </div>
+             <!-- .comment-author --> 
+             <div class="comment-metadata"> 
+              <a href="http://dorole.com/1422/#comment-35828"> <time datetime="2016-07-23T10:44:59+00:00"> 2016年7月23日 10:44 </time> </a> 
+             </div>
+             <!-- .comment-metadata --> 
+            </footer>
+            <!-- .comment-meta --> 
+            <div class="comment-content"> 
+             <p>我遇到后No bean named ‘springSessionRepositoryFilter’搞定了，可以参考如下链接文章<br /> <a href="http://blog.csdn.net/tgj1202/article/details/51995853" rel="nofollow">http://blog.csdn.net/tgj1202/article/details/51995853</a></p> 
+            </div>
+            <!-- .comment-content --> 
+            <div class="reply">
+             <a rel="nofollow" class="comment-reply-link" href="http://dorole.com/1422/?replytocom=35828#respond" onclick="return addComment.moveForm( &quot;div-comment-35828&quot;, &quot;35828&quot;, &quot;respond&quot;, &quot;1422&quot; )" aria-label="回复给t+">回复</a>
+            </div> 
+           </article>
+           <!-- .comment-body --> 
+           <ol class="children"> 
+            <li id="comment-35853" class="comment even depth-3 parent"> 
+             <article id="div-comment-35853" class="comment-body"> 
+              <footer class="comment-meta"> 
+               <div class="comment-author vcard"> 
+                <b class="fn">wade</b>
+                <span class="says">说道：</span> 
+               </div>
+               <!-- .comment-author --> 
+               <div class="comment-metadata"> 
+                <a href="http://dorole.com/1422/#comment-35853"> <time datetime="2016-07-26T10:36:05+00:00"> 2016年7月26日 10:36 </time> </a> 
+               </div>
+               <!-- .comment-metadata --> 
+              </footer>
+              <!-- .comment-meta --> 
+              <div class="comment-content"> 
+               <p>我參考了文章, 但還是無法解決呢<br /> 請問一下你是怎麼解決的呢? 謝謝你 <img src="http://dorole.com/wp-includes/images/smilies/icon_neutral.gif" alt=":-|" class="wp-smiley" style="height: 1em; max-height: 1em;" /></p> 
+              </div>
+              <!-- .comment-content --> 
+              <div class="reply">
+               <a rel="nofollow" class="comment-reply-link" href="http://dorole.com/1422/?replytocom=35853#respond" onclick="return addComment.moveForm( &quot;div-comment-35853&quot;, &quot;35853&quot;, &quot;respond&quot;, &quot;1422&quot; )" aria-label="回复给wade">回复</a>
+              </div> 
+             </article>
+             <!-- .comment-body --> 
+             <ol class="children"> 
+              <li id="comment-35871" class="comment odd alt depth-4"> 
+               <article id="div-comment-35871" class="comment-body"> 
+                <footer class="comment-meta"> 
+                 <div class="comment-author vcard"> 
+                  <b class="fn">wade</b>
+                  <span class="says">说道：</span> 
+                 </div>
+                 <!-- .comment-author --> 
+                 <div class="comment-metadata"> 
+                  <a href="http://dorole.com/1422/#comment-35871"> <time datetime="2016-07-29T09:35:47+00:00"> 2016年7月29日 09:35 </time> </a> 
+                 </div>
+                 <!-- .comment-metadata --> 
+                </footer>
+                <!-- .comment-meta --> 
+                <div class="comment-content"> 
+                 <p>我最後放棄使用 xml configuration 改用 java configuration, 亦就是說使用 annotation 的方式把 bean 注入, 已可正常使用<br /> JDK1.7<br /> Spring3.2.14</p> 
+                </div>
+                <!-- .comment-content --> 
+                <div class="reply">
+                 <a rel="nofollow" class="comment-reply-link" href="http://dorole.com/1422/?replytocom=35871#respond" onclick="return addComment.moveForm( &quot;div-comment-35871&quot;, &quot;35871&quot;, &quot;respond&quot;, &quot;1422&quot; )" aria-label="回复给wade">回复</a>
+                </div> 
+               </article>
+               <!-- .comment-body --> </li>
+              <!-- #comment-## --> 
+             </ol>
+             <!-- .children --> </li>
+            <!-- #comment-## --> 
+           </ol>
+           <!-- .children --> </li>
+          <!-- #comment-## --> 
+          <li id="comment-36329" class="comment even depth-2"> 
+           <article id="div-comment-36329" class="comment-body"> 
+            <footer class="comment-meta"> 
+             <div class="comment-author vcard"> 
+              <b class="fn">tim</b>
+              <span class="says">说道：</span> 
+             </div>
+             <!-- .comment-author --> 
+             <div class="comment-metadata"> 
+              <a href="http://dorole.com/1422/#comment-36329"> <time datetime="2016-08-24T13:39:39+00:00"> 2016年8月24日 13:39 </time> </a> 
+             </div>
+             <!-- .comment-metadata --> 
+            </footer>
+            <!-- .comment-meta --> 
+            <div class="comment-content"> 
+             <p>你的问题解决了吗，现在我也在弄这个。想找你交流下。QQ227489552</p> 
+            </div>
+            <!-- .comment-content --> 
+            <div class="reply">
+             <a rel="nofollow" class="comment-reply-link" href="http://dorole.com/1422/?replytocom=36329#respond" onclick="return addComment.moveForm( &quot;div-comment-36329&quot;, &quot;36329&quot;, &quot;respond&quot;, &quot;1422&quot; )" aria-label="回复给tim">回复</a>
+            </div> 
+           </article>
+           <!-- .comment-body --> </li>
+          <!-- #comment-## --> 
+         </ol>
+         <!-- .children --> </li>
+        <!-- #comment-## --> 
+        <li id="comment-35520" class="comment odd alt thread-even depth-1"> 
+         <article id="div-comment-35520" class="comment-body"> 
+          <footer class="comment-meta"> 
+           <div class="comment-author vcard"> 
+            <b class="fn">吕刚</b>
+            <span class="says">说道：</span> 
+           </div>
+           <!-- .comment-author --> 
+           <div class="comment-metadata"> 
+            <a href="http://dorole.com/1422/#comment-35520"> <time datetime="2016-06-21T14:00:00+00:00"> 2016年6月21日 14:00 </time> </a> 
+           </div>
+           <!-- .comment-metadata --> 
+          </footer>
+          <!-- .comment-meta --> 
+          <div class="comment-content"> 
+           <p>我也碰到了这个问题。错误如下：<br /> 严重: Exception starting filter springSessionRepositoryFilter<br /> org.springframework.beans.factory.NoSuchBeanDefinitionException: No bean named ‘springSessionRepositoryFilter’ is defined<br /> at org.springframework.beans.factory.support.DefaultListableBeanFactory.getBeanDefinition(DefaultListableBeanFactory.java:698)<br /> at org.springframework.beans.factory.support.AbstractBeanFactory.getMergedLocalBeanDefinition(AbstractBeanFactory.java:1175)<br /> at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:284)<br /> at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:202)<br /> at org.springframework.context.support.AbstractApplicationContext.getBean(AbstractApplicationContext.java:1057)<br /> at org.springframework.web.filter.DelegatingFilterProxy.initDelegate(DelegatingFilterProxy.java:326)<br /> at org.springframework.web.filter.DelegatingFilterProxy.initFilterBean(DelegatingFilterProxy.java:235)<br /> at org.springframework.web.filter.GenericFilterBean.init(GenericFilterBean.java:199)<br /> at org.apache.catalina.core.ApplicationFilterConfig.initFilter(ApplicationFilterConfig.java:279)<br /> at org.apache.catalina.core.ApplicationFilterConfig.getFilter(ApplicationFilterConfig.java:260)<br /> at org.apache.catalina.core.ApplicationFilterConfig.(ApplicationFilterConfig.java:105)<br /> at org.apache.catalina.core.StandardContext.filterStart(StandardContext.java:4658)<br /> at org.apache.catalina.core.StandardContext.startInternal(StandardContext.java:5277)<br /> at org.apache.catalina.util.LifecycleBase.start(LifecycleBase.java:147)<br /> at org.apache.catalina.core.ContainerBase$StartChild.call(ContainerBase.java:1408)<br /> at org.apache.catalina.core.ContainerBase$StartChild.call(ContainerBase.java:1398)<br /> at java.util.concurrent.FutureTask.run(FutureTask.java:266)<br /> at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)<br /> at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)<br /> at java.lang.Thread.run(Thread.java:745)</p> 
+           <p>六月 21, 2016 1:56:39 下午 org.apache.catalina.core.StandardContext startInternal<br /> 严重: One or more Filters failed to start. Full details will be found in the appropriate container log file<br /> 六月 21, 2016 1:56:39 下午 org.apache.catalina.core.StandardContext startInternal<br /> 严重: Context [/springsession] startup failed due to previous errors</p> 
+          </div>
+          <!-- .comment-content --> 
+          <div class="reply">
+           <a rel="nofollow" class="comment-reply-link" href="http://dorole.com/1422/?replytocom=35520#respond" onclick="return addComment.moveForm( &quot;div-comment-35520&quot;, &quot;35520&quot;, &quot;respond&quot;, &quot;1422&quot; )" aria-label="回复给吕刚">回复</a>
+          </div> 
+         </article>
+         <!-- .comment-body --> </li>
+        <!-- #comment-## --> 
+        <li id="comment-35496" class="comment even thread-odd thread-alt depth-1 parent"> 
+         <article id="div-comment-35496" class="comment-body"> 
+          <footer class="comment-meta"> 
+           <div class="comment-author vcard"> 
+            <b class="fn">fish</b>
+            <span class="says">说道：</span> 
+           </div>
+           <!-- .comment-author --> 
+           <div class="comment-metadata"> 
+            <a href="http://dorole.com/1422/#comment-35496"> <time datetime="2016-06-18T20:18:49+00:00"> 2016年6月18日 20:18 </time> </a> 
+           </div>
+           <!-- .comment-metadata --> 
+          </footer>
+          <!-- .comment-meta --> 
+          <div class="comment-content"> 
+           <p>这个问题有解决办法吗，我也碰到了</p> 
+          </div>
+          <!-- .comment-content --> 
+          <div class="reply">
+           <a rel="nofollow" class="comment-reply-link" href="http://dorole.com/1422/?replytocom=35496#respond" onclick="return addComment.moveForm( &quot;div-comment-35496&quot;, &quot;35496&quot;, &quot;respond&quot;, &quot;1422&quot; )" aria-label="回复给fish">回复</a>
+          </div> 
+         </article>
+         <!-- .comment-body --> 
+         <ol class="children"> 
+          <li id="comment-37377" class="comment odd alt depth-2 parent"> 
+           <article id="div-comment-37377" class="comment-body"> 
+            <footer class="comment-meta"> 
+             <div class="comment-author vcard"> 
+              <b class="fn">周翔</b>
+              <span class="says">说道：</span> 
+             </div>
+             <!-- .comment-author --> 
+             <div class="comment-metadata"> 
+              <a href="http://dorole.com/1422/#comment-37377"> <time datetime="2016-10-29T15:41:25+00:00"> 2016年10月29日 15:41 </time> </a> 
+             </div>
+             <!-- .comment-metadata --> 
+            </footer>
+            <!-- .comment-meta --> 
+            <div class="comment-content"> 
+             <p>我是少了一个 在applicationContext.xml<br /> 也不知道为什么，这个设置会影响</p> 
+            </div>
+            <!-- .comment-content --> 
+            <div class="reply">
+             <a rel="nofollow" class="comment-reply-link" href="http://dorole.com/1422/?replytocom=37377#respond" onclick="return addComment.moveForm( &quot;div-comment-37377&quot;, &quot;37377&quot;, &quot;respond&quot;, &quot;1422&quot; )" aria-label="回复给周翔">回复</a>
+            </div> 
+           </article>
+           <!-- .comment-body --> 
+           <ol class="children"> 
+            <li id="comment-37378" class="comment even depth-3"> 
+             <article id="div-comment-37378" class="comment-body"> 
+              <footer class="comment-meta"> 
+               <div class="comment-author vcard"> 
+                <b class="fn">周翔</b>
+                <span class="says">说道：</span> 
+               </div>
+               <!-- .comment-author --> 
+               <div class="comment-metadata"> 
+                <a href="http://dorole.com/1422/#comment-37378"> <time datetime="2016-10-29T15:42:44+00:00"> 2016年10月29日 15:42 </time> </a> 
+               </div>
+               <!-- .comment-metadata --> 
+              </footer>
+              <!-- .comment-meta --> 
+              <div class="comment-content"> 
+               <p>context:annotation-config</p> 
+              </div>
+              <!-- .comment-content --> 
+              <div class="reply">
+               <a rel="nofollow" class="comment-reply-link" href="http://dorole.com/1422/?replytocom=37378#respond" onclick="return addComment.moveForm( &quot;div-comment-37378&quot;, &quot;37378&quot;, &quot;respond&quot;, &quot;1422&quot; )" aria-label="回复给周翔">回复</a>
+              </div> 
+             </article>
+             <!-- .comment-body --> </li>
+            <!-- #comment-## --> 
+           </ol>
+           <!-- .children --> </li>
+          <!-- #comment-## --> 
+         </ol>
+         <!-- .children --> </li>
+        <!-- #comment-## --> 
+        <li id="comment-35467" class="comment odd alt thread-even depth-1"> 
+         <article id="div-comment-35467" class="comment-body"> 
+          <footer class="comment-meta"> 
+           <div class="comment-author vcard"> 
+            <b class="fn">张瑞</b>
+            <span class="says">说道：</span> 
+           </div>
+           <!-- .comment-author --> 
+           <div class="comment-metadata"> 
+            <a href="http://dorole.com/1422/#comment-35467"> <time datetime="2016-06-16T09:17:57+00:00"> 2016年6月16日 09:17 </time> </a> 
+           </div>
+           <!-- .comment-metadata --> 
+          </footer>
+          <!-- .comment-meta --> 
+          <div class="comment-content"> 
+           <p>我也是报这个错误，郁闷：org.springframework.beans.factory.NoSuchBeanDefinitionException: No bean named ‘springSessionRepositoryFilter’ is defined</p> 
+           <p>配置如下：<br /> web.xml</p> 
+           <p> contextConfigLocation<br /> /WEB-INF/applicationContext.xml</p> 
+           <p> springSessionRepositoryFilter<br /> org.springframework.web.filter.DelegatingFilterProxy</p> 
+           <p> springSessionRepositoryFilter<br /> /*</p> 
+           <p> org.springframework.web.context.ContextLoaderListener</p> 
+           <p>applicationContext.xml:</p> 
+          </div>
+          <!-- .comment-content --> 
+          <div class="reply">
+           <a rel="nofollow" class="comment-reply-link" href="http://dorole.com/1422/?replytocom=35467#respond" onclick="return addComment.moveForm( &quot;div-comment-35467&quot;, &quot;35467&quot;, &quot;respond&quot;, &quot;1422&quot; )" aria-label="回复给张瑞">回复</a>
+          </div> 
+         </article>
+         <!-- .comment-body --> </li>
+        <!-- #comment-## --> 
+        <li id="comment-33765" class="comment even thread-odd thread-alt depth-1 parent"> 
+         <article id="div-comment-33765" class="comment-body"> 
+          <footer class="comment-meta"> 
+           <div class="comment-author vcard"> 
+            <b class="fn">Darren</b>
+            <span class="says">说道：</span> 
+           </div>
+           <!-- .comment-author --> 
+           <div class="comment-metadata"> 
+            <a href="http://dorole.com/1422/#comment-33765"> <time datetime="2015-12-23T14:07:24+00:00"> 2015年12月23日 14:07 </time> </a> 
+           </div>
+           <!-- .comment-metadata --> 
+          </footer>
+          <!-- .comment-meta --> 
+          <div class="comment-content"> 
+           <p>想问一下这个版本spring<br /> 一定要用4.0以上的版本吗</p> 
+          </div>
+          <!-- .comment-content --> 
+          <div class="reply">
+           <a rel="nofollow" class="comment-reply-link" href="http://dorole.com/1422/?replytocom=33765#respond" onclick="return addComment.moveForm( &quot;div-comment-33765&quot;, &quot;33765&quot;, &quot;respond&quot;, &quot;1422&quot; )" aria-label="回复给Darren">回复</a>
+          </div> 
+         </article>
+         <!-- .comment-body --> 
+         <ol class="children"> 
+          <li id="comment-33766" class="comment byuser comment-author-admin bypostauthor odd alt depth-2 parent"> 
+           <article id="div-comment-33766" class="comment-body"> 
+            <footer class="comment-meta"> 
+             <div class="comment-author vcard"> 
+              <b class="fn"><a href="http://dorole.com" rel="external nofollow" class="url">Steven Yang</a></b>
+              <span class="says">说道：</span> 
+             </div>
+             <!-- .comment-author --> 
+             <div class="comment-metadata"> 
+              <a href="http://dorole.com/1422/#comment-33766"> <time datetime="2015-12-23T14:13:58+00:00"> 2015年12月23日 14:13 </time> </a> 
+             </div>
+             <!-- .comment-metadata --> 
+            </footer>
+            <!-- .comment-meta --> 
+            <div class="comment-content"> 
+             <p>不用</p> 
+            </div>
+            <!-- .comment-content --> 
+            <div class="reply">
+             <a rel="nofollow" class="comment-reply-link" href="http://dorole.com/1422/?replytocom=33766#respond" onclick="return addComment.moveForm( &quot;div-comment-33766&quot;, &quot;33766&quot;, &quot;respond&quot;, &quot;1422&quot; )" aria-label="回复给Steven Yang">回复</a>
+            </div> 
+           </article>
+           <!-- .comment-body --> 
+           <ol class="children"> 
+            <li id="comment-33767" class="comment even depth-3 parent"> 
+             <article id="div-comment-33767" class="comment-body"> 
+              <footer class="comment-meta"> 
+               <div class="comment-author vcard"> 
+                <b class="fn">Darren</b>
+                <span class="says">说道：</span> 
+               </div>
+               <!-- .comment-author --> 
+               <div class="comment-metadata"> 
+                <a href="http://dorole.com/1422/#comment-33767"> <time datetime="2015-12-23T14:26:05+00:00"> 2015年12月23日 14:26 </time> </a> 
+               </div>
+               <!-- .comment-metadata --> 
+              </footer>
+              <!-- .comment-meta --> 
+              <div class="comment-content"> 
+               <p>java.lang.VerifyError: (class: org/springframework/data/redis/connection/jedis/JedisConnectionFactory, method: createRedisSentinelPool signature: (Lorg/springframework/data/redis/connection/RedisSentinelConfiguration;)Lredis/clients/util/Pool;) Incompatible argument to function<br /> 我这个配置的是<br /> spring3.1.3 然后<br /> redis 2.1<br /> spring-session 1.0.2;<br /> spring-data-redis 1.5.2.RELEASE</p> 
+              </div>
+              <!-- .comment-content --> 
+              <div class="reply">
+               <a rel="nofollow" class="comment-reply-link" href="http://dorole.com/1422/?replytocom=33767#respond" onclick="return addComment.moveForm( &quot;div-comment-33767&quot;, &quot;33767&quot;, &quot;respond&quot;, &quot;1422&quot; )" aria-label="回复给Darren">回复</a>
+              </div> 
+             </article>
+             <!-- .comment-body --> 
+             <ol class="children"> 
+              <li id="comment-33768" class="comment byuser comment-author-admin bypostauthor odd alt depth-4 parent"> 
+               <article id="div-comment-33768" class="comment-body"> 
+                <footer class="comment-meta"> 
+                 <div class="comment-author vcard"> 
+                  <b class="fn"><a href="http://dorole.com" rel="external nofollow" class="url">Steven Yang</a></b>
+                  <span class="says">说道：</span> 
+                 </div>
+                 <!-- .comment-author --> 
+                 <div class="comment-metadata"> 
+                  <a href="http://dorole.com/1422/#comment-33768"> <time datetime="2015-12-23T14:31:11+00:00"> 2015年12月23日 14:31 </time> </a> 
+                 </div>
+                 <!-- .comment-metadata --> 
+                </footer>
+                <!-- .comment-meta --> 
+                <div class="comment-content"> 
+                 <p>jedis版本过低？我这是2.7.3的。</p> 
+                </div>
+                <!-- .comment-content --> 
+                <div class="reply">
+                 <a rel="nofollow" class="comment-reply-link" href="http://dorole.com/1422/?replytocom=33768#respond" onclick="return addComment.moveForm( &quot;div-comment-33768&quot;, &quot;33768&quot;, &quot;respond&quot;, &quot;1422&quot; )" aria-label="回复给Steven Yang">回复</a>
+                </div> 
+               </article>
+               <!-- .comment-body --> 
+               <ol class="children"> 
+                <li id="comment-33769" class="comment even depth-5 parent"> 
+                 <article id="div-comment-33769" class="comment-body"> 
+                  <footer class="comment-meta"> 
+                   <div class="comment-author vcard"> 
+                    <b class="fn">Darren</b>
+                    <span class="says">说道：</span> 
+                   </div>
+                   <!-- .comment-author --> 
+                   <div class="comment-metadata"> 
+                    <a href="http://dorole.com/1422/#comment-33769"> <time datetime="2015-12-23T14:40:48+00:00"> 2015年12月23日 14:40 </time> </a> 
+                   </div>
+                   <!-- .comment-metadata --> 
+                  </footer>
+                  <!-- .comment-meta --> 
+                  <div class="comment-content"> 
+                   <p>我换了一下 请问你的spring-data-redis是什么版本呢</p> 
+                  </div>
+                  <!-- .comment-content --> 
+                  <div class="reply">
+                   <a rel="nofollow" class="comment-reply-link" href="http://dorole.com/1422/?replytocom=33769#respond" onclick="return addComment.moveForm( &quot;div-comment-33769&quot;, &quot;33769&quot;, &quot;respond&quot;, &quot;1422&quot; )" aria-label="回复给Darren">回复</a>
+                  </div> 
+                 </article>
+                 <!-- .comment-body --> 
+                 <ol class="children"> 
+                  <li id="comment-33770" class="comment byuser comment-author-admin bypostauthor odd alt depth-6 parent"> 
+                   <article id="div-comment-33770" class="comment-body"> 
+                    <footer class="comment-meta"> 
+                     <div class="comment-author vcard"> 
+                      <b class="fn"><a href="http://dorole.com" rel="external nofollow" class="url">Steven Yang</a></b>
+                      <span class="says">说道：</span> 
+                     </div>
+                     <!-- .comment-author --> 
+                     <div class="comment-metadata"> 
+                      <a href="http://dorole.com/1422/#comment-33770"> <time datetime="2015-12-23T14:42:19+00:00"> 2015年12月23日 14:42 </time> </a> 
+                     </div>
+                     <!-- .comment-metadata --> 
+                    </footer>
+                    <!-- .comment-meta --> 
+                    <div class="comment-content"> 
+                     <p>上面有 1.5.2，注意redis-server和jedis</p> 
+                    </div>
+                    <!-- .comment-content --> 
+                    <div class="reply">
+                     <a rel="nofollow" class="comment-reply-link" href="http://dorole.com/1422/?replytocom=33770#respond" onclick="return addComment.moveForm( &quot;div-comment-33770&quot;, &quot;33770&quot;, &quot;respond&quot;, &quot;1422&quot; )" aria-label="回复给Steven Yang">回复</a>
+                    </div> 
+                   </article>
+                   <!-- .comment-body --> 
+                   <ol class="children"> 
+                    <li id="comment-33772" class="comment even depth-7"> 
+                     <article id="div-comment-33772" class="comment-body"> 
+                      <footer class="comment-meta"> 
+                       <div class="comment-author vcard"> 
+                        <b class="fn">Darren</b>
+                        <span class="says">说道：</span> 
+                       </div>
+                       <!-- .comment-author --> 
+                       <div class="comment-metadata"> 
+                        <a href="http://dorole.com/1422/#comment-33772"> <time datetime="2015-12-23T15:48:54+00:00"> 2015年12月23日 15:48 </time> </a> 
+                       </div>
+                       <!-- .comment-metadata --> 
+                      </footer>
+                      <!-- .comment-meta --> 
+                      <div class="comment-content"> 
+                       <p>redis-server 是2.8.9的</p> 
+                      </div>
+                      <!-- .comment-content --> 
+                      <div class="reply">
+                       <a rel="nofollow" class="comment-reply-link" href="http://dorole.com/1422/?replytocom=33772#respond" onclick="return addComment.moveForm( &quot;div-comment-33772&quot;, &quot;33772&quot;, &quot;respond&quot;, &quot;1422&quot; )" aria-label="回复给Darren">回复</a>
+                      </div> 
+                     </article>
+                     <!-- .comment-body --> </li>
+                    <!-- #comment-## --> 
+                   </ol>
+                   <!-- .children --> </li>
+                  <!-- #comment-## --> 
+                 </ol>
+                 <!-- .children --> </li>
+                <!-- #comment-## --> 
+               </ol>
+               <!-- .children --> </li>
+              <!-- #comment-## --> 
+             </ol>
+             <!-- .children --> </li>
+            <!-- #comment-## --> 
+           </ol>
+           <!-- .children --> </li>
+          <!-- #comment-## --> 
+         </ol>
+         <!-- .children --> </li>
+        <!-- #comment-## --> 
+        <li id="comment-32363" class="comment odd alt thread-even depth-1 parent"> 
+         <article id="div-comment-32363" class="comment-body"> 
+          <footer class="comment-meta"> 
+           <div class="comment-author vcard"> 
+            <b class="fn">小建</b>
+            <span class="says">说道：</span> 
+           </div>
+           <!-- .comment-author --> 
+           <div class="comment-metadata"> 
+            <a href="http://dorole.com/1422/#comment-32363"> <time datetime="2015-09-17T14:43:52+00:00"> 2015年9月17日 14:43 </time> </a> 
+           </div>
+           <!-- .comment-metadata --> 
+          </footer>
+          <!-- .comment-meta --> 
+          <div class="comment-content"> 
+           <p>按照你的配置后，我一启动 就报No bean named ‘springSessionRepositoryFilter’ is defined 全部都按照您的配置配置号的，也检查了好几遍。。还是希望你可以给我看看您的demo</p> 
+          </div>
+          <!-- .comment-content --> 
+          <div class="reply">
+           <a rel="nofollow" class="comment-reply-link" href="http://dorole.com/1422/?replytocom=32363#respond" onclick="return addComment.moveForm( &quot;div-comment-32363&quot;, &quot;32363&quot;, &quot;respond&quot;, &quot;1422&quot; )" aria-label="回复给小建">回复</a>
+          </div> 
+         </article>
+         <!-- .comment-body --> 
+         <ol class="children"> 
+          <li id="comment-32364" class="comment byuser comment-author-admin bypostauthor even depth-2"> 
+           <article id="div-comment-32364" class="comment-body"> 
+            <footer class="comment-meta"> 
+             <div class="comment-author vcard"> 
+              <b class="fn"><a href="http://dorole.com" rel="external nofollow" class="url">Steven Yang</a></b>
+              <span class="says">说道：</span> 
+             </div>
+             <!-- .comment-author --> 
+             <div class="comment-metadata"> 
+              <a href="http://dorole.com/1422/#comment-32364"> <time datetime="2015-09-17T16:22:18+00:00"> 2015年9月17日 16:22 </time> </a> 
+             </div>
+             <!-- .comment-metadata --> 
+            </footer>
+            <!-- .comment-meta --> 
+            <div class="comment-content"> 
+             <p>applicationContext.xml 中有没配置redisHttpSessionConfiguration ？</p> 
+            </div>
+            <!-- .comment-content --> 
+            <div class="reply">
+             <a rel="nofollow" class="comment-reply-link" href="http://dorole.com/1422/?replytocom=32364#respond" onclick="return addComment.moveForm( &quot;div-comment-32364&quot;, &quot;32364&quot;, &quot;respond&quot;, &quot;1422&quot; )" aria-label="回复给Steven Yang">回复</a>
+            </div> 
+           </article>
+           <!-- .comment-body --> </li>
+          <!-- #comment-## --> 
+          <li id="comment-33081" class="comment odd alt depth-2 parent"> 
+           <article id="div-comment-33081" class="comment-body"> 
+            <footer class="comment-meta"> 
+             <div class="comment-author vcard"> 
+              <b class="fn">陈小超人</b>
+              <span class="says">说道：</span> 
+             </div>
+             <!-- .comment-author --> 
+             <div class="comment-metadata"> 
+              <a href="http://dorole.com/1422/#comment-33081"> <time datetime="2015-10-18T13:10:59+00:00"> 2015年10月18日 13:10 </time> </a> 
+             </div>
+             <!-- .comment-metadata --> 
+            </footer>
+            <!-- .comment-meta --> 
+            <div class="comment-content"> 
+             <p>我也遇到同样的问题，严重: Exception starting filter springSessionRepositoryFilter<br /> org.springframework.beans.factory.NoSuchBeanDefinitionException: No bean named ‘springSessionRepositoryFilter’ is defined<br /> at org.springframework.beans.factory.support.DefaultListableBeanFactory.getBeanDefinition(DefaultListableBeanFactory.java:387)</p> 
+            </div>
+            <!-- .comment-content --> 
+            <div class="reply">
+             <a rel="nofollow" class="comment-reply-link" href="http://dorole.com/1422/?replytocom=33081#respond" onclick="return addComment.moveForm( &quot;div-comment-33081&quot;, &quot;33081&quot;, &quot;respond&quot;, &quot;1422&quot; )" aria-label="回复给陈小超人">回复</a>
+            </div> 
+           </article>
+           <!-- .comment-body --> 
+           <ol class="children"> 
+            <li id="comment-33092" class="comment byuser comment-author-admin bypostauthor even depth-3 parent"> 
+             <article id="div-comment-33092" class="comment-body"> 
+              <footer class="comment-meta"> 
+               <div class="comment-author vcard"> 
+                <b class="fn"><a href="http://dorole.com" rel="external nofollow" class="url">Steven Yang</a></b>
+                <span class="says">说道：</span> 
+               </div>
+               <!-- .comment-author --> 
+               <div class="comment-metadata"> 
+                <a href="http://dorole.com/1422/#comment-33092"> <time datetime="2015-10-18T21:23:59+00:00"> 2015年10月18日 21:23 </time> </a> 
+               </div>
+               <!-- .comment-metadata --> 
+              </footer>
+              <!-- .comment-meta --> 
+              <div class="comment-content"> 
+               <p>确认所有配置都没问题吗，还有名称。我这里是ok的，已经在生产环境跑了很久了。我这里Spring 版本是3.2的。调试下看有什么线索。</p> 
+              </div>
+              <!-- .comment-content --> 
+              <div class="reply">
+               <a rel="nofollow" class="comment-reply-link" href="http://dorole.com/1422/?replytocom=33092#respond" onclick="return addComment.moveForm( &quot;div-comment-33092&quot;, &quot;33092&quot;, &quot;respond&quot;, &quot;1422&quot; )" aria-label="回复给Steven Yang">回复</a>
+              </div> 
+             </article>
+             <!-- .comment-body --> 
+             <ol class="children"> 
+              <li id="comment-33822" class="comment odd alt depth-4 parent"> 
+               <article id="div-comment-33822" class="comment-body"> 
+                <footer class="comment-meta"> 
+                 <div class="comment-author vcard"> 
+                  <b class="fn"><a href="http://ivyhelen.sinaapp.com" rel="external nofollow" class="url">IvyHelen</a></b>
+                  <span class="says">说道：</span> 
+                 </div>
+                 <!-- .comment-author --> 
+                 <div class="comment-metadata"> 
+                  <a href="http://dorole.com/1422/#comment-33822"> <time datetime="2015-12-28T17:01:49+00:00"> 2015年12月28日 17:01 </time> </a> 
+                 </div>
+                 <!-- .comment-metadata --> 
+                </footer>
+                <!-- .comment-meta --> 
+                <div class="comment-content"> 
+                 <p>我这边测试也没有问题。</p> 
+                </div>
+                <!-- .comment-content --> 
+                <div class="reply">
+                 <a rel="nofollow" class="comment-reply-link" href="http://dorole.com/1422/?replytocom=33822#respond" onclick="return addComment.moveForm( &quot;div-comment-33822&quot;, &quot;33822&quot;, &quot;respond&quot;, &quot;1422&quot; )" aria-label="回复给IvyHelen">回复</a>
+                </div> 
+               </article>
+               <!-- .comment-body --> 
+               <ol class="children"> 
+                <li id="comment-35855" class="comment even depth-5 parent"> 
+                 <article id="div-comment-35855" class="comment-body"> 
+                  <footer class="comment-meta"> 
+                   <div class="comment-author vcard"> 
+                    <b class="fn">wade</b>
+                    <span class="says">说道：</span> 
+                   </div>
+                   <!-- .comment-author --> 
+                   <div class="comment-metadata"> 
+                    <a href="http://dorole.com/1422/#comment-35855"> <time datetime="2016-07-26T15:27:02+00:00"> 2016年7月26日 15:27 </time> </a> 
+                   </div>
+                   <!-- .comment-metadata --> 
+                  </footer>
+                  <!-- .comment-meta --> 
+                  <div class="comment-content"> 
+                   <p>我取用sprint3.2.14 也是一樣的報錯<br /> RedisHttpSessionConfiguration看log是也有注入這個bean了 但還是沒取到filter bean..<br /> 不知道該怎麼解決 現在挺苦惱的</p> 
+                  </div>
+                  <!-- .comment-content --> 
+                  <div class="reply">
+                   <a rel="nofollow" class="comment-reply-link" href="http://dorole.com/1422/?replytocom=35855#respond" onclick="return addComment.moveForm( &quot;div-comment-35855&quot;, &quot;35855&quot;, &quot;respond&quot;, &quot;1422&quot; )" aria-label="回复给wade">回复</a>
+                  </div> 
+                 </article>
+                 <!-- .comment-body --> 
+                 <ol class="children"> 
+                  <li id="comment-35860" class="comment odd alt depth-6 parent"> 
+                   <article id="div-comment-35860" class="comment-body"> 
+                    <footer class="comment-meta"> 
+                     <div class="comment-author vcard"> 
+                      <b class="fn">111</b>
+                      <span class="says">说道：</span> 
+                     </div>
+                     <!-- .comment-author --> 
+                     <div class="comment-metadata"> 
+                      <a href="http://dorole.com/1422/#comment-35860"> <time datetime="2016-07-27T19:14:25+00:00"> 2016年7月27日 19:14 </time> </a> 
+                     </div>
+                     <!-- .comment-metadata --> 
+                    </footer>
+                    <!-- .comment-meta --> 
+                    <div class="comment-content"> 
+                     <p>我的也是这个问题啊，不过我的是在集群的那种情况下出现的</p> 
+                    </div>
+                    <!-- .comment-content --> 
+                    <div class="reply">
+                     <a rel="nofollow" class="comment-reply-link" href="http://dorole.com/1422/?replytocom=35860#respond" onclick="return addComment.moveForm( &quot;div-comment-35860&quot;, &quot;35860&quot;, &quot;respond&quot;, &quot;1422&quot; )" aria-label="回复给111">回复</a>
+                    </div> 
+                   </article>
+                   <!-- .comment-body --> 
+                   <ol class="children"> 
+                    <li id="comment-36230" class="comment even depth-7"> 
+                     <article id="div-comment-36230" class="comment-body"> 
+                      <footer class="comment-meta"> 
+                       <div class="comment-author vcard"> 
+                        <b class="fn">zwang60</b>
+                        <span class="says">说道：</span> 
+                       </div>
+                       <!-- .comment-author --> 
+                       <div class="comment-metadata"> 
+                        <a href="http://dorole.com/1422/#comment-36230"> <time datetime="2016-08-18T10:30:18+00:00"> 2016年8月18日 10:30 </time> </a> 
+                       </div>
+                       <!-- .comment-metadata --> 
+                      </footer>
+                      <!-- .comment-meta --> 
+                      <div class="comment-content"> 
+                       <p>大哥我的问题应该和你一样，我也是在集群环境下遇到的，我为了测试，配置了一主一从一哨兵，通过日志文件也能看出来确实都启动连接了<br /> 信息: Trying to find master from available Sentinels…<br /> 2016-8-18 10:01:33 redis.clients.jedis.JedisSentinelPool initSentinels<br /> 信息: Redis master running at 127.0.0.1:6379, starting Sentinel listeners…<br /> 2016-8-18 10:01:33 redis.clients.jedis.JedisSentinelPool initPool<br /> 信息: Created JedisPool to master at 127.0.0.1:6379</p> 
+                       <p>但是马上抛出异常<br /> org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name ‘springSessionRepositoryFilter’ defined in class path resource [org/springframework/session/data/redis/config/annotation/web/http/RedisHttpSessionConfiguration.class]: Unsatisfied dependency expressed through constructor argument with index 0 of type [org.springframework.session.SessionRepository]: : No qualifying bean of type [org.springframework.session.SessionRepository] found for dependency: expected at least 1 bean which qualifies as autowire candidate for this dependency. Dependency annotations: {}; nested exception is org.springframework.beans.factory.NoSuchBeanDefinitionException: No qualifying bean of type [org.springframework.session.SessionRepository] found for dependency: expected at least 1 bean which qualifies as autowire candidate for this dependency. Dependency annotations: {}<br /> 求问您解决这个问题了吗</p> 
+                      </div>
+                      <!-- .comment-content --> 
+                      <div class="reply">
+                       <a rel="nofollow" class="comment-reply-link" href="http://dorole.com/1422/?replytocom=36230#respond" onclick="return addComment.moveForm( &quot;div-comment-36230&quot;, &quot;36230&quot;, &quot;respond&quot;, &quot;1422&quot; )" aria-label="回复给zwang60">回复</a>
+                      </div> 
+                     </article>
+                     <!-- .comment-body --> </li>
+                    <!-- #comment-## --> 
+                   </ol>
+                   <!-- .children --> </li>
+                  <!-- #comment-## --> 
+                 </ol>
+                 <!-- .children --> </li>
+                <!-- #comment-## --> 
+               </ol>
+               <!-- .children --> </li>
+              <!-- #comment-## --> 
+             </ol>
+             <!-- .children --> </li>
+            <!-- #comment-## --> 
+           </ol>
+           <!-- .children --> </li>
+          <!-- #comment-## --> 
+         </ol>
+         <!-- .children --> </li>
+        <!-- #comment-## --> 
+       </ol>
+       <!-- .comment-list --> 
+       <div id="respond" class="comment-respond"> 
+        <h3 id="reply-title" class="comment-reply-title">发表评论 <small><a rel="nofollow" id="cancel-comment-reply-link" href="/1422/#respond" style="display:none;">取消回复</a></small></h3> 
+        <form action="http://dorole.com/wp-comments-post.php" method="post" id="commentform" class="comment-form" novalidate=""> 
+         <p class="comment-notes"><span id="email-notes">电子邮件地址不会被公开。</span> 必填项已用<span class="required">*</span>标注</p>
+         <p class="comment-form-comment"><label for="comment">评论</label> <textarea id="comment" name="comment" cols="45" rows="8" maxlength="65525" aria-required="true" required="required"></textarea></p>
+         <p class="comment-form-author"><label for="author">姓名 <span class="required">*</span></label> <input id="author" name="author" type="text" value="" size="30" maxlength="245" aria-required="true" required="required" /></p> 
+         <p class="comment-form-email"><label for="email">电子邮件 <span class="required">*</span></label> <input id="email" name="email" type="email" value="" size="30" maxlength="100" aria-describedby="email-notes" aria-required="true" required="required" /></p> 
+         <p class="comment-form-url"><label for="url">站点</label> <input id="url" name="url" type="url" value="" size="30" maxlength="200" /></p> 
+         <p class="form-submit"><input name="submit" type="submit" id="submit" class="submit" value="发表评论" /> <input type="hidden" name="comment_post_ID" value="1422" id="comment_post_ID" /> <input type="hidden" name="comment_parent" id="comment_parent" value="0" /> </p>
+         <p style="display: none;"><input type="hidden" id="akismet_comment_nonce" name="akismet_comment_nonce" value="a44d04d804" /></p> 
+         <!-- Custom Smilies - Version 2.9.2 --> 
+         <style type="text/css">
+	img.wp-smiley-select {cursor: pointer;}
+	</style> 
+         <script type="text/javascript">
+    function grin(tag) {
+    	if (typeof tinyMCE != 'undefined') {
+    		grin_tinymcecomments(tag);
+    	} else {
+    		grin_plain(tag);
+    	}
+    }
+    function grin_tinymcecomments(tag) {
+    	tinyMCE.execCommand('mceInsertContent', false, ' ' + tag + ' ');
+    }
+    
+    function grin_plain(tag) {
+    	var myField;
+    	var myCommentTextarea = "comment";
+    	tag = ' ' + tag + ' ';
+        if (document.getElementById(myCommentTextarea) && document.getElementById(myCommentTextarea).type == 'textarea') {
+    		myField = document.getElementById(myCommentTextarea);
+    	} else {
+    		return false;
+    	}
+    	if (document.selection) {
+    		myField.focus();
+    		sel = document.selection.createRange();
+    		sel.text = tag;
+    		myField.focus();
+    	}
+    	else if (myField.selectionStart || myField.selectionStart == '0') {
+    		var startPos = myField.selectionStart;
+    		var endPos = myField.selectionEnd;
+    		var cursorPos = endPos;
+    		myField.value = myField.value.substring(0, startPos)
+    					  + tag
+    					  + myField.value.substring(endPos, myField.value.length);
+    		cursorPos += tag.length;
+    		myField.focus();
+    		myField.selectionStart = cursorPos;
+    		myField.selectionEnd = cursorPos;
+    	}
+    	else {
+    		myField.value += tag;
+    		myField.focus();
+    	}
+    }
+    
+    function moreSmilies() {
+    	document.getElementById('wp-smiley-more').style.display = 'inline';
+    	document.getElementById('wp-smiley-toggle').innerHTML = '<a href="javascript:lessSmilies()">&laquo;&nbsp;less</a></span>';
+    }
+    
+    function lessSmilies() {
+    	document.getElementById('wp-smiley-more').style.display = 'none';
+    	document.getElementById('wp-smiley-toggle').innerHTML = '<a href="javascript:moreSmilies()">more&nbsp;&raquo;</a>';
+    }
+    </script> 
+         <img src="http://dorole.com/wp-includes/images/smilies/icon_wink.gif" alt=":wink:" onclick="grin(&quot;:wink:&quot;)" class="wp-smiley-select" /> 
+         <img src="http://dorole.com/wp-includes/images/smilies/icon_neutral.gif" alt=":-|" onclick="grin(&quot;:-|&quot;)" class="wp-smiley-select" /> 
+         <img src="http://dorole.com/wp-includes/images/smilies/icon_mad.gif" alt=":-x" onclick="grin(&quot;:-x&quot;)" class="wp-smiley-select" /> 
+         <img src="http://dorole.com/wp-includes/images/smilies/icon_twisted.gif" alt=":twisted:" onclick="grin(&quot;:twisted:&quot;)" class="wp-smiley-select" /> 
+         <img src="http://dorole.com/wp-includes/images/smilies/icon_smile.gif" alt=":)" onclick="grin(&quot;:)&quot;)" class="wp-smiley-select" /> 
+         <img src="http://dorole.com/wp-includes/images/smilies/icon_eek.gif" alt="8-O" onclick="grin(&quot;8-O&quot;)" class="wp-smiley-select" /> 
+         <img src="http://dorole.com/wp-includes/images/smilies/icon_sad.gif" alt=":(" onclick="grin(&quot;:(&quot;)" class="wp-smiley-select" /> 
+         <img src="http://dorole.com/wp-includes/images/smilies/icon_rolleyes.gif" alt=":roll:" onclick="grin(&quot;:roll:&quot;)" class="wp-smiley-select" /> 
+         <img src="http://dorole.com/wp-includes/images/smilies/icon_razz.gif" alt=":-P" onclick="grin(&quot;:-P&quot;)" class="wp-smiley-select" /> 
+         <img src="http://dorole.com/wp-includes/images/smilies/icon_redface.gif" alt=":oops:" onclick="grin(&quot;:oops:&quot;)" class="wp-smiley-select" /> 
+         <img src="http://dorole.com/wp-includes/images/smilies/icon_surprised.gif" alt=":-o" onclick="grin(&quot;:-o&quot;)" class="wp-smiley-select" /> 
+         <img src="http://dorole.com/wp-includes/images/smilies/icon_mrgreen.gif" alt=":mrgreen:" onclick="grin(&quot;:mrgreen:&quot;)" class="wp-smiley-select" /> 
+         <img src="http://dorole.com/wp-includes/images/smilies/icon_lol.gif" alt=":lol:" onclick="grin(&quot;:lol:&quot;)" class="wp-smiley-select" /> 
+         <img src="http://dorole.com/wp-includes/images/smilies/icon_idea.gif" alt=":idea:" onclick="grin(&quot;:idea:&quot;)" class="wp-smiley-select" /> 
+         <img src="http://dorole.com/wp-includes/images/smilies/icon_biggrin.gif" alt=":-D" onclick="grin(&quot;:-D&quot;)" class="wp-smiley-select" /> 
+         <img src="http://dorole.com/wp-includes/images/smilies/icon_evil.gif" alt=":evil:" onclick="grin(&quot;:evil:&quot;)" class="wp-smiley-select" /> 
+         <img src="http://dorole.com/wp-includes/images/smilies/icon_cry.gif" alt=":cry:" onclick="grin(&quot;:cry:&quot;)" class="wp-smiley-select" /> 
+         <img src="http://dorole.com/wp-includes/images/smilies/icon_cool.gif" alt="8)" onclick="grin(&quot;8)&quot;)" class="wp-smiley-select" /> 
+         <img src="http://dorole.com/wp-includes/images/smilies/icon_arrow.gif" alt=":arrow:" onclick="grin(&quot;:arrow:&quot;)" class="wp-smiley-select" /> 
+         <img src="http://dorole.com/wp-includes/images/smilies/icon_confused.gif" alt=":-?" onclick="grin(&quot;:-?&quot;)" class="wp-smiley-select" /> 
+         <img src="http://dorole.com/wp-includes/images/smilies/icon_question.gif" alt=":?:" onclick="grin(&quot;:?:&quot;)" class="wp-smiley-select" /> 
+         <img src="http://dorole.com/wp-includes/images/smilies/icon_exclaim.gif" alt=":!:" onclick="grin(&quot;:!:&quot;)" class="wp-smiley-select" /> 
+         <p style="display: none;"><input type="hidden" id="ak_js" name="ak_js" value="231" /></p> 
+        </form> 
+       </div>
+       <!-- #respond --> 
+      </div>
+      <!-- .comments-area --> 
+      <nav class="navigation post-navigation" role="navigation"> 
+       <h2 class="screen-reader-text">文章导航</h2> 
+       <div class="nav-links">
+        <div class="nav-previous">
+         <a href="http://dorole.com/1416/" rel="prev"><span class="meta-nav" aria-hidden="true">上一</span> <span class="screen-reader-text">上篇文章：</span> <span class="post-title">闪光灯那些事（二）</span></a>
+        </div>
+        <div class="nav-next">
+         <a href="http://dorole.com/1425/" rel="next"><span class="meta-nav" aria-hidden="true">下一</span> <span class="screen-reader-text">下篇文章：</span> <span class="post-title">为hitu.me开启全站https</span></a>
+        </div>
+       </div> 
+      </nav> 
+     </main>
+     <!-- .site-main --> 
+    </div>
+    <!-- .content-area --> 
+   </div>
+   <!-- .site-content --> 
+   <footer id="colophon" class="site-footer" role="contentinfo"> 
+    <div class="site-info"> 
+     <a href="https://cn.wordpress.org/">自豪地采用WordPress</a> 
+    </div>
+    <!-- .site-info --> 
+   </footer>
+   <!-- .site-footer --> 
+  </div>
+  <!-- .site --> 
+  <script type="text/javascript" src="http://dorole.com/wp-content/plugins/akismet/_inc/form.js?ver=3.3"></script> 
+  <script type="text/javascript" src="http://dorole.com/wp-content/plugins/syntaxhighlighter/syntaxhighlighter3/scripts/shCore.js?ver=3.0.9b"></script> 
+  <script type="text/javascript" src="http://dorole.com/wp-content/plugins/syntaxhighlighter/syntaxhighlighter3/scripts/shBrushXml.js?ver=3.0.9b"></script> 
+  <script type="text/javascript" src="http://dorole.com/wp-content/plugins/syntaxhighlighter/syntaxhighlighter3/scripts/shBrushPlain.js?ver=3.0.9b"></script> 
+  <script type="text/javascript">
+	(function(){
+		var corecss = document.createElement('link');
+		var themecss = document.createElement('link');
+		var corecssurl = "http://dorole.com/wp-content/plugins/syntaxhighlighter/syntaxhighlighter3/styles/shCore.css?ver=3.0.9b";
+		if ( corecss.setAttribute ) {
+				corecss.setAttribute( "rel", "stylesheet" );
+				corecss.setAttribute( "type", "text/css" );
+				corecss.setAttribute( "href", corecssurl );
+		} else {
+				corecss.rel = "stylesheet";
+				corecss.href = corecssurl;
+		}
+		document.getElementsByTagName("head")[0].insertBefore( corecss, document.getElementById("syntaxhighlighteranchor") );
+		var themecssurl = "http://dorole.com/wp-content/plugins/syntaxhighlighter/syntaxhighlighter3/styles/shThemeEmacs.css?ver=3.0.9b";
+		if ( themecss.setAttribute ) {
+				themecss.setAttribute( "rel", "stylesheet" );
+				themecss.setAttribute( "type", "text/css" );
+				themecss.setAttribute( "href", themecssurl );
+		} else {
+				themecss.rel = "stylesheet";
+				themecss.href = themecssurl;
+		}
+		//document.getElementById("syntaxhighlighteranchor").appendChild(themecss);
+		document.getElementsByTagName("head")[0].insertBefore( themecss, document.getElementById("syntaxhighlighteranchor") );
+	})();
+	SyntaxHighlighter.config.strings.expandSource = '+ expand source';
+	SyntaxHighlighter.config.strings.help = '帮助';
+	SyntaxHighlighter.config.strings.alert = 'SyntaxHighlighter\n\n';
+	SyntaxHighlighter.config.strings.noBrush = '无法找到Brush：';
+	SyntaxHighlighter.config.strings.brushNotHtmlScript = 'Brush不能设置 html-script选项';
+	SyntaxHighlighter.defaults['auto-links'] = false;
+	SyntaxHighlighter.defaults['class-name'] = 'code-box';
+	SyntaxHighlighter.defaults['gutter'] = false;
+	SyntaxHighlighter.defaults['light'] = true;
+	SyntaxHighlighter.defaults['pad-line-numbers'] = false;
+	SyntaxHighlighter.all();
+</script> 
+  <script type="text/javascript" src="http://dorole.com/wp-content/themes/twentyfifteen/js/skip-link-focus-fix.js?ver=20141010"></script> 
+  <script type="text/javascript" src="http://dorole.com/wp-includes/js/comment-reply.min.js?ver=4.7.3"></script> 
+  <script type="text/javascript">
+/* <![CDATA[ */
+var screenReaderText = {"expand":"<span class=\"screen-reader-text\">\u5c55\u5f00\u5b50\u83dc\u5355<\/span>","collapse":"<span class=\"screen-reader-text\">\u6298\u53e0\u5b50\u83dc\u5355<\/span>"};
+/* ]]> */
+</script> 
+  <script type="text/javascript" src="http://dorole.com/wp-content/themes/twentyfifteen/js/functions.js?ver=20150330"></script> 
+  <script type="text/javascript" src="http://dorole.com/wp-includes/js/wp-embed.min.js?ver=4.7.3"></script>   
+ </body>
+</html>

@@ -1,0 +1,618 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html><head>
+
+<title>四川国税发票管理系统(领购增值税专票，增值税普票，代开增值税专票，代开增值税普票，网上发票验旧)</title>
+
+<script type="text/javascript" src="/monitor/js/jquery-1.7.1.js"></script>
+<script type="text/javascript" src="/monitor/js/jquery.easyui.min.js"></script>
+<script type="text/javascript" src="/monitor/js/locale/easyui-lang-zh_CN.js"></script>
+<script type="text/javascript" src="/monitor/js/comm.js"></script>
+<script type="text/javascript" src="/monitor/js/md5.js"></script>
+<link rel="stylesheet" type="text/css" href="/monitor/themes/default/easyui.css">
+<link rel="stylesheet" type="text/css" href="/monitor/themes/icon.css"> 
+<style>
+body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pre,code,form,fieldset,legend,input,textarea,p,blockquote,th,td {margin:0;padding:0;}
+table {border-collapse:collapse;border-spacing:0;}
+body{font-family:微软雅黑;}
+.header{background:url(/monitor/images/top1.png);margin:0 auto;width:1024px;height:80px;}
+.main{position:relative;background:url(/monitor/images/main_bg1.png) repeat-x ;margin:0 auto;width:1024px;height:941px;}
+.main_icon{position:absolute;left:100px;top:220px;background:url(/monitor/images/main_icon1.png);width:400px;height:390px;}
+</style>
+
+</head>
+<body>
+<div class="header"></div>		
+<div class="main">
+	<div class="main_icon"></div>
+	<div style="position:absolute;left:300px;top:30px;font-size:24px;font-weight:bold;color:#346bae"><h1>四川国税发票管理系统</h1></div>
+			<div style="position:absolute;left:250px;top:100px;font-size:24px;font-weight:bold;color:#346bae"><h5>(领购增值税专票，增值税普票，代开增值税专票，网上发票验旧)</h5></div>
+	 <!-- <div style="position:absolute;left:150px;top:140px;font-size:18px;color:red;"><span>通知：因12366短信平台延时故障，获取短信验证码时间会稍有延迟，请耐心等待……</span></div> -->
+ 
+		<form id="ff" method="post" action="/monitor/jsp/main/index.jsp">
+		
+		<div style="position:relative;left:560px;top:250px;">
+			<div style="font-size:18px;color:#346bae;">税务登记证号:</div>
+			<input class="easyui-validatebox validatebox-text" type="text" id="userid" onblur="query_phoneNum(this.value)" name="userid" data-options="required:false" style="width:250px;height:30px;line-height:30px;"> 
+			<div id="showErrorMsg" style="position:relative;float:right;padding-right:570px;">
+			  <span id="message" style="font-size: 12px;color: red;"></span><br>
+			  <span id="message1" style="font-size: 12px;color: red;"></span><br> 
+			  <span id="message2" style="font-size: 12px;color: red;"></span>
+			</div>
+			<div style="font-size:18px;color:#346bae;">密码:</div>
+			<input class="easyui-validatebox validatebox-text" type="password" id="password" name="password" data-options="required:false" style="width:250px;height:30px;line-height:30px;">
+			<div style="display:none;font-size:18px;color:#346bae;" id="sjhm">手机号码:</div>
+			<input class="easyui-validatebox validatebox-text" type="text" id="phone_no" name="phone_no" disabled="" data-options="required:false" style="display:none;width:250px;height:30px;line-height:30px;"> 
+			<!-- <div id="nsrNameXz" style="display:none;font-size:18px;color:#346bae;">请选择你的纳税人名称:</div>
+			<select id="nsrXz" style="display:none;width:254px;height:35px;line-height:30px;" name="nsrXz"></select> -->
+		    <div style="font-size:18px;color:#346bae;">手机验证码:</div>
+			<input class="easyui-validatebox validatebox-text" type="password" id="yzm" name="yzm" data-options="required:false" onkeydown="enter($('#yzm').val())" onblur="jiaoyan($('#yzm').val())" style="width:250px;height:30px;line-height:30px;">
+			<input class="easyui-validatebox validatebox-text" id="second" data-options="required:false" type="button" value="免费获取验证码" style="width:100px;height:30px;line-height:30px;">
+		    <div id="sfzhm" style="font-size:18px;color:#346bae;display:none">身份证号码:</div>
+			<input class="easyui-validatebox validatebox-text" type="text" id="sfz" name="sfz" data-options="required:false" onblur="vilidateSFZ($('#sfz').val());" style="width:250px;height:30px;line-height:30px;display:none">
+
+		</div>
+			
+							
+			
+		<div id="loginMsg" style="position:absolute;left:560px;top:490px;color:red;font-size:14px;">注意：初始密码 123456   登录后请及时修改密码</div>
+		
+		<input type="button" id="save" onclick="login()" style="position:absolute;left:560px;top:530px;
+			background:url(/monitor/images/login1.png);width:145px;height:55px;border:none;color:#eb5300">
+		
+		<input type="button" onclick="regist()" style="position:absolute;left:720px;top:530px;
+			background:url(/monitor/images/reg1.png);width:145px;height:55px;border:none;color:#eb5300">
+			
+		<input type="button" onclick="czsj()" style="position:absolute;left:880px;top:530px;
+			background:url(/monitor/images/czsj.png);width:145px;height:55px;border:none;color:#eb5300">
+			
+			
+		<div id="loginMsg" style="position:absolute;left:560px;top:600px;color:red;font-size:20px;"><a href="http://118.112.187.26:7001/monitor/help/四川国税发票管理系统说明（纳税人版）.docx">系统使用说明<br>文档下载</a></div>
+			
+		<div style="position:absolute;left:200px;top:670px;color:#f00">
+		
+		为保证您的正常使用，请使用最新的浏览器 （chrome、IE8以上）谢谢!<br>
+		</div>
+		</form>	
+		<div style="position:absolute;left:200px;top:700px;color:#346bae">
+		免责声明：注册完成后请定期修改您的密码。平台服务电话：028-86724632,12366</div>
+</div>
+<script type="text/javascript">
+var iszrr = "0";//默认不是自然人
+//短信验证码部分
+//发送验证码时添加cookie
+function addCookie(name,value,expiresHours){ 
+  var cookieString=name+"="+escape(value); 
+  //判断是否设置过期时间,0代表关闭浏览器时失效
+  if(expiresHours>0){ 
+    var date=new Date(); 
+    date.setTime(date.getTime()+expiresHours*1000); 
+    cookieString=cookieString+";expires=" + date.toUTCString(); 
+  } 
+    document.cookie=cookieString; 
+} 
+//修改cookie的值
+function editCookie(name,value,expiresHours){ 
+  var cookieString=name+"="+escape(value); 
+  if(expiresHours>0){ 
+   var date=new Date(); 
+   date.setTime(date.getTime()+expiresHours*1000); //单位是毫秒
+   cookieString=cookieString+";expires=" + date.toGMTString(); 
+  } 
+   document.cookie=cookieString; 
+} 
+//根据名字获取cookie的值
+function getCookieValue(name){ 
+   var strCookie=document.cookie; 
+   var arrCookie=strCookie.split("; "); 
+   for(var i=0;i<arrCookie.length;i++){ 
+    var arr=arrCookie[i].split("="); 
+    if(arr[0]==name){
+     return unescape(arr[1]);
+     break;
+    }else{
+       return ""; 
+       break;
+     } 
+   } 
+     
+}
+
+	
+$(function(){
+  //获取验证码
+  //debugger;
+  $("#second").click(function (){
+    sendCode($("#second"));
+  });
+
+  //如果身份证号既是企业号，又是自然人号
+  $("#nsrXz").change(function(){//code...
+	debugger;
+	var tmp = $("#nsrXz").val();
+    var tmp1= tmp.split("&");
+	nsrdhhm=tmp1[0];
+	iszrr=tmp1[1];
+	//nsrdhhm=$("#nsrXz").val(); //获取Select选择的Value 
+  }); //为Select添加事件，当选择其中一项时触发
+  
+  v = getCookieValue("secondsremained");//获取cookie值
+  if(v>0){
+    settime($("#second"));//开始倒计时
+  }
+})
+//发送验证码
+function sendCode(obj){
+if($('#userid').val()==""){
+alert("纳税人识别号不能为空,请重新输入!");
+return;
+}
+if($("#password").val()==""){
+alert("密码不能为空，请重新输入密码!");
+return;
+}
+queryData($('#userid').val(),$("#password").val());
+}
+
+function fsyzm(){
+  debugger;
+  //alert("nsrdhhm=="+nsrdhhm);
+  if(nsrdhhm=="两个名称"){
+	nsrdhhm=$("#nsrXz").val(); //获取Select选择的Value 
+  }
+  var result = isPhoneNum(nsrdhhm);
+  if(result){
+    doPostBack('/monitor/commData/daikaiYushenCaiji/sendMsg.do',backFunc1);
+    addCookie("secondsremained",60,60);//添加cookie记录,有效时间60s
+    settime($("#second"));//开始倒计时
+  }
+}
+
+//将手机利用ajax提交到后台的发短信接口
+function doPostBack(url,backFunc) {
+  $.ajax({
+    async : true,
+    cache : false,
+    type : 'POST',
+    url : url,// 请求的action路径
+    data:"phonenum="+nsrdhhm,
+    error : function(XMLHttpRequest, textStatus, errorThrown) {
+		alert("获取短信验证码失败，请稍后重试！");
+		return;
+	},
+    success : function(data) {
+    	backFunc(data);
+	}
+  });
+}
+function backFunc1(data){
+  if(!data[0].flag){
+    alert("获取校验码失败");
+  }else{//返回验证码
+    //alert("验证码:"+data[0].yzm);
+    //$("#code").val(d.msg);
+    yzm=data[0].yzm;
+    //$('#yzm').val(yzm);
+  }
+}
+//开始倒计时
+var countdown;
+var nsrdhhm;
+var yzm;
+var flag=true;
+function settime(obj) { 
+  countdown=getCookieValue("secondsremained");
+  if (countdown == 0) { 
+	flag=false;
+    obj.removeAttr("disabled");  
+    obj.val("免费获取验证码"); 
+    return;
+  } else { 
+    obj.attr("disabled", true); 
+    obj.val("重新发送(" + countdown + ")"); 
+    countdown--;
+    editCookie("secondsremained",countdown,countdown+1);
+  } 
+  setTimeout(function() { settime(obj) },1000) //每1000毫秒执行一次
+} 
+//校验手机号是否合法
+function isPhoneNum(phone){
+  var phonenum = phone;
+  var myreg = /^(((13[0-9]{1})|(15[0-9]{1})|(17[0-9]{1})|(19[0-9]{1})|(18[0-9]{1}))+\d{8})$/; 
+  if(!myreg.test(phonenum)){ 
+    alert("请输入有效的手机号码！"); 
+    return false; 
+  }else{
+    return true;
+  }
+}
+var sfzxcj="";
+//001 先判断纳税人是否在预申请系统中注册 caixzh 
+function queryData(nsrsbh,password) {
+	$.ajax({
+		type : "POST",
+		url : "/monitor/commData/daikaiYushenCaiji/new_getNsrdhhm.do",
+		data : "nsrsbh="+nsrsbh+"&password="+password,
+		error : function(XMLHttpRequest, textStatus, errorThrown) {
+			alert("该纳税人没有注册，请先注册谢谢！");
+			return;
+		},
+		success : function(data) {
+			debugger;
+			//$("#bdqy_username").val(data[0].nsrmc);
+			//$("#bdqy_xhdw_dz").val(data[0].scjydz);
+			//alert("nsrdhhm==="+data[0].PHONE_NO);
+			//alert("data==="+data);
+			if(data=="-1"){
+			alert("您输入的密码不正确，请检查后重新输入密码！");
+			return;
+			}
+			if(data=="-3"){
+			alert("纳税人信息不存在，请检查您输入的税号是否正确！");
+			return;
+			}
+			if(data=="-2"){
+			alert("该纳税人状态为非正常户，请到窗口核实！");
+			return;
+			}
+			if(data.length==1){
+				debugger;
+				$("#message").html("");
+	       	                $("#message1").html("");
+				$("#message2").html("");
+				iszrr = data[0].ISZZR;
+				nsrdhhm=data[0].PHONE_NO;//取到预申请系统的纳税人电话号码（用于收短信验证码）
+			    sfzxcj=data[0].SFZXCJ;
+			    if(sfzxcj!=""){
+			    $("#sfzhm").css("display","block");	
+			    $("#sfz").css("display","block");	
+			    }
+			    fsyzm();
+			}else if(data.length>1){
+				//展示列表，选择
+				$("#nsrNameXz").css("display", "block");
+				$("#nsrXz").css("display","block");			
+				
+				$("#nsrXz").append("<option value='"+data[0].PHONE_NO+"&"+data[0].ISZZR+"' selected='selected'>"+data[0].USER_NAME+"</option>"); //为Select追加一个Option(下拉项) 
+				$("#nsrXz").append("<option value='"+data[1].PHONE_NO+"&"+data[1].ISZZR+"' >"+data[1].USER_NAME+"</option>"); //为Select追加一个Option(下拉项) 
+				//名称切换时，是否自然人的判断存在bug，需要后续修改！！！！！！！！！！！！！
+				iszrr = data[0].ISZZR;
+				nsrdhhm="两个名称";
+				fsyzm();
+			}else if(data.length<1){
+				//进入自动注册，如果有金三信息，企业注册，否则提示自然人注册
+			    //isAjnsr(nsrsbh);
+			      //自动注册
+			      zdzc(nsrsbh);
+				//alert("该纳税人没有注册，请先注册谢谢！");				
+			}
+		}
+	});
+}
+
+function isAjnsr(nsrsbh) {
+	$.ajax({
+		type : "POST",
+		url : "/monitor/commData/daikaiYushenCaiji/getAjNsrxx.do",
+		data : "nsrsbh="+nsrsbh,
+		error : function(XMLHttpRequest, textStatus, errorThrown) {
+			alert("该纳税人没有注册，请先注册谢谢！");
+			return;
+		},
+		success : function(data) {
+			//$("#bdqy_username").val(data[0].nsrmc);
+			//$("#bdqy_xhdw_dz").val(data[0].scjydz);
+			//alert("nsrdhhm==="+data[0].PHONE_NO);
+			if(data==""){
+				alert("该纳税人不是A级纳税人，请先注册谢谢！");
+				return;
+			}else{
+		    	//alert("开始自动注册");
+			    zdzc(nsrsbh);
+				//nsrdhhm=data[0].PHONE_NO;
+			}
+		}
+	});
+}
+
+//A级纳税人自动注册
+var djxh;
+var nsrmc;
+var fddbryddh;
+var cwfzryddh;
+var bsryddh;
+//002 自动注册 根据纳税人识别号查询金三中的纳税人信息
+function zdzc(nsrsbh) {
+	debugger;
+	$.ajax({
+		type : "POST",
+		url : "/monitor/daikaiShenpi/zc_getNsrjbxx.do",
+		data : "nsrsbh="+nsrsbh,
+		error : function(XMLHttpRequest, textStatus, errorThrown) {
+			alert("该纳税人没有注册，请先注册谢谢！");
+			return;
+		},
+		success : function(data) {
+			//$("#bdqy_username").val(data[0].nsrmc);
+			//$("#bdqy_xhdw_dz").val(data[0].scjydz);
+			  //alert("nsrdhhm==="+data[0].PHONE_NO);
+              if(data.length>1){
+              //alert("data===="+data);
+              alert("您存在多个登记序号，请您手工注册!");
+              return;
+              }else if(data.length==1){
+              djxh=data[0].DJXH;
+              nsrmc=data[0].NSRMC;
+              //
+
+              queryData_nsrxxxx();
+              }else{
+            	  $("#message").html("该纳税人识别号在金三系统不存在，");
+	          $("#message1").html("或者是非正常户，请检查输入的识");
+		  $("#message2").html("别号是否正确！");
+	              return;
+//               alert("该纳税人识别号在金三系统不存在，请检查输入的识别号是否正确！");
+              }
+		}
+	});
+}
+
+//003 查询金三中的纳税人详细信息
+function queryData_nsrxxxx() {
+	//debugger;
+	$.ajax({
+		type : "POST",
+		url : "/monitor/daikaiShenpi/new_getNsrxxxx.do",
+		data : "djxh="+djxh,
+		error : function(XMLHttpRequest, textStatus, errorThrown) {
+			alert("error="+errorThrown);
+		},
+		success : function(data) {
+		if(data==-1){
+		alert("纳税人在金三系统里面的手机号码不合法，请检查手机号!");
+		return;
+		}
+			fddbryddh = data[0].FDDBRYDDH;//法定代表人移动电话
+			cwfzryddh = data[0].CWFZRYDDH;//财务负责人移动电话
+			bsryddh = data[0].BSRYDDH;//办税人移动电话
+			//alert("fddbryddh=="+fddbryddh+" cwfzryddh=="+cwfzryddh+"  bsryddh=="+bsryddh);
+			if(fddbryddh!=""&&fddbryddh!="null"){
+			//
+			tijiao(fddbryddh);
+			}else if(cwfzryddh!=""&&cwfzryddh!="null"){
+			tijiao(cwfzryddh);
+			}else if(bsryddh!=""&&bsryddh!="null"){
+			tijiao(bsryddh);
+			}else{
+			alert("该纳税人法定代表人，财务负责人，办税人员电话都为空!，请您手工注册，谢谢！");
+			return;
+			}
+		}
+	});
+}
+
+	//004 提交，将信息注册到预申请系统
+	function tijiao(dhhm){
+		//debugger;
+			$.post("/monitor/commData/daikaiYushenCaiji/zzs_xgm_zhuce.do", { 
+				userid : $("#userid").val(),
+				username : nsrmc,
+				phone_no : dhhm,   
+				password : "123456",
+				djxh:djxh
+			}, function (data, textStatus){
+			    if(data=="1"||data==1){
+			    	//360111566277682
+			    	alert("自动注册成功！");
+			    	//alert("dhhm===="+dhhm);
+			    	nsrdhhm=dhhm;					    
+					//document.location.href = "login.jsp";
+					//login($("#bdqy_userid").val(),$("#bdqy_password").val());
+					fsyzm();
+			    }else if(data=="2"||data==2){
+			    	stopProgress();
+			    	alert("自动注册失败，请检查您输入的税号是否正确！");	
+			    	return;				    
+			    }else if(data=="3"||data==3){
+			    	stopProgress();
+			    	alert("自动注册失败，您存在多个登记序号！");	
+			    		return;				    
+			    }else if(data=="exit"){
+			    	alert("此识别号已经注册，不能重复注册");
+			   		return;
+			    }else if(data=="zrr"){
+			    	alert("您选择的是自然人注册，请手动注册");
+			   		return;
+			    }
+			});
+	}
+	
+	
+	function jy_sfzxcj(nsrsbh,sfzjhm) {
+		$.ajax({
+			type : "GET",
+			async: false,
+			url : "/monitor/commData/daikaiYushenCaiji/sfzxcj.do",
+			data : "nsrsbh="+nsrsbh+"&sfzjhm="+sfzjhm,
+			error : function(XMLHttpRequest, textStatus, errorThrown) {
+				alert("errorThrown==="+errorThrown);
+				cjbz=false;
+				return false;
+			},
+			success : function(data) {
+				//alert("data==="+data);
+				if(data=="00"){
+					alert("该纳税人未发生证像采集,请到对应的主管税务机关完成证像采集！");
+					cjbz=false;
+					return false;
+				}else if(data=="01"){
+				   // alert("该身份证件号码证像采集并通过!");
+				    cjbz=true;
+					return true;
+				}else if(data=="02"){
+					alert("该身份证件号码未证像采集,请到对应的主管税务机关完成证像采集!");
+					cjbz=false;
+					return false;
+				}else if(data=="-2"){
+					alert("证像采集接口调用失败!");
+					cjbz=false;
+					return false
+				}
+			}
+		});
+	}
+
+
+//end
+function enter(){
+	var event = arguments.callee.caller.arguments[0] || window.event;
+	if(event.keyCode == 13){//判断是否按了回车，enter的keycode代码是13，想看其他代码请猛戳这里。
+		login();
+	}
+}
+
+function jiaoyan(yzm1){
+	/*if(!flag){
+		alert("验证失效，请重新获取验证码！");
+		yzm="";
+		flag=true;
+		 $("#save").attr("disabled", true); 
+		//document.getElementById("yzm").focus();
+		return;
+	}*/
+	//alert("yzm1==="+yzm1);
+	//alert("yzm==="+yzm);
+	if(yzm1=!yzm){
+		alert("您输入的验证码不对,请重新输入！");
+		//document.getElementById("yzm").focus();
+		//$("#save").attr("disabled", true); 
+		return;	
+	}else{
+		//$("#save").attr("disabled", false); 
+	}
+
+}
+//005 登录
+function login(){
+	//alert("yzm==="+yzm);
+	/*if(!flag){
+		alert("验证失效，请重新获取验证码！");
+		yzm="";
+		flag=true;
+		//$("#save").attr("disabled", true); 
+		//document.getElementById("yzm").focus();
+		return;
+	}else{
+		//$("#save").attr("disabled", false); 
+	}*/
+    //alert("yzm1==="+$('#yzm').val());
+    //alert("yzm==="+yzm);
+    
+    //测试屏蔽 正式需放开 ！！！！！！！！！！！！！！！！
+    
+	if(document.getElementById("yzm").value==""){
+		alert("请输入验证码！");
+		//$("#save").attr("disabled", true); 
+		return;
+	}else if($('#yzm').val()!=yzm){
+		alert("请输入正确的验证码！");
+		//$("#save").attr("disabled", true); 
+		return;	
+	}
+	/*if($("#userid").val().trim()==""){
+	alert("请输入用户名！");
+	return;
+	}
+	if($("#password").val().trim()==""){
+	alert("请输入密码！");
+	return;
+	}
+	//判断纳税人是否在证像采集系统
+	if(sfzxcj==""){
+	}else{
+	if($("#sfz").val().trim()==""){
+	alert("请先输入身份证号码!");
+	return false;
+	}
+	alert("cjbz==="+cjbz);
+	if(cjbz){
+	}else{
+	alert("证像采集不通过.请到窗口完成采集!");
+	return;
+	}
+	}
+    debugger;
+  	$.messager.progress({text:'正在加载中，请稍候！',interval:500});*/
+	var nsrXz=$("#nsrXz").find("option:selected").text(); //获取Select选择的Text 
+	var p=$("#password").val();
+	$.ajax({
+		type : "GET",
+		url : "/monitor/commData/daikaiYushenCaiji/loginNew.do",
+		data : "userid="+$("#userid").val()+"&password="+p+"&user_name="+nsrXz+"&isZrr="+iszrr,
+		error : function(XMLHttpRequest, textStatus, errorThrown) {
+			$.messager.progress('close');
+		},
+		success : function(data) {
+			$.messager.progress('close');
+			if(data=="success"){
+				//document.location.href = "/monitor/jsp/dsp_info_query.jsp";
+				if(iszrr=="0"){
+					document.location.href = "/monitor/jsp/main/index.jsp";
+				}else{
+					document.location.href = "/monitor/jsp/main/index4zrr.jsp";
+				}
+			}else if(data=="wrongpassword"){
+			$("#loginMsg").text("提示：您的密码输入不正确，请确认您之前是否修改过初始密码！");		
+			}else{
+				//alert("用户名或密码错误，无法登陆！");//lidq
+				$("#loginMsg").text("提示：请填写正确的用户名!");
+				$("#userid").val("");
+				$("#password").val("");
+				$("#userid").focus();
+			}
+		}
+	});
+}
+function regist() {
+	document.location.href = "/monitor/reglogin/choosetype.jsp";
+}
+function czsj(){
+	location.href="/monitor/reglogin/czsjhm.jsp";
+}
+window.onload=function(){
+//alert("通知:各位纳税人,您们好!由于省局国税短信平台和移动通信商之间的通讯出现故障<br>导致移动用户手机无法收取验证码,敬请谅解!目前省局正在处理,尽快恢复!目前暂时自动获取验证码登陆，等短信平台恢复后，自动获取验证码功能会自动取消！");
+}
+//身份证号校验
+var cjbz=false;
+function vilidateSFZ(sfz){		
+	var reg=/^[1-9]{1}[0-9]{14}$|^[1-9]{1}[0-9]{16}([0-9]|[xX])$/;
+	if(reg.test(sfz)){
+	jy_sfzxcj($("#userid").val(),$("#sfz").val());
+	}else{
+		alert("您输入的身份证号码有误，请重新输入");
+	}
+}
+//查询电话号码
+function query_phoneNum(nsrsbh){
+	$.ajax({
+		type : "POST",
+		url : "/monitor/commData/daikaiYushenCaiji/getPhoneNum.do",
+		data : "nsrsbh="+nsrsbh,
+		error : function() {
+			alert("没有查询到该纳税人识别号，请检查识别号是否输入正确，或者先注册。谢谢！");
+			return;
+		},
+		success : function(data){
+			if(data.length>0){
+				$("#phone_no").val(data[0].PHONE_NO.substring(0,3)+"****"+data[0].PHONE_NO.substring(7,11));
+				$("#sjhm").css("display","block");
+				$("#phone_no").css("display","block");
+			}else{
+				$("#sjhm").css("display","none");
+				$("#phone_no").css("display","none");
+			}
+		}
+	});
+}
+</script>
+
+
+</body></html>

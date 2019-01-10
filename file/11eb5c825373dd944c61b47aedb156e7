@@ -1,0 +1,514 @@
+<!--?xml version="1.0" encoding="utf-8"?--><!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+ <head> 
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+  <meta http-equiv="Cache-control" content="no-cache" /> 
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" /> 
+  <meta name="format-detection" content="telephone=no" /> 
+  <meta name="keywords" content="NAT+IPSEC+gre并用" /> 
+  <meta name="description" content="NAT+IPSEC+gre并用 ,暗客安全网" /> 
+  <title>NAT+IPSEC+gre并用-CCNA学习资料-暗客安全网 -  手机版 - Powered by Discuz!</title> 
+  <link rel="stylesheet" href="static/image/mobile/style.css" type="text/css" media="all" /> 
+  <script src="static/js/mobile/jquery-1.8.3.min.js?Dy5" type="text/javascript"></script> 
+  <script type="text/javascript">var STYLEID = '1', STATICURL = 'static/', IMGDIR = 'static/image/common', VERHASH = 'Dy5', charset = 'gbk', discuz_uid = '0', cookiepre = 'AK81_2132_', cookiedomain = '', cookiepath = '/', showusercard = '1', attackevasive = '0', disallowfloat = 'newthread', creditnotice = '1|暗度|℃,2|暗豆|颗,7|暗币|枚,8|最佳答案|个', defaultstyle = '', REPORTURL = 'aHR0cDovL2Jicy5ha2hhY2suY29tL2ZvcnVtLnBocD9tb2Q9dmlld3RocmVhZCZ0aWQ9MzE1Nw==', SITEURL = 'http://bbs.akhack.com/', JSPATH = 'data/cache/';</script> 
+  <script src="static/js/mobile/common.js?Dy5" type="text/javascript" charset="gbk"></script> 
+ </head> 
+ <body class="bg"> 
+  <!-- header start --> 
+  <header class="header"> 
+   <div class="nav"> 
+    <span class="y"> <button class="btn_pn btn_pn_blue" id="replyid"><span>回复</span></button> </span> 
+    <a href="forum.php?mod=forumdisplay&amp;fid=176&amp;&amp;mobile=2" class="z"><img src="static/image/mobile/images/icon_back.png" /></a> 
+    <span class="name">CCNA学习资料</span> 
+   </div> 
+  </header> 
+  <!-- header end --> 
+  <!-- main postlist start --> 
+  <div class="postlist"> 
+   <h2> [分享] NAT+IPSEC+gre并用 <a href="forum.php?mod=viewthread&amp;tid=3157&amp;page=1&amp;authorid=29&amp;mobile=2" rel="nofollow" class="blue" style="font-size:12px;font-weight:normal;margin-left:10px;">只看楼主</a> </h2> 
+   <div class="plc cl" id="pid3951"> 
+    <span class="avatar"><img src="http://bbs.akhack.com/uc_server/avatar.php?uid=29&amp;size=small" style="width:32px;height:32px;" /></span> 
+    <div class="display pi" href="#replybtn_3951"> 
+     <ul class="authi"> 
+      <li class="grey"> <em> 楼主</em><b> <a href="home.php?mod=space&amp;uid=29&amp;mobile=2" class="blue">haijunlang</a></b> </li> 
+      <li class="grey rela"> <em><a href="home.php?mod=spacecp&amp;ac=favorite&amp;type=thread&amp;id=3157&amp;mobile=2" class="favbtn blue">收藏</a></em> 2015-3-2 22:33:00</li> 
+     </ul> 
+     <div class="message">
+       实验环境：DynamipsGUI 2.8_CN
+      <br /> 
+      <br /> &nbsp; &nbsp; 实验目的： 1）。通过配置IPSEC、GRE和NAT技术，让我们对IPSEC和NAT的工作原理有更深的了解
+      <br /> 
+      <br /> &nbsp; &nbsp; 2）。掌握IPSEC的配置方法，对它在网络上的应用有更深的了解
+      <br /> 
+      <br /> &nbsp; &nbsp; 实验要求： 1）。知道IPSEC与NAT之间冲突问题，知道该如何解决。
+      <br /> 
+      <br /> &nbsp; &nbsp; 实验内容： 1）。在同一台路由器上配置IPSEC和NAT技术，IPSEC流量从GRE tunnel上走。
+      <br /> 
+      <br /> &nbsp; &nbsp; 一、配置路由器的地址
+      <br /> 
+      <br /> &nbsp; &nbsp; R1:
+      <br /> 
+      <br /> &nbsp; &nbsp; R1（config）#int s1/0
+      <br /> 
+      <br /> &nbsp; &nbsp; R1（config-if）#ip add 199.1.1.1 255.255.255.0
+      <br /> 
+      <br /> &nbsp; &nbsp; R1（config-if）#clock rate 64000
+      <br /> 
+      <br /> &nbsp; &nbsp; R1（config-if）#no sh
+      <br /> 
+      <br /> &nbsp; &nbsp; R1（config）#int f0/0
+      <br /> 
+      <br /> &nbsp; &nbsp; R1（config-if）#ip add 172.16.1.1 255.255.255.0
+      <br /> 
+      <br /> &nbsp; &nbsp; R1（config-if）#no sh
+      <br /> 
+      <br /> &nbsp; &nbsp; R1（config）#ip route 0.0.0.0 0.0.0.0 199.1.1.2&nbsp;&nbsp;//配置静态默认路由，使得内网能够连通外网
+      <br /> 
+      <br /> &nbsp; &nbsp; R2:
+      <br /> 
+      <br /> &nbsp; &nbsp; R2（config）#int s0/0
+      <br /> 
+      <br /> &nbsp; &nbsp; R2（config-if）#ip add 199.1.1.2 255.255.255.0
+      <br /> 
+      <br /> &nbsp; &nbsp; R2（config-if）#no sh
+      <br /> 
+      <br /> &nbsp; &nbsp; R2（config）#int s0/1
+      <br /> 
+      <br /> &nbsp; &nbsp; R2（config-if）#ip add 200.1.1.1 255.255.255.0
+      <br /> 
+      <br /> &nbsp; &nbsp; R2（config-if）#clock rate 64000
+      <br /> 
+      <br /> &nbsp; &nbsp; R2（config-if）#no sh
+      <br /> 
+      <br /> &nbsp; &nbsp; R3:
+      <br /> 
+      <br /> &nbsp; &nbsp; R3（config）#int s0/0
+      <br /> 
+      <br /> &nbsp; &nbsp; R3（config-if）#ip add 200.1.1.2 255.255.255.0
+      <br /> 
+      <br /> &nbsp; &nbsp; R3（config-if）#no sh
+      <br /> 
+      <br /> &nbsp; &nbsp; R3（config）#int s0/1
+      <br /> 
+      <br /> &nbsp; &nbsp; R3（config-if）#ip add 201.1.1.1 255.255.255.0
+      <br /> 
+      <br /> &nbsp; &nbsp; R3（config-if）#clock rate 64000
+      <br /> 
+      <br /> &nbsp; &nbsp; R3（config-if）#no sh
+      <br /> 
+      <br /> &nbsp; &nbsp; R4:
+      <br /> 
+      <br /> &nbsp; &nbsp; R4（config）#int s1/0
+      <br /> 
+      <br /> &nbsp; &nbsp; R4（config-if）#ip add 201.1.1.2 255.255.255.0
+      <br /> 
+      <br /> &nbsp; &nbsp; R4（config-if）#no sh
+      <br /> 
+      <br /> &nbsp; &nbsp; R4（config）#int f0/0
+      <br /> 
+      <br /> &nbsp; &nbsp; R4（config-if）#ip add 172.17.1.1 255.255.255.0
+      <br /> 
+      <br /> &nbsp; &nbsp; R4（config-if）#no sh
+      <br /> 
+      <br /> &nbsp; &nbsp; R4（config）#ip route 0.0.0.0 0.0.0.0 201.1.1.1 //配置静态默认路由，使得内网能够连通外网
+      <br /> 
+      <br /> &nbsp; &nbsp; 配置好以后，可以在特权模式下使用&quot; show ip interface brief &quot;来查看路由器的接口信息，这里本人不再演示！！
+      <br /> 
+      <br /> &nbsp; &nbsp; 二、配置动态路由协议（OSPF），在R2和R3上配置
+      <br /> 
+      <br /> &nbsp; &nbsp; R2:
+      <br /> 
+      <br /> &nbsp; &nbsp; R2（config）#router ospf 100
+      <br /> 
+      <br /> &nbsp; &nbsp; R2（config-router）#net 199.1.1.0 0.0.0.255 area 0
+      <br /> 
+      <br /> &nbsp; &nbsp; R2（config-router）#net 200.1.1.0 0.0.0.255 area 0
+      <br /> 
+      <br /> &nbsp; &nbsp; R3:
+      <br /> 
+      <br /> &nbsp; &nbsp; R3（config）#router ospf 100
+      <br /> 
+      <br /> &nbsp; &nbsp; R3（config-router）#net 200.1.1.0 0.0.0.255 area 0
+      <br /> 
+      <br /> &nbsp; &nbsp; R3（config-router）#net 201.1.1.0 0.0.0.255 area 0
+      <br /> 
+      <br /> &nbsp; &nbsp; 配置好以后，可以在特权模式下使用&quot; show ip route &quot;来查看路由器的路由表，这里本人不再演示！！
+      <br /> 
+      <br /> 
+     </div> 
+    </div> 
+   </div> 
+   <div class="plc cl" id="pid3952"> 
+    <span class="avatar"><img src="http://bbs.akhack.com/uc_server/avatar.php?uid=29&amp;size=small" style="width:32px;height:32px;" /></span> 
+    <div class="display pi" href="#replybtn_3952"> 
+     <ul class="authi"> 
+      <li class="grey"> <em> 沙发</em><b> <a href="home.php?mod=space&amp;uid=29&amp;mobile=2" class="blue">haijunlang</a></b> </li> 
+      <li class="grey rela"> 2015-3-2 22:33:27</li> 
+     </ul> 
+     <div class="message">
+       三、配置GRE:
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; R1:
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; R1（config）# interface tunnel 1
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; R1（config-if）# tunnel source s1/0
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; R1（config-if）# tunnel destination 201.1.1.2
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; R1（config-if）# ip add 1.1.1.1 255.255.255.0
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; R1（config-if）# no shut
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; R4:
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; R4（config）# interface tunnel 1
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; R4（config-if）# tunnel source s1/0
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; R4（config-if）# tunnel destination 199.1.1.1
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; R4（config-if）# ip add 1.1.1.2 255.255.255.0
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; R4（config-if）# no shut
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; 四、在GRE里做RIPv2
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; R1:
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; R1（config）#router rip
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; R1（config-router）#ver 2
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; R1（config-router）#no auto-summary
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; R1（config-router）#net 1.1.1.0&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;//宣告直连的网络，这里的1.1.1.0
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; R1（config-router）#net 172.16.1.0&nbsp; &nbsp; 是tunnel 1里的路由，172.16.1.0是内网路由
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; R4:
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; R4（config）#router rip
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; R4（config-router）#ver 2
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; R4（config-router）#no auto-summary
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; R4（config-router）#net 1.1.1.0 宣告直连的网络，这里的1.1.1.0
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; R4（config-router）#net 172.17.1.0 是tunnel 1里的路由，172.17.1.0是内网里的！
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; 说明：有关GRE的其他配置在这里就不详细说明，这里就简单演示配置命令！！
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; 四、配置IKE IPSEC VPN
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; R1:
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; 1.配置IPsec策略协商：
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; R1（config）#crypto isakmp enable //启动IKE的协议
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; R1（config）#crypto isakmp policy 1 //建立IKE的协商策略，&quot;1为优先级，值越小越优先&quot;
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; R1（config-isakmp）#encryption des //加密算法为des
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; R1（config-isakmp）#hash md5 //认证算法为md5
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; R1（config-isakmp）#authentication pre-share //身份验证为&quot;预共享密钥&quot;
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; R1（config-isakmp）#lifetime 60 //每60秒发送一次hello包，保持连通性
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; R1（config-isakmp）#group 1
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; 2.配置IKE的与共享密钥，与对端IP地址
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; R1（config）#crypto isakmp key 0 kfp address 201.1.1.2 //设置共享密钥和对端地址
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; 3.配置IPSEC 转换集（IPSEC 策略的安全提议）
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; R1（config）#crypto ipsec transform-set aa esp-des esp-md5-hmac
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; // aa是转换集的名字，esp-des表示用des加密算法，esp-md5-hmac表示用sha算法验证
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; R1（cfg-crypto-tran）#mode tunnel //IPSEC的工作模式是tunnel
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; 4.配置IPSEC保护的数据流（保护对象）（ACL）
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; R1（config）#access-list 102 permit ip 172.16.1.0 0.0.0.255 172.17.1.0 0.0.0.255
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; 5.配置IPSEC策略
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; R1（config）# crypto map aamap 10 ipsec-isakmp
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; R1（config-crypto-map）#match address 102 //它的保护对象是acl 102中定义的
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; R1（config-crypto-map）#set peer 201.1.1.2 //对等体（对端IP地址）为201.1.1.2
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; R1（config-crypto-map）#set transform-set aa //调用转换集aa
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; 6.将策略应用到接口
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; R1（config）#int tunnel 1
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; R1（config-if）#crypto map aamap
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; R4:
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; R4（config）#crypto isakmp enable //启动IKE的协议
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; R4（config）#crypto isakmp policy 1 //建立IKE的协商策略，&quot;1为优先级，值越小越优先&quot;
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; R4（config-isakmp）#encryption des //加密算法为des
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; R4（config-isakmp）#hash md5 //认证算法为md5
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; R4（config-isakmp）#authentication pre-share 身份验证为&quot;预共享密钥&quot;
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; R4（config-isakmp）#lifetime 60 //每60秒发送一次hello包，保持连通性
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; R4（config-isakmp）#group 1
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; 2.配置IKE的与共享密钥，与对端IP地址
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; R4（config）#crypto isakmp key 0 kfp address 199.1.1.1 //设置共享密钥和对端地址
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; 3.配置IPSEC 转换集（IPSEC 策略的安全提议）
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; R4（config）#crypto ipsec transform-set bb esp-des esp-md5-hmac
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; // bb是转换集的名字，esp-des表示用des加密算法，esp-md5-hmac表示用sha算法验证
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; R4（cfg-crypto-tran）#mode tunnel //IPSEC的工作模式是tunnel
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; 4.配置IPSEC保护的数据流（保护对象）（ACL）
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; R4（config）#access-list 102 permit ip 192.168.3.0 0.0.0.255 192.168.1.0 0.0.0.255
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; 5.配置IPSEC策略
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; R4（config）# crypto map bbmap 10 ipsec-isakmp
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; R4（config-crypto-map）#match address 102 //它的保护对象是acl 102中定义的
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; R4（config-crypto-map）#set peer 199.1.1.1 //对等体（对端IP地址）为199.1.1.1
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; R4（config-crypto-map）#set transform-set bb //调用转换集bb
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; 6.将策略应用到接口
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; R4（config）# int tunnel 1
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; R4（config-if）#crypto map bbmap
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; 说明：在这里，我们结合GRE和IPSEC的配置来看，在这里实验目的很明确，要做NAT和IPSEC技术，而两者是相互冲突的，解决方法是将IPSEC放入GRE tunnel里进行传输，在路由器的物理接口上做NAT技术，这样，两者就能共存，互不干扰，而将IPSEC放入到GRE tunnel里，就涉及到GRE和IPSEC的配置先后问题，本实验是先做GRE,后做IPSEC,是将IPSEC VPN放入GRE tunnel里进行传输
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; 这时候，172.16.1.0内网里的主机和172.17.1.0内网里的主机是能相互Ping通的
+      <br /> 
+     </div> 
+    </div> 
+   </div> 
+   <div class="plc cl" id="pid3953"> 
+    <span class="avatar"><img src="http://bbs.akhack.com/uc_server/avatar.php?uid=29&amp;size=small" style="width:32px;height:32px;" /></span> 
+    <div class="display pi" href="#replybtn_3953"> 
+     <ul class="authi"> 
+      <li class="grey"> <em> 板凳</em><b> <a href="home.php?mod=space&amp;uid=29&amp;mobile=2" class="blue">haijunlang</a></b> </li> 
+      <li class="grey rela"> 2015-3-2 22:33:53</li> 
+     </ul> 
+     <div class="message">
+       五、验证：
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; PC1:172.16.1.2 172.16.1.1 255.255.255.0
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; //PC1的ip地址是172.16.1.2,网关是172.16.1.1,子网掩码是255.255.255.0
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; PC2: 172.17.1.1 172.16.1.1 255.255.255.0
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; //PC2的ip地址是172.17.1.2,网关是172.17.1.1,子网掩码是255.255.255.0
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; PC1（172.16.1.2） ping PC2（172.17.1.2）结果如下：
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; PC2（172.17.1.2） ping PC1（172.16.1.2）结果如下：
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; 此时内网主机虽然能相互访问，但是还不能访问Internet,要想能正常访问Internet,还要做NAT
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; 技术！！
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; 六、配置NAT技术（PAT）
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; R1:
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; R1（config）#access-list 1 permit 172.16.1.0 0.0.0.255
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; R1（config）#ip nat inside source list 1 interface s1/0 overload
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; R1（config）#int f0/0
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; R1（config-if）#ip nat inside
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; R1（config-if）#int s1/0
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; R1（config-if）#ip nat outside
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; R4（config）#access-list 1 permit 172.17.1.0 0.0.0.255
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; R4（config）#ip nat inside source list 1 interface s1/0 overload
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; R4（config）#int f0/0
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; R4（config-if）#ip nat inside
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; R4（config-if）#int s1/0
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; R4（config-if）#ip nat outside
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; 七、验证：
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; 内网主机能ping通公网上的主机或ip地址：
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; 用PC1 ping 公网地址（200.1.1.1）：结果如下：
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; 用PC2 ping 公网地址（200.1.1.1）：结果如下：
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; 上图说明内网主机能ping通公网上的主机或公网ip地址。
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; 结合上面IPSEC的验证结果，说明NAT和IPSEC可以在同一台路由器上配置，实现内网主机既能通过VPN来访问其它内网主机，也能访问Internet!!
+      <br /> &nbsp; &nbsp; 
+      <br /> &nbsp; &nbsp; 实验完成！！！
+      <br /> 
+     </div> 
+    </div> 
+   </div> 
+   <div id="post_new"></div> 
+   <div class="plc cl"> 
+    <form method="post" autocomplete="off" id="fastpostform" action="forum.php?mod=post&amp;action=reply&amp;fid=176&amp;tid=3157&amp;extra=&amp;replysubmit=yes&amp;mobile=2"> 
+     <input type="hidden" name="formhash" value="22cf5404" /> 
+     <span class="avatar"><img style="height:32px;width:32px;" src="http://bbs.akhack.com/uc_server/avatar.php?uid=0&amp;size=small" /></span> 
+     <div class="pi"> 
+      <ul class="fastpost"> 
+       <li><input type="text" value="我也说一句" class="input grey" color="gray" name="message" id="fastpostmessage" /></li> 
+       <li id="fastpostsubmitline" style="display:none;">
+        <div class="sec_code vm"> 
+         <input name="seccodehash" type="hidden" value="SwORQ" /> 
+         <input type="text" class="txt px vm" style="ime-mode:disabled;width:115px;background:white;" autocomplete="off" value="" id="seccodeverify_SwORQ" name="seccodeverify" placeholder="验证码" fwin="seccode" /> 
+         <img src="misc.php?mod=seccode&amp;update=74332&amp;idhash=SwORQ&amp;mobile=2" class="seccodeimg" /> 
+        </div> <script type="text/javascript">
+(function() {
+$('.seccodeimg').on('click', function() {
+$('#seccodeverify_SwORQ').attr('value', '');
+var tmprandom = 'S' + Math.floor(Math.random() * 1000);
+$('.sechash').attr('value', tmprandom);
+$(this).attr('src', 'misc.php?mod=seccode&update=74332&idhash='+ tmprandom +'&mobile=2');
+});
+})();
+</script> <input type="button" value="回复" class="button2" name="replysubmit" id="fastpostsubmit" /><a href="forum.php?mod=post&amp;action=reply&amp;fid=176&amp;tid=3157&amp;reppost=3951&amp;page=1&amp;mobile=2" class="y" style="height:30px;width:30px;margin-top:7px;background:url(static/image/mobile/images/icon_photo.png) no-repeat"><span class="none">回复</span></a></li> 
+      </ul> 
+     </div> 
+    </form> 
+   </div> 
+   <script type="text/javascript">
+(function() {
+var form = $('#fastpostform');
+$('#fastpostmessage').on('focus', function() {
+popup.open('您还未登录，立即登录?', 'confirm', 'member.php?mod=logging&action=login');
+this.blur();
+});
+$('#fastpostsubmit').on('click', function() {
+var msgobj = $('#fastpostmessage');
+if(msgobj.val() == '我也说一句') {
+msgobj.attr('value', '');
+}
+$.ajax({
+type:'POST',
+url:form.attr('action') + '&handlekey=fastpost&loc=1&inajax=1',
+data:form.serialize(),
+dataType:'xml'
+})
+.success(function(s) {
+evalscript(s.lastChild.firstChild.nodeValue);
+})
+.error(function() {
+window.location.href = obj.attr('href');
+popup.close();
+});
+return false;
+});
+
+$('#replyid').on('click', function() {
+$(document).scrollTop($(document).height());
+$('#fastpostmessage')[0].focus();
+});
+
+})();
+
+function succeedhandle_fastpost(locationhref, message, param) {
+var pid = param['pid'];
+var tid = param['tid'];
+if(pid) {
+$.ajax({
+type:'POST',
+url:'forum.php?mod=viewthread&tid=' + tid + '&viewpid=' + pid + '&mobile=2',
+dataType:'xml'
+})
+.success(function(s) {
+$('#post_new').append(s.lastChild.firstChild.nodeValue);
+})
+.error(function() {
+window.location.href = 'forum.php?mod=viewthread&tid=' + tid;
+popup.close();
+});
+} else {
+if(!message) {
+message = '本版回帖需要审核，您的帖子将在通过审核后显示';
+}
+popup.open(message, 'alert');
+}
+$('#fastpostmessage').attr('value', '');
+if(param['sechash']) {
+$('.seccodeimg').click();
+}
+}
+
+function errorhandle_fastpost(message, param) {
+popup.open(message, 'alert');
+}
+</script> 
+  </div> 
+  <!-- main postlist end --> 
+  <script type="text/javascript">
+$('.favbtn').on('click', function() {
+var obj = $(this);
+$.ajax({
+type:'POST',
+url:obj.attr('href') + '&handlekey=favbtn&inajax=1',
+data:{'favoritesubmit':'true', 'formhash':'22cf5404'},
+dataType:'xml',
+})
+.success(function(s) {
+popup.open(s.lastChild.firstChild.nodeValue);
+evalscript(s.lastChild.firstChild.nodeValue);
+})
+.error(function() {
+window.location.href = obj.attr('href');
+popup.close();
+});
+return false;
+});
+</script> 
+  <a href="javascript:;" title="返回顶部" class="scrolltop bottom"></a>
+  <img src="http://pingtcss.qq.com/pingd?r2=37055809&amp;ui=0&amp;rt=forum&amp;md=viewthread&amp;fi=176&amp;ti=3157&amp;pn=1&amp;qq=000&amp;logo=11&amp;url=/forum.php&amp;arg=mod%3Dviewthread%26tid%3D3157&amp;tz=-8&amp;dm=bbs.akhack.com&amp;pvi=672120846&amp;si=s1226407983&amp;rnd=1401013868&amp;ext=mt=0" height="1" width="1" style="float:right" noerror="true" /> 
+  <div id="mask" style="display:none;"></div> 
+  <div class="footer"> 
+   <div> 
+    <a href="forum.php?mobile=2">首页</a> | 
+    <a href="member.php?mod=logging&amp;action=login&amp;mobile=2" title="登录">登录</a> | 
+    <a href="member.php?mod=register&amp;mobile=2" title="点我注册">注册</a> 
+   </div> 
+   <div> 
+    <a href="http://bbs.akhack.com/forum.php?mod=viewthread&amp;tid=3157&amp;mobile=1&amp;simpletype=no">标准版</a> | 
+    <a href="javascript:;" style="color:#D7D7D7;">触屏版</a> | 
+    <a href="http://bbs.akhack.com/forum.php?mod=viewthread&amp;tid=3157&amp;mobile=no">电脑版</a> | 
+   </div> 
+   <p>&copy; Comsenz Inc.</p> 
+  </div>  
+ </body>
+</html>

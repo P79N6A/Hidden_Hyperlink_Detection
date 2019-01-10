@@ -1,0 +1,120 @@
+<!DOCTYPE html><html><head>  
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8;">  
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+<style type="text/css"> 
+body, html {height: 100%;overflow-x: hidden !important;}
+body {min-width: 100%;}
+body, html,#l-map {font: inherit;font-size: 12px;vertical-align: baseline;margin:0; font-family: '微軟正黑體', '新細明體', 'Arial Unicode MS', Arial, Helvetica, sans-serif !important;;}  
+#l-map {  position: absolute !important; width: 100%;height: 100%; border-top: 1px solid #ccc;bottom:0px;top: 41px;left:0; right:0;}
+form {  margin-top: 10px;}
+#service-center-search-zone {position: absolute;z-index: 100;top: 0;background-color: #fff; width:400px;max-width:100%;right:-400px; }
+#service-center-search {    top: 0; z-index: 1000;position: fixed; right: -400px; width: 400px; max-width: 100%; padding-right: 0; height:100px ;text-align: center; padding: 0 0 15px 0; background-color: #e3e3e3;}
+#sc_result {  margin: 110px 0 0 0 ;list-style: none;padding: 0;border: 0;border-left: 1px solid #ccc; background-color: white;width:399px;max-width:100%;top: 100px;bottom: 0; right:-400px;}
+.search-btn-blue {float: right;background: url(../images/web-icon-s5106ba5930.png) no-repeat;background-position: 0 -1042px;border: medium none;border-radius: 0 0 0 0;cursor: pointer;height: 23px;position: relative;right: 5%;top: 29px;width: 25px;text-indent: -9999px;}
+#search-pd {width: 100%; padding: 4px 0;margin: 2px 0 0 0;border: 0;}
+.search-box {width: 90%; padding: 0 7px;background-color: #ffffff;margin: 2px auto;border: 1px solid #A3A3A3;}
+#sc_result li {border-bottom: 1px dotted #ccc;padding: 15px 24px 10px 55px;background-color: white;background: url(../images/map-point.png) no-repeat 20px center;line-height: 100%;}
+#sc_result h4 {margin: 0 0 5px 0;font-size: 14px;white-space: nowrap;text-overflow: ellipsis;overflow: hidden;color: #33b9ff;line-height: 120%;}
+#sc_result p {color: #000;line-height: 16px;margin: 0 0 5px 0;}
+#sc_result li:hover {background-color: #e7f2ff;cursor: pointer;}
+
+a {color: #33b9ff;text-decoration: none;}
+a:hover {color: #0164a2;cursor: pointer;}
+.marker p { color:#fff;}
+.marker h4 {font-size: 16px;}
+
+h1 {  position: fixed; float: left;font-size: 24px;font-weight: normal;height: 22px;padding: 6px 10px 13px 120px;margin: 0;background: url(../images/asus_logo.png) 0 10px no-repeat;}
+#txt_ScKeyword { width:100%; border:0;margin-bottom: 0;border-radius: 0px;font-size: 13px;line-height: 18px;color: #777;}
+.aai-icon-search {    float: right;display: block;width: 22px;height: 22px;background: url(../images/aai_menu_icon_b.png) -76px 0 no-repeat;cursor: pointer;margin: 14px;}
+.removebutton {right: 5px;top: 5px;position: absolute;text-indent: -9999px;width: 20px;height: 20px;background: url(../images/remove.png) no-repeat 0 0;}
+#loading {display: none;background: url(../images/loader.gif) center no-repeat;width: 400px;max-width: 100%;overflow: auto;position: fixed;background-color: #fff;top: 100px;bottom: 0;opacity: 0.8;}
+.aai-mm-btn { position: fixed; right: 0;}
+.keywordbox {   text-align: left;margin: 0 auto; width:90%; clear: both;padding: 4px 6px;height: 22px;min-height: 22px ;  background-color: #FFF;  border: 1px solid #A3A3A3;}
+input:focus { 
+   border:0;
+}
+</style>  
+<script>
+if (window.location.protocol != "http:") {
+   // window.location.href = "http:" + window.location.href.substring(window.location.protocol.length);
+}
+</script>
+
+<script type="text/javascript" src="//api.map.baidu.com/api?type=quick&amp;ak=fMQIcIWQQHT5A1o60ytUGP8j&amp;v=1.0"></script><script type="text/javascript" src="http://api.map.baidu.com/getscript?type=quick&amp;file=api&amp;ak=fMQIcIWQQHT5A1o60ytUGP8j&amp;t=20140109092002"></script><script type="text/javascript" src="http://api.map.baidu.com/getscript?type=quick&amp;file=feature&amp;ak=fMQIcIWQQHT5A1o60ytUGP8j&amp;t=20140109092002"></script>
+
+<script src="../jquery.js"></script>
+<script src="script.js"></script>
+
+
+<title>ASUS - 查询服务中心</title>  
+<style type="text/css">.BMap_mask{background:transparent url('data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAgY0hSTQAAeiYAAICEAAD6AAAAgOgAAHUwAADqYAAAOpgAABdwnLpRPAAAAAtJREFUGFdjYAACAAAFAAGq1chRAAAAAElFTkSuQmCC');}.BMap_noscreen{display:none;}.BMap_button{cursor:pointer;}.BMap_zoomer{background-image:url('data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAOCAYAAAAfSC3RAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAgY0hSTQAAeiYAAICEAAD6AAAAgOgAAHUwAADqYAAAOpgAABdwnLpRPAAAAFJJREFUOE9jvMHN/Z+BHADSSA5mQNZEyGIUtTAOSBM+Z8Pk4OqRNeLSjGwgTo3omtFdgVcjPr/SRiO6n5BdQN3AISs6iEl6WBMAqckOJcmRohkAG7y+qWbr85IAAAAASUVORK5CYII=');background-repeat:no-repeat;overflow:hidden;font-size:1px;position:absolute;width:7px;height:7px;}.BMap_cpyCtrl a{font-size:11px;color:#7979CC;}.BMap_scaleCtrl{width:70px;height:22px;bottom:10px;left:10px;-moz-user-select:none;}.BMap_scaleCtrl div.BMap_scaleTxt{font-size:11px;font-family:Arial,sans-serif;white-space:nowrap;}.BMap_scaleCtrl div{position:absolute;}.BMap_scaleHBar img,.BMap_scaleLBar img,.BMap_scaleRBar img{position:absolute;width:37px;height:426px;left:0;display:none;}.BMap_scaleHBar{width:100%;height:3px;font-size:0;bottom:0;background-color:#000;}.BMap_scaleLBar,.BMap_scaleRBar{width:1px;height:6px;bottom:0;font-size:0;background-color:#000;}.BMap_scaleLBar{left:0;}.BMap_scaleRBar{right:0;}.BMap_scaleTxt{text-align:center;width:100%;cursor:default;line-height:18px;}.iw{width:100%;-webkit-box-sizing:border-box;border:.3em solid transparent;-webkit-background-clip:padding;}.iw_rt{position:relative;height:46px;width:195px;-webkit-box-sizing:border-box;display:-webkit-box;-webkit-box-align:center;margin:2px 5px 0 2px;background-color:rgba(0,0,0,0.8);-webkit-box-shadow:2px 2px 7px rgba(0,0,0,0.3);-webkit-border-radius:2px;color:#fff;}.iw_rt:after{content:'';position:absolute;left:50%;bottom:-8px;width:0;height:0;border-left:5px solid transparent;border-top:8px solid rgba(0,0,0,0.8);border-right:5px solid transparent;margin:0 0 0 -6px;}.iw_s{text-align:center;vertical-align:middle;height:100%;-webkit-box-sizing:border-box;}.iw_rt .iw_s1{color:#cbcbcb;}.iw_rt b{color:#fff;font-weight:bold;}.iw_rt_gr{margin-left:-4px;}.iw_busline{margin:32px 0 0 -3px;}.iw_busline .iw_cc{text-align:center;white-space:nowrap;text-overflow:ellipsis;overflow:hidden;padding:0 6px;}.iw_r{-webkit-box-ordinal-group:3;}.iw_r,.iw_l{height:100%;font-size:4.5em;text-align:center;color:#747474;border:none;-webkit-box-sizing:border-box;-webkit-border-radius:0;line-height:.7em;border:1px solid rgba(255,255,255,0.2);width:41px;}.iw_r{border-style:none none none solid;}.iw_l{border-style:none solid none none;}.iw_search,.iw_l{background:url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACYAAAAlCAYAAAAuqZsAAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJ bWFnZVJlYWR5ccllPAAAAyJpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdp bj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6 eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYwIDYxLjEz NDc3NywgMjAxMC8wMi8xMi0xNzozMjowMCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJo dHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlw dGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAv IiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RS ZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpD cmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNSBNYWNpbnRvc2giIHhtcE1NOkluc3RhbmNl SUQ9InhtcC5paWQ6QjA3NjMyREJDNzQ2MTFFMTlBQUM5QzlCRDZGODZCQkYiIHhtcE1NOkRvY3Vt ZW50SUQ9InhtcC5kaWQ6QjA3NjMyRENDNzQ2MTFFMTlBQUM5QzlCRDZGODZCQkYiPiA8eG1wTU06 RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDpCMDc2MzJEOUM3NDYxMUUxOUFB QzlDOUJENkY4NkJCRiIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDpCMDc2MzJEQUM3NDYxMUUx OUFBQzlDOUJENkY4NkJCRiIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1w bWV0YT4gPD94cGFja2V0IGVuZD0iciI/PllB9T8AAAKuSURBVHjaxFjRcdpAEAX+mVEqiFxB5AoQ HZAKElcArsBWBSgVQCoAVwCuwEoFlivwGQpI7jKrzGXn7ep0EsPO7BjLp/O73bdv9xifTqdRpCXW c+sz65n1lNy3mvzZemX9aN34C6bTKdx8HAHMgVlaX0QeaGv9J4EcBJgD9EA/hzAH7N4Cq/oAW1tf KX+vKEXP7PlMSLFvhQX32BWY49GBOIRO7FKy57wBlnoUQHu5yJX+g4mymdvgFWzkAM3JtwGgmiJw a2/pvQoEYBQCLKNI8RfuaeNjT245gAUdqgHdmkqUPiOctLdJVYkithkAVO/K5cC+M30KAZVSxboo /ybnn1eIR5r5qUyI7P4GX6nqJHskbQsxQ7wqu6aSn2qrgHLrXjqAat5ZC0WlRuzVE0J3uhtBCjRt a3qjX92JIMiOIqYtYgumzpo+7RRtu/E0zvknokMF5GgdQv4Ze/5DWL8CFVe2aNuedGsLCi1vS+WL F4WKNkL2Dnh414FnO1b1R5vKuRaxjKUF2YKBqjuCGtF6nyL5+XxOJWCcL2/CpjzdRYRuGpDShQQs ARUj9U/OnRh7Yr9/CW1JXU4fYxXoHIMCu+iB+gBLIt/LgShDYCYktGCDfCBgvyRgVQgZwTy/jIzy EnQNMZV1QCT4bJ+3XFCkS81/WijdkiYAdSak04BWtabWEmIbsNZYgU00YE+gjyErQeo31GpShVMH Yc+/dwsEzh97/D6ojT2ZMlM1XwN8WP9Ma7NAbZvbtBoEjE+jBT2TusCu5SIbI7z/wLWN1rdKi0o6 cqwTuAmYyTm5NQW/82atWvlnBbo7apxD98qDJxl7mkC76JQ2Qm0CI1xKF95Gb4oLXHJDwJlxjy/u LgruGtNFM8lqnNtfK2JqN3CVeW1gzWj9jThd0xd59R8BBgAAiefGO1Bt1gAAAABJRU5ErkJggg==') no-repeat 50% 50%;-webkit-background-size:19px 19px;}.iw_line_s,.iw_r{background:url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACUAAAAmCAYAAABDClKtAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJ bWFnZVJlYWR5ccllPAAAAyJpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdp bj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6 eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYwIDYxLjEz NDc3NywgMjAxMC8wMi8xMi0xNzozMjowMCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJo dHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlw dGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAv IiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RS ZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpD cmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNSBNYWNpbnRvc2giIHhtcE1NOkluc3RhbmNl SUQ9InhtcC5paWQ6QjA3NjMyREZDNzQ2MTFFMTlBQUM5QzlCRDZGODZCQkYiIHhtcE1NOkRvY3Vt ZW50SUQ9InhtcC5kaWQ6QjA3NjMyRTBDNzQ2MTFFMTlBQUM5QzlCRDZGODZCQkYiPiA8eG1wTU06 RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDpCMDc2MzJEREM3NDYxMUUxOUFB QzlDOUJENkY4NkJCRiIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDpCMDc2MzJERUM3NDYxMUUx OUFBQzlDOUJENkY4NkJCRiIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1w bWV0YT4gPD94cGFja2V0IGVuZD0iciI/PqheQ+MAAAEtSURBVHja7JftDYIwEIbB8JeEUXACZQPd oGygE+gGxAnQEZzAOgEdwREIDKBXUgjBIqW5Npj0kvcHpG0erveFX1WVZ8l2oBhEhRoLw/BroW8J KgeR3vMVlI5BrSwAHQZAnngmYxtMe4oIL41ZAp6iNqF4/BQTa0oBxmxAcaAHKFJY+wKtAaw0CRUJ oHjGHiY8VpqCKmYCdRkJUKmJ7Ms1gZqkqOs6w/bUGXRCOGePCcXjaItwDsW8PoZ0zhM70IeeyiZi jH/Isf+CF9MAOdCppDj+LJ6yim6j9802B6VqQa818BFjY6AHakHp9Crj15ctCaiFIi7Q/wCKLRHq vjSoVNKWunH4rTBDv5Cv7NKeKfvvU2nINzHAuexzUA7KQTkoB6UxDicKvc+qfQQYABaiUBxugCsr AAAAAElFTkSuQmCC') no-repeat 50% 50%;-webkit-background-size:19px 19px;}.iw_line{height:64px;width:228px;padding:0 11px;line-height:20px;}.iw_bustrans .iw_cc{text-align:center;}.iw_c{color:#FFF;text-decoration:none;overflow:hidden;display:-webkit-box;-webkit-box-align:center;-webkit-box-flex:1;}.iw_cc{-webkit-box-sizing:border-box;width:100%;border:none;}.BMap_pop .BMap_top img,.BMap_pop .BMap_center img,.BMap_pop .BMap_bottom img{display:none;}@media print{.BMap_noprint{display:none;}.BMap_noscreen{display:block;}.BMap_mask{background:none;}.BMap_pop .BMap_top img,.BMap_pop .BMap_center img,.BMap_pop .BMap_bottom img{display:block;}}.BMap_pop .BMap_top{background-color:rgba(0,0,0,0.8);}.BMap_pop .BMap_center{background-color:rgba(0,0,0,0.8);}.BMap_pop .BMap_bottom{background-color:rgba(0,0,0,0.8);-webkit-box-shadow:2px 2px 7px rgba(0,0,0,0.3);}.BMap_ZoomCtrl{-webkit-box-shadow:1px 1px 2px rgba(0,0,0,0.4);background:rgba(255,255,255,0.8);}.zout{width:16px;height:6px;background:url(http://s1.map.bdimg.com/mobile/static/common/ui/images/zoom-out_0701a7f3.png) center center no-repeat;-webkit-background-size:contain;}.zin{width:16px;height:16px;background:url(http://s1.map.bdimg.com/mobile/static/common/ui/images/zoom-in_7e1b2fee.png) center center no-repeat;-webkit-background-size:contain;}.zoom_btn_in{margin-bottom:-1px;border-bottom:1px solid #ececec;}.zoom_btn{height:35px;width:35px;display:-webkit-box;-webkit-box-align:center;-webkit-box-pack:center;-webkit-box-sizing:border-box;}.blue_disable .zin{opacity:.53;}.blue_disable .zout{opacity:.53;}</style><script src="http://api.map.baidu.com/?qt=verify&amp;ak=fMQIcIWQQHT5A1o60ytUGP8j&amp;callback=BMap._rd._cbk88280" type="text/javascript" charset="utf-8"></script></head>  
+<body>  
+<h1>查询服务中心</h1>
+<a class="aai-mm-btn"><i class="aai-icons aai-icon-search"></i></a>
+
+<div id="l-map" style="overflow: hidden; background-color: rgb(245, 243, 240); color: rgb(0, 0, 0); text-align: left; "><div style="overflow: visible; position: absolute; z-index: 0; left: 0px; top: 0px; "><div class="BMap_mask" style="position: absolute; left: 0px; top: 0px; z-index: 9; overflow: hidden; -webkit-user-select: none; width: 0px; height: 0px; "></div><div style="position: absolute; height: 0px; width: 0px; left: 0px; top: 0px; z-index: 200; "><div style="position: absolute; height: 0px; width: 0px; left: 0px; top: 0px; z-index: 800; "><div class="iw" style="position: absolute; line-height: 28px; text-align: center; border: 0px; -webkit-user-select: none; "><div><div class="iw_l" style="display: block; "></div><div class="iw_r" style="display: block; "></div><a target="_blank" class="iw_s iw_s0 iw_c"><div class="iw_bg iw_cc"></div></a></div></div></div><div style="position: absolute; height: 0px; width: 0px; left: 0px; top: 0px; z-index: 700; "></div><div style="position: absolute; height: 0px; width: 0px; left: 0px; top: 0px; z-index: 600; "></div><div style="position: absolute; height: 0px; width: 0px; left: 0px; top: 0px; z-index: 500; "></div><div style="position: absolute; height: 0px; width: 0px; left: 0px; top: 0px; z-index: 400; "></div><div style="position: absolute; height: 0px; width: 0px; left: 0px; top: 0px; z-index: 300; "></div><div style="position: absolute; height: 0px; width: 0px; left: 0px; top: 0px; z-index: 200; "></div></div><div style="position: absolute; top: 0px; left: 0px; z-index: 1; "><div style="position: absolute; z-index: -100; left: 0px; top: 0px; display: none; "></div></div><div style="position: absolute; top: 0px; left: 0px; z-index: 2; "><div style="position: absolute; top: 0px; left: 0px; z-index: 0; display: block; "><canvas style="position: absolute; background-color: rgb(245, 243, 240); width: 256px; height: 256px; left: -158px; top: -204px; background-position: initial initial; background-repeat: initial initial; " width="256" height="256" id="_1_3163_1178_14"></canvas></div></div><div style="position: absolute; top: 0px; left: 0px; z-index: 3; "></div></div><div style="height: 25px; position: absolute; z-index: 10; -webkit-text-size-adjust: none; bottom: 0px; right: auto; top: auto; left: 1px; display: none; " class=" anchorBL"><a title="到百度地图查看此区域" target="_blank" href="http://map.baidu.com/?sr=1" style="outline: none; "><img style="border:none;width:68px;height:25px" src="http://api0.map.bdimg.com/images/copyright_logo_s.png"></a></div></div>
+
+
+
+
+
+    <div id="service-center-search" class="form-search">
+    <form action="index.aspx" method="get">
+        <a href="#" class="removebutton" remove_i="0"></a>
+        <button id="search-btn2" type="submit" class="search-btn-blue"><span>Search</span></button>
+        <span style="  float: left; position: relative; left: 5%; top: 29px; width: 65px; background-color: #33A0FB; color: #FFF; padding: 5px 0 5px 15px; background: url(../images/man.png) #33A0FB no-repeat -5px 0;">当前位置:</span>
+	<div class="keywordbox"><div style="padding-right:40px; padding-left:90px">
+        <input name="keyword" type="search" id="txt_ScKeyword" placeholder="输入您要查询的其他城市">
+	</div></div>
+        <div class="search-box">
+        <select id="search-pd" name="product">
+        <option value="-1">产品类别</option>
+        <option value="39" data-name="ZenFone">ZenFone</option>
+        <option value="29" data-name="PadFone">PadFone</option>
+        <option value="12" data-name="Mobile Phone">手机</option>
+        <option value="3" data-name="Notebook">笔记本电脑</option>
+        <option value="30" data-name="Eee PC">超便携笔记本(EeePC)</option>
+        <option value="1" data-name="Motherboard">主板</option>
+        <option value="9" data-name="Graphic Card">显卡</option>
+        <option value="14" data-name="Desktop PC">台式电脑</option>
+        <option value="28" data-name="Eee Pad">平板电脑</option>
+        <option value="13" data-name="LCD Monitors">液晶显示器</option>
+        <option value="26" data-name="All-in-one PCs">一体机</option>
+        <option value="5" data-name="Server">服务器</option>
+        <option value="2" data-name="Optical Storage">光存储设备</option>
+        <option value="31" data-name="Eee Box">Eee Box</option>
+        <option value="15" data-name="PC Components">PC组件</option>
+        <option value="18" data-name="Digital Home">数字家庭产品</option>
+        <option value="27" data-name="Projectors">投影仪</option>
+        <option value="25" data-name="Peripherals &amp; Accessories">外设产品&amp;配件</option>
+        <option value="19" data-name="Multimedia">多媒体产品</option>
+        <option value="10" data-name="Networking">网络产品</option>
+        <option value="36" data-name="Eee Note">电子记事本</option>
+        </select>
+        </div>
+    </form>
+    </div>
+<div id="service-center-search-zone" class="searchbar-gray">
+    <div class="both"></div>
+    <ul id="sc_result"></ul>
+    <div id="loading" style="display: block; "></div>
+
+</div>
+<script type="text/javascript">
+
+
+    var map = new BMap.Map("l-map");
+
+    map.centerAndZoom(new BMap.Point(116.404, 39.915), 14);
+
+    var zoomControl = new BMap.ZoomControl();
+    map.addControl(zoomControl);
+    var scaleControl = new BMap.ScaleControl();
+    map.addControl(scaleControl);
+</script>
+
+  
+
+
+
+</body></html>

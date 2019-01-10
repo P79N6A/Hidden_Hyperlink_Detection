@@ -1,0 +1,126 @@
+<!DOCTYPE html><html><head><meta http-equiv="Content-Type" content="text/html;charset=utf-8;"><meta name="robots" content="NOINDEX,NOFOLLOW,NOARCHIVE"><title></title><script type="text/javascript" src="//static.clewm.net/cli/js/lib/jquery.1.9.1.min.js"></script><script type="text/javascript" src="//static.clewm.net/cli/biz/js/iframe.js"></script><script type="text/javascript">
+function GetRequest() {
+   var url = location.search; //获取url中"?"符后的字串
+   var theRequest = new Object();
+   if (url.indexOf("?") != -1) {
+   var str = url.substr(1);
+   str=decodeURIComponent(str);
+   var strs=str.split("&");
+   for(var i=0;i<strs.length;i++){
+   theRequest[strs[i].split("=")[0]]=strs[i].split("=")[1];
+   }
+   return theRequest;
+  }
+}
+var a=GetRequest(),b="",is_ywym=false;
+var coding,hostUrl=window.location.host,url=window.location.href;
+function get_coding(){
+var str=a["name"];
+var strs=str.split("/");
+if(strs.length>=4){
+is_ywym=true;
+}
+if(url.indexOf("pro.cli")!=-1){
+coding=strs[3];
+}else{
+coding=strs[4];
+}
+if(coding.indexOf('?')!=-1){
+var strNewCoding=coding.split('?');
+coding=strNewCoding[0];
+}
+
+b=str;
+}
+get_coding();
+window.onload=function(){
+if( a["time"] == "1"){
+   var url = location.search; //获取url中"?"符后的字串
+   var theRequest = new Object();
+   if (url.indexOf("?") != -1&&url.indexOf("uuid") != -1) {
+  document.getElementById("if_type").src=a["name"]+"&stime=2";
+   } else{
+  document.getElementById("if_type").src=a["name"]+"?stime=2";
+   }
+}
+
+};
+function get_qrimg(url,is_pro_url)
+{ 
+var _this=$(".qrimg"),data={};
+data['coding']=coding;
+if(is_pro_url){
+data['pro_url']=b;
+data['is_ywym']=is_ywym;
+}
+$.ajax({
+url:url,
+type:"post",
+dataType:"json", 
+data:data,
+async:false,
+success:function(ret){
+if(ret.status==1) {
+_this.find("img").attr("src",ret.data);
+}
+else if(ret.status==-1){ 
+get_qrimg();
+};
+}
+});
+}
+$(function(){
+if(url.indexOf("test")!=-1){
+get_qrimg("/api/info/getqrcodeimage");
+}else if(url.indexOf("pro")!=-1){
+if(hostUrl.indexOf("pro")!=-1){
+//hostUrl=hostUrl.replace('pro','biz')
+var newUrl="http://"+hostUrl+"/pro/get_qrcode_image";
+get_qrimg(newUrl,1);
+}else{
+get_qrimg("/pro/get_qrcode_image",1);
+}
+}else if(url.indexOf("vcardview")!=-1){
+get_qrimg("/vcard/get_qrcode_image");
+}else if(url.indexOf('idcodeview')!=-1) {
+get_qrimg("/idcode/get_idcode_qrimg");
+}else if (url.indexOf('Idcodeview')!=-1) {
+get_qrimg("/idcode/get_idcode_qrimg");
+}else if(url.indexOf('Rec')!=-1) {
+get_qrimg("/Rec/getqrimg");
+}
+
+});
+ </script><style type="text/css">
+body{
+background-color:#e7e8eb;
+}
+.phone_wrap{
+background-color: #fff;
+position: relative;
+left:50%;
+width: 640px;
+margin-left: -320px;
+border-left:1px solid #d9dadc;
+border-right:1px solid #d9dadc;
+}
+.qrimg{
+display: block!important;
+position: absolute;
+right:-200px;
+top: 20px;
+background-color: #fff;
+text-align: center;
+border:1px solid #d9dadc;
+padding:16px;
+}
+.qrimg p{
+font-size: 14px;
+line-height: 20px;
+color: #717375;
+margin: 0px;
+}
+.qr_code_pc_img{
+width: 102px;
+}
+</style></head><body style="margin:0px;overflow-x:hidden;overflow-y:hidden;"><div class="phone_wrap" style="height: 0px; "><iframe frameborder="0" id="if_type" width="640px" style="height: 0px; " src="https://pro.cli.im/sc/GP78437?type?stime=2"></iframe><div class="qrimg"><img class="qr_code_pc_img" src="//qr.api.cli.im/qr?data=https%3A%2F%2Fpro.cli.im%2Fsc%2FGP78437%3Ftype&amp;level=H&amp;transparent=&amp;bgcolor=%23ffffff&amp;forecolor=%23000000&amp;blockpixel=12&amp;marginblock=1&amp;logourl=&amp;size=220&amp;kid=bizcliim&amp;time=1491052000&amp;key=37f12c7c80baa6906aa6dd1ad5729f6a"><p>手机扫一扫</p></div></div></body></html>

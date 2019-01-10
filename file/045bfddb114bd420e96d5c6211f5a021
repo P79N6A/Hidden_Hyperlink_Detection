@@ -1,0 +1,883 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><script src="/js/pwd_leve.js"></script>
+<script language="javascript">
+var cnFlag = false;
+var banEmails=['boevents@contact.sohu.com','daojian@contact.sohu.com','tlevents@contact.sohu.com','tlbb@contact.sohu.com','service@ko.sohu.com','jianxian@contact.sohu.com','ldj@contact.sohu.com','tousu@contact.sohu.com','service@sohu-inc.com','kuncheng@sohu-inc.com','fengchunyang@sohu-inc.com','brucetang@sohu-inc.com','xuecongma@sohu-inc.com','fionayun@sohu-inc.com','kingdeng@sohu-inc.com','daphnedu@sohu-inc.com','candychen@sohu-inc.com','jessicazhao@sohu-inc.com','gamejob@vip.sohu.com','famouswei@sohu-inc.com','taowang@sohu-inc.com','jackhong@sohu-inc.com','yeli@sohu-inc.com','feverfeng@sohu-inc.com','stormcui@sohu-inc.com','davidchen@sohu-inc.com','candychen@sohu-inc.com','alex@sohu-inc.com','poetryliu@sohu-inc.com','zhouzhifei@sohu-inc.com','weiqing_ch@cyou.com','liye@cyou.com','huangyongfeng@cyou.com','cuiwei@cyou.com','wangtao@cyou.com','hongxiaojian@cyou.com','chenfeng_sc@cyou.com','alex@cyou.com','chenfeng@cyou.com','liutie@cyou.com','zhouzhifei@cyou.com'];
+
+	function isInBanEmails(str){
+		for(var i=0;i<banEmails.length;i++){
+			if(banEmails[i]==str){
+				return true;
+			}
+		}
+		return false;
+	}
+var PatternsDict=new Object();
+	PatternsDict.emailPat= /^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/;
+String.prototype.Len=function(){return this.replace(/[^\x00-\xff]/g,"**").length;};	
+function IsDigit(cCheck) { return (('0'<=cCheck) && (cCheck<='9')); }
+function IsAlpha(cCheck) { return ((('a'<=cCheck) && (cCheck<='z')) || (('A'<=cCheck) && (cCheck<='Z'))) }
+function showTip(obj, msg){
+	var obj = obj.id;
+	document.getElementById(obj+"Tip").innerHTML = msg;
+}
+function showErr(obj, msg){
+	var obj = obj.id;
+	document.getElementById(obj).style.backgroundColor = "#FFD1D1";
+	document.getElementById(obj+"Tip").innerHTML = msg;
+}
+
+// validate ok
+function validateOK(obj){
+	var obj = obj.id;
+	document.getElementById(obj).style.backgroundColor = "#FFBC3D";
+	document.getElementById(obj+"Tip").innerHTML = "";
+}
+function isChn(str) {
+	var reg = /^[\u4E00-\u9FA5]+$/;
+	if (!reg.test(str)) {
+		return false;
+	}
+	return true;
+}
+function isEn(str) {
+	for (i = 0; i < str.length; i++) {
+		if (IsAlpha(str.charAt(i))) {
+			return true;
+		}
+	}
+	return false;
+}
+
+function cnValidate(obj)
+{
+    strcn = obj.value;
+    if (strcn == "")
+    {
+        showErr(obj,"请输入您的用户名");
+        return false;
+    }
+
+    if (strcn.length < 5||strcn.length > 16)
+    {
+        showErr(obj,"用户名长度不符，需5-16位。");
+        return false;
+    }
+  
+    for (nIndex=0; nIndex<strcn.length; nIndex++)
+    {
+        cCheck = strcn.charAt(nIndex);
+        if (nIndex==0 && cCheck =='_')
+        {
+            showErr(obj,"首字符必须为字母或数字，字母不区分大小写。");
+            return false;
+        }
+
+        if (!(IsDigit(cCheck) || IsAlpha(cCheck) || cCheck=='_' ))
+        {
+           showErr(obj,"用户名只能使用英文字母、数字以及_组成，字母不区分大小写。");
+           return false;
+        }
+    }
+    if (strcn.substring(0,3).toLowerCase() == 'ux_') {
+        showErr(obj,"用户名不能以ux_开头。");
+        return false;
+    }
+    send_request('/reg/checkcn.jsp?cn=' + strcn + '&t=' + new Date());
+    validateOK(obj);
+    return cnFlag;
+}
+
+ function send_request(url) {//初始化、指定处理函数、发送请求的函数
+		http_request = false;
+		//开始初始化XMLHttpRequest 对象
+		if(window.XMLHttpRequest) {            //Mozilla 浏览器
+			http_request = new XMLHttpRequest();
+			if (http_request.overrideMimeType) { //设置MiME 类别
+				http_request.overrideMimeType("text/xml");
+			}
+		}else if (window.ActiveXObject) {     // IE 浏览器
+			try {	
+				http_request = new ActiveXObject("Msxml2.XMLHTTP");
+			} 
+			catch (e) {
+				try {
+					http_request = new ActiveXObject("Microsoft.XMLHTTP");
+				} catch (e) {}
+			}
+		}
+		if (!http_request) { // 异常，创建对象实例失败
+			window.alert("不能创建XMLHttpRequest 对象实例.");
+			return false;
+		}
+		http_request.onreadystatechange = processRequest;
+		http_request.open("GET", url, true);// 确定发送请求的方式和URL 以及是否同步执行下段代码
+		http_request.send(null);
+	}
+
+	function processRequest() {	
+		var obj = document.getElementById("cn");						
+		if (http_request.readyState == 4) { 	// 判断对象状态
+			if (http_request.status == 200) {   // 信息已经成功返回，开始处理信息
+				var msg = http_request.responseText;
+				//用户名可以使用
+				if (msg.indexOf("ok") != -1) {
+	                //ok
+					  cnFlag = true;
+					  document.getElementById(obj.id).style.backgroundColor = "#FFBC3D";
+					  document.getElementById(obj.id+"Tip").innerHTML = "恭喜，该用户名可用";
+					
+	    			}
+				else{
+	                //用户名不可用
+					if (msg.indexOf("0") != -1) {
+	                    //为空
+	                    cnFlag = false;
+						showErr(obj,"请输入用户名");
+						return;
+					} else if (msg.indexOf("-1") != -1) {
+	                    //非5--16位
+	                    cnFlag = false;
+	                    showErr(obj,"用户名长度不符,需5-16位");
+						return;                  
+					} else if (msg.indexOf("-2") != -1) {
+	                    //首字符非字母或数字
+	                    cnFlag = false;
+						showErr(obj,"首字符必须为字母或数字，字母不区分大小写。");
+						return;                
+					} else if (msg.indexOf("-3") != -1) {
+	                    //用户名只能使用英文字母、数字以及_组成
+	                    cnFlag = false;
+						showErr(obj,"用户名只能使用英文字母、数字以及_组成，字母不区分大小写。");
+						return;
+					} else if (msg.indexOf("-6") != -1) {
+						//用户名不能以ux_开头
+	                    cnFlag = false;
+						showErr(obj,"用户名不能以ux_开头");
+						return;
+				    }else if (msg.indexOf("-5") != -1) {
+	                    //已被注册
+	                      cnFlag = false;                 
+				       showErr(obj,"用户名已经被注册,请更改用户名");
+				        return;
+					} else {
+	                    //异常
+				      	showErr(obj,"验证用户名时异常错误");
+				        cnFlag = true;
+				        return;
+					}
+				}
+			} 
+			else { //页面不正常
+                 showErr(obj,"请求有异常，无法验证用户名");
+		        return;	
+			}
+		}
+}
+function GetRequest() {
+
+   var url = location.search; //获取url中"?"符后的字串
+   var theRequest = new Object();
+
+   if (url.indexOf("?") != -1) {
+
+      var str = url.substr(1);
+
+      strs = str.split("&");
+
+      for(var i = 0; i < strs.length; i ++) {
+
+         theRequest[strs[i].split("=")[0]]=unescape(strs[i].split("=")[1]);
+
+      }
+
+   }
+	
+   return theRequest;
+}
+
+function passwordValidate(obj)
+{
+	 strpasswd = obj.value;
+	 strcn = document.getElementById("cn").value;
+	    if (strpasswd == "")  
+	    {  
+	        showErr(obj,"请输入密码");
+	        return false;  
+	    }
+	    if (strpasswd.length < 4||strpasswd.length > 16)
+	    {
+	        showErr(obj,"游戏密码长度不符，长度为4-16位");
+	        return false;
+	    }
+	    for (pwIndex=0; pwIndex<strpasswd.length; pwIndex++)  
+	    {  
+	        cCheck = strpasswd.charAt(pwIndex);
+	        if ( cCheck==' ' || cCheck=='\'' || cCheck=='"' || cCheck==',')  
+	        {  
+	            showErr(obj,"用户密码不能使用空格,逗号,单双引号");
+	            return false;  
+	        }  
+	    }
+	    if (strpasswd == strcn)  
+	    {  
+	        showErr(obj,"用户密码不能与用户名相同");
+	        obj.value="";
+	        document.getElementById("confirmPwd").value="";
+	        return false;  
+	    }
+	    validateOK(obj);
+	    return true;
+}
+function confirmPwdValidate(obj)
+{
+	 strconfirmPwd = obj.value;
+	 strpwd = document.getElementById("password").value;
+	    if (strconfirmPwd == "")  
+	    {  
+	        showErr(obj,"请确认密码");  
+	        return false;  
+	    }
+	    if (strpwd != strconfirmPwd)
+	    {
+	        showErr(obj,"两次输入的密码不一致");
+	        document.getElementById("password").value="";
+	        obj.value="";
+	        return false;
+	    }
+	    validateOK(obj);
+	    return true;
+	    
+}
+function superPwdValidate(obj)
+{
+	  strsuperPwd = obj.value;
+	  strpasswd = document.getElementById("password").value;
+	  strcn = document.getElementById("cn").value;
+	    if (strsuperPwd == "")  
+	    {  
+	        showErr(obj,"请输入超级密码"); 
+	        return false;  
+	    }
+	    if (strsuperPwd.length<8||strsuperPwd.length>16)
+	    {
+	        showErr(obj,"超级密码长度不符，长度为8-16位");
+	        return false;
+	    }
+	    if(strsuperPwd == strpasswd)
+	    {
+	    	showErr(obj,"超级密码不能与密码相同");
+	    	obj.value="";
+	        return false;
+	    }
+	    for(nIndex=0;nIndex<strsuperPwd.length;nIndex++)
+	    {
+	        cCheck = strsuperPwd.charAt(nIndex);
+	        if(!(IsDigit(cCheck) || IsAlpha(cCheck)))
+	        {
+	        	showErr(obj,"超级密码必须为字母或数字");
+	        	return false;
+	        }
+	    }
+	    if (strsuperPwd == strcn)  
+	    {  
+	        showErr(obj,"超级密码不能与用户名相同");
+	        obj.value="";
+	        return false;
+	    }
+	    validateOK(obj);
+	    return true;
+}
+function confirmSuperPwdValidate(obj)
+{
+	strconfirmSuperPwd = obj.value;
+	strsuperpwd = document.getElementById("superPwd").value;
+	    if (strconfirmSuperPwd == "")  
+	    {  
+	        showErr(obj,"请重复超级密码");
+	        return false;  
+	    }
+	    if (strsuperpwd != strconfirmSuperPwd)
+	    {
+	        showErr(obj,"两次输入的超级密码不一致，请重新输入");
+	        document.getElementById("superPwd").value="";
+	        obj.value=""; 
+	        return false;
+	    }
+	    validateOK(obj);
+	    return true;
+}
+function securityEmailValidate(obj)
+{	    
+	stremail = obj.value;
+	    if (stremail == "")
+	    {
+	        showErr(obj,"请输入您的邮箱");
+	        return false;
+	    }
+	    if(isInBanEmails(stremail.toLowerCase())) {
+	        showErr(obj,"请输入您经常使用的邮箱");
+	        return false;
+	    }
+	    if(stremail.length>50)
+	    {
+	    	showErr(obj,"邮箱的长度不正确,请重新输入");
+	        return false;
+	    }
+	    var thePat=PatternsDict.emailPat;
+	    var gotIt=thePat.exec(obj.value);
+	    if(!gotIt)
+	    {
+	        showErr(obj,"请输入正确的邮箱");
+	        return false;
+	    }
+	    validateOK(obj);
+	    return true;
+}	
+function snValidate(obj)
+{
+	
+	var check_name = checkIsChinese(obj.value);
+	    if (check_name != "true"){
+			showErr(obj,check_name);
+			return false;
+		}
+		validateOK(obj);
+		return true;
+		
+}
+function certNumberValidate(obj)
+{
+	var check_result = checkIdcard(obj.value);
+		if (check_result != "true"){
+		showErr(obj,check_result);
+		return false;	
+		}	
+		validateOK(obj);
+		return true;
+}
+function questionValidate(obj)
+{
+	
+	var strquestion = obj.value;
+	
+		if (strquestion == 99) {
+		showErr(obj,"请选择密码提示问题");
+		return false;
+		}
+		validateOK(obj);
+		return true;	
+}
+function securityAnswerValidate(obj)
+{
+	var stranswer = obj.value;	
+	var strquestion = document.getElementById("question").value;
+	if (stranswer == "") {
+		showErr(obj,"请输入密码提示答案");
+		return false;
+	}
+	if (parseInt(strquestion) >= 8 && parseInt(strquestion) <= 15) {
+		for (i = 0; i < stranswer.length; i++) {
+			if (stranswer.charAt(i) < "0" || stranswer.charAt(i) > "9") {
+				showErr(obj,"请填写8位数字，举例20090514");
+				return false;
+			}
+		}
+		if (stranswer.Len() != 8) {
+			showErr(obj,"请填写8位数字，举例20090514");
+			return false;
+		}
+	} else {
+		if (stranswer.Len() < 2 || stranswer.Len() > 38 || (!isChn(stranswer) && !isEn(stranswer))) {
+			showErr(obj,"请填写1-19个中文或2-38个英文");
+			return false;
+		}
+	}
+	validateOK(obj);
+	return true;
+		
+}
+function phoneValidate(obj)
+{
+	var str = obj.value;
+	if (str == "") {
+		validateOK(obj);
+		return true;
+	}else{
+		if (str.length != 11) {
+			showErr(obj,"关联手机位数不正确");
+			return false;
+		}
+		for (j = 0; j < str.length; j++) {
+			if (str.charCodeAt(j) == 65296 || str.charCodeAt(j) == 652967 || str.charCodeAt(j) == 65298 || str.charCodeAt(j) == 65299 || str.charCodeAt(j) == 65300 || str.charCodeAt(j) == 65301 || str.charCodeAt(j) == 65302 || str.charCodeAt(j) == 65303 || str.charCodeAt(j) == 65304 || str.charCodeAt(j) == 65305 || str.charCodeAt(j) == 65293 || str.charCodeAt(j) == 65343) {
+				showErr(obj,"请切换到半角字符输入");
+				return false;
+			}
+		}
+		for (i = 0; i < str.length; i++) {
+			if (str.charAt(i) < "0" || str.charAt(i) > "9") {
+				showErr(obj,"请填写11位数字");
+				return false;
+			}
+		}
+	}
+		validateOK(obj);
+		return true;
+}
+function valiCodeValidate(obj)
+{	strcode = obj.value;
+	if (strcode.length != 4 && strcode.length !=5){
+        showErr(obj,"验证码长度不正确");
+        return false;
+   	}
+	validateOK(obj);
+	return true;
+}	
+</script>
+<script src="/js/check_name_certnumber.js"></script>
+
+<title>刀剑账号系统 - 注册新用户</title>
+<base href="http://bo.account.changyou.com:80/">
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8;">
+<link rel="stylesheet" type="text/css" href="/css/styles_new.css">
+<link rel="stylesheet" type="text/css" href="/css/public.css">
+<script type="text/javascript" src="http://www.changyou.com/js/cyou_public.js" id="cyou_public_js" options="{name:'boAccount',top:0}"></script><style type="text/css" id="cyou_public_css">body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,p {padding:0;margin:0;}fieldset,img {border:0;}ol,ul{list-style:none; }:focus {outline:0;}                 #cyou_top_flash{display:none;position:absolute;left:0;top:55px;z-index:9999}                #cyou_top_close{position:absolute;display:block;width:59px;height:28px;cursor:pointer;top:20px;left:50%;margin-left:400px;background:url(http://i0.cy.com/www/public/nav/v3.7/close.png) no-repeat;}                .cyou_top_animate_elem { -webkit-animation-delay: .2s; -moz-animation-delay: .2s; -ms-animation-delay: .2s; -o-animation-delay: .2s; animation-delay: .2s; -webkit-animation-duration: 1s; -moz-animation-duration: 1s; -ms-animation-duration: 1s; -o-animation-duration: 1s; animation-duration: 1s; -webkit-animation-fill-mode: both; -moz-animation-fill-mode: both; -ms-animation-fill-mode: both; -o-animation-fill-mode: both; animation-fill-mode: both; -webkit-animation-timing-function: ease; -moz-animation-timing-function: ease; -ms-animation-timing-function: ease; -o-animation-timing-function: ease; animation-timing-function: ease; -webkit-backface-visibility: hidden; -moz-backface-visibility: hidden; -ms-backface-visibility: hidden; -o-backface-visibility: hidden; backface-visibility: hidden; }                 .cyou_top_tipsbox b,                 .cyou_top_categroylist a,                 .cyou_top_webgame,                 .cyou_top_li_icon,                 .cyou_top_gm_select_icon{ background-image:url(http://i0.cy.com/www/public/nav/v2.2/cyou_sprite.png); background-repeat:no-repeat; }                 #cyou_top { position: relative; width: 100%; height: 55px; background: url(http://i0.cy.com/www/public/nav/v1.8/nav_bg.png) no-repeat center top; cursor: default; z-index: 99; min-width: 980px; }                 #cyou_top a,                 #cyou_bottom a { text-decoration: none; }                 #cyou_top_main {width: 980px; height: 50px; margin: 0 auto; color: #4a4a4a; font-family:"瀹嬩綋"; font-size:12px; }                 .cyou_top_logo,                 .cyou_top_nav,                 .cyou_top_ads { position: relative; z-index: 2; cursor:pointer}                 .cyou_top_logo a { display: block; float: left; width: 115px; height: 36px; text-indent: -9999em; }                 .cyou_top_logo,                 .cyou_top_ads { float: left; width: auto; height:50px; }                 .cyou_top_logo { width: auto; height:36px; margin-top:6px; padding-right: 13px; border-right: 1px solid #CECECE; }                 .cyou_top_ads { position: static; width: 240px; height: 50px; padding-left: 30px; text-align: center; z-index: 1; overflow: hidden; }                 .cyou_top_ads a { display: block; height: 50px; margin: 0 auto; line-height: 0; font-size: 0; }                 .cyou_top_ads_big { display: none; position: absolute;margin-left:-110px;top:0}                 .cyou_top_nav { float: right; height: 41px; }                 .cyou_top_nav_li { display: block; position: relative; float: left; width: auto; padding:0 10px; height: 50px; line-height: 50px; text-align: center; }                 .cyou_pingtai_rig_bor_reg{border-right: solid 1px #dbdbdb;}                 #cyou_top_main .cyou_top_nav_li_logined{ width:auto; line-height:50px; border-right:none; display:none;}                 .cyou_top_nav_li a{ font-family:"瀹嬩綋"; font-size:13px;}                 #cyou_top_main .cyou_top_nav_li_logined a{background-color:#666; color:#fff; padding: 3px 5px;}                 #cyou_top_main .cyou_top_nav_li_logined a:hover{ color:#fff;}                 .cyou_top_pingtai { width: auto; padding: 0 10px; }                 .cyou_top_pingtai a { line-height: 40px; }                 .cyou_top_reg { color:8dc420;}                 .cyou_top_arrow{ position:absolute;background:#f2f2f2; width:112px; height:6px; line-height:6px; right:-1px; top:-6px; font-size:0px; border-right:solid 1px #bbb;border-left:solid 1px #bbb;}                 .cyou_top_game_list .cyou_top_arrow{top:-5px; z-index:10;}                 #cyou_top_service .cyou_top_lists{ background:#fcfcfc;}                 .cyou_top_tipsbox { _display: inline; float: left; width: 100%; padding: 0; line-height: 0; font-size: 0; }                 .cyou_top_tipsbox b { display: block; background-position: -116px -125px; line-height: 50px; font-size: 12px; font-weight: normal; cursor: pointer; }                 .cyou_top_tipsbox:hover b,                 .cyou_top_tipsbox_clicked b { background-position: -116px -64px; background-color:#f2f2f2; color: #681683; }                 #cyou_top_tips_gm .cyou_top_tipsbox:hover b,                 #cyou_top_tips_gm .cyou_top_tipsbox_clicked b { background-position: -148px -64px; background-color:#f2f2f2; color: #681683; }                 #cyou_top_tips_gm{width:82px;}                 #cyou_top_tips_gm .cyou_top_tipsbox b{background-position: -148px -125px;}                 #cyou_top_gm_select .cyou_top_arrow{width:82px;}                 #cyou_top_gm_select .cyou_top_lists a{display: block; width:82px; padding-left:12px; height:30px; text-align:left; line-height:30px; background:#f2f2f2; }                 #cyou_top_gm_select .cyou_top_lists a:hover .cyou_top_gm_select_icon { -webkit-transform: rotate(360deg); -moz-transform: rotate(360deg); transform: rotate(360deg); }                 .cyou_top_gm_select_icon {display: inline-block;float: left;height: 18px;margin: 6px 3px 0 0;  *zoom:1; transition: transform 0.4s ease-out 0s; width: 18px;}                 #cyou_top_gm_select .cyou_top_gm_icon_a{width:18px; height:18px; float:left; background-position:0 -129px; }                 #cyou_top_gm_select .cyou_top_gm_icon_b{width:18px; height:18px; float:left;  background-position:0 -148px; }                 #cyou_top_gm_select .cyou_top_gm_icon_c{width:18px; height:18px; float:left;  background-position:0 -167px; }                #cyou_top_gm_select .cyou_top_lists .cyou_top_gm_white{background:#fff;border-top:solid 1px #bbbbbb;}                 .cyou_top_listbox h2 { display: block; height: 32px; border-bottom: 1px solid #DBDBDB; border-right: 1px solid #DBDBDB; text-indent:47px; background:#f2f2f2 url(http://i0.cy.com/www/public/nav/v1.8/service_tit.png) no-repeat;color: #4A4A4A; font: bold 12px/32px Tahoma,Geneva,sans-serif; text-align: left;  }                 .cyou_top_lists { display: none; position: absolute; top: 50px; right: -1px; width: auto; background: #F2F2F2; border:solid 1px #bbbbbb;}                 #cyou_top_games .cyou_top_lists{_width:740px;_zoom:1}                 #cyou_top_service .cyou_top_lists { right: -1px; width: auto; }                  .cyou_top_categroylist a { display: block; float: left; width: 112px; height: 42px; line-height: 41px; color: #4A4A4A; font-size: 12px; text-align: left; text-indent: 15px; cursor: pointer; -webkit-transition: all .3s ease-out; -moz-transition: all .3s ease-out; -ms-transition: all .3s ease-out; -o-transition: all .3s ease-out; transition: all .3s ease-out; }                  #cyou_top_main .cyou_top_glist a.imp { color: #eb5122; }                  #cyou_top_main .cyou_top_glist a:hover,                 #cyou_top_main .cyou_top_categroylist a:hover,                  #cyou_top_main .cyou_top_lists_wrap a.cyou_top_games_icon_clicked { color: #681683; }                 #cyou_top_service .cyou_top_listbox { width: 328px; *zoom: 1; overflow: hidden; }                 #cyou_top_service .cyou_top_categroylist { float: left; width: 336px; }                 #cyou_top_service .cyou_service_tit0{ background-position:22px 7px;}                 #cyou_top_service .cyou_service_tit1{ background-position:22px -33px;}                 #cyou_top_service .cyou_service_tit2{ background-position:22px -73px;}                 #cyou_top_service .cyou_service_tit3{ background-position:22px -113px;}                 #cyou_top_service .cyou_service_tit4{ background-position:22px -153px;}                 #cyou_top_service .cyou_top_categroylist a { background-position:0px -60px; height:34px; line-height:34px;}                 #cyou_top_service .cyou_top_categroylist .cyou_service_cate_last a{ height:33px; line-height:33px;}                 .cyou_top_tips { width: 112px; padding:0px; border:1px solid #E1E1E1; border-bottom:none; border-top:none; margin-left:-1px;}                 .active_bor{border-color:#bbb; z-index:10;}                 .cyou_top_li_icon { display: inline-block; width: 24px; height: 24px; margin: 11px 5px 0 0; *zoom:1; float:left; -webkit-transition: -webkit-transform .4s ease-out; -moz-transition: -moz-transform .4s ease-out; transition: transform .4s ease-out; }                 .cyou_top_nav_li a:hover .cyou_top_li_icon { -webkit-transform: rotate(360deg); -moz-transform: rotate(360deg); transform: rotate(360deg); }                 .cyou_top_reg_icon { background-position: -139px 0; }                 .cyou_top_pay_icon { background-position: -189px 0; }                 .cyou_top_jia_icon { background-position: 0 -104px; }                 .cyou_top_gm_icon { background-position: -164px 0;}                 .cyou_top_login_icon { background-position: -114px 0; }                 .cyou_top_dropshow {position: absolute; right: 4px;top: 5px;width: 867px;height: 110px;border-bottom: solid 1px #bbb;   background: #BBBBBB url(http://i0.cy.com/www/public/nav/v2.4/tmp.jpg) 1px 1px no-repeat;}                 .cyou_top_gameint { position: absolute; left: 20px; top: 95px; width: 200px; line-height: 22px; color: #ffffff; font-size: 12px; text-align: left; display:none; }                 .cyou_top_webgame { display: block; position: absolute; bottom: -27px; right: -1px; width: 335px; height: 25px; border:solid 1px #bbb; line-height: 25px; color: #7256ff; font-size: 12px; text-align: center; text-indent: 15px; cursor: pointer; background-position:-130px -32px; background:none; background-color:#f2f2f2; font-weight:bold;}                 .cyou_top_webgame:hover { color: #676868; }                 #cyou_top_main a { color: #333333; }                 #cyou_top_main .cyou_top_webgame {color:#7256ff;}                 #cyou_top_main a:hover { color: #681683; }                 #cyou_top_main .cyou_top_reg a:hover { color: #681683; }                 #cyou_top_main .cyou_top_recharge a:hover { color: #681683; }                 #cyou_top_main .cyou_top_gm a:hover { color: #681683; }                 .cyou_top_logo a, .cyou_bottom_left a{background-image:url(http://i1.cy.com/www/public/nav/v2.3/logo_white.png?v01); background-repeat:no-repeat;}                 #cyou_bottom{width:100%;min-width:980px;height:80px;padding:10px 0;zoom:1;}                 #cyou_bottom a{text-decoration:none;}                 .cyou_bottom_wraper{border:none;border-collapse:collapse;padding:0;margin:0 auto;}                 .cyou_bottom_wraper td{height:77px;vertical-align:middle;}                 .cyou_bottom_left{text-align:right;}                 .cyou_bottom_left a, .cyou_bottom_right a{height:52px;display:inline-block;zoom:1;text-align:left;}                 .cyou_bottom_cont{text-align:left;padding:0 10px;}                 .cyou_bottom_cont p{white-space:nowrap;}                 .cyou_bottom_cont p .uppercase{ text-transform:uppercase; font-size:11px; -webkit-text-size-adjust:none;}                 .cyou_bottom_left, .cyou_bottom_right{padding:0 5px;}                 #cyou_bottom{ background:#f0f0f0 url(http://i0.cy.com/www/public/nav/v1.8/nav_bg.png) no-repeat center -55px; padding-top:20px;}                 #cyou_bottom a{ color:#8e8e8e;}                 #cyou_bottom a:hover{ color:#484848;}                 #cyou_bottom .highlight{ color:#484848;}                 #cyou_bottom, .cyou_bottom_cont p{ font:normal 12px/22px Tahoma, Geneva, sans-serif; color:#8e8e8e;}                 .cyou_bottom_cont p{ padding-left:1px;}                 .cyou_bottom_cont p .in{ display:inline-block; *display:inline; *zoom:1;}                 .cyou_bottom_cont p .in img{ float:left; margin-right:4px}                 .cyou_bottom_right a{ background-image:url(http://i1.cy.com/www/public/nav/cyou_copyright_sprite.png);background-repeat:no-repeat;height:48px;}                 .cyou_top_game_list {display: none; width: 876px;height: 382px;position: absolute;right: 0px;top: 50px;}                 .cyou_top_lists_wrap {position: absolute;top: 0px;right: 0px;width: 638px;height: 255px;border: solid 1px #dbdbdb;border-left: none;background: #fff;}                 .tyou_top_gtype {width: 638px;height: 382px;position: relative;}                 .cyou_top_tynum {width: 290px;position: absolute;}                 .cyou_top_type1 {top: 2px; left: 11px;}                 .cyou_top_type2 {top: 2px; left: 335px;}                 .cyou_top_type3 {top: 97px;left: 10px; }                 .cyou_top_type4 {top: 97px;left: 335px; }                 .cyou_top_type5 {width: 616px;top: 170px;left: 10px;}                 .cyou_top_ty_tit {line-height: 30px;font-size: 15px;text-align: left;color: #aaa;font-weight: bold;border-bottom: dashed 1px #d6d6d6;}                 .cyou_top_glist {padding-top: 4px;height: 50px;position: relative; text-align: left;}                 .cyou_top_glist dd {display: inline; *zoom: 1; position:relative; margin-left:1px;vertical-align: top; height: 24px; font-size: 12px;line-height: 24px;color: #333333;padding: 0px 18px 0px 0px;}                 .cyou_top_glist dd a{color: #333333;}                 .cyou_top_glist dd a:hover{color: #e47911;text-decoration: underline;}                 .tyou_top_three_ad{left: 0px; top: 0px; position: absolute; border:solid 1px #d6d6d6; border-top: none;}                 .tyou_top_three_ad img{vertical-align: top;}                 .tyou_top_three_ad a{display: block; border-top: solid 1px #d6d6d6;}                 .cyou_top_change{position: absolute; left: 0px; top: 257px; width: 874px; height: 124px; border:solid 1px #ccc; border-top: none; background: #fff;}                 .cyou_top_rec{position: absolute; width: 876px; bottom: -1px; left: -1px; height: 5px; font-size: 0px; line-height: 0px; background: #ff6300;}                 .cyou_top_hot, .cyou_top_new{position: absolute; left: 0px; top: 0px; width: 41px; height: 41px;}                 .cyou_top_hot{z-index: 2; background: url(http://i0.cy.com/www/public/nav/v2.4/ico_hot_p24.png);_background:0;_filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src="http://i0.cy.com/www/public/nav/v2.4/ico_hot_p24.png",sizingMethod="scale"); }                 .cyou_top_new{z-index: 2; background: url(http://i0.cy.com/www/public/nav/v2.4/ico_new_p24.png);_background:0;_filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src="http://i0.cy.com/www/public/nav/v2.4/ico_new_p24.png",sizingMethod="scale"); }                 .cyou_top_th_ad_item{width: 236px; height: 128px; position: relative;}                 .cyou_top_gm_type1, .cyou_top_gm_type2{position: absolute; right: 6px; bottom: 6px;}                 .cyou_top_gm_type1{width: 16px; height: 16px; background: url(http://i0.cy.com/www/public/nav/v2.4/icon_pc.png);}                 .cyou_top_gm_type2{width: 16px; height: 18px; background: url(http://i0.cy.com/www/public/nav/v2.4/icon_mob.png);}                 .cyou_top_glist em{width: 10px; height: 11px; line-height: 0px; overflow: hidden; display: block; position: absolute; top: 6px; right: 0px;}                 .cyou_top_glist .cyou_top_h{background: url(http://i0.cy.com/www/public/nav/v2.4/icon_h.png);}                 .cyou_top_glist .cyou_top_n{background: url(http://i0.cy.com/www/public/nav/v2.4/icon_n.png);}</style></head>
+<body>
+	<div class="header">
+	<div class="row">
+        <div class="logo">
+            <h1><a href="http://dj.changyou.com/main.shtml" target="_blank"><span>刀剑英雄账号中心</span></a></h1>
+        </div>
+        <div class="top_poster">
+            <a href="http://activity.changyou.com/research/html/481.html" target="_blank"><img src="/img/top_131021.jpg" alt=""></a>
+        </div>
+    </div>
+    <div class="nav">
+	    <div class="row">
+            <ul class="clearfix">
+                <li><a class="reg" href="/reg/contract.jsp"><span>注册会员</span></a></li>
+                <li><a class="payment" href="http://chong.changyou.com/help/dj_help_others.jsp"><span>充值中心</span></a></li>
+                <li><a class="manage" href="/reg/manage.jsp"><span>账号管理</span></a></li>
+                <li><a class="protect" target="_blank" href="http://bo.account.changyou.com/reg/manage.jsp"><span>安全中心</span></a></li>
+                <li class="last"><a class="customer" target="_blank" href="http://cs.changyou.com/index.shtml"><span>客服中心</span></a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+	<div class="content">
+		<div class="row">
+			<div class="sidebar">
+	<h3><a class="sidebar_01" href="http://chong.changyou.com/help/dj_help_others.jsp"><span>充值中心</span></a></h3>
+	<ul>
+		<li><a class="side_item highlight" target="_blank" href="http://chong.changyou.com/djbase/bankInit.do?gameType=2">银行卡充值</a></li>
+		<li><a class="side_item" target="_blank" href="http://chong.changyou.com/djbase/djPaInit.do?gameType=2">在线购买卡密</a></li>
+		<li><a class="side_item" href="http://chong.changyou.com/help/dj_help_others.jsp">其它充值方式</a></li>
+		<li><a class="side_item" href="http://chong.changyou.com/djbase/djSearchPoint.do?gameType=2">查询账户余额</a></li>
+		<li><a class="side_item" target="_blank" href="http://chong.changyou.com/djbase/djRechargeLog.do?gameType=2">查询充值记录</a></li>
+		<li><a class="side_item" target="_blank" href="http://cs.changyou.com/index.shtml">提交充值问题</a></li>
+	</ul>
+	<h3><a class="sidebar_02" href="http://bo.account.changyou.com/reg/manage.jsp"><span>账号管理</span></a></h3>
+	<ul>
+		<li><a class="side_item" href="http://bo.account.changyou.com/pwd/changepwd.jsp">修改密码</a></li>
+		<li><a class="side_item" href="http://bo.account.changyou.com/pwd/getsuperemail.jsp">修改超级密码</a></li>
+		<li><a class="side_item" href="http://bo.account.changyou.com/bindemail/bindemail.jsp">修改安全邮箱</a></li>
+		<li><a class="side_item" href="http://bo.account.changyou.com/reg/new_reg_modify.jsp">补填密保资料</a></li>
+		<li><a class="side_item" href="http://bo.account.changyou.com/reg/new_reg_modify.jsp">修改详细资料</a></li>
+	</ul>
+	<h3><a class="sidebar_03" target="_blank" href="http://bo.account.changyou.com/reg/manage.jsp"><span>安全中心</span></a></h3>
+	<ul>
+		<li><a href="http://event.changyou.com/dj/201406/hero/index.shtml" target="_blank" class="side_item">英雄令绑定</a></li>
+        <li><a href="http://bo.account.changyou.com/myphone/unbind_yxl_index.jsp" target="_blank" class="side_item">英雄令解绑</a></li>
+		<li><a href="http://bo.account.changyou.com/bindpasspod/newfirstbind1.jsp" class="side_item">贴身/硬件密保绑定</a></li>
+		<li><a href="http://bo.account.changyou.com/bindcard/bindCardStatus.jsp" class="side_item">翻牌/密保卡绑定</a></li>
+		<li><a href="http://bo.account.changyou.com/myphone/index.jsp" class="side_item">认证手机</a></li>
+        <!-- 2014-05-06 手机密保功能关闭
+		<li><a href="http://bo.account.changyou.com/bindtelphone/firstbind1.jsp" class="side_item">手机密保绑定</a></li>
+		-->
+		<li><a href="http://bo.account.changyou.com/bindip/bindip1.jsp" class="side_item">IP绑定</a></li>
+		<li><a href="http://bo.account.changyou.com/bindphone/bang1.jsp" class="side_item">电话密保绑定</a></li>
+		<li><a href="http://bo.account.changyou.com/bindcomputer/bindcomputer1.jsp" class="side_item">电脑绑定</a></li>
+	</ul>
+	<h3><a class="sidebar_04" target="_blank" href="http://bo.account.changyou.com/fangchenmi/query.jsp"><span>防沉迷</span></a></h3>
+	<ul>
+		<li><a href="http://bo.account.changyou.com/fangchenmi/query.jsp" class="side_item">防沉迷认证</a></li>
+		<li><a href="http://bo.account.changyou.com/fangchenmi/hyper18.jsp" class="side_item">已满十八岁脱离防沉迷</a></li>
+	</ul>
+	<h3><a class="sidebar_05" target="_blank" href="http://cs.changyou.com/index.shtml"><span>客服中心</span></a></h3>
+	<h3><a class="sidebar_06" href="http://bo.account.changyou.com/reg/logout.jsp"><span>退出</span></a></h3>
+</div>
+<script type="text/javascript">
+(function(){
+	var option = "{name:'boAccount',top:0}";
+	var script = document.createElement('script');
+	script.setAttribute('type', 'text/javascript');
+	script.setAttribute('src', 'http://www.changyou.com/js/cyou_public.js');
+	script.setAttribute('id', 'cyou_public_js');
+	script.setAttribute('options', option);
+	document.getElementsByTagName('head')[0].appendChild(script);	
+})();
+</script>
+			<div class="main">
+				<div class="breadcrumb">
+					<a href="http://bo.account.changyou.com/reg/manage.jsp" target="_self">账号</a> &gt; 注册新用户</div><br>
+				<table width="100%" border="0" cellspacing="0" cellpadding="0">
+						<tbody><tr>
+							<td width="553" valign="top">
+								<form name="register" method="post" action="/reg/RegisterHandler.jsp" onsubmit="return validate();">
+									<table width="96%" border="0" align="center" cellpadding="3" cellspacing="3">
+										<tbody><tr>
+											<td align="center" style="padding: 15px">
+												<table width="100%" border="0" cellpadding="3" cellspacing="1" bgcolor="#FFFFFF">
+													<input name="advshow" type="hidden" id="advshow" value="fang_chen_mi">
+													<input id="tongji" name="tongji" type="hidden" value="">
+													<tbody><tr>
+														<td colspan="2" height="30" valign="bottom" align="left" style="color: #ff0000">
+															<b></b>
+														</td>
+													</tr>
+													<tr>
+														<td width="22%" align="right" height="25">
+															<font color="#D25C0C">*</font>用 户 名：
+														</td>
+														<td>
+															<input type="text" id="cn" name="cn" maxlength="16" class="box" style="ime-mode: disabled; text-transform: lowercase;" onblur="cnValidate(this)" value="">
+														</td>
+														<td class="f1">
+															<p id="cnTip"></p>
+														</td>
+													</tr>
+													<tr>
+														<td colspan="3" style="border: 1px solid rgb(210, 92, 12);">
+															用户名长度5-16位字符，只能使用英文字母、数字以及_，首字符必须为字母或数字，不能以ux_开头。字母不区分大小写。
+															<font color="#ff0000">您可以使用手机号作为用户名</font>
+															<a target="_blank" style="text-decoration: underline;" href="/reg/faq.jsp"><font color="blue">找不到合适的用户名？查看帮助</font>
+															</a>
+														</td>
+													</tr>
+													<tr>
+														<td valign="top" align="right">
+															<font color="#D25C0C">*</font>密 码：
+														</td>
+														<td width="29%" valign="top">
+															<input type="password" class="box" id="password" name="password" maxlength="16" style="ime-mode: disabled; text-transform: lowercase;" onpaste="return false" onblur="passwordValidate(this)" onkeyup="ps.update(this.value);">
+														</td>
+														<td width="49%" class="f1">
+															<p id="passwordTip"></p>
+														</td>
+													</tr>
+													<tr>
+														<td valign="top" align="right"></td>
+														<td width="29%" valign="top">
+															<span><script language="javascript">var ps = new PwdLevel();ps.setMinLen(4);</script><table cellpadding="0" id="pwd_div_98733_table" cellspacing="0" style="width:132px;height:16px;"><tbody><tr><td id="pwd_div_98733_td_0" width="33%" align="center" style="background-color: rgb(235, 235, 235); border-left-style: solid; border-left-width: 1px; border-left-color: rgb(255, 255, 255); border-right-style: solid; border-right-width: 1px; border-right-color: rgb(190, 190, 190); border-bottom-style: solid; border-bottom-width: 1px; border-bottom-color: rgb(190, 190, 190); "><span style="font-size:1px">&nbsp;</span><span id="pwd_div_98733_label_0" style="font-family: 'Courier New', Courier, mono; font-size: 12px; color: rgb(153, 153, 153); ">低</span></td><td id="pwd_div_98733_td_1" width="33%" align="center" style="background-color: rgb(235, 235, 235); border-left-style: solid; border-left-width: 1px; border-left-color: rgb(255, 255, 255); border-right-style: solid; border-right-width: 1px; border-right-color: rgb(190, 190, 190); border-bottom-style: solid; border-bottom-width: 1px; border-bottom-color: rgb(190, 190, 190); "><span style="font-size:1px">&nbsp;</span><span id="pwd_div_98733_label_1" style="font-family: 'Courier New', Courier, mono; font-size: 12px; color: rgb(153, 153, 153); ">中</span></td><td id="pwd_div_98733_td_2" width="33%" align="center" style="background-color: rgb(235, 235, 235); border-left-style: solid; border-left-width: 1px; border-left-color: rgb(255, 255, 255); border-right-style: solid; border-right-width: 1px; border-right-color: rgb(190, 190, 190); border-bottom-style: solid; border-bottom-width: 1px; border-bottom-color: rgb(190, 190, 190); "><span style="font-size:1px">&nbsp;</span><span id="pwd_div_98733_label_2" style="font-family: 'Courier New', Courier, mono; font-size: 12px; color: rgb(153, 153, 153); ">高</span></td></tr></tbody></table>
+															</span>
+														</td>
+														<td width="49%" class="f1"></td>
+													</tr>
+													<tr>
+														<td colspan="3" height="5"></td>
+													</tr>
+													<tr>
+														<td valign="top" align="right">
+															<font color="#D25C0C">*</font>密码确认：
+														</td>
+														<td valign="top">
+															<input type="password" class="box" id="confirmPwd" name="confirmPwd" maxlength="16" style="ime-mode: disabled; text-transform: lowercase;" onpaste="return false" onblur="confirmPwdValidate(this)">
+														</td>
+														<td class="f1">
+															<p id="confirmPwdTip"></p>
+														</td>
+													</tr>
+													<tr>
+														<td valign="top" align="right">
+															<font color="D25C0C">*</font>超级密码：
+														</td>
+														<td valign="top">
+															<input type="password" class="box" id="superPwd" name="superPwd" maxlength="16" style="ime-mode: disabled; text-transform: lowercase;" onpaste="return false" onblur="superPwdValidate(this)">
+														</td>
+														<td class="f1">
+															<p id="superPwdTip"></p>
+														</td>
+													</tr>
+													<tr>
+														<td valign="top" align="right">
+															<font color="D25C0C">*</font>超级密码确认：
+														</td>
+														<td valign="top">
+															<input type="password" class="box" id="confirmSuperPwd" name="confirmSuperPwd" maxlength="16" style="ime-mode: disabled; text-transform: lowercase;" onpaste="return false" onblur="confirmSuperPwdValidate(this)">
+														</td>
+														<td class="f1">
+															<p id="confirmSuperPwdTip"></p>
+														</td>
+													</tr>
+													<tr>
+														<td valign="top" align="right">
+															<font color="D25C0C">*</font>安全邮箱：
+														</td>
+														<td valign="top">
+															<input type="text" id="securityEmail" class="box" name="securityEmail" maxlength="50" style="ime-mode: disabled; text-transform: lowercase;" onpaste="return false" onblur="securityEmailValidate(this)" value="">
+															<br>
+															<a href="#" onclick="window.open('https://passport.sohu.com/web/dispatchAction.action?appid=1000&amp;ru=http://mail.sohu.com/reg/signup_success.jsp','pop','toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=yes')"><font color="red">推荐搜狐闪电邮箱</font> </a>
+														</td>
+														<td class="f1">
+															<p id="securityEmailTip"></p>
+														</td>
+													</tr>
+													<tr>
+														<td>
+															&nbsp;
+														</td>
+													</tr>
+													<tr>
+														<td colspan="3">
+															<table width="100%" cellspacing="0" cellpadding="0" border="0">
+																<tbody>
+																	<tr>
+																		<td width="345">
+																			<strong>密码保护资料——账号所有权、防沉迷实名认证凭证</strong>
+																		</td>
+																		<td width="146" background="http://i2.itc.cn/20100506/38e_8fe04473_6db9_443c_aef1_26eacaffab03_0.jpg">
+																			&nbsp;
+																		</td>
+																	</tr>
+																</tbody>
+															</table>
+														</td>
+													</tr>
+
+
+													</tbody><tbody id="adv" style="display: yes">
+														<tr>
+															<td>
+																&nbsp;
+															</td>
+														</tr>
+														<tr>
+															<td align="right" valign="top">
+																<font color="D25C0C">*</font>真实姓名：
+															</td>
+															<td valign="top">
+																<input type="text" id="sn" name="sn" onpaste="return false" class="box" onblur="snValidate(this)" value="">
+															</td>
+															<td valign="top" class="f1">
+																<p id="snTip"></p>
+															</td>
+														</tr>
+
+														<tr>
+															<td valign="top" align="right">
+																<font color="D25C0C">*</font>身份证号码：
+															</td>
+															<td valign="top">
+																<input type="text" id="certNumber" name="certNumber" maxlength="18" class="box" onblur="certNumberValidate(this)" value="" onkeyup="javascript:this.value=this.value.toUpperCase();">
+															</td>
+															<td valign="top" class="f1">
+																<p id="certNumberTip"></p>
+															</td>
+														</tr>
+
+														<tr>
+															<td valign="top" align="right">
+																<font color="D25C0C">*</font>密码提示问题：
+															</td>
+															<td valign="top">
+																<select style="width: 133px;" id="question" name="question" onblur="questionValidate(this);" class="box">
+																	<option value="99" selected="">
+																		------请选择------
+																	</option>
+																	<option value="0">
+																		您爷爷的名字？
+																	</option>
+																	<option value="1">
+																		您奶奶的名字？
+																	</option>
+																	<option value="2">
+																		您外公的名字？
+																	</option>
+																	<option value="3">
+																		您外婆的名字？
+																	</option>
+																	<option value="4">
+																		您父亲的名字？
+																	</option>
+																	<option value="5">
+																		您母亲的名字？
+																	</option>
+																	<option value="6">
+																		您配偶的名字？
+																	</option>
+																	<option value="7">
+																		您孩子的名字？
+																	</option>
+																	<option value="8">
+																		您爷爷的生日？
+																	</option>
+																	<option value="9">
+																		您奶奶的生日？
+																	</option>
+																	<option value="10">
+																		您外公的生日？
+																	</option>
+																	<option value="11">
+																		您外婆的生日？
+																	</option>
+																	<option value="12">
+																		您父亲的生日？
+																	</option>
+																	<option value="13">
+																		您母亲的生日？
+																	</option>
+																	<option value="14">
+																		您配偶的生日？
+																	</option>
+																	<option value="15">
+																		您孩子的生日？
+																	</option>
+																	<option value="16">
+																		您小学班主任的名字？
+																	</option>
+																	<option value="17">
+																		您初中班主任的名字？
+																	</option>
+																	<option value="18">
+																		您高中班主任的名字？
+																	</option>
+																	<option value="19">
+																		您高中语文老师的名字？
+																	</option>
+																	<option value="20">
+																		您高中外语老师的名字？
+																	</option>
+																</select>
+															</td>
+															<td valign="top" class="f1">
+																<p id="questionTip"></p>
+															</td>
+														</tr>
+
+														<tr>
+															<td valign="top" align="right">
+																<font color="D25C0C">*</font>密码提示答案：
+															</td>
+															<td valign="top">
+																<input type="text" id="securityAnswer" name="securityAnswer" maxlength="50" class="box" onblur="securityAnswerValidate(this)" value="">
+															</td>
+															<td valign="top" class="f1">
+																<p id="securityAnswerTip"></p>
+															</td>
+														</tr>
+														<tr>
+															<td valign="top" align="right">
+																<font color="D25C0C"></font>关联手机：
+															</td>
+															<td valign="top">
+																<input type="text" id="phone" name="phone" onblur="phoneValidate(this)" value="" class="box">
+															</td>
+															<td valign="top" class="f1">
+																<p id="phoneTip"></p>
+															</td>
+														</tr>
+													</tbody>
+													<tbody><tr>
+														<td valign="top" align="right">
+															<font color="D25C0C">*</font>验 证 码：
+														</td>
+														<td valign="top">
+															<input type="text" id="valiCode" name="annexcode" onblur="valiCodeValidate(this)" class="box" value="" maxlength="5">
+														</td>
+														<td valign="top">
+															<img id="checkCodeId" src="https://auth.changyou.com/servlet/ImageCode">
+															<a href="javascript:reloadAuthCode()"><font color="#0000ff">看不清,换一张</font> </a>
+														</td>
+													</tr>
+													<tr>
+														<td></td>
+														<td class="f1">
+															<p id="valiCodeTip"></p>
+														</td>
+														<td valign="top" align="left">
+															<img src="/images/sohu_waring.gif">
+															<br>
+														</td>
+													</tr>
+												</tbody></table>
+											</td>
+										</tr>
+										<tr>
+											<td align="center" style="padding: 5px;">
+												<a href="/reg/agreement.jsp" target="_blank"><strong><u><font color="#0e64d9">阅读畅游用户协议</font> </u> </strong> </a>
+												<br>
+												<br>
+												<a class="basic-btn">
+				                                    <span>
+				                                        <input type="submit" value="我已阅读并同意畅游用户注册协议，提交注册" tabindex="3">
+				                                    </span>
+				                                </a>	
+											</td>
+										</tr>
+
+									</tbody></table>
+								</form>
+							</td>
+						</tr>
+					</tbody></table>
+			</div>
+		</div>
+	</div>
+
+<script type="text/javascript" src="http://gy.changyou.com/core/jquery.min.js"></script>
+<script type="text/javascript" src="http://mon.changyou.com/jquery-a.js"></script> 
+<script type="text/javascript">
+// validate before submit
+function validate(){
+	var cn = document.getElementById("cn");
+	var password = document.getElementById("password");
+	var confirmPwd = document.getElementById("confirmPwd");
+	var superPwd = document.getElementById("superPwd");
+	var confirmSuperPwd = document.getElementById("confirmSuperPwd");
+	var securityEmail = document.getElementById("securityEmail");
+	var sn = document.getElementById("sn");
+	var certNumber = document.getElementById("certNumber");
+	var securityQuestion = document.getElementById("question");
+	var securityAnswer = document.getElementById("securityAnswer");
+	var phone = document.getElementById("phone");
+	var valiCode = document.getElementById("valiCode");
+	
+	var flag = true;
+	if(!cnValidate(cn)) flag = false;
+	if(!passwordValidate(password)) flag = false;
+	if(!confirmPwdValidate(confirmPwd)) flag = false;
+	if(!superPwdValidate(superPwd)) flag = false;
+	if(!confirmSuperPwdValidate(confirmSuperPwd)) flag = false;
+	if(!securityEmailValidate(securityEmail)) flag = false;
+	if(!snValidate(sn)) flag = false;
+	if(!certNumberValidate(certNumber)) flag = false;
+	if(!questionValidate(securityQuestion)) flag = false;
+	if(!securityAnswerValidate(securityAnswer)) flag = false;
+	if(!phoneValidate(phone)) flag = false;
+	if(!valiCodeValidate(valiCode)) flag = false;
+	
+	
+			
+	if(flag){
+		//2013-07-01 刀剑快注加广告监控
+        var jiankongFlag = "";
+        var cookies = document.cookie.split(';'); 
+        for (var i = 0; i < cookies.length; i++) { 
+            var cookie = $.trim(cookies[i]); 
+            if (cookie.substring(0, 7) == 'tongji=') { 
+            	jiankongFlag = 1;
+            	$("#tongji").val("normal," + cookie.substring(7, cookie.length));
+            } 
+        } 
+        if(1 != jiankongFlag){
+            $("#tongji").val("normal,");
+        }
+        return true;
+    } else {
+        return false;
+    }
+	    
+
+}
+</script> 
+<script src="/js/checkcode.js"></script>
+                  <div id="cyou_bottom"><table class="cyou_bottom_wraper"><tbody><tr><td class="cyou_bottom_left"><a style="width:115px;background-position:0 -60px;" href="http://www.changyou.com/index.shtml" target="_blank" title="畅游"></a></td><td class="cyou_bottom_right"><a style="width:32px;background-position:0 0;" href="http://www.hd315.gov.cn/beian/view.asp?bianhao=010202008090900025" target="_blank" title="经营性网站备案信息"></a></td><td class="cyou_bottom_cont"><p><span class="cp_cn">北京畅游时代数码技术有限公司版权所有</span><span class="cp_en uppercase"> Copyright © 2011 ChangYou.com Limited. All rights reserved. </span><a href="http://www.changyou.com/declaration.shtml" target="_blank">法律声明</a><span> | </span><a href="http://www.changyou.com/cu.shtml" target="_blank">联系我们</a></p><p><a href="http://i1.cy.com/www/public/nav/3283_002.jpg" target="_blank" class="highlight">京网文[2014]0949-249号</a><span> | 京ICP证：</span><span class="highlight">070525</span>号</p><p><a href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=11010702000007" target="_blank" class="in highlight"><img src="http://i1.cy.com/www/public/nav/ba.png">京公网安备 11010702000007号</a><span> | 全国文化市场举报电话：</span><span class="highlight">12318</span></p></td></tr></tbody></table></div></body></html>

@@ -1,0 +1,472 @@
+<html><head><script src="//hm.baidu.com/hm.js?7807b581bd39ca93734ed246857f588e"></script><script src="/resources/common/js/jquery-1.9.1.js"></script>
+<script src="/resources/common/js/cookie/js.cookie.js"></script>
+
+<script>
+    var tongjiDomain = "http://www.duia.com/tongji/";
+    //设置cookie
+    function setCookie(name, value, day) {
+        Cookies.set(name, value, { expires: day,domain: 'duia.com',path: '/' });
+    }
+
+    //读取cookies
+    function getCookie(name) {
+        var val= Cookies.get(name);
+        if(val==undefined){
+            return null;
+        }
+        return val;
+    }
+
+    //删除cookies
+    function delCookie(name) {
+        Cookies.remove(name);
+    }
+
+    function getCharCode(str) {
+        var codeArr = new Array();
+        for (var i = 0; i < str.length; i++) {
+            codeArr.push(str.substring(i, i + 1).charCodeAt());
+            if (i != str.length - 1) {
+                codeArr.push("_");
+            }
+        }
+        return codeArr.join("");
+    }
+
+    //清除cookie
+    if (getCookie("cookie_version") == null || getCookie("cookie_version") == "") {
+        setCookie("cookie_version", "1", 365);
+        delCookie("track");
+        delCookie("beginTime");
+        delCookie("referrerTrack");
+        delCookie("utm_source");
+        delCookie("referrer");
+    }
+
+    //获取上一个页面地址
+    var referrer = getCharCode(document.referrer);
+    //获取当前页地址
+    var trackUrl = getCharCode(window.location.href);
+    var uuid=getCookie("client_id");
+    try {
+        if (location.href.match(new RegExp(/%[A-Z0-9]{2}\b/g)).length >= 1) {
+            trackUrl = getCharCode(decodeURI(window.location.href));
+        }
+        if (document.referrer.match(new RegExp(/%[A-Z0-9]{2}\b/g)).length >= 1) {
+            referrer = getCharCode(decodeURI(document.referrer));
+        }
+    } catch (e) {
+
+    }
+
+    if (getCookie("referrer") == null || getCookie("referrer") == "") {
+        if (document.referrer != null) {
+            setCookie("referrer", referrer, 30);
+        }
+    }
+
+    setCookie("track", trackUrl, 1);
+    setCookie("beginTime", new Date().getTime(), 1);
+    setCookie("referrerTrack", referrer, 1);
+
+    window.onbeforeunload = onbeforeunload_handler;
+    /*跟踪用户信息*/
+    function onbeforeunload_handler() {
+        if (getCookie("track") != null && getCookie("track") != "") {
+            $.ajax({
+                url: "/sysTrack/saveTrack",
+                type: "get",
+                dataType: "text",
+                cache: false,
+                async: false,
+                success: function () {
+
+                }
+            });
+        }
+    }
+
+    /**
+     * 小能接入
+     */
+    function xiaonengIm(settingid, categoryId,key) {
+        tongjiXn(key);
+        var sid = settingid;
+        if (typeof sid != 'undefined' && sid != null && sid != "") {
+            NTKF.im_openInPageChat(sid);
+            // 添加小能销售推广记录
+            var url = path + "/sysKeyPointLog/saveXnSale";
+            var datas = {"uuid": sid, "username": NTKF.user.id, "sku": categoryId, "et": "LIVE_SALES_IM"};
+            $.post(url, datas, function (data) {
+            });
+        } else {
+            xiaoneng(categoryId, key);
+        }
+    }
+
+    /**
+     * 根据sid进行在线咨询相关展示
+     */
+    function xiaoneng(sku, key) {
+        if (!isNaN(sku)) {
+            var cookieKey = sku + "_" + key;
+            if (getCookie(cookieKey) == null) {
+                var url = path + '/sysDict/xiaoneng';
+                var dataes = {sku: sku};
+                $.ajax({
+                    type: "post",
+                    url: url,
+                    data: dataes,
+                    async: false,
+                    dataType: "json",
+                    success: function (data) {
+                        var val = data[key];
+                        NTKF.im_openInPageChat(val);
+                        setCookie(cookieKey, val,1);
+                    }
+                });
+                $.ajax({
+                    type: "post",
+                    url: path + "/sysKeyPointLog/saveXn/" + sku + "/" + key,
+                    data: {uuid: NTKF.user.id},
+                    async: false,
+                    success: function (data) {
+
+                    }
+                });
+            } else {
+                var val = getCookie(cookieKey);
+                NTKF.im_openInPageChat(val);
+            }
+        } else {
+            NTKF.im_openInPageChat(sku);
+        }
+    }
+
+    /*小能key转换*/
+    function changeXnKey(key){
+        switch (key){
+            case "course":
+                return "商品列表";
+            case "courseDetail":
+                return "商品详情";
+            case "video":
+                return "视频列表";
+            case "videoDetail":
+                return "视频详情";
+            case "homeSku":
+                return "sku首页";
+            default:
+                return "小能咨询";
+        }
+    }
+
+    /*小能统计*/
+    function tongjiXn(publicTitle) {
+        publicTitle = changeXnKey(publicTitle);
+        globalTongjiParams.source = "WAP";
+        globalTongjiParams.trackLiveContactAdd(senderId, liveId, sku, publicTitle);
+    }
+</script>
+<script src="/resources/common/js/tongji.js"></script>
+<script src="http://sso.duia.com/uc/webPushScript?userId=&amp;time=1491083447817"></script>
+
+
+
+
+    <title>对啊网-会计初级职称-2017 会计初级职称《经济法基础》</title>
+    
+<script type="text/javascript">window._ty_rum&&window._ty_rum.server||function(t){function r(t){switch(typeof t){case"object":if(!t)return"null";if(t instanceof Array){for(var e="[",n=0;n<t.length;n++)e+=(n>0?",":"")+r(t[n]);return e+"]"}var e="{",n=0;for(var a in t)if("function"!=typeof t[a]){var o=r(t[a]);e+=(n>0?",":"")+r(a)+":"+o,n++}return e+"}";case"string":return'"'+t.replace(/([\"\\])/g,"\\$1").replace(/\n/g,"\\n")+'"';case"number":return t.toString();case"boolean":return t?"true":"false";case"function":return r(t.toString());case"undefined":default:return'"undefined"'}}function e(t){return O?O(t):t}function n(){return Date.now?Date.now():(new Date).valueOf()}function a(t,r,e){function n(){var t=N.args.apply(this,arguments);return r(o,t,e)}var a,o=t[t.length-1];if("function"==typeof o){switch(o.length){case 0:a=function(){return n.apply(this,arguments)};break;case 1:a=function(t){return n.apply(this,arguments)};break;case 2:a=function(t,r){return n.apply(this,arguments)};break;case 3:a=function(t,r,e){return n.apply(this,arguments)};break;case 4:a=function(t,r,e,a){return n.apply(this,arguments)};break;case 5:a=function(t,r,e,a,o){return n.apply(this,arguments)};break;default:for(var i=[],s=0,u=o.length;s<u;s++)i.push("_"+s);a=eval("(function(){return function("+i.join(",")+"){var args = [].slice.call(arguments, 0);return r(o, args, e);};})();")}t[t.length-1]=a}return t}function o(t,r){return t&&r&&(t.moduleName=r),t}function i(t,r,e){return function(){try{E=r,e&&s(r),t.apply(this,arguments),e&&u()}catch(n){throw e&&u(),o(n,r)}}}function s(r){N.each(["setTimeout","setInterval"],function(e){N.wrap(!0,t,e,function(t){return function(){var e,n=N.args.apply(this,arguments),a=n[0];return"function"==typeof a&&(e=i(a,r,!0)),e&&(n[0]=e),t.apply?t.apply(this,n):Function.prototype.apply.apply(t,[t,n])}})})}function u(){N.each(["setTimeout","setInterval"],function(r){N.unwrap(t,r)})}function c(t){P&&N.wrap(!1,P.prototype,"addEventListener",function(r){return function(){var e,n=N.args.apply(this,arguments),a=n[1];return"function"==typeof a&&(e=i(a,t,!0)),e&&(n[1]=e),r.apply(this,n)}}),s(t)}function f(){P&&N.unwrap(P.prototype,"addEventListener"),u()}function l(t){return function(t,r){}}function p(){if(this.errors.length){var t=function(t){var r=[],e={};N.each(t,function(t){var r=_(t[1],t[2],t[3],t[6]);e[r]?e[r][4]+=1:e[r]=[t[1],t[2],t[3],"#"==t[4]?x.URL:t[4],1,t[5],t[6],t[7]]});for(var n in e)r.push(e[n]);return r}(this.errors),r=this;N.POST(N.mkurl(D.server.beacon,"err",{fu:q?q:q++,os:parseInt((n()-(B||D.st))/1e3)}),N.stringify({datas:t}),{},function(t,e){t||(r.errors=[])})}}function d(){j.initend()}function h(){"complete"===x.readyState&&j.initend()}function y(t){function r(){j.send()}return!!D.load_time||(j.initend(),D.load_time=n(),void(9===t?r():setTimeout(r,0)))}function m(){z||y(9),N.bind(p,j)(),z=1}function v(){j.touch||(j.touch=n())}function g(t){if(t[6]){var r=t[4],e=t[5];if(e&&"string"==typeof e&&r){e=e.split(/\n/);var n=C.exec(e[0]);n||(n=C.exec(e[1])),n&&n[1]!=r&&(t[4]=n[1]||r,t[2]=n[2]||t[2],t[3]=n[3]||t[3])}}}function _(t,r,e,n){return t+r+e+(n?n:"")}function w(r){var e=arguments,a="unknown",o=[n()];if(0!=e.length){if("string"==typeof r){var i=e.length<4?e.length:4;o[1]=e[0],i>2&&(o[2]=e[2],o[3]=0,o[4]=e[1]),i>3&&e[3]&&(o[3]=e[3])}else if(r instanceof Event||t.ErrorEvent&&r instanceof ErrorEvent){if(o[1]=r.message||(r.error&&r.error.constructor.name)+(r.error&&r.error.message)||"",o[2]=r.lineno?r.lineno:0,o[3]=r.colno?r.colno:0,o[4]=r.filename||r.error&&r.error.fileName||r.target&&r.target.baseURI||"",!o[4]&&M)return;o[4]==x.URL&&(o[4]="#"),r.error?(o[5]=r.error.stack,o[6]=r.error.moduleName):(o[5]=null,o[6]=null);var s=_(o[1],o[2],o[3],o[6]);if(o[7]=J[s]?0:1,J[s]=!0,o[1]===a&&o[4]===a)return;g(o)}j.errors.push(o)}}function S(t){return function(){var r=arguments;if(!this._ty_wrap){var e=N.args.apply(this,r);this._ty_rum={method:e[0],url:e[1],start:n()}}try{return t.apply(this,r)}catch(a){return Function.prototype.apply.call(t,this,r)}}}function T(r){return"string"==typeof r?r.length:t.ArrayBuffer&&r instanceof ArrayBuffer?r.byteLength:t.Blob&&r instanceof Blob?r.size:r&&r.length?r.length:0}function b(r){return function(){function e(t){var r,e,a=p._ty_rum;if(a){if(4!==a.readyState&&(a.end=n()),a.s=p.status,""==p.responseType||"text"==p.responseType)a.res=T(p.responseText);else if(p.response)a.res=T(p.response);else try{a.res=T(p.responseText)}catch(o){a.res=0}if(a.readyState=p.readyState,a.cb_time=d,r=[a.method+" "+a.url,a.s>0?a.end-a.start:0,d,a.s,a.s>0?0:t,a.res,a.req],a.r&&(e=i(p),e&&(e=e.xData)&&(r.push(e.id),r.push(e.action),r.push(e.time&&e.time.duration),r.push(e.time&&e.time.qu))),D.aa.push(r),D.server.custom_urls&&D.server.custom_urls.length&&!j.ct){if(!D.pattern){D.pattern=[];for(var s=0;s<D.server.custom_urls.length;s++)D.pattern.push(new RegExp(D.server.custom_urls[s]))}for(var s=0;s<D.pattern.length;s++)if(a.url.match(D.pattern[s])){j.ct=a.end+d;break}}j.sa(),p._ty_rum=null}}function a(){4==p.readyState&&e(0)}function i(r){var e;if(r.getResponseHeader){var n=N.parseJSON(r.getResponseHeader("X-Tingyun-Tx-Data"));n&&n.r&&r._ty_rum&&n.r+""==r._ty_rum.r+""&&(e={name:r._ty_rum.url,xData:n},X&&t._ty_rum.c_ra.push(e))}return e}function c(t){return function(){var r,e;4==p.readyState&&p._ty_rum&&(p._ty_rum.end=r=n(),p._ty_rum.readyState=4);try{E&&s(E),e=t.apply(this,arguments),E&&u()}catch(i){throw i=o(i,E),E&&u(),E=null,i}return 4==p.readyState&&(d=n()-r),a(),e}}function f(t){return function(){var r=p._ty_rum;return!r||("progress"==t||("abort"==t?e(905):"loadstart"==t?r.start=n():"error"==t?e(990):"timeout"==t&&e(903),!0))}}function l(t,r){r instanceof Array||(r=[r]);for(var e=0;e<r.length;e++){var n=r[e];N.sh(t,n,f(n),!1)}}if(!this._ty_wrap){this._ty_rum.start=n(),this._ty_rum.req=arguments[0]?T(arguments[0]):0;var p=this,d=0,h=N.wrap(!1,this,"onreadystatechange",c);h||N.sh(this,"readystatechange",a,!1),l(this,["error","progress","abort","load","loadstart","loadend","timeout"]),h||setTimeout(function(){N.wrap(!1,p,"onreadystatechange",c)},0)}var y=function(){function t(t){var r={},e=/^(?:([A-Za-z]+):)?(\/{0,3})([0-9.\-A-Za-z]+)(?::(\d+))?/.exec(t);return e&&(r.protocol=e[1]?e[1]+":":"http:",r.hostname=e[3],r.port=e[4]||""),r}return function(r){var e=location;if(r=N.trim(r)){if(r=r.toLowerCase(),r.startsWith("//")&&(r=e.protocol+r),!r.startsWith("http"))return!0;var n=t(r),a=n.protocol===e.protocol&&n.hostname===e.hostname;return a&&(a=n.port===e.port||!e.port&&("http:"===e.protocol&&"80"===n.port||"https:"===e.protocol&&"443"===n.port)),a}return!1}}(),m=arguments;try{var v=D.server;v&&v.id&&this._ty_rum&&y(this._ty_rum.url)&&(this._ty_rum.r=(new Date).getTime()%1e8,this.setRequestHeader&&this.setRequestHeader("X-Tingyun-Id",v.id+";r="+this._ty_rum.r))}catch(g){}try{return r.apply(this,m)}catch(_){return Function.prototype.apply.call(r,this,m)}}}var E,k=t.XMLHttpRequest,x=document,R=Object.defineProperty,L=t.define,P=t.EventTarget,q=0,C=new RegExp("([a-z]+:/{2,3}.*):(\\d+):(\\d+)"),O=t.encodeURIComponent,B=null,N={wrap:function(t,r,e,n,a){try{var o=r[e]}catch(i){if(!t)return!1}if(!o&&!t)return!1;if(o&&o._ty_wrap)return!1;try{r[e]=n(o,a)}catch(i){return!1}return r[e]._ty_wrap=[o],!0},unwrap:function(t,r){try{var e=t[r]._ty_wrap;e&&(t[r]=e[0])}catch(n){}},each:function(t,r){if(t){var e;for(e=0;e<t.length&&(!t[e]||!r(t[e],e,t));e+=1);}},mkurl:function(r,a){var o=arguments,i=/^https/i.test(x.URL)?"https":"http";if(i=i+"://"+r+"/"+a+"?av=1.3.3&v=1.3.2&key="+e(D.server.key)+"&ref="+e(x.URL)+"&rand="+n()+"&pvid="+H,"pf"!==a&&D&&(D.agent=D.agent||t._ty_rum.agent,D.agent&&D.agent.n&&(i+="&n="+e(D.agent.n))),o.length>2){var s=o[2];for(var u in s)i+="&"+u+"="+s[u]}return A.host&&(i+="&cshst="+e(A.host)),A.url&&(i+="&csurl="+e(A.url)),i},GET:function(t,r){function e(){r&&r.apply(this,arguments),n.parentNode&&n.parentNode.removeChild(n)}if(navigator&&navigator.sendBeacon&&F.test(t))return navigator.sendBeacon(t,null);var n=x.createElement("img");return n.setAttribute("src",t),n.setAttribute("style","display:none"),this.sh(n,"readystatechange",function(){"loaded"!=n.readyState&&4!=n.readyState||e("loaded")},!1),this.sh(n,"load",function(){return e("load"),!0},!1),this.sh(n,"error",function(){return e("error"),!0},!1),x.body.appendChild(n)},fpt:function(t,r,e){function n(t,r,e){var n=x.createElement(t);try{for(var a in r)n[a]=r[a]}catch(o){var i="<"+t;for(var a in r)i+=" "+a+'="'+r[a]+'"';i+=">",e||(i+="</"+t+">"),n=x.createElement(i)}return n}var a=n("div",{style:"display:none"},!1),o=n("iframe",{name:"_ty_rum_frm",width:0,height:0,style:"display:none"},!1),i=n("form",{style:"display:none",action:t,enctype:"application/x-www-form-urlencoded",method:"post",target:"_ty_rum_frm"},!1),s=n("input",{name:"data",type:"hidden"},!0);return s.value=r,i.appendChild(s),a.appendChild(o),a.appendChild(i),x.body.appendChild(a),i.submit(),o.onreadystatechange=function(){"complete"!==o.readyState&&4!==o.readyState||(e(null,o.innerHTML),x.body.removeChild(a))},!0},POST:function(r,e,n,a){if(this.ie)return this.fpt(r,e,a);if(navigator&&navigator.sendBeacon&&F.test(r)){var o=navigator.sendBeacon(r,e);return a(!o),o}var i;if(t.XDomainRequest)return i=new XDomainRequest,i.open("POST",r),i.onload=function(){a(null,i.responseText)},this.sh(i,"load",function(){a(null,i.responseText)},!1),this.sh(i,"error",function(){a("POST("+r+")error")},!1),this.wrap(!0,i,"onerror",function(t){return function(){return a&&a("post error",i.responseText),!0}}),i.send(e),!0;if(!k)return!1;i=new k,i.overrideMimeType&&i.overrideMimeType("text/html");try{i._ty_wrap=1}catch(s){}var u=0;i.onreadystatechange=function(){4==i.readyState&&200==i.status&&(0==u&&a(null,i.responseText),u++)},i.onerror&&this.wrap(!0,i,"onerror",function(t){return function(){return a("post error",i.responseText),"function"!=typeof t||t.apply(this,arguments)}});try{i.open("POST",r,!0)}catch(s){return this.fpt(r,e,a)}for(var c in n)i.setRequestHeader(c,n[c]);return i.send(e),!0},sh:function(t,r,e,n){return t.addEventListener?t.addEventListener(r,e,n):!!t.attachEvent&&t.attachEvent("on"+r,e)},args:function(){for(var t=[],r=0;r<arguments.length;r++)t.push(arguments[r]);return t},stringify:r,parseJSON:function(r){if(r&&"string"==typeof r){var e=t.JSON?t.JSON.parse:function(t){return new Function("return "+t)()};return e(r)}return null},trim:$?function(t){return null==t?"":$.call(t)}:function(t){return null==t?"":t.toString().replace(/^\s+/,"").replace(/\s+$/,"")},extend:function(t,r){if(t&&r)for(var e in r)r.hasOwnProperty(e)&&(t[e]=r[e]);return t},bind:function(t,r){return function(){t.apply(r,arguments)}}},A={},D=t._ty_rum=N.extend({st:n(),ra:[],c_ra:[],aa:[],snd_du:function(){return this.server.adu?1e3*this.server.adu:1e4},cc:function(){return this.server.ac?this.server.ac:10},config:function(t,r){var e;if("object"==typeof t)e=t;else{if("string"!=typeof t||void 0===r)throw new Error("illegal arguments");e={},e[t]=r}for(var n in e)A[n]=e[n];return this}},t._ty_rum||{});var ty_rum=D;ty_rum.server = {beacon:"beacon.tingyun.com",beacon_err:"beacon-err.tingyun.com",key:"DVTHOJFuM5E",trace_threshold:7000,id:"PC19EI-ZIlw"};if(D.server&&!(D.server.sr&&Math.random()>=D.server.sr)){var I="ignore_err",M=!(I in D.server)||D.server[I],$=String.prototype.trim;String.prototype.startsWith||(String.prototype.startsWith=function(t,r){return r=r||0,this.indexOf(t,r)===r});var F=/^http/i,H=function(){function t(){return(65536*(1+Math.random())|0).toString(16).substring(1)}return t()+"-"+t()+t()}();try{R&&R(t,"define",{get:function(){return L},set:function(t){"function"==typeof t&&(t.amd||t.cmd)?(L=function(){var r=N.args.apply(this,arguments);if(3!==r.length)return t.apply(this,r);var e="string"==typeof r[0]?r[0]:"anonymous";return t.apply(this,a(r,function(t,r,e){var n;try{E=e,c(e),n=t.apply(this,r),f()}catch(a){throw f(),o(a,e)}return n},e))},N.extend(L,t)):L=t},configurable:!0})}catch(U){}var X=t.performance?t.performance:t.Performance;X&&(N.sh(X,"resourcetimingbufferfull",function(){var t=X.getEntriesByType("resource");t&&(D.ra=D.ra.concat(t),X.clearResourceTimings())},!1),N.sh(X,"webkitresourcetimingbufferfull",function(){var t=X.getEntriesByType("resource");t&&(D.ra=D.ra.concat(t),X.webkitClearResourceTimings())},!1));for(var j=D.metric={ready:function(){return D.load_time},initend:function(){function t(){j.sa()}D.end_time||(D.end_time=n(),this._h=setInterval(t,2e3))},send:function(){function r(){function r(t){return a[t]>0?a[t]-i:0}var n={};if(X&&X.timing){var a=X.timing;i=a.navigationStart;var o=r("domainLookupStart"),s=r("domainLookupEnd"),u=r("redirectStart"),c=r("redirectEnd"),f=r("connectStart"),l=r("connectEnd");n={f:r("fetchStart"),qs:r("requestStart"),rs:r("responseStart"),re:r("responseEnd"),os:r("domContentLoadedEventStart"),oe:r("domContentLoadedEventEnd"),oi:r("domInteractive"),oc:r("domComplete"),ls:r("loadEventStart"),le:r("loadEventEnd"),tus:r("unloadEventStart"),tue:r("unloadEventEnd")},l-f>0&&(n.cs=f,n.ce=l),s-o>0&&(n.ds=o,n.de=s),(c-u>0||c>0)&&(n.es=u,n.ee=c),0==n.le&&(n.ue=D.load_time-i);var p;if(a.msFirstPaint)p=a.msFirstPaint;else if(t.chrome&&chrome.loadTimes){var d=chrome.loadTimes();d&&d.firstPaintTime&&(p=1e3*d.firstPaintTime)}else D.firstPaint&&(p=D.firstPaint);p&&(n.fp=Math.round(p-i)),a.secureConnectionStart&&(n.sl=r("secureConnectionStart"))}else n={t:i,os:D.end_time-i,ls:D.load_time-i};n.je=j.errors.length,j.ct&&(n.ct=j.ct-i),j.touch&&(n.fi=j.touch-i);var h=D.agent||t._ty_rum&&t._ty_rum.agent;return h&&(n.id=e(h.id),n.a=h.a,n.q=h.q,n.tid=e(h.tid),n.n=e(h.n)),n.sh=t.screen&&t.screen.height,n.sw=t.screen&&t.screen.width,n}function a(r){var e=t._ty_rum.c_ra;if(r)for(var n=e.length-1;n>=0;n--)if(r.indexOf(e[n].name)>-1)return e[n].xData;return null}function o(t){function r(t){return f[t]>0?f[t]:0}if(t<D.server.trace_threshold)return null;var n=X;if(n&&n.getEntriesByType){var o={tr:!0,tt:e(x.title),charset:x.characterSet},s=D.ra,u=n.getEntriesByType("resource");u&&(s=s.concat(u),n.webkitClearResourceTimings&&n.webkitClearResourceTimings(),n.clearResourceTimings&&n.clearResourceTimings()),o.res=[];for(var c=0;c<s.length;c++){var f=s[c],l={o:r("startTime"),rt:f.initiatorType,n:f.name,f:r("fetchStart"),ds:r("domainLookupStart"),de:r("domainLookupEnd"),cs:r("connectStart"),ce:r("connectEnd"),sl:r("secureConnectionStart"),qs:r("requestStart"),rs:r("responseStart"),re:r("responseEnd")},p=a(f.name);p&&(l.aid=p.id,l.atd=p.trId,l.an=p.action,l.aq=p.time&&p.time.qu,l.as=p.time&&p.time.duration),o.res.push(l)}if(j.errors.length){o.err=[];for(var c=0,d=j.errors,h=d.length;c<h;c++)o.err.push({o:Math.round(d[c][0]-i),e:d[c][1]&&d[c][1].replace(/([\"\\])/g,"\\$1").replace(/\n/g,"\\n"),l:d[c][2],c:d[c][3],r:d[c][4],ec:h,s:d[c][5],m:d[c][6],ep:d[c][7]})}return o}return null}if(this.sended)return!1;if(!this.ready())return!1;var i=D.st,s={};try{var u=r();s=o(u.ls>0?u.ls:D.load_time-i)}catch(c){}s=s?N.stringify(s):"";var f=N.mkurl(D.server.beacon,"pf",u);B=n(),0!=s.length&&N.POST(f,s,{},l("POST"))||N.GET(f);var d=N.bind(p,this);return d(),setInterval(d,1e4),this.sended=!0,this.sa(1),!0},sa:function(t){(this.ready()||t)&&(t||(t=!this._last_send||n()-this._last_send>D.snd_du()||D.aa.length>=D.cc()),D.aa.length>0&&t&&(this._last_send=n(),N.POST(N.mkurl(D.server.beacon,"xhr"),N.stringify({xhr:D.aa}),{},l("POST")),D.aa=[]))},errors:[]},z=null,J={},W=[["load",y],["beforeunload",m],["pagehide",m],["unload",m]],G=0;G<W.length;G++)N.sh(t,W[G][0],W[G][1],!1);t.addEventListener?N.sh(t,"error",w,!1):t.onerror=function(t,r,e,a,o){if(r||!M){var i=[n(),t,e,a,r==x.URL?"#":r],s=_(t,e,a,o&&o.moduleName);i=i.concat([o&&o.stack,o&&o.moduleName,J[s]?0:1]),J[s]=!0,g(i),j.errors.push(i)}};for(var Z=[["scroll",v],["keypress",v],["click",v],["DOMContentLoaded",d],["readystatechange",h]],G=0;G<Z.length;G++)N.sh(x,Z[G][0],Z[G][1],!1);if(N.wrap(!1,t,"requestAnimationFrame",function(r){return function(){return D.firstPaint=n(),t.requestAnimationFrame=r,r.apply(this,arguments)}}),k)if(k.prototype)N.wrap(!1,k.prototype,"open",S),N.wrap(!1,k.prototype,"send",b);else{N.ie=7;var Q=k;t.XMLHttpRequest=function(){var t=new Q;return N.wrap(!1,t,"open",S),N.wrap(!1,t,"send",b),t}}else t.ActiveXObject&&(N.ie=6)}ty_rum.agent = {id:'MBH8OkrvDDE#QD5L8tSQs2s',n:'WebAction/SpringController%2Fwap%2FcoursePlay/{courseId}',a:10,q:0,tid:'bdbee190434361f2'};}(window);</script><link rel="shortcut icon" href="/resources/favicon.ico">
+    <script type="text/javascript" charset="utf-8" src="http://yuntv.letv.com/player/vod/bcloud.js"></script>
+    <meta name="viewport" content="width=device-width,height=device-height,initial-scale=1.0">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0;">
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0;" name="viewport">
+    <meta content="black" name="apple-mobile-web-app-status-bar-style">
+    <meta content="telephone=no" name="format-detection">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <link rel="stylesheet" href="/resources/wap/css/wapRest.css">
+    <link rel="stylesheet" href="/resources/wap/css/rest.css">
+    <link rel="stylesheet" href="/resources/wap/course/css/coursePlay.css">
+    <script src="/resources/wap/css/fit.js"></script>
+    <script type="text/javascript" async="async" charset="utf-8" src="http://dl.ntalker.com/js/xn6/zh_cn.js?siteid=kf_9751&amp;v=nt6.8.6&amp;t=2016.12.09_011526" data-requiremodule="lang"></script><script type="text/javascript" async="async" charset="utf-8" src="http://dl.ntalker.com/js/xn6/chat.in.js?siteid=kf_9751&amp;v=nt6.8.6&amp;t=2016.12.09_011526" data-requiremodule="chatManage"></script><script type="text/javascript" async="async" charset="utf-8" src="http://dl.ntalker.com/js/xn6/comet.chat.js?siteid=kf_9751&amp;v=nt6.8.6&amp;t=2016.12.09_011526" data-requiremodule="TChat"></script></head><body><div id="nTalk_post_hiddenElement" style="left: -10px; top: -10px; visibility: hidden; display: none; width: 1px; height: 1px; "></div><div id="wx_pic" style="margin:0 auto;display:none;">
+        <img src="/resources/mobile/images/wx_live_logo.jpg">
+    </div>
+
+
+
+<div class="video" id="lsVideo" style="height: 0px; "><div id="player403F96104E2115027A0D5EEFC7CBDC4E" style="position: relative;width: 100%;height:100%;margin-right:auto;margin-left:auto"><div style="width:100%px; height:100%px; text-align:center;"><span style="line-height:200%; font-size:18px">安装或者更新版本不小于<b style="color:red">10</b>的flash播放器, 请点击<a href="http://get.adobe.com/cn/flashplayer/" target="_blank">这里</a>安装</span></div></div></div>
+<div id="test1" style="width: 100%; overflow: hidden; height: 720px; outline: none; cursor: -webkit-grab; "><div class="coursePlay-title borB color3">2017 会计初级职称《经济法基础》</div><div class="coursePlay-list"><div class="coursePlayList-top borB color3">第一章：总论</div><ul><li class="color6" lsvideoid="b31c357737" courseid="28003" ordernum="0" id="lecture28003" playtype="no" style="color: rgb(53, 212, 143); "><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_play_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">前言</p></li><li class="color6" lsvideoid="f92d9b939b" courseid="28004" ordernum="1" id="lecture28004" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">法和法律</p></li><li class="color6" lsvideoid="2ed6827700" courseid="28005" ordernum="2" id="lecture28005" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">法律关系</p></li><li class="color6" lsvideoid="bd0b9b7bd1" courseid="28006" ordernum="3" id="lecture28006" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">法律事实</p></li><li class="color6" lsvideoid="1e1b83edd5" courseid="28007" ordernum="4" id="lecture28007" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">法的主要形式</p></li><li class="color6" lsvideoid="7f89c23afb" courseid="28008" ordernum="5" id="lecture28008" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">法的效力原则及分类</p></li><li class="color6" lsvideoid="c82139a6c4" courseid="28009" ordernum="6" id="lecture28009" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">经济纠纷的解决途径的概述</p></li><li class="color6" lsvideoid="a0d678fd38" courseid="28010" ordernum="7" id="lecture28010" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">仲裁的适用范围、原则及机构</p></li><li class="color6" lsvideoid="20dcef356d" courseid="28011" ordernum="8" id="lecture28011" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">仲裁协议</p></li><li class="color6" lsvideoid="499acfb545" courseid="28012" ordernum="9" id="lecture28012" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">仲裁裁决</p></li><li class="color6" lsvideoid="5590db5517" courseid="28013" ordernum="10" id="lecture28013" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">民事诉讼的适用范围及审判制度</p></li><li class="color6" lsvideoid="3b3914e830" courseid="28014" ordernum="11" id="lecture28014" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">诉讼管辖</p></li><li class="color6" lsvideoid="7bdc3527d2" courseid="28015" ordernum="12" id="lecture28015" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">诉讼时效</p></li><li class="color6" lsvideoid="80fceb63b9" courseid="28017" ordernum="13" id="lecture28017" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">调解、判决和执行</p></li><li class="color6" lsvideoid="0451447937" courseid="28019" ordernum="14" id="lecture28019" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">行政复议</p></li><li class="color6" lsvideoid="8207889423" courseid="28020" ordernum="15" id="lecture28020" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">行政诉讼</p></li><li class="color6" lsvideoid="5a551dc5bb" courseid="28021" ordernum="16" id="lecture28021" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">法律责任</p></li></ul></div><div class="bgE" style="margin-top: -1px;"></div><div class="coursePlay-list"><div class="coursePlayList-top borB color3">第二章：劳动合同与社会保险法律制度</div><ul><li class="color6" lsvideoid="78561e09c4" courseid="30010" ordernum="17" id="lecture30010" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">劳动关系、劳动合同及劳动合同订立的概述和主体</p></li><li class="color6" lsvideoid="e9b5164b46" courseid="30011" ordernum="18" id="lecture30011" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">劳动关系建立时间、劳动合同订立的形式及效力</p></li><li class="color6" lsvideoid="871472e14c" courseid="30012" ordernum="19" id="lecture30012" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">劳动合同内容概述及必备条款的合同期限</p></li><li class="color6" lsvideoid="d658e4c195" courseid="30013" ordernum="20" id="lecture30013" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">必备条款的工作时间及休假</p></li><li class="color6" lsvideoid="6202df4ed5" courseid="30014" ordernum="21" id="lecture30014" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">必备条款的劳动报酬</p></li><li class="color6" lsvideoid="c8c1e088e9" courseid="30015" ordernum="22" id="lecture30015" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">约定条款的试用期与服务期</p></li><li class="color6" lsvideoid="c9724c00a2" courseid="30016" ordernum="23" id="lecture30016" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">保守商业秘密和竞业限制</p></li><li class="color6" lsvideoid="0352d71b53" courseid="30017" ordernum="24" id="lecture30017" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">劳动合同的履行、变更和解除</p></li><li class="color6" lsvideoid="fcf8a67e2e" courseid="30018" ordernum="25" id="lecture30018" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">劳动合同的终止有问题</p></li><li class="color6" lsvideoid="9c17b85ff9" courseid="30019" ordernum="26" id="lecture30019" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">集体合同与劳务派遣</p></li><li class="color6" lsvideoid="c91d9732a9" courseid="30020" ordernum="27" id="lecture30020" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">劳动争议的解决（上）</p></li><li class="color6" lsvideoid="340d2f9acf" courseid="30021" ordernum="28" id="lecture30021" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">劳动争议的解决（下）</p></li><li class="color6" lsvideoid="73c0b5be84" courseid="30022" ordernum="29" id="lecture30022" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">违反劳动合同的法律责任</p></li><li class="color6" lsvideoid="db57a90bb1" courseid="30023" ordernum="30" id="lecture30023" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">社保的种类原则及基本养老保险的概念、范围、组成和来源</p></li><li class="color6" lsvideoid="867c164c55" courseid="30024" ordernum="31" id="lecture30024" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">职工基本养老保险的缴纳、计算及享受的条件与待遇</p></li><li class="color6" lsvideoid="edea57a218" courseid="30025" ordernum="32" id="lecture30025" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">基本医疗保险</p></li><li class="color6" lsvideoid="2ca5a7dfa7" courseid="30026" ordernum="33" id="lecture30026" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">工伤保险（上）</p></li><li class="color6" lsvideoid="adf69b4cf9" courseid="30027" ordernum="34" id="lecture30027" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">工伤保险（下）</p></li><li class="color6" lsvideoid="6836fbf277" courseid="30028" ordernum="35" id="lecture30028" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">失业保险</p></li><li class="color6" lsvideoid="e7d1e212e8" courseid="30029" ordernum="36" id="lecture30029" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">生育保险、社保征缴、社保基金的管理运营及违反社保法的法律责任</p></li></ul></div><div class="bgE" style="margin-top: -1px;"></div><div class="coursePlay-list"><div class="coursePlayList-top borB color3">第三章：支付结算法律制度</div><ul><li class="color6" lsvideoid="9b777099f1" courseid="30221" ordernum="37" id="lecture30221" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">支付结算概述</p></li><li class="color6" lsvideoid="cccbee4ca2" courseid="30222" ordernum="38" id="lecture30222" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">银行结算账户的概念、种类、开立、变更和撤销</p></li><li class="color6" lsvideoid="62761af5c4" courseid="30223" ordernum="39" id="lecture30223" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">基本存款账户、一般存款账户、专用存款账户、预算单位零余额账户</p></li><li class="color6" lsvideoid="e22ad9562f" courseid="30224" ordernum="40" id="lecture30224" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">临时存款账户、个人银行结算账户</p></li><li class="color6" lsvideoid="c0ca1d8c3a" courseid="30225" ordernum="41" id="lecture30225" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">银行结算账户的管理</p></li><li class="color6" lsvideoid="b46e2252d3" courseid="30226" ordernum="42" id="lecture30226" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">银行卡的概念、分类、账户、交易及计算与收费</p></li><li class="color6" lsvideoid="0f6c7310ff" courseid="30227" ordernum="43" id="lecture30227" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">银行卡清算市场及银行卡收单</p></li><li class="color6" lsvideoid="bc593059dd" courseid="30228" ordernum="44" id="lecture30228" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">预付卡</p></li><li class="color6" lsvideoid="c94043a519" courseid="30229" ordernum="45" id="lecture30229" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">汇兑及托收承付</p></li><li class="color6" lsvideoid="7e31d94c92" courseid="30230" ordernum="46" id="lecture30230" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">委托收款及国内信用证</p></li><li class="color6" lsvideoid="4c64a43644" courseid="30231" ordernum="47" id="lecture30231" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">网上支付</p></li><li class="color6" lsvideoid="13ddd13ca2" courseid="30232" ordernum="48" id="lecture30232" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">票据的概述</p></li><li class="color6" lsvideoid="db4306f6a8" courseid="30233" ordernum="49" id="lecture30233" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">票据的权利与责任（一）</p></li><li class="color6" lsvideoid="c96d924d65" courseid="30234" ordernum="50" id="lecture30234" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">票据的权利与责任（二）</p></li><li class="color6" lsvideoid="eb9e7b3417" courseid="30235" ordernum="51" id="lecture30235" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">票据的权利与责任（三）</p></li><li class="color6" lsvideoid="58273c23be" courseid="30236" ordernum="52" id="lecture30236" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">票据行为--出票</p></li><li class="color6" lsvideoid="5dc1f7e944" courseid="30237" ordernum="53" id="lecture30237" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">票据行为--背书</p></li><li class="color6" lsvideoid="e755477986" courseid="30238" ordernum="54" id="lecture30238" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">票据行为--承兑及保证</p></li><li class="color6" lsvideoid="a4d8097c6f" courseid="30239" ordernum="55" id="lecture30239" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">票据追索</p></li><li class="color6" lsvideoid="caf6316bdb" courseid="30240" ordernum="56" id="lecture30240" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">银行汇票</p></li><li class="color6" lsvideoid="c7b53312ef" courseid="30241" ordernum="57" id="lecture30241" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">商业汇票（上）</p></li><li class="color6" lsvideoid="1173337ffd" courseid="30242" ordernum="58" id="lecture30242" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">商业汇票（下）</p></li><li class="color6" lsvideoid="6c304d0423" courseid="30243" ordernum="59" id="lecture30243" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">银行本票、支票及票据防伪</p></li><li class="color6" lsvideoid="5f8526b22a" courseid="30244" ordernum="60" id="lecture30244" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">结算纪律与法律责任</p></li></ul></div><div class="bgE" style="margin-top: -1px;"></div><div class="coursePlay-list"><div class="coursePlayList-top borB color3">第四章：增值税消费税法律制度</div><ul><li class="color6" lsvideoid="fd9ffc2154" courseid="30245" ordernum="61" id="lecture30245" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">增值税纳税人</p></li><li class="color6" lsvideoid="6cc607a91f" courseid="30246" ordernum="62" id="lecture30246" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">值税征税范围--销售、提供加工修理修配劳务、进口、视同销售</p></li><li class="color6" lsvideoid="3b50ba05ce" courseid="30247" ordernum="63" id="lecture30247" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">增值税征税范围--混合销售、兼营及特殊规定</p></li><li class="color6" lsvideoid="7da5ea4805" courseid="30264" ordernum="64" id="lecture30264" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">增值税的税率及征收率</p></li><li class="color6" lsvideoid="d8900d7889" courseid="30265" ordernum="65" id="lecture30265" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">一般纳税人及小规模销售自己使用过得物品及旧货的特殊税率</p></li><li class="color6" lsvideoid="8cde593f12" courseid="30266" ordernum="66" id="lecture30266" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">销项税额的一般计算及视同销售</p></li><li class="color6" lsvideoid="0f9eec3e9d" courseid="30267" ordernum="67" id="lecture30267" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">特殊货物销售方式下销售额的确定</p></li><li class="color6" lsvideoid="877aeaf9f5" courseid="30268" ordernum="68" id="lecture30268" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">当期准予抵扣的进项税额</p></li><li class="color6" lsvideoid="70f5bdba20" courseid="30269" ordernum="69" id="lecture30269" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">小规模纳税人和进口货物应纳税额的计算</p></li><li class="color6" lsvideoid="61a467f4e7" courseid="30270" ordernum="70" id="lecture30270" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">增值税税收优惠和增值税的征收管理</p></li><li class="color6" lsvideoid="2ea22e7765" courseid="30271" ordernum="71" id="lecture30271" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">营业税改征增值税中的纳税人和征税范围</p></li><li class="color6" lsvideoid="93898d0f08" courseid="30272" ordernum="72" id="lecture30272" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">营业税改增值税中的税目</p></li><li class="color6" lsvideoid="79774616ad" courseid="30273" ordernum="73" id="lecture30273" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">营业税改征增值税中的税率和征收率及应纳税额的计算</p></li><li class="color6" lsvideoid="4f58d10dcb" courseid="30274" ordernum="74" id="lecture30274" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">营改增税收优惠</p></li><li class="color6" lsvideoid="d8c00322e9" courseid="30275" ordernum="75" id="lecture30275" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">营改增征收管理</p></li><li class="color6" lsvideoid="6b7227c42a" courseid="30276" ordernum="76" id="lecture30276" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">消费税征税范围</p></li><li class="color6" lsvideoid="36c3b2cb9a" courseid="30277" ordernum="77" id="lecture30277" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">消费税税目</p></li><li class="color6" lsvideoid="649f3ee4fe" courseid="30278" ordernum="78" id="lecture30278" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">消费税的税率和应纳税额的计算</p></li><li class="color6" lsvideoid="acea96e9f2" courseid="30279" ordernum="79" id="lecture30279" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">消费税的组成计税价格和已缴纳消费税的扣除</p></li><li class="color6" lsvideoid="da02ef05e6" courseid="30280" ordernum="80" id="lecture30280" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">消费税的征收管理</p></li></ul></div><div class="bgE" style="margin-top: -1px;"></div><div class="coursePlay-list"><div class="coursePlayList-top borB color3">第五章：企业所得税、个人所得税法律制度</div><ul><li class="color6" lsvideoid="722b025df7" courseid="30281" ordernum="81" id="lecture30281" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">企业所得税的纳税人及征收对象</p></li><li class="color6" lsvideoid="c2ec18cbd3" courseid="30282" ordernum="82" id="lecture30282" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">企业所得税应纳税所得额的计算（一）</p></li><li class="color6" lsvideoid="a8cf05348c" courseid="30283" ordernum="83" id="lecture30283" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">企业所得税应纳税所得额的计算（二）</p></li><li class="color6" lsvideoid="636ced01ed" courseid="30284" ordernum="84" id="lecture30284" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">企业所得税应纳税所得额的计算（三）</p></li><li class="color6" lsvideoid="0c460d5d2c" courseid="30285" ordernum="85" id="lecture30285" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">企业所得税应纳税所得额的计算（四）</p></li><li class="color6" lsvideoid="57dc4e1b6e" courseid="30286" ordernum="86" id="lecture30286" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">企业所得税应纳税所得额的计算（五）</p></li><li class="color6" lsvideoid="0b650a2b8c" courseid="30287" ordernum="87" id="lecture30287" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">资产的税务处理</p></li><li class="color6" lsvideoid="38f2f39516" courseid="30288" ordernum="88" id="lecture30288" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">企业所得税应纳税额的计算及税收优惠（上）</p></li><li class="color6" lsvideoid="1bbd304d0d" courseid="30289" ordernum="89" id="lecture30289" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">企业所得税税收优惠（下）</p></li><li class="color6" lsvideoid="551688ed0a" courseid="30290" ordernum="90" id="lecture30290" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">源泉扣缴 、特别纳税调整及税收征收管理</p></li><li class="color6" lsvideoid="6c2ad4af7d" courseid="30291" ordernum="91" id="lecture30291" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">个人所得税的纳税人</p></li><li class="color6" lsvideoid="a02b43eb49" courseid="30334" ordernum="92" id="lecture30334" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">个人所得税税目及应纳税额的计算（一）</p></li><li class="color6" lsvideoid="42e53839cf" courseid="30335" ordernum="93" id="lecture30335" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">个人所得税税目及应纳税额的计算（二）</p></li><li class="color6" lsvideoid="6b17428510" courseid="30336" ordernum="94" id="lecture30336" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">个人所得税税目及应纳税额的计算（三）</p></li><li class="color6" lsvideoid="17a576b332" courseid="30337" ordernum="95" id="lecture30337" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">个人所得税税目及应纳税额的计算（四）</p></li><li class="color6" lsvideoid="4cf8859895" courseid="30338" ordernum="96" id="lecture30338" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">个人所得税税目及应纳税额的计算（五）</p></li><li class="color6" lsvideoid="a12c6b76e7" courseid="30339" ordernum="97" id="lecture30339" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">个人所得税税目及应纳税额的计算（六)</p></li><li class="color6" lsvideoid="a60dd578b9" courseid="30340" ordernum="98" id="lecture30340" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">个人所得税税目及应纳税额的计算（七）</p></li><li class="color6" lsvideoid="edc0d543d6" courseid="30341" ordernum="99" id="lecture30341" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">个人所得税应纳税额计算的特殊规定、税收优惠、征收管理</p></li></ul></div><div class="bgE" style="margin-top: -1px;"></div><div class="coursePlay-list"><div class="coursePlayList-top borB color3">第六章：其他税收法律制度</div><ul><li class="color6" lsvideoid="ac1de3f81e" courseid="30342" ordernum="100" id="lecture30342" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">关税的纳税人、课税对象、税目、税率</p></li><li class="color6" lsvideoid="5703199be6" courseid="30343" ordernum="101" id="lecture30343" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">关税的计税依据</p></li><li class="color6" lsvideoid="b1fa71efa4" courseid="30344" ordernum="102" id="lecture30344" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">关税应纳税额的计算、税收优惠、征收管理</p></li><li class="color6" lsvideoid="05a3284341" courseid="30345" ordernum="103" id="lecture30345" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">房产税的纳税人、征税范围、税率、计税依据</p></li><li class="color6" lsvideoid="de7d42c7d1" courseid="30346" ordernum="104" id="lecture30346" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">房产税应纳税额的计算、税收优惠、征收管理</p></li><li class="color6" lsvideoid="4a4d2d2ccd" courseid="30347" ordernum="105" id="lecture30347" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">契税法律制度</p></li><li class="color6" lsvideoid="a739b11d96" courseid="30348" ordernum="106" id="lecture30348" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">土地增值税的纳税人及征税范围</p></li><li class="color6" lsvideoid="c204480c65" courseid="30349" ordernum="107" id="lecture30349" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">土地增值税的税率及计算（上）</p></li><li class="color6" lsvideoid="654a49b6b7" courseid="30350" ordernum="108" id="lecture30350" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">土地增值税的计算（下）、税收优惠及征收管理</p></li><li class="color6" lsvideoid="c596f0ed6f" courseid="30351" ordernum="109" id="lecture30351" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">城镇土地使用税法律制度</p></li><li class="color6" lsvideoid="fb07d3bd93" courseid="30352" ordernum="110" id="lecture30352" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">税收优惠、征管规定</p></li><li class="color6" lsvideoid="eeeced5078" courseid="30876" ordernum="111" id="lecture30876" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">关税纳税人及税率</p></li><li class="color6" lsvideoid="84baff2d7d" courseid="30877" ordernum="112" id="lecture30877" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">关税的计算及优惠</p></li><li class="color6" lsvideoid="b7b5012d3d" courseid="30878" ordernum="113" id="lecture30878" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">房产税的纳税人、税率及计算</p></li><li class="color6" lsvideoid="9e52f803d0" courseid="30879" ordernum="114" id="lecture30879" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">房产税的特殊规定及优惠</p></li><li class="color6" lsvideoid="6de3f6b053" courseid="30880" ordernum="115" id="lecture30880" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">契税法律制度</p></li><li class="color6" lsvideoid="34a19ec316" courseid="30881" ordernum="116" id="lecture30881" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">纳税人及征税范围</p></li><li class="color6" lsvideoid="e7e6ca7d10" courseid="30882" ordernum="117" id="lecture30882" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">土地增值税计税依据及计算</p></li><li class="color6" lsvideoid="c8affe24c7" courseid="30883" ordernum="118" id="lecture30883" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">土地增值税的优惠及征收管理</p></li><li class="color6" lsvideoid="375277fa37" courseid="30884" ordernum="119" id="lecture30884" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">城镇土地使用税法律制度</p></li><li class="color6" lsvideoid="663062e8c5" courseid="30885" ordernum="120" id="lecture30885" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">车船税法律制度</p></li><li class="color6" lsvideoid="0efff67346" courseid="30886" ordernum="121" id="lecture30886" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">印花税法律制度</p></li><li class="color6" lsvideoid="5aa4df168f" courseid="30887" ordernum="122" id="lecture30887" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">资源税法律制度资源税纳税人及税率</p></li><li class="color6" lsvideoid="d74b5dcc6f" courseid="30888" ordernum="123" id="lecture30888" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">资源税法律制度资源税的计算及优惠</p></li><li class="color6" lsvideoid="03307d9a87" courseid="30889" ordernum="124" id="lecture30889" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">城市维护建设税及教育费附加</p></li><li class="color6" lsvideoid="aad98ca9a9" courseid="30890" ordernum="125" id="lecture30890" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB"> 船舶吨税、车辆购置税</p></li><li class="color6" lsvideoid="606b32de07" courseid="30891" ordernum="126" id="lecture30891" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">耕地占用税、烟叶税</p></li></ul></div><div class="bgE" style="margin-top: -1px;"></div><div class="coursePlay-list"><div class="coursePlayList-top borB color3">第七章：税收征收管理法律制度</div><ul><li class="color6" lsvideoid="7ef68fc83f" courseid="30892" ordernum="127" id="lecture30892" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">税收征收管理法概述</p></li><li class="color6" lsvideoid="bfb09be2c6" courseid="30893" ordernum="128" id="lecture30893" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">税务登记申请人、主管机关及登记证件</p></li><li class="color6" lsvideoid="23815098c7" courseid="30894" ordernum="129" id="lecture30894" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">税务登记的内容</p></li><li class="color6" lsvideoid="542138f2fa" courseid="30895" ordernum="130" id="lecture30895" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">账簿、凭证、发票管理</p></li><li class="color6" lsvideoid="ed96144ebd" courseid="30896" ordernum="131" id="lecture30896" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">税款征收与税务检查</p></li><li class="color6" lsvideoid="71c154d9fd" courseid="30897" ordernum="132" id="lecture30897" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">税务行政复议</p></li><li class="color6" lsvideoid="0ecd8f6af9" courseid="30898" ordernum="133" id="lecture30898" playtype="no"><i class="coursePlayList-left-i"><img src="/resources/wap/course/images/course_nosee_icon.png" class="coursePlayList-left"></i><p class="coursePlayList-right borB">税收法律责任</p></li></ul></div></div>
+
+
+    
+
+    
+        <div onclick="xiaonengIm('kf_9751_1433155940997','8','videoDetail')" style="" class="xnConlist">
+                
+            <img src="/resources/common/images/common/xnBg.png" class="xnConNum">
+            <img src="/resources/common/images/common/xnConsult.gif" class="xnConTwo">
+        </div>
+    
+    
+
+
+<script src="/resources/live/js/jqueryScroll.js"></script>
+<script src="/resources/live/js/jquery.nicescroll.js"></script>
+<script src="/resources/common/js/login.js"></script>
+<script type="text/javascript">
+    $(function () {
+        var winWidth = $(window).width();
+        if (winWidth > 640) {
+            winWidth = 640;
+        }
+        var winHeight = winWidth * 9 / 16;
+        $("#lsVideo").css("height", winHeight + "px");
+        $("#test1").css("height", ($(document).height() * 1 - winHeight * 1) + "px");
+    });
+    var player = new CloudVodPlayer();
+    player.init({
+        callbackJs: "call",
+        "uu": "c2ygy4wf5p",
+        "vu": "b31c357737",
+        "controls": "0",
+        "playsinline": "1",
+        "pu": "67d53686dc",
+        "share": "0",
+        "extend": "0",
+        "auto_play": "0"
+    }, "lsVideo");
+
+</script>
+
+<script type="text/javascript">
+    var path = "";
+    var settingid = "kf_9751_1433155940997";
+    var checkInstal = true;
+    var playback = 0;
+    var listVide1;
+    var courseListScor = $("#test1");
+    var user = "";
+    var ssoDomain = "http://sso.duia.com";
+    var sku = "8";
+    var senderId = "";
+    var sku = "8";
+    var liveId = "28003";
+    var courseType = "0";
+    var lectureId = "0";
+    jQuery(function ($) {
+        courseListScor.niceScroll({
+            cursorcolor: "#000",
+            cursorborder: "none",
+            cursorborderradius: "4px",
+            zIndex: "1"
+        });
+    });
+    var vipAuth = true;
+    $(function () {
+        $.ajax({
+            url: path + "/wapData/getCourseList/870", type: "post", async: false, success: function (data) {
+                var courseType = data.courseType;
+                /*判断是否有权限观看视频*/
+                if (courseType != 0 && (!data.skuPrivilege || data.vipExpire || data.dropOut || !checkInstal)) {
+                    vipAuth = false;
+                }
+                if (vipAuth == false) {
+                    if (user != null && user != "") {
+                        if(courseType == "2"){
+                            $("#lsVideo").html('<img src="/resources/wap/course/images/vip_auth_2.png" />');
+                        }else{
+                            $("#lsVideo").html('<img src="/resources/wap/course/images/vip_auth.png" />');
+                        }
+                        $("#lsVideo").find("img").click(function () {
+                            xiaonengIm(settingid, sku, 'courseDetail');
+                        });
+                    } else {
+                        if(courseType == "2"){
+                            $("#lsVideo").html('<img src="/resources/wap/course/images/vip_auth_2.png" onclick="signIn();" />');
+                        }else{
+                            $("#lsVideo").html('<img src="/resources/wap/course/images/vip_auth.png" onclick="signIn();" />');
+                        }
+                    }
+                }
+                document.getElementById("test1").innerHTML = "<div class=\"coursePlay-title borB color3\"></div>";//标题数据
+                $(".coursePlay-title").text(data.courseName);
+                if (data.skuPrivilege && !data.vipExpire && !data.dropOut && checkInstal) {
+                    var orderNum = 0;
+                    for (var i = 0; i < data.courses.length; i++) {
+                        $("#test1").append("<div class=\"coursePlay-list\">" + "<div class=\"coursePlayList-top borB color3\"></div><ul></ul>" + "</div>")//向#test内容最后添加coursePlay-list
+                        $(".coursePlay-list:eq(" + i + ") .coursePlayList-top").text(data.courses[i].chapterName)//向下标为i的coursePlay-list中的coursePlayList-top添加章节数据
+                        var lectures = data.courses[i].lectures;
+                        if (i < data.courses.length - 1) {
+                            $(".coursePlay-list:eq(" + i + ")").after("<div class=\"bgE\" style='margin-top: -1px;'></div>");
+                        }
+                        for (var j = 0; j < lectures.length; j++) {
+                            $(".coursePlay-list:eq(" + i + ") ul").append("<li class=\"color6\"><i class='coursePlayList-left-i'><img src='/resources/wap/course/images/course_nosee_icon.png' class=\"coursePlayList-left\" /></i><p class=\"coursePlayList-right borB\"></p></li>")//向下标为i的coursePlay-list中的ul添加li
+                            $(".coursePlay-list:eq(" + i + ") .coursePlayList-right:eq(" + j + ")").text(lectures[j].lectureName)//向下标为i的coursePlay-list中的下标为j的li添加小节数据
+                            $(".coursePlay-list:eq(" + i + ") li:eq(" + j + ")").attr("lsVideoId", lectures[j].lsVideoId);
+                            $(".coursePlay-list:eq(" + i + ") li:eq(" + j + ")").attr("courseId", lectures[j].lectureId);
+                            $(".coursePlay-list:eq(" + i + ") li:eq(" + j + ")").attr("orderNum", orderNum);
+                            $(".coursePlay-list:eq(" + i + ") li:eq(" + j + ")").attr("id", "lecture"+lectures[j].lectureId);
+                            if (j == lectures.length - 1) {
+                                $(this).css('border-bottom', 'none')
+                            }
+                            if (lectures[j].isLook == "true") {
+                                $(".coursePlay-list:eq(" + i + ") .coursePlayList-left:eq(" + j + ")").attr("src","/resources/wap/course/images/course_already_icon.png");
+                                $(".coursePlay-list:eq(" + i + ") .coursePlayList-left:eq(" + j + ")").parent().attr("class","coursePlayList-left-i");
+//                                $(".coursePlay-list:eq(" + i + ") .coursePlayList-left:eq(" + j + ")").css({
+//                                    "background": "url('/resources/wap/course/images/course_already_icon.png') no-repeat",
+//                                    "background-size": "18px",
+//                                });
+                                $(".coursePlay-list:eq(" + i + ") .coursePlayList-right:eq(" + j + ")").css({'color': '#666'})
+
+                                $(".coursePlay-list:eq(" + i + ") li:eq(" + j + ")").attr("playType", "yes");
+                            } else {
+                                $(".coursePlay-list:eq(" + i + ") li:eq(" + j + ")").attr("playType", "no");
+                            }
+                            orderNum++;
+                        }
+                    }
+                    $(".coursePlay-list li").eq(0).css("color", "#35d48f");
+                    $(".coursePlayList-left").eq(0).attr("src","/resources/wap/course/images/course_play_icon.png");
+//                    $(".coursePlayList-left").eq(0).css({
+//                        "background": "url('/resources/wap/course/images/course_play_icon.png') no-repeat",
+//                        "background-size": "20px"
+//                    });
+                    studyHistory("28003");
+                } else {
+                    var orderNum = 0;
+                    for (var i = 0; i < data.courses.length; i++) {
+                        $("#test1").append("<div class=\"coursePlay-list\">" + "<div class=\"coursePlayList-top borB color3\"></div><ul></ul>" + "</div>")//向#test内容最后添加coursePlay-list
+                        $(".coursePlay-list:eq(" + i + ") .coursePlayList-top").text(data.courses[i].chapterName)//向下标为i的coursePlay-list中的coursePlayList-top添加章节数据
+                        var lectures = data.courses[i].lectures;
+                        for (var j = 0; j < lectures.length; j++) {
+                            $(".coursePlay-list:eq(" + i + ") ul").append("<li class=\"color6\"><i><img src='/resources/wap/course/images/course_nosee_icon.png' class=\"coursePlayList-left\" /></i><p class=\"coursePlayList-right borB\"></p></li>")//向下标为i的coursePlay-list中的ul添加li
+                            $(".coursePlay-list:eq(" + i + ") .coursePlayList-right:eq(" + j + ")").text(lectures[j].lectureName)//向下标为i的coursePlay-list中的下标为j的li添加小节数据
+                            $(".coursePlay-list:eq(" + i + ") li:eq(" + j + ")").attr("lsVideoId", lectures[j].lsVideoId);
+                            $(".coursePlay-list:eq(" + i + ") li:eq(" + j + ")").attr("courseId", lectures[j].lectureId);
+                            $(".coursePlay-list:eq(" + i + ") li:eq(" + j + ")").attr("orderNum", orderNum);
+                            $(".coursePlay-list:eq(" + i + ") li:eq(" + j + ")").attr("id", "lecture"+lectures[j].lectureId);
+//                            $(".coursePlay-list:eq(" + i + ") .coursePlayList-left:eq(" + j + ")").css({
+//                                "background": "url('/resources/wap/course/images/video_play_lock.png') no-repeat",
+//                                "background-size": "18px"
+//                            });
+                            $(".coursePlay-list:eq(" + i + ") .coursePlayList-left:eq(" + j + ")").attr("src","/resources/wap/course/images/video_play_lock.png");
+                            $(".coursePlay-list:eq(" + i + ") .coursePlayList-left:eq(" + j + ")").parent().attr("class","coursePlayList-left-i");
+                            orderNum++;
+                        }
+                    }
+                }
+            }
+
+        });
+        if (vipAuth) {
+            $("#test1").find("li").each(function () {
+                $(this).click(function () {
+                    var lsVideoId = $(this).attr("lsVideoId");
+                    var courseLectureId = $(this).attr("courseId");
+                    var newUrl = "/wap/coursePlay/870/"+courseLectureId;
+                    history.replaceState(null,"", newUrl);
+                    $(this).attr("playType", "yes");
+                    player.sdk.playNewId({"uu": "c2ygy4wf5p", "vu": lsVideoId,"auto_play":"0"});//切换ID
+                    $("#test1").find("li").each(function () {
+                        var playType = $(this).attr("playType");
+                        $(this).find(".coursePlayList-right").css("color", "#666666");
+                        if (playType == "yes") {
+//                            $(this).find(".coursePlayList-left").css({
+//                                "background": "url('/resources/wap/course/images/course_already_icon.png') no-repeat",
+//                                "background-size": "18px"
+//                            });
+                            $(this).find(".coursePlayList-left").attr("src","/resources/wap/course/images/course_already_icon.png");
+                            $(this).find(".coursePlayList-right").css({'color': '#ccc'})
+                        } else {
+//                            $(this).find(".coursePlayList-left").css({
+//                                "background": "url('/resources/wap/course/images/course_nosee_icon.png') no-repeat",
+//                                "background-size": "18px"
+//                            });
+                            $(this).find(".coursePlayList-left").attr("src","/resources/wap/course/images/course_nosee_icon.png");
+                            $(this).find(".coursePlayList-left").parent().attr("class","coursePlayList-left-i");
+
+                        }
+                    });
+                    playback = $(this).attr("orderNum");
+                    $(this).find(".coursePlayList-right").css("color", "#35d48f").siblings().css("color", "#666666");
+//                    $(this).find(".coursePlayList-left").css({
+//                        "background": "url('/resources/wap/course/images/course_play_icon.png') no-repeat",
+//                        "background-size": "18px"
+//                    });
+                    $(this).find(".coursePlayList-left").attr("src","/resources/wap/course/images/course_play_icon.png");
+                    studyHistory(courseLectureId);
+                });
+            });
+            if(lectureId!=0) {
+                $("#lecture" + lectureId).click();
+            }
+        }
+
+        window.call = function (type, data) {
+            if (type == "playerInit") {
+                setInterval(function () {
+                    var nowIndex = playback * 1 + 1;
+                    var selectLi;
+                    var upSelectLi;
+                    if (player.sdk.getVideoSetting().duration != null && player.sdk.getVideoSetting().duration != "" && (player.sdk.getVideoSetting().duration == player.sdk.getVideoTime())) {
+                        $("#test1").find("li").each(function () {
+                            var orderNum = $(this).attr("orderNum");
+                            if (orderNum == playback) {
+                                upSelectLi = $(this);
+                            }
+                            if (orderNum == nowIndex) {
+                                selectLi = $(this);
+                            }
+                        });
+                        var lsVideoId = selectLi.attr("lsVideoId");
+                        var courseLectureId = selectLi.attr("courseId");
+                        player.sdk.playNewId({"uu": "c2ygy4wf5p", "vu": lsVideoId,"auto_play":"0"});
+                        upSelectLi.attr("playType", "yes");
+                        upSelectLi.css("color", "#666666");
+                        upSelectLi.find(".coursePlayList-right").css("color", "#666666");
+//                        upSelectLi.find(".coursePlayList-left").css({
+//                            "background": "url('/resources/wap/course/images/course_already_icon.png') no-repeat",
+//                            "background-size": "18px"
+//                        });
+                        upSelectLi.find(".coursePlayList-left").attr("src","/resources/wap/course/images/course_already_icon.png");
+                        selectLi.attr("playType", "yes");
+                        selectLi.css("color", "#35d48f");
+                        selectLi.find(".coursePlayList-right").css("color", "#35d48f");
+//                        selectLi.find(".coursePlayList-left").css({
+//                            "background": "url('/resources/wap/course/images/course_play_icon.png') no-repeat",
+//                            "background-size": "18px"
+//                        });
+                        selectLi.find(".coursePlayList-left").attr("src","/resources/wap/course/images/course_play_icon.png') no-repeat");
+                        studyHistory(courseLectureId);
+                    }
+                }, 1000);
+
+            }
+
+        };
+    });
+
+    function studyHistory(lectureId){
+        if (user != null && user != '') {
+            $.ajax({
+                url: path + '/wapData/courseStudyHistory/870/'+lectureId,
+                type: 'post',
+                async: false,
+                success: function (data) {
+
+                }
+            });
+        }
+    }
+    var _hmt = _hmt || [];
+    (function () {
+        var hm = document.createElement("script");
+        hm.src = "//hm.baidu.com/hm.js?7807b581bd39ca93734ed246857f588e";
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(hm, s);
+    })();
+</script>
+<script type="text/javascript" src="http://dl.ntalker.com/js/xn6/ntkfstat.js?siteid=kf_9751" charset="utf-8"></script>
+
+
+<div id="ascrail2000" class="nicescroll-rails" style="width: 5px; z-index: auto; cursor: -webkit-grab; position: absolute; top: 2px; left: -5px; height: 720px; display: none; opacity: 0; "><div style="position: relative; top: 0px; float: right; width: 5px; height: 720px; background-color: rgb(0, 0, 0); border: none; background-clip: padding-box; border-top-left-radius: 4px; border-top-right-radius: 4px; border-bottom-right-radius: 4px; border-bottom-left-radius: 4px; "></div></div><div id="ascrail2000-hr" class="nicescroll-rails" style="height: 5px; z-index: auto; top: 717px; left: 0px; position: absolute; display: block; width: 0px; opacity: 0; "><div style="position: relative; top: 0px; height: 5px; width: 32px; background-color: rgb(0, 0, 0); border: none; background-clip: padding-box; border-top-left-radius: 4px; border-top-right-radius: 4px; border-bottom-right-radius: 4px; border-bottom-left-radius: 4px; left: 0px; "></div></div></body></html>

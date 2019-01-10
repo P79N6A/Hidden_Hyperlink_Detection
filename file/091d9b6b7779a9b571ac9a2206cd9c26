@@ -1,0 +1,49 @@
+<html><head></head><body><pre style="word-wrap: break-word; white-space: pre-wrap;">(function () {
+    if ($("#hidBangMaiCar").val() == "1" || parseInt($("#uchdorderid").val()) &gt; 0) {//帮买筛选或者非默认排序不请求CPC
+        Asyncpcview();
+        //return; 慎用
+    }
+    else {
+        var sdata = $("#hidCpcFilter").val();
+        var mode = parseInt($("#hidMode").val());
+        //CPC+竞价
+        var ajaxurl = "/ajax/listad2016.ashx";
+        var data = { "sdata": escape(sdata), "pg": 1, "mode": mode, "cityspell": $('#hidCitySpell').val() };
+        $.post(ajaxurl, data, function (res) {
+            if ($("#carlist").length &gt; 0) {
+                $("#carlist ul").prepend(res);
+            }
+            else {
+                //无普通车源时 单独区块显示cpc车源
+                if (!!res &amp;&amp; res!="" ) {
+                    $("#cpccarlist ul").prepend(res)
+                    $("#cpccarlist").show();
+                    $(".succ-box.worry").hide();
+                }
+
+            }
+            $("li[data]").each(function () {
+                var ucarid = $(this).attr("data");
+                $("#li" + ucarid).remove();
+            });
+
+            if (mode == 2) {
+                $("#logwtCargrid .last").removeClass("last");
+                $("#logwtCargrid .first").removeClass("first");
+                $("#logwtCargrid li:not(:hidden)").each(function (idx) {
+                    if (idx % 3 == 0) {
+                        $(this).addClass("first");
+                    } else if (idx % 3 == 2) {
+                        $(this).addClass("last");
+                    }
+                });
+            }
+            $("img[name='lazyimg']").lazyload({ threshold: 200 });
+            //手动触发关注车源变更和对比车源变更事件，保证异步加载的精准车源加关注和加对比事件绑定
+            Taoche.SideBar.trigCompareChange();
+            Taoche.SideBar.trigAttenChange();
+
+            Asyncpcview();
+        });
+    }
+})();</pre></body></html>

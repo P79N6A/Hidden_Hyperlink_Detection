@@ -1,0 +1,492 @@
+<!DOCTYPE html><html><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width， initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="format-detection" content="telephone=no">
+<meta http-equiv="Expires" content="-1">
+<meta http-equiv="Cache-Control" content="no-cache">
+<meta http-equiv="Pragma" content="no-cache">
+<title>流量超市-购买流量</title>
+<link href="/e/css/style.css" rel="stylesheet" type="text/css">
+<!--
+<script type="text/javascript" src="/e/statics/link3/js/jquery.pack.js"></script>
+-->
+<script type="text/javascript" src="/e/statics/js/jquery/jquery-1.7.2.min.js"></script>
+<script type="text/javascript" src="/e/statics/link3/js/swipe.js"></script>
+<script type="text/javascript" src="/e/statics/link3/js/new_iscroll.js"></script>
+<script type="text/javascript" src="/e/statics/link3/js/jquery.messager.js"></script>
+<script type="text/javascript" src="/e/statics/js/jQuery.md5.js"></script>
+<script type="text/javascript" src="/e/statics/link3/js/link.js"></script>
+<link rel="stylesheet" href="/e/statics/js/jquery-ui-1.11.0/jquery-ui.min.css">
+<script type="text/javascript" src="/e/statics/js/jquery-ui-1.11.0/jquery-ui.min.js"></script>
+<script type="text/javascript" src="/e/statics/js/webutil.js"></script>
+<script>
+//初始化
+var is_time_pass = false;
+	function myload(){
+		var spreadnote=$("#spreadnote").attr("attdVal");
+		var productgnote=$("#productgnote").attr("attdVal");
+		var proDesc=$("#proDesc").attr("attdVal");
+		$("#spreadnote").html(spreadnote);
+		$("#productgnote").html(productgnote);
+		$("#proDesc").html(proDesc);
+		if($("#valid").val()=='0'){//是否需要校验
+			$("#yzmdiv").hide();
+			$(".detail_bottom_center li.detail_sure").html("<a href='javascript:confirmOneClickOrder();' id='qrdg_btn'>一键订购</a>");
+		}
+		dgwait=60;
+		linkToken();
+	}
+	function linkToken() {
+		var url = "/e/nsl/linkToken.do";
+		$.ajax( {
+			type : 'post',
+			url : url,
+			dataType : 'text',
+			data : '',
+			success : function(data) {
+				if (data!=null){
+					var dataval=data.split("@@");
+					$("#token").val(dataval[0]);
+					$("#seq_linkid").val(dataval[1]);
+					$("#sourceip").val(dataval[2]);
+					var device=dataval[3];
+					/*lnnif(device=='PC'){
+						$("#PC_ONE").addClass("pc_one");
+						$("#PC_TWO").addClass("pc_two");
+						$("#pc_ul").show();
+						$("#wap_ul").hide();
+						$("#wap_ul").html("");
+					}else{
+						$("#pc_ul").html("");
+					}*/
+				}
+			}
+		});
+	}
+	var showwait = 5;
+	function showText() {
+		if(showwait==0) {
+			$("#yzm_has_send").hide(200);
+		} else {
+			$("#yzm_has_send").show();
+			showwait--;
+			setTimeout(function() {
+				showText();
+			},
+			1000);
+		}
+	}
+	var wait=60;
+    function time(o) {
+		if (wait == 0) {
+			o.html("");
+			o.html("<a class='detail_phoneNum_ma' href='javascript:sendyzm();'>获取验证码</a><input type='text' id='yzm' name='yzm' class='detail_phoneNum' value='输入验证码' placeholder='' onkeyup='WEB.string.onlyNumber(this, 0)' onblur='WEB.string.onlyNumber(this, 0)'>");
+			wait = 60;
+			$(".detail_phoneNum_ma").css('border','1px solid #ff9e31');
+			$(".detail_phoneNum_ma").css('color','#ff9e31');
+			is_time_pass = true;
+		} else {
+			is_time_pass = false;
+		    //o.html("");
+			//o.html("<a class='detail_phoneNum_ma' href='javascript:sendyzm();'>已发送，重新发送(" + wait + ")</a><input type='text' id='yzm' name='yzm' class='detail_phoneNum' value='输入验证码' placeholder='' onkeyup='WEB.string.onlyNumber(this, 0)' onblur='WEB.string.onlyNumber(this, 0)'>");
+			$(".detail_phoneNum_ma").html("已发送，重新发送("+wait+")");
+			$(".detail_phoneNum_ma").attr("href","javascript:void(0)"); 
+			wait--;
+			setTimeout(function() {
+				time(o)
+			},
+			1000)
+		}
+    }
+	function sendyzm() {
+		$(".detail_phoneNum_ma").css('border','1px solid #ccc');
+		$(".detail_phoneNum_ma").css('color','#ccc');
+		$(".detail_phoneNum_ma").attr("href","javascript:void(0)"); 
+		showwait = 5;
+		var oval = $("#mobile").val();
+		if (oval=="") {
+			alert("请输入正确的联通手机号！");
+			$(".detail_phoneNum_ma").css('border','1px solid #ff9e31');
+			$(".detail_phoneNum_ma").css('color','#ff9e31');
+			$(".detail_phoneNum_ma").attr("href","javascript:sendyzm();"); 
+			return;
+		}
+		re= /^((130|131|132|145|155|156|185|186|176|175)\d{8})$/;
+		if (!re.test(oval)) {
+			alert("该输入正确的11位联通手机号码!");
+			$("#mobile").focus();
+			$(".detail_phoneNum_ma").css('border','1px solid #ff9e31');
+			$(".detail_phoneNum_ma").css('color','#ff9e31');
+			$(".detail_phoneNum_ma").attr("href","javascript:sendyzm();"); 
+			return;
+		}
+		
+		$("#yzm").html("");
+			$.ajax( {
+				type : 'post',
+				cache: true,
+				url : '/e/nsl/getPhoneCode.do',
+				data : $('#wojCheckForm').serialize(),
+				dataType : 'json',
+				async : true,
+				success : function(result) {
+					if (result.success) {//发送成功
+						isclickyzm=true;
+						time($("#yzmdiv"));
+						//showText();
+					}else{////版本不一致则刷新本页面且返回
+						alert(result.message);
+						location=location;
+						return;
+					}	
+				}
+
+			});
+	}
+var isclickyzm=false;//是否点击了验证码
+var isclickdg=false;//是否点击了订购
+var dgwait=60;
+function fundgtime(o,is_valid) {
+		if (dgwait == 0) {
+		    if(is_valid=='0'){
+		    	o.html("<a href='javascript:confirmOneClickOrder();' id='qrdg_btn'>一键订购</a>");
+		    }else{
+				o.html("<a href='javascript:sureQrdg();' id='qrdg_btn'>确认订购</a>");
+			}
+			$(".detail_bottom_center li.detail_sure a").css('border','0px');
+			$(".detail_bottom_center li.detail_sure a").css('background','#ff9600');
+			$(".detail_bottom_center li.detail_sure a").css('color','#fff');
+			dgwait = 60;
+		} else {
+		    o.html("<a href='javascript:void(0);' id='qrdg_btn'>订购中(" + dgwait + ")</a>");
+			$(".detail_bottom_center li.detail_sure a").css('border','1px solid #ccc');
+			$(".detail_bottom_center li.detail_sure a").css('background','#fff');
+			$(".detail_bottom_center li.detail_sure a").css('color','#ccc');
+			dgwait--;
+			setTimeout(function() {
+				fundgtime(o,$("#valid").val());
+			},
+			1000);
+		}
+}
+function nocodeqrdg(){
+	ctlDetail_sure('0','0');
+	var proid = $("#proid").val();
+	if (proid=="") {
+		alert("请选择一个产品！");
+		isclickdg=false;
+		ctlDetail_sure('1','0');
+		return;
+	}
+	var oval = $("#mobile").val();
+	if (oval=="") {
+		alert("请输入正确的联通手机号！");
+		ctlDetail_sure('1','0');
+		return;
+	}
+	re= /^((130|131|132|145|155|156|185|186|176|175)\d{8})$/;
+	if (!re.test(oval)) {
+		alert("该输入正确的11位联通手机号码!");
+		$("#mobile").focus();
+		ctlDetail_sure('1','0');
+		return;
+	}
+	fundgtime($(".detail_bottom_center li.detail_sure"),$("#valid").val());
+			$.ajax( {
+				type : 'post',
+				cache: true,
+				url : '/e/tglj/nocodedg.do',
+				data : $('#wojCheckForm').serialize(),
+				dataType : 'json',
+				async : true,
+				success : function(result) {
+					
+					if(result.data!=null && result.data.token!=null && result.data.token!='') {
+						$("#token").val(result.data.token);
+					}
+					ctlDetail_sure('1','0');
+					if (result.message.indexOf('刷新')!=-1){alert(result.message);location=location;return;}//版本不一致则刷新本页面且返回
+					if (!result.success){//需要展示产品本身的失败信息
+						dgwait=0;
+						msg=result.message;
+						if (msg==null||msg=="")	msg=$("#errmsg").val();
+						if (result.total==1) {//余额不足
+							$.messager.show("提示信息", msg+"<button onclick='javascript:window.open(&quot;http://e.10010fj.cn/sx/@6rE32i&quot;)' style='font-size:16px;' target='_Blank'>去充值</button><br />",0);
+						}
+						msg=encodeURI(encodeURI(result.message));
+                        location='/e/nsl/tip.do?mobile='+$("#mobile").val()+'&msg='+msg+'&is_success=false';
+					}else{//超时，验证码错误，取不到地市信息，超过流量限制，页面版本与服务器不一致，订购成功
+						if (result.message!="订购成功！"){
+						    msg=encodeURI(encodeURI(result.message));
+							location='/e/nsl/tip.do?mobile='+$("#mobile").val()+'&msg='+msg+'&is_success=false';
+						}else{
+						    msg=encodeURI(encodeURI(result.message));
+						    success=encodeURI(encodeURI(result.success));						    
+						    proname=encodeURI(encodeURI($('#proname').val()));						    
+							location='/e/nsl/tip.do?mobile='+$("#mobile").val()+'&msg='+msg+'&is_success='+success+'&proname='+proname
+							}
+					}
+				}
+			});
+}
+//控制输入栏
+function ctlDetail_sure(is_grey,is_valid){
+    if(is_grey=='0'){//灰显
+    	$(".detail_bottom_center li.detail_sure a").css('border','1px solid #ccc');
+		$(".detail_bottom_center li.detail_sure a").css('background','#fff');
+		$(".detail_bottom_center li.detail_sure a").css('color','#ccc');
+		$(".qrdg_btn").attr('href', 'javascript:void();');
+    }else{
+    	$(".detail_bottom_center li.detail_sure a").css('border','0px');
+		$(".detail_bottom_center li.detail_sure a").css('background','#ff9600');
+		$(".detail_bottom_center li.detail_sure a").css('color','#fff');
+		if(is_valid=='0'){//免验证
+			$(".qrdg_btn").attr('href', 'javascript:confirmOneClickOrder();');
+		}else{
+			$(".qrdg_btn").attr('href', 'javascript:sureQrdg();');
+		}
+		
+    }
+}
+function sureQrdg() {
+	ctlDetail_sure('0','1');
+	isclickdg=true;
+	if (!isclickyzm) {
+		alert("请等待发送验证码或重新获取后再订购！");
+		ctlDetail_sure('1','1');
+		return ;
+	}
+	var proid = $("#proid").val();
+	if (proid=="") {
+		alert("请选择一个产品！");
+		isclickdg=false;
+		ctlDetail_sure('1','1');
+		return;
+	}
+	var oval = $("#mobile").val();
+	if (oval=="") {
+		alert("请输入正确的联通手机号！");
+		ctlDetail_sure('1','1');
+		return;
+	}
+	re= /^((130|131|132|145|155|156|185|186|176|175)\d{8})$/;
+	if (!re.test(oval)) {
+		alert("该输入正确的11位联通手机号码!");
+		$("#mobile").focus();
+		ctlDetail_sure('1','1');
+		return;
+	}
+	var oval = $("#yzm").val();
+	if (oval=="") {
+		alert("请输入验证码！");
+		isclickdg=false;
+		ctlDetail_sure('1','1');
+		return;
+	}
+	re= /[a-zA-z0-9]{6}/;
+	if (!re.test(oval)) {
+		alert("该输入6位验证码!");
+		$("#yzm").focus();
+		ctlDetail_sure('1','1');
+		return;
+	}
+	if(is_time_pass){
+		alert('验证码已失效，请重新发送！');
+		ctlDetail_sure('1','1');
+		rteurn;
+	}
+	$("#order_product").text($("#proname").val());
+	$("#one_click_order").dialog({
+	    autoOpen:false,
+	    width:250,
+	    modal: true,
+	    draggable: false,
+	    resizable: false,
+	    position: {
+	        my: "center",
+	        //at: "right+150px top+75px ",
+	        of: $(this)
+	    },
+	    buttons: {}
+	});
+	$("#one_click_order").dialog("open");
+	
+}
+function qrdg(){
+	fundgtime($(".detail_bottom_center li.detail_sure"),$("#valid").val());
+	$.ajax( {
+		type : 'post',
+		cache: true,
+		url : '/e/nsl/dg.do',
+		data : $('#wojCheckForm').serialize(),
+		dataType : 'json',
+		async : true,
+		success : function(result) {
+			ctlDetail_sure('1','1');
+			if (result.message.indexOf('刷新')!=-1){alert(result.message);location=location;return;}//版本不一致则刷新本页面且返回
+			if (result.success){//需要展示产品本败信息
+				$("#yzm").val('');
+				msg=encodeURI(encodeURI(result.message));
+				success=encodeURI(encodeURI(result.success));						    
+			    proname=encodeURI(encodeURI($('#proname').val()));
+				location='/e/nsl/tip.do?mobile='+$("#mobile").val()+'&msg='+msg+'&is_success='+result.success+'&proname='+proname;
+				//confirmQryOrder(result.message);
+				$("#mobile").val('');	
+			}else{
+				dgwait=0;
+				if(result.message=='验证码错误！'){
+					alert('验证码错误！');
+					return;
+				}else{
+				    msg=encodeURI(encodeURI(result.message));
+					success=encodeURI(encodeURI(result.success));						    
+				    proname=encodeURI(encodeURI($('#proname').val()));
+					location='/e/nsl/tip.do?mobile='+$("#mobile").val()+'&msg='+msg+'&is_success='+result.success;		
+				}		
+			}
+		}
+	
+	});
+}
+function confirmQryOrder(msg){
+	if(!confirm(msg+'需要查看订单信息吗？')) return;
+	location="/e/nsl/toLogin.do?mobile="+$("#mobile").val();
+}
+//点击一键订购
+    function confirmOneClickOrder() {
+    	var oval = $("#mobile").val();
+		if (oval=="") {
+			alert("请输入正确的联通手机号！");
+			return;
+		}
+		re= /^((130|131|132|145|155|156|185|186|176|175)\d{8})$/;
+		if (!re.test(oval)) {
+			alert("该输入正确的11位联通手机号码!");
+			$("#mobile").focus();
+			return;
+		}
+		var flag = false;
+		var url = "/e/tglj/oneClickOrder.do";
+		$("#nocodemobile").val(oval);
+		$.ajax( {
+			type : 'post',
+			url : url,
+			dataType : 'json',
+			async : false,
+			data : $('#wojCheckForm').serialize(),
+			success : function(data) {
+				if(data.data!=null && data.data.token!=null && data.data.token!='') {
+					$("#token").val(data.data.token);
+				}	
+				if(data.success) {
+					flag = true;
+				} else {
+					if (data.message=="请重新刷新本页面！") {
+						location=location;
+						return;
+					}//版本不一致则刷新本页面且返回
+				}
+			}
+		});  
+		if(flag) {
+			$("#order_product").text($("#proname").val());
+	    	$("#one_click_order").dialog({
+	            autoOpen:false,
+	            width:250,
+	            modal: true,
+	            draggable: false,
+	            resizable: false,
+	            position: {
+	                my: "center",
+	                //at: "right+150px top+75px ",
+	                of: $(this)
+	            },
+	            buttons: {}
+	        });
+	        $("#one_click_order").dialog("open");
+		}  	
+    }
+function sureOneClickOrder() {
+	$("#one_click_order").dialog("close");
+	if($("#valid").val()=='0'){
+    	nocodeqrdg();    
+    }else{
+    	qrdg();
+    }	
+}
+function closeOneClickOrder() {
+    $("#one_click_order").dialog("close");
+    ctlDetail_sure('1',$("#valid").val());
+    wait = 0;
+}
+//mark:over;out
+function ctrInput(obj,mark,objValue){
+	if(obj.value==objValue&&mark=='over'){
+		obj.value = '';
+	}
+	if(obj.value==''&&mark=='out'){
+		obj.value = objValue;
+	}
+}
+</script>
+</head>
+<body onload="myload();">
+<form id="wojCheckForm">
+<div class="hot_list detail">
+<div class="hot_list_img_1"><img src="/e//file/main/dde5c71355294b30a207a16ab8bba400.jpg" width="100%" alt=""></div>
+<div class="hot_list_right_1"><p>2元200M流量天包</p><h2>2<i>元</i></h2></div>
+<div class="clear"></div>
+<div class="detail_p"><p><span id="proDesc" attdval="&lt;p&gt;&lt;span style=&quot;FONT-SIZE: 14px; FONT-FAMILY: 宋体&quot;&gt;&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-family: 微软雅黑, 'Microsoft YaHei';&quot;&gt;(1)2元200M省内流量包，含200M福建省内流量，订购当日有效，次日失效，不自动续订，剩余流量不可结转至次日，同档产品当日不可重复订购。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-family: 微软雅黑, 'Microsoft YaHei';&quot;&gt;(2)2G、3G、4G套餐用户均可参与，是否成功订购以短信通知为准。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;FONT-SIZE: 14px; FONT-FAMILY: 宋体&quot;&gt;&lt;/span&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;FONT-SIZE: 14px; FONT-FAMILY: 宋体&quot;&gt;&lt;br/&gt;&lt;/span&gt;&lt;br/&gt;&lt;/p&gt;"><p><span style="FONT-SIZE: 14px; FONT-FAMILY: 宋体"></span></p><p><span style="font-family: 微软雅黑, 'Microsoft YaHei';">(1)2元200M省内流量包，含200M福建省内流量，订购当日有效，次日失效，不自动续订，剩余流量不可结转至次日，同档产品当日不可重复订购。</span></p><p><span style="font-family: 微软雅黑, 'Microsoft YaHei';">(2)2G、3G、4G套餐用户均可参与，是否成功订购以短信通知为准。</span></p><p><span style="FONT-SIZE: 14px; FONT-FAMILY: 宋体"></span><br></p><p><span style="FONT-SIZE: 14px; FONT-FAMILY: 宋体"><br></span><br></p></span></p></div>
+</div>
+<div class="detail_text_con">
+<div class="detail_phoneNum_con"><input type="text" id="mobile" name="mobile" class="detail_phoneNum" value="输入手机号码" onmouseover="ctrInput(this,'over','输入手机号码');" onmouseout="ctrInput(this,'out','输入手机号码');" placeholder="" onkeyup="WEB.string.onlyNumber(this, 0)" onblur="WEB.string.onlyNumber(this, 0);"></div>
+</div>
+<div class="detail_text_con">
+<div class="detail_phoneNum_con" id="yzmdiv">
+	<a class="detail_phoneNum_ma" href="javascript:sendyzm();">获取验证码</a>
+	<input type="text" id="yzm" name="yzm" class="detail_phoneNum" value="输入验证码" placeholder="" onmouseover="ctrInput(this,'over','输入验证码');" onmouseout="ctrInput(this,'out','输入验证码');" onkeyup="WEB.string.onlyNumber(this, 0)" onblur="WEB.string.onlyNumber(this, 0);">
+</div>
+</div>
+<div class="detail_bottom">
+<div class="detail_bottom_center">
+<ul>
+<li><a href="javascript:void(0);" onclick="history.go(-1)">取消</a></li>
+<li class="detail_sure" id="dgdiv"><a href="javascript:sureQrdg();" id="qrdg_btn">确认订购</a></li>
+</ul>
+<div class="clear"></div>
+</div>
+<div id="one_click_order" style="display: none" title="提示">
+	 <b>您正在订购“<span style="color:red" id="order_product"></span>”产品，请仔细阅读产品相关说明！</b><br>
+	  <div style="margin-top:15px;text-align:center;"> <a style="margin-right:50px;" class="d_button" href="javascript:void(0)" onclick="sureOneClickOrder()"><span style="color:red">确认订购</span></a>
+	   <a class="d_button" href="javascript:void(0)" onclick="closeOneClickOrder()">取消订购</a></div>
+</div>
+</div>
+<div class="grey_bg"></div>
+<h2 id="spreadnote" attdval=""></h2>
+<!--温馨提示-->
+<div class="detail_t"><p>
+<span id="productgnote" attdval=""></span></p></div>
+<!--按钮-->
+<div style="display:none;">
+<input type="hidden" name="spreadid" id="spreadid" value="85">
+<input type="hidden" name="dgpageversion" id="dgpageversion" value="2016-11-8">
+<input type="hidden" name="subproids" id="subproids" value="297,308">
+<input type="hidden" name="partnerid" id="partnerid" value="P100000081">
+<input type="hidden" name="proname" id="proname" value="2元200M流量天包">
+<input type="hidden" name="proid" id="proid" value="347">
+<input type="hidden" name="proMainId" id="proMainId" value="43">
+<input type="hidden" name="attdCode" id="attdCode" value="">
+<input type="hidden" name="channelId" id="channelId" value="67">
+<input type="hidden" name="valid" id="valid" value="1">
+<input type="hidden" name="errMsg" id="errMsg" value="您不符合本产品订购条件，详询10010！">
+<input type="hidden" name="token" id="token" value="26826AE45C114E249F1BCC271F308A35">
+<input type="hidden" name="seq_linkid" id="seq_linkid" value="302043">
+<input type="hidden" name="sourceip" id="sourceip" value="101.199.108.53">
+<input type="hidden" name="nocodemobile" id="nocodemobile" value="">
+</div>
+</form>
+
+</body></html>

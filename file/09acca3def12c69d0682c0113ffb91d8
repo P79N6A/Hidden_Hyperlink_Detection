@@ -1,0 +1,176 @@
+<!DOCTYPE html><html><!--[if lt IE 9]>
+    <html class="ie8">
+<![endif]--><head>
+    <meta charset="utf-8">
+    <title>承包企业管理系统 - 全国建筑工人管理服务信息平台 - 用户登录</title>
+    <meta name="description" content="全国建筑工人管理服务信息平台,承包企业管理系统,全国建筑工人信息管理平台，基于建筑工人实名制一卡通，班组管理，承包方管理，工人考勤，工资管理，并形成工人职业履历">
+    <meta name="keywords" content="中国建筑，中建，云筑劳务，劳务，中建电商，农民工，工资代发，承包，总承包，分包">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8;">
+    <meta name="format-detection" content="telephone=no">
+    <link rel="shortcut icon" type="image/x-icon" href="/Content/img/ico/logo_16.ico">
+
+    <link href="/Content/css/reset.css?v=1.5" rel="stylesheet">
+    <link href="/Content/css/base.css?v=1.5" rel="stylesheet">
+    <link href="/Content/css/iconfont.css?v=1.5" rel="stylesheet">
+    <link href="/Content/css/login.css?v=1.5" rel="stylesheet">
+    <script src="https://hm.baidu.com/hm.js?14f7dae3dd54e11aeb24382caa376914"></script><script src="/Content/third/jquery-1.12.1.min.js?v=1.5"></script>
+    <script src="/Content/third/blockui/jquery.blockUI.js?v=1.5"></script>
+    <script src="/Content/third/UI.base.js?v=1.5"></script>
+
+    <script>
+    var _hmt = _hmt || [];
+    (function () {
+        var hm = document.createElement("script");
+        hm.src = "https://hm.baidu.com/hm.js?14f7dae3dd54e11aeb24382caa376914";
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(hm, s);
+    })();
+    </script>
+
+
+</head>
+<!--Head Ends-->
+<!--Body-->
+<body>
+    <div class="login-bg">
+        <div class="login-box" style="position:relative;height:100%;">
+            <div class="login-header section clear" style="padding: 0.1rem; ">
+                <img class="logo fl" src="/Content/img/logo/logo_yun.png">
+                <span class="fr">欢迎来到全国建筑工人管理服务信息平台-承包企业管理系统</span>
+            </div>
+            <div class="login-content">
+                <div class="section clear">
+                    <form class="login-form fr">
+                        <div class="login-title">
+                            <span>承包企业管理系统</span>
+                        </div>
+                        <div class="input-group">
+                            <input id="tbaccount" type="text" class="form-control" placeholder="用户名">
+                        </div>
+
+                        <div class="input-group pwd">
+                            <input id="tbpassword" type="password" class="form-control" placeholder="密码">
+                        </div>
+
+                        <div class="input-group code">
+                            <input id="tbverifycode" type="text" class="form-control" placeholder="验证码">
+                            <img id="valiCode" src="/Login/LoginValidationCode" title="点击刷新验证码">
+                        </div>
+
+                        <button id="btnsubmit" class="btn-login" type="submit">
+                            登 录
+                        </button>
+                    </form>
+                </div>
+            </div>
+            <div class="Yzw-footer-wrapper" id="FooterBottom" style="position: static; bottom: 0px; ">
+                
+                <div class="footer-copyright loginbox-footer">
+                    蜀ICP备15020860号-1
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        jQuery(document).ready(function () {
+            $("#valiCode").click(function () {
+                $("#tbverifycode").val("");
+                this.src = "/Login/LoginValidationCode?time=" + (new Date()).getTime();
+            });
+
+            $("#btnsubmit").click(function () {
+                login();
+                return false;
+            });
+
+            function login() {
+                if ($.trim($("#tbaccount").val()).length == 0) {
+                    $.showWarning('请输入用户名！');
+                    return false;
+                }
+                if ($.trim($("#tbpassword").val()).length == 0) {
+                    $.showWarning('请输入密码！');
+                    return false;
+                }
+                if ($.trim($("#tbverifycode").val()).length == 0) {
+                    $.showWarning('请输入验证码！');
+                    return false;
+                }
+
+                var param = 'account=' + $("#tbaccount").val() + '&password=' + $("#tbpassword").val();
+                param += '&verifycode=' + $("#tbverifycode").val();
+                var returnUrl = 'http://lw.yzw.cn/WorkHour/ExportHourDetailMonth';
+                $.ajax({
+                    url: '/Login/Login',
+                    type: "POST",
+                    data: param,
+                    dataType: "json",
+                    beforeSend: function () {
+                        $("#btnsubmit").attr("disabled", "disabled");
+                        $("#btnsubmit").html('<i class="fa fa-key"></i>登录中...')
+                    },
+                    complete: function () {
+                        $("#btnsubmit").removeAttr("disabled");
+                        $("#btnsubmit").html('<i class="fa fa-key"></i>登录');
+                    },
+                    success: function (data) {
+
+                        if (data.Success === true) {
+                            if ($.trim(returnUrl).length > 0) {
+                                window.location.href = returnUrl;
+                            }
+                            else {
+                                window.location.href = "/Home/Index";
+                            }
+                        }
+                        else if (data.Success === false) {
+                            $.showError(data.Message);
+                            $("#valiCode").click();
+                        }
+                    }
+                });
+            }
+        });
+
+        setTimeout(function () {
+            try {
+                var t = $("#tbaccount");
+                t.focus();
+                //t.select();//清除已有的输入
+            } catch (e) {
+
+            }
+        }, 200);
+
+        $(function () {
+            function resizeHeight() {
+                var htmlHeight = $(window).height();
+                var headHeight = $(".login-header").innerHeight();
+                var footerHeight = $(".Yzw-footer-wrapper").innerHeight();
+                var Height = htmlHeight - headHeight - footerHeight;
+                if (Height < 410) {
+                    $(".Yzw-footer-wrapper").css("position", 'static');
+                } else {
+                    $(".login-content").css("height", Height + "px");
+                }
+                $(".login-header").css("padding", "0.1rem");
+            }
+            window.onload = resizeHeight;
+            window.onresize = resizeHeight;
+        })
+    </script>
+    <script src="/Configuration/LanguageResources/zh-cn/ScriptResource.js"></script>
+<script language="javascript">
+function JR(key) { 
+ return key;
+}
+</script>
+
+
+
+
+
+</body></html>

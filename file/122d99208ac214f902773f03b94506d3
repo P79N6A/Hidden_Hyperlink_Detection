@@ -1,0 +1,277 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html><head>
+    <title>找回密码</title>
+    
+	<meta http-equiv="pragma" content="no-cache">
+	<meta http-equiv="cache-control" content="no-cache">
+	<meta http-equiv="expires" content="0">    
+	<meta http-equiv="keywords" content="keyword1,keyword2,keyword3">
+	<meta http-equiv="description" content="This is my page">
+	<!--
+	<link rel="stylesheet" type="text/css" href="styles.css">
+	-->
+	<link href="../login/css1/style.css" rel="stylesheet" type="text/css">
+	<script type="text/javascript" async="" src="http://site.cdnmaster.cn/sitemaster/collect.js"></script><script src="../login/js/jquery-1.7.2.min.js"></script>
+	<script src="../login/js/main.js"></script>
+	<script src="../js/cdnmaster.js"></script>	
+	<script type="text/javascript">
+		var hrefUrl = location.href;
+		var indexNum = hrefUrl.indexOf("/", hrefUrl.indexOf("/", 10)+1);
+		var servletUrl = hrefUrl.substring(0, indexNum) + "/change/service";
+		
+		var getAjax = false;  //获取验证码-通过手机找回
+		var getAjax2 = false; //提交-通过手机找回
+		var getAjax3 = false;  //获取验证码-通过邮箱找回
+
+		function initUserInfo(){
+			var mobile = getCookieCommon("findpwd_mobile");
+			var email = getCookieCommon("findpwd_email");
+			
+			$("#member_mobile").text(mobile);
+			$("#member_email").text(email);
+			if(email == ""){
+				$("#emailli").hide();
+				$("#emaildiv").hide();
+			}
+			
+			if(mobile == ""){
+				$("#mobileli").hide();
+				$("#mobilediv").hide();
+				$("#emailli").attr("class","cur");
+				$("#emaildiv").show();
+				
+			}
+			
+			if(mobile == "" && email == ""){
+				$("#tabarea").hide();
+				$("#con_one_3").show();
+			}
+		}
+		
+		//ajax传送手机验证码
+		function getMark(){
+	    	$("#mescode").attr("disabled","true");
+	    	if(getAjax) return;
+	    	getAjax = true;
+	    	$.ajax({
+	    		'url':servletUrl,
+	    		'type':'post',
+	    		'data':'function_code=getMobileVerify&get_type_key=findpwd_send',
+	    		'dataType':'json',
+	    		'cache':false,
+	    		'success':function(data,statusText){
+	    	   		if(data.result == "0000"){
+	    	   			var $btn=$('#mescode');
+	    	   			//$("#errorhtml").css("display","block");
+	    	   			$("#markHTML").html("<i class=\"wico\"></i>"+data.errordesc);
+	    	   			$btn.css('background','#999').val('60秒后重新获取');
+	    	   			var iNum=60,timer=null;
+	    	   			timer=setInterval(function(){
+	    	   				iNum--;
+	    	   				$btn.val(iNum+'秒后重新获取')
+	    	   				if(iNum==0){
+	    	   					clearInterval(timer);
+	    	   					$("#mescode").removeAttr("disabled","false");
+	    	   					getAjax = false;
+	    	   					$btn.css('background','#FF6500').val('重新获取验证码');
+	    	   				}
+	    	   			},1000)	
+	    	   		}else{
+	    	   			$("#mescode").removeAttr("disabled","false");
+	    	   			getAjax = false;
+	    	   			//$("#errorhtml").css("display","block");
+	    	   			$("#markHTML").html("<i class=\"wico\"></i>"+data.errordesc);
+	    	   		}
+	    	    }
+	    	});
+		}
+		
+		function checkMark(){
+			//提交-通过手机找回
+			var mark = $.trim($("#mark").val());
+	    	if(mark == ""){
+				//alert("请输入验证码");
+				$("#markHTML").html("<i class=\"wico\"></i>请输入验证码");
+				return false;			
+			}
+	    	if(getAjax2) return;
+	    	getAjax2 = true;
+	    	
+	    	$.ajax({
+	    		'url':servletUrl,
+	    		'type':'post',
+	    		'data':'function_code=checkMobileVerify&get_type_key=findpwd_send&check_type_key=check_findpwd_flag&mark='+mark,
+	    		'dataType':'json',
+	    		'cache':false,
+	    		'success':function(data,statusText){
+	    	   		if(data.result == "0000"){
+	    	   			//alert("0000");
+	    	   			location.href = "../register/findpwd33.jsp";
+	    	   		}else{
+	    	   			getAjax2 = false;
+	    	   			$("#markHTML").html("<i class=\"wico\"></i>"+data.errordesc);
+	    	   		}
+	    	    }
+	    	});
+		}
+		
+		//获取验证码-通过邮箱找回
+		function getEmail(){
+		    	if(getAjax3) return;
+		    	getAjax3 = true;
+		    	//ajax传送手机验证码
+		    	//$("#emailbtn").attr("disabled","true");
+		    	$.ajax({
+		    		'url':servletUrl,
+		    		'type':'post',
+		    		'data':'function_code=getEmailVerify&get_type_key=findpwd_send',
+		    		'dataType':'json',
+		    		'cache':false,
+		    		'success':function(data,statusText){
+		    	   		if(data.result == "0000"){
+		    	   			var $btn=$('#emailbtn');
+		    	   			$btn.css('background','#999').val('60秒后重新获取');
+		    	   			var iNum=60,timer=null;
+		    	   			timer=setInterval(function(){
+		    	   				iNum--;
+		    	   				$btn.val(iNum+'秒后重新获取')
+		    	   				if(iNum==0){
+		    	   					clearInterval(timer);
+		    	   					//$("#emailbtn").removeAttr("disabled","false");
+		    	   					$btn.css('background','#FF6500').val('点击获取验证码');
+		    	   				}
+		    	   			},1000)
+		    	   			$("#emailHTML").show();
+		    	   			$("#emailHTML").html("邮箱验证链接已发送至以上邮箱，如您在一分钟内没有收到验证邮件，<br>请点击重新发送邮箱验证链接或拨打客服热线 40000-95522");
+		    	   		}else{
+		    	   			$("#emailHTML").show();
+		    	   			$("#emailHTML").html(data.errordesc);
+		    	   			getAjax3 = false;
+							//$("#emailbtn").removeAttr("disabled","false");
+		    	   		}
+		    	    }
+		    	});
+		}
+	
+	</script>
+  </head>
+  
+  <body onload="initUserInfo();">
+    <div class="wrapper header"><img src="../login/images/logo.gif">重置密码</div>
+<div class="wrapper reg forget">
+	<ul class="nav clearfix">
+		<li class="active"><span><i>1</i>输入登录名</span></li>
+		<li class="active"><span><i>2</i>身份验证</span></li>
+		<li><span><i>3</i>重置密码</span></li>
+		<li><span><i>4</i>完成</span></li>
+	</ul>
+	<div class="tabarea" id="tabarea" style="display: none; ">
+		<div class="tabtit">
+			<ul class="clearfix">
+				<li class="cur" id="mobileli" style="display: none; ">通过手机号找回</li>
+				<li id="emailli" style="display: none; " class="cur">通过邮箱找回</li>
+			</ul>
+			<span class="line"></span>
+		</div>
+		<div class="tabcon">
+			<div class="formarea" id="mobilediv" style="display: none; ">
+				<!-- <dl class="clearfix">
+					<dt>已绑定手机号码</dt>
+					<dd class="num"><span id="member_mobile"></span><input type="button" value="获取短信验证码" class="btn1 op8" id="mescode" onclick="getMark()"></dd>
+				</dl> -->
+				<dl class="clearfix">
+					<dt>已绑定手机号码</dt>
+					<dd class="num"><span id="member_mobile"></span><a href="findpwd221.jsp" class="nottel">不是我的手机号？</a></dd>
+				</dl>
+				<dl class="clearfix">
+					<dt>短信验证码</dt>
+					<dd><input type="text" class="text" id="mark"><input type="button" value="获取短信验证码" class="btn1 op8" id="mescode" onclick="getMark()"></dd>
+				</dl>
+				<!-- <dl class="clearfix">
+					<dt>短信验证码</dt>
+					<dd><input type="text" class="text" id="mark"><span id="checkmark" class="wtip" style="display:none;"><i class="wico"></i><span id="errortext">请输入验证码</span></span></dd>
+				</dl> -->
+				
+				<dl class="clearfix">
+					<dt></dt>
+					<dd><input type="button" value="下一步" class="btn1 op8" onclick="checkMark()"></dd>
+				</dl>
+				<p class="" style="font-size: 15px;color: #ff6600;margin-top: 16px;" align="center" id="markHTML"></p>
+			</div>
+			
+			<div class="formarea dn" id="emaildiv" style="display: block; ">
+				<dl class="clearfix">
+					<dt>已绑定邮箱</dt>
+					<dd class="num"><span id="member_email"></span><input type="button" value="发送邮箱验证连接" class="btn1 op8" id="emailbtn" onclick="getEmail()"></dd>
+				</dl>
+				<dl class="clearfix">
+					<dt></dt>
+					<dd id="emailHTML" style="background: #FFEFE5; color:#ff6600;padding:5px;display: none;"></dd>
+				</dl>
+				<!-- <dl class="tm35 clearfix">
+					<dt></dt>
+					<dd><input type="button" value="下一步1" class="btn1 op8" id="submitBtn"/></dd>
+				</dl> -->
+				
+			</div>
+		</div>
+		
+		
+	</div>
+	<!-- <div class="tabarea">
+		<div class="tabtit">
+			<ul class="clearfix">
+				<li class="cur">通过手机号找回</li>
+				<li>通过邮箱找回</li>
+			</ul>
+			<span class="line"></span>
+		</div>
+		<div class="tabcon">
+			<div class="formarea">
+				<dl class="clearfix">
+					<dt>已绑定手机号码</dt>
+					<dd class="num"><span id="member_mobile"></span><a href="findpwd221.jsp" class="nottel">不是我的手机号？</a></dd>
+				</dl>
+				<dl class="clearfix">
+					<dt>短信验证码</dt>
+					<dd><input type="text" class="text"><input type="button" value="获取短信验证码" class="btn1 op8" id="mescode" onclick="getMark()"></dd>
+				</dl>
+				<dl class="tm35 clearfix">
+					<dt></dt>
+					<dd><input type="button" value="下一步" class="btn1 op8" onclick="checkMark()"></dd>
+				</dl>
+			</div>
+			<div class="formarea dn">
+				<dl class="clearfix">
+					<dt>已绑定邮箱</dt>
+					<dd class="num">gao****@126.com<input type="button" value="发送邮箱验证连接" class="btn1 op8"></dd>
+				</dl>
+				<dl class="clearfix">
+					<dt></dt>
+					<dd>邮箱验证链接已发送至以上邮箱，如您在一分钟内没有收到验证邮件，<br>请点击重新发送邮箱验证链接或拨打客服热线 40000-95522</dd>
+				</dl>
+				<dl class="tm35 clearfix">
+					<dt></dt>
+					<dd><input type="button" value="下一步" class="btn1 op8"></dd>
+				</dl>
+			</div>
+		</div>
+	</div> -->
+	<div id="con_one_3" class="tabarea" style="">
+	     <div id="contentFP" style="font-size: 20px;color: red">
+			        无验证信息，请联系 40000-95522 申诉重置密码
+		 </div>
+	
+	</div>
+</div>
+<div class="wrapper footer">
+	<p>版权所有 © 泰康在线财产保险股份有限版权公司未经许可不得复制、转载或摘编，违者必究!</p>
+	<p>京ICP备09074081号-19 Copyright © Tk.cn Insurance CO.,LTD. All Rights Reserved</p>
+</div>
+<script>
+$(function(){
+	modeLogin.tab();
+})
+</script>
+  
+
+</body></html>

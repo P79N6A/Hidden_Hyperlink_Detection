@@ -1,0 +1,458 @@
+<!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml"><head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8;">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0">
+    <title>发！发！发！赢流量！</title>
+    <link href="/Content/bootstrap.min.css" rel="stylesheet"> 
+    
+    
+    <script src="/bundles/jquery?v=-f3j8nFzDc4K0vdzfgu4fFBl_UAX0108jx-zN98jILw1"></script>
+
+    <script src="/Scripts/bootstrap.min.js"></script>
+    <script src="http://res.wx.qq.com/open/js/jweixin-1.0.0.js"></script>
+    
+    <link href="/Content/Zzf/css/weui.min.css" rel="stylesheet">
+    <link href="/Content/Zzf/css/example.css" rel="stylesheet">
+    <link href="/Content/Zzf/css/add.css" rel="stylesheet">
+    <script>
+    var dataForWeixin = {
+        appId: "wx9059a091f48f3664",
+        TLImg: "",
+        url: "",
+        title: "",
+        desc: "",
+        callback:""
+    };
+    var TimeStamp, NonceStr, Signature;
+
+    $.ajax({
+        type: "POST",
+        url: "/WeiXin/GetWeiXinShare",
+        data: { sigUrl: window.location.href },
+        success: function (msg) {
+            TimeStamp = msg.TimeStamp;
+            NonceStr = msg.NonceStr;
+            Signature = msg.Signature;
+            wx.config({
+                debug: false,
+                appId: dataForWeixin.appId,
+                timestamp: TimeStamp,
+                nonceStr: NonceStr,
+                signature: Signature,
+                jsApiList: [
+                    'checkJsApi',
+                    'onMenuShareTimeline',
+                    'onMenuShareAppMessage',
+                    'onMenuShareQQ',
+                    'onMenuShareWeibo',
+                    'hideMenuItems',
+                    'showMenuItems',
+                    'hideAllNonBaseMenuItem',
+                    'showAllNonBaseMenuItem',
+                    'translateVoice',
+                    'startRecord',
+                    'stopRecord',
+                    'onRecordEnd',
+                    'playVoice',
+                    'pauseVoice',
+                    'stopVoice',
+                    'uploadVoice',
+                    'downloadVoice',
+                    'chooseImage',
+                    'previewImage',
+                    'uploadImage',
+                    'downloadImage',
+                    'getNetworkType',
+                    'openLocation',
+                    'getLocation',
+                    'hideOptionMenu',
+                    'showOptionMenu',
+                    'closeWindow',
+                    'scanQRCode',
+                    'chooseWXPay',
+                    'openProductSpecificView',
+                    'addCard',
+                    'chooseCard',
+                    'openCard'
+                ]
+            });
+
+        },
+        error: function () {
+            //alert("请求出错或超时");
+        }
+    });
+
+    wx.ready(function () {
+        wx.onMenuShareTimeline({
+            title: dataForWeixin.title, // 分享标题
+            desc: dataForWeixin.desc, // 分享描述
+            link: dataForWeixin.url, // 分享链接
+            imgUrl: dataForWeixin.TLImg, // 分享图标
+            success: function () {
+                try {
+                    if (dataForWeixin.callback == "true") {
+                        OnShareCallBack();
+                    }
+                } catch (ex) {
+
+                }
+            },
+            cancel: function () {
+                //alert('cancel'); // 用户取消分享后执行的回调函数
+            }
+        });
+
+        wx.onMenuShareAppMessage({
+            title: dataForWeixin.title, // 分享标题
+            desc: dataForWeixin.desc, // 分享描述
+            link: dataForWeixin.url, // 分享链接
+            imgUrl: dataForWeixin.TLImg, // 分享图标
+            type: 'link', // 分享类型,music、video或link，不填默认为link
+            dataUrl: '', // 如果type是music或video，则要提供数据链接，默认为空
+            success: function () {
+                try {
+                    if (dataForWeixin.callback == "true") {
+                        OnShareCallBack();
+                    }
+                } catch (ex) {
+
+                }
+                //alert('success'); // 用户确认分享后执行的回调函数
+            },
+            cancel: function () {
+                //alert('cancel'); // 用户取消分享后执行的回调函数
+            }
+        });
+    });
+
+</script>
+    <script>
+        /*旗舰店ios版分享*/
+        var shareContent; //分享url
+        var shareUrl; //分享标题
+        var shareTitle; //分享图片
+        var shareImageUrl; //分享图片地址
+
+        $(document).ready(function() {
+            shareTitle = '发！发！发！赢流量！';
+            shareUrl = 'http://qth.hl139.net/r/Zzf_Index';
+            shareContent = '发！发！发！赢流量！';
+            shareImageUrl = 'http://qth.hl139.net/Content/Zzf/images/share_pic.jpg';
+            dataForWeixin.TLImg = shareImageUrl;
+            dataForWeixin.title = shareTitle;
+            dataForWeixin.url = shareUrl;
+            dataForWeixin.desc = shareContent;
+            dataForWeixin.callback = "true";
+            try {
+                window.Android.shareTitle(shareTitle);
+                window.Android.shareString(shareContent);
+                window.Android.shareUrl(shareUrl);
+                window.Android.shareImg(shareImageUrl);
+            } catch (e) {
+            }
+        });
+    </script>
+    <script>
+        function OnShareCallBack() {
+
+            location.href = "/Zzf/Index/" + ;
+        }
+
+        function luckDraws() {
+            $.ajax({
+                type: "POST",
+                url: "/Zzf/LotteryDraw",
+                dataType: "json",
+                success: function(res) {
+                    var json = eval(res.Data);
+                    if (json != undefined) {
+                        $('#myModalLabel').show();
+                        $("#Modellabel").html(json.strTip);
+                        $('#iKonw').show();
+                        if (json.state === 1) {
+                            $(".luckDraw").removeAttr("onclick");
+                            $(".luckDraw").removeClass("weui_btn_primary");
+                            $(".luckDraw").addClass("weui_btn_gray");
+                        } else if (json.state === 0) {
+                            if (json.number <= 0) {
+                                $(".luckDraw").removeAttr("onclick");
+                                $(".luckDraw").removeClass("weui_btn_primary");
+                                $(".luckDraw").addClass("weui_btn_gray");
+                            }
+                        }
+                    }
+                }
+
+            });
+        }
+
+    </script>
+    <style>
+        .record-small-box { 
+            border-bottom: 1px dashed #c0c0c0;        
+        }
+    .page-box {
+        margin: 6px 0 14px 0;
+        width: 100%;
+        height: 25px;
+        line-height: 25px;
+        text-align: center;
+    }
+
+        .page-box span,
+        .page-box a {
+            width: 25px;
+            height: 25px;
+            display: inline-block;
+            border-radius: 25px;
+            margin: 0 2px;
+        }
+
+            .page-box a.page-next,
+            .page-box a.page-pre,
+            .page-box span.page-next,
+            .page-box span.page-pre {
+                width: 60px;
+            }
+
+            .page-box a.page-next,
+            .page-box a.page-pre,
+            .page-box a,
+            .page-box span.page-more {
+                background-color: #dddddd;
+                color: #333333;
+            }
+
+                .page-box a.page-next:hover,
+                .page-box a.page-pre:hover,
+                .page-box span.page-current,
+                .page-box a:hover {
+                    background-color: #b16728;
+                    color: #FFFFFF;
+                    text-decoration: none;
+                }
+
+            .page-box span.page-next,
+            .page-box span.page-pre {
+                background-color: #efefef;
+                color: #c1c1c1;
+            }
+    </style>
+ 
+</head>
+<body class="body">
+    
+<div class="container-box">
+    <div class="hd">
+        <h1 class="page_title" style="font-size: 22px;">发！发！发！赢流量！</h1>
+        
+        <input type="hidden" id="strTotal">
+            <p class="page_desc">
+
+            </p>
+
+    </div>
+    <div style="margin: 0 15px;padding: 10px;">
+        本次转发活动截至1月21日24:00。
+    </div>
+    <div class="weui_btn_area">
+        
+            <a href="javascript:;" class="weui_btn weui_btn_primary btZf" onclick="ShowShareTip(1);" data-toggle="modal" data-target="#WxShareTip">立即转发</a>
+        
+    </div>
+    <div class="weui_btn_area">
+
+        <p style="text-align: center; font-size: 18px;">我获得的流量记录</p>
+        <div class="data-table" style="margin: 0px 15px;"></div>
+        <div class="page-box pagelist"></div>
+
+        
+    </div>
+    <div class="rules-tille">活动规则：</div>
+    <ol class="rules-main">
+        <li>参与活动用户需先关注<a href="http://mp.weixin.qq.com/s?__biz=MzA4ODAzMDUzOQ==&amp;mid=201038845&amp;idx=4&amp;sn=f5f0b3aa71ea209d9591072cdb86a44e">【七台河移动】</a>微信公众号并绑定七台河移动手机号码。</li>
+        <li> 两次转发间隔超过8小时才可再次获赠30M流量，每位粉丝每月最多可获赠4次。</li>
+         
+    </ol>
+</div>
+<script>
+    var strTotal = parseInt($("#strTotal").val());
+    if (strTotal > 0) {
+
+        function timer(intDiff) {
+            window.setInterval(function() {
+                var day = 0,
+                    hour = 0,
+                    minute = 0,
+                    second = 0; //时间默认值
+
+                if (intDiff > 0) {
+                    day = Math.floor(intDiff / (60 * 60 * 24));
+                    hour = Math.floor(intDiff / (60 * 60)) - (day * 24);
+                    minute = Math.floor(intDiff / 60) - (day * 24 * 60) - (hour * 60);
+                    second = Math.floor(intDiff) - (day * 24 * 60 * 60) - (hour * 60 * 60) - (minute * 60);
+                }
+                if (day <= 9) day = '0' + day;
+                if (hour <= 9) hour = '0' + hour;
+                if (minute <= 9) minute = '0' + minute;
+                if (second <= 9) second = '0' + second;
+                //$('#day_show').html(day);
+                $('#hour_show').html('<s id="h"></s>' + hour);
+                $('#minute_show').html('<s></s>' + minute);
+                $('#second_show').html('<s></s>' + second);
+                if (intDiff === 0) {
+                    $("#strCountdown").remove();
+                    //$(".btZf").removeClass("weui_btn_gray");
+                    //$(".btZf").addClass("weui_btn_primary");
+                    //$(".btZf").attr("onclick", "ShowShareTip(1);");
+                }
+                intDiff--;
+
+            }, 1000);
+
+        }
+
+        $(document).ready(function() {
+            var intDiff = parseInt(); //倒计时总秒数量
+            timer(intDiff);
+        });
+    }
+</script>
+
+<script>
+    var pageIndex = 1;
+    var pageSize = 5;
+    var pageCount = 1;
+    $(document).ready(function() {
+        InitTable();
+    });
+    function Previous() {
+        if (pageIndex > 1) {
+            pageIndex--;
+            InitTable();
+        }
+    }
+    function Next() {
+        if (pageIndex < pageCount) {
+            pageIndex++;
+            InitTable();
+        }
+    }
+    function InitTable() {
+        $.ajax({
+            type: "POST",
+            dataType: "text",
+            url: '/Zzf/QueryRecord/',
+            data: "pageIndex=" + pageIndex + "&pageSize=" + pageSize,
+            success: function (ret) {
+                $(".data-table").empty();
+                $(".pagelist").empty();
+                var jsonData = $.parseJSON(ret);
+                $.each(jsonData.data, function () {
+                    $(".data-table").append("<div class=\"record-small-box\"><div class=\"pull-left\"><div class=\"text-14\">"+this.CreateTime+"</div></div>"
+                        +"<div class=\"pull-right text-14 record-small-right-box\">获得"+this.ResInt+"M流量</div><div class=\"clearfix\"></div></div>");
+                });
+                if (jsonData.total > 0) {
+                    pageCount = Math.ceil(jsonData.total / pageSize);
+                    $(".pagelist").append("<a href=\"javascript:void(0)\" class=\"page-next\" onclick='Previous()'>上一页</a>"
+                        +"<span>" + pageIndex + "</span>/<span>" + pageCount + "</span>"
+                        +"<a href=\"javascript:void(0)\" class=\"page-next\" onclick='Next()'>下一页</a>");
+                } 
+            }
+        });
+    }
+</script>
+
+<script>
+    /*
+    调用说明：加载时显示，$(document).ready里面，添加以下代码：
+    ShowShareTip(2);
+    $("#WxShareTip").modal();
+    */
+    $(document).ready(function () {
+        $(".Opacity").click(function () {
+            $("#WxShareTip").hide();
+            $(".modal-backdrop").hide();
+        });
+    });
+    //type,为1时提示分享，为2时提示在浏览器中打开
+    function ShowShareTip(type) {
+        $("#WxShareTipImg").attr("src", "/Content/WeiXin/ShareTip" + type + ".png");
+        $("#WxShareTip").show();
+        $(".modal-backdrop").show();
+    }
+</script>
+<style>
+    .modal-backdrop.in {
+        opacity: .8;
+        filter: alpha(opacity=80);
+    }
+
+    .WxShareTip img {
+        margin: 0 auto;
+    }
+
+    .WxShareTip .Opacity {
+        height: 100%;
+        width: 100%;
+        background-color: #ffffff; /*IE 系列*/
+        background-color: rgba(0,0,0,0.0); /*标准浏览器 只需这句*/
+        filter: alpha(opacity=0); /*IE 系列*/
+    }
+
+    .WxShareTip .BoxerInner {
+        position: relative;
+        top: 6px;
+        margin: 0 auto;
+        width: 90%;
+        color: #FFFFFF;
+        font-family: "微软雅黑";
+        font-size: 20px;
+    }
+
+    .WxShareTip .btn-tm {
+        position: fixed;
+        width: 80%;
+        left: 10%;
+        bottom: 4%;
+        background: none;
+        color: #FFFFFF;
+    }
+
+        .WxShareTip .btn-tm:hover {
+            background: none;
+            color: #FFFFFF;
+        }
+</style>
+
+<div class="modal fade WxShareTip" id="WxShareTip" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="Opacity" data-dismiss="modal">
+        <div class="BoxerInner"> <img id="WxShareTipImg" src="/Content/WeiXin/ShareTip1.png" class="img-responsive" alt=""></div>
+        <button type="button" class="btn btn-default btn btn-block btn-tm" data-dismiss="modal">我知道了</button>
+    </div>
+</div>
+            <script>
+            $(document).ready(function () {
+                $('#myModalLabel').show();
+                $('#iKonw').hide();
+            });
+            </script>
+    <div class="weui_dialog_confirm" id="myModalLabel" style="">
+        <div class="weui_mask"></div>
+        <div class="weui_dialog" style="top: 20%">
+            <div class="weui_dialog_bd" id="Modellabel" style="padding-top: 15px;">
+                亲，对不起，您未登录或未绑定，请关注“<a href="http://mp.weixin.qq.com/s?__biz=MzA4ODAzMDUzOQ==&amp;mid=201038845&amp;idx=4&amp;sn=f5f0b3aa71ea209d9591072cdb86a44e">七台河移动微信公众号</a>”并按提示绑定手机号码后，重新进入活动。
+            </div>
+
+            <div class="weui_dialog_ft">
+                <a href="javascript:;" class="weui_btn_dialog default" id="btnShare" style="display: none; width: 50%;" onclick="$('#myModalLabel').hide('hide');ShowShareTip(1);" data-toggle="modal" data-target="#WxShareTip">分享到朋友圈</a>
+                <a href="javascript:;" onclick="$('#myModalLabel').hide('hide')" class="weui_btn_dialog " id="iKonw" style="display: none;">我知道了</a>
+                
+            </div>
+        </div>`
+    </div>
+
+
+
+</body></html>

@@ -1,0 +1,157 @@
+<!DOCTYPE html><html><head>
+	<title>获取验证码</title>
+	<meta charset="utf-8">
+	<meta http-equiv="Pragma" content="no-cache">
+	<meta http-equiv="Cache-Control" content="no-cache">
+	<meta http-equiv="Expires" content="-1">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+	<meta content="yes" name="apple-mobile-web-app-capable">
+	<meta content="black" name="apple-mobile-web-app-status-bar-style">
+	<meta content="telephone=no" name="format-detection">
+	<meta content="email=no" name="format-detection">
+	<script type="text/javascript" src="js/jquery-1.11.1.min.js"></script>
+	<script type="text/javascript" src="js/jquery.form.js"></script>
+	<script type="text/javascript" src="js/layer/layer.js"></script><link rel="stylesheet" href="http://www.ydxxt.com/parent_new/qrcodeorder/js/layer/skin/layer.css" id="layui_layer_skinlayercss" style="">
+	<script type="text/javascript" src="js/uuid.js"></script>
+	<link rel="stylesheet" type="text/css" href="style/style.css" media="all">
+</head>
+<body>
+	<header class="main_top">
+		<div class="main_content">
+			<span class="goback"><img src="images/goback.png"></span>
+			<span class="content_text">获取验证码</span>
+		</div>
+	</header>
+	<div class="clearfix"></div>
+	<div class="business_title w100">
+		<div class="clearfix"></div>
+		<div class="business_title_middle w100 left">
+			<table width="98%">
+				<tbody><tr>
+					<td width="25%" class="top_td top_td1"><div class="business_ico left"><span class="left"><img src="images/business_ico.png"></span></div></td>
+					<td class="top_td top_td2"><div class="business_text left"><span class="left booking"></span></div></td>
+				</tr>
+			</tbody></table>			
+		</div>
+		<div class="clearfix"></div>
+		<div class="business_title_bottom w100"></div>
+	</div>
+	<div class="w100"></div>
+	<div class="business_form w100">
+		<form id="business_form" method="post">
+			<div class="business_item">
+				<div class="business_input">
+					<label class="account_label common_label"></label>
+					<input type="text" name="mobile" class="forminout mobile" placeholder="请输入手机号码">
+					<input type="button" class="send_code" value="获取验证码" onclick="sendcode(this)">
+				</div>
+			</div>
+			<div class="clearfix"></div>
+			<div class="business_item">
+				<div class="business_input">
+					<label class="msgcode_label common_label"></label>
+					<input type="text" name="sRand" class="forminout msgcode" placeholder="请输入验证码">
+				</div>
+			</div>
+			<div class="clearfix"></div>
+			<div class="business_submit w100">
+				<span><button type="button" class="business_next business_btn">下一步</button></span>
+				<div class="clearfix" style="height:40px;"></div>
+			</div>
+		</form>
+	</div>
+
+	<script type="text/javascript">
+		var obj = GetRequest();
+		var uuid = obj.uuid;
+		/*function GetRequest() {
+			var url = location.search; //获取url中"?"符后的字串
+			var theRequest = new Object();
+			if (url.indexOf("?") != -1) {
+				var str = url.substr(1);
+				strs = str.split("&");
+				for(var i = 0; i < strs.length; i ++) {
+					theRequest[strs[i].split("=")[0]]=(strs[i].split("=")[1]);
+				}
+			}
+			return theRequest;
+		}*/
+		$(function(){
+			$('.goback').click(function(){
+				window.history.go(-1)
+			});
+			$('.booking').html('订购业务：'+localStorage.getItem("booking_name"));
+			$('.business_btn').addClass('business_btn_unclick').attr("disabled", true);
+			$('.mobile,.msgcode').keyup(function(){
+				if($('.mobile').val()!='' && $('.msgcode').val()!=''){
+					$('.business_btn').removeClass('business_btn_unclick').removeAttr("disabled");
+				}else{
+					$('.business_btn').addClass('business_btn_unclick').attr("disabled", true);
+				}
+			});
+			$('.business_next').click(function(){
+				var mindex=layer.load(1);
+	    		$("#business_form").ajaxSubmit({
+					dataType:'json',
+					url:'/parentnew/qrcodeorder.do?action=checkIdentityValidate&uuid=' + uuid ,
+					beforeSubmit: function(){
+						if($('.mobile').val()=='' && $('.msgcode').val()==''){
+							layer.msg('请输入手机号码和验证码');
+							layer.close(mindex);
+							return false
+						}
+					},
+					success: function(data) {
+						if(data.message){
+							layer.msg(data.message);
+						}
+	                    layer.close(mindex);
+						if(data.success){
+							setTimeout("window.location.href='step2.html?uuid=" + uuid + "'", 1500);
+							//setTimeout("window.location.href='"+data2.url+"'", 1500);
+							// window.location.href=data2.url;
+						}
+					}
+				});
+			})
+		})
+		var countdown=60;
+		function sendcode(obj){
+			if($('.mobile').val()==''){
+				layer.msg('请输入手机号码!');
+				return false;
+			}
+			$.ajax({
+	            type: "GET",
+	            async: false,
+	            dataType: "json",
+	            url: "/parentnew/qrcodeorder.do?action=getIdentityValidate&uuid="+ uuid +"&phone="+$('.mobile').val(),
+	            success: function(data){
+	            	if(data.success){
+	            		settime(obj);
+	            	}else{
+	            		layer.msg(data.message);
+	            	}
+		        }
+		    });
+		}
+		function settime(obj) {
+    		if(countdown == 0){
+        		obj.removeAttribute("disabled");
+        		obj.value="获取验证码";
+        		countdown = 60;
+        		return;
+	    	}else{
+	    		obj.setAttribute("disabled", true);
+	    		if(countdown>30){
+	    			obj.value="验证码已发送";
+	    		}else{
+	    			obj.value= countdown +"s后重发送";
+	    		}
+	    		countdown--;
+	    	}
+	    	setTimeout(function() { settime(obj) },1000)
+	    }
+	</script>
+
+</body></html>

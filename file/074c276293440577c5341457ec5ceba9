@@ -1,0 +1,588 @@
+<!DOCTYPE html><html><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width， initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="format-detection" content="telephone=no">
+<meta http-equiv="Expires" content="-1">
+<meta http-equiv="Cache-Control" content="no-cache">
+<meta http-equiv="Pragma" content="no-cache">
+<title>流量超市</title>
+<!--
+<script type="text/javascript" src="/e/statics/link3/js/jquery.pack.js"></script>
+-->
+<link rel="stylesheet" href="/e/css/style.css">
+<link rel="stylesheet" href="/e/statics/admin/theme/default/css/global.css">
+<script type="text/javascript" src="/e/statics/js/jquery/jquery-1.7.2.min.js"></script>
+<script type="text/javascript" src="/e/statics/link3/js/swipe.js"></script>
+<script type="text/javascript" src="/e/statics/link3/js/new_iscroll.js"></script>
+<script type="text/javascript" src="/e/statics/link3/js/jquery.messager.js"></script>
+<script type="text/javascript" src="/e/statics/js/jQuery.md5.js"></script>
+<script type="text/javascript" src="/e/statics/link3/js/link.js"></script>
+<link rel="stylesheet" href="/e/statics/js/jquery-ui-1.11.0/jquery-ui.min.css">
+<script type="text/javascript" src="/e/statics/js/jquery-ui-1.11.0/jquery-ui.min.js"></script>
+<script type="text/javascript" src="/e/statics/js/webutil.js"></script>
+<script>
+var show_count = 15;
+	function loadmy(objValue,all,hot_text){
+		for(var i=0;i<=show_count;i++){
+			$(".hot_list"+i).hide();
+			$("#more"+i).hide();
+			$("#hide"+i).hide();
+		}
+		$(".hot_listlast").hide();
+		$("#morelast").hide();
+		$("#hidelast").hide();
+		
+		if(all==''){//不是点击“更多”、“收起”
+		    var len = $(".hot_list"+objValue).length; 
+		    if(len>show_count) len = show_count;
+			if(objValue=='0'){
+				for(var i=0;i<len;i++){
+				    $(".hot_list"+objValue)[i].style.display="block";
+				}
+			}
+			else{
+				for(var i=1;i<=show_count;i++){
+					$("#hot_list"+objValue+i).show();
+				}
+			}
+			if( $(".hot_list"+objValue).length > show_count){
+				$("#more"+objValue).show();
+			}
+			
+		}else{
+		    if(all=='more'){//点击“更多”
+		    	$(".hot_list"+objValue).show();
+				$("#more"+objValue).hide();
+				$("#hide"+objValue).show();
+		    }else if(all=='hide'){//点击“收起”
+		    	$("#hide"+objValue).hide();
+		    	$(".hot_list"+objValue).hide();
+		    	var len = $(".hot_list"+objValue).length;
+		    	if(len>show_count) len = show_count; 
+				if(objValue=='0'){
+					for(var i=0;i<len;i++){
+					    $(".hot_list"+objValue)[i].style.display="block";
+					}
+				}else{
+			    	for(var i=1;i<=show_count;i++){
+						$("#hot_list"+objValue+i).show();
+					}
+				}
+				$("#more"+objValue).show();
+		    }
+			
+		}	
+		if(hot_text!=''){
+			$('#hot_text').html(hot_text);
+		}
+		
+	}
+	function init(){
+	    loadmy('0','','');
+	    linkToken();
+		var len = $(".imgList li").length;
+		if(len!=0){
+			$(".imgList").find("li").eq(0).find("a").find("img").show();
+			$(".infoList").find("li").removeClass("infoOn").eq(0).addClass("infoOn");
+			
+		}
+		var goodsLen = $('.hot_listlast').length;
+		for(var i=1;i<=goodsLen;i++){
+			$('#goodsDesc'+i).html($('#goodsDesc'+i).attr("attdVal"));
+		}
+	}
+	//获取用户流量信息
+function queryUserFlow(mobile) {
+	var url = "/e/tglj/queryUserFlow.do";
+	$.ajax( {
+			type : 'post',
+			url : url,
+			dataType : 'json',
+			data : {mobile:mobile},
+			success : function(data) {
+				if (data!=null&&data.userNetType!=null){
+					if(data.userNetType=='1') {
+						alert("尊敬的"+mobile+"用户，您主套餐已用流量"+data.gprsUsed+"M，剩余流量"+data.gprsLeavings+"M。");
+					} else {	
+						if(data.moneyFlag=='true') {
+							alert("尊敬的"+mobile+"用户，您本月的流量费消费金额已大于20元。");
+						}				
+					}
+				}
+			}
+	});
+}
+
+$(function(){
+	getLocation();
+	Axon_key=$("#user_Axon_key").val();
+	returl=$("#user_returl").val();
+	spreadid=$("#spreadid").val();
+	mobile=$("#svcnum").val();
+	bk=$("#bk").val();
+	var hasMsisdn = $("#hasMsisdn").val();
+	console.info(spreadid);
+	if (mobile==""||mobile=="输入手机号码"){//号码未知才需要去取号
+		if (returl!="" && hasMsisdn=='false') {//已经知道要取得手机号需要访问的url了
+			urlv2='crossurl='+returl+Axon_key;
+			urlv3='/e/tglj/getcrossdata.do?'+urlv2;
+	    			$.ajax( {
+						type : 'post',
+						url : urlv3,
+						dataType : 'json',
+						//jsonp: "callback",
+						success : function(data) {
+							if (data!=null&&data.msisdn!=null&&data.msisdn.length>2){
+								var qhnum=data.msisdn.substring(2);
+								$("#svcnum").val(qhnum);//设置手机号，要去掉86
+								//$("#nocodemobile").val(qhnum);设置手机号，要去掉86
+								
+								var issuccessgetmobile = $("#issuccessgetmobile").val();
+								if(issuccessgetmobile!='0') {
+									$("#issuccessgetmobile").val(1);
+									//$("#userqhhm").show();切换号码按钮可见
+									queryUserFlow(qhnum);
+								}
+							}
+						}
+					});
+		}else if (bk!="1") {//没有重定向过则需要重定向，否则不要去重定向，免得取不到号一直跳
+			Axon_key=newGuid();
+			times=Math.round(new Date().getTime()/1000);
+			md5key='wotglm'+times+'njaction';
+			resp=$.md5(md5key);
+			sip=$("#sourceip").val();
+			//1.全网nqs查询接口-查询当前用户归属
+			paramvalue='Axon_key='+Axon_key+'&spID=wotglm&timestamp='+times+'&response='+resp+'&sourceIP='+sip;
+			requesturl='http://mob.kk3g.net/GetHome?'+paramvalue;//要访问的url，因为跨域无法取数据，所以改用httpclient来获取数据
+			//console.info("requesturl:"+requesturl);//后台httpclient访问该url,返回对方的string
+			paramvalue+= '&seq_linkid='+$('#seq_linkid').val();
+			selfurl='/e/tglj/getcrossdata.do?crossurl=http://mob.kk3g.net/GetHome&'+paramvalue;//传给后台让后台去访问对方的url，访问json结果
+					$.ajax( {
+						type : 'post',
+						url : selfurl,
+						dataType : 'json',
+						//jsonp: "callback",
+						success : function(data) {
+							if (data!=null&&data.retCode==0&&data.url!="") {//可以解析url
+								var pre_linkid = $("#seq_linkid").val();
+								reqparam='spreadid='+spreadid+'&bk=1&pre_linkid='+pre_linkid;
+								base64req=base64encode(reqparam);
+								backurl=base64encode('/e/tglj/link.do?'+base64req);
+								//2.sp会话标识接口-sp本身的重定向接口 backurl 系统回调地址，returl 用户所在省的会话标识接口地址
+								location='/e/tglj/GetMsisdn.do?Axon_key='+Axon_key+'&backurl='+backurl+'&returl='+data.url;
+							}
+							//console.info(data);
+							//alert(data.retCode);//0
+							//alert(data.url);//http://220.249.191.188:1180/Axon_key/
+						}
+					});
+		}
+	}
+});
+	var layer;
+    var dialog;
+	function pcdlxxx(id){
+        layer = "lay_" + id;
+        dialog = $("#" + layer).dialog({
+            autoOpen:false,
+            height:120,
+            width:200,
+            modal: true,
+            draggable: false,
+            resizable: false,
+            position: {
+                my: "center",
+                //at: "right+150px top+75px ",
+                of: $(this)
+            },
+            buttons: {}
+        });
+        $("#" + layer).dialog("open");
+    }
+    function openWx(url, id, os){
+    	var seq_linkid = $("#seq_linkid").val();
+        dlapp(id, os);
+        javascript:window.open(url);
+    }
+    $(document).ready(function(){
+        $(".clickApp").click(function(){
+            var appId = $(this).attr("id");
+            var os = $(this).attr("os"); // 1=ios, 2=android
+
+            dlapp(appId, os);
+        });
+    });
+    function dlapp(appId, os){
+    	var seq_linkid = $("#seq_linkid").val();
+    	 var partnerid = $("#partnerid").val();
+    	 var geolocation = $("#geolocation").val();
+    	 var spreadid = $("#spreadid").val();
+    	 var sourceip = $("#sourceip").val();
+    	 
+        jQuery.ajax({
+            url : "/e/app/dl.do",
+            data : {
+                appId : appId,
+                appOs : os,
+                seq_linkid : seq_linkid,
+                partnerid : partnerid,
+                geolocation : geolocation,
+                spreadid : spreadid,
+                sourceip : sourceip
+            },
+            type : 'POST',
+            success : function(data) {
+            }
+        });
+    }
+function linkToken() {
+	var url = "/e/nsl/linkToken.do";
+	$.ajax( {
+		type : 'post',
+		url : url,
+		dataType : 'text',
+		data : '',
+		success : function(data) {
+			if (data!=null){
+				var dataval=data.split("@@");
+				//$("#token").val(dataval[0]);
+				$("#seq_linkid").val(dataval[1]);
+				$("#sourceip").val(dataval[2]);
+				
+			}
+		}
+	});
+	}
+	//获取用户的地理位置
+    function getLocation() {
+    	if (window.navigator.geolocation) {
+    		//enableHighAcuracy指示浏览器获取高精度的位置，默认为false
+    		//timeout指定获取地理位置的超时时间，默认不限时，单位为毫秒
+    		//maximumAge最长有效期，在重复获取地理位置时，此参数指定多久再次获取位置
+    		var options = {enableHighAccuracy: true, timeout: 5000, maximumAge: 300000};
+    		window.navigator.geolocation.getCurrentPosition(handleSuccess, handleError, options);
+    	} else {
+    		//alert("浏览器不支持html5来获取地理位置信息");
+    	}
+    }
+    function handleSuccess(position) {
+    	var lng = position.coords.longitude;
+        var lat = position.coords.latitude;
+        //alert("纬度："+lat+";经度"+lng);
+    	$("#geolocation").val(lat+","+lng);
+    }
+    function ckdg(proMainId){
+        
+        var subproids = $("#subproids"+proMainId).val();
+        $("#subproids").val(subproids);
+        var errMsg = $("#errMsg"+proMainId).val();
+        $("#errMsg").val(errMsg);
+        var valid = $("#valid"+proMainId).val();
+        $("#valid").val(valid);
+        var attdCode = $("#attdCode"+proMainId).val();
+        $("#attdCode").val(attdCode);
+        var proname = $("#proname"+proMainId).val();
+        $("#proname").val(proname);
+        $("#proid").val(proMainId);
+        var proDesc = $("#proDesc"+proMainId).attr("attdVal");
+        $("#proDesc").val(proDesc);
+        var proImg = $("#proImg"+proMainId).val();
+        $("#proImg").val(proImg);
+        var salePrice = $("#salePrice"+proMainId).val();
+        $("#salePrice").val(salePrice);
+        var spreadnote = $("#spreadnote").attr("attdVal");
+        $("#spreadnote").val(spreadnote);
+        var productgnote = $("#productgnote").attr("attdVal");
+        $("#productgnote").val(productgnote);
+        $('#proForm').submit();
+        
+        
+    }
+    function toLogin(){
+    	location="/e/nsl/toLogin.do";
+    }
+</script>
+</head>
+<body onload="init()">
+<!--头部-->
+<div class="top">
+<div class="top_con">流量超市
+<a onclick="toLogin();"><div class="top_right"><img src="/e/images/user.png" width="100%" alt=""></div></a>
+</div>
+</div>
+<!--右侧固定-->
+<div class="right_fixed">
+<a class="right_fixed_top" href=""><img src="/e/images/top.png" width="100%" alt=""></a>
+</div>
+<!--banner-->
+<div class="banner">
+	<ul class="imgList"><!-- 图片部分 -->
+            </ul> 
+    <!--<img src="/e/img/prev.jpg" width="20px" height="40px" id="prev" style="display:none">
+    <img src="/e/img/next.jpg" width="20px" height="40px" id="next" style="display:none">-->
+    <div class="bg"></div> <!-- 图片底部背景层部分-->
+    <ul class="infoList"><!-- 图片左下角文字信息部分 -->
+          </ul>
+    <!-- 图片右下角序号部分 -->
+    <ul class="indexList">
+           </ul>
+</div>
+<!--内容-->
+<div class="menu">
+	<ul class="menuList">
+	    <li class="menu_li">
+	    	<a onclick="loadmy('0','','销售排行榜');"><img src="/e/images/icon6.png" width="100%"><br><p>销售排行榜</p></a>
+	    </li>
+				    		    	        			<li class="menu_li">
+            			<a onclick="loadmy('1','','火爆热销品');"><img src="/e/images/icon6.png" width="100%"><br><p>火爆热销品</p></a>
+	        		</li>
+	            	        	    		    		    		        	    		    		    		        	    		    		    		        	    		    		    		        	    	    	</ul>
+<div class="clear"></div>
+</div>
+<div class="grey_bg"></div>
+<!--火爆热销-->
+<div class="hot">
+<div class="hot_title"><i><img src="/e/images/hot.png" width="100%" alt=""></i><span id="hot_text">销售排行榜</span></div>
+<div class="hot_list_con" id="top_pro">
+	                                  	 		                  	 			         <div class="hot_list0" id="hot_list02" style="display: block; ">
+				        <div class="hot_list_img">
+				        	<img src="/e//file/main/dde5c71355294b30a207a16ab8bba400.jpg">
+				        </div>
+				        <div class="hot_list_right"><p>2元200M流量天包</p><h2>2<i>元</i></h2>
+				        	<a class="hot_list_btn" onclick="ckdg('347')">订购</a>
+				        </div>
+				     </div>
+				     <div class="clear"></div>
+				     <div>
+				    	<input type="hidden" id="subproids347" value="297,308">
+				        <input type="hidden" id="errMsg347" value="您不符合本产品订购条件，详询10010！">
+				        <input type="hidden" id="valid347" value="1">
+				        <input type="hidden" id="attdCode347" value="">
+				        <input type="hidden" id="proname347" value="2元200M流量天包">
+				        <input type="hidden" id="proDesc347" attdval="&lt;p&gt;&lt;span style=&quot;FONT-SIZE: 14px; FONT-FAMILY: 宋体&quot;&gt;&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-family: 微软雅黑, 'Microsoft YaHei';&quot;&gt;(1)2元200M省内流量包，含200M福建省内流量，订购当日有效，次日失效，不自动续订，剩余流量不可结转至次日，同档产品当日不可重复订购。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-family: 微软雅黑, 'Microsoft YaHei';&quot;&gt;(2)2G、3G、4G套餐用户均可参与，是否成功订购以短信通知为准。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;FONT-SIZE: 14px; FONT-FAMILY: 宋体&quot;&gt;&lt;/span&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;FONT-SIZE: 14px; FONT-FAMILY: 宋体&quot;&gt;&lt;br/&gt;&lt;/span&gt;&lt;br/&gt;&lt;/p&gt;">
+				        <input type="hidden" id="proImg347" value="/file/main/dde5c71355294b30a207a16ab8bba400.jpg">
+				        <input type="hidden" id="salePrice347" value="2">
+				    </div>
+				  		                  	 		     		                          	 			         <div class="hot_list0" id="hot_list01" style="display: block; ">
+				        <div class="hot_list_img">
+				        	<img src="/e//file/main/8cdf16d97bef46088cf0543434393ad7.jpg">
+				        </div>
+				        <div class="hot_list_right"><p>5元1G流量天包</p><h2>5<i>元</i></h2>
+				        	<a class="hot_list_btn" onclick="ckdg('346')">订购</a>
+				        </div>
+				     </div>
+				     <div class="clear"></div>
+				     <div>
+				    	<input type="hidden" id="subproids346" value="298,305">
+				        <input type="hidden" id="errMsg346" value="您不符合本产品订购条件，详询10010！">
+				        <input type="hidden" id="valid346" value="1">
+				        <input type="hidden" id="attdCode346" value="">
+				        <input type="hidden" id="proname346" value="5元1G流量天包">
+				        <input type="hidden" id="proDesc346" attdval="&lt;p style=&quot;line-height: normal;&quot;&gt;&lt;span style=&quot;font-family: 微软雅黑, 'Microsoft YaHei';&quot;&gt;(1)5元1GB省内流量包，含1GB福建省内流量，订购当日有效，次日失效，不自动续订，剩余流量不可结转至次日，同档产品当日不可重复订购。&lt;/span&gt;&lt;/p&gt;&lt;p style=&quot;white-space: normal;&quot;&gt;&lt;span style=&quot;font-family: 微软雅黑, 'Microsoft YaHei';&quot;&gt;(2)2G、3G、4G套餐用户均可参与，是否成功订购以短信通知为准。&lt;/span&gt;&lt;/p&gt;&lt;p style=&quot;line-height: normal;&quot;&gt;&lt;span style=&quot;font-family: 微软雅黑,Microsoft YaHei;&quot;&gt;&lt;/span&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;FONT-SIZE: 14px; FONT-FAMILY: 宋体&quot;&gt;&lt;br/&gt;&lt;/span&gt;&lt;br/&gt;&lt;/p&gt;">
+				        <input type="hidden" id="proImg346" value="/file/main/8cdf16d97bef46088cf0543434393ad7.jpg">
+				        <input type="hidden" id="salePrice346" value="5">
+				    </div>
+				  		                  	 		                  	 		     		                          	 		                  	 		                  	 			         <div class="hot_list0" id="hot_list03" style="display: block; ">
+				        <div class="hot_list_img">
+				        	<img src="/e//file/main/14f98b136a68468086340ec3e7482652.jpg">
+				        </div>
+				        <div class="hot_list_right"><p>10元3G流量天包</p><h2>10<i>元</i></h2>
+				        	<a class="hot_list_btn" onclick="ckdg('345')">订购</a>
+				        </div>
+				     </div>
+				     <div class="clear"></div>
+				     <div>
+				    	<input type="hidden" id="subproids345" value="299,309">
+				        <input type="hidden" id="errMsg345" value="您不符合本产品订购条件，详询10010！">
+				        <input type="hidden" id="valid345" value="1">
+				        <input type="hidden" id="attdCode345" value="">
+				        <input type="hidden" id="proname345" value="10元3G流量天包">
+				        <input type="hidden" id="proDesc345" attdval="&lt;p style=&quot;line-height: normal;&quot;&gt;&lt;span style=&quot;font-family: 微软雅黑,Microsoft YaHei;&quot;&gt;(1)10元3GB省内流量包，含3GB福建省内流量，订购当日有效，次日失效，不自动续订，剩余流量不可结转至次日&lt;/span&gt;&lt;span style=&quot;font-family: 微软雅黑, 'Microsoft YaHei';&quot;&gt;，同档产品当日不可重复订购。&lt;/span&gt;&lt;/p&gt;&lt;p style=&quot;white-space: normal;&quot;&gt;&lt;span style=&quot;font-family: 微软雅黑, 'Microsoft YaHei';&quot;&gt;(2)2G、3G、4G套餐用户均可参与，是否成功订购以短信通知为准。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-family: 微软雅黑, 'Microsoft YaHei';&quot;&gt;&lt;br/&gt;&lt;/span&gt;&lt;/p&gt;&lt;p style=&quot;line-height: normal;&quot;&gt;&lt;span style=&quot;font-family: 微软雅黑,Microsoft YaHei;&quot;&gt;&lt;/span&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 14px;font-family: 宋体&quot;&gt;&lt;br/&gt;&lt;/span&gt;&lt;br/&gt;&lt;/p&gt;">
+				        <input type="hidden" id="proImg345" value="/file/main/14f98b136a68468086340ec3e7482652.jpg">
+				        <input type="hidden" id="salePrice345" value="10">
+				    </div>
+				  		     				<a id="more0" onclick="loadmy('0','more','')" style="display: none; "><div class="hot_list_more">点击加载更多↓</div></a>
+	<a id="hide0" onclick="loadmy('0','hide','')" style="display: none; "><div class="hot_list_more">收起↑</div></a>
+</div>
+<div class="hot_list_con" id="cls_pro">
+	                 <div class="hot_list1" id="hot_list11" style="display: none; ">
+	        <div class="hot_list_img">
+	        	<img src="/e//file/main/dde5c71355294b30a207a16ab8bba400.jpg">
+	        </div>
+	        <div class="hot_list_right"><p>2元200M流量天包</p><h2>2<i>元</i></h2>
+	        	<a class="hot_list_btn" onclick="ckdg('347')">订购</a>
+	        </div>
+			<div class="clear"></div>
+	    </div>
+	    <div>
+	    	<input type="hidden" id="subproids347" value="297,308">
+	        <input type="hidden" id="errMsg347" value="您不符合本产品订购条件，详询10010！">
+	        <input type="hidden" id="valid347" value="1">
+	        <input type="hidden" id="attdCode347" value="">
+	        <input type="hidden" id="proname347" value="2元200M流量天包">
+	        <input type="hidden" id="proDesc347" attdval="&lt;p&gt;&lt;span style=&quot;FONT-SIZE: 14px; FONT-FAMILY: 宋体&quot;&gt;&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-family: 微软雅黑, 'Microsoft YaHei';&quot;&gt;(1)2元200M省内流量包，含200M福建省内流量，订购当日有效，次日失效，不自动续订，剩余流量不可结转至次日，同档产品当日不可重复订购。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-family: 微软雅黑, 'Microsoft YaHei';&quot;&gt;(2)2G、3G、4G套餐用户均可参与，是否成功订购以短信通知为准。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;FONT-SIZE: 14px; FONT-FAMILY: 宋体&quot;&gt;&lt;/span&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;FONT-SIZE: 14px; FONT-FAMILY: 宋体&quot;&gt;&lt;br/&gt;&lt;/span&gt;&lt;br/&gt;&lt;/p&gt;">
+	        <input type="hidden" id="proImg347" value="/file/main/dde5c71355294b30a207a16ab8bba400.jpg">
+	        <input type="hidden" id="salePrice347" value="2">
+	    </div>
+	             <div class="hot_list1" id="hot_list12" style="display: none; ">
+	        <div class="hot_list_img">
+	        	<img src="/e//file/main/8cdf16d97bef46088cf0543434393ad7.jpg">
+	        </div>
+	        <div class="hot_list_right"><p>5元1G流量天包</p><h2>5<i>元</i></h2>
+	        	<a class="hot_list_btn" onclick="ckdg('346')">订购</a>
+	        </div>
+			<div class="clear"></div>
+	    </div>
+	    <div>
+	    	<input type="hidden" id="subproids346" value="298,305">
+	        <input type="hidden" id="errMsg346" value="您不符合本产品订购条件，详询10010！">
+	        <input type="hidden" id="valid346" value="1">
+	        <input type="hidden" id="attdCode346" value="">
+	        <input type="hidden" id="proname346" value="5元1G流量天包">
+	        <input type="hidden" id="proDesc346" attdval="&lt;p style=&quot;line-height: normal;&quot;&gt;&lt;span style=&quot;font-family: 微软雅黑, 'Microsoft YaHei';&quot;&gt;(1)5元1GB省内流量包，含1GB福建省内流量，订购当日有效，次日失效，不自动续订，剩余流量不可结转至次日，同档产品当日不可重复订购。&lt;/span&gt;&lt;/p&gt;&lt;p style=&quot;white-space: normal;&quot;&gt;&lt;span style=&quot;font-family: 微软雅黑, 'Microsoft YaHei';&quot;&gt;(2)2G、3G、4G套餐用户均可参与，是否成功订购以短信通知为准。&lt;/span&gt;&lt;/p&gt;&lt;p style=&quot;line-height: normal;&quot;&gt;&lt;span style=&quot;font-family: 微软雅黑,Microsoft YaHei;&quot;&gt;&lt;/span&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;FONT-SIZE: 14px; FONT-FAMILY: 宋体&quot;&gt;&lt;br/&gt;&lt;/span&gt;&lt;br/&gt;&lt;/p&gt;">
+	        <input type="hidden" id="proImg346" value="/file/main/8cdf16d97bef46088cf0543434393ad7.jpg">
+	        <input type="hidden" id="salePrice346" value="5">
+	    </div>
+	             <div class="hot_list1" id="hot_list13" style="display: none; ">
+	        <div class="hot_list_img">
+	        	<img src="/e//file/main/14f98b136a68468086340ec3e7482652.jpg">
+	        </div>
+	        <div class="hot_list_right"><p>10元3G流量天包</p><h2>10<i>元</i></h2>
+	        	<a class="hot_list_btn" onclick="ckdg('345')">订购</a>
+	        </div>
+			<div class="clear"></div>
+	    </div>
+	    <div>
+	    	<input type="hidden" id="subproids345" value="299,309">
+	        <input type="hidden" id="errMsg345" value="您不符合本产品订购条件，详询10010！">
+	        <input type="hidden" id="valid345" value="1">
+	        <input type="hidden" id="attdCode345" value="">
+	        <input type="hidden" id="proname345" value="10元3G流量天包">
+	        <input type="hidden" id="proDesc345" attdval="&lt;p style=&quot;line-height: normal;&quot;&gt;&lt;span style=&quot;font-family: 微软雅黑,Microsoft YaHei;&quot;&gt;(1)10元3GB省内流量包，含3GB福建省内流量，订购当日有效，次日失效，不自动续订，剩余流量不可结转至次日&lt;/span&gt;&lt;span style=&quot;font-family: 微软雅黑, 'Microsoft YaHei';&quot;&gt;，同档产品当日不可重复订购。&lt;/span&gt;&lt;/p&gt;&lt;p style=&quot;white-space: normal;&quot;&gt;&lt;span style=&quot;font-family: 微软雅黑, 'Microsoft YaHei';&quot;&gt;(2)2G、3G、4G套餐用户均可参与，是否成功订购以短信通知为准。&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-family: 微软雅黑, 'Microsoft YaHei';&quot;&gt;&lt;br/&gt;&lt;/span&gt;&lt;/p&gt;&lt;p style=&quot;line-height: normal;&quot;&gt;&lt;span style=&quot;font-family: 微软雅黑,Microsoft YaHei;&quot;&gt;&lt;/span&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 14px;font-family: 宋体&quot;&gt;&lt;br/&gt;&lt;/span&gt;&lt;br/&gt;&lt;/p&gt;">
+	        <input type="hidden" id="proImg345" value="/file/main/14f98b136a68468086340ec3e7482652.jpg">
+	        <input type="hidden" id="salePrice345" value="10">
+	    </div>
+	    	    <a id="more1" onclick="loadmy('1','more','')" style="display: none; "><div class="hot_list_more">点击加载更多↓</div></a>
+	    <a id="hide1" onclick="loadmy('1','hide','')" style="display: none; "><div class="hot_list_more">收起↑</div></a>
+	
+	</div>
+</div>
+<div>
+<form id="proForm" method="post" action="/e/tglj/toOrder.do">
+	<input type="hidden" name="partnerid" id="partnerid" value="P100000974">
+	<input type="hidden" name="spreadid" id="spreadid" value="9568">
+	<input type="hidden" name="seq_linkid" id="seq_linkid" value="623913">
+	<input type="hidden" name="source_ip" id="source_ip" value="">
+	<input type="hidden" name="geolocation" id="geolocation" value="">
+	<input type="hidden" name="subproids" id="subproids" value="">
+	<input type="hidden" name="proid" id="proid" value="">
+	<input type="hidden" name="errMsg" id="errMsg" value="">
+	<input type="hidden" name="valid" id="valid" value="">
+	<input type="hidden" name="attdCode" id="attdCode" value="">
+	<input type="hidden" name="proname" id="proname" value="">
+	<input type="hidden" name="dgpageversion" id="dgpageversion" value="2016-11-8">
+	<input type="hidden" name="proDesc" id="proDesc" value="">
+	<input type="hidden" name="channelId" id="channelId" value="5032">
+	<input type="hidden" name="proMainId" id="proMainId" value="300">
+	<input type="hidden" name="proImg" id="proImg" value="">
+	<input type="hidden" name="salePrice" id="salePrice" value="">
+	<input type="hidden" name="spreadnote" id="spreadnote" attdval="">
+	<input type="hidden" name="productgnote" id="productgnote" attdval="">
+	<input type="hidden" name="bk" id="bk" value="">
+	<input type="hidden" name="svcnum" id="svcnum" value="">
+	<input type="hidden" name="hasMsisdn" id="hasMsisdn" value="false">
+	<input type="hidden" name="issuccessgetmobile" id="issuccessgetmobile" value="0">
+	<input type="hidden" name="returl" id="user_returl" value="">
+	<input type="hidden" name="Axon_key" id="user_Axon_key" value="">
+	  
+	
+</form>			    	
+</div>
+<script>
+var curIndex = 0; //当前index
+	var imgLen = $(".imgList li").length; //图片总数      // 定时器自动变换2.5秒每次 
+    var autoChange = setInterval(function(){
+	if(curIndex < imgLen-1){
+		curIndex ++;
+	}else{
+		curIndex = 0; 
+	} 
+	//调用变换处理函数
+	changeTo(curIndex);
+    },2500); 
+    //左箭头滑入滑出事件处理
+	$("#prev").hover(function(){
+	//滑入清除定时器
+		clearInterval(autoChange); 
+	},function(){
+		//滑出则重置定时器
+		autoChangeAgain();
+	});
+	//左箭头点击处理
+	$("#prev").click(function(){ 
+	//根据curIndex进行上一个图片处理
+		curIndex = (curIndex > 0) ? (--curIndex) : (imgLen - 1);
+		changeTo(curIndex);
+	}); 
+	//右箭头滑入滑出事件处理
+	$("#next").hover(function(){
+	//滑入清除定时器
+	clearInterval(autoChange);
+	},function(){
+	//滑出则重置定时器
+		autoChangeAgain(); 
+	}); 
+	//右箭头点击处理
+	$("#next").click(function(){
+	curIndex = (curIndex < imgLen - 1) ? (++curIndex) : 0;
+	changeTo(curIndex);
+	});
+    //清除定时器时候的重置定时器--封装
+	function autoChangeAgain(){
+		autoChange = setInterval(function(){
+		if(curIndex < imgLen-1){
+			curIndex ++;
+		}else{ 
+			curIndex = 0; 
+		}
+		//调用变换处理函数
+		changeTo(curIndex);
+	    },2500);
+	} 
+    function changeTo(num){
+	    /*var goLeft = 0;
+	    if(num==0){
+    		goLeft = 0;
+    	}else{
+    	    for(var i=0;i<=num-1;i++){
+    	    	goLeft += $(".imgList").find("li").eq(i).find("a").find("img").width();
+    	    }
+	    }*/
+	    var len = $(".imgList li").length;
+		for(var i=0;i<len;i++){
+			$(".imgList").find("li").eq(i).find("a").find("img").hide();
+			//$(".imgList li")[i].hide();
+		}
+	    $(".imgList").find("li").eq(num).find("a").find("img").show();
+		//$(".imgList").animate({left: "-" + goLeft + "px"},500); 
+	    $(".infoList").find("li").removeClass("infoOn").eq(num).addClass("infoOn");
+        $(".indexList").find("li").removeClass("indexOn").eq(num).addClass("indexOn");
+	} 
+	$(".indexList").find("li").each(function(item){
+		$(this).hover(function(){
+		clearInterval(autoChange);
+		changeTo(item);
+		curIndex = item; 
+	  },function(){ 
+		autoChangeAgain();
+	  }); 
+	}); 
+	
+</script>
+
+  
+</body></html>

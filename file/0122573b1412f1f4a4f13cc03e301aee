@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="zh_CN" class="desktop-view not-mobile-device  anon">
+ <head> 
+  <meta charset="utf-8" /> 
+  <title>深度强化学习(MLSS2016) by John Schulman[UC Berkeley] - Deep Learning - 算法组</title> 
+  <meta name="description" content="深度强化学习：PPT
+
+Youtube视频（需翻墙）：视频1、视频2、视频3、视频4
+
+
+
+Setup
+
+Obtain a basic installation of OpenAI Gym as follows: 
+
+ pip install pyglet # dependency, for visualization
+git clone https://github.com/openai/gym
+cd gym
+pip install&amp;hellip;" /> 
+  <meta name="author" content="" /> 
+  <meta name="generator" content="Discourse 1.6.0.beta1 - https://github.com/discourse/discourse version cc25716e475e6eed70532c8526d9e612899d61d8" /> 
+  <link rel="icon" type="image/png" href="http://s1.suanfazu.com/favicon.ico" /> 
+  <link rel="apple-touch-icon" type="image/png" href="/images/default-apple-touch-icon.png" /> 
+  <meta name="theme-color" content="#ffffff" /> 
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, user-scalable=yes" /> 
+  <link rel="canonical" href="http://suanfazu.com/t/mlss2016-by-john-schulman-uc-berkeley/13451" /> 
+  <style>
+  @font-face {
+    font-family: 'FontAwesome';
+    src: url('//cdn.suanfazu.com/assets/fontawesome-webfont-e2f6015310d7f63fa1537ab9822f1446.eot?http://suanfazu.com&amp;2&v=4.5.0');
+    src: url('//cdn.suanfazu.com/assets/fontawesome-webfont-e2f6015310d7f63fa1537ab9822f1446.eot?http://suanfazu.com&amp;2&v=4.5.0#iefix') format('embedded-opentype'),
+         url('//cdn.suanfazu.com/assets/fontawesome-webfont-6d0ddb44b6016bd7adf993e5b9d47ae6.woff2?http://suanfazu.com&amp;2&v=4.5.0') format('woff2'),
+         url('//cdn.suanfazu.com/assets/fontawesome-webfont-90e687312466f7a4993c85399c116f2f.woff?http://suanfazu.com&amp;2&v=4.5.0') format('woff'),
+         url('//cdn.suanfazu.com/assets/fontawesome-webfont-f436f853ea7573a6b623eea9bc9d66ec.ttf?http://suanfazu.com&amp;2&v=4.5.0') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+  }
+</style> 
+  <link href="//cdn.suanfazu.com/stylesheets/desktop_3cd538a579f35992edf155ad9b22c8867cb58252.css?__ws=suanfazu.com" media="all" rel="stylesheet" /> 
+  <link class="custom-css" rel="stylesheet" href="//cdn.suanfazu.com/site_customizations/7e202ef2-56d7-47d5-98d8-a9c8d15e57dd.css?target=desktop&amp;v=f1b43fef7075ecbadc1dae23dd159bfb&amp;__ws=suanfazu.com" type="text/css" media="all" /> 
+  <meta name="fragment" content="!" /> 
+  <script>
+      window.EmberENV = window.EmberENV || {};
+      window.EmberENV['FORCE_JQUERY'] = true;
+    </script> 
+  <script src="//cdn.suanfazu.com/assets/preload_store-d16a3675434b5a0043157cfc2b850471.js"></script> 
+  <script src="//cdn.suanfazu.com/assets/locales/zh_CN-d60d5bfbfe48e142f16fb1ed5d4cdc7e.js"></script> 
+  <script src="//cdn.suanfazu.com/assets/ember_jquery-37c15254b70c40ceb7888cb7248c79d6.js"></script> 
+  <script src="//cdn.suanfazu.com/assets/vendor-17831e059f10b3b31503434a43f32398.js"></script> 
+  <script src="//cdn.suanfazu.com/assets/application-8bf39ee2538a975d4339495316dc34a1.js"></script> 
+  <style>.cooked {line-height:1.6em;font-size:1.1em;} .adsense_topic_bottom{text-align:left}
+.d-header .title{margin-top:10px;}
+@media screen and (max-width : 650px) {
+.nav-pills>li {margin-right:0px}
+.nav-pills>li>a{padding:5px 6px }
+}
+@media screen and (max-width : 400px) {
+.nav-pills>li {margin-right:0px}
+.nav-pills>li>a{padding:5px 5px }
+.ol.category-breadcrumb{margin-right:2px;}
+}
+</style> 
+  <link rel="manifest" href="/manifest.json" /> 
+  <link rel="alternate" type="application/rss+xml" title="'深度强化学习(MLSS2016) by John Schulman[UC Berkeley]' 的 RSS 内容聚合" href="http://suanfazu.com/t/mlss2016-by-john-schulman-uc-berkeley/13451.rss" /> 
+  <meta property="og:site_name" content="算法组" /> 
+  <meta name="twitter:card" content="summary" /> 
+  <meta property="og:url" content="http://suanfazu.com/t/mlss2016-by-john-schulman-uc-berkeley/13451/2" /> 
+  <meta name="twitter:url" content="http://suanfazu.com/t/mlss2016-by-john-schulman-uc-berkeley/13451/2" /> 
+  <meta property="og:title" content="深度强化学习(MLSS2016) by John Schulman[UC Berkeley]" /> 
+  <meta name="twitter:title" content="深度强化学习(MLSS2016) by John Schulman[UC Berkeley]" /> 
+  <meta property="og:description" content="1. Policy Gradient Implementation  Starter code is provided below. We have provided a full, working implementation, which works on MDPs with discrete action spaces.   Each iteration, it collects a batch of trajectories. It computes the advantage at every timestep, and concatenates together the observations, actions, and advantages from all timesteps. Then it symbolically constructs the following objective:   \begin{equation*} \sum_{n} \log \pi(a_t | s_t, \theta) \hat{A}_t \end{equation*}   and t..." /> 
+  <meta name="twitter:description" content="1. Policy Gradient Implementation  Starter code is provided below. We have provided a full, working implementation, which works on MDPs with discrete action spaces.   Each iteration, it collects a batch of trajectories. It computes the advantage at every timestep, and concatenates together the observations, actions, and advantages from all timesteps. Then it symbolically constructs the following objective:   \begin{equation*} \sum_{n} \log \pi(a_t | s_t, \theta) \hat{A}_t \end{equation*}   and t..." /> 
+ </head> 
+ <body> 
+  <noscript data-path="/t/mlss2016-by-john-schulman-uc-berkeley/13451/2"> 
+   <header class="d-header"> 
+    <div class="wrap"> 
+     <div class="contents"> 
+      <div class="row"> 
+       <div class="title span13"> 
+        <a href="/"> <h2 id="site-text-logo">算法组</h2> </a> 
+       </div> 
+       <div class="panel clearfix"> 
+        <a href="/login" class="btn btn-primary btn-small login-button"><i class="fa fa-user"></i> 登录</a> 
+       </div> 
+      </div> 
+     </div> 
+    </div> 
+   </header> 
+   <div id="main-outlet" class="wrap"> 
+    <!-- preload-content: --> 
+    <h1> <a href="/t/mlss2016-by-john-schulman-uc-berkeley/13451">深度强化学习(MLSS2016) by John Schulman[UC Berkeley]</a> </h1> 
+    <div id="breadcrumbs"> 
+     <div id="breadcrumb-0" itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb" itemref="breadcrumb-1"> 
+      <a href="/c/ji-qi-xue-xi" itemprop="url"> <span itemprop="title">机器学习</span> </a> 
+     </div> 
+     <div id="breadcrumb-1" itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb" itemref="breadcrumb-2"> 
+      <a href="/c/ji-qi-xue-xi/deep-learning" itemprop="url"> <span itemprop="title">Deep Learning</span> </a> 
+     </div> 
+     <div id="breadcrumb-2" itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb" itemref="breadcrumb-3"> 
+      <a href="http://suanfazu.com/tags/强化学习" itemprop="url"> <span itemprop="title">强化学习</span> </a> 
+     </div> 
+     <div id="breadcrumb-3" itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb" itemref="breadcrumb-4"> 
+      <a href="http://suanfazu.com/tags/深度强化学习" itemprop="url"> <span itemprop="title">深度强化学习</span> </a> 
+     </div> 
+     <div id="breadcrumb-4" itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb"> 
+      <a href="http://suanfazu.com/tags/openai-gym" itemprop="url"> <span itemprop="title">openai-gym</span> </a> 
+     </div> 
+    </div> 
+    <div class="tags">
+      标签: 强化学习 深度强化学习 openai-gym 
+    </div> 
+    <hr /> 
+    <div itemscope="" itemtype="http://schema.org/Article"> 
+     <div class="creator"> 
+      <span> <a href="/users/comix"><b itemprop="author">comix</b></a> <time datetime="2016-05-18T11:43:22Z" itemprop="datePublished"> 2016-05-18 11:43:22 UTC </time> </span> 
+      <span itemprop="position">#1</span> 
+     </div> 
+     <div class="post" itemprop="articleBody"> 
+      <ul> 
+       <li>深度强化学习：<a href="http://pan.baidu.com/s/1hrGeLPq" rel="nofollow">PPT</a> </li> 
+       <li>Youtube视频（需翻墙）：<a href="http://t.cn/RqDSQl4" rel="nofollow">视频1</a>、<a href="http://t.cn/RqDSQlU" rel="nofollow">视频2</a>、<a href="http://t.cn/RqDoTIR" rel="nofollow">视频3</a>、<a href="http://t.cn/RqDKy2j" rel="nofollow">视频4</a> </li> 
+      </ul> 
+      <h1>Setup</h1> 
+      <p>Obtain a basic installation of <a href="http://google.suanfazu.com/search/?q=OpenAI+Gym">OpenAI Gym</a> as follows:</p> 
+      <p></p>
+      <pre><code class="lang-bash">pip install pyglet # dependency, for visualization
+git clone https://github.com/openai/gym
+cd gym
+pip install -e . # do a local installation</code></pre> 
+      <h1>1. CEM Implementation</h1> 
+      <p>Implement the cross-entropy method. Starter code is provided below.</p> 
+      <p>Test it out on the classic_control Environments in OpenAI Gym: CartPole-v0, Pendulum-v0, Acrobot-v0, MountainCar-v0.</p> 
+      <p>CEM sometimes reduces the covariance too fast, causing premature convergence to a local optimum. A heuristic fix is to artificially increase it according to a schedule; see <a href="http://google.suanfazu.com/search/?q=Szita+and+Lorincz%2C+Learning+Tetris+with+the+Noisy+Cross-Entropy+Method">Szita and Lorincz, Learning Tetris with the Noisy Cross-Entropy Method</a> for details.</p> 
+      <h1>2. CEM Analysis</h1> 
+      <p>Let's introduce some notation to help with the analysis of CEM. The optimization problem solved by CEM can be written as follows:</p> 
+      <p>\begin{equation*}<br />\operatorname*{maximize}_{\theta} E_{\zeta}[f(\theta, \zeta)]<br />\end{equation*}</p> 
+      <p>Let \(\psi \in \mathbb{R}^d\) parameterize the distribution over \(\theta\) (e.g., via mean and variance of a Gaussian), so in each iteration of CEM, we collect \(N\) samples \(\theta_i \sim p_{\psi}(\cdot)\) and function values \(f_1, f_2, \dots, f_N\). Each iteration, we update \(\psi\) by solving the subproblem</p> 
+      <p>\begin{equation*}<br />\operatorname*{maximize_{\psi}} \sum_{i\in\mathrm{elite}} \log p_{\psi}(\theta_i).<br />\end{equation*}</p> 
+      <p>(1) Explain why CEM does not always reach a local maximum of \(E_{\zeta}[f(\theta, \zeta)]\), even in the limit of infinite samples (\(N \rightarrow \infty\)). (Hint: CEM seeks \(\theta\) where the \(\operatorname{Var}_{\zeta}[f(\theta, \zeta)]\) is high.)</p> 
+      <p>(2) Let's modify CEM so that each iteration, it solves a subproblem of the form</p> 
+      <p>\begin{equation*}<br />\operatorname*{maximize_{\psi}} \sum_{i=1}^N f_i \log p_{\psi}(\theta_i)<br />\end{equation*}</p> 
+      <p>I.e., samples \(\theta_i\) are weighted by the return \(f_i\). (CEM corresponds to weighting by 1 or 0, depending on whether the sample is in the elite set). Show that the resulting algorithm does reach a local maximum of the objective, in an appropriate limit as \(N \rightarrow \infty\).</p> 
+      <h1>3. Score Function Gradient Estimation</h1> 
+      <p>It's sometimes illuminating to see the functional form of the score function gradient estimators, for different distributions and parameters in those distributions.</p> 
+      <p>This exercise asks you to determine if the score function gradient estimator can be used for several parameterized probability distributions, and if it can, compute \(\nabla_{\theta} \log p(x | \theta)\).</p> 
+      <p>Here's some notation:</p> 
+      <ul> 
+       <li>\(\operatorname{Ber}(p; a, b)\) is the distribution that takes values \(a, b\) with probility \((p, 1-p)\), respectively.</li> 
+       <li>\(\operatorname{Poi}(\lambda)\) is the Poisson distribution with mean \(\lambda\)</li> 
+       <li>\(U(a,b)\) is the uniform distribution between \(a,b\)</li> 
+       <li>\(\operatorname{Exp}(\lambda)\) is the exponential distribution, \(p(x | \lambda) = \lambda e^{-\lambda x}\)</li> 
+      </ul> 
+      <p>Distributions:</p> 
+      <ol> 
+       <li>\(\operatorname{Ber}(\theta, a, b)\)</li> 
+       <li>\(\operatorname{Ber}(p, \theta, b)\)</li> 
+       <li>\(\operatorname{Poi}(\theta)\)</li> 
+       <li>\(N(\theta, \sigma^2)\)</li> 
+       <li>\(N(\mu, \theta^2)\)</li> 
+       <li>\(U(0, \theta)\)</li> 
+       <li>\(\operatorname{Exp}(\theta)\)</li> 
+      </ol> 
+      <h1>CEM Starter Code</h1> 
+      <p></p>
+      <pre><code class="lang-python">import numpy as np
+import gym
+from gym.spaces import Discrete, Box
+
+# ================================================================
+# Policies
+# ================================================================
+
+class DeterministicDiscreteActionLinearPolicy(object):
+
+    def __init__(self, theta, ob_space, ac_space):
+        &quot;&quot;&quot;
+        dim_ob: dimension of observations
+        n_actions: number of actions
+        theta: flat vector of parameters
+        &quot;&quot;&quot;
+        dim_ob = ob_space.shape[0]
+        n_actions = ac_space.n
+        assert len(theta) == (dim_ob + 1) * n_actions
+        self.W = theta[0 : dim_ob * n_actions].reshape(dim_ob, n_actions)
+        self.b = theta[dim_ob * n_actions : None].reshape(1, n_actions)
+
+    def act(self, ob):
+        &quot;&quot;&quot;
+        &quot;&quot;&quot;
+        y = ob.dot(self.W) + self.b
+        a = y.argmax()
+        return a
+
+class DeterministicContinuousActionLinearPolicy(object):
+
+    def __init__(self, theta, ob_space, ac_space):
+        &quot;&quot;&quot;
+        dim_ob: dimension of observations
+        dim_ac: dimension of action vector
+        theta: flat vector of parameters
+        &quot;&quot;&quot;
+        self.ac_space = ac_space
+        dim_ob = ob_space.shape[0]
+        dim_ac = ac_space.shape[0]
+        assert len(theta) == (dim_ob + 1) * dim_ac
+        self.W = theta[0 : dim_ob * dim_ac].reshape(dim_ob, dim_ac)
+        self.b = theta[dim_ob * dim_ac : None]
+
+    def act(self, ob):
+        a = np.clip(ob.dot(self.W) + self.b, self.ac_space.low, self.ac_space.high)
+        return a
+
+def do_episode(policy, env, num_steps, render=False):
+    total_rew = 0
+    ob = env.reset()
+    for t in range(num_steps):
+        a = policy.act(ob)
+        (ob, reward, done, _info) = env.step(a)
+        total_rew += reward
+        if render and t%3==0: env.render()
+        if done: break
+    return total_rew
+
+env = None
+def noisy_evaluation(theta):
+    policy = make_policy(theta)
+    rew = do_episode(policy, env, num_steps)
+    return rew
+
+def make_policy(theta):
+    if isinstance(env.action_space, Discrete):
+        return DeterministicDiscreteActionLinearPolicy(theta,
+            env.observation_space, env.action_space)
+    elif isinstance(env.action_space, Box):
+        return DeterministicContinuousActionLinearPolicy(theta,
+            env.observation_space, env.action_space)
+    else:
+        raise NotImplementedError
+
+# Task settings:
+env = gym.make('CartPole-v0') # Change as needed
+num_steps = 500 # maximum length of episode
+# Alg settings:
+n_iter = 100 # number of iterations of CEM
+batch_size = 25 # number of samples per batch
+elite_frac = 0.2 # fraction of samples used as elite set
+
+if isinstance(env.action_space, Discrete):
+    dim_theta = (env.observation_space.shape[0]+1) * env.action_space.n
+elif isinstance(env.action_space, Box):
+    dim_theta = (env.observation_space.shape[0]+1) * env.action_space.shape[0]
+else:
+    raise NotImplementedError
+
+# Initialize mean and standard deviation
+theta_mean = np.zeros(dim_theta)
+theta_std = np.ones(dim_theta)
+
+# Now, for the algorithm
+for iteration in xrange(n_iter):
+    # Sample parameter vectors
+    thetas = YOUR_CODE_HERE
+    rewards = [noisy_evaluation(theta) for theta in thetas]
+    # Get elite parameters
+    n_elite = int(batch_size * elite_frac)
+    elite_inds = np.argsort(rewards)[batch_size - n_elite:batch_size]
+    elite_thetas = [thetas[i] for i in elite_inds]
+    # Update theta_mean, theta_std
+    theta_mean = YOUR_CODE_HERE
+    theta_std = YOUR_CODE_HERE
+    print &quot;iteration %i. mean f: %8.3g. max f: %8.3g&quot;%(iteration, np.mean(rewards), np.max(rewards))
+    do_episode(make_policy(theta_mean), env, num_steps, render=True)</code></pre> 
+      <p>原文地址：<a href="http://rl-gym-doc.s3-website-us-west-2.amazonaws.com/mlss/index.html" rel="nofollow">MLSS2016</a></p> 
+     </div> 
+     <meta itemprop="interactionCount" content="UserLikes:0" /> 
+     <meta itemprop="interactionCount" content="UserComments:0" /> 
+     <hr /> 
+    </div> 
+    <div itemscope="" itemtype="http://schema.org/Article"> 
+     <div class="creator"> 
+      <span> <a href="/users/comix"><b itemprop="author">comix</b></a> <time datetime="2016-05-18T11:56:43Z" itemprop="datePublished"> 2016-05-18 11:56:43 UTC </time> </span> 
+      <span itemprop="position">#2</span> 
+     </div> 
+     <div class="post" itemprop="articleBody"> 
+      <h1>1. Policy Gradient Implementation</h1> 
+      <p>Starter code is provided below. We have provided a full, working implementation, which works on MDPs with discrete action spaces.</p> 
+      <p>Each iteration, it collects a batch of trajectories. It computes the advantage at every timestep, and concatenates together the observations, actions, and advantages from all timesteps. Then it symbolically constructs the following objective:</p> 
+      <p>\begin{equation*}<br />\sum_{n} \log \pi(a_t | s_t, \theta) \hat{A}_t<br />\end{equation*}</p> 
+      <p>and then differentiates it (using Theano) to get the policy gradient estimator.</p> 
+      <p>Here, the policy is parameterized as a neural network with one hidden layer, so the parameters \(\theta\) are the weights and biases of this neural network.</p> 
+      <p>This code uses a time-dependent baseline, which computes the average return at the \(t^{\text{th}}\) timestep from the batch of trajectories.</p> 
+      <p>\begin{equation*}<br />\hat{a}_t = r_t + \gamma r_{t+1} + \gamma^2 r_{t+2} + \dots - b_t<br />\end{equation*}</p> 
+      <p>You can try various things:</p> 
+      <ol> 
+       <li><p>Experiment with different parameter settings, to get faster or more reliable convergence (See <code>config</code> in <code>REINFORCEAgent</code> constructor).</p></li> 
+       <li><p>Try measuring the performance of the policy by using the most likely action, instead of the random action. You should see a big boost in performance.</p></li> 
+       <li> <p>See if you can get this code working on <code>Acrobot-v0</code>. It usually helps to make the episodes longer. To do that, modify the line where the agent is constructed:<br /></p> <p></p> <pre><code class="lang-auto">agent = REINFORCEAgent(env.observation_space, env.action_space,
+        episode_max_length=env.spec.timestep_limit)</code></pre> </li> 
+       <li><p>Generalize it to work with continuous action spaces, by outputting the mean and standard deviation of a Gaussian distribution</p></li> 
+      </ol> 
+      <h2>pg-startercode.py</h2> 
+      <p></p>
+      <pre><code class="lang-python">import numpy as np, os
+os.environ[&quot;THEANO_FLAGS&quot;]=&quot;device=cpu,floatX=float64&quot;
+import theano, theano.tensor as T
+import gym
+
+def discount(x, gamma):
+    &quot;&quot;&quot;
+    Given vector x, computes a vector y such that
+    y[i] = x[i] + gamma * x[i+1] + gamma^2 x[i+2] + ...
+    &quot;&quot;&quot;
+    out = np.zeros(len(x), 'float64')
+    out[-1] = x[-1]
+    for i in reversed(xrange(len(x)-1)):
+        out[i] = x[i] + gamma*out[i+1]
+    assert x.ndim &gt;= 1
+    # More efficient version:
+    # scipy.signal.lfilter([1],[1,-gamma],x[::-1], axis=0)[::-1]
+    return out
+
+def categorical_sample(prob_n):
+    &quot;&quot;&quot;
+    Sample from categorical distribution,
+    specified by a vector of class probabilities
+    &quot;&quot;&quot;
+    prob_n = np.asarray(prob_n)
+    csprob_n = np.cumsum(prob_n)
+    return (csprob_n &gt; np.random.rand()).argmax()
+
+def get_traj(agent, env, episode_max_length, render=False):
+    &quot;&quot;&quot;
+    Run agent-environment loop for one whole episode (trajectory)
+    Return dictionary of results
+    &quot;&quot;&quot;
+    ob = env.reset()
+    obs = []
+    acts = []
+    rews = []
+    for _ in xrange(episode_max_length):
+        a = agent.act(ob)
+        (ob, rew, done, _) = env.step(a)
+        obs.append(ob)
+        acts.append(a)
+        rews.append(rew)
+        if done: break
+        if render: env.render()
+    return {&quot;reward&quot; : np.array(rews),
+            &quot;ob&quot; : np.array(obs),
+            &quot;action&quot; : np.array(acts)
+            }
+
+def sgd_updates(grads, params, stepsize):
+    &quot;&quot;&quot;
+    Create list of parameter updates from stochastic gradient ascent
+    &quot;&quot;&quot;
+    updates = []
+    for (param, grad) in zip(params, grads):
+        updates.append((param, param + stepsize * grad))
+    return updates
+
+def rmsprop_updates(grads, params, stepsize, rho=0.9, epsilon=1e-9):
+    &quot;&quot;&quot;
+    Create a list of parameter updates from RMSProp
+    &quot;&quot;&quot;
+    updates = []
+
+    for param, grad in zip(params, grads):
+        accum = theano.shared(np.zeros(param.get_value(borrow=True).shape, dtype=param.dtype))
+        accum_new = rho * accum + (1 - rho) * grad ** 2
+        updates.append((accum, accum_new))
+        updates.append((param, param + (stepsize * grad / T.sqrt(accum_new + epsilon))))
+    return updates   
+
+class REINFORCEAgent(object):
+
+    &quot;&quot;&quot;
+    REINFORCE with baselines
+    Currently just works for discrete action space
+    &quot;&quot;&quot;
+
+    def __init__(self, ob_space, action_space, **usercfg):
+        &quot;&quot;&quot;
+        Initialize your agent's parameters
+        &quot;&quot;&quot;
+        nO = ob_space.shape[0]
+        nA = action_space.n
+        # Here are all the algorithm parameters. You can modify them by passing in keyword args
+        self.config = dict(episode_max_length=100, timesteps_per_batch=10000, n_iter=100, 
+            gamma=1.0, stepsize=0.05, nhid=20)
+        self.config.update(usercfg)
+
+        # Symbolic variables for observation, action, and advantage
+        # These variables stack the results from many timesteps--the first dimension is the timestep
+        ob_no = T.fmatrix() # Observation
+        a_n = T.ivector() # Discrete action 
+        adv_n = T.fvector() # Advantage
+        def shared(arr):
+            return theano.shared(arr.astype('float64'))
+        # Create weights of neural network with one hidden layer
+        W0 = shared(np.random.randn(nO,self.config['nhid'])/np.sqrt(nO))
+        b0 = shared(np.zeros(self.config['nhid']))
+        W1 = shared(1e-4*np.random.randn(self.config['nhid'],nA))
+        b1 = shared(np.zeros(nA))
+        params = [W0, b0, W1, b1]
+        # Action probabilities
+        prob_na = T.nnet.softmax(T.tanh(ob_no.dot(W0)+b0[None,:]).dot(W1) + b1[None,:])
+        N = ob_no.shape[0]
+        # Loss function that we'll differentiate to get the policy gradient
+        # Note that we've divided by the total number of timesteps
+        loss = T.log(prob_na[T.arange(N), a_n]).dot(adv_n) / N
+        stepsize = T.fscalar()
+        grads = T.grad(loss, params)
+        # Perform parameter updates.
+        # I find that sgd doesn't work well
+        # updates = sgd_updates(grads, params, stepsize)
+        updates = rmsprop_updates(grads, params, stepsize)
+        self.pg_update = theano.function([ob_no, a_n, adv_n, stepsize], [], updates=updates, allow_input_downcast=True)
+        self.compute_prob = theano.function([ob_no], prob_na, allow_input_downcast=True)
+
+    def act(self, ob):
+        &quot;&quot;&quot;
+        Choose an action.
+        &quot;&quot;&quot;
+        prob = self.compute_prob(ob.reshape(1,-1))
+        action = categorical_sample(prob)
+        return action
+
+    def learn(self, env):
+        &quot;&quot;&quot;
+        Run learning algorithm
+        &quot;&quot;&quot;
+        cfg = self.config
+        for iteration in xrange(cfg[&quot;n_iter&quot;]):
+            # Collect trajectories until we get timesteps_per_batch total timesteps 
+            trajs = []
+            timesteps_total = 0
+            while timesteps_total &lt; cfg[&quot;timesteps_per_batch&quot;]:
+                traj = get_traj(self, env, cfg[&quot;episode_max_length&quot;])
+                trajs.append(traj)
+                timesteps_total += len(traj[&quot;reward&quot;])
+            all_ob = np.concatenate([traj[&quot;ob&quot;] for traj in trajs])
+            # Compute discounted sums of rewards
+            rets = [discount(traj[&quot;reward&quot;], cfg[&quot;gamma&quot;]) for traj in trajs]
+            maxlen = max(len(ret) for ret in rets)
+            padded_rets = [np.concatenate([ret, np.zeros(maxlen-len(ret))]) for ret in rets]
+            # Compute time-dependent baseline
+            baseline = np.mean(padded_rets, axis=0)
+            # Compute advantage function
+            advs = [ret - baseline[:len(ret)] for ret in rets]
+            all_action = np.concatenate([traj[&quot;action&quot;] for traj in trajs])
+            all_adv = np.concatenate(advs)
+            # Do policy gradient update step
+            self.pg_update(all_ob, all_action, all_adv, cfg[&quot;stepsize&quot;])
+            eprews = np.array([traj[&quot;reward&quot;].sum() for traj in trajs]) # episode total rewards
+            eplens = np.array([len(traj[&quot;reward&quot;]) for traj in trajs]) # episode lengths
+            # Print stats
+            print &quot;-----------------&quot;
+            print &quot;Iteration: \t %i&quot;%iteration
+            print &quot;NumTrajs: \t %i&quot;%len(eprews)
+            print &quot;NumTimesteps: \t %i&quot;%np.sum(eplens)
+            print &quot;MaxRew: \t %s&quot;%eprews.max()
+            print &quot;MeanRew: \t %s +- %s&quot;%(eprews.mean(), eprews.std()/np.sqrt(len(eprews)))
+            print &quot;MeanLen: \t %s +- %s&quot;%(eplens.mean(), eplens.std()/np.sqrt(len(eplens)))
+            print &quot;-----------------&quot;
+            get_traj(self, env, cfg[&quot;episode_max_length&quot;], render=True)
+
+
+def main():
+    env = gym.make(&quot;Acrobot-v0&quot;)
+    agent = REINFORCEAgent(env.observation_space, env.action_space, 
+        episode_max_length=env.spec.timestep_limit)
+    agent.learn(env)
+
+if __name__ == &quot;__main__&quot;:
+    main()</code></pre> 
+     </div> 
+     <meta itemprop="interactionCount" content="UserLikes:0" /> 
+     <meta itemprop="interactionCount" content="UserComments:0" /> 
+     <hr /> 
+    </div> 
+    <!-- :preload-content --> 
+    <footer> 
+     <nav itemscope="" itemtype="http://schema.org/SiteNavigationElement"> 
+      <a href="/">主页</a> 
+      <a href="/categories">分类</a> 
+      <a href="/guidelines">FAQ/指引</a> 
+      <a href="/tos">服务条款</a> 
+      <a href="/privacy">隐私政策</a> 
+     </nav> 
+    </footer> 
+   </div> 
+   <footer id="noscript-footer"> 
+    <p>采用 <a href="http://www.discourse.org">Discourse</a>，启用 JavaScript 以获得最佳效果</p> 
+   </footer> 
+  </noscript> 
+  <section id="main"> 
+  </section> 
+  <div id="offscreen-content"> 
+  </div> 
+  <form id="hidden-login-form" method="post" action="/login" style="display: none;"> 
+   <input name="username" type="text" id="signin_username" /> 
+   <input name="password" type="password" id="signin_password" /> 
+   <input name="redirect" type="hidden" /> 
+   <input type="submit" id="signin-button" value="登录" /> 
+  </form> 
+  <script>
+        PreloadStore.store("site",{"default_archetype":"regular","notification_types":{"mentioned":1,"replied":2,"quoted":3,"edited":4,"liked":5,"private_message":6,"invited_to_private_message":7,"invitee_accepted":8,"posted":9,"moved_post":10,"linked":11,"granted_badge":12,"invited_to_topic":13,"custom":14,"group_mentioned":15,"group_message_summary":16},"post_types":{"regular":1,"moderator_action":2,"small_action":3,"whisper":4},"groups":[{"id":1,"name":"admins"},{"id":0,"name":"everyone"},{"id":2,"name":"moderators"},{"id":3,"name":"staff"},{"id":10,"name":"trust_level_0"},{"id":11,"name":"trust_level_1"},{"id":12,"name":"trust_level_2"},{"id":13,"name":"trust_level_3"},{"id":14,"name":"trust_level_4"},{"id":41,"name":"WeUseCaffe"}],"filters":["latest","unread","new","read","posted","bookmarks"],"periods":["all","yearly","quarterly","monthly","weekly","daily"],"top_menu_items":["latest","unread","new","read","posted","bookmarks","category","categories","top"],"anonymous_top_menu_items":["latest","top","categories","category","categories","top"],"uncategorized_category_id":1,"is_readonly":false,"disabled_plugins":[],"user_field_max_length":2048,"suppressed_from_homepage_category_ids":[18,24,26],"post_action_types":[{"name_key":"bookmark","name":"书签","description":"给本帖加书签","long_form":"已给本帖加上书签","is_flag":false,"icon":null,"id":1,"is_custom_flag":false},{"name_key":"like","name":"赞","description":"赞本帖","long_form":"赞本帖内容","is_flag":false,"icon":"heart","id":2,"is_custom_flag":false},{"name_key":"off_topic","name":"题外话","description":"此帖与该主题标题和第一帖而言所讨论的主题无关，可能需要被移动。","long_form":"标记为题外话","is_flag":true,"icon":null,"id":3,"is_custom_flag":false},{"name_key":"inappropriate","name":"不当内容","description":"此帖内容包含对他人的攻击、侮辱、仇视语言或违反了<a href=\"/guidelines\">我们的社群准则<\/a>。","long_form":"标记为不当内容","is_flag":true,"icon":null,"id":4,"is_custom_flag":false},{"name_key":"vote","name":"投票","description":"给本帖投票","long_form":"已给本帖投票","is_flag":false,"icon":null,"id":5,"is_custom_flag":false},{"name_key":"spam","name":"垃圾","description":"此帖为广告。它不包含任何对当前讨论有帮助的内容，只有促销信息。","long_form":"标记为垃圾","is_flag":true,"icon":null,"id":8,"is_custom_flag":false},{"name_key":"notify_user","name":"给@{{username}}发送一条消息","description":"我想与此人私下交流他们的帖子。","long_form":"以发送消息给用户","is_flag":true,"icon":null,"id":6,"is_custom_flag":true},{"name_key":"notify_moderators","name":"其他事项","description":"这个帖子需要版主的注意，原因没有列在上方。","long_form":"标记为需版主注意","is_flag":true,"icon":null,"id":7,"is_custom_flag":true}],"topic_flag_types":[{"name_key":"inappropriate","name":"不当内容","description":"此主题内容包含对他人的攻击、侮辱、仇视语言或违反了<a href=\"/guidelines\">我们的社群准则<\/a>。","long_form":"标记为不当内容","is_flag":true,"icon":null,"id":4,"is_custom_flag":false},{"name_key":"spam","name":"垃圾","description":"这个主题是广告。它对本站点没有联系和帮助，仅仅是推销信息。","long_form":"标记为垃圾","is_flag":true,"icon":null,"id":8,"is_custom_flag":false},{"name_key":"notify_moderators","name":"其他内容","description":"此帖需要版主依据<a href=\"/guidelines\">社群准则<\/a>、<a href=\"/tos\">服务条款（TOS）<\/a>或其它未列出的原因来给予关注。","long_form":"标记为需版主注意","is_flag":true,"icon":null,"id":7,"is_custom_flag":true}],"can_create_tag":null,"can_tag_topics":null,"tags_filter_regexp":"[<\\\\/\\>\\#\\?\\&\\s]","categories":[{"id":1,"name":"其他","color":"AB9364","text_color":"FFFFFF","slug":"qi-ta","topic_count":1,"post_count":1,"position":0,"description":"不需要分类或者不适合放在现在的任何分类中的主题。","description_text":"","topic_url":"/t//","logo_url":"","background_url":"","read_restricted":false,"permission":null,"notification_level":1,"topic_template":null,"has_children":false},{"id":6,"name":"算法","color":"12A89D","text_color":"FFFFFF","slug":"suan-fa","topic_count":24,"post_count":45,"position":1,"description":"关于算法的讨论区。","description_text":"关于算法的讨论区。","topic_url":"/t/guan-yu-fen-lei-suan-fa/12","logo_url":"","background_url":"","read_restricted":false,"permission":null,"notification_level":1,"topic_template":null,"has_children":false},{"id":5,"name":"机器学习","color":"3AB54A","text_color":"FFFFFF","slug":"ji-qi-xue-xi","topic_count":113,"post_count":182,"position":2,"description":"机器学习讨论区。","description_text":"机器学习讨论区。","topic_url":"/t/guan-yu-fen-lei-ji-qi-xue-xi/11","logo_url":"","background_url":"","read_restricted":false,"permission":null,"notification_level":1,"topic_template":null,"has_children":true},{"id":8,"name":"工程开发","color":"F1592A","text_color":"FFFFFF","slug":"gong-cheng-kai-fa","topic_count":40,"post_count":73,"position":3,"description":"开发、代码、编程、工程实现相关讨论","description_text":"开发、代码、编程、工程实现相关讨论","topic_url":"/t/guan-yu-fen-lei-gong-cheng-he-dai-ma/16","logo_url":"","background_url":"","read_restricted":false,"permission":null,"notification_level":1,"topic_template":null,"has_children":false},{"id":12,"name":"面试","color":"25AAE2","text_color":"FFFFFF","slug":"mian-shi","topic_count":14,"post_count":34,"position":4,"description":"面试题，面试经验","description_text":"面试题，面试经验","topic_url":"/t/guan-yu-fen-lei-mian-shi/96","logo_url":"","background_url":"","read_restricted":false,"permission":null,"notification_level":1,"topic_template":null,"has_children":false},{"id":13,"name":"工作招聘","color":"9EB83B","text_color":"FFFFFF","slug":"gong-zuo-zhao-pin","topic_count":9,"post_count":10,"position":5,"description":"招聘职位信息，工作相关讨论","description_text":"招聘职位信息，工作相关讨论","topic_url":"/t/guan-yu-fen-lei-gong-zuo-zhao-pin/234","logo_url":"","background_url":"","read_restricted":false,"permission":null,"notification_level":1,"topic_template":null,"has_children":false},{"id":9,"name":"创业","color":"F7941D","text_color":"FFFFFF","slug":"chuang-ye","topic_count":3,"post_count":3,"position":6,"description":null,"description_text":null,"topic_url":"/t/guan-yu-fen-lei-chuang-ye/21","logo_url":"","background_url":"","read_restricted":false,"permission":null,"notification_level":1,"topic_template":null,"has_children":false},{"id":17,"name":"领域应用","color":"B3B5B4","text_color":"FFFFFF","slug":"application","topic_count":1,"post_count":1,"position":7,"description":null,"description_text":null,"topic_url":"/t/guan-yu-fen-lei-ling-yu-ying-yong/462","logo_url":"","background_url":"","read_restricted":false,"permission":null,"notification_level":1,"topic_template":null,"has_children":true},{"id":10,"name":"程序化交易","color":"ED207B","text_color":"FFFFFF","slug":"cheng-xu-hua-jiao-yi","topic_count":4,"post_count":5,"position":8,"description":"程序化交易，自动化交易，量化投资，交易策略和算法讨论。","description_text":"程序化交易，自动化交易，量化投资，交易策略和算法讨论。","topic_url":"/t/guan-yu-fen-lei-cheng-xu-hua-jiao-yi/27","logo_url":"","background_url":"","read_restricted":false,"permission":null,"parent_category_id":17,"notification_level":1,"topic_template":null,"has_children":false},{"id":7,"name":"Deep Learning","color":"0E76BD","text_color":"FFFFFF","slug":"deep-learning","topic_count":38,"post_count":76,"position":11,"description":"深度学习（Deep Learning）。","description_text":"深度学习（Deep Learning）。","topic_url":"/t/guan-yu-fen-lei-deep-learning/13","logo_url":null,"background_url":null,"read_restricted":false,"permission":null,"parent_category_id":5,"notification_level":1,"topic_template":null,"has_children":false},{"id":11,"name":"幽默","color":"3366aa","text_color":"FFFFFF","slug":"joke","topic_count":10,"post_count":20,"position":12,"description":"幽默笑话。程序员的笑点。","description_text":"幽默笑话。程序员的笑点。","topic_url":"/t/guan-yu-fen-lei-you-mo-xiao-hua/30","logo_url":"","background_url":"","read_restricted":false,"permission":null,"parent_category_id":15,"notification_level":1,"topic_template":null,"has_children":false},{"id":16,"name":"有图","color":"DD2C4C","text_color":"FFFFFF","slug":"mm","topic_count":1,"post_count":4,"position":13,"description":"有图有真相，“多看美女能长寿”。","description_text":"有图有真相，“多看美女能长寿”。","topic_url":"/t/guan-yu-fen-lei-mei-ren-mei-jing/456","logo_url":"","background_url":"","read_restricted":false,"permission":null,"parent_category_id":15,"notification_level":1,"topic_template":null,"has_children":false},{"id":3,"name":"社区建设","color":"808281","text_color":"FFFFFF","slug":"she-qu-jian-she","topic_count":6,"post_count":10,"position":14,"description":"关于本算法组社区建设的反馈、建议和讨论。","description_text":"关于本算法组社区建设的反馈、建议和讨论。","topic_url":"/t/about-the-meta-category/2","logo_url":"","background_url":"","read_restricted":false,"permission":null,"notification_level":1,"topic_template":null,"has_children":false},{"id":14,"name":"博客","color":"008B45","text_color":"FFFFFF","slug":"blog","topic_count":2,"post_count":2,"position":15,"description":"你的个人博客文章。如果你想发布/记录个人的博客文章，可以放到此分类。此分类的类容，不会显示到首页上。","description_text":"你的个人博客文章。如果你想发布/记录个人的博客文章，可以放到此分类。此分类的类容，不会显示到首页上。","topic_url":"/t/guan-yu-fen-lei-bo-ke/451","logo_url":"","background_url":"","read_restricted":false,"permission":null,"notification_level":1,"topic_template":null,"has_children":false},{"id":15,"name":"有趣","color":"1E90FF","text_color":"FFFFFF","slug":"fun","topic_count":0,"post_count":1,"position":16,"description":"我们总有些无聊着的时候：程序在编译，文件在上传，车还没来，…，不要无聊着，来这里看看段子图片…","description_text":"我们总有些无聊着的时候：程序在编译，文件在上传，车还没来，…，不要无聊着，来这里看看段子图片…","topic_url":"/t/guan-yu-fen-lei-bu-xu-wu-liao/454","logo_url":"","background_url":"","read_restricted":false,"permission":null,"notification_level":1,"topic_template":null,"has_children":true},{"id":18,"name":"精选","color":"231F20","text_color":"FFFFFF","slug":"z","topic_count":12139,"post_count":35631,"position":17,"description":"精选文章，来自本站或者外站。","description_text":"精选文章，来自本站或者外站。","topic_url":"/t/topic/734","logo_url":"","background_url":"","read_restricted":false,"permission":null,"notification_level":1,"topic_template":"","has_children":false},{"id":22,"name":"Caffe","color":"C30000","text_color":"FFFFFF","slug":"caffe","topic_count":15,"post_count":55,"position":18,"description":"Caffe 机器学习中文社区","description_text":"Caffe 机器学习中文社区","topic_url":"/t/caffe/12323","logo_url":null,"background_url":null,"read_restricted":false,"permission":null,"parent_category_id":5,"notification_level":1,"topic_template":null,"has_children":false},{"id":23,"name":"MXNet","color":"2980B9","text_color":"FFFFFF","slug":"mxnet","topic_count":7,"post_count":9,"position":19,"description":null,"description_text":null,"topic_url":"/t/mxnet/12324","logo_url":null,"background_url":null,"read_restricted":false,"permission":null,"parent_category_id":5,"notification_level":1,"topic_template":null,"has_children":false},{"id":24,"name":"头条","color":"BF1E2E","text_color":"FFFFFF","slug":"toutiao","topic_count":14,"post_count":15,"position":20,"description":"你必须关注的文章：技术、业界、创业等等","description_text":"你必须关注的文章：技术、业界、创业等等","topic_url":"/t/topic/12808","logo_url":"","background_url":"","read_restricted":false,"permission":null,"notification_level":1,"topic_template":"","has_children":false},{"id":25,"name":"TensorFlow","color":"92278F","text_color":"FFFFFF","slug":"tensorflow","topic_count":7,"post_count":8,"position":21,"description":"关于TensorFlow的讨论和分享等一切。","description_text":"关于TensorFlow的讨论和分享等一切。","topic_url":"/t/tensorflow/13214","logo_url":null,"background_url":null,"read_restricted":false,"permission":null,"parent_category_id":5,"notification_level":1,"topic_template":null,"has_children":false},{"id":26,"name":"教程","color":"652D90","text_color":"FFFFFF","slug":"tutorial","topic_count":12,"post_count":12,"position":22,"description":"快速学习教程，在线入门到高级教程","description_text":"快速学习教程，在线入门到高级教程","topic_url":"/t/topic/13398","logo_url":"","background_url":"","read_restricted":false,"permission":null,"notification_level":1,"topic_template":"","has_children":true},{"id":27,"name":"算法竞赛","color":"8C6238","text_color":"FFFFFF","slug":"contests","topic_count":4,"post_count":14,"position":23,"description":null,"description_text":null,"topic_url":"/t/topic/13456","logo_url":null,"background_url":null,"read_restricted":false,"permission":null,"notification_level":1,"topic_template":null,"has_children":false},{"id":28,"name":"教程系列","color":"99cccc","text_color":"FFFFFF","slug":"tutorial-list","topic_count":4,"post_count":4,"position":24,"description":"在这个分类里存放教程目录，便于查询","description_text":"在这个分类里存放教程目录，便于查询","topic_url":"/t/topic/13469","logo_url":"","background_url":"","read_restricted":false,"permission":null,"parent_category_id":26,"notification_level":1,"topic_template":"","has_children":false}],"trust_levels":[{"id":0,"name":"新用户"},{"id":1,"name":"初级用户"},{"id":2,"name":"成员"},{"id":3,"name":"活跃用户"},{"id":4,"name":"资深"}],"archetypes":[{"id":"regular","name":"常规主题","options":[]},{"id":"banner","name":"横幅主题","options":[]}],"user_fields":[]});
+        PreloadStore.store("siteSettings",{"title":"算法组","contact_email":"suanfazu@suanfazu.com","contact_url":"","logo_url":"","logo_small_url":"","mobile_logo_url":"","favicon_url":"http://s1.suanfazu.com/favicon.ico","allow_user_locale":false,"suggested_topics":10,"track_external_right_clicks":false,"ga_universal_tracking_code":"","ga_universal_domain_name":"auto","ga_tracking_code":"","ga_domain_name":"","top_menu":"latest|new|unread|top|categories|category/头条","post_menu":"like-count|like|share|flag|edit|bookmark|delete|admin|reply","post_menu_hidden_items":"bookmark|edit|delete|admin","share_links":"weibo|wechat|renren|twitter|facebook|google+|email","category_colors":"BF1E2E|F1592A|F7941D|9EB83B|3AB54A|12A89D|25AAE2|0E76BD|652D90|92278F|ED207B|8C6238|231F20|808281|B3B5B4|283890","category_style":"bullet","enable_mobile_theme":true,"relative_date_duration":30,"category_featured_topics":3,"fixed_category_positions":true,"fixed_category_positions_on_create":false,"show_subcategory_list":false,"enable_badges":true,"enable_whispers":false,"invite_only":false,"login_required":false,"must_approve_users":false,"enable_local_logins":true,"allow_new_registrations":true,"enable_signup_cta":true,"enable_google_oauth2_logins":true,"enable_yahoo_logins":false,"enable_twitter_logins":false,"enable_instagram_logins":false,"enable_facebook_logins":false,"enable_github_logins":true,"enable_sso":false,"sso_overrides_avatar":false,"min_username_length":3,"max_username_length":20,"min_password_length":6,"min_admin_password_length":15,"logout_redirect":"","full_name_required":false,"enable_names":true,"invites_per_page":40,"delete_user_max_post_age":60,"delete_all_posts_max":15,"show_email_on_profile":false,"enable_user_directory":true,"allow_anonymous_posting":false,"anonymous_posting_min_trust_level":1,"hide_user_profiles_from_public":false,"min_post_length":7,"min_first_post_length":10,"min_private_message_post_length":5,"max_post_length":232000,"min_topic_title_length":4,"max_topic_title_length":255,"min_private_message_title_length":2,"allow_uncategorized_topics":false,"min_title_similar_length":10,"min_body_similar_length":15,"enable_private_messages":true,"edit_history_visible_to_public":false,"delete_removed_posts_after":24,"traditional_markdown_linebreaks":false,"allow_html_tables":false,"suppress_reply_directly_below":true,"suppress_reply_directly_above":true,"max_reply_history":1,"newuser_max_images":1,"newuser_max_attachments":0,"display_name_on_posts":false,"show_time_gap_days":7,"short_progress_text_threshold":10000,"default_code_lang":"auto","autohighlight_all_code":false,"highlighted_languages":"apache|bash|cs|cpp|css|coffeescript|diff|xml|http|ini|json|java|javascript|makefile|markdown|nginx|objectivec|ruby|perl|php|python|sql|handlebars","censored_words":"","enable_emoji":true,"emoji_set":"emoji_one","email_time_window_mins":10,"disable_digest_emails":false,"email_in":false,"disable_emails":false,"max_image_size_kb":10240,"max_attachment_size_kb":10240,"authorized_extensions":"jpg|jpeg|png|gif|pdf|zip|pptx|txt","max_image_width":690,"max_image_height":5000,"prevent_anons_from_downloading_files":true,"enable_s3_uploads":false,"allow_profile_backgrounds":true,"allow_uploaded_avatars":true,"allow_animated_avatars":false,"default_avatars":"","external_system_avatars_enabled":true,"external_system_avatars_url":"/letter_avatar_proxy/v2/letter/{first_letter}/{color}/{size}.png","tl1_requires_read_posts":2,"tl3_links_no_follow":false,"use_admin_ip_whitelist":false,"alert_admins_if_errors_per_minute":0,"alert_admins_if_errors_per_hour":0,"enable_long_polling":true,"long_polling_base_url":"/","background_polling_interval":60000,"polling_interval":3000,"anon_polling_interval":15000,"flush_timings_secs":20,"verbose_localization":false,"max_new_topics":500,"tos_url":"","privacy_policy_url":"","faq_url":"","maximum_backups":5,"version_checks":true,"suppress_uncategorized_badge":true,"min_search_term_length":1,"topic_views_heat_low":1000,"topic_views_heat_medium":2000,"topic_views_heat_high":5000,"topic_post_like_heat_low":0.5,"topic_post_like_heat_medium":1.0,"topic_post_like_heat_high":2.0,"history_hours_low":12,"history_hours_medium":24,"history_hours_high":48,"cold_age_days_low":14,"cold_age_days_medium":90,"cold_age_days_high":180,"global_notice":"","show_create_topics_notice":true,"automatically_unpin_topics":true,"read_time_word_count":500,"disable_mailing_list_mode":false,"default_topics_automatic_unpin":true,"poll_enabled":true,"poll_maximum_options":100,"tagging_enabled":true,"max_tags_per_topic":5,"max_tag_length":20,"min_trust_level_to_tag_topics":0,"max_tag_search_results":5,"show_filter_by_tag":false,"tags_sort_alphabetically":false,"staff_tags":"","suppress_overlapping_tags_in_list":false,"details_enabled":true,"enable_mathjax_plugin":true,"mathjax_url":"//cdn.bootcss.com/mathjax/2.6.1/MathJax.js","mathjax_config":"TeX-AMS-MML_HTMLorMML","available_locales":"ar|bs_BA|cs|da|de|en|es|fa_IR|fi|fr|gl|he|id|it|ja|ko|nb_NO|nl|pl_PL|pt|pt_BR|ro|ru|sk|sq|sv|te|tr_TR|uk|vi|zh_CN|zh_TW","tag_style":"simple"});
+        PreloadStore.store("customHTML",{"top":"\n","footer":"\n"});
+        PreloadStore.store("banner",{});
+        PreloadStore.store("customEmoji",[]);
+        PreloadStore.store("translationOverrides",{});
+        PreloadStore.store("topic_13451",{"post_stream":{"posts":[{"id":36504,"name":"comix","username":"comix","avatar_template":"/letter_avatar_proxy/v2/letter/c/8797f3/{size}.png","created_at":"2016-05-18T11:43:22.863Z","cooked":"<ul>\n<li>深度强化学习：<a href=\"http://pan.baidu.com/s/1hrGeLPq\" rel=\"nofollow\">PPT<\/a>\n<\/li>\n<li>Youtube视频（需翻墙）：<a href=\"http://t.cn/RqDSQl4\" rel=\"nofollow\">视频1<\/a>、<a href=\"http://t.cn/RqDSQlU\" rel=\"nofollow\">视频2<\/a>、<a href=\"http://t.cn/RqDoTIR\" rel=\"nofollow\">视频3<\/a>、<a href=\"http://t.cn/RqDKy2j\" rel=\"nofollow\">视频4<\/a>\n<\/li>\n<\/ul>\n\n<h1>Setup<\/h1>\n\n<p>Obtain a basic installation of <a href=\"http://google.suanfazu.com/search/?q=OpenAI+Gym\">OpenAI Gym<\/a> as follows:<\/p>\n\n<p><\/p><pre><code class=\"lang-bash\">pip install pyglet # dependency, for visualization\ngit clone https://github.com/openai/gym\ncd gym\npip install -e . # do a local installation<\/code><\/pre>\n\n<h1>1. CEM Implementation<\/h1>\n\n<p>Implement the cross-entropy method. Starter code is provided below.<\/p>\n\n<p>Test it out on the classic_control Environments in OpenAI Gym: CartPole-v0, Pendulum-v0, Acrobot-v0, MountainCar-v0.<\/p>\n\n<p>CEM sometimes reduces the covariance too fast, causing premature convergence to a local optimum. A heuristic fix is to artificially increase it according to a schedule; see <a href=\"http://google.suanfazu.com/search/?q=Szita+and+Lorincz%2C+Learning+Tetris+with+the+Noisy+Cross-Entropy+Method\">Szita and Lorincz, Learning Tetris with the Noisy Cross-Entropy Method<\/a> for details.<\/p>\n\n<h1>2. CEM Analysis<\/h1>\n\n<p>Let's introduce some notation to help with the analysis of CEM. The optimization problem solved by CEM can be written as follows:<\/p>\n\n<p>\\begin{equation*}<br>\\operatorname*{maximize}_{\\theta} E_{\\zeta}[f(\\theta, \\zeta)]<br>\\end{equation*}<\/p>\n\n<p>Let \\(\\psi \\in \\mathbb{R}^d\\) parameterize the distribution over \\(\\theta\\) (e.g., via mean and variance of a Gaussian), so in each iteration of CEM, we collect \\(N\\) samples \\(\\theta_i \\sim p_{\\psi}(\\cdot)\\) and function values \\(f_1, f_2, \\dots, f_N\\). Each iteration, we update \\(\\psi\\) by solving the subproblem<\/p>\n\n<p>\\begin{equation*}<br>\\operatorname*{maximize_{\\psi}} \\sum_{i\\in\\mathrm{elite}} \\log p_{\\psi}(\\theta_i).<br>\\end{equation*}<\/p>\n\n<p>(1) Explain why CEM does not always reach a local maximum of \\(E_{\\zeta}[f(\\theta, \\zeta)]\\), even in the limit of infinite samples (\\(N \\rightarrow \\infty\\)). (Hint: CEM seeks \\(\\theta\\) where the \\(\\operatorname{Var}_{\\zeta}[f(\\theta, \\zeta)]\\) is high.)<\/p>\n\n<p>(2) Let's modify CEM so that each iteration, it solves a subproblem of the form<\/p>\n\n<p>\\begin{equation*}<br>\\operatorname*{maximize_{\\psi}} \\sum_{i=1}^N f_i \\log p_{\\psi}(\\theta_i)<br>\\end{equation*}<\/p>\n\n<p>I.e., samples \\(\\theta_i\\) are weighted by the return \\(f_i\\). (CEM corresponds to weighting by 1 or 0, depending on whether the sample is in the elite set). Show that the resulting algorithm does reach a local maximum of the objective, in an appropriate limit as \\(N \\rightarrow \\infty\\).<\/p>\n\n<h1>3. Score Function Gradient Estimation<\/h1>\n\n<p>It's sometimes illuminating to see the functional form of the score function gradient estimators, for different distributions and parameters in those distributions.<\/p>\n\n<p>This exercise asks you to determine if the score function gradient estimator can be used for several parameterized probability distributions, and if it can, compute \\(\\nabla_{\\theta} \\log p(x | \\theta)\\).<\/p>\n\n<p>Here's some notation:<\/p>\n\n<ul>\n<li>\\(\\operatorname{Ber}(p; a, b)\\) is the distribution that takes values \\(a, b\\) with probility \\((p, 1-p)\\), respectively.<\/li>\n<li>\\(\\operatorname{Poi}(\\lambda)\\) is the Poisson distribution with mean \\(\\lambda\\)<\/li>\n<li>\\(U(a,b)\\) is the uniform distribution between \\(a,b\\)<\/li>\n<li>\\(\\operatorname{Exp}(\\lambda)\\) is the exponential distribution, \\(p(x | \\lambda) = \\lambda e^{-\\lambda x}\\)<\/li>\n<\/ul>\n\n<p>Distributions:<\/p>\n\n<ol>\n<li>\\(\\operatorname{Ber}(\\theta, a, b)\\)<\/li>\n<li>\\(\\operatorname{Ber}(p, \\theta, b)\\)<\/li>\n<li>\\(\\operatorname{Poi}(\\theta)\\)<\/li>\n<li>\\(N(\\theta, \\sigma^2)\\)<\/li>\n<li>\\(N(\\mu, \\theta^2)\\)<\/li>\n<li>\\(U(0, \\theta)\\)<\/li>\n<li>\\(\\operatorname{Exp}(\\theta)\\)<\/li>\n<\/ol>\n\n<h1>CEM Starter Code<\/h1>\n\n<p><\/p><pre><code class=\"lang-python\">import numpy as np\nimport gym\nfrom gym.spaces import Discrete, Box\n\n# ================================================================\n# Policies\n# ================================================================\n\nclass DeterministicDiscreteActionLinearPolicy(object):\n\n    def __init__(self, theta, ob_space, ac_space):\n        \"\"\"\n        dim_ob: dimension of observations\n        n_actions: number of actions\n        theta: flat vector of parameters\n        \"\"\"\n        dim_ob = ob_space.shape[0]\n        n_actions = ac_space.n\n        assert len(theta) == (dim_ob + 1) * n_actions\n        self.W = theta[0 : dim_ob * n_actions].reshape(dim_ob, n_actions)\n        self.b = theta[dim_ob * n_actions : None].reshape(1, n_actions)\n\n    def act(self, ob):\n        \"\"\"\n        \"\"\"\n        y = ob.dot(self.W) + self.b\n        a = y.argmax()\n        return a\n\nclass DeterministicContinuousActionLinearPolicy(object):\n\n    def __init__(self, theta, ob_space, ac_space):\n        \"\"\"\n        dim_ob: dimension of observations\n        dim_ac: dimension of action vector\n        theta: flat vector of parameters\n        \"\"\"\n        self.ac_space = ac_space\n        dim_ob = ob_space.shape[0]\n        dim_ac = ac_space.shape[0]\n        assert len(theta) == (dim_ob + 1) * dim_ac\n        self.W = theta[0 : dim_ob * dim_ac].reshape(dim_ob, dim_ac)\n        self.b = theta[dim_ob * dim_ac : None]\n\n    def act(self, ob):\n        a = np.clip(ob.dot(self.W) + self.b, self.ac_space.low, self.ac_space.high)\n        return a\n\ndef do_episode(policy, env, num_steps, render=False):\n    total_rew = 0\n    ob = env.reset()\n    for t in range(num_steps):\n        a = policy.act(ob)\n        (ob, reward, done, _info) = env.step(a)\n        total_rew += reward\n        if render and t%3==0: env.render()\n        if done: break\n    return total_rew\n\nenv = None\ndef noisy_evaluation(theta):\n    policy = make_policy(theta)\n    rew = do_episode(policy, env, num_steps)\n    return rew\n\ndef make_policy(theta):\n    if isinstance(env.action_space, Discrete):\n        return DeterministicDiscreteActionLinearPolicy(theta,\n            env.observation_space, env.action_space)\n    elif isinstance(env.action_space, Box):\n        return DeterministicContinuousActionLinearPolicy(theta,\n            env.observation_space, env.action_space)\n    else:\n        raise NotImplementedError\n\n# Task settings:\nenv = gym.make('CartPole-v0') # Change as needed\nnum_steps = 500 # maximum length of episode\n# Alg settings:\nn_iter = 100 # number of iterations of CEM\nbatch_size = 25 # number of samples per batch\nelite_frac = 0.2 # fraction of samples used as elite set\n\nif isinstance(env.action_space, Discrete):\n    dim_theta = (env.observation_space.shape[0]+1) * env.action_space.n\nelif isinstance(env.action_space, Box):\n    dim_theta = (env.observation_space.shape[0]+1) * env.action_space.shape[0]\nelse:\n    raise NotImplementedError\n\n# Initialize mean and standard deviation\ntheta_mean = np.zeros(dim_theta)\ntheta_std = np.ones(dim_theta)\n\n# Now, for the algorithm\nfor iteration in xrange(n_iter):\n    # Sample parameter vectors\n    thetas = YOUR_CODE_HERE\n    rewards = [noisy_evaluation(theta) for theta in thetas]\n    # Get elite parameters\n    n_elite = int(batch_size * elite_frac)\n    elite_inds = np.argsort(rewards)[batch_size - n_elite:batch_size]\n    elite_thetas = [thetas[i] for i in elite_inds]\n    # Update theta_mean, theta_std\n    theta_mean = YOUR_CODE_HERE\n    theta_std = YOUR_CODE_HERE\n    print \"iteration %i. mean f: %8.3g. max f: %8.3g\"%(iteration, np.mean(rewards), np.max(rewards))\n    do_episode(make_policy(theta_mean), env, num_steps, render=True)<\/code><\/pre>\n\n<p>原文地址：<a href=\"http://rl-gym-doc.s3-website-us-west-2.amazonaws.com/mlss/index.html\" rel=\"nofollow\">MLSS2016<\/a><\/p>","post_number":1,"post_type":1,"updated_at":"2016-05-26T06:02:58.697Z","reply_count":0,"reply_to_post_number":null,"quote_count":0,"avg_time":21,"incoming_link_count":143,"reads":40,"score":721.05,"yours":false,"topic_id":13451,"topic_slug":"mlss2016-by-john-schulman-uc-berkeley","display_username":"comix","primary_group_name":null,"version":5,"can_edit":false,"can_delete":false,"can_recover":false,"can_wiki":false,"link_counts":[{"url":"http://pan.baidu.com/s/1hrGeLPq","internal":false,"reflection":false,"clicks":33},{"url":"http://t.cn/RqDSQl4","internal":false,"reflection":false,"clicks":18},{"url":"http://t.cn/RqDSQlU","internal":false,"reflection":false,"clicks":3},{"url":"http://google.suanfazu.com/search/?q=OpenAI+Gym","internal":false,"reflection":false,"title":"谷歌搜索 | 谷歌搜索代理 | 谷歌镜像站大全 | 谷歌加加","clicks":1},{"url":"http://rl-gym-doc.s3-website-us-west-2.amazonaws.com/mlss/index.html","internal":false,"reflection":false,"clicks":1},{"url":"http://t.cn/RqDoTIR","internal":false,"reflection":false,"clicks":1},{"url":"http://google.suanfazu.com/search/?q=Szita+and+Lorincz%2C+Learning+Tetris+with+the+Noisy+Cross-Entropy+Method","internal":false,"reflection":false,"title":"谷歌搜索 | 谷歌搜索代理 | 谷歌镜像站大全 | 谷歌加加","clicks":1},{"url":"http://t.cn/RqDKy2j","internal":false,"reflection":false,"clicks":0}],"read":true,"user_title":null,"actions_summary":[],"moderator":false,"admin":false,"staff":false,"user_id":1516,"hidden":false,"hidden_reason_id":null,"trust_level":1,"deleted_at":null,"user_deleted":false,"edit_reason":null,"can_view_edit_history":false,"wiki":false},{"id":36505,"name":"comix","username":"comix","avatar_template":"/letter_avatar_proxy/v2/letter/c/8797f3/{size}.png","created_at":"2016-05-18T11:56:43.587Z","cooked":"<h1>1. Policy Gradient Implementation<\/h1>\n\n<p>Starter code is provided below. We have provided a full, working implementation, which works on MDPs with discrete action spaces.<\/p>\n\n<p>Each iteration, it collects a batch of trajectories. It computes the advantage at every timestep, and concatenates together the observations, actions, and advantages from all timesteps. Then it symbolically constructs the following objective:<\/p>\n\n<p>\\begin{equation*}<br>\\sum_{n} \\log \\pi(a_t | s_t, \\theta) \\hat{A}_t<br>\\end{equation*}<\/p>\n\n<p>and then differentiates it (using Theano) to get the policy gradient estimator.<\/p>\n\n<p>Here, the policy is parameterized as a neural network with one hidden layer, so the parameters \\(\\theta\\) are the weights and biases of this neural network.<\/p>\n\n<p>This code uses a time-dependent baseline, which computes the average return at the \\(t^{\\text{th}}\\) timestep from the batch of trajectories.<\/p>\n\n<p>\\begin{equation*}<br>\\hat{a}_t = r_t + \\gamma r_{t+1} + \\gamma^2 r_{t+2} + \\dots - b_t<br>\\end{equation*}<\/p>\n\n<p>You can try various things:<\/p>\n\n<ol>\n<li><p>Experiment with different parameter settings, to get faster or more reliable convergence (See <code>config<\/code> in <code>REINFORCEAgent<\/code> constructor).<\/p><\/li>\n<li><p>Try measuring the performance of the policy by using the most likely action, instead of the random action. You should see a big boost in performance.<\/p><\/li>\n<li>\n<p>See if you can get this code working on <code>Acrobot-v0<\/code>. It usually helps to make the episodes longer. To do that, modify the line where the agent is constructed:<br><\/p>\n<p><\/p>\n<pre><code class=\"lang-auto\">agent = REINFORCEAgent(env.observation_space, env.action_space,\n        episode_max_length=env.spec.timestep_limit)<\/code><\/pre>\n<\/li>\n<li><p>Generalize it to work with continuous action spaces, by outputting the mean and standard deviation of a Gaussian distribution<\/p><\/li>\n<\/ol>\n\n<h2>pg-startercode.py<\/h2>\n\n<p><\/p><pre><code class=\"lang-python\">import numpy as np, os\nos.environ[\"THEANO_FLAGS\"]=\"device=cpu,floatX=float64\"\nimport theano, theano.tensor as T\nimport gym\n\ndef discount(x, gamma):\n    \"\"\"\n    Given vector x, computes a vector y such that\n    y[i] = x[i] + gamma * x[i+1] + gamma^2 x[i+2] + ...\n    \"\"\"\n    out = np.zeros(len(x), 'float64')\n    out[-1] = x[-1]\n    for i in reversed(xrange(len(x)-1)):\n        out[i] = x[i] + gamma*out[i+1]\n    assert x.ndim &gt;= 1\n    # More efficient version:\n    # scipy.signal.lfilter([1],[1,-gamma],x[::-1], axis=0)[::-1]\n    return out\n\ndef categorical_sample(prob_n):\n    \"\"\"\n    Sample from categorical distribution,\n    specified by a vector of class probabilities\n    \"\"\"\n    prob_n = np.asarray(prob_n)\n    csprob_n = np.cumsum(prob_n)\n    return (csprob_n &gt; np.random.rand()).argmax()\n\ndef get_traj(agent, env, episode_max_length, render=False):\n    \"\"\"\n    Run agent-environment loop for one whole episode (trajectory)\n    Return dictionary of results\n    \"\"\"\n    ob = env.reset()\n    obs = []\n    acts = []\n    rews = []\n    for _ in xrange(episode_max_length):\n        a = agent.act(ob)\n        (ob, rew, done, _) = env.step(a)\n        obs.append(ob)\n        acts.append(a)\n        rews.append(rew)\n        if done: break\n        if render: env.render()\n    return {\"reward\" : np.array(rews),\n            \"ob\" : np.array(obs),\n            \"action\" : np.array(acts)\n            }\n\ndef sgd_updates(grads, params, stepsize):\n    \"\"\"\n    Create list of parameter updates from stochastic gradient ascent\n    \"\"\"\n    updates = []\n    for (param, grad) in zip(params, grads):\n        updates.append((param, param + stepsize * grad))\n    return updates\n\ndef rmsprop_updates(grads, params, stepsize, rho=0.9, epsilon=1e-9):\n    \"\"\"\n    Create a list of parameter updates from RMSProp\n    \"\"\"\n    updates = []\n\n    for param, grad in zip(params, grads):\n        accum = theano.shared(np.zeros(param.get_value(borrow=True).shape, dtype=param.dtype))\n        accum_new = rho * accum + (1 - rho) * grad ** 2\n        updates.append((accum, accum_new))\n        updates.append((param, param + (stepsize * grad / T.sqrt(accum_new + epsilon))))\n    return updates   \n\nclass REINFORCEAgent(object):\n\n    \"\"\"\n    REINFORCE with baselines\n    Currently just works for discrete action space\n    \"\"\"\n\n    def __init__(self, ob_space, action_space, **usercfg):\n        \"\"\"\n        Initialize your agent's parameters\n        \"\"\"\n        nO = ob_space.shape[0]\n        nA = action_space.n\n        # Here are all the algorithm parameters. You can modify them by passing in keyword args\n        self.config = dict(episode_max_length=100, timesteps_per_batch=10000, n_iter=100, \n            gamma=1.0, stepsize=0.05, nhid=20)\n        self.config.update(usercfg)\n\n        # Symbolic variables for observation, action, and advantage\n        # These variables stack the results from many timesteps--the first dimension is the timestep\n        ob_no = T.fmatrix() # Observation\n        a_n = T.ivector() # Discrete action \n        adv_n = T.fvector() # Advantage\n        def shared(arr):\n            return theano.shared(arr.astype('float64'))\n        # Create weights of neural network with one hidden layer\n        W0 = shared(np.random.randn(nO,self.config['nhid'])/np.sqrt(nO))\n        b0 = shared(np.zeros(self.config['nhid']))\n        W1 = shared(1e-4*np.random.randn(self.config['nhid'],nA))\n        b1 = shared(np.zeros(nA))\n        params = [W0, b0, W1, b1]\n        # Action probabilities\n        prob_na = T.nnet.softmax(T.tanh(ob_no.dot(W0)+b0[None,:]).dot(W1) + b1[None,:])\n        N = ob_no.shape[0]\n        # Loss function that we'll differentiate to get the policy gradient\n        # Note that we've divided by the total number of timesteps\n        loss = T.log(prob_na[T.arange(N), a_n]).dot(adv_n) / N\n        stepsize = T.fscalar()\n        grads = T.grad(loss, params)\n        # Perform parameter updates.\n        # I find that sgd doesn't work well\n        # updates = sgd_updates(grads, params, stepsize)\n        updates = rmsprop_updates(grads, params, stepsize)\n        self.pg_update = theano.function([ob_no, a_n, adv_n, stepsize], [], updates=updates, allow_input_downcast=True)\n        self.compute_prob = theano.function([ob_no], prob_na, allow_input_downcast=True)\n\n    def act(self, ob):\n        \"\"\"\n        Choose an action.\n        \"\"\"\n        prob = self.compute_prob(ob.reshape(1,-1))\n        action = categorical_sample(prob)\n        return action\n\n    def learn(self, env):\n        \"\"\"\n        Run learning algorithm\n        \"\"\"\n        cfg = self.config\n        for iteration in xrange(cfg[\"n_iter\"]):\n            # Collect trajectories until we get timesteps_per_batch total timesteps \n            trajs = []\n            timesteps_total = 0\n            while timesteps_total &lt; cfg[\"timesteps_per_batch\"]:\n                traj = get_traj(self, env, cfg[\"episode_max_length\"])\n                trajs.append(traj)\n                timesteps_total += len(traj[\"reward\"])\n            all_ob = np.concatenate([traj[\"ob\"] for traj in trajs])\n            # Compute discounted sums of rewards\n            rets = [discount(traj[\"reward\"], cfg[\"gamma\"]) for traj in trajs]\n            maxlen = max(len(ret) for ret in rets)\n            padded_rets = [np.concatenate([ret, np.zeros(maxlen-len(ret))]) for ret in rets]\n            # Compute time-dependent baseline\n            baseline = np.mean(padded_rets, axis=0)\n            # Compute advantage function\n            advs = [ret - baseline[:len(ret)] for ret in rets]\n            all_action = np.concatenate([traj[\"action\"] for traj in trajs])\n            all_adv = np.concatenate(advs)\n            # Do policy gradient update step\n            self.pg_update(all_ob, all_action, all_adv, cfg[\"stepsize\"])\n            eprews = np.array([traj[\"reward\"].sum() for traj in trajs]) # episode total rewards\n            eplens = np.array([len(traj[\"reward\"]) for traj in trajs]) # episode lengths\n            # Print stats\n            print \"-----------------\"\n            print \"Iteration: \\t %i\"%iteration\n            print \"NumTrajs: \\t %i\"%len(eprews)\n            print \"NumTimesteps: \\t %i\"%np.sum(eplens)\n            print \"MaxRew: \\t %s\"%eprews.max()\n            print \"MeanRew: \\t %s +- %s\"%(eprews.mean(), eprews.std()/np.sqrt(len(eprews)))\n            print \"MeanLen: \\t %s +- %s\"%(eplens.mean(), eplens.std()/np.sqrt(len(eplens)))\n            print \"-----------------\"\n            get_traj(self, env, cfg[\"episode_max_length\"], render=True)\n\n\ndef main():\n    env = gym.make(\"Acrobot-v0\")\n    agent = REINFORCEAgent(env.observation_space, env.action_space, \n        episode_max_length=env.spec.timestep_limit)\n    agent.learn(env)\n\nif __name__ == \"__main__\":\n    main()<\/code><\/pre>","post_number":2,"post_type":1,"updated_at":"2016-05-18T11:56:43.587Z","reply_count":0,"reply_to_post_number":null,"quote_count":0,"avg_time":4,"incoming_link_count":9,"reads":26,"score":50.4,"yours":false,"topic_id":13451,"topic_slug":"mlss2016-by-john-schulman-uc-berkeley","display_username":"comix","primary_group_name":null,"version":1,"can_edit":false,"can_delete":false,"can_recover":false,"can_wiki":false,"read":true,"user_title":null,"actions_summary":[],"moderator":false,"admin":false,"staff":false,"user_id":1516,"hidden":false,"hidden_reason_id":null,"trust_level":1,"deleted_at":null,"user_deleted":false,"edit_reason":null,"can_view_edit_history":false,"wiki":false}],"stream":[36504,36505]},"id":13451,"title":"深度强化学习(MLSS2016) by John Schulman[UC Berkeley]","fancy_title":"深度强化学习(MLSS2016) by John Schulman[UC Berkeley]","posts_count":2,"created_at":"2016-05-18T11:43:22.663Z","views":895,"reply_count":0,"participant_count":1,"like_count":0,"last_posted_at":"2016-05-18T11:56:43.587Z","visible":true,"closed":false,"archived":false,"has_summary":false,"archetype":"regular","slug":"mlss2016-by-john-schulman-uc-berkeley","category_id":7,"word_count":2050,"deleted_at":null,"user_id":1516,"draft":null,"draft_key":"topic_13451","draft_sequence":null,"unpinned":null,"pinned_globally":false,"pinned":false,"pinned_at":null,"pinned_until":null,"details":{"auto_close_at":null,"auto_close_hours":null,"auto_close_based_on_last_post":false,"created_by":{"id":1516,"username":"comix","avatar_template":"/letter_avatar_proxy/v2/letter/c/8797f3/{size}.png"},"last_poster":{"id":1516,"username":"comix","avatar_template":"/letter_avatar_proxy/v2/letter/c/8797f3/{size}.png"},"participants":[{"id":1516,"username":"comix","avatar_template":"/letter_avatar_proxy/v2/letter/c/8797f3/{size}.png","post_count":2}],"suggested_topics":[{"id":13211,"title":"十个热门开源深度学习框架","fancy_title":"十个热门开源深度学习框架","slug":"topic","posts_count":1,"reply_count":0,"highest_post_number":1,"image_url":null,"created_at":"2016-05-01T13:49:10.265Z","last_posted_at":"2016-05-01T13:49:10.502Z","bumped":true,"bumped_at":"2016-05-01T13:49:10.502Z","unseen":false,"pinned":false,"unpinned":null,"visible":true,"closed":false,"archived":false,"bookmarked":null,"liked":null,"archetype":"regular","like_count":1,"views":5702,"category_id":7},{"id":9827,"title":"成功训练ldnn的13点建议","fancy_title":"成功训练ldnn的13点建议","slug":"ldnn-13","posts_count":1,"reply_count":0,"highest_post_number":1,"image_url":"/uploads/default/1428/c78034f3247aa6f2.jpg","created_at":"2015-07-01T15:26:12.717Z","last_posted_at":"2015-07-01T15:26:12.845Z","bumped":true,"bumped_at":"2015-07-01T15:26:12.845Z","unseen":false,"pinned":false,"unpinned":null,"visible":true,"closed":false,"archived":false,"bookmarked":null,"liked":null,"archetype":"regular","like_count":0,"views":4156,"category_id":7},{"id":12326,"title":"从深度学习gpu选择来谈谈gpu的硬件架构","fancy_title":"从深度学习gpu选择来谈谈gpu的硬件架构","slug":"gpu-gpu","posts_count":1,"reply_count":0,"highest_post_number":1,"image_url":"/uploads/default/original/2X/7/7f40135a1377cb9742155fbbacc42a1afec2b920.png","created_at":"2016-02-16T15:49:36.854Z","last_posted_at":"2016-02-16T15:49:37.218Z","bumped":true,"bumped_at":"2016-02-16T15:49:37.218Z","unseen":false,"pinned":false,"unpinned":null,"visible":true,"closed":false,"archived":false,"bookmarked":null,"liked":null,"archetype":"regular","like_count":1,"views":11759,"category_id":7},{"id":212,"title":"用深度学习做计算机视觉，基本的 gpu 配置是什么","fancy_title":"用深度学习做计算机视觉，基本的 gpu 配置是什么","slug":"yong-shen-du-xue-xi-zuo-ji-suan-ji-shi-jue-ji-ben-de-gpu-pei-zhi-shi-shi-yao","posts_count":4,"reply_count":2,"highest_post_number":4,"image_url":null,"created_at":"2014-12-27T02:57:39.612Z","last_posted_at":"2015-05-09T17:50:38.245Z","bumped":true,"bumped_at":"2015-05-09T17:50:38.245Z","unseen":false,"pinned":false,"unpinned":null,"visible":true,"closed":false,"archived":false,"bookmarked":null,"liked":null,"archetype":"regular","like_count":3,"views":14019,"category_id":7},{"id":706,"title":"Cnn 深度学习脑图","fancy_title":"Cnn 深度学习脑图","slug":"cnn-shen-du-xue-xi-nao-tu","posts_count":1,"reply_count":0,"highest_post_number":1,"image_url":"/uploads/default/_optimized/b96/34e/a5ed7502d1_690x851.jpg","created_at":"2015-05-09T17:57:56.413Z","last_posted_at":"2015-05-09T17:57:56.664Z","bumped":true,"bumped_at":"2015-05-09T17:57:56.664Z","unseen":false,"pinned":false,"unpinned":null,"visible":true,"closed":false,"archived":false,"bookmarked":null,"liked":null,"archetype":"regular","like_count":0,"views":1868,"category_id":7},{"id":13286,"title":"深度学习框架比较 (Theano vs. Torch vs. MXNet ..)","fancy_title":"深度学习框架比较 (Theano vs. Torch vs. MXNet ..)","slug":"theano-vs-torch-vs-mxnet","posts_count":1,"reply_count":0,"highest_post_number":1,"image_url":null,"created_at":"2016-05-08T03:24:47.448Z","last_posted_at":"2016-05-08T03:24:47.669Z","bumped":true,"bumped_at":"2016-05-08T10:21:55.889Z","unseen":false,"pinned":false,"unpinned":null,"visible":true,"closed":false,"archived":false,"bookmarked":null,"liked":null,"archetype":"regular","like_count":0,"views":2113,"category_id":7},{"id":369,"title":"Facebook 开源深度学习模块","fancy_title":"Facebook 开源深度学习模块","slug":"facebook-kai-yuan-shen-du-xue-xi-mo-kuai","posts_count":1,"reply_count":0,"highest_post_number":1,"image_url":"https://fbcdn-dragon-a.akamaihd.net/hphotos-ak-xpa1/t39.2365-6/10935977_759463790802336_343820195_n.png","created_at":"2015-01-17T01:31:46.485Z","last_posted_at":"2015-01-17T01:31:46.656Z","bumped":true,"bumped_at":"2015-01-17T03:12:39.896Z","unseen":false,"pinned":false,"unpinned":null,"visible":true,"closed":false,"archived":false,"bookmarked":null,"liked":null,"archetype":"regular","like_count":0,"views":6160,"category_id":7},{"id":11473,"title":"大家好，我现在在做毕设关于深度学习的研究！","fancy_title":"大家好，我现在在做毕设关于深度学习的研究！","slug":"topic","posts_count":1,"reply_count":0,"highest_post_number":1,"image_url":null,"created_at":"2015-12-01T03:31:08.587Z","last_posted_at":"2015-12-01T03:31:08.668Z","bumped":true,"bumped_at":"2015-12-01T03:31:08.668Z","unseen":false,"pinned":false,"unpinned":null,"visible":true,"closed":false,"archived":false,"bookmarked":null,"liked":null,"archetype":"regular","like_count":0,"views":1472,"category_id":7},{"id":13741,"title":"当我们在谈深度学习时，到底在谈论什么（一）","fancy_title":"当我们在谈深度学习时，到底在谈论什么（一）","slug":"topic","posts_count":8,"reply_count":3,"highest_post_number":8,"image_url":"/uploads/default/original/2X/3/389dcf47cdcad14e3d8d1319b587f231607ebd4f.png","created_at":"2016-06-16T04:34:51.377Z","last_posted_at":"2016-06-24T01:57:26.033Z","bumped":true,"bumped_at":"2016-06-24T01:57:26.033Z","unseen":false,"pinned":false,"unpinned":null,"visible":true,"closed":false,"archived":false,"bookmarked":null,"liked":null,"archetype":"regular","like_count":2,"views":3387,"category_id":7},{"id":13294,"title":"深度学习nlp在2016年发展预期","fancy_title":"深度学习nlp在2016年发展预期","slug":"nlp-2016","posts_count":1,"reply_count":0,"highest_post_number":1,"image_url":null,"created_at":"2016-05-08T17:20:28.566Z","last_posted_at":"2016-05-08T17:20:28.724Z","bumped":true,"bumped_at":"2016-05-08T17:20:28.724Z","unseen":false,"pinned":false,"unpinned":null,"visible":true,"closed":false,"archived":false,"bookmarked":null,"liked":null,"archetype":"regular","like_count":0,"views":2741,"category_id":7}],"links":[{"url":"http://pan.baidu.com/s/1hrGeLPq","title":null,"fancy_title":null,"internal":false,"attachment":false,"reflection":false,"clicks":33,"user_id":1516,"domain":"pan.baidu.com"},{"url":"http://t.cn/RqDSQl4","title":null,"fancy_title":null,"internal":false,"attachment":false,"reflection":false,"clicks":18,"user_id":1516,"domain":"t.cn"},{"url":"http://t.cn/RqDSQlU","title":null,"fancy_title":null,"internal":false,"attachment":false,"reflection":false,"clicks":3,"user_id":1516,"domain":"t.cn"},{"url":"http://t.cn/RqDoTIR","title":null,"fancy_title":null,"internal":false,"attachment":false,"reflection":false,"clicks":1,"user_id":1516,"domain":"t.cn"},{"url":"http://google.suanfazu.com/search/?q=OpenAI+Gym","title":"谷歌搜索 | 谷歌搜索代理 | 谷歌镜像站大全 | 谷歌加加","fancy_title":null,"internal":false,"attachment":false,"reflection":false,"clicks":1,"user_id":1516,"domain":"google.suanfazu.com"},{"url":"http://rl-gym-doc.s3-website-us-west-2.amazonaws.com/mlss/index.html","title":null,"fancy_title":null,"internal":false,"attachment":false,"reflection":false,"clicks":1,"user_id":1516,"domain":"rl-gym-doc.s3-website-us-west-2.amazonaws.com"},{"url":"http://google.suanfazu.com/search/?q=Szita+and+Lorincz%2C+Learning+Tetris+with+the+Noisy+Cross-Entropy+Method","title":"谷歌搜索 | 谷歌搜索代理 | 谷歌镜像站大全 | 谷歌加加","fancy_title":null,"internal":false,"attachment":false,"reflection":false,"clicks":1,"user_id":1516,"domain":"google.suanfazu.com"},{"url":"http://t.cn/RqDKy2j","title":null,"fancy_title":null,"internal":false,"attachment":false,"reflection":false,"clicks":0,"user_id":1516,"domain":"t.cn"}],"notification_level":1,"can_flag_topic":false},"highest_post_number":2,"deleted_by":null,"actions_summary":[{"id":4,"count":0,"hidden":false,"can_act":false},{"id":7,"count":0,"hidden":false,"can_act":false},{"id":8,"count":0,"hidden":false,"can_act":false}],"chunk_size":20,"bookmarked":null,"tags":["强化学习","深度强化学习","openai-gym"]});
+      </script> 
+  <script>
+  window.assetPath = (function(){
+    var map = {"defer/html-sanitizer-bundle":"//cdn.suanfazu.com/assets/defer/html-sanitizer-bundle-d248c5e7fffd65438fab42fafa3d1d56.js"};
+    return function(asset) { return map[asset]; };
+  })();
+</script> 
+  <script>
+  Ember.RSVP.configure('onerror', function(e) {
+    // Ignore TransitionAborted exceptions that bubble up
+    if (e && e.message === "TransitionAborted") { return; }
+
+    window.onerror(e && e.message, null,null,null,e);
+  });
+
+
+</script> 
+  <script>
+  Discourse.CDN = '//cdn.suanfazu.com';
+  Discourse.BaseUrl = 'suanfazu.com'.replace(/:[\d]*$/,"");
+  Discourse.BaseUri = '';
+  Discourse.Environment = 'production';
+  Discourse.SiteSettings = PreloadStore.get('siteSettings');
+  Discourse.LetterAvatarVersion = '5_b81b9db9c25c85a3cb45c5969b40553e';
+  I18n.defaultLocale = 'zh_CN';
+  PreloadStore.get("customEmoji").forEach(function(emoji) {
+    Discourse.Dialect.registerEmoji(emoji.name, emoji.url);
+  });
+  Discourse.start();
+  Discourse.set('assetVersion','a26913625110801f581a18c324969d26');
+  Discourse.Session.currentProp("disableCustomCSS", false);
+  Discourse.HighlightJSPath = "/highlight-js/suanfazu.com/133b1767dbeecf92cad6dfc38d42cde22195db05.js";
+</script> 
+  <script src="//cdn.suanfazu.com/assets/browser-update-1b088c371e098d02d2b87570660d5d68.js"></script> 
+  <script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?9b0738ab1116d7971e6048c2c63c1da4";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script> 
+  <script>
+function sfz_wait(required_selector, excluded_selector, check_interval, callback) {
+    var func = function(){sfz_wait(required_selector, excluded_selector, check_interval, callback)};
+
+    var s=$(required_selector);
+    if (!s || s.length <= 0) {
+        callback(false);
+        setTimeout(func, check_interval);
+        return;
+    }
+
+    s=$(excluded_selector);
+    if (s && s.length > 0) {
+        setTimeout(func, check_interval * 2);
+        return;
+    }
+    
+    callback(true);
+    setTimeout(func, check_interval * 2);
+}
+
+function _parse_toc(dom) {
+    var contents = $('#main-outlet div.post > ul:first', $('<html>').html($('noscript', dom).text()));
+    if (contents && contents.length > 0) return contents;
+    var s = $('script:contains("PreloadStore.store"):first', dom).text();
+    s = JSON.parse(s.substring(s.indexOf(',') + 1, s.lastIndexOf(')'))).post_stream.posts[0].cooked;
+    contents = $('ul:first', $('<html>').html(s));
+    if (contents && contents.length > 0) return contents;
+    return null;
+}
+
+var TOCTAG='::::';
+function handle_toc(enabled) {
+    $('#toc-left-container').remove();
+    if (!enabled) return;
+    var toc = $('#post_1 a:contains("' + TOCTAG + '")');
+    var toc_url = toc.attr('href');
+    if (!toc_url || (toc_url.indexOf('://') != -1 && toc_url.indexOf('http://suanfazu.com/') != 0)) {return;};
+    var json_url = null;
+    try {
+        json_url = toc_url.split('/t/')[1].split('/')[1];
+        json_url = 'http://suanfazu.com/t/' + json_url + '.json'
+    } catch (e) {console.log(e);};
+    $.getJSON({
+        url: json_url,
+        cache: true,
+        context: document.body,
+        success: function(data, textStatus, request) {
+            try {
+                var contents = $('body > ul:first', $('<html>').html(data.post_stream.posts[0].cooked));
+                if (!contents) {return;}
+                contents.attr('class', 'toc toc-body');
+                toc.after(contents);
+
+                if (screen.width >= 1360) {
+                    var contents = $('body > ul:first', $('<html>').html(data.post_stream.posts[0].cooked));
+                    contents.attr('class', 'toc toc-left');
+                    var title = toc.clone().children().remove().end().text().replace(TOCTAG, '').trim();
+                    title = title.replace('<', '&lt;').replace('>', '&gt;');
+                    $('body').append('<div id="toc-left-container"><div class="toc-title"><a href="' + toc_url + '">' + title + '</a></div></div>');
+                    $('#toc-left-container').append(contents);
+                    if ($('#toc-left-container').height() >= screen.height - 100) {
+                        $('#toc-left-container').css({top:70});
+                    } else {
+                        $(window).scroll(function () {
+                            var currenttop = $(window).scrollTop();
+                            if(currenttop>180){
+                                $('#toc-left-container').css({position:'fixed', top:29, zIndex:100000});
+                            }
+                            if($('#toc-left-container').css('position')=='fixed'){
+                                if(currenttop<180) {
+                                    $('#toc-left-container').css({position:'absolute', top:200});
+                                }
+                            }
+                        });
+                    }
+                }
+
+                var curr = $('.toc a[href*="' + window.location.href.replace('http://suanfazu.com', '') + '"]');
+                curr.attr('class', 'toc-curr-a');
+                curr.parent().attr('class', 'toc-curr');
+                toc.after('<div class="toc-page"><div id="toc-prev"></div><div id="toc-next"></div></div>');
+                var items = $('.toc-body a');
+                for (var i = 0; i < items.length; i++) {
+                    if ($(items[i]).attr('class') == 'toc-curr-a') {
+                        if (i > 0) {
+                            $('#toc-prev').append('<span>上一篇：</span><a href="' + $(items[i-1]).attr('href') + '">' + $(items[i-1]).text() + '</a>');
+                        }
+                        if (i + 1 < items.length) {
+                            $('#toc-next').append('<span>下一篇：</span><a href="' + $(items[i+1]).attr('href') + '">' + $(items[i+1]).text() + '</a>');
+                        }
+                        break;
+                    }
+                }
+                // $.merge($('.toc-page a'), $('.toc a')).click(function(){
+                //     window.location.href = $(this).attr('href');
+                // });
+            } catch (e) {console.log(e);};
+        }
+    });
+}
+//handle_toc();
+//if (window.location.href.indexOf('suanfazu.com/t/') != -1) 
+{sfz_wait('#post_1', '.toc-body', 500, handle_toc);}
+</script>   
+ </body>
+</html>

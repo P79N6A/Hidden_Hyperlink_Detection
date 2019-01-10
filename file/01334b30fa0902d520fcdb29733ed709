@@ -1,0 +1,238 @@
+<html><head></head><body><pre style="word-wrap: break-word; white-space: pre-wrap;">var chatModule = {
+  supportedTransactionalCountries: ['jp', 'cn'],
+  supportedExpertBrands: ['hurley'],
+  unsupportedExpertBrands: ['converse'],
+  supportedExpertCountries: {
+    be: ['lifestyle', 'running', 'training &amp; gym', 'gym &amp; training', 'track &amp; field'],
+    cz: ['lifestyle', 'running', 'training &amp; gym', 'gym &amp; training', 'track &amp; field'],
+    dk: ['lifestyle', 'running', 'training &amp; gym', 'gym &amp; training', 'track &amp; field'],
+    fi: ['lifestyle', 'running', 'training &amp; gym', 'gym &amp; training', 'track &amp; field'],
+    gb: ['lifestyle', 'women', 'running', 'training &amp; gym', 'gym &amp; training', 'track &amp; field'],
+    hu: ['lifestyle', 'running', 'training &amp; gym', 'gym &amp; training', 'track &amp; field'],
+    ie: ['lifestyle', 'running', 'training &amp; gym', 'gym &amp; training', 'track &amp; field'],
+    lu: ['lifestyle', 'running', 'training &amp; gym', 'gym &amp; training', 'track &amp; field'],
+    nl: ['lifestyle', 'running', 'training &amp; gym', 'gym &amp; training', 'track &amp; field'],
+    pt: ['lifestyle', 'running', 'training &amp; gym', 'gym &amp; training', 'track &amp; field'],
+    se: ['lifestyle', 'running', 'training &amp; gym', 'gym &amp; training', 'track &amp; field'],
+    si: ['lifestyle', 'running', 'training &amp; gym', 'gym &amp; training', 'track &amp; field'],
+    us: ['hurley', 'lacrosse', 'running', 'soccer', 'lifestyle', 'baseball / softball', 'training &amp; gym', 'gym &amp; training', 'women', 'track &amp; field']
+  },
+  languagesSupported: ['en_gb', 'en_us'],
+  appendStyle: function() {
+    var inviteStyle = document.createElement('style');
+    var defaultStyle = '';
+    var mobileStyle = '#chatModule { display: block; text-align: center; }';
+    var isMobile = document.getElementsByName('isMobile').length &gt; 0 ? document.getElementsByName('isMobile')[0].value : false;
+ 
+    inviteStyle.type = 'text/css';
+
+    if (isMobile) {
+      defaultStyle += mobileStyle;
+    }
+
+    if (inviteStyle.styleSheet) inviteStyle.styleSheet.cssText = defaultStyle;
+    else inviteStyle.appendChild(document.createTextNode(defaultStyle));
+
+    document.getElementsByTagName("head")[0].appendChild(inviteStyle);
+  },
+  createChatInviteElem: function(text) {
+    var defaultIconClass = 'nsg-glyph--live-chat';
+    var defaultIconStyle = 'font-size: 24px; margin-right: 4px';
+    var defaultTextStyle = 'vertical-align: middle; position: relative; top: -1px; font-size: 12px;';
+
+    var defaultInviteLinkClass = 'nsg-font-family--base exp-pdp-promo-message-link exp-pdp-chat-container';
+    
+    var defaultInviteLinkAttrsArr = [{
+      name: 'class',
+      value: defaultInviteLinkClass
+    }, {
+      name: 'href',
+      value: '#'
+    }, {
+      name: 'style',
+      value: 'text-decoration: underline'
+    }];
+
+    var parentElem = document.createElement('a');
+
+    var iconElem = document.createElement('span');
+    iconElem.setAttribute('class', defaultIconClass);
+    iconElem.setAttribute('style', defaultIconStyle);
+    
+    var textElem = document.createElement('span');
+    var textNode = document.createTextNode(text);
+    textElem.setAttribute('style', defaultTextStyle);
+    textElem.appendChild(textNode);
+
+    parentElem.appendChild(iconElem);
+    parentElem.appendChild(textElem);
+
+    for (var i = 0; i &lt; defaultInviteLinkAttrsArr.length; i++) { 
+      parentElem.setAttribute(defaultInviteLinkAttrsArr[i].name, defaultInviteLinkAttrsArr[i].value);
+    }
+
+    return parentElem;
+  },
+  handleInviteClick: function(site, country, lob, isExpertChat) {
+    var domain = 'https://help-' + site + '.nike.com';
+    var chatPath = '/app/' + (isExpertChat ? 'expert_chat' : 'chat') + '/chat_launch';
+    var countryPath = '/country/' + country;
+    var lobPath = '/r/' + lob;
+
+    var fullPath = domain + chatPath + countryPath + lobPath;
+    var chatWinDimensions = 'width=810,height=590';
+
+    var chatWindow = window.open(fullPath, 'expertChatPopup', 'toolbar=0,location=0,directories=0,status=0,menubar=0,scrollbars=auto,resizable=yes,dependent=yes,' + chatWinDimensions);
+    chatWindow.focus();
+  },
+  isTransactionalChatSupported: function(country, brand, lob) {
+    return this.supportedTransactionalCountries.indexOf(country) &gt; -1;
+  },
+  isExpertChatSupported: function(country, brand, lob, language) {
+    return (this.supportedExpertCountries.hasOwnProperty(country) &amp;&amp; 
+      this.supportedExpertCountries[country].indexOf(lob) &gt; -1 &amp;&amp; 
+      this.languagesSupported.indexOf(language.toLowerCase()) &gt; -1 &amp;&amp; 
+      this.unsupportedExpertBrands.indexOf(brand) === -1) ||
+      (this.supportedExpertBrands.indexOf(brand) &gt; -1);
+  },
+  isGenderMale: function(gender) {
+    return Number.parseInt(gender) === 1 || gender === 'men';
+  },
+  isGenderFemale: function(gender) {
+    return Number.parseInt(gender) === 2 || gender === 'women';
+  },
+  getChatRParam: function(country, brand, lob, gender, category, language) {
+    if (!lob) return brand || 'store';
+
+    if (this.isExpertChatSupported(country, brand, lob, language) &amp;&amp; (lob === 'training &amp; gym' || lob === 'gym &amp; training')) {
+      // If 'training &amp; gym', /r/ should be 'training'
+      if (this.isGenderFemale(gender)) {
+        return 'women';
+      } else if (this.isGenderMale(gender) &amp;&amp; country !== 'us') {
+        return undefined;
+      } else if (this.isGenderMale(gender)) {
+        return 'menstraining';
+      }
+    } else if (this.isExpertChatSupported(country, brand, lob, language) &amp;&amp; lob === 'track &amp; field') {
+      // Track &amp; field chats go to running experts
+      return 'running';
+    } else if (this.isExpertChatSupported(country, brand, lob, language) &amp;&amp; lob === 'baseball / softball') {
+      // If 'baseball / softball', /r/ should be 'baseball' only for men
+      if (this.isGenderMale(gender)) {
+        return 'baseball';
+      }
+    } else if (this.isExpertChatSupported(country, brand, lob, language) &amp;&amp; lob === 'lifestyle' &amp;&amp; brand !== 'hurley') {
+      // If women's lifestyle, then go to /r/women
+      if (this.isGenderFemale(gender)) {
+        return 'women';
+      } else {
+        return undefined;
+      }
+    } else if (this.isExpertChatSupported(country, brand, lob, language) &amp;&amp; lob === 'running') {
+      // Running apparel goes to women or running for men
+      if (category === 'running apparel' &amp;&amp; this.isGenderFemale(gender)) {
+        return 'women';
+      } else {
+        return 'running';
+      }
+    } else if (this.isExpertChatSupported(country, brand, lob, language)) {
+      if (brand === 'hurley' &amp;&amp; country === 'us') {
+        return 'hurley';
+      }
+
+      return lob;
+    } else {
+      // Otherwise, or for transactional chat, /r/store will suffice
+      return 'store';
+    }
+  },
+  render: function() {
+    try {
+      // Target chatModule &gt; chatModuleBody
+      var chatModuleElem = document.getElementById('chatModule');
+      var chatModuleBodyElem = document.getElementById('chatModuleBody');
+
+      // Values we need are stored as data attributes
+      var lineOfBusiness = chatModuleElem.getAttribute('data-invite-context').toLowerCase();
+      var brand = chatModuleElem.getAttribute('data-brand').toLowerCase();
+      var geo = chatModuleElem.getAttribute('data-geo').toLowerCase();
+      var category = chatModuleElem.getAttribute('data-category-id').toLowerCase();
+      var gender = chatModuleElem.getAttribute('data-gender');
+      var language = chatModuleElem.getAttribute('data-lang-variant');
+
+      // Are they supported?
+      if (this.isExpertChatSupported(geo, brand, lineOfBusiness, language) || this.isTransactionalChatSupported(geo, brand, lineOfBusiness)) {
+        // The ubiquitous /r/ parameter
+        var chatRParam = this.getChatRParam(geo, brand, lineOfBusiness, gender, category, language);
+
+        // Do we have an /r/ parameter
+        if (chatRParam !== null &amp;&amp; chatRParam !== undefined) {
+          // Remove default is-hidden class since we're supported
+          var hiddenRemovedClass = chatModuleElem.getAttribute('class').replace('is-hidden', '');
+          chatModuleElem.setAttribute('class', hiddenRemovedClass);
+          
+          // Set some styles on our container
+          chatModuleBodyElem.setAttribute('class', 'exp-pdp-content-container');
+          chatModuleBodyElem.setAttribute('style', 'margin-left: 0');
+          
+          // Geo's have different content
+          switch (geo) {
+            case 'us':
+              var inviteLinkElem = this.createChatInviteElem('Chat with an Expert');
+              chatModuleBodyElem.appendChild(inviteLinkElem);
+
+              inviteLinkElem.onclick = function() {
+                window.chatModule.handleInviteClick('en-us', 'us', chatRParam, true);
+              }
+
+              break;
+            case 'gb':
+              var inviteLinkElem = this.createChatInviteElem('Chat with an Expert');
+              chatModuleBodyElem.appendChild(inviteLinkElem);
+
+              inviteLinkElem.onclick = function() {
+                window.chatModule.handleInviteClick('en-gb', 'gb', chatRParam, true);
+              }
+
+              break;
+            case 'jp':
+              var inviteLinkElem = this.createChatInviteElem('チャットでのお問い合わせ受け付け中です！');
+              chatModuleBodyElem.appendChild(inviteLinkElem);
+
+              inviteLinkElem.onclick = function() {
+                window.chatModule.handleInviteClick('ja-jp', 'jp', chatRParam, false);
+              }
+
+              break;
+            case 'cn':
+              var inviteLinkElem = this.createChatInviteElem('即时对话');
+              chatModuleBodyElem.appendChild(inviteLinkElem);
+
+              inviteLinkElem.onclick = function() {
+                window.chatModule.handleInviteClick('zh-cn', 'cn', chatRParam, false);
+              }
+
+              break;
+            default:
+              var inviteLinkElem = this.createChatInviteElem('Chat with an Expert');
+              chatModuleBodyElem.appendChild(inviteLinkElem);
+
+              inviteLinkElem.onclick = function() {
+                window.chatModule.handleInviteClick('en-eu', geo, chatRParam, true);
+              }
+
+              break;
+          }
+        }
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  }
+};
+
+
+(function() {
+  window.chatModule.render();
+  window.addEventListener('load', window.chatModule.appendStyle, false);
+})();</pre></body></html>

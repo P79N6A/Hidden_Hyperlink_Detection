@@ -1,0 +1,445 @@
+<!DOCTYPE html><html style="font-size: 0px; "><head lang="zh-CN">
+    <meta charset="UTF-8">
+    <meta http-equiv="content-type" content="text/html;charset=utf-8;">
+    <meta name="format-detection" content="telephone=no,address=no,email=no">
+    <meta name="mobileOptimized" content="width">
+    <meta name="handheldFriendly" content="true">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <title>生活服务</title>
+
+    <link rel="stylesheet" href="./assets/css/normalize.css">
+    <link rel="stylesheet" href="./assets/css/style.css">
+
+    <script src="./assets/js/project/global.js"></script><meta name="viewport" content="width=device-width,initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=yes">
+    <script src="./assets/js/zepto/zepto.min.js"></script>
+    <script src="./assets/js/template/template.js"></script>
+    <script id="j_template" type="text/html"> 
+
+
+{{each initLifeData as snd}}
+    
+<section class="life-module" data-id="{{snd.id}}">
+    {{if snd.name}}
+        <h2 class="title" {{if snd.color}}style="color:{{snd.color}}"{{/if}}>
+            {{if snd.id == 2}}
+                <img src="./assets/image/temp/icon-blue.png" />
+            {{/if}}
+            {{if snd.id == 3}}
+                <img src="./assets/image/temp/icon-orange.png" />
+            {{/if}}
+            {{snd.name}}
+        </h2>
+    {{/if}}
+
+    {{each snd.subArray as sa i}}
+        {{if sa.type ==3 && sa.subArray.length}}
+            <section class="img-module">
+                <div class="wrapper">
+                    <ul>
+                        {{each sa.subArray as sasa j}}                        
+                        {{if j<4}}
+                        <li><a data-href="{{sasa.url}}"><img src="{{sasa.icon}}" /></a></li>
+                        {{/if}}
+                        {{/each}}
+                    </ul>        
+                </div>
+            </section>
+        {{/if}}
+
+        {{if sa.type == 4 && sa.subArray.length}}
+            <section class="text-module">
+                <div class="wrapper">
+                    <ul>
+                        {{each sa.subArray as sasa j}}              
+                            {{if j<8}}
+                                <li><a {{if sasa.color}}style="color:{{sasa.color}}"{{/if}} data-href="{{sasa.url}}">{{sasa.name}}</a></li>
+                            {{/if}}
+                        {{/each}}
+                    </ul>        
+                </div>
+            </section>
+        {{/if}}
+
+
+        {{if sa.type == 5 && sa.subArray.length}}
+
+            {{if snd.id == 2}}
+                <section class="famous-site">
+                    <div class="wrapper">
+                        <ul>
+                            {{each sa.subArray as sasa i}}
+                                {{if i<8}}
+                                <li><a data-href="{{sasa.url}}"> </a><img src="{{sasa.icon}}" /><span  {{if sasa.color}}style="color:{{sasa.color}}"{{/if}}>{{sasa.name}}</span></li>
+                                {{/if}}
+                            {{/each}}
+                        </ul>
+                    </div>
+                </section>
+            {{/if}}
+
+            {{if snd.id != 2}}
+                <section class="img-text-module">
+                    <ul class="{{if snd.id == 3}}tools{{/if}}" >
+                        {{each sa.subArray as sasa i}}
+                        <li>
+                            <img src="{{sasa.icon}}">
+                            <div  {{if sasa.color}}style="color:{{sasa.color}}"{{/if}}>{{sasa.name}}</div>
+                            <a data-href="{{sasa.url}}"></a>
+                        </li>
+                        {{/each}}                        
+                    </ul>
+                </section>  
+            {{/if}}  
+        {{/if}}
+    {{/each}}
+</section>
+{{/each}}
+</script>
+
+    <script>
+        //机型公有信息，需要由native接口提供
+        var PUBLIC_MOBILE_INFO = {};
+
+        //跟native约定的方法，供浏览器调用，传入机型相关信息
+        //不用var声明，自动声明为全局变量
+        publicParamsArrival = function(param){
+            param = param || "";
+            getInfoFromParam(param);
+
+            //加载数据，渲染模板
+            $.ajax({
+                url: "/client/vivo/h5/init.do",
+                async: false,
+                data: {
+                    t: new Date().getTime(),
+                    model: PUBLIC_MOBILE_INFO.model||"",
+                    imei:PUBLIC_MOBILE_INFO.imei||""
+                },
+                success: function(data) {
+                    $(function(){
+                        $(document.body).prepend(template("j_template", data));
+                    });
+                }
+            });
+        }
+
+
+        /**
+         * 工具方法：从param字符串中获取对应value
+         */
+        function getInfoFromParam(param){
+            if(!param){
+                return;
+            }
+
+            PUBLIC_MOBILE_INFO.imei = getItem("imei",param);
+            PUBLIC_MOBILE_INFO.e = getItem("u",param);
+            PUBLIC_MOBILE_INFO.model = getItem("model",param);
+            PUBLIC_MOBILE_INFO.elapsedtime = getItem("elapsedtime",param);
+            PUBLIC_MOBILE_INFO.cs = 0;
+            PUBLIC_MOBILE_INFO.app_version = getItem("appversion",param);
+            PUBLIC_MOBILE_INFO.app_package = getItem("apppackage",param);
+
+            function getItem(sKey,str) {
+                if (!sKey) { return null; }
+                return decodeURIComponent(str.replace(new RegExp("(?:(?:^|.*;)\\s*" + encodeURIComponent(sKey).replace(/[\-\.\+\*]/g, "\\$&") + "\\s*\\=\\s*([^;]*).*$)|^.*$"), "$1")) || null;
+            }
+
+        } 
+
+
+        if(window.vivoClient && window.vivoClient.retrievePublicParams){
+            window.vivoClient.retrievePublicParams();
+        }else {
+            publicParamsArrival();
+        }
+    </script>
+
+</head>
+<body>
+    
+<section class="life-module" data-id="1">
+    
+
+    
+        
+
+        
+
+
+        
+
+            
+
+            
+                <section class="img-text-module">
+                    <ul class="">
+                        
+                        <li>
+                            <img src="https://browserwsdl.vivo.com.cn/browser/newoperate/life/2016/01/2016011415045914523235.png">
+                            <div style="color:#000000">火车票</div>
+                            <a data-href="http://m.ctrip.com/webapp/train/?sourceid=2378&amp;allianceid=106335&amp;sid=728674"></a>
+                        </li>
+                        
+                        <li>
+                            <img src="https://browserwsdl.vivo.com.cn/browser/newoperate/life/2016/01/2016011415050342603175.png">
+                            <div style="color:#000000">机票</div>
+                            <a data-href="http://m.ctrip.com/webapp/flight/?sourceid=2378&amp;allianceid=106335&amp;sid=728673"></a>
+                        </li>
+                        
+                        <li>
+                            <img src="https://browserwsdl.vivo.com.cn/browser/newoperate/life/2016/01/2016011415050741755894.png">
+                            <div style="color:#000000">话费充值</div>
+                            <a data-href="http://h5.m.taobao.com/app/cz/cost.html"></a>
+                        </li>
+                        
+                        <li>
+                            <img src="https://browserwsdl.vivo.com.cn/browser/newoperate/life/2016/01/2016011415051081711972.png">
+                            <div style="color:#000000">电影</div>
+                            <a data-href="http://m.wepiao.com/"></a>
+                        </li>
+                        
+                        <li>
+                            <img src="https://browserwsdl.vivo.com.cn/browser/newoperate/life/2016/01/2016011415051590441507.png">
+                            <div style="color:#000000">团购</div>
+                            <a data-href="http://i.meituan.com/"></a>
+                        </li>
+                        
+                        <li>
+                            <img src="https://browserwsdl.vivo.com.cn/browser/newoperate/life/2016/01/2016011415052102424793.png">
+                            <div style="color:#000000">外卖</div>
+                            <a data-href="http://waimai.baidu.com/"></a>
+                        </li>
+                        
+                        <li>
+                            <img src="https://browserwsdl.vivo.com.cn/browser/newoperate/life/2016/01/2016011415052496887182.png">
+                            <div style="color:#000000">快递</div>
+                            <a data-href="http://m.kuaidi100.com/"></a>
+                        </li>
+                        
+                        <li>
+                            <img src="https://browserwsdl.vivo.com.cn/browser/newoperate/life/2016/01/2016011415052900168858.png">
+                            <div style="color:#000000">酒店</div>
+                            <a data-href="http://m.ctrip.com/webapp/Hotel/?sourceid=2378&amp;allianceid=106335&amp;sid=728672"></a>
+                        </li>
+                        
+                        <li>
+                            <img src="https://browserwsdl.vivo.com.cn/browser/newoperate/life/2016/01/2016011415053352511423.png">
+                            <div style="color:#000000">打车</div>
+                            <a data-href="http://common.diditaxi.com.cn/general/webEntry#/"></a>
+                        </li>
+                        
+                        <li>
+                            <img src="https://browserwsdl.vivo.com.cn/browser/newoperate/life/2016/01/2016011415053755133060.png">
+                            <div style="color:#000000">地图</div>
+                            <a data-href="http://map.baidu.com/"></a>
+                        </li>
+                                                
+                    </ul>
+                </section>  
+              
+        
+    
+</section>
+
+    
+<section class="life-module" data-id="2">
+    
+        <h2 class="title">
+            
+                <img src="./assets/image/temp/icon-blue.png">
+            
+            
+            生活服务
+        </h2>
+    
+
+    
+        
+
+        
+
+
+        
+
+            
+                <section class="famous-site">
+                    <div class="wrapper">
+                        <ul>
+                            
+                                
+                                <li><a data-href="http://map.baidu.com/mobile/webapp/third/transit/force=superman/?third_party=baidulightapp&amp;bd_source_light=4369669"> </a><img src="https://browserwsdl.vivo.com.cn/browser/newoperate/life/2016/01/2016011415054777198541.png"><span style="color:#000000">公交</span></li>
+                                
+                            
+                                
+                                <li><a data-href="http://m.weizhang8.cn/"> </a><img src="https://browserwsdl.vivo.com.cn/browser/newoperate/life/2016/01/2016011415055284332793.png"><span style="color:#000000">违章</span></li>
+                                
+                            
+                                
+                                <li><a data-href="http://jump.luna.58.com/i/28tP"> </a><img src="https://browserwsdl.vivo.com.cn/browser/newoperate/life/2016/01/2016011415055805628843.png"><span style="color:#000000">家政</span></li>
+                                
+                            
+                                
+                                <li><a data-href="http://www.helijia.com/mobile/build/app/customer/view/home.html?channel=putaozhushou"> </a><img src="https://browserwsdl.vivo.com.cn/browser/newoperate/life/2016/01/2016011415060319262876.png"><span style="color:#000000">美甲</span></li>
+                                
+                            
+                                
+                                <li><a data-href="http://m.meidaojia.com/"> </a><img src="https://browserwsdl.vivo.com.cn/browser/newoperate/life/2016/01/2016011415060688225014.png"><span style="color:#000000">美妆</span></li>
+                                
+                            
+                                
+                                <li><a data-href="http://ejxy.zpcehua.com/ehomewashnew/wxmall/index.aspx"> </a><img src="https://browserwsdl.vivo.com.cn/browser/newoperate/life/2016/01/2016011415061087280145.png"><span style="color:#000000">洗衣</span></li>
+                                
+                            
+                                
+                                <li><a data-href="http://jump.luna.58.com/i/28tQ"> </a><img src="https://browserwsdl.vivo.com.cn/browser/newoperate/life/2016/01/2016011415061552722913.png"><span style="color:#000000">二手</span></li>
+                                
+                            
+                                
+                                <li><a data-href="http://h5.edaijia.cn/app/index.html"> </a><img src="https://browserwsdl.vivo.com.cn/browser/newoperate/life/2016/01/2016011415061959267224.png"><span style="color:#000000">代驾</span></li>
+                                
+                            
+                        </ul>
+                    </div>
+                </section>
+            
+
+              
+        
+    
+        
+
+        
+            <section class="text-module">
+                <div class="wrapper">
+                    <ul>
+                                      
+                            
+                                <li><a style="color:#000000" data-href="https://water.oupeng.com/mobile?cid=h5_vivo">流量充值</a></li>
+                            
+                                      
+                            
+                                <li><a style="color:#000000" data-href="http://jump.luna.58.com/i/28tK">租房</a></li>
+                            
+                                      
+                            
+                                <li><a style="color:#000000" data-href="http://jump.luna.58.com/i/28tL">招聘</a></li>
+                            
+                                      
+                            
+                                <li><a style="color:#000000" data-href="http://h.ddky.com/index.html?source=putao">送药上门</a></li>
+                            
+                                      
+                            
+                                <li><a style="color:#000000" data-href="http://m.ctrip.com/webapp/bus">汽车票</a></li>
+                            
+                                      
+                            
+                                <li><a style="color:#000000" data-href="http://m.jikexiu.com/?orderSource=15">手机维修</a></li>
+                            
+                                      
+                            
+                                <li><a style="color:#000000" data-href="http://m.jdguanjia.com">家电维修</a></li>
+                            
+                                      
+                            
+                                <li><a style="color:#000000" data-href="http://wy.guahao.com">挂号</a></li>
+                            
+                        
+                    </ul>        
+                </div>
+            </section>
+        
+
+
+        
+    
+</section>
+
+    
+<section class="life-module" data-id="3">
+    
+        <h2 class="title">
+            
+            
+                <img src="./assets/image/temp/icon-orange.png">
+            
+            实用工具
+        </h2>
+    
+
+    
+        
+
+        
+
+
+        
+
+            
+
+            
+                <section class="img-text-module">
+                    <ul class="tools">
+                        
+                        <li>
+                            <img src="https://browserwsdl.vivo.com.cn/browser/newoperate/life/2016/01/2016011415063104253823.png">
+                            <div style="color:#000000">邮编</div>
+                            <a data-href="http://m.46644.com/zipcode/"></a>
+                        </li>
+                        
+                        <li>
+                            <img src="https://browserwsdl.vivo.com.cn/browser/newoperate/life/2016/01/2016011415063575463726.png">
+                            <div style="color:#000000">翻译</div>
+                            <a data-href="http://fanyi.baidu.com"></a>
+                        </li>
+                        
+                        <li>
+                            <img src="https://browserwsdl.vivo.com.cn/browser/newoperate/life/2016/01/2016011415064101854879.png">
+                            <div style="color:#000000">常用电话</div>
+                            <a data-href="http://m.dianhua.cn/"></a>
+                        </li>
+                        
+                        <li>
+                            <img src="https://browserwsdl.vivo.com.cn/browser/newoperate/life/2016/01/2016011415064524037275.png">
+                            <div style="color:#000000">汇率</div>
+                            <a data-href="http://huilv.gold600.com/"></a>
+                        </li>
+                        
+                        <li>
+                            <img src="https://browserwsdl.vivo.com.cn/browser/newoperate/life/2016/01/2016011415064918483518.png">
+                            <div style="color:#000000">万年历</div>
+                            <a data-href="http://baidu365.duapp.com/uc/Calendar.html"></a>
+                        </li>
+                        
+                        <li>
+                            <img src="https://browserwsdl.vivo.com.cn/browser/newoperate/life/2016/01/2016011415065311132425.png">
+                            <div style="color:#000000">星座</div>
+                            <a data-href="http://ast.sina.cn/"></a>
+                        </li>
+                        
+                        <li>
+                            <img src="https://browserwsdl.vivo.com.cn/browser/newoperate/life/2016/01/2016011415065770023425.png">
+                            <div style="color:#000000">周公解梦</div>
+                            <a data-href="http://m.2280.com/"></a>
+                        </li>
+                        
+                        <li>
+                            <img src="https://browserwsdl.vivo.com.cn/browser/newoperate/life/2016/01/2016011415070259212861.png">
+                            <div style="color:#000000">生辰八字</div>
+                            <a data-href="http://m.lnka.cn/app/bazi.aspx"></a>
+                        </li>
+                                                
+                    </ul>
+                </section>  
+              
+        
+    
+</section>
+
+
+
+<script src="./assets/js/project/life.js?v=20160401"></script>
+
+</body></html>

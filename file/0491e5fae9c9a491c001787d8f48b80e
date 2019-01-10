@@ -1,0 +1,418 @@
+<html><head></head><body><pre style="word-wrap: break-word; white-space: pre-wrap;">//新版评论
+//2016.04.27
+//update 2016.04.28
+//v0.0.2
+//最后修改 MrrrTian
+//2016.07.08新增 $('#SOHUCS').addClass('ym-comm');
+
+$('#SOHUCS').addClass('ym-comm');
+var $cmtTop = $(".ym-comm-re"), $cmtList = $("#cmt_list");
+var cookieKey = window.location.href+"cookieKey";
+var cookieCommnet = "cookieCommnet";
+var isTrim = function (s) {
+    if (s == null) {
+        return true;
+    }
+    return s.replace(/(^\s*)|(\s*$)/g, "");
+};  //清除空格
+var reCon = '&lt;form class="ym-comm-re"&gt;&lt;textarea placeholder="请输入内容" class="textarea" data-remember="false"&gt;&lt;/textarea&gt;&lt;label class="ym-comm-niming"&gt;&lt;input name="" type="checkbox" value="" /&gt;匿名发布&lt;/label&gt;&lt;button class="submit"&gt;发布&lt;/button&gt;&lt;/form&gt;';
+
+
+var newcomm = {
+    insertRe: function () {
+        var btn = $('.ymCommRebtn'),
+		zbtn = $('.ymCommZan'),
+        txtBtn = $('.ymCommUserSay p'),
+		reBtnWrap = '&lt;div class="ym-comm-pop-re"&gt;&lt;a href="javascript:;" class="ym-comm-zan ymCommZan" loadcommzan="true"&gt;0&lt;/a&gt;&lt;span&gt;&lt;/span&gt;&lt;a href="javascript:;" class="ym-comm-rebtn ymCommRebtn"&gt;回复&lt;/a&gt;&lt;/div&gt;';
+        btn.each(function () {
+            RebtnFun($(this));
+        });
+        zbtn.each(function () {
+            ZanbtnFun($(this));
+        });
+        txtBtn.each(function () {
+            $(this).unbind("click");
+            $(this).on('click', function () {
+                var txtbtnPar = $(this);
+                if ($(this).find('.ym-comm-pop-re').length == 0) {
+                    $('.ym-comms-wrap').find('.ym-comm-pop-re').remove();
+                    var reBtnWrapTemp = $(reBtnWrap);
+                    reBtnWrapTemp.find(".ymCommZan").html(txtbtnPar.attr("num"));
+                    reBtnWrapTemp.find(".ymCommZan").attr("cmtid", txtbtnPar.attr("cmtid"));
+                    reBtnWrapTemp.find(".ymCommZan").attr("uid", txtbtnPar.attr("uid"));
+                    reBtnWrapTemp.find(".ymCommRebtn").attr("cmtid",txtbtnPar.attr("cmtid"));
+                    if (txtbtnPar.attr("activity") == 1) {
+                        reBtnWrapTemp.find(".ymCommZan").addClass("actived");
+                    }
+                    txtbtnPar.append(reBtnWrapTemp);
+                    like();
+                }
+                RebtnFun($('.ymCommRebtn'), true);
+                ZanbtnFun($('.ymCommZan'));
+            });
+        });
+        function RebtnFun(e, ReRemove) {
+            e.unbind("click");
+            e.on('click', function () {
+                var btnPar = $(this).closest('.ym-comm-floor');
+                $('.ym-comms-wrap').find('.ym-comm-re').remove();
+                var reConment = $(reCon).attr("cmtid", $(this).attr("cmtid"));
+                btnPar.append(reConment);
+                if (ReRemove == true) {
+                    $('.ym-comm-pop-re').hide();
+                }
+                PLogin.Submit($(".ym-comms-wrap .ym-comm-re"));
+            });
+        }
+        function ZanbtnFun(e) {
+            e.unbind('click');
+            e.on('click', function () {
+                var $this = $(this);
+                var cmtid = $this.attr("cmtid");
+                var uid = $this.attr("uid");
+                var num = parseInt($this.html()) + 1;
+                PLogin.zanAjax(cmtid, uid, num, function (responseJson) {
+                    if (responseJson.status != "ok") {
+                        alert("你已经点过赞！");
+                    }
+                    else {
+                        $this.addClass('actived');
+                        $("a.ymCommZan[cmtid='" + cmtid + "']").each(function () {
+                            $(this).html(num);
+                            $(this).addClass("actived");
+                        });
+                        $("p[cmtid='" + cmtid + "']").each(function () {
+                            $(this).attr("num", num);
+                            $(this).attr("activity", 1);
+                        });
+                    }
+                });
+            });
+        }
+    },
+    txtMore: function () {
+        var txts = $('.ymCommUserSay'),
+		morebtn = '&lt;a href="javascript:;" class="ym-comm-showall ymCommShowall"&gt;显示全部&lt;i class="ymwfonts ymwfonts-arr-d"&gt;&lt;/i&gt;&lt;/a&gt;';
+        txts.each(function () {
+            var $this = $(this),
+			th = $this.height();
+            var length = $this.find(".ym-comm-showall.ymCommShowall").length;
+            if (th &gt; 70 &amp;&amp; length == 0) {
+                $this.css({ 'height': '92px' }).find('p').css({ 'height': '66px', 'overflow': 'hidden' });
+                $this.append(morebtn).find('.ymCommShowall').on('click', function () {
+                    $this.css({ 'height': 'auto' }).find('p').css({ 'height': 'auto', 'overflow': 'visible' });
+                    $(this).hide();
+                });
+            }
+        });
+    }
+}
+
+var like = function () {
+    var support = "";
+    $(".ymCommZan[loadcommzan='true']").each(function () {
+        if (support != "") {
+            support = support + ","
+        }
+        support = support + $(this).attr("cmtid");
+    });
+    $.ajax({
+        type: "get",
+        dataType: "jsonp",
+        url: "http://cm.gamersky.com/wapapi/getlike",
+        data: {
+            jsondata: support
+        },
+        success: function (data) {
+            if (data.status == "ok") {
+                var body = $.parseJSON(data.body);
+                $.each(body, function (index, value) {
+                    var text = value.count;
+                    $(".ymCommZan[cmtid='" + value.commentId + "']").each(function () {
+                        if (value.isExist) {
+                            $(this).addClass('actived');
+                        }
+                        $(this).html(text);
+                        $(this).attr("loadcommzan", "false");
+                    });
+                    $("p[cmtid='" + value.commentId + "']").each(function () {
+                        $(this).attr("num", text);
+                        if (value.isExist) {
+                            $(this).attr("activity", 1);
+                        }
+                    });
+                });
+            }
+        }
+    });
+}
+
+var cycm = function () {
+    var wrap = $(".ym-comm-floor-inner.more");
+    wrap.each(function (index, element) {
+        $(this).unbind("click");
+        $(this).click(function () {
+            //请求隐藏列表的数据
+            var that = $(this);
+            var cmtid = that.parents(".ym-comm-floor-inner-wrap").attr("cmtid");
+            $.ajax({
+                type: "get",
+                url: "http://cm.gamersky.com/wapapi/GetHideComment",
+                dataType: "jsonp",
+                data: {
+                    jsondata: JSON2.stringify({ cmtid: cmtid })
+                },
+                success: function (responseJson) {
+                    if (responseJson.status == "ok") {
+                        var data = $.parseJSON(responseJson.body);
+                        var html = "";
+                        if (data.NewComment != null) {
+                            html += data.NewComment;
+                        }
+                        that.prev().after(html);
+                        that.remove();
+                        like();
+                        newcomm.txtMore();
+                        newcomm.insertRe();
+                    }
+                }
+            });
+        });
+    });
+}
+
+var PLhtml = {
+    login_no: function (htm) {//未登录
+        htm += '&lt;a href="javascript:;" id="login"&gt;登录&lt;/a&gt;';
+        htm += '&lt;span&gt;&lt;/span&gt;';
+        htm += '&lt;a href="http://i.gamersky.com/user/register/"&gt;注册&lt;/a&gt;';
+        return htm;
+    },
+    login_yes: function (htm) {//已登录
+        htm += '&lt;div class="ym-comm-user-tx"&gt;&lt;img src="{userface}" alt=""&gt;&lt;/div&gt;';
+        htm += '&lt;div class="ym-comm-user-info"&gt;&lt;div class="ym-comm-user-name"&gt;';
+        htm += '&lt;div class="ym-comm-user-name-txt"&gt;{username}&lt;/div&gt;';
+        htm += '&lt;a href="javascript:;" class="ym-comm-user-out"&gt;退出&lt;/a&gt;';
+        htm += '&lt;/div&gt;&lt;/div&gt;';
+        return htm;
+    },
+    login_href: function () {
+        $(".ym-comm-login-wrap #login").click(function () {
+            var $comm = $(".ym-comm-floor .ym-comm-re");
+            if ($comm.length &gt; 0) {
+                var jsondate = {
+                    cmtid: $comm.attr("cmtid"),
+                    values: $comm.find(".textarea").val()
+                };
+                $.fn.cookie(cookieCommnet, JSON2.stringify(jsondate), { path: "/", expires: 365 });
+            }
+            window.location.href = "http://i.gamersky.com/user/login.html?from=" + escape(window.location.href) + "";
+        });
+    }
+};
+
+var PLogin = {
+    //点击发布按钮
+    Submit: function ($this) {
+        $this.on("click", ".submit", function (e) {
+            e.preventDefault();
+            var $con = $this.find(".textarea"), con = $con.val();
+            var that = $(this);
+            if (!isTrim(con)) {
+                $(this).parents(".ym-comm-re").prepend("&lt;div class='ym-comm-nullinput'&gt;请输入内容&lt;/div&gt;");
+                setTimeout(function () {
+                    var nullinput = $this.find(".ym-comm-nullinput");
+                    if (nullinput.length &gt; 0) {
+                        nullinput.remove();
+                    }
+                }, 3000);
+            }
+            else if (con.length &gt; 1000) {
+                $(this).parents(".ym-comm-re").prepend("&lt;div class='ym-comm-nullinput ym-comm-nullinput-b'&gt;输入内容过长，请重新输入&lt;/div&gt;");
+                setTimeout(function () {
+                    var nullinput = $this.find(".ym-comm-nullinput");
+                    if (nullinput.length &gt; 0) {
+                        nullinput.remove();
+                    }
+                }, 3000);
+            }
+            else {
+                if (that.attr("data-click") == "true") {
+                    return;
+                }
+                that.attr("data-click", "true");
+                PLogin.onlineAjax(function (responseJson) {//返回已登录用户信息
+                    if (responseJson.status == "ok" || that.parent(".ym-comm-re").find(".ym-comm-niming input").prop("checked") == true) {
+                        PLogin.SubmitAjax($this, con, function (responseJson) {
+                            that.attr("data-click", "false");
+                            if (responseJson.status == "ok") {
+                                $.fn.cookie(cookieKey, "", { path: "/", expires: -1 });
+                                var $con = $this.find(".textarea").val("");
+                                var html = "";
+                                var data = $.parseJSON(responseJson.body);
+                                if (data.NewComment != null) {
+                                    html += data.NewComment;
+                                }
+                                var $html = $(html);
+                                $html.find(".ym-comm-floor-inner").last().addClass("last");
+                                var cmtid = $this.attr("cmtid");
+
+                                if ($(".ym-comms-wrap .ym-comm-floor").length &gt; 0 &amp;&amp; parseInt(cmtid) &gt; 0) {
+                                    $(".ym-comms-wrap .ym-comm-new").after($html);
+                                }
+                                else if ($(".ym-comms-wrap .ym-comm-floor").length &gt; 0) {
+                                    var floor = $("&lt;div&gt;" + html + "&lt;/div&gt;").find(".ym-comm-floor");
+                                    floor.find(".ym-comm-floor-inner").last().addClass("last");
+                                    $(".ym-comms-wrap .ym-comm-new").after(floor);
+                                }
+                                else {
+                                    $(".ym-comms-wrap").html($html);
+                                }
+                                if (parseInt(cmtid) &gt; 0) {
+                                    $this.remove();
+                                }
+                                newcomm.insertRe();
+                                //newcomm.txtMore();
+                                var morebtn = '&lt;a href="javascript:;" class="ym-comm-showall ymCommShowall"&gt;显示全部&lt;i class="ymwfonts ymwfonts-arr-d"&gt;&lt;/i&gt;&lt;/a&gt;';
+                                var txts = $(".ym-comms-wrap .ym-comm-new").next().find(".ym-comm-floor-inner").find(".ymCommUserSay");
+                                txts.each(function () {
+                                    var $thisTexts = $(this),
+                                    th = $thisTexts.height();
+                                    if (th &gt; 70) {
+                                        $thisTexts.css({ 'height': '92px' }).find('p').css({ 'height': '66px', 'overflow': 'hidden' });
+                                        $thisTexts.append(morebtn).find('.ymCommShowall').on('click', function () {
+                                            $thisTexts.css({ 'height': 'auto' }).find('p').css({ 'height': 'auto', 'overflow': 'visible' });
+                                            $(this).hide();
+                                        });
+                                    }
+                                });
+
+                                like();
+                                cycm();
+                            } else {
+                                alert(responseJson.body);
+                            }
+                        });
+                    }
+                    else {
+                        that.attr("data-click", "false");
+                        //写入cookie
+                        if (isTrim(con) &amp;&amp; $con.attr("data-remember") == "true") {
+                            $.fn.cookie(cookieKey, con, { path: "/"});
+                        }
+                        that.parents(".ym-comm-re").prepend("&lt;div class='ym-comm-nullinput'&gt;请登录&lt;/div&gt;");
+                        setTimeout(function () {
+                            var nullinput = $this.find(".ym-comm-nullinput");
+                            if (nullinput.length &gt; 0) {
+                                nullinput.remove();
+                            }
+                        }, 3000);
+                    }
+
+                });
+            }
+        }).on("focus", ".textarea", function () {//输入文字清除提示
+            $this.find(".ym-comm-nullinput").remove();
+        }).on("change", ".textarea[data-remember='true']", function () {
+            if (isTrim($(this).val())) {
+                $.fn.cookie(cookieKey, $(this).val(), { path: "/"});
+            }
+        })
+    },
+    //登录成功载入已登录状态
+    loginOK: function ($this, responseJson) {
+        var login_infor = PLhtml.login_yes('');
+        login_infor = login_infor.replace("{userface}", responseJson.userface);
+        login_infor = login_infor.replace("{username}", responseJson.username);
+        $this.find(".ym-comm-login-wrap").html(login_infor).addClass("ym-comm-login-wrap-on");//载入已登录
+        $("#SOHUCS").addClass("ym-comm-logined");
+        $this.on("click", ".ym-comm-user-out", function () {
+            PLogin.logoutAjax(function () {
+                $this.find(".ym-comm-login-wrap").html(PLhtml.login_no('')).removeClass("ym-comm-login-wrap-on");
+                PLhtml.login_href();
+                $("#SOHUCS").removeClass("ym-comm-logined");
+            });
+        });
+    },
+    //这里Ajax提交点赞信息
+    zanAjax: function (cmtid, uid, num, fun) {
+        var sid = $("#SOHUCS").attr("sid");
+        $.ajax({
+            type: "GET", url: "http://cm.gamersky.com/wapapi/addlike",
+            dataType: "jsonp",
+            data: { jsondata: JSON2.stringify({ commentId: cmtid, generalId: sid, fromId: uid, dianzan: num }) },
+            success: function (responseJson) { fun(responseJson); }
+        });
+    },
+    //这里Ajax提交发布信息并刷新页面
+    SubmitAjax: function (that, con, fun) {
+        var sid = $("#SOHUCS").attr("sid");//文章ID
+        var cmtid = that.attr("cmtid");
+        var url = window.location.href;
+        var title = document.title;
+
+        $.ajax({
+            type: "POST"
+            , url: "http://cm.gamersky.com/wapapi/addcommnet"
+            , dataType: "json"
+            , data: {
+                jsondata: JSON2.stringify({ sid: sid, content: con, cmtid: cmtid, topicTitle: title, topicUrl: url })
+            }
+            , xhrFields: { withCredentials: true }
+            , success: function (responseJson) {
+                fun(responseJson);
+            }
+        });
+
+    },
+    //是否在线
+    onlineAjax: function (fun) {
+        $.ajax({
+            type: "GET", url: "http://i.gamersky.com/api/logincheck", dataType: "jsonp",
+            success: function (responseJson) { fun(responseJson); }
+        });
+    },
+    //用户登录
+    loginAjax: function (userName, passWord, PLcookie, fun) {
+        $.ajax({
+            type: "GET", url: "http://i.gamersky.com/api/userlogin", dataType: "jsonp",
+            data: { logindata: JSON2.stringify({ username: userName, password: passWord, checkcode: "", expiration: PLcookie }) },
+            success: function (responseJson) {
+                fun(responseJson);
+            }
+        });
+
+    },
+    //退出登录
+    logoutAjax: function (fun) {
+        $.ajax({
+            type: "GET", url: "http://i.gamersky.com/api/userlogout", dataType: "jsonp",
+            success: function (responseJson) {
+                fun(responseJson);
+            }
+        });
+    }
+}
+
+$(document).ready(function () {
+    PLogin.onlineAjax(function (responseJson) {//先判断用户是否登陆
+        if (responseJson.status == "ok") {
+            PLogin.loginOK($cmtTop, responseJson);//载入登录成功
+        } else {
+            $cmtTop.find(".ym-comm-login-wrap").html(PLhtml.login_no('')); PLhtml.login_href();//.PLloginForm1($cmtTop);//载入未登录*登录用户
+        }
+    });
+    PLogin.Submit($(".ym-comm-re"));
+    var cookieKeyVal = $.fn.cookie(cookieKey);
+    if (cookieKeyVal != null) {
+        $(".ym-comm-re textarea").val(cookieKeyVal);
+    }
+    //var cookieCommnetVal = $.fn.cookie(cookieCommnet);
+    //if (cookieCommnetVal != null) {
+    //    var parseJson = $.parseJSON(cookieCommnetVal);
+    //    var $rebtn = $(".ym-comm-floor .ymCommRebtn[cmtid='" + parseJson.cmtid + "']");
+    //    $rebtn.closest('.ym-comm-floor').append(reCon);
+    //    $rebtn.find(".textarea").val(parseJson.values);
+    //    $('html,body').scrollTop($rebtn.parent().offset().top);
+    //}
+});</pre></body></html>

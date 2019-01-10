@@ -1,0 +1,1041 @@
+<!DOCTYPE html>
+<html>
+ <head> 
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" /> 
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+  <title>如何获取并设置自己的浏览器为默认浏览器 - Java - IT610.com</title> 
+  <meta name="keywords" content="浏览器,如何获取并设置自己的浏览器为默认浏览器" /> 
+  <meta name="description" content="在.net里面，有一个WebBrowser控件，这个控件可以用于很多用途，很多人用来定做自己的浏览器，本文谈谈如何获取默认浏览器的设置，并介绍如何设置自己的浏览器为默认浏览器的小技巧。 
+先看一个小的界面图形，用来更好理解这个功能的用途，如下图我们可以看到需要获取到系统的默认浏览器名称，并提供设置默认浏览器功能。 
+ 
+&amp;nbsp; 
+其实，这些操作都是和注册表相关的内容，这些内容保存在键HKEY" /> 
+  <!--[if lt IE 9]>
+<script src="/r/cms/html5.js" type="text/javascript"></script>
+<![endif]--> 
+  <link href="/r/cms/www/it610/css/html5.css" rel="stylesheet" type="text/css" /> 
+  <link href="/r/cms/front.css" rel="stylesheet" type="text/css" /> 
+  <link href="/r/cms/jqueryUI/jquery.ui.css" rel="stylesheet" type="text/css" /> 
+  <script src="/r/cms/jquery.js" type="text/javascript"></script> 
+  <script src="/r/cms/jqueryUI/jquery-ui.js" type="text/javascript"></script> 
+  <script src="/r/cms/front.js" type="text/javascript"></script> 
+  <style type="text/css">
+.newsCon{font-size:14px;word-break:break-all;}
+</style> 
+  <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" /> 
+  <script src="/r/cms/www/it610/js/baidutongji.js" type="text/javascript"></script> 
+  <script type="text/javascript">
+//自己的统计
+//$(function() {
+//	Cms.siteFlow("", location.href, document.referrer);
+//});
+</script> 
+  <script type="text/javascript">
+$(function() {
+Cms.attachment("","1333631","0","attach");
+Cms.viewCount("","1333631");
+});
+</script> 
+  <script type="text/javascript" src="/thirdparty/syntaxhighlighter/scripts/shCore.js"></script> 
+  <script type="text/javascript" src="/thirdparty/syntaxhighlighter/scripts/shLegacy.js"></script> 
+  <script type="text/javascript" src="/thirdparty/syntaxhighlighter/scripts/shAutoloader.js"></script> 
+  <link type="text/css" rel="stylesheet" href="/thirdparty/syntaxhighlighter/styles/shCoreDefault.css" /> 
+  <script type="text/javascript" src="/thirdparty/syntaxhighlighter/src/my_start_2.js"></script> 
+ </head> 
+ <body> 
+  <div class="container"> 
+   <div class="theTop"> 
+    <div class="theTopLeft"> 
+     <div id="loginCsiDiv"></div> 
+     <script type="text/javascript">
+$(function(){
+	Cms.loginCsi("","loginCsiDiv",{"returnUrl":"http://www.it610.com/article/1333631.htm"});
+});
+</script> 
+    </div> 
+    <div class="theTopRight"> 
+     <a href="/tag.jspx" target="_blank">Tags</a>&nbsp;|&nbsp;
+     <a href="/guestbook.jspx" target="_blank">留言板</a>&nbsp;|&nbsp;
+     <a href="/rss.jspx" target="_blank">RSS订阅</a>&nbsp;|&nbsp;
+     <a onclick="SetHome(window.location)" href="javascript:void(0)">设为首页</a>&nbsp;|&nbsp;
+     <a onclick="AddFavorite(window.location,document.title)" href="javascript:void(0)">加入收藏</a>&nbsp; 
+     <a name="gb2big5" id="gb2big5">繁體中文</a> 
+     <script language="Javascript" src="/r/cms/gb2big5.js"></script> 
+    </div> 
+   </div> 
+   <script type="text/javascript" language="javascript">
+   //加入收藏
+       function AddFavorite(sURL, sTitle) {
+           sURL =encodeURI(sURL); 
+       try{   
+          window.external.addFavorite(sURL, sTitle);   
+       }catch(e) {   
+          try{   
+              window.sidebar.addPanel(sTitle, sURL, "");   
+           }catch (e){   
+              alert("您的浏览器不支持自动加入收藏功能，请使用Ctrl+D进行添加，或手动在浏览器里进行设置！");
+          }   
+       }
+   }
+   
+   //设为首页
+   function SetHome(url){
+       if (document.all) {
+          document.body.style.behavior='url(#default#homepage)';
+             document.body.setHomePage(url);
+       }else{
+           alert("您的浏览器不支持自动设置页面为首页功能，请您手动在浏览器里设置该页面为首页！");
+       }
+   }
+</script>
+   <script>
+//delay延迟时间（毫秒）
+$(function() {
+	$("input[name=q]").autocomplete({
+		 source: "/search/v_ajax_list.jspx",
+		 minLength: 2,
+		 max:5,
+		 delay:100,
+		 autoFocus: true,
+		 select: function(e, ui) {
+			 $("input[name='q']").val(ui.item.value);
+			 $("#searchForm").submit();
+		 },
+		 success: function( data ) {
+			    response( $.map( data.items, function( item ) {
+			        return {
+			         label: '<B>' + item.id + '</B><br>' + item.label,
+			         value: item.id
+			        }
+			       }));
+		}
+	});
+});
+function qkeypress(){
+	var q=$("input[name=q]");
+	if(q.val().trim()!=""){
+		$("input[name=q]").autocomplete("enable");
+	}else{
+		$("input[name=q]").autocomplete("disable");
+	}
+}
+</script> 
+   <div class="pageTitle"> 
+    <!-- LOGO_begin --> 
+    <div class="webLogo" style="border:0px solid red;width:180px;"> 
+     <img alt="www.it610.com" src="/r/cms/www/it610/img/index/webLogo2.png" /> 
+    </div> 
+    <!-- LOGO_end --> 
+    <!-- AD_begin --> 
+    <div style="border:0px solid red;float:left;margin-top:5px;margin-left:10px;"> 
+     <script type="text/javascript">    var cpro_id = "u2445735";</script> 
+     <script src="http://cpro.baidustatic.com/cpro/ui/c.js" type="text/javascript"></script> 
+    </div> 
+    <!-- AD_end --> 
+    <!-- 搜索_begin --> 
+    <div class="searchCon" style="border:0px solid red;width:300px;"> 
+     <form action="/search.jspx" target="_blank" id="searchForm"> 
+      <div class="ui-widget"> 
+       <div class="searchBg"> 
+        <input name="q" value="请输入关键词" type="text" onfocus="if(this.value=='请输入关键词')this.value=''" onkeypress="qkeypress()" onblur="if(this.value=='')this.value='请输入关键词'" maxlength="50" autocomplete="off" style="border:0;width:98%;" /> 
+       </div> 
+      </div> 
+      <input type="submit" class="searchMenu" value="" /> 
+     </form> 
+    </div> 
+    <!-- 搜索_end --> 
+   </div> 
+   <div class="clear"></div>
+   <div id="menu" class="page box relative"> 
+    <dl id="topmenu"> 
+     <dt class="menu_first">
+      <a href="http://www.it610.com/" target="_self"><span>首 页</span></a>
+     </dt> 
+     <dt>
+      <a href="http://www.it610.com/language/index.htm" target="_self"><span>编程语言</span></a>
+     </dt> 
+     <dt>
+      <a href="http://www.it610.com/web/index.htm" target="_self"><span>Web前端</span></a>
+     </dt> 
+     <dt>
+      <a href="http://www.it610.com/architecture/index.htm" target="_self"><span>系统架构</span></a>
+     </dt> 
+     <dt>
+      <a href="http://www.it610.com/db/index.htm" target="_self"><span>数据库</span></a>
+     </dt> 
+     <dt>
+      <a href="http://www.it610.com/mobile/index.htm" target="_self"><span>移动开发</span></a>
+     </dt> 
+     <dt>
+      <a href="http://www.it610.com/os/index.htm" target="_self"><span>操作系统</span></a>
+     </dt> 
+     <dt>
+      <a href="http://www.it610.com/opensource/index.htm" target="_self"><span>开源软件</span></a>
+     </dt> 
+     <dt>
+      <a href="http://www.it610.com/Internet/index.htm" target="_self"><span>互联网</span></a>
+     </dt> 
+     <dt>
+      <a href="http://www.it610.com/Industry/index.htm" target="_self"><span>行业应用</span></a>
+     </dt> 
+     <dt>
+      <a href="http://www.it610.com/management/index.htm" target="_self"><span>研发管理</span></a>
+     </dt> 
+     <dt>
+      <a href="http://www.it610.com/life/index.htm" target="_self"><span>IT生活</span></a>
+     </dt> 
+    </dl> 
+   </div> 
+   <div class="clear"></div> 
+   <!-- 左栏_begin --> 
+   <div class="w670 mt10"> 
+    <div class="website">
+     当前位置：
+     <a href="/">首页</a> &gt; 
+     <a target="_blank" href="http://www.it610.com/dev/index.htm">开发</a> &gt; 
+     <a target="_blank" href="http://www.it610.com/language/index.htm">编程语言</a> &gt; 
+     <a target="_blank" href="http://www.it610.com/java/index.htm">Java</a> &gt; 正文
+    </div> 
+    <div class="clear"></div> 
+    <div class="newsTex"> 
+     <h1>如何获取并设置自己的浏览器为默认浏览器</h1> 
+     <div class="msgbar">
+      发表于： 2015-10-30 &nbsp; 作者：互联网 &nbsp; 来源：转载 &nbsp; 浏览次数：
+      <span id="views"></span> 
+      <span id="cancelSpan" style="display:none; cursor: pointer;">取消收藏</span> 
+      <span id="comfirmSpan" style="display:none;cursor: pointer;">收藏</span> 
+     </div> 
+     <div class="news_tag"> 
+      <a href="/tag/485.jspx" title="浏览器">浏览器</a> 
+     </div> 
+     <!-- 社会化分享 start --> 
+     <div class="bdsharebuttonbox">
+      <a href="#" class="bds_more" data-cmd="more">分享到：</a>
+      <a href="#" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博">新浪微博</a>
+      <a href="#" class="bds_weixin" data-cmd="weixin" title="分享到微信">微信</a>
+      <a href="#" class="bds_tqq" data-cmd="tqq" title="分享到腾讯微博">腾讯微博</a>
+      <a href="#" class="bds_renren" data-cmd="renren" title="分享到人人网">人人网</a>
+      <a href="#" class="bds_youdao" data-cmd="youdao" title="分享到有道云笔记">有道云笔记</a>
+      <a href="#" class="bds_qzone" data-cmd="qzone" title="分享到QQ空间">QQ空间</a>
+     </div> 
+     <script>window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"16"},"share":{"bdSize":16},"selectShare":{"bdContainerClass":null,"bdSelectMiniList":["tsina","weixin","tqq","renren","youdao","qzone"]}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];</script> 
+     <!-- 社会化分享 end --> 
+     <!-- ad开始 --> 
+     <div class=""> 
+      <script type="text/javascript">
+var cpro_id="u2505148";
+(window["cproStyleApi"] = window["cproStyleApi"] || {})[cpro_id]={at:"3",rsi0:"650",rsi1:"125",pat:"6",tn:"baiduCustNativeAD",rss1:"#FFFFFF",conBW:"1",adp:"1",ptt:"0",titFF:"%E5%BE%AE%E8%BD%AF%E9%9B%85%E9%BB%91",titFS:"14",rss2:"#000000",titSU:"0",ptbg:"90",piw:"0",pih:"0",ptp:"0"}
+</script> 
+      <script src="http://cpro.baidustatic.com/cpro/ui/c.js" type="text/javascript"></script> 
+     </div> 
+     <!-- ad结束 --> 
+     <!-- 5图推荐开始 --> 
+     <div class="recommend1"> 
+      <div class="recommend2"> 
+       <a class="recommend3" href="/article/2295674.htm" target="_blank"> <img src="http://img.it610.com/image/product/0a73095a40ff4e8d846efab7442d5649.jpg@!118x99b" alt="怎么设置默认浏览器" /> </a> 
+       <div class="recommend4">
+        <a href="/article/2295674.htm" title="怎么设置默认浏览器" target="_blank">怎么设置默认浏览器</a>
+       </div> 
+      </div> 
+      <div class="recommend2"> 
+       <a class="recommend3" href="/article/2609832.htm" target="_blank"> <img src="http://img.it610.com/image/info2/5ea30e5d0ebe43a48bcf05bd95f0b714.jpg@!118x99b" alt="如何设置AppScan的外部浏览器" /> </a> 
+       <div class="recommend4">
+        <a href="/article/2609832.htm" title="如何设置AppScan的外部浏览器" target="_blank">如何设置AppScan的外部浏览器</a>
+       </div> 
+      </div> 
+      <div class="recommend2"> 
+       <a class="recommend3" href="/article/2157283.htm" target="_blank"> <img src="http://img.it610.com/image/info2/f19c8d9e5f414c899989f3b7213c43af.jpg@!118x99b" alt="flash_builder_设置默认启动的浏览器" /> </a> 
+       <div class="recommend4">
+        <a href="/article/2157283.htm" title="flash_builder_设置默认启动的浏览器" target="_blank">flash_builder_设置默认启动的浏览器</a>
+       </div> 
+      </div> 
+      <div class="recommend2"> 
+       <a class="recommend3" href="/article/2650120.htm" target="_blank"> <img src="http://img.it610.com/image/product/3fca366bbc494169b72f4f48050bcee4.png@!118x99b" alt="win8 Windows 8 设置 默认浏览器" /> </a> 
+       <div class="recommend4">
+        <a href="/article/2650120.htm" title="win8 Windows 8 设置 默认浏览器" target="_blank">win8 Windows 8 设置 默认浏览器</a>
+       </div> 
+      </div> 
+     </div> 
+     <!-- 5图推荐结束 --> 
+     <div class="clear"></div> 
+     <div class="summary">
+      <span style="color:#ff0000; font-weight:bold;">摘要:</span> 在.net里面，有一个WebBrowser控件，这个控件可以用于很多用途，很多人用来定做自己的浏览器，本文谈谈如何获取默认浏览器的设置，并介绍如何设置自己的浏览器为默认浏览器的小技巧。 先看一个小的界面图形，用来更好理解这个功能的用途，如下图我们可以看到需要获取到系统的默认浏览器名称，并提供设置默认浏览器功能。 &nbsp; 其实，这些操作都是和注册表相关的内容，这些内容保存在键HKEY
+     </div> 
+     <div class="newsCon"> 
+      <p>在.net里面，有一个WebBrowser控件，这个控件可以用于很多用途，很多人用来定做自己的浏览器，本文谈谈如何获取默认浏览器的设置，并介绍如何设置自己的浏览器为默认浏览器的小技巧。</p> 
+      <p>先看一个小的界面图形，用来更好理解这个功能的用途，如下图我们可以看到需要获取到系统的默认浏览器名称，并提供设置默认浏览器功能。</p> 
+      <p><a href="http://img.it610.com/image/product/d05f31a918394ef0bb787883d56de370.png" target="_blank"><img border="0" alt="如何获取并设置自己的浏览器为默认浏览器_第1张图片" src="http://img.it610.com/image/product/d05f31a918394ef0bb787883d56de370.png" width="427" height="272" style="border:1px solid black;" /></a></p> 
+      <p>&nbsp;</p> 
+      <p>其实，这些操作都是和注册表相关的内容，这些内容保存在键HKEY_CLASSES_ROOT\http\shell\open\command中的默认值里面，</p> 
+      <p><a href="http://img.it610.com/image/product/f18846a8e53049839583f026b0733f5b.png" target="_blank"><img border="0" alt="如何获取并设置自己的浏览器为默认浏览器_第2张图片" src="http://img.it610.com/image/product/f18846a8e53049839583f026b0733f5b.png" width="650" height="174" style="border:1px solid black;" /></a></p> 
+      <p>而默认浏览器的名称保存在HKEY_CLASSES_ROOT\http\shell\open\ddeexec\Application的默认值里面。</p> 
+      <p>基本上我们修改这两个键值就可以实现默认浏览器的设置了。</p> 
+      <p>在上面的默认浏览器界面中，我封装了一些方法，现发布出来，希望对大家有用处。</p> 
+      <div class="cnblogs_code" onclick="cnblogs_code_show('e7850f4c-8842-4dde-8369-a3d4f21a25e5')"> 
+       <img style="display: none" id="code_img_closed_e7850f4c-8842-4dde-8369-a3d4f21a25e5" class="code_img_closed" src="http://img.it610.com/image/product/806da7fa9d244ebba78e4a3ccb7837cc.gif" alt="" width="11" height="16" /> 
+       <img id="code_img_opened_e7850f4c-8842-4dde-8369-a3d4f21a25e5" class="code_img_opened" onclick="cnblogs_code_hide('e7850f4c-8842-4dde-8369-a3d4f21a25e5',event)" src="http://img.it610.com/image/product/613cce1d7e224465916443e6996c692b.gif" width="11" height="16" /> 
+       <span class="cnblogs_code_collapse">代码</span> 
+       <div id="cnblogs_code_open_e7850f4c-8842-4dde-8369-a3d4f21a25e5"> 
+        <div> 
+         <!--<br/ /><br/ />Code highlighting produced by Actipro CodeHighlighter (freeware)<br/ />http://www.CodeHighlighter.com/<br/ /><br/ />--> 
+         <span style="color: #000000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> 
+         <span style="color: #0000ff">private</span> 
+         <span style="color: #000000">&nbsp;</span> 
+         <span style="color: #0000ff">void</span> 
+         <span style="color: #000000">&nbsp;FrmOptions_Load(</span> 
+         <span style="color: #0000ff">object</span> 
+         <span style="color: #000000">&nbsp;sender,&nbsp;EventArgs&nbsp;e)<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;InitDefaultBrowser();<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br /><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> 
+         <span style="color: #0000ff">private</span> 
+         <span style="color: #000000">&nbsp;</span> 
+         <span style="color: #0000ff">void</span> 
+         <span style="color: #000000">&nbsp;InitDefaultBrowser()<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> 
+         <span style="color: #0000ff">string</span> 
+         <span style="color: #000000">&nbsp;defaultName&nbsp;</span> 
+         <span style="color: #000000">=</span> 
+         <span style="color: #000000">&nbsp;RegistryHelper.GetDefaultBrowerName();<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> 
+         <span style="color: #0000ff">try</span> 
+         <span style="color: #000000"><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> 
+         <span style="color: #0000ff">string</span> 
+         <span style="color: #000000">&nbsp;browserPath&nbsp;</span> 
+         <span style="color: #000000">=</span> 
+         <span style="color: #000000">&nbsp;CRegex.GetText(defaultName,&nbsp;</span> 
+         <span style="color: #800000">&quot;</span> 
+         <span style="color: #800000">\</span> 
+         <span style="color: #800000">&quot;</span> 
+         <span style="color: #000000">(</span> 
+         <span style="color: #000000">?&lt;</span> 
+         <span style="color: #000000">key</span> 
+         <span style="color: #000000">&gt;</span> 
+         <span style="color: #000000">.</span> 
+         <span style="color: #000000">*?</span> 
+         <span style="color: #000000">)\</span> 
+         <span style="color: #800000">&quot;&quot;</span> 
+         <span style="color: #000000">,&nbsp;</span> 
+         <span style="color: #800080">1</span> 
+         <span style="color: #000000">);<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FileInfo&nbsp;fileInfo&nbsp;</span> 
+         <span style="color: #000000">=</span> 
+         <span style="color: #000000">&nbsp;</span> 
+         <span style="color: #0000ff">new</span> 
+         <span style="color: #000000">&nbsp;FileInfo(browserPath);<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> 
+         <span style="color: #0000ff">string</span> 
+         <span style="color: #000000">&nbsp;fileName&nbsp;</span> 
+         <span style="color: #000000">=</span> 
+         <span style="color: #000000">&nbsp;fileInfo.Name.Replace(fileInfo.Extension,&nbsp;</span> 
+         <span style="color: #800000">&quot;&quot;</span> 
+         <span style="color: #000000">);<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> 
+         <span style="color: #0000ff">this</span> 
+         <span style="color: #000000">.lblDefaultName.Text&nbsp;</span> 
+         <span style="color: #000000">=</span> 
+         <span style="color: #000000">&nbsp;fileName;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> 
+         <span style="color: #0000ff">catch</span> 
+         <span style="color: #000000">(Exception&nbsp;ex)<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LogHelper.Error(ex);<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br /><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> 
+         <span style="color: #0000ff">private</span> 
+         <span style="color: #000000">&nbsp;</span> 
+         <span style="color: #0000ff">void</span> 
+         <span style="color: #000000">&nbsp;btnSetDefault_Click(</span> 
+         <span style="color: #0000ff">object</span> 
+         <span style="color: #000000">&nbsp;sender,&nbsp;EventArgs&nbsp;e)<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RegistryHelper.SetDefaultBrowser(Application.ExecutablePath);<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MessageUtil.ShowTips(</span> 
+         <span style="color: #800000">&quot;</span> 
+         <span style="color: #800000">设置默认浏览器成功</span> 
+         <span style="color: #800000">&quot;</span> 
+         <span style="color: #000000">);<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;InitDefaultBrowser();<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br /><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> 
+         <span style="color: #0000ff">private</span> 
+         <span style="color: #000000">&nbsp;</span> 
+         <span style="color: #0000ff">void</span> 
+         <span style="color: #000000">&nbsp;btnReset_Click(</span> 
+         <span style="color: #0000ff">object</span> 
+         <span style="color: #000000">&nbsp;sender,&nbsp;EventArgs&nbsp;e)<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RegistryHelper.ResetIEDefaultBrowser();<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MessageUtil.ShowTips(</span> 
+         <span style="color: #800000">&quot;</span> 
+         <span style="color: #800000">恢复IE为默认浏览器成功</span> 
+         <span style="color: #800000">&quot;</span> 
+         <span style="color: #000000">);<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;InitDefaultBrowser();<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</span> 
+        </div> 
+       </div> 
+      </div> 
+      <p>&nbsp;</p> 
+      <p>&nbsp;</p> 
+      <p>其中我把注册表的访问，放到了一个独立的注册版访问类中进行处理了，其中包含了3个部分，获取默认浏览器名称，设置自己的浏览器为默认浏览器，恢复IE为默认浏览器功能。下面是该类的代码。</p> 
+      <div class="cnblogs_code" onclick="cnblogs_code_show('a7df15dc-fc74-4a47-9f31-f43ac41e5667')"> 
+       <img style="display: none" id="code_img_closed_a7df15dc-fc74-4a47-9f31-f43ac41e5667" class="code_img_closed" src="http://img.it610.com/image/product/806da7fa9d244ebba78e4a3ccb7837cc.gif" alt="" width="11" height="16" /> 
+       <img id="code_img_opened_a7df15dc-fc74-4a47-9f31-f43ac41e5667" class="code_img_opened" onclick="cnblogs_code_hide('a7df15dc-fc74-4a47-9f31-f43ac41e5667',event)" src="http://img.it610.com/image/product/613cce1d7e224465916443e6996c692b.gif" width="11" height="16" /> 
+       <span class="cnblogs_code_collapse">代码</span> 
+       <div id="cnblogs_code_open_a7df15dc-fc74-4a47-9f31-f43ac41e5667"> 
+        <div> 
+         <!--<br/ /><br/ />Code highlighting produced by Actipro CodeHighlighter (freeware)<br/ />http://www.CodeHighlighter.com/<br/ /><br/ />--> 
+         <span style="color: #000000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> 
+         <span style="color: #808080">///</span> 
+         <span style="color: #008000">&nbsp;</span> 
+         <span style="color: #808080">&lt;summary&gt;</span> 
+         <span style="color: #008000"><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> 
+         <span style="color: #808080">///</span> 
+         <span style="color: #008000">&nbsp;获取默认浏览器的名称<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> 
+         <span style="color: #808080">///</span> 
+         <span style="color: #008000">&nbsp;</span> 
+         <span style="color: #808080">&lt;/summary&gt;</span> 
+         <span style="color: #008000"><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> 
+         <span style="color: #808080">///</span> 
+         <span style="color: #008000">&nbsp;</span> 
+         <span style="color: #808080">&lt;returns&gt;&lt;/returns&gt;</span> 
+         <span style="color: #808080"><br /></span> 
+         <span style="color: #000000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> 
+         <span style="color: #0000ff">public</span> 
+         <span style="color: #000000">&nbsp;</span> 
+         <span style="color: #0000ff">static</span> 
+         <span style="color: #000000">&nbsp;</span> 
+         <span style="color: #0000ff">string</span> 
+         <span style="color: #000000">&nbsp;GetDefaultBrowerName()<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> 
+         <span style="color: #0000ff">string</span> 
+         <span style="color: #000000">&nbsp;mainKey&nbsp;</span> 
+         <span style="color: #000000">=</span> 
+         <span style="color: #000000">&nbsp;</span> 
+         <span style="color: #800000">@&quot;</span> 
+         <span style="color: #800000">http\shell\open\command</span> 
+         <span style="color: #800000">&quot;</span> 
+         <span style="color: #000000">;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> 
+         <span style="color: #0000ff">string</span> 
+         <span style="color: #000000">&nbsp;nameKey&nbsp;</span> 
+         <span style="color: #000000">=</span> 
+         <span style="color: #000000">&nbsp;</span> 
+         <span style="color: #800000">@&quot;</span> 
+         <span style="color: #800000">http\shell\open\ddeexec\Application</span> 
+         <span style="color: #800000">&quot;</span> 
+         <span style="color: #000000">;<br /><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> 
+         <span style="color: #0000ff">string</span> 
+         <span style="color: #000000">&nbsp;strRet&nbsp;</span> 
+         <span style="color: #000000">=</span> 
+         <span style="color: #000000">&nbsp;</span> 
+         <span style="color: #0000ff">string</span> 
+         <span style="color: #000000">.Empty;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> 
+         <span style="color: #0000ff">try</span> 
+         <span style="color: #000000"><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RegistryKey&nbsp;regKey&nbsp;</span> 
+         <span style="color: #000000">=</span> 
+         <span style="color: #000000">&nbsp;Registry.ClassesRoot.OpenSubKey(mainKey);<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;strRet&nbsp;</span> 
+         <span style="color: #000000">=</span> 
+         <span style="color: #000000">&nbsp;regKey.GetValue(</span> 
+         <span style="color: #800000">&quot;&quot;</span> 
+         <span style="color: #000000">).ToString();<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> 
+         <span style="color: #0000ff">catch</span> 
+         <span style="color: #000000"><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;strRet&nbsp;</span> 
+         <span style="color: #000000">=</span> 
+         <span style="color: #000000">&nbsp;</span> 
+         <span style="color: #800000">&quot;&quot;</span> 
+         <span style="color: #000000">;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> 
+         <span style="color: #0000ff">return</span> 
+         <span style="color: #000000">&nbsp;strRet;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br /><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> 
+         <span style="color: #808080">///</span> 
+         <span style="color: #008000">&nbsp;</span> 
+         <span style="color: #808080">&lt;summary&gt;</span> 
+         <span style="color: #008000"><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> 
+         <span style="color: #808080">///</span> 
+         <span style="color: #008000">&nbsp;设置自定义浏览器为默认浏览器<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> 
+         <span style="color: #808080">///</span> 
+         <span style="color: #008000">&nbsp;</span> 
+         <span style="color: #808080">&lt;/summary&gt;</span> 
+         <span style="color: #008000"><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> 
+         <span style="color: #808080">///</span> 
+         <span style="color: #008000">&nbsp;</span> 
+         <span style="color: #808080">&lt;param&nbsp;name=&quot;browserExePath&quot;&gt;&lt;/param&gt;</span> 
+         <span style="color: #008000"><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> 
+         <span style="color: #808080">///</span> 
+         <span style="color: #008000">&nbsp;</span> 
+         <span style="color: #808080">&lt;returns&gt;&lt;/returns&gt;</span> 
+         <span style="color: #808080"><br /></span> 
+         <span style="color: #000000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> 
+         <span style="color: #0000ff">public</span> 
+         <span style="color: #000000">&nbsp;</span> 
+         <span style="color: #0000ff">static</span> 
+         <span style="color: #000000">&nbsp;</span> 
+         <span style="color: #0000ff">bool</span> 
+         <span style="color: #000000">&nbsp;SetDefaultBrowser(</span> 
+         <span style="color: #0000ff">string</span> 
+         <span style="color: #000000">&nbsp;browserExePath)<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> 
+         <span style="color: #0000ff">string</span> 
+         <span style="color: #000000">&nbsp;mainKey&nbsp;</span> 
+         <span style="color: #000000">=</span> 
+         <span style="color: #000000">&nbsp;</span> 
+         <span style="color: #800000">@&quot;</span> 
+         <span style="color: #800000">http\shell\open\command</span> 
+         <span style="color: #800000">&quot;</span> 
+         <span style="color: #000000">;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> 
+         <span style="color: #0000ff">string</span> 
+         <span style="color: #000000">&nbsp;nameKey&nbsp;</span> 
+         <span style="color: #000000">=</span> 
+         <span style="color: #000000">&nbsp;</span> 
+         <span style="color: #800000">@&quot;</span> 
+         <span style="color: #800000">http\shell\open\ddeexec\Application</span> 
+         <span style="color: #800000">&quot;</span> 
+         <span style="color: #000000">;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> 
+         <span style="color: #0000ff">bool</span> 
+         <span style="color: #000000">&nbsp;result&nbsp;</span> 
+         <span style="color: #000000">=</span> 
+         <span style="color: #000000">&nbsp;</span> 
+         <span style="color: #0000ff">false</span> 
+         <span style="color: #000000">;<br /><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> 
+         <span style="color: #0000ff">try</span> 
+         <span style="color: #000000"><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> 
+         <span style="color: #0000ff">string</span> 
+         <span style="color: #000000">&nbsp;value&nbsp;</span> 
+         <span style="color: #000000">=</span> 
+         <span style="color: #000000">&nbsp;</span> 
+         <span style="color: #0000ff">string</span> 
+         <span style="color: #000000">.Format(</span> 
+         <span style="color: #800000">&quot;</span> 
+         <span style="color: #800000">\</span> 
+         <span style="color: #800000">&quot;</span> 
+         <span style="color: #000000">{</span> 
+         <span style="color: #800080">0</span> 
+         <span style="color: #000000">}\</span> 
+         <span style="color: #800000">&quot;</span> 
+         <span style="color: #800000">&nbsp;\</span> 
+         <span style="color: #800000">&quot;</span> 
+         <span style="color: #000000">%</span> 
+         <span style="color: #800080">1</span> 
+         <span style="color: #000000">\</span> 
+         <span style="color: #800000">&quot;&quot;</span> 
+         <span style="color: #000000">,&nbsp;browserExePath);<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RegistryKey&nbsp;regKey&nbsp;</span> 
+         <span style="color: #000000">=</span> 
+         <span style="color: #000000">&nbsp;Registry.ClassesRoot.OpenSubKey(mainKey,&nbsp;</span> 
+         <span style="color: #0000ff">true</span> 
+         <span style="color: #000000">);<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;regKey.SetValue(</span> 
+         <span style="color: #800000">&quot;&quot;</span> 
+         <span style="color: #000000">,&nbsp;value);<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;regKey.Close();<br /><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FileInfo&nbsp;fileInfo&nbsp;</span> 
+         <span style="color: #000000">=</span> 
+         <span style="color: #000000">&nbsp;</span> 
+         <span style="color: #0000ff">new</span> 
+         <span style="color: #000000">&nbsp;FileInfo(browserExePath);<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> 
+         <span style="color: #0000ff">string</span> 
+         <span style="color: #000000">&nbsp;fileName&nbsp;</span> 
+         <span style="color: #000000">=</span> 
+         <span style="color: #000000">&nbsp;fileInfo.Name.Replace(fileInfo.Extension,&nbsp;</span> 
+         <span style="color: #800000">&quot;&quot;</span> 
+         <span style="color: #000000">);<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;regKey&nbsp;</span> 
+         <span style="color: #000000">=</span> 
+         <span style="color: #000000">&nbsp;Registry.ClassesRoot.OpenSubKey(nameKey,&nbsp;</span> 
+         <span style="color: #0000ff">true</span> 
+         <span style="color: #000000">);<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;regKey.SetValue(</span> 
+         <span style="color: #800000">&quot;&quot;</span> 
+         <span style="color: #000000">,&nbsp;fileName);<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;regKey.Close();<br /><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;result&nbsp;</span> 
+         <span style="color: #000000">=</span> 
+         <span style="color: #000000">&nbsp;</span> 
+         <span style="color: #0000ff">true</span> 
+         <span style="color: #000000">;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> 
+         <span style="color: #0000ff">catch</span> 
+         <span style="color: #000000">(Exception&nbsp;ex)<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LogHelper.Error(ex);<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br /><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> 
+         <span style="color: #0000ff">return</span> 
+         <span style="color: #000000">&nbsp;result;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br /><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> 
+         <span style="color: #808080">///</span> 
+         <span style="color: #008000">&nbsp;</span> 
+         <span style="color: #808080">&lt;summary&gt;</span> 
+         <span style="color: #008000"><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> 
+         <span style="color: #808080">///</span> 
+         <span style="color: #008000">&nbsp;恢复IE为默认浏览器<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> 
+         <span style="color: #808080">///</span> 
+         <span style="color: #008000">&nbsp;</span> 
+         <span style="color: #808080">&lt;/summary&gt;</span> 
+         <span style="color: #008000"><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> 
+         <span style="color: #808080">///</span> 
+         <span style="color: #008000">&nbsp;</span> 
+         <span style="color: #808080">&lt;returns&gt;&lt;/returns&gt;</span> 
+         <span style="color: #808080"><br /></span> 
+         <span style="color: #000000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> 
+         <span style="color: #0000ff">public</span> 
+         <span style="color: #000000">&nbsp;</span> 
+         <span style="color: #0000ff">static</span> 
+         <span style="color: #000000">&nbsp;</span> 
+         <span style="color: #0000ff">bool</span> 
+         <span style="color: #000000">&nbsp;ResetIEDefaultBrowser()<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> 
+         <span style="color: #0000ff">string</span> 
+         <span style="color: #000000">&nbsp;mainKey&nbsp;</span> 
+         <span style="color: #000000">=</span> 
+         <span style="color: #000000">&nbsp;</span> 
+         <span style="color: #800000">@&quot;</span> 
+         <span style="color: #800000">http\shell\open\command</span> 
+         <span style="color: #800000">&quot;</span> 
+         <span style="color: #000000">;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> 
+         <span style="color: #0000ff">string</span> 
+         <span style="color: #000000">&nbsp;nameKey&nbsp;</span> 
+         <span style="color: #000000">=</span> 
+         <span style="color: #000000">&nbsp;</span> 
+         <span style="color: #800000">@&quot;</span> 
+         <span style="color: #800000">http\shell\open\ddeexec\Application</span> 
+         <span style="color: #800000">&quot;</span> 
+         <span style="color: #000000">;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> 
+         <span style="color: #0000ff">string</span> 
+         <span style="color: #000000">&nbsp;IEPath&nbsp;</span> 
+         <span style="color: #000000">=</span> 
+         <span style="color: #000000">&nbsp;</span> 
+         <span style="color: #800000">@&quot;</span> 
+         <span style="color: #800000">C:\Program&nbsp;Files\Internet&nbsp;Explorer\iexplore.exe</span> 
+         <span style="color: #800000">&quot;</span> 
+         <span style="color: #000000">;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> 
+         <span style="color: #0000ff">bool</span> 
+         <span style="color: #000000">&nbsp;result&nbsp;</span> 
+         <span style="color: #000000">=</span> 
+         <span style="color: #000000">&nbsp;</span> 
+         <span style="color: #0000ff">false</span> 
+         <span style="color: #000000">;<br /><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> 
+         <span style="color: #0000ff">try</span> 
+         <span style="color: #000000"><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> 
+         <span style="color: #0000ff">string</span> 
+         <span style="color: #000000">&nbsp;value&nbsp;</span> 
+         <span style="color: #000000">=</span> 
+         <span style="color: #000000">&nbsp;</span> 
+         <span style="color: #0000ff">string</span> 
+         <span style="color: #000000">.Format(</span> 
+         <span style="color: #800000">&quot;</span> 
+         <span style="color: #800000">\</span> 
+         <span style="color: #800000">&quot;</span> 
+         <span style="color: #000000">{</span> 
+         <span style="color: #800080">0</span> 
+         <span style="color: #000000">}\</span> 
+         <span style="color: #800000">&quot;</span> 
+         <span style="color: #800000">&nbsp;--&nbsp;\</span> 
+         <span style="color: #800000">&quot;</span> 
+         <span style="color: #000000">%</span> 
+         <span style="color: #800080">1</span> 
+         <span style="color: #000000">\</span> 
+         <span style="color: #800000">&quot;&quot;</span> 
+         <span style="color: #000000">,&nbsp;IEPath);<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RegistryKey&nbsp;regKey&nbsp;</span> 
+         <span style="color: #000000">=</span> 
+         <span style="color: #000000">&nbsp;Registry.ClassesRoot.OpenSubKey(mainKey,&nbsp;</span> 
+         <span style="color: #0000ff">true</span> 
+         <span style="color: #000000">);<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;regKey.SetValue(</span> 
+         <span style="color: #800000">&quot;&quot;</span> 
+         <span style="color: #000000">,&nbsp;value);<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;regKey.Close();<br /><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;regKey&nbsp;</span> 
+         <span style="color: #000000">=</span> 
+         <span style="color: #000000">&nbsp;Registry.ClassesRoot.OpenSubKey(nameKey,&nbsp;</span> 
+         <span style="color: #0000ff">true</span> 
+         <span style="color: #000000">);<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;regKey.SetValue(</span> 
+         <span style="color: #800000">&quot;&quot;</span> 
+         <span style="color: #000000">,&nbsp;</span> 
+         <span style="color: #800000">&quot;</span> 
+         <span style="color: #800000">IExplore</span> 
+         <span style="color: #800000">&quot;</span> 
+         <span style="color: #000000">);<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;regKey.Close();<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;result&nbsp;</span> 
+         <span style="color: #000000">=</span> 
+         <span style="color: #000000">&nbsp;</span> 
+         <span style="color: #0000ff">true</span> 
+         <span style="color: #000000">;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> 
+         <span style="color: #0000ff">catch</span> 
+         <span style="color: #000000"><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br /><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> 
+         <span style="color: #0000ff">return</span> 
+         <span style="color: #000000">&nbsp;result;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</span> 
+        </div> 
+       </div> 
+      </div> 
+      <p>&nbsp;</p> 
+      <p>&nbsp;</p> 
+      <p>另外代码中，为了获取到默认的浏览器文件名称，我通过正则表达式来获取内容，</p> 
+      <p>我们看到，那个默认值是：&quot;E:\Program Files\Maxthon2\Maxthon.exe&quot; &quot;%1&quot;</p> 
+      <p>为了获得第一部分的内容，我通过正则表达式匹配方式来获取，如代码</p> 
+      <p><span style="color: #0000ff">string</span><span style="color: #000000">&nbsp;browserPath&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;CRegex.GetText(defaultName,&nbsp;</span><span style="color: #800000">&quot;</span><span style="color: #800000">\</span><span style="color: #800000">&quot;</span><span style="color: #000000">(</span><span style="color: #000000">?&lt;</span><span style="color: #000000">key</span><span style="color: #000000">&gt;</span><span style="color: #000000">.</span><span style="color: #000000">*?</span><span style="color: #000000">)\</span><span style="color: #800000">&quot;&quot;</span><span style="color: #000000">,&nbsp;</span><span style="color: #800080">1</span><span style="color: #000000">);</span></p> 
+      <p>该方法的详细内容如下：</p> 
+      <div class="cnblogs_code" onclick="cnblogs_code_show('115a7c71-70e7-4c55-be96-29d1932e1d95')"> 
+       <img style="display: none" id="code_img_closed_115a7c71-70e7-4c55-be96-29d1932e1d95" class="code_img_closed" src="http://img.it610.com/image/product/806da7fa9d244ebba78e4a3ccb7837cc.gif" alt="" width="11" height="16" /> 
+       <img id="code_img_opened_115a7c71-70e7-4c55-be96-29d1932e1d95" class="code_img_opened" onclick="cnblogs_code_hide('115a7c71-70e7-4c55-be96-29d1932e1d95',event)" src="http://img.it610.com/image/product/613cce1d7e224465916443e6996c692b.gif" width="11" height="16" /> 
+       <span class="cnblogs_code_collapse">代码</span> 
+       <div id="cnblogs_code_open_115a7c71-70e7-4c55-be96-29d1932e1d95"> 
+        <div> 
+         <!--<br/ /><br/ />Code highlighting produced by Actipro CodeHighlighter (freeware)<br/ />http://www.CodeHighlighter.com/<br/ /><br/ />--> 
+         <span style="color: #000000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> 
+         <span style="color: #808080">///</span> 
+         <span style="color: #008000">&nbsp;</span> 
+         <span style="color: #808080">&lt;summary&gt;</span> 
+         <span style="color: #008000"><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> 
+         <span style="color: #808080">///</span> 
+         <span style="color: #008000">&nbsp;单个匹配内容<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> 
+         <span style="color: #808080">///</span> 
+         <span style="color: #008000">&nbsp;</span> 
+         <span style="color: #808080">&lt;/summary&gt;</span> 
+         <span style="color: #008000"><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> 
+         <span style="color: #808080">///</span> 
+         <span style="color: #008000">&nbsp;</span> 
+         <span style="color: #808080">&lt;param&nbsp;name=&quot;sInput&quot;&gt;</span> 
+         <span style="color: #008000">输入内容</span> 
+         <span style="color: #808080">&lt;/param&gt;</span> 
+         <span style="color: #008000"><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> 
+         <span style="color: #808080">///</span> 
+         <span style="color: #008000">&nbsp;</span> 
+         <span style="color: #808080">&lt;param&nbsp;name=&quot;sRegex&quot;&gt;</span> 
+         <span style="color: #008000">表达式字符串</span> 
+         <span style="color: #808080">&lt;/param&gt;</span> 
+         <span style="color: #008000"><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> 
+         <span style="color: #808080">///</span> 
+         <span style="color: #008000">&nbsp;</span> 
+         <span style="color: #808080">&lt;param&nbsp;name=&quot;iGroupIndex&quot;&gt;</span> 
+         <span style="color: #008000">分组序号,&nbsp;从1开始,&nbsp;0不分组</span> 
+         <span style="color: #808080">&lt;/param&gt;</span> 
+         <span style="color: #808080"><br /></span> 
+         <span style="color: #000000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> 
+         <span style="color: #0000ff">public</span> 
+         <span style="color: #000000">&nbsp;</span> 
+         <span style="color: #0000ff">static</span> 
+         <span style="color: #000000">&nbsp;</span> 
+         <span style="color: #0000ff">string</span> 
+         <span style="color: #000000">&nbsp;GetText(</span> 
+         <span style="color: #0000ff">string</span> 
+         <span style="color: #000000">&nbsp;sInput,&nbsp;</span> 
+         <span style="color: #0000ff">string</span> 
+         <span style="color: #000000">&nbsp;sRegex,&nbsp;</span> 
+         <span style="color: #0000ff">int</span> 
+         <span style="color: #000000">&nbsp;iGroupIndex)<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Regex&nbsp;re&nbsp;</span> 
+         <span style="color: #000000">=</span> 
+         <span style="color: #000000">&nbsp;</span> 
+         <span style="color: #0000ff">new</span> 
+         <span style="color: #000000">&nbsp;Regex(sRegex,&nbsp;RegexOptions.IgnoreCase&nbsp;</span> 
+         <span style="color: #000000">|</span> 
+         <span style="color: #000000">&nbsp;RegexOptions.IgnorePatternWhitespace&nbsp;</span> 
+         <span style="color: #000000">|</span> 
+         <span style="color: #000000">&nbsp;RegexOptions.Multiline);<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Match&nbsp;mc&nbsp;</span> 
+         <span style="color: #000000">=</span> 
+         <span style="color: #000000">&nbsp;re.Match(sInput);<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> 
+         <span style="color: #0000ff">if</span> 
+         <span style="color: #000000">&nbsp;(mc.Success)<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> 
+         <span style="color: #0000ff">if</span> 
+         <span style="color: #000000">&nbsp;(iGroupIndex&nbsp;</span> 
+         <span style="color: #000000">&gt;</span> 
+         <span style="color: #000000">&nbsp;</span> 
+         <span style="color: #800080">0</span> 
+         <span style="color: #000000">)<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> 
+         <span style="color: #0000ff">return</span> 
+         <span style="color: #000000">&nbsp;mc.Groups[iGroupIndex].Value;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> 
+         <span style="color: #0000ff">else</span> 
+         <span style="color: #000000"><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> 
+         <span style="color: #0000ff">return</span> 
+         <span style="color: #000000">&nbsp;mc.Value;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> 
+         <span style="color: #0000ff">else</span> 
+         <span style="color: #000000"><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> 
+         <span style="color: #0000ff">return</span> 
+         <span style="color: #000000">&nbsp;</span> 
+         <span style="color: #800000">&quot;&quot;</span> 
+         <span style="color: #000000">;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</span> 
+        </div> 
+       </div> 
+      </div> 
+      <p>&nbsp;</p> 
+      <p>&nbsp;</p> 
+      <p>以上是一点关于设置默认浏览器的小技巧，留底，供娱乐，搏一声好，足矣！</p> 
+      <p><a href="http://www.it610.com/article/1333631.htm" title="如何获取并设置自己的浏览器为默认浏览器">如何获取并设置自己的浏览器为默认浏览器</a></p> 
+     </div> 
+     <div class="pagebar"></div> 
+     <!-- 评分开始 --> 
+     <div class="score"> 
+      <!-- 评分页面 --> 
+      <div> 
+       <!-- 系统默认的2号分组是星级评分 --> 
+       <!-- 平均评分有二级缓存，评分后不会立即显示新的平均评分 --> 
+       <!-- 其他 --> 
+       <ul> 
+        <li style="float:left;cursor: pointer;" onclick="Cms.score('',1333631,1);"> <p> <span id="score-item-1">0</span>票</p> <p><img src="/r/cms/smilies/m1.gif" alt="开心" /></p> <p>开心</p> </li> 
+        <li style="float:left;cursor: pointer;" onclick="Cms.score('',1333631,2);"> <p> <span id="score-item-2">0</span>票</p> <p><img src="/r/cms/smilies/m2.gif" alt="板砖" /></p> <p>板砖</p> </li> 
+        <li style="float:left;cursor: pointer;" onclick="Cms.score('',1333631,3);"> <p> <span id="score-item-3">0</span>票</p> <p><img src="/r/cms/smilies/m3.gif" alt="感动" /></p> <p>感动</p> </li> 
+        <li style="float:left;cursor: pointer;" onclick="Cms.score('',1333631,4);"> <p> <span id="score-item-4">0</span>票</p> <p><img src="/r/cms/smilies/m4.gif" alt="有用" /></p> <p>有用</p> </li> 
+        <li style="float:left;cursor: pointer;" onclick="Cms.score('',1333631,5);"> <p> <span id="score-item-5">0</span>票</p> <p><img src="/r/cms/smilies/m5.gif" alt="疑问" /></p> <p>疑问</p> </li> 
+        <li style="float:left;cursor: pointer;" onclick="Cms.score('',1333631,6);"> <p> <span id="score-item-6">0</span>票</p> <p><img src="/r/cms/smilies/m6.gif" alt="难过" /></p> <p>难过</p> </li> 
+        <li style="float:left;cursor: pointer;" onclick="Cms.score('',1333631,7);"> <p> <span id="score-item-7">0</span>票</p> <p><img src="/r/cms/smilies/m7.gif" alt="无聊" /></p> <p>无聊</p> </li> 
+        <li style="float:left;cursor: pointer;" onclick="Cms.score('',1333631,8);"> <p> <span id="score-item-8">0</span>票</p> <p><img src="/r/cms/smilies/m8.gif" alt="震惊" /></p> <p>震惊</p> </li> 
+       </ul> 
+       <script type="text/javascript">
+	$(function() {
+		Cms.scoreCount("","1333631");
+	});
+</script> 
+      </div> 
+     </div> 
+     <!-- 评分结束 --> 
+     <div class="other"> 
+      <div class="ding" onclick="Cms.up('',1333631,0);">
+       <span id="ups"></span> 
+       <span id="ups"></span> 
+       <p>顶</p> 
+      </div> 
+      <div class="cai" onclick="Cms.down('',1333631,0);">
+       <span id="downs"></span> 
+       <span id="downs"></span> 
+       <p>踩</p> 
+      </div> 
+     </div> 
+    </div> 
+    <div class="clear-10"></div> 
+    <div class="hundred100"> 
+     <div class="rim06"> 
+      <!--网友评论_Begin--> 
+      <!--网友评论_End--> 
+     </div> 
+    </div> 
+    <div class="clear-10"></div> 
+    <!-- ad开始 --> 
+    <div class=""> 
+     <script type="text/javascript">
+    var cpro_id="u2446019";
+    (window["cproStyleApi"] = window["cproStyleApi"] || {})[cpro_id]={at:"3",rsi0:"650",rsi1:"250",pat:"6",tn:"baiduCustNativeAD",rss1:"#FFFFFF",conBW:"1",adp:"1",ptt:"0",titFF:"%E5%BE%AE%E8%BD%AF%E9%9B%85%E9%BB%91",titFS:"14",rss2:"#000000",titSU:"0",ptbg:"90",piw:"0",pih:"0",ptp:"0"}
+    </script> 
+     <script src="http://cpro.baidustatic.com/cpro/ui/c.js" type="text/javascript"></script> 
+    </div> 
+    <!-- ad结束 --> 
+   </div> 
+   <!-- 左栏_end --> 
+   <div class="w300"> 
+    <div class="clear-10"></div> 
+    <!-- 推荐文章_begin --> 
+    <div class="rim04"> 
+     <div class="jrhtCon"> 
+      <div class="search_001_head">
+       推荐文章
+      </div> 
+      <div class="clear"></div> 
+      <div class="search_001"> 
+       <div class="search_001_c0"> 
+        <div class="search_001_title"> 
+         <span class="search_001_redbg">1</span> 
+         <a href="/article/3306707.htm" title="设置IE为默认的浏览器" target="_blank">设置IE为默认的浏览器</a> 
+        </div> 
+       </div> 
+       <div class="search_001_c0"> 
+        <div class="search_001_title"> 
+         <span class="search_001_redbg">2</span> 
+         <a href="/article/1215980.htm" title="如何设置默认浏览器" target="_blank">如何设置默认浏览器</a> 
+        </div> 
+       </div> 
+       <div class="search_001_c0"> 
+        <div class="search_001_title"> 
+         <span class="search_001_redbg">3</span> 
+         <a href="/article/2155313.htm" title="如何设置默认浏览器" target="_blank">如何设置默认浏览器</a> 
+        </div> 
+       </div> 
+       <div class="search_001_c0"> 
+        <div class="search_001_title"> 
+         <span class="search_001_redbg">4</span> 
+         <a href="/article/3012719.htm" title="如何设置默认浏览器？" target="_blank">如何设置默认浏览器？</a> 
+        </div> 
+       </div> 
+       <div class="search_001_c0"> 
+        <div class="search_001_title"> 
+         <span class="search_001_redbg">5</span> 
+         <a href="/article/2769713.htm" title="设置默认浏览器" target="_blank">设置默认浏览器</a> 
+        </div> 
+       </div> 
+       <div class="search_001_c0"> 
+        <div class="search_001_title"> 
+         <span class="search_001_redbg">6</span> 
+         <a href="/article/28145.htm" title="修改Mathon为默认浏览器" target="_blank">修改Mathon为默认浏览器</a> 
+        </div> 
+       </div> 
+       <div class="search_001_c0"> 
+        <div class="search_001_title"> 
+         <span class="search_001_redbg">7</span> 
+         <a href="/article/944662.htm" title="修改Mathon为默认浏览器" target="_blank">修改Mathon为默认浏览器</a> 
+        </div> 
+       </div> 
+       <div class="search_001_c0"> 
+        <div class="search_001_title"> 
+         <span class="search_001_redbg">8</span> 
+         <a href="/article/1715903.htm" title="修改IE为默认浏览器" target="_blank">修改IE为默认浏览器</a> 
+        </div> 
+       </div> 
+       <div class="search_001_c0"> 
+        <div class="search_001_title"> 
+         <span class="search_001_redbg">9</span> 
+         <a href="/article/129047.htm" title="IIS右键不起作用——未设置IE为默认浏览器" target="_blank">IIS右键不起作用——未设置IE为</a> 
+        </div> 
+       </div> 
+       <div class="search_001_c0"> 
+        <div class="search_001_title"> 
+         <span class="search_001_redbg">10</span> 
+         <a href="/article/2972569.htm" title="VISTA下完美设置遨游1.6.X为默认浏览器" target="_blank">VISTA下完美设置遨游1.6.X为默认</a> 
+        </div> 
+       </div> 
+       <div class="search_001_c0"> 
+        <div class="search_001_title"> 
+         <span class="search_001_redbg">11</span> 
+         <a href="/article/1532895.htm" title="金丝雀版Chrome Canary Build，及设置为默认浏览器" target="_blank">金丝雀版Chrome Canary Build，</a> 
+        </div> 
+       </div> 
+       <div class="search_001_c0"> 
+        <div class="search_001_title"> 
+         <span class="search_001_redbg">12</span> 
+         <a href="/article/2825612.htm" title="真正的“彻底地”设置Firefox(Maxthon)为你的默认浏览器" target="_blank">真正的“彻底地”设置Firefox(Ma</a> 
+        </div> 
+       </div> 
+       <div class="search_001_c0"> 
+        <div class="search_001_title"> 
+         <span class="search_001_redbg">13</span> 
+         <a href="/article/3129940.htm" title="获取系统默认浏览器 MFC" target="_blank">获取系统默认浏览器 MFC</a> 
+        </div> 
+       </div> 
+       <div class="search_001_c0"> 
+        <div class="search_001_title"> 
+         <span class="search_001_redbg">14</span> 
+         <a href="/article/482074.htm" title="windows 设置默认浏览器" target="_blank">windows 设置默认浏览器</a> 
+        </div> 
+       </div> 
+       <div class="search_001_c0"> 
+        <div class="search_001_title"> 
+         <span class="search_001_redbg">15</span> 
+         <a href="/article/1502637.htm" title="是否默认浏览器无法设置" target="_blank">是否默认浏览器无法设置</a> 
+        </div> 
+       </div> 
+       <div class="search_001_c0"> 
+        <div class="search_001_title"> 
+         <span class="search_001_redbg">16</span> 
+         <a href="/article/3195751.htm" title="批处理设置默认浏览器" target="_blank">批处理设置默认浏览器</a> 
+        </div> 
+       </div> 
+       <div class="search_001_c0"> 
+        <div class="search_001_title"> 
+         <span class="search_001_redbg">17</span> 
+         <a href="/article/355439.htm" title="如何修改默认浏览器" target="_blank">如何修改默认浏览器</a> 
+        </div> 
+       </div> 
+       <div class="search_001_c0"> 
+        <div class="search_001_title"> 
+         <span class="search_001_redbg">18</span> 
+         <a href="/article/1953573.htm" title="win7中如何通过修改注册表设置默认浏览器" target="_blank">win7中如何通过修改注册表设置默</a> 
+        </div> 
+       </div> 
+       <div class="search_001_c0"> 
+        <div class="search_001_title"> 
+         <span class="search_001_redbg">19</span> 
+         <a href="/article/1612429.htm" title="重置IE为系统默认浏览器和VS2005的默认浏览器" target="_blank">重置IE为系统默认浏览器和VS2005</a> 
+        </div> 
+       </div> 
+       <div class="search_001_c0"> 
+        <div class="search_001_title"> 
+         <span class="search_001_redbg">20</span> 
+         <a href="/article/632564.htm" title="设置默认浏览器无效解决方法+java打开默认浏览器" target="_blank">设置默认浏览器无效解决方法+jav</a> 
+        </div> 
+       </div> 
+      </div> 
+     </div> 
+    </div> 
+    <!-- 推荐文章_end --> 
+    <div class="clear-10"></div> 
+    <!-- AD_begin --> 
+    <div class="rim04" style="border:0px solid red;"> 
+     <script type="text/javascript">
+        /*4号，300*250，右侧栏嵌入*/
+        var cpro_id = "u2446001";
+        </script> 
+     <script src="http://cpro.baidustatic.com/cpro/ui/c.js" type="text/javascript"></script> 
+    </div> 
+    <!-- AD_end --> 
+    <div class="clear-10"></div> 
+    <!-- 推荐文章2_begin --> 
+    <div class="rim04"> 
+     <div class="jrhtCon"> 
+      <div class="search_002_head">
+       编辑推荐
+      </div> 
+      <div class="clear"></div> 
+      <div class="search_002"> 
+       <div class="search_002_c0"> 
+        <div class="search_002_title"> 
+         <span class="search_002_redbg">2</span> 
+         <a href="/article/2295674.htm" title="怎么设置默认浏览器" target="_blank">怎么设置默认浏览器</a> 
+        </div> 
+        <div class="search_002_c2">
+         步骤/方法 1）控制面板：“Control Panel”--“Default Programs”--“Set Default Programs” 2）注
+        </div> 
+       </div> 
+       <div class="search_002_c0"> 
+        <div class="search_002_title"> 
+         <span class="search_002_redbg">3</span> 
+         <a href="/article/2609832.htm" title="如何设置AppScan的外部浏览器" target="_blank">如何设置AppScan的外部浏览器</a> 
+        </div> 
+        <div class="search_002_c2">
+          如何设置AppScan的外部浏览器？ 在工作中，我们使用AppScan的自带浏览器时，经常会遇到一些兼容性问
+        </div> 
+       </div> 
+       <div class="search_002_c0"> 
+        <div class="search_002_title"> 
+         <span class="search_002_redbg">4</span> 
+         <a href="/article/2157283.htm" title="flash_builder_设置默认启动的浏览器" target="_blank">flash_builder_设置默认启动的浏</a> 
+        </div> 
+        <div class="search_002_c2">
+          Flash Builder 设置默认启动的浏览器 Flash Builder提供两种安装方式： 独立安装方式 作为现有Eclip
+        </div> 
+       </div> 
+       <div class="search_002_c0"> 
+        <div class="search_002_title"> 
+         <span class="search_002_redbg">5</span> 
+         <a href="/article/2650120.htm" title="win8 Windows 8 设置 默认浏览器" target="_blank">win8 Windows 8 设置 默认浏览器</a> 
+        </div> 
+        <div class="search_002_c2">
+          简单两步轻松搞定 注：以谷歌浏览器为例，其他浏览器理论上方法一样。 1. 右击谷歌浏览器的安装程序
+        </div> 
+       </div> 
+       <div class="search_002_c0"> 
+        <div class="search_002_title"> 
+         <span class="search_002_redbg">6</span> 
+         <a href="/article/1264197.htm" title="VS2010Web默认的浏览器设置和VS里调试JavaScript代码的设置" target="_blank">VS2010Web默认的浏览器设置和VS</a> 
+        </div> 
+        <div class="search_002_c2">
+          前言 　　重装系统后，VS调用的Web浏览器不是IE了，VS调式不了JavaScript代码了。这两天一直在试终
+        </div> 
+       </div> 
+       <div class="search_002_c0"> 
+        <div class="search_002_title"> 
+         <span class="search_002_redbg">7</span> 
+         <a href="/article/2179589.htm" title="在windows下如何设置SSH代理，Chrome 浏览器" target="_blank">在windows下如何设置SSH代理，Ch</a> 
+        </div> 
+        <div class="search_002_c2">
+          Windows Chrome SSH协议配置 下面的操作需要连接上VPN才能顺利进行，如果您还没有购买套餐，请点击
+        </div> 
+       </div> 
+       <div class="search_002_c0"> 
+        <div class="search_002_title"> 
+         <span class="search_002_redbg">8</span> 
+         <a href="/article/1335953.htm" title="设置默认访问项目的客户端的浏览器版本（IE版本）" target="_blank">设置默认访问项目的客户端的浏览</a> 
+        </div> 
+        <div class="search_002_c2">
+          在项目开发部署中，发现浏览器不兼容现象，在不处理兼容性情况下让用户更好体验（IE浏览器） 我们来
+        </div> 
+       </div> 
+       <div class="search_002_c0"> 
+        <div class="search_002_title"> 
+         <span class="search_002_redbg">9</span> 
+         <a href="/article/1386474.htm" title="VS2010 MVC3项目设置默认浏览器" target="_blank">VS2010 MVC3项目设置默认浏览器</a> 
+        </div> 
+        <div class="search_002_c2">
+          可能使用MVC3进行开发的朋友还在为如何设置调试时默认浏览器的事烦心。。。。。 在Visual Studio 20
+        </div> 
+       </div> 
+       <div class="search_002_c0"> 
+        <div class="search_002_title"> 
+         <span class="search_002_redbg">10</span> 
+         <a href="/article/2185886.htm" title="如何修改Chrome浏览器的默认搜索引擎" target="_blank">如何修改Chrome浏览器的默认搜索</a> 
+        </div> 
+        <div class="search_002_c2">
+          在浏览器的地址栏中右键，选择&quot;edit search engines&quot;,进入如下管理界面： 在Defatl search engines
+        </div> 
+       </div> 
+      </div> 
+     </div> 
+    </div> 
+    <div class="clear-10"></div> 
+    <!-- ad开始 --> 
+    <div class=""> 
+     <script type="text/javascript">var cpro_id = "u2505202";</script> 
+     <script src="http://cpro.baidustatic.com/cpro/ui/c.js" type="text/javascript"></script> 
+    </div> 
+    <!-- ad结束 --> 
+   </div>
+   <div class="clear"></div> 
+   <div class="clear-10"></div> 
+   <div class="footBg"> 
+    <div class="footBglm"> 
+     <a target="_blank" href="/">首页</a> - 
+     <a target="_blank" href="/about.htm">关于我们</a> - 
+     <a onclick="SetHome(window.location)" href="javascript:void(0)">设为首页</a> - 
+     <a onclick="AddFavorite(window.location,document.title)" href="javascript:void(0)">加入收藏</a> - 
+     <a target="_blank" href="/search2.htm">站内搜索</a> - 
+     <a target="_blank" href="/sitemap.xml">Sitemap</a> 
+    </div> 
+    <div class="clear-10"></div> 版权所有 IT知识库 CopyRight &copy; 2009-2015 IT知识库 IT610.com , All Rights Reserved. 
+    <a href="http://www.miibeian.gov.cn" rel="nofollow" target="_blank">京ICP备09083238号</a>
+    <br /> 
+    <script src="/r/cms/www/it610/js/cnzztongji_it610.js" type="text/javascript"></script> 
+   </div>
+  </div>  
+ </body>
+</html>

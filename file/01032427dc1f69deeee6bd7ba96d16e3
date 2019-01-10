@@ -1,0 +1,706 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+ <head id="Head">
+  <title>
+	Servlet 3.0笔记之超方便的文件上传支持 - 聂永的博客 - BlogJava
+</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta id="metaKeywords" name="keywords" content="Servlet 3.0笔记之超方便的文件上传支持" />
+  <link type="text/css" rel="stylesheet" href="/css/common.css" />
+  <link id="MainCss" type="text/css" rel="stylesheet" href="http://www.blogjava.net/Skins/ClearGertrude/style.css" />
+  <link id="SecondaryCss" type="text/css" rel="stylesheet" href="http://www.blogjava.net/yongboy/customcss.aspx" />
+  <link id="RSSLink" title="RSS" type="application/rss+xml" rel="alternate" href="http://www.blogjava.net/yongboy/rss.aspx" />
+ </head> 
+ <body> 
+  <form name="Form1" method="post" action="346202.html" id="Form1"> 
+   <input type="hidden" name="__VIEWSTATE" id="
+__VIEWSTATE" value="" /> 
+   <script language="JavaScript">
+									function ctlent(evt,id)
+											{
+												if(evt.ctrlKey && evt.keyCode == 13)
+												{	
+													try
+													{
+														TempSave(id);
+													}
+													catch(ex)
+													{
+													}
+													finally
+													{
+													    __doPostBack('AjaxHolder$PostComment$btnSubmit','')
+													}
+												}
+		
+												}</script> 
+   <script language="JavaScript">function SetReplyAuhor(author){document.getElementById('AjaxHolder_PostComment_tbComment').value+="@"+author+"\n";document.getElementById('AjaxHolder_PostComment_tbComment').focus();return false}</script> 
+   <script src="/ScriptResource.axd?d=-BecoVNwDVCZ4TW3gB_ZzPWfgjCQ_C64O4hNc3pweA4UGq0B-lWFnUMMAtqURN0AZF_f7fxk9s5U1gsq0foUhwHdXezBbn_OgCN5EL300MOu7Jb-c7WU_a2OCK01&amp;t=634979389729873750" type="text/javascript"></script> 
+   <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.5.0/styles/default.min.css" /> 
+   <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.5.0/highlight.min.js"></script> 
+   <script>hljs.initHighlightingOnLoad();</script> 
+   <h1><a id="Header1_HeaderTitle" class="headermaintitle" href="http://www.blogjava.net/yongboy/">聂永的博客</a></h1> 
+   <p id="tagline">记录工作/学习的点点滴滴。</p> 
+   <div id="main"> 
+    <div class="post"> 
+     <h2> <a id="viewpost1_TitleUrl" href="http://www.blogjava.net/yongboy/archive/2011/01/15/346202.html">Servlet 3.0笔记之超方便的文件上传支持</a> </h2> 
+     <div class="postText">
+      <div style="text-indent: 2em;">
+       在以前，处理文件上传是一个很痛苦的事情，大都借助于开源的上传组件，诸如commons fileupload等。现在好了，很方便，便捷到比那些组件都方便至极。以前的HTML端上传表单不用改变什么，还是一样的
+       <strong>multipart/form-data</strong> MIME类型。
+      </div>
+      <div style="text-indent: 2em;">
+       让Servlet支持上传，需要做两件事情
+      </div>
+      <ol>
+       <li>需要添加MultipartConfig注解</li>
+       <li>从request对象中获取Part文件对象</li>
+      </ol>
+      <div style="text-indent: 2em;">
+       但在具体实践中，还是有一些细节处理，诸如设置上传文件的最大值，上传文件的保存路径。
+      </div>
+      <div style="text-indent: 2em;">
+       需要熟悉MultipartConfig注解，标注在@WebServlet之上，具有以下属性：
+      </div>
+      <span class="Apple-style-span" style="border-collapse: separate; color: black; font-family: 'AR PL UKai CN'; font-size: medium; font-style: normal; font-variant: normal; font-weight: normal; letter-spacing: normal; line-height: normal; orphans: 2; text-indent: 0px; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px;"><span class="Apple-style-span" style="text-align: left;"><a href="http://www.blogger.com/post-create.g?blogID=11718645" name="minor3.5"></a>
+        <table class="ibm-data-table" style="border-bottom: 1px solid #cccccc; border-left: 1px solid #cccccc; border-right: 1px solid #cccccc; border-width: 0px 1px 1px; font-size: 0.8em; width: 708px;" border="0" cellpadding="0" cellspacing="0">
+         <tbody>
+          <tr>
+           <th style="background-color: #f7f8fc; background-image: url(&quot;http://www.ibm.com/i/v16/t/text-tabs-bg.gif&quot;); border-top: 1px solid #cccccc; font-family: arial,nsimsun,sans-serif; padding: 8px 5px; text-align: left; vertical-align: top;">属性名</th>
+           <th style="background-color: #f7f8fc; background-image: url(&quot;http://www.ibm.com/i/v16/t/text-tabs-bg.gif&quot;); border-top: 1px solid #cccccc; font-family: arial,nsimsun,sans-serif; padding: 8px 5px; text-align: left; vertical-align: top;">类型</th>
+           <th style="background-color: #f7f8fc; background-image: url(&quot;http://www.ibm.com/i/v16/t/text-tabs-bg.gif&quot;); border-top: 1px solid #cccccc; font-family: arial,nsimsun,sans-serif; padding: 8px 5px; text-align: left; vertical-align: top;">是否可选</th>
+           <th style="background-color: #f7f8fc; background-image: url(&quot;http://www.ibm.com/i/v16/t/text-tabs-bg.gif&quot;); border-top: 1px solid #cccccc; font-family: arial,nsimsun,sans-serif; padding: 8px 5px; text-align: left; vertical-align: top;">描述</th>
+          </tr>
+          <tr>
+           <td style="border-top: 1px solid #cccccc; font-family: arial,nsimsun,sans-serif; padding: 8px 5px; vertical-align: top;">fileSizeThreshold</td>
+           <td style="border-top: 1px solid #cccccc; font-family: arial,nsimsun,sans-serif; padding: 8px 5px; vertical-align: top;">int</td>
+           <td style="border-top: 1px solid #cccccc; font-family: arial,nsimsun,sans-serif; padding: 8px 5px; vertical-align: top;">是</td>
+           <td style="border-top: 1px solid #cccccc; font-family: arial,nsimsun,sans-serif; padding: 8px 5px; vertical-align: top;">当数据量大于该值时，内容将被写入文件。</td>
+          </tr>
+          <tr>
+           <td style="border-top: 1px solid #cccccc; font-family: arial,nsimsun,sans-serif; padding: 8px 5px; vertical-align: top;">location</td>
+           <td style="border-top: 1px solid #cccccc; font-family: arial,nsimsun,sans-serif; padding: 8px 5px; vertical-align: top;">String</td>
+           <td style="border-top: 1px solid #cccccc; font-family: arial,nsimsun,sans-serif; padding: 8px 5px; vertical-align: top;">是</td>
+           <td style="border-top: 1px solid #cccccc; font-family: arial,nsimsun,sans-serif; padding: 8px 5px; vertical-align: top;">存放生成的文件地址。</td>
+          </tr>
+          <tr>
+           <td style="border-top: 1px solid #cccccc; font-family: arial,nsimsun,sans-serif; padding: 8px 5px; vertical-align: top;">maxFileSize</td>
+           <td style="border-top: 1px solid #cccccc; font-family: arial,nsimsun,sans-serif; padding: 8px 5px; vertical-align: top;">long</td>
+           <td style="border-top: 1px solid #cccccc; font-family: arial,nsimsun,sans-serif; padding: 8px 5px; vertical-align: top;">是</td>
+           <td style="border-top: 1px solid #cccccc; font-family: arial,nsimsun,sans-serif; padding: 8px 5px; vertical-align: top;">允许上传的文件最大值。默认值为 -1，表示没有限制。</td>
+          </tr>
+          <tr>
+           <td style="border-top: 1px solid #cccccc; font-family: arial,nsimsun,sans-serif; padding: 8px 5px; vertical-align: top;">maxRequestSize</td>
+           <td style="border-top: 1px solid #cccccc; font-family: arial,nsimsun,sans-serif; padding: 8px 5px; vertical-align: top;">long</td>
+           <td style="border-top: 1px solid #cccccc; font-family: arial,nsimsun,sans-serif; padding: 8px 5px; vertical-align: top;">是</td>
+           <td style="border-top: 1px solid #cccccc; font-family: arial,nsimsun,sans-serif; padding: 8px 5px; vertical-align: top;">针对该 multipart/form-data 请求的最大数量，默认值为 -1，表示没有限制。</td>
+          </tr>
+         </tbody>
+        </table></span></span>
+      <br />
+      <div>
+       <div style="text-indent: 2em;">
+        一些实践建议：
+       </div>
+       <ol>
+        <li>若是上传一个文件，仅仅需要设置maxFileSize熟悉即可。</li>
+        <li>上传多个文件，可能需要设置maxRequestSize属性，设定一次上传数据的最大量。</li>
+        <li>上传过程中无论是单个文件超过maxFileSize值，或者上传总的数据量大于maxRequestSize值都会抛出IllegalStateException异常;</li>
+        <li>location属性，既是保存路径(在写入的时候，可以忽略路径设定)，又是上传过程中临时文件的保存路径，一旦执行Part.write方法之后，临时文件将被自动清除。</li>
+        <li>但Servlet 3.0规范同时也说明，不提供获取上传文件名的方法，尽管我们可以通过part.getHeader(&quot;content-disposition&quot;)方法间接获取得到。</li>
+        <li>如何读取MultipartConfig注解属性值，API没有提供直接读取的方法，只能手动获取。</li>
+        <ol></ol>
+       </ol>
+      </div>
+      <div style="text-indent: 2em;">
+       来一个示例吧，上传前台页面： 
+      </div>
+      <div style="text-align: center;">
+       <img src="http://lh5.ggpht.com/_iP4ZGnOhL6U/TTGTkN3LnpI/AAAAAAAAAyI/agoRe0cGHkE/%5BUNSET%5D.png?imgmax=800" style="max-width: 800px;" alt="" />
+      </div>
+      <div style="text-indent: 2em;">
+       后台处理Servlet：
+      </div>
+      <pre class="prettyprint">/**<br /> * 上传文件测试 location为临时文件保存路径<br /> * <br /> * @author yongboy<br /> * @date 2011-1-13<br /> * @version 1.0<br /> */<br />@MultipartConfig(location = &quot;/home/yongboy/tmp/&quot;, maxFileSize = 1024 * 1024 * 10)<br />@WebServlet(&quot;/upload&quot;)<br />public class UploadFileAction extends HttpServlet {<br /> private static final long serialVersionUID = 92166165626L;<br /> private static final Log log = LogFactory.getLog(UploadFileAction.class);<br /> // 得到注解信息<br /> private static final MultipartConfig config;<br /><br /> static {<br />  config = UploadFileAction.class.getAnnotation(MultipartConfig.class);<br /> }<br /><br /> protected void doGet(HttpServletRequest request,<br />   HttpServletResponse response) throws ServletException, IOException {<br />  request.getRequestDispatcher(&quot;/upload.jsp&quot;).forward(request, response);<br /> }<br /><br /> protected void doPost(HttpServletRequest request,<br />   HttpServletResponse response) throws ServletException, IOException {<br />  // 为避免获取文件名称时出现乱码<br />  request.setCharacterEncoding(&quot;UTF-8&quot;);<br /><br />  Part part = null;<br />  try {<br />   // &lt;input name=&quot;file&quot; size=&quot;50&quot; type=&quot;file&quot; /&gt;<br />   part = request.getPart(&quot;file&quot;);<br />  } catch (IllegalStateException ise) {<br />   // 上传文件超过注解所标注的maxRequestSize或maxFileSize值<br />   if (config.maxRequestSize() == -1L) {<br />    log.info(&quot;the Part in the request is larger than maxFileSize&quot;);<br />   } else if (config.maxFileSize() == -1L) {<br />    log.info(&quot;the request body is larger than maxRequestSize&quot;);<br />   } else {<br />    log.info(&quot;the request body is larger than maxRequestSize, or any Part in the request is larger than maxFileSize&quot;);<br />   }<br /><br />   forwardErrorPage(request, response, &quot;上传文件过大，请检查输入是否有误！&quot;);<br />   return;<br />  } catch (IOException ieo) {<br />   // 在接收数据时出现问题<br />   log.error(&quot;I/O error occurred during the retrieval of the requested Part&quot;);<br />  } catch (Exception e) {<br />   log.error(e.toString());<br />   e.printStackTrace();<br />  }<br /><br />  if (part == null) {<br />   forwardErrorPage(request, response, &quot;上传文件出现异常，请检查输入是否有误！&quot;);<br />   return;<br />  }<br />  <br />  // 得到文件的原始名称，eg ：测试文档.pdf<br />  String fileName = UploadUtils.getFileName(part);<br /><br />  log.info(&quot;contentType : &quot; + part.getContentType());<br />  log.info(&quot;fileName : &quot; + fileName);<br />  log.info(&quot;fileSize : &quot; + part.getSize());<br />  log.info(&quot;header names : &quot;);<br />  for (String headerName : part.getHeaderNames()) {<br />   log.info(headerName + &quot; : &quot; + part.getHeader(headerName));<br />  }<br /><br />  String saveName = System.currentTimeMillis() + &quot;.&quot;<br />    + FilenameUtils.getExtension(fileName);<br /><br />  log.info(&quot;save the file with new name : &quot; + saveName);<br /><br />  // 因在注解中指定了路径，这里可以指定要写入的文件名<br />  // 在未执行write方法之前，将会在注解指定location路径下生成一临时文件<br />  part.write(saveName);<br /><br />  request.setAttribute(&quot;fileName&quot;, fileName);<br />  request.getRequestDispatcher(&quot;/uploadResult.jsp&quot;).forward(request,<br />    response);<br /> }<br /><br /> private void forwardErrorPage(HttpServletRequest request,<br />   HttpServletResponse response, String errMsg)<br />   throws ServletException, IOException {<br />  request.setAttribute(&quot;errMsg&quot;, errMsg);<br /><br />  request.getRequestDispatcher(&quot;/upload.jsp&quot;).forward(request, response);<br /> }<br />}<br /></pre>
+      <div style="text-indent: 2em;">
+       获取文件名的函数，很简单：
+      </div>
+      <pre class="prettyprint"> /**<br />  * 如何得到上传的文件名, API没有提供直接的方法，只能从content-disposition属性中获取<br />  * <br />  * @param part<br />  * @return<br />  */<br /> protected static String getFileName(Part part) {<br />  if (part == null)<br />   return null;<br /><br />  String fileName = part.getHeader(&quot;content-disposition&quot;);<br />  if (StringUtils.isBlank(fileName)) {<br />   return null;<br />  }<br /><br />  return StringUtils.substringBetween(fileName, &quot;filename=\&quot;&quot;, &quot;\&quot;&quot;);<br /> }<br /></pre>
+      <div style="text-indent: 2em;">
+       文件上传成功之后，以及日志输出的截图如下：
+      </div>
+      <div>
+       <div style="text-align: center;">
+        <img src="http://lh3.ggpht.com/_iP4ZGnOhL6U/TTGT2NyBRZI/AAAAAAAAAyM/PXMh389JBW4/%5BUNSET%5D.png?imgmax=800" style="max-width: 800px;" alt="" />
+       </div>
+       <div style="text-indent: 2em;">
+        截图中可以看到Part包含
+        <strong>content-disposition</strong>属性，可以很容易从值中抽取出文件名。临时生成的上传文件大都以 .tmp为后缀，大致如下：
+       </div>
+       <div style="text-align: center;">
+        <img src="http://lh6.ggpht.com/_iP4ZGnOhL6U/TTGUA1Z52FI/AAAAAAAAAyQ/i0oy-Xl3Nd8/%5BUNSET%5D.png?imgmax=800" style="max-width: 800px;" alt="" />
+       </div>
+       <div style="text-indent: 2em;">
+        让上传出现错误，就可以在保存路径下看到大致如上的临时文件。
+       </div>
+       <div style="text-indent: 2em;">
+        一次上传多个文件的后台servlet示范：
+       </div>
+       <pre class="prettyprint">/**<br /> * 多文件上传支持<br /> * @author yongboy<br /> * @date 2011-1-14<br /> * @version 1.0<br /> */<br />@MultipartConfig(<br />  location = &quot;/home/yongboy/tmp/&quot;, <br />  maxFileSize = 1024L * 1024L, // 每一个文件的最大值<br />  maxRequestSize = 1024L * 1024L * 10L // 一次上传最大值，若每次只能上传一个文件，则设置maxRequestSize意义不大<br />)<br />@WebServlet(&quot;/uploadFiles&quot;)<br />public class UploadFilesAction extends HttpServlet {<br /> private static final long serialVersionUID = 2304820820384L;<br /> private static final Log log = LogFactory.getLog(UploadFilesAction.class);<br /><br /> protected void doGet(HttpServletRequest request,<br />   HttpServletResponse response) throws ServletException, IOException {<br />  request.getRequestDispatcher(&quot;/uploads.jsp&quot;).forward(request, response);<br /> }<br /><br /> protected void doPost(HttpServletRequest request,<br />   HttpServletResponse response) throws ServletException, IOException {<br />  request.setCharacterEncoding(&quot;UTF-8&quot;);<br /><br />  Collection
+        <part>
+          parts = null;
+         <br />  try {
+         <br />   parts = request.getParts();
+         <br />  } catch (IllegalStateException ise) {
+         <br />   // 可能某个文件大于指定文件容量maxFileSize，或者提交数据大于maxRequestSize
+         <br />   log.info(&quot;maybe the request body is larger than maxRequestSize, or any Part in the request is larger than maxFileSize&quot;);
+         <br />  } catch (IOException ioe) {
+         <br />   // 在获取某个文件时遇到拉IO异常错误
+         <br />   log.error(&quot;an I/O error occurred during the retrieval of the Part components of this request&quot;);
+         <br />  } catch (Exception e) {
+         <br />   log.error(&quot;the request body is larger than maxRequestSize, or any Part in the request is larger than maxFileSize&quot;);
+         <br />   e.printStackTrace();
+         <br />  }
+         <br />
+         <br />  if (parts == null || parts.isEmpty()) {
+         <br />   doError(request, response, &quot;上传文件为空！&quot;);
+         <br />   return;
+         <br />  }
+         <br />
+         <br />  // 前端具有几个file组件，这里会对应几个Part对象
+         <br />  List
+         <string>
+           fileNames = new ArrayList
+          <string>
+           ();
+           <br /> for (Part part : parts) {
+           <br /> if (part == null) {
+           <br /> continue;
+           <br /> }
+           <br /> // 这里直接以源文件名保存
+           <br /> String fileName = UploadUtils.getFileName(part);
+           <br />
+           <br /> if (StringUtils.isBlank(fileName)) {
+           <br /> continue;
+           <br /> }
+           <br />
+           <br /> part.write(fileName);
+           <br /> fileNames.add(fileName);
+           <br /> }
+           <br />
+           <br /> request.setAttribute(&quot;fileNames&quot;, fileNames);
+           <br /> request.getRequestDispatcher(&quot;/uploadsResult.jsp&quot;).forward(request,
+           <br /> response);
+           <br /> }
+           <br />
+           <br /> private void doError(HttpServletRequest request,
+           <br /> HttpServletResponse response, String errMsg)
+           <br /> throws ServletException, IOException {
+           <br /> request.setAttribute(&quot;errMsg&quot;, errMsg);
+           <br />
+           <br /> this.doGet(request, response);
+           <br /> }
+           <br />}
+           <br />
+          </string>
+         </string>
+        </part></pre>
+       <div style="text-indent: 2em;">
+        批量上传很简单，但也有风险，任一个文件若超过maxFileSize值，意味着整个上传都会失败。若不限大小，那就不存在以上忧虑了。
+       </div>
+       <div style="text-indent: 2em;">
+        总之，在Servlet 3.0 中，无论是上传一个文件，或者多个批量上传都是非常简单，但要处理好异常，避免出错。
+       </div>
+      </div>
+      <br />
+      <br />
+      <div>
+       <span style="color: #008000;">----------------------------------------------------------------------------<br /> 广而告之，让您自由畅游网络~</span>
+      </div> 
+      <div>
+       <a target="_blank" href="http://gjsq.me/1034269">推荐一个我一直使用的VPN 翻*墙利器，平常正常谷歌搜索，登陆Gmail，闲时观看youtube等高清视频一点都不卡！</a>
+      </div> 
+      <div>
+       再超值提供一个近期2015年有效的9折优惠码：
+       <u><strong>10off2015</strong></u>
+       <br /> 
+       <br />作为码农，严重推荐！
+      </div>
+     </div> 
+     <p class="postfoot"> posted on 2011-01-15 20:43 <a href="http://www.blogjava.net/yongboy/">nieyong</a> 阅读(10749) <a href="#Post">评论(2)</a> &nbsp;<a href="http://www.blogjava.net/yongboy/admin/EditPosts.aspx?postid=346202">编辑</a> &nbsp;<a href="http://www.blogjava.net/yongboy/AddToFavorite.aspx?id=346202">收藏</a> 所属分类: <a href="http://www.blogjava.net/yongboy/category/48044.html">Servlet3</a> </p> 
+    </div> 
+    <img src="http://www.blogjava.net/yongboy/aggbug/346202.html?webview=1" width="1" height="1" /> 
+    <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+xmlns:dc="http://purl.org/dc/elements/1.1/"
+xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/">
+<rdf:Description
+rdf:about="http://www.blogjava.net/yongboy/archive/2011/01/15/346202.html"
+dc:identifier="http://www.blogjava.net/yongboy/archive/2011/01/15/346202.html"
+dc:title="Servlet 3.0笔记之超方便的文件上传支持"
+trackback:ping="http://www.blogjava.net/yongboy/services/trackbacks/346202.aspx" />
+</rdf:RDF>
+--> 
+    <div id="AjaxHolder_UpdatePanel1"> 
+     <a name="pagedcomment"></a> 
+     <a name="评论"></a> 
+     <div id="comments"> 
+      <h3>评论</h3> 
+      <h4> <a title="permalink: re: Servlet 3.0笔记之超方便的文件上传支持" href="/yongboy/archive/2011/01/15/346202.html#346532">#</a>&nbsp;<a name="346532"></a>re: Servlet 3.0笔记之超方便的文件上传支持 <span> 2011-03-18 14:22 </span> <a id="AjaxHolder_Comments_CommentList_ctl00_NameLink" target="_blank">- -</a> </h4> 
+      <p> 谢谢&nbsp;&nbsp;<a onclick="return SetReplyAuhor(&quot;- -&quot;)" href="/yongboy/archive/2011/01/15/346202.html#post">回复</a>&nbsp;&nbsp;<a title="查看该作者发表过的评论" href="http://www.blogjava.net/comment?author=-+-" target="_blank">更多评论</a> <a id="AjaxHolder_Comments_CommentList_ctl00_DeleteLink" href="javascript:__doPostBack('AjaxHolder$Comments$CommentList$ctl00$DeleteLink','')"></a>&nbsp;&nbsp;<a id="AjaxHolder_Comments_CommentList_ctl00_EditLink"></a> </p> 
+      <h4> <a title="permalink: re: Servlet 3.0笔记之超方便的文件上传支持" href="/yongboy/archive/2011/01/15/346202.html#431586">#</a>&nbsp;<a name="431586"></a>re: Servlet 3.0笔记之超方便的文件上传支持<a name="Post"></a> <span> 2016-08-16 10:22 </span> <a id="AjaxHolder_Comments_CommentList_ctl01_NameLink" target="_blank">yxscomeon</a> </h4> 
+      <p> @- -<br />谢谢，解决了我的一个问题！特意注册过来谢谢的！&nbsp;&nbsp;<a onclick="return SetReplyAuhor(&quot;yxscomeon&quot;)" href="/yongboy/archive/2011/01/15/346202.html#post">回复</a>&nbsp;&nbsp;<a title="查看该作者发表过的评论" href="http://www.blogjava.net/comment?author=yxscomeon" target="_blank">更多评论</a> <a id="AjaxHolder_Comments_CommentList_ctl01_DeleteLink" href="javascript:__doPostBack('AjaxHolder$Comments$CommentList$ctl01$DeleteLink','')"></a>&nbsp;&nbsp;<a id="AjaxHolder_Comments_CommentList_ctl01_EditLink"></a> </p> 
+     </div> 
+     <style>
+td { font-size: 12px }
+.commentTextBox 
+{ 
+    font-family : Verdana; 
+    font-size: 13px;
+ }
+</style> 
+     <!--Beging Temp Save--> 
+     <style>.userData { BEHAVIOR: url(#default#userdata) }
+	</style> 
+     <div class="userData" id="CommentsPersistDiv"></div> 
+     <script type="text/javascript">
+function pageLoad()
+{
+    Sys.WebForms.PageRequestManager.getInstance().add_initializeRequest(handleInitializeRequest);
+    //Sys.WebForms.PageRequestManager.getInstance().add_endRequest(handleEndRequest);
+}
+
+function handleInitializeRequest(sender, args)
+{
+    var prm = Sys.WebForms.PageRequestManager.getInstance();
+    var eid = args.get_postBackElement().id;
+    if (eid.indexOf("DeleteLink")>0) 
+    {
+       args.get_postBackElement().innerHTML = "<font color='red'>正在删除...</font>";         
+    }    
+    else if (eid.indexOf("btnSubmit")>0) 
+    {
+       document.getElementById("AjaxHolder_PostComment_ltSubmitMsg").innerHTML="正在提交...";
+       document.getElementById("AjaxHolder_PostComment_btnSubmit").disabled = true;       
+    }   
+    else if(eid.indexOf("refreshList")>0)
+    {
+        document.getElementById("AjaxHolder_PostComment_refreshList").innerHTML="<font color='red'>正在刷新...</font>";
+    }
+   
+}	
+
+function TempSave(ElementID)
+{
+	try
+	{
+	CommentsPersistDiv.setAttribute("CommentContent",document.getElementById(ElementID).value);
+	CommentsPersistDiv.save("CommentXMLStore");
+	}
+	catch(ex)
+	{
+	}
+	
+}
+function Restore(ElementID)
+{
+	CommentsPersistDiv.load("CommentXMLStore");
+	document.getElementById(ElementID).value=CommentsPersistDiv.getAttribute("CommentContent");
+}	
+			
+			
+</script> 
+     <!--Ene TempSave--> 
+     <div id="divRefreshComments" style="text-align:right;margin-right:10px;margin-bottom:5px;font-size:12px">
+      <a href="/RequireRegister.aspx">新用户注册</a>&nbsp;&nbsp;
+      <a id="AjaxHolder_PostComment_refreshList" href="javascript:__doPostBack('AjaxHolder$PostComment$refreshList','')">刷新评论列表</a>&nbsp;&nbsp;
+     </div> 
+     <div class="commentform"> 
+      <span id="AjaxHolder_PostComment_ltSubmitMsg"><font color="Red"></font></span> 
+      <br /> 
+      <a name="Feedback"></a> 
+      <table cellspacing="1" cellpadding="1" border="0"> 
+       <tbody>
+        <tr> 
+         <td id="AjaxHolder_PostComment_tdOnCommentForm" colspan="3" style="line-height:1.5"> </td> 
+        </tr> 
+        <tr>
+         <td colspan="3">只有注册用户<a href="http://www.blogjava.net/login.aspx?ReturnUrl=/yongboy/archive/2011/01/15/346202.html">登录</a>后才能发表评论。</td>
+        </tr> 
+        <tr> 
+         <td colspan="3">
+          <!--该文被作者在 2015-06-01 13:43 编辑过--></td> 
+        </tr> 
+        <!--
+		<TR>
+			<TD colSpan="3" height="5"></TD>
+		</TR>	
+		--> 
+        <tr> 
+         <td colspan="3"> <br /> <script type="text/javascript">
+var googletag = googletag || {};
+googletag.cmd = googletag.cmd || [];
+(function() {
+var gads = document.createElement('script');
+gads.async = true;
+gads.type = 'text/javascript';
+var useSSL = 'https:' == document.location.protocol;
+gads.src = (useSSL ? 'https:' : 'http:') + 
+'//www.googletagservices.com/tag/js/gpt.js';
+var node = document.getElementsByTagName('script')[0];
+node.parentNode.insertBefore(gads, node);
+})();
+</script> <script type="text/javascript">
+googletag.cmd.push(function() {
+googletag.defineSlot('/1090369/blogjava_blogpost_bottom', [300, 250], 'div-gpt-ad-1364133350381-0').addService(googletag.pubads());
+googletag.pubads().enableSingleRequest();
+googletag.enableServices();
+});
+</script> 
+          <!-- blogjava_blogpost_bottom --> 
+          <div id="div-gpt-ad-1364133350381-0" style="width:300px; height:250px;"> 
+           <script type="text/javascript">
+googletag.cmd.push(function() { googletag.display('div-gpt-ad-1364133350381-0'); });
+</script> 
+          </div> <br /> </td> 
+        </tr> 
+        <tr> 
+         <td colspan="3"> </td> 
+        </tr> 
+        <tr> 
+         <td colspan="3"></td> 
+        </tr> 
+        <tr> 
+         <td colspan="3" height="1">网站导航:
+          <div id="blogsite"> 
+           <a href="http://www.cnblogs.com" title="开发者的网上家园">博客园</a>&nbsp;&nbsp; 
+           <a href="https://news.cnblogs.com">IT新闻</a>&nbsp;&nbsp; 
+           <a href="http://kb.cnblogs.com">知识库</a>&nbsp;&nbsp; 
+           <a href="http://www.cppblog.com">C++博客</a>&nbsp;&nbsp; 
+           <a href="https://q.cnblogs.com">博问</a>&nbsp;&nbsp; 
+           <a href="/yongboy/archive/2011/01/15/346202.html?opt=admin">管理</a> 
+          </div> </td> 
+        </tr> 
+        <tr> 
+         <td colspan="3" height="5"> 
+          <div id="divRelativePosts">
+            相关文章: 
+           <ul style="margin-top:0px;padding-left:0px;"> 
+            <li style="list-style:none;"> <a id="AjaxHolder_PostComment_ctl07_RelativePostsList_ctl01_Hyperlink1" href="http://www.blogjava.net/yongboy/archive/2012/01/19/369577.html">Servlet 3.0笔记之文件下载的那点事情</a> </li> 
+            <li style="list-style:none;"> <a id="AjaxHolder_PostComment_ctl07_RelativePostsList_ctl02_Hyperlink1" href="http://www.blogjava.net/yongboy/archive/2012/01/18/369578.html">Servlet 3.0笔记之Servlet的异步特性支持失效怎么办？</a> </li> 
+            <li style="list-style:none;"> <a id="AjaxHolder_PostComment_ctl07_RelativePostsList_ctl03_Hyperlink1" href="http://www.blogjava.net/yongboy/archive/2011/04/06/347672.html">Servlet 3.0笔记之Redis操作示范Retwis JAVA版</a> </li> 
+            <li style="list-style:none;"> <a id="AjaxHolder_PostComment_ctl07_RelativePostsList_ctl04_Hyperlink1" href="http://www.blogjava.net/yongboy/archive/2011/03/14/346239.html">Servlet 3.0笔记之Servlet单实例以及线程安全小结</a> </li> 
+            <li style="list-style:none;"> <a id="AjaxHolder_PostComment_ctl07_RelativePostsList_ctl05_Hyperlink1" href="http://www.blogjava.net/yongboy/archive/2011/02/27/346195.html">Servlet 3.0笔记之异步请求重新梳理Comet的几种形式</a> </li> 
+            <li style="list-style:none;"> <a id="AjaxHolder_PostComment_ctl07_RelativePostsList_ctl06_Hyperlink1" href="http://www.blogjava.net/yongboy/archive/2011/02/22/346196.html">Servlet 3.0笔记之异步请求Facebook BigPipe简单模型实现</a> </li> 
+            <li style="list-style:none;"> <a id="AjaxHolder_PostComment_ctl07_RelativePostsList_ctl07_Hyperlink1" href="http://www.blogjava.net/yongboy/archive/2011/02/19/346197.html">Servlet 3.0笔记之异步请求Comet推送长轮询(long polling)篇补遗</a> </li> 
+            <li style="list-style:none;"> <a id="AjaxHolder_PostComment_ctl07_RelativePostsList_ctl08_Hyperlink1" href="http://www.blogjava.net/yongboy/archive/2011/02/17/346198.html">Servlet 3.0笔记之异步请求Comet推送长轮询(long polling)篇</a> </li> 
+            <li style="list-style:none;"> <a id="AjaxHolder_PostComment_ctl07_RelativePostsList_ctl09_Hyperlink1" href="http://www.blogjava.net/yongboy/archive/2011/01/26/346199.html">Servlet 3.0笔记之Tomcat(7.0.6)稳定版发布</a> </li> 
+            <li style="list-style:none;"> <a id="AjaxHolder_PostComment_ctl07_RelativePostsList_ctl10_Hyperlink1" href="http://www.blogjava.net/yongboy/archive/2011/01/19/346200.html">Servlet 3.0笔记之会话Cookie设置相关</a> </li> 
+           </ul> 
+          </div> </td> 
+        </tr> 
+        <tr> 
+         <td colspan="3">&nbsp;</td> 
+        </tr> 
+        <tr> 
+         <td colspan="3" height="5"></td> 
+        </tr> 
+        <tr> 
+         <td colspan="3"> </td> 
+        </tr> 
+       </tbody>
+      </table> 
+     </div> 
+    </div> 
+   </div> 
+   <div id="rightmenu"> 
+    <h3>公告</h3> 
+    <div>
+     所有文章皆为原创，若转载请标明出处，谢谢~ 
+    </div> 
+    <br /> 新浪微博，欢迎关注：
+    <br /> 
+    <a href="http://weibo.com/u/1639071877?s=6uyXnP" target="_blank"><img src="http://service.t.sina.com.cn/widget/qmd/1639071877/e3de2f22/1.png" alt="" border="0" width="270" /></a> 
+    <h3>导航</h3> 
+    <ul> 
+     <li><a id="MyLinks1_HomeLink" href="http://www.blogjava.net/">BlogJava</a></li> 
+     <li><a id="MyLinks1_MyHomeLink" href="http://www.blogjava.net/yongboy/">首页</a></li> 
+     <li><a id="MyLinks1_NewPostLink" href="http://www.blogjava.net/yongboy/admin/EditPosts.aspx?opt=1">新随笔</a></li> 
+     <li><a id="MyLinks1_ContactLink" accesskey="9" href="http://www.blogjava.net/yongboy/contact.aspx?id=1">联系</a></li> 
+     <li><a id="MyLinks1_Syndication" href="http://www.blogjava.net/yongboy/rss">聚合</a><a id="MyLinks1_XMLLink" href="http://www.blogjava.net/yongboy/rss"><img src="http://www.blogjava.net/images/xml.gif" border="0" /></a> </li>
+     <li><a id="MyLinks1_Admin" href="http://www.blogjava.net/yongboy/admin/EditPosts.aspx">管理</a></li> 
+    </ul> 
+    <table id="Calendar1_entryCal" class="Cal" cellspacing="0" cellpadding="0" title="日历" border="0"> 
+     <tbody>
+      <tr>
+       <td colspan="7" bgcolor="Silver">
+        <table class="CalTitle" cellspacing="0" border="0" width="100%"> 
+         <tbody>
+          <tr>
+           <td class="CalNextPrev" width="15%"><a href="javascript:__doPostBack('Calendar1$entryCal','V3987')" style="color:Black" title="转到上一个月">&lt;</a></td>
+           <td align="center" width="70%">2011年1月</td>
+           <td class="CalNextPrev" align="right" width="15%"><a href="javascript:__doPostBack('Calendar1$entryCal','V4049')" style="color:Black" title="转到下一个月">&gt;</a></td>
+          </tr> 
+         </tbody>
+        </table></td>
+      </tr>
+      <tr>
+       <th class="CalDayHeader" align="center" abbr="日" scope="col">日</th>
+       <th class="CalDayHeader" align="center" abbr="一" scope="col">一</th>
+       <th class="CalDayHeader" align="center" abbr="二" scope="col">二</th>
+       <th class="CalDayHeader" align="center" abbr="三" scope="col">三</th>
+       <th class="CalDayHeader" align="center" abbr="四" scope="col">四</th>
+       <th class="CalDayHeader" align="center" abbr="五" scope="col">五</th>
+       <th class="CalDayHeader" align="center" abbr="六" scope="col">六</th>
+      </tr>
+      <tr>
+       <td class="CalOtherMonthDay" align="center" width="14%">26</td>
+       <td class="CalOtherMonthDay" align="center" width="14%">27</td>
+       <td class="CalOtherMonthDay" align="center" width="14%">28</td>
+       <td class="CalOtherMonthDay" align="center" width="14%">29</td>
+       <td class="CalOtherMonthDay" align="center" width="14%">30</td>
+       <td class="CalOtherMonthDay" align="center" width="14%">31</td>
+       <td class="CalWeekendDay" align="center" width="14%">1</td>
+      </tr>
+      <tr>
+       <td class="CalWeekendDay" align="center" width="14%">2</td>
+       <td align="center" width="14%"><a href="http://www.blogjava.net/yongboy/archive/2011/01/03.html"><u>3</u></a></td>
+       <td align="center" width="14%">4</td>
+       <td align="center" width="14%"><a href="http://www.blogjava.net/yongboy/archive/2011/01/05.html"><u>5</u></a></td>
+       <td align="center" width="14%">6</td>
+       <td align="center" width="14%">7</td>
+       <td class="CalWeekendDay" align="center" width="14%">8</td>
+      </tr>
+      <tr>
+       <td class="CalWeekendDay" align="center" width="14%">9</td>
+       <td align="center" width="14%"><a href="http://www.blogjava.net/yongboy/archive/2011/01/10.html"><u>10</u></a></td>
+       <td align="center" width="14%">11</td>
+       <td align="center" width="14%">12</td>
+       <td align="center" width="14%"><a href="http://www.blogjava.net/yongboy/archive/2011/01/13.html"><u>13</u></a></td>
+       <td align="center" width="14%"><a href="http://www.blogjava.net/yongboy/archive/2011/01/14.html"><u>14</u></a></td>
+       <td class="CalWeekendDay" align="center" width="14%"><a href="http://www.blogjava.net/yongboy/archive/2011/01/15.html"><u>15</u></a></td>
+      </tr>
+      <tr>
+       <td class="CalWeekendDay" align="center" width="14%">16</td>
+       <td align="center" width="14%"><a href="http://www.blogjava.net/yongboy/archive/2011/01/17.html"><u>17</u></a></td>
+       <td align="center" width="14%">18</td>
+       <td align="center" width="14%"><a href="http://www.blogjava.net/yongboy/archive/2011/01/19.html"><u>19</u></a></td>
+       <td align="center" width="14%">20</td>
+       <td align="center" width="14%">21</td>
+       <td class="CalWeekendDay" align="center" width="14%">22</td>
+      </tr>
+      <tr>
+       <td class="CalWeekendDay" align="center" width="14%">23</td>
+       <td align="center" width="14%">24</td>
+       <td align="center" width="14%">25</td>
+       <td align="center" width="14%"><a href="http://www.blogjava.net/yongboy/archive/2011/01/26.html"><u>26</u></a></td>
+       <td align="center" width="14%">27</td>
+       <td align="center" width="14%">28</td>
+       <td class="CalWeekendDay" align="center" width="14%">29</td>
+      </tr>
+      <tr>
+       <td class="CalWeekendDay" align="center" width="14%">30</td>
+       <td align="center" width="14%">31</td>
+       <td class="CalOtherMonthDay" align="center" width="14%">1</td>
+       <td class="CalOtherMonthDay" align="center" width="14%">2</td>
+       <td class="CalOtherMonthDay" align="center" width="14%">3</td>
+       <td class="CalOtherMonthDay" align="center" width="14%">4</td>
+       <td class="CalOtherMonthDay" align="center" width="14%">5</td>
+      </tr> 
+     </tbody>
+    </table> 
+    <h3>统计</h3> 
+    <ul> 
+     <li>随笔 - 147 </li>
+     <li>文章 - 0 </li>
+     <li>评论 - 309 </li>
+     <li>引用 - 0 </li> 
+    </ul> 
+    <h3>常用链接</h3> 
+    <ul> 
+     <li><a id="SingleColumn1_ctl00_repeaterLinks_ctl01_lnkLinkItem" href="http://www.blogjava.net/yongboy/MyPosts.html">我的随笔</a></li> 
+     <li><a id="SingleColumn1_ctl00_repeaterLinks_ctl02_lnkLinkItem" href="http://www.blogjava.net/yongboy/MyComments.html">我的评论</a></li> 
+     <li><a id="SingleColumn1_ctl00_repeaterLinks_ctl03_lnkLinkItem" href="http://www.blogjava.net/yongboy/OtherPosts.html">我的参与</a></li> 
+     <li><a id="SingleColumn1_ctl00_repeaterLinks_ctl04_lnkLinkItem" href="http://www.blogjava.net/yongboy/RecentComments.html">最新评论</a></li> 
+    </ul> 
+    <h3>留言簿<span style="font-size:11px;font-weight:normal;">(41)</span></h3> 
+    <ul> 
+     <li> <a id="SingleColumn1_ctl01_lnkMessages" href="http://www.blogjava.net/yongboy/Contact.aspx?id=1">给我留言</a> </li>
+     <li> <a id="SingleColumn1_ctl01_lnkPublicMsgView" href="http://www.blogjava.net/yongboy/default.aspx?opt=msg">查看公开留言</a> </li>
+     <li> <a id="SingleColumn1_ctl01_lnkPrivateMsgView" href="http://www.blogjava.net/yongboy/admin/MyMessages.aspx">查看私人留言</a> </li> 
+    </ul> 
+    <h3>随笔分类<span style="font-size:11px;font-weight:normal">(123)</span></h3> 
+    <ul> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl01_Link" href="http://www.blogjava.net/yongboy/category/54842.html">C1M(6)</a> <a id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl01_RssLink" title="Subscribe to C1M(6)" href="http://www.blogjava.net/yongboy/category/54842.html/rss">(rss)</a></li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl02_Link" href="http://www.blogjava.net/yongboy/category/54836.html">HTTP(6)</a> <a id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl02_RssLink" title="Subscribe to HTTP(6)" href="http://www.blogjava.net/yongboy/category/54836.html/rss">(rss)</a></li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl03_Link" href="http://www.blogjava.net/yongboy/category/54839.html">Java(20)</a> <a id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl03_RssLink" title="Subscribe to Java(20)" href="http://www.blogjava.net/yongboy/category/54839.html/rss">(rss)</a></li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl04_Link" href="http://www.blogjava.net/yongboy/category/54835.html">MQTT(15)</a> <a id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl04_RssLink" title="Subscribe to MQTT(15)" href="http://www.blogjava.net/yongboy/category/54835.html/rss">(rss)</a></li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl05_Link" href="http://www.blogjava.net/yongboy/category/48044.html">Servlet3(26)</a> <a id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl05_RssLink" title="Subscribe to Servlet3(26)" href="http://www.blogjava.net/yongboy/category/48044.html/rss">(rss)</a></li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl06_Link" href="http://www.blogjava.net/yongboy/category/54837.html">Socket(19)</a> <a id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl06_RssLink" title="Subscribe to Socket(19)" href="http://www.blogjava.net/yongboy/category/54837.html/rss">(rss)</a></li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl07_Link" href="http://www.blogjava.net/yongboy/category/54838.html">socket.io(12)</a> <a id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl07_RssLink" title="Subscribe to socket.io(12)" href="http://www.blogjava.net/yongboy/category/54838.html/rss">(rss)</a></li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl08_Link" href="http://www.blogjava.net/yongboy/category/55089.html">压测(10)</a> <a id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl08_RssLink" title="Subscribe to 压测(10)" href="http://www.blogjava.net/yongboy/category/55089.html/rss">(rss)</a></li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl09_Link" href="http://www.blogjava.net/yongboy/category/54841.html">容器(7)</a> <a id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl09_RssLink" title="Subscribe to 容器(7)" href="http://www.blogjava.net/yongboy/category/54841.html/rss">(rss)</a></li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl10_Link" href="http://www.blogjava.net/yongboy/category/54840.html">移动后端(2)</a> <a id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl10_RssLink" title="Subscribe to 移动后端(2)" href="http://www.blogjava.net/yongboy/category/54840.html/rss">(rss)</a></li> 
+    </ul> 
+    <h3>随笔档案<span style="font-size:11px;font-weight:normal">(146)</span></h3> 
+    <ul> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl01_Link" href="http://www.blogjava.net/yongboy/archive/2016/08.html">2016年8月 (2)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl02_Link" href="http://www.blogjava.net/yongboy/archive/2016/07.html">2016年7月 (8)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl03_Link" href="http://www.blogjava.net/yongboy/archive/2015/05.html">2015年5月 (1)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl04_Link" href="http://www.blogjava.net/yongboy/archive/2015/04.html">2015年4月 (1)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl05_Link" href="http://www.blogjava.net/yongboy/archive/2015/03.html">2015年3月 (7)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl06_Link" href="http://www.blogjava.net/yongboy/archive/2015/02.html">2015年2月 (6)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl07_Link" href="http://www.blogjava.net/yongboy/archive/2015/01.html">2015年1月 (9)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl08_Link" href="http://www.blogjava.net/yongboy/archive/2014/12.html">2014年12月 (3)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl09_Link" href="http://www.blogjava.net/yongboy/archive/2014/11.html">2014年11月 (2)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl10_Link" href="http://www.blogjava.net/yongboy/archive/2014/10.html">2014年10月 (1)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl11_Link" href="http://www.blogjava.net/yongboy/archive/2014/09.html">2014年9月 (1)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl12_Link" href="http://www.blogjava.net/yongboy/archive/2014/08.html">2014年8月 (2)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl13_Link" href="http://www.blogjava.net/yongboy/archive/2014/07.html">2014年7月 (2)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl14_Link" href="http://www.blogjava.net/yongboy/archive/2014/06.html">2014年6月 (2)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl15_Link" href="http://www.blogjava.net/yongboy/archive/2014/05.html">2014年5月 (2)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl16_Link" href="http://www.blogjava.net/yongboy/archive/2014/04.html">2014年4月 (1)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl17_Link" href="http://www.blogjava.net/yongboy/archive/2014/03.html">2014年3月 (1)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl18_Link" href="http://www.blogjava.net/yongboy/archive/2014/02.html">2014年2月 (4)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl19_Link" href="http://www.blogjava.net/yongboy/archive/2013/12.html">2013年12月 (4)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl20_Link" href="http://www.blogjava.net/yongboy/archive/2013/08.html">2013年8月 (1)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl21_Link" href="http://www.blogjava.net/yongboy/archive/2013/06.html">2013年6月 (1)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl22_Link" href="http://www.blogjava.net/yongboy/archive/2013/05.html">2013年5月 (1)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl23_Link" href="http://www.blogjava.net/yongboy/archive/2013/04.html">2013年4月 (5)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl24_Link" href="http://www.blogjava.net/yongboy/archive/2013/03.html">2013年3月 (5)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl25_Link" href="http://www.blogjava.net/yongboy/archive/2012/10.html">2012年10月 (2)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl26_Link" href="http://www.blogjava.net/yongboy/archive/2012/08.html">2012年8月 (2)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl27_Link" href="http://www.blogjava.net/yongboy/archive/2012/06.html">2012年6月 (2)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl28_Link" href="http://www.blogjava.net/yongboy/archive/2012/05.html">2012年5月 (3)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl29_Link" href="http://www.blogjava.net/yongboy/archive/2012/04.html">2012年4月 (4)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl30_Link" href="http://www.blogjava.net/yongboy/archive/2012/03.html">2012年3月 (1)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl31_Link" href="http://www.blogjava.net/yongboy/archive/2012/02.html">2012年2月 (7)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl32_Link" href="http://www.blogjava.net/yongboy/archive/2012/01.html">2012年1月 (2)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl33_Link" href="http://www.blogjava.net/yongboy/archive/2011/04.html">2011年4月 (1)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl34_Link" href="http://www.blogjava.net/yongboy/archive/2011/03.html">2011年3月 (1)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl35_Link" href="http://www.blogjava.net/yongboy/archive/2011/02.html">2011年2月 (4)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl36_Link" href="http://www.blogjava.net/yongboy/archive/2011/01.html">2011年1月 (10)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl37_Link" href="http://www.blogjava.net/yongboy/archive/2010/12.html">2010年12月 (5)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl38_Link" href="http://www.blogjava.net/yongboy/archive/2010/11.html">2010年11月 (1)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl39_Link" href="http://www.blogjava.net/yongboy/archive/2010/10.html">2010年10月 (10)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl40_Link" href="http://www.blogjava.net/yongboy/archive/2010/07.html">2010年7月 (4)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl41_Link" href="http://www.blogjava.net/yongboy/archive/2009/11.html">2009年11月 (1)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl42_Link" href="http://www.blogjava.net/yongboy/archive/2009/09.html">2009年9月 (3)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl43_Link" href="http://www.blogjava.net/yongboy/archive/2009/08.html">2009年8月 (4)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl44_Link" href="http://www.blogjava.net/yongboy/archive/2009/05.html">2009年5月 (1)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl45_Link" href="http://www.blogjava.net/yongboy/archive/2009/02.html">2009年2月 (1)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl46_Link" href="http://www.blogjava.net/yongboy/archive/2009/01.html">2009年1月 (1)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl47_Link" href="http://www.blogjava.net/yongboy/archive/2008/12.html">2008年12月 (4)</a> </li> 
+    </ul> 
+    <h3>个人收藏</h3> 
+    <ul> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl02_LinkList_ctl01_Link" href="http://gjsq.me/1034269" target="_blank">国内老牌GreenVPN，翻墙速度确实杠杠的！</a> </li> 
+     <li style="margin-top:2px;">个人一直在使用中，在线观看www.youtube.com上高清视频一点都不卡。 每个月才18块钱，一个季度48，再超值提供一个9折优惠码：freevpnssh。 我平常在Linux下安装/更新软件，压根不用担心GFW阻挠了， 更不用提windows 7了。</li> 
+    </ul> 
+    <h3>最新随笔</h3> 
+    <div class="RecentComment"> 
+     <ul style="word-break:break-all"> 
+      <li><a id="SingleColumn1_ctl03_RecentPostsList_ctl00_RecentPostsList2_ctl00_Hyperlink1" href="http://www.blogjava.net/yongboy/archive/2016/08/16/431601.html">1.&nbsp;Tsung笔记之IP地址和端口限制突破篇</a></li> 
+      <li><a id="SingleColumn1_ctl03_RecentPostsList_ctl01_RecentPostsList2_ctl00_Hyperlink1" href="http://www.blogjava.net/yongboy/archive/2016/08/08/431498.html">2.&nbsp;Tsung笔记之100万用户压测执行步骤篇</a></li> 
+      <li><a id="SingleColumn1_ctl03_RecentPostsList_ctl02_RecentPostsList2_ctl00_Hyperlink1" href="http://www.blogjava.net/yongboy/archive/2016/07/30/431396.html">3.&nbsp;Tsung笔记之插件编写篇</a></li> 
+      <li><a id="SingleColumn1_ctl03_RecentPostsList_ctl03_RecentPostsList2_ctl00_Hyperlink1" href="http://www.blogjava.net/yongboy/archive/2016/07/29/431367.html">4.&nbsp;Tsung笔记之监控数据收集篇</a></li> 
+      <li><a id="SingleColumn1_ctl03_RecentPostsList_ctl04_RecentPostsList2_ctl00_Hyperlink1" href="http://www.blogjava.net/yongboy/archive/2016/07/28/431354.html">5.&nbsp;Tsung笔记之IP直连支持篇</a></li> 
+      <li><a id="SingleColumn1_ctl03_RecentPostsList_ctl05_RecentPostsList2_ctl00_Hyperlink1" href="http://www.blogjava.net/yongboy/archive/2016/07/27/431340.html">6.&nbsp;Tsung笔记之分布式增强跳出SSH羁绊篇</a></li> 
+      <li><a id="SingleColumn1_ctl03_RecentPostsList_ctl06_RecentPostsList2_ctl00_Hyperlink1" href="http://www.blogjava.net/yongboy/archive/2016/07/26/431322.html">7.&nbsp;Tsung笔记之压测端资源限制篇</a></li> 
+      <li><a id="SingleColumn1_ctl03_RecentPostsList_ctl07_RecentPostsList2_ctl00_Hyperlink1" href="http://www.blogjava.net/yongboy/archive/2016/07/25/431310.html">8.&nbsp;Tsung笔记之主从资源协调篇</a></li> 
+      <li><a id="SingleColumn1_ctl03_RecentPostsList_ctl08_RecentPostsList2_ctl00_Hyperlink1" href="http://www.blogjava.net/yongboy/archive/2016/07/23/431294.html">9.&nbsp;Tsung笔记之主从模型篇</a></li> 
+      <li><a id="SingleColumn1_ctl03_RecentPostsList_ctl09_RecentPostsList2_ctl00_Hyperlink1" href="http://www.blogjava.net/yongboy/archive/2016/07/22/431291.html">10.&nbsp;Tsung笔记之开篇</a></li> 
+      <li><a id="SingleColumn1_ctl03_RecentPostsList_ctl10_RecentPostsList2_ctl00_Hyperlink1" href="http://www.blogjava.net/yongboy/archive/2015/05/07/424917.html">11.&nbsp;TCP协议缺陷不完全记录</a></li> 
+      <li><a id="SingleColumn1_ctl03_RecentPostsList_ctl11_RecentPostsList2_ctl00_Hyperlink1" href="http://www.blogjava.net/yongboy/archive/2015/04/14/424413.html">12.&nbsp;随手记之TCP Keepalive笔记</a></li> 
+      <li><a id="SingleColumn1_ctl03_RecentPostsList_ctl12_RecentPostsList2_ctl00_Hyperlink1" href="http://www.blogjava.net/yongboy/archive/2015/03/30/423963.html">13.&nbsp;移动APP后端网络处理一些问题记录</a></li> 
+      <li><a id="SingleColumn1_ctl03_RecentPostsList_ctl13_RecentPostsList2_ctl00_Hyperlink1" href="http://www.blogjava.net/yongboy/archive/2015/03/24/423791.html">14.&nbsp;HTTP/2笔记之错误处理和安全</a></li> 
+      <li><a id="SingleColumn1_ctl03_RecentPostsList_ctl14_RecentPostsList2_ctl00_Hyperlink1" href="http://www.blogjava.net/yongboy/archive/2015/03/23/423751.html">15.&nbsp;HTTP/2笔记之消息交换</a></li> 
+     </ul> 
+    </div> 
+    <script language="JavaScript">
+function SearchGoogle(key,evt,site)
+		{
+			if(evt.keyCode==13 || evt.keyCode==0 || evt.type =='click')
+			{
+				key.focus();
+				var keystr = encodeURIComponent(key.value);
+				url = "http://www.google.com/search?q=";
+				url = url+keystr;
+				url += "&ie=UTF-8&oe=GB2312&hl=zh-CN&domains="+site+"&sitesearch="+site;
+				window.location=url;
+				return false;
+			}
+		}
+</script> 
+    <h3>搜索</h3> 
+    <ul> 
+     <li> </li>
+     <li><input style="WIDTH: 130px" type="text" name="q" id="q" onkeydown="return SearchGoogle(document.getElementById('q'),event,'www.blogjava.net/yongboy')" />&nbsp;<input onclick="SearchGoogle(document.getElementById('q'),event,'www.blogjava.net/yongboy')" type="button" value="搜索" name="sa" /> </li> 
+    </ul> 
+    <h3>最新评论 <a id="SingleColumn1__2e115bc_RSSHyperlink1" href="http://www.blogjava.net/yongboy/CommentsRSS.aspx"><img src="/images/xml.gif" border="0" /></a></h3> 
+    <div class="RecentComment"> 
+     <ul> 
+      <li style="word-break:break-all"> <a id="SingleColumn1__2e115bc_CommentList_ctl01_Hyperlink1" href="http://www.blogjava.net/yongboy/archive/2017/01/10/409689.html#432258">1.&nbsp;re: MQTT协议笔记之发布流程</a> </li> 
+      <li style="word-break:break-all"> 评论内容较长,点击标题查看 </li> 
+      <li style="text-align:right;margin-right:4px"> --Haven</li> 
+      <li style="word-break:break-all"> <a id="SingleColumn1__2e115bc_CommentList_ctl02_Hyperlink1" href="http://www.blogjava.net/yongboy/archive/2017/01/05/409689.html#432243">2.&nbsp;re: MQTT协议笔记之发布流程</a> </li> 
+      <li style="word-break:break-all"> 评论内容较长,点击标题查看 </li> 
+      <li style="text-align:right;margin-right:4px"> --nieyong</li> 
+      <li style="word-break:break-all"> <a id="SingleColumn1__2e115bc_CommentList_ctl03_Hyperlink1" href="http://www.blogjava.net/yongboy/archive/2016/12/27/409689.html#432184">3.&nbsp;re: MQTT协议笔记之发布流程</a> </li> 
+      <li style="word-break:break-all"> 博主牛人呀，有一个QoS2的问题请教，为什么QoS2需要4次包，2次不就可以了吗？还望回复。 </li> 
+      <li style="text-align:right;margin-right:4px"> --Haven</li> 
+      <li style="word-break:break-all"> <a id="SingleColumn1__2e115bc_CommentList_ctl04_Hyperlink1" href="http://www.blogjava.net/yongboy/archive/2016/08/19/431601.html#431642">4.&nbsp;re: Tsung笔记之IP地址和端口限制突破篇</a> </li> 
+      <li style="word-break:break-all"> 评论内容较长,点击标题查看 </li> 
+      <li style="text-align:right;margin-right:4px"> --nieyong</li> 
+      <li style="word-break:break-all"> <a id="SingleColumn1__2e115bc_CommentList_ctl05_Hyperlink1" href="http://www.blogjava.net/yongboy/archive/2016/08/18/431601.html#431628">5.&nbsp;re: Tsung笔记之IP地址和端口限制突破篇</a> </li> 
+      <li style="word-break:break-all"> 博主，请问下<br />最新版1.6.1版本什么时候发布啊，最近工作需要对TCP协议做性能测试 </li> 
+      <li style="text-align:right;margin-right:4px"> --王大</li> 
+     </ul> 
+    </div> 
+    <h3>阅读排行榜</h3> 
+    <div class="RecentComment"> 
+     <ul style="word-break:break-all"> 
+      <li> <a id="SingleColumn1__3c122dd_TopList_ctl01_Hyperlink1" href="http://www.blogjava.net/yongboy/archive/2013/12/12/407498.html">1.&nbsp;Docker学习笔记之一，搭建一个JAVA Tomcat运行环境(91779)</a> </li> 
+      <li> <a id="SingleColumn1__3c122dd_TopList_ctl02_Hyperlink1" href="http://www.blogjava.net/yongboy/archive/2009/09/04/293900.html">2.&nbsp;java war 打包、解压命令(74582)</a> </li> 
+      <li> <a id="SingleColumn1__3c122dd_TopList_ctl03_Hyperlink1" href="http://www.blogjava.net/yongboy/archive/2014/03/05/410636.html">3.&nbsp;微信协议简单调研笔记(60180)</a> </li> 
+      <li> <a id="SingleColumn1__3c122dd_TopList_ctl04_Hyperlink1" href="http://www.blogjava.net/yongboy/archive/2013/05/13/399203.html">4.&nbsp;100万并发连接服务器笔记之Java Netty处理1M连接会怎么样(51130)</a> </li> 
+      <li> <a id="SingleColumn1__3c122dd_TopList_ctl05_Hyperlink1" href="http://www.blogjava.net/yongboy/archive/2013/08/26/403325.html">5.&nbsp;服务器操作系统CoreOS初体验(46799)</a> </li> 
+     </ul> 
+    </div> 
+    <h3>评论排行榜</h3> 
+    <div class="RecentComment"> 
+     <ul style="word-break:break-all"> 
+      <li> <a id="SingleColumn1__3a8a5b1_TopList_ctl01_Hyperlink1" href="http://www.blogjava.net/yongboy/archive/2014/03/05/410636.html">1.&nbsp;微信协议简单调研笔记(22)</a> </li> 
+      <li> <a id="SingleColumn1__3a8a5b1_TopList_ctl02_Hyperlink1" href="http://www.blogjava.net/yongboy/archive/2013/12/12/407498.html">2.&nbsp;Docker学习笔记之一，搭建一个JAVA Tomcat运行环境(19)</a> </li> 
+      <li> <a id="SingleColumn1__3a8a5b1_TopList_ctl03_Hyperlink1" href="http://www.blogjava.net/yongboy/archive/2014/12/12/421331.html">3.&nbsp;MQTT 3.1协议非严肃反思录(17)</a> </li> 
+      <li> <a id="SingleColumn1__3a8a5b1_TopList_ctl04_Hyperlink1" href="http://www.blogjava.net/yongboy/archive/2014/11/09/419829.html">4.&nbsp;为什么批量请求要尽可能的合并操作(17)</a> </li> 
+      <li> <a id="SingleColumn1__3a8a5b1_TopList_ctl05_Hyperlink1" href="http://www.blogjava.net/yongboy/archive/2014/04/12/412351.html">5.&nbsp;MQTT协议笔记之订阅(16)</a> </li> 
+     </ul> 
+    </div> 
+    <div id="footer">
+      Powered by: 
+     <br /> 
+     <a id="Footer1_Hyperlink3" name="Hyperlink1" href="http://www.blogjava.net/"><font face="Verdana">BlogJava</font></a> 
+     <br /> Copyright &copy; nieyong 
+    </div> 
+   </div> 
+   <script type="text/javascript">
+//<![CDATA[
+Sys.Application.initialize();
+//]]>
+</script> 
+  </form> 
+  <script type="text/javascript" src="/script/ShowHidden.js"></script> 
+  <script type="text/javascript">
+	  var _gaq = _gaq || [];
+	  _gaq.push(['_setAccount', 'UA-476124-3']);
+	  _gaq.push(['_trackPageview']);
+
+	  (function() {
+		var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+	  })();
+	</script>   
+ </body>
+</html>

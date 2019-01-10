@@ -1,0 +1,325 @@
+<!DOCTYPE html><html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0" name="viewport">
+  <meta content="yes" name=" apple-mobile-web-app-capable">
+  <!-- 隐藏状态栏  -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>登录</title>
+  <link rel="stylesheet" type="text/css" href="css/bootstrap-responsive.min.css">
+  <link rel="stylesheet" href="css/bootstrap.min1.css">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/common.css">
+  <script type="text/javascript" src="js/jquery-1.11.2.min.js"></script>
+  <script src="js/jquery.cookie.js" type="text/javascript"></script>
+  <link rel="stylesheet" href="css/loading.css">
+<script src="js/loading.js" type="text/javascript"></script>
+ <script src="js/trips.js" type="text/javascript"></script> 
+ <style type="text/css">
+ 	#indie {
+		  -moz-box-shadow: none !important;
+		  -webkit-box-shadow: none !important;
+		  box-shadow: none !important;
+		  -webkit-border-radius: 0px !important;
+		  -moz-border-radius: 0px !important;
+		  border-radius: 0px !important;
+		  border-collapse: collapse !important;
+		  background-image: none !important;
+	} 
+	.bp{
+		background-image: none !important;
+  		border:1px solid #FF0000;
+  		outline: none;
+  		color:#FF0000;
+  		box-shadow:auto;
+  		background-repeat:auto;
+  		cursor:auto;
+  		vertical-align:auto;
+  		text-shadow:auto;
+	}
+	.bpbg{
+		background-color:#FF0000;
+		color: #FFFFFF;
+	}
+	.btn:hover, .btn:focus, .btn:active, .btn.active, .btn:visited{
+		 background-image: none !important;
+   		 color: #FFFFFF;
+    	 background-color: #FF0000;
+    	 border:1px solid #FF0000;
+	}
+	.login{
+		width:100%;
+	}
+ </style>
+ <script type="text/javascript">
+ function reImg(){
+	  var img = document.getElementById("codeimg");
+     img.src = "wap!getImgCode.do?rnd="+ Math.random();    
+ }
+ </script>
+  <script type="text/javascript">
+  $(document).ready(function() {
+	  
+	  $("input[name='pwd']").keyup(function(){     
+	        var tmptxt=$(this).val();     
+	        $(this).val(tmptxt.replace(/\D|/g,''));    
+	    }).bind("paste",function(){     
+	        var tmptxt=$(this).val();     
+	        $(this).val(tmptxt.replace(/\D|/g,''));     
+	    }).css("ime-mode", "disabled"); 
+	  
+	  if ($.cookie("rmbUser") == "true") {
+		  $("#rmbUser").attr("checked", true);
+		  var username = $.cookie("username");
+		  $("#username").val(username);
+		  if(username.length==11){
+			  $("#sj").addClass('bpbg');
+			  $("#gjj").removeClass('bpbg');
+			  $("#sfz").removeClass('bpbg');
+		  }
+		  if(username.length==20){
+			  $("#sj").removeClass('bpbg');
+			  $("#gjj").addClass('bpbg');
+			  $("#sfz").removeClass('bpbg');
+		  }
+		  if(username.length==18){
+			  $("#sj").removeClass('bpbg');
+			  $("#gjj").removeClass('bpbg');
+			  $("#sfz").addClass('bpbg');
+		  }
+		  //$("#pwd").val($.cookie("pwd"));
+	  } 
+	  $("#btn4").click(function(){ 
+		  var username=$("input[name='username']").val();
+		  var resUrl=$("#resUrl").attr("value");
+		  var cur_resUrl=$("#cur_resUrl").attr("value");
+		  var cur_resUrl1=$("#cur_resUrl1").attr("value");
+		  var msg1 =resUrl+'|'+cur_resUrl+'|'+cur_resUrl1;
+		  //showTips(msg1, 1);
+		  if(resUrl==""){
+		   resUrl = cur_resUrl;
+		  }
+		  var pwd=$("input[name='pwd']").val();
+		  var code=$("input[name='code']").val();
+		  if(username==''){
+			  showTips("请输入账号", 1);
+				return;
+		  }
+		  var flag=false;
+		  var msg="";
+		  $('.btn-group button').each(function(){
+			    var style_class = $(this).attr("class");
+			    if(style_class.indexOf("bpbg")>=0){
+			    	var id = $(this).attr("id");
+			    	if(id=="sj"){
+			    		if($("#username").val().length!=11){
+			    			msg ="请输入正确的手机号";
+			    			flag=true;
+			    			return false;
+			    		}
+			    	}else if(id=="gjj"){
+			    		if($("#username").val().length!=20){
+			    			msg="请输入正确的住房公积金号";
+			    			flag=true;
+			    			return false;
+			    		}
+			    	}else if(id=="sfz"){
+			    		if($("#username").val().length!=18){
+			    			msg="请输入正确的身份证号";
+			    			flag=true;
+			    			return false;
+			    		}
+			    	}
+			  }
+		  });
+		 if(flag){
+			 showTips(msg, 1);
+        	 return; 
+		 }
+         if(pwd==''){
+        	 showTips("请输入密码", 1);
+        	 return;
+		  }
+         if(code==''){
+        	 showTips("请输入验证码", 1);
+        	 return;
+		  }
+         //
+          var rmbUserchecked=$('#rmbUser').is(':checked');
+         if (rmbUserchecked) { 
+        	 var userName = $("#username").val();
+        	 var passWord = $("#pwd").val();
+        	 $.cookie("rmbUser", "true", { expires: 7 }); // 存储一个带7天期限的 cookie
+        	 $.cookie("username", userName, { expires: 7 }); // 存储一个带7天期限的 cookie
+        	 //$.cookie("pwd", passWord, { expires: 7 }); // 存储一个带7天期限的 cookie 
+         }else{
+        	 $.cookie("rmbUser", "false", { expires: -1 });
+        	 $.cookie("username", '', { expires: -1 });
+        	 $.cookie("pwd", '', { expires: -1 }); 
+         }
+		  $.ajax({
+		      type: "post",//使用get方法访问后台
+		      dataType: "json",//返回json格式的数据
+		      url: "wap!userLogin.do",//要访问的后台地址
+		      data: "username=" + username+"&pwd="+pwd+"&code="+code,//要发送的数据
+		      beforeSend:function() {  
+		    	  showLoading("登录中...");
+		      },
+		      success: function(msg){//msg为返回的数据，在这里做数据绑定
+		    	  var data = msg.ret_code;
+		             if(data==0){
+		            	 showTrips("登录成功",1000);
+		            	 if(resUrl==''){
+		            		 window.location.href="wap!userCenter.do"+"?rdm="+ Math.random();
+		            	 }else{
+		            		 window.location.href=resUrl+"?rdm="+ Math.random();
+		            	 }
+		            	  
+		             }else if(data == 2){
+		            	 showTrips("登录成功",1000);
+		            	 window.location.href="wap!tochangephone.do";
+		             }else{
+		            	 showTrips(msg.ret_msg,3000);
+		             }
+		             
+		           }
+		    });
+	  });
+	  
+  });
+ 
+
+  </script>
+</head>
+<body style="background: #f4f4f4;">
+  <!-- header -->
+  <!-- 
+  <header>
+      <div class="wrapper clearfix">
+        <div class="detail_fl fl">
+          <a href="wap!userCenter.do" class=""><img src="img/srh_icon.png" alt=""></a>
+        </div>
+        <h1 class="top_title" style="padding-right: 22px;"
+  >登录</h1>
+     
+      </div>
+  </header>
+  -->
+  <div style="text-align:center;padding-top:10px;"><img src="img/logo.png" width="150px" height="120px" align="middle"></div>
+  <br>
+<div style="text-align:center">
+	  <div style="text-align:center" class="btn-group">
+              <button class="btn bp" id="sj" style="outline: none;">手机号</button>
+              <button class="btn bp bpbg" id="gjj" style="outline: none;">公积金号</button>
+              <button class="btn bp" id="sfz" style="outline: none;">身份证号</button>
+  </div>
+</div>
+
+  <div class="register-form" style="padding-top:10px;">
+    <form action="wap!userLogin.do" method="post" style="text-align:center">
+    <input type="hidden" value="wap!depositDetails.do" id="resUrl" name="resUrl">
+     <input type="hidden" value="wap!depositDetails.do" id="cur_resUrl1" name="cur_resUrl1">
+    
+    
+    <input type="hidden" value="wap!depositDetails.do" id="cur_resUrl" name="cur_resUrl">
+           <div class="input-prepend login">
+                  <span class="add-on " style="height:25px;"><i class="icon-user" style="margin-top:5px;"></i></span><input type="text" name="username" id="username" placeholder="住房公积金账号" class="span2" style="width:240px;height:35px;">
+           </div>
+          <div class="input-prepend login">
+                  <span class="add-on" style="height:25px;"><i class="icon-lock" style="margin-top:5px;"></i></span><input type="passWord" name="pwd" id="pwd" placeholder="密码" class="span2" style="width:240px; height:35px;">
+           </div>
+          <div class="input-prepend login">
+                  <span class="add-on" style="height:25px;"><i class="icon-eye-open" style="margin-top:5px;"></i></span><input type="text" name="code" id="code" placeholder="校验码" class="span2" style="width:170px;height:35px;">
+          		  <img onclick="reImg();" id="codeimg" alt="" style="height:35px;" src="wap!getImgCode.do">
+          </div>
+         
+  <div class="submit-btn" style="margin-bottom:10px;">
+    <button type="button" id="btn4" style="width:268px;height:35px;color:#FFFFFF">登录</button><br>
+  </div>
+
+    <div class="login" style="text-align:center;margin:0 auto;">
+    		<div style="width:268px;margin:0 auto;text-align:left">
+		         <label class="checkbox">
+		         	 <input type="checkbox" id="rmbUser" checked="checked" style="height: 20px; width: 20px;">记住账号
+		         </label>
+    		</div>
+    </div>
+  
+   </form>
+</div>
+   
+
+  <script type="text/javascript">
+  $(document).ready(function() {
+	  $(".bp").click(function(){
+		  $('.bp').each(function(){
+			  var btncss=$(this).attr("class");
+		   	  if(btncss.indexOf("bpbg")>=0){
+		    	$(this).removeClass('bpbg');
+		    	return false;
+		      }
+		  });
+		  $(this).addClass('bpbg');
+		  
+		  var id=$(this).attr("id");
+		  if(id=="sfz"){
+				 $("#username").val("");
+				 $("#pwd").val("");
+				 $("#username").attr("placeholder","身份证号");
+		  }else if(id=="gjj"){
+				 $("#username").val("");
+				 $("#pwd").val("");
+				 $("#username").attr("placeholder","住房公积金账号");
+		  }else if(id=="sj"){
+				 $("#username").val("");
+				 $("#pwd").val("");
+				 $("#username").attr("placeholder","手机号码");
+		  }
+	  });
+	
+  })
+  
+jQuery.cookie = function(name, value, options) {
+    if (typeof value != 'undefined') { // name and value given, set cookie
+        options = options || {};
+        if (value === null) {
+            value = '';
+            options.expires = -1;
+        }
+        var expires = '';
+        if (options.expires && (typeof options.expires == 'number' || options.expires.toUTCString)) {
+            var date;
+            if (typeof options.expires == 'number') {
+                date = new Date();
+                date.setTime(date.getTime() + (options.expires * 24 * 60 * 60 * 1000));
+            } else {
+                date = options.expires;
+            }
+            expires = '; expires=' + date.toUTCString(); // use expires attribute, max-age is not supported by IE
+        }
+        var path = options.path ? '; path=' + options.path : '';
+        var domain = options.domain ? '; domain=' + options.domain : '';
+        var secure = options.secure ? '; secure' : '';
+        document.cookie = [name, '=', encodeURIComponent(value), expires, path, domain, secure].join('');
+    } else { // only name given, get cookie
+        var cookieValue = null;
+        if (document.cookie && document.cookie != '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = jQuery.trim(cookies[i]);
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+};
+/* $('.bp').click(function (e) {
+ 
+}); */
+
+  </script>
+</body></html>

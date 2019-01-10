@@ -1,0 +1,295 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"><html><head>
+
+	<title>福建省建设执业资格考试网上报名系统</title>
+	<meta http-equiv="pragma" content="no-cache">
+	<meta http-equiv="cache-control" content="no-cache">
+	<meta http-equiv="expires" content="0">
+	<meta http-equiv="keywords" content="keyword1,keyword2,keyword3">
+	<meta http-equiv="description" content="This is my page">
+	<!--
+	<link rel="stylesheet" type="text/css" href="styles.css">
+	-->
+
+	<script type="text/javascript" src="/jwwsks/jslib/jquery-1.4.2.min.js"></script>
+	<link id="login" rel="stylesheet" href="/jwwsks/web/kszc/css/login.css" type="text/css">
+	<style type="text/css">
+	  #mar a:hover{
+	  	text-decoration: underline;
+	  }
+	  #kwkg3 a{
+	   color:red;
+	   text-decoration: underline;
+	  }
+	</style>
+<script type="text/javascript">
+	var nowzxcount="54";
+	function Trim_kg(str){  //去除空格
+		var result;
+		result = str.replace(/\s+/g,"");
+		return result;
+	}
+	function enterkey() {
+		if (event.keyCode == 13){
+			//event.returnValue = false;
+			document.getElementById("dl").click();
+		}
+	}
+	function doSubmit(){
+		document.getElementById("dl").display="dispaly";
+		if(nowzxcount<=4500){
+			$("#cardid").val(Trim_kg($("#cardid").val()));
+			$("#yanzhengma").val(Trim_kg($("#yanzhengma").val()));
+			var cardid = $("#cardid").val();
+			var password = $("#password").val();
+			var yanzhengma = $("#yanzhengma").val();
+			var cardtype = $("#cardtype").val();
+			var flag=true;
+			if(!cardtype||cardtype==''){
+				$("cardtype_msg").html("<font color='red'>类型不能为空</font>");
+				flag= false;		
+			}else{
+				$("#cardtype_msg").html("");
+			}
+			if(!cardid||cardid==''){
+				//alert("账号不能为空！！！");
+				$("#cardid").focus();
+				$("#cardid_msg").html("<font color='red'>账号不能为空</font>");
+				flag= false;
+			}else{
+				$("#cardid_msg").html("");
+			}
+	
+			if(!password||password==''){
+				//alert("密码不能为空！！！");
+				$("#password").focus();
+				$("#password_msg").html("<font color='red'>密码不能为空</font>");
+				flag= false;
+			}else{
+				$("#password_msg").html("");
+			}
+	
+			if(!yanzhengma||yanzhengma==''){
+				//alert("验证码不能为空！！！");
+				$("#yanzhengma").focus();
+				$("#yanzhengma_msg").html("<font color='red'>验证码不能为空</font>");
+				flag= false;
+			}else{
+				$("#yanzhengma_msg").html("");
+			}
+	
+			if(flag){
+				$.ajax({
+					type: 'post',
+					url: "/jwwsks/kszcAction!loginValidate.xhtml",
+					data: {
+						cardtype: cardtype,
+						cardid: cardid,
+						password: password,
+						yanzhengma: yanzhengma
+					},
+					cache: false,
+					async: false,
+					success: function (obj) {
+						if(obj.success==true){
+							$("#zch").val(obj.zch);
+							document.getElementById("loginForm").submit(); 
+						}else{
+							alert(obj.msg);
+							return false;
+							document.getElementById("dl").display=" ";
+						}
+					},
+					error: function (jqXHR, textStatus, errorThrown) {
+						alert("登陆失败");
+						document.getElementById("dl").display=" ";
+						return false;
+					}
+				});
+			}
+		}else{
+			alert("超过在线人数上限，请稍后再登录");
+		}
+	}
+	
+	function czsc(){
+		window.open("/jwwsks/web/kszc/czsc.jsp");
+	}
+	function cjwt(){
+		window.open("/jwwsks/kszcAction!cjwt.xhtml");
+	}	
+	function question(){
+		$('#kwkg3').hide();
+		$.ajax({
+			type: 'post',
+			url: "/jwwsks/kszcAction!getCardtypeJson.xhtml",
+			cache: false,
+			async: false,
+			success: function (obj) {
+				var cardtype = document.getElementById("cardtype");
+				if(obj.success){
+					for(var i=0; i<obj.cardtype.length;i++){
+						//alert(obj.cardtype[i].name+""+obj.cardtype[i].value);
+						cardtype.options[i]=new Option(obj.cardtype[i].value,obj.cardtype[i].name);
+						if(i==0){
+							cardtype.options[i].selected = true;
+						}
+					}
+					if(obj.msg&&obj.msg!=''){
+						var arr = obj.msg.split('/fg/');
+						var htmlstr = '';
+						for(var i=0; i<arr.length; i++){
+							if(arr[i]&&arr[i]!=''){
+								var sarr = arr[i].split(';');
+								if(htmlstr!='') htmlstr += '<br>';
+								htmlstr += '<a target="_blank" style="font-weight:900;color: red;cursor:pointer;text-decoration: underline;font-size: 14px" onclick="open1(\''+sarr[0]+'\')">（'+sarr[1]+'）'+sarr[2]+'</a>';
+							}
+						}
+					}
+					var content  = obj.kwkg;
+					$('#kwkg3').show();
+					$('#kwkg3').html(content);					
+					if(obj.iskwkg&&obj.iskwkg=="true"){
+						$('#kwkg1').hide();
+						$('#kwkg2').hide();
+						
+					}
+					$('#mar').html(htmlstr);
+					$('#marDiv').show();
+				}
+			},
+			error: function (jqXHR, textStatus, errorThrown) {
+				alert("读取失败，请刷新面");
+				return false;
+			}
+		});
+	}
+	function doqysearch(){
+		window.open("/jwwsks/jsps/qycx/qycx.jsp");
+	}
+	function open1(str){
+		window.open("/jwwsks/kszcAction!getBmjzContent.xhtml?guid="+str);
+		return ;
+		//$("#newsid").val(str);
+		//document.getElementById("tgForm").submit();
+	}
+</script></head>
+  
+<body onload="question();">
+	<div class="top"><a href="javascript:void(0);"></a></div>
+	<div class="center">
+		<div class="border">
+			
+			<div class="title">
+				<a>用户登录</a>
+			</div>
+			<div class="left">
+				<div class="xinxi1">
+					<h1>注意：第一次使用本系统的用户请进行“用户注册”，已注册的用户，请直接登录。</h1>
+					当前在线人数:54
+				</div>
+				<div class="myfrom">
+					<form action="" method="post" name="myform" id="myform">
+						<table style="font-size:12px;background:#FAFAFA;margin-top:20px" border="0" bordercolor="#CDE8FF" bordercolorlight="#FFFFFF" align="center" cellpadding="0" cellspacing="0">
+							<tbody><tr valign="middle">
+								<td width="15%" height="28" align="right"> 证件类型： </td> 	
+								<td width="30%" height="28" style="padding-left:5px;"> 
+									<select id="cardtype" name="cardtype" class="linput" style="width:200px;font-size:14px;color:#666;font-family:宋体;height:30px;">
+									<option value="1">身份证</option><option value="2">军官证</option><option value="3">香港特区护照/身份证明</option><option value="4">澳门特区护照/身份证明</option><option value="5">境外永久居住证</option><option value="6">台湾居民来往大陆通行证</option></select>
+								</td>
+								<td>&nbsp;&nbsp;<span id="cardtype_msg"></span></td>
+							</tr>
+							<tr valign="middle">
+								<td height="28" align="right"> 证件号码： </td> 	
+								<td height="28" style="padding-left:5px;"> 
+								 <input type="text" name="cardid" id="cardid" onkeypress="enterkey();" maxlength="20" class="linput" value="">
+								</td>
+								<td>&nbsp;&nbsp;<span id="cardid_msg"></span></td>
+							</tr>
+							<tr valign="middle">
+								<td height="28" align="right"> 密&nbsp;&nbsp;&nbsp;&nbsp;码： </td>
+								<td height="28" style="padding-left:5px;"> 
+									<input type="password" name="password" id="password" onkeypress="enterkey();" class="linput" value="">
+								</td>
+								<td>&nbsp;&nbsp;<span id="password_msg" class="password_msg"></span></td>
+							</tr>
+							<tr valign="middle">
+								<td align="right">验&nbsp;证&nbsp;码： </td>
+								<td colspan="4" style="padding-left:5px;"> 
+									<input id="yanzhengma_flg" name="yanzhengma_flg" type="hidden">
+									<input type="text" value="" onkeypress="enterkey();" style="width: 60px; height: 30px;border:1px #ccc solid;font-size:14px;color:#666;padding:0 5px;" class="linput" id="yanzhengma" name="yanzhengma" size="10" maxlength="3">
+									<img id="safecode" border="0" align="bottom" src="/jwwsks/include/getcode_chinese.jsp?" width="80" height="21" onclick="document.getElementById('safecode').src='/jwwsks/include/getcode_chinese.jsp?temp='+Math.random()">
+									&nbsp;&nbsp;<span id="yanzhengma_msg" class="register_srts"></span>
+								</td>
+							</tr>
+							<tr>
+								<td height="50px" colspan="3" align="center">
+								<div id="kwkg1">
+									<a class="dl" onclick="doSubmit();" style="cursor:pointer;" name="dl" id="dl" title="登陆">
+									<img alt="登陆" src="/jwwsks/web/kszc/images/loggin_button.gif">
+									</a> 
+									<a class="dl" onclick="doqysearch()" style="cursor:pointer;" name="dl" id="dl" title="企业查询">
+									<img alt="企业查询" src="/jwwsks/web/kszc/images/qycx_button.jpg">
+									</a>
+									
+								</div>
+								</td>
+							</tr>
+						</tbody></table>
+					</form>
+				</div>
+			</div>
+			<div class="fgx">
+			</div>
+			<div class="right">
+				<div class="xinxi2">
+					<h1><a href="javascript:void(0);" onclick="czsc();" style=" color:red; text-align:center; font-size:25px; text-decoration:underline; height: 30px;">
+					<img alt="点击进入操作手册" src="/jwwsks/web/kszc/images/czsc.jpg">
+					</a>
+				    <a href="javascript:void(0);" onclick="cjwt();" style=" color:red; text-align:center; font-size:25px; text-decoration:underline; height: 30px;">
+					<h2>系统常见问题解答</h2>
+					</a>					
+					<br>
+					<div id="marDiv" style="margin-top: 5px; height: 80px; width: 350px; border: 0px solid rgb(204, 204, 204); ">
+					<marquee id="mar" direction="up" truespeed="" scrollamount="1" onmousemove="this.stop();" onmouseout="this.start();" scrolldelay="80" height="80px" width="350px" border="0"><a target="_blank" style="font-weight:900;color: red;cursor:pointer;text-decoration: underline;font-size: 14px" onclick="open1('6e1b2d7db97ad12e3fba77f175f169bb')">（2017年度福建省二级建造师增项专业考试）报名简章</a><br><a target="_blank" style="font-weight:900;color: red;cursor:pointer;text-decoration: underline;font-size: 14px" onclick="open1('288da83d5265fa832be6603ce99b0836')">（2017年度福建省二级建造师执业资格考试）报名简章</a></marquee>
+					</div>
+					</h1>
+				</div>
+				<div class="xinxi3">
+					<h1></h1><h2>提示信息：</h2>
+						如果您还没注册信息请点击&lt;新用户注册&gt;，<br>
+					忘记密码请点击&lt;忘记密码&gt;，通过问题提问找回密码。
+					<div class="ext_button" id="kwkg2">
+						<a href="/jwwsks/kszcAction!register.xhtml" class="zc" id="zc" name="zc" title="新用户注册">
+							<img alt="新用户注册" src="/jwwsks/web/kszc/images/user_button.gif">
+						</a>
+						<span class="plane"></span>
+						<a href="/jwwsks/kszcAction!forget_password.xhtml" class="wjmm" id="wjmm" name="wjmm" title="密码找回">
+							<img alt="忘记密码" src="/jwwsks/web/kszc/images/wjmn_button.gif">
+						</a>
+					</div>
+				</div>
+			</div>
+			<div style="display: none;">
+				<form action="/jwwsks/kszcAction!grht.xhtml" method="post" name="loginForm" id="loginForm">
+					<input id="zch" name="zch" type="hidden">
+					<input id="fqbh" name="fqbh" type="hidden">
+				</form>
+			</div>
+			<div style="display: none;">
+				<form action="/jwwsks/kszcAction!loadTg.xhtml" method="post" name="tgForm" id="tgForm">
+					<input id="newsid" name="newsid" type="hidden">
+				</form>
+			</div>
+			<div style="float: left; width: 99%; margin-bottom: 10px; display: block; " align="center" id="kwkg3"><p>&nbsp;</p><p><span><span><strong><span style="color:#e53333;font-size:18px;">往年注册过的考生若忘记密码以及提示问题，可携带考生本人身份证到当地报名点重置密码。</span></strong></span></span></p><p><span><span><strong><span style="color:#e53333;font-size:18px;"><a href="http://www.ggjfw.com/site/index/pjcx.do" target="_blank"><span style="color:#e53333;">2017年二级建造师执业资格考试发票打印网点链接。</span></a></span></strong></span></span></p></div>
+			<div style="float: left; width:99%;" align="center">
+					<img src="/jwwsks/images/jwwx.jpg" style="width:100px"><br>
+					欢迎关注我中心微信公众号
+			</div>			
+		</div>
+	
+		
+	</div>
+	
+
+
+</body></html>

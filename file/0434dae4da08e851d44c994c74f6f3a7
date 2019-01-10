@@ -1,0 +1,171 @@
+<!DOCTYPE html><html><head>
+    <meta name="viewport" content="width=device-width">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="shortcut icon" href="../favicon.ico" type="image/x-icon">
+    <link rel="icon" href="../favicon.ico" type="image/x-icon">
+    <link href="/Content/login.css?v=2" rel="stylesheet">
+    <script src="/Content/jquery-1.11.1.min.js"></script>
+    <title>奥鹏教师教育网</title>
+</head>
+<body>
+    <div>
+        
+<script src="/Content/JS/Cookie.js"></script>
+<!----------------头部------------------------>
+<div class="top-head">
+    <div class="com_width">
+        <div class="Left logo">
+            <img src="/Content/Images/default-logo.png" onerror="this.src='/Content/Images/default-logo.png'">
+        </div>
+    </div>
+</div>
+<!----------------内容------------------------>
+<div class="wrap">
+    <div class="com_width content">
+        <img class="login-bg" src="/Content/Images/default-login.png" onerror="this.src='/Content/Images/default-login.png'">
+        <div class="login">
+            <h3>用户登录</h3>
+            <form id="login_form">
+                <input type="hidden" name="returnUrl" id="returnUrl" value="http://bbs.ourteacher.com.cn/Thread/PostThread/20072">
+                <div class="login-comm">
+                    <input type="text" class="login-user-inp" placeholder="请输入用户名" id="aw-login-user-name" name="userName" value="">
+                    <span class="user-icon"></span>
+                </div>
+                <div class="login-comm">
+                    <input type="password" class="login-pwd-inp" placeholder="请输入密码" id="aw-login-user-password" name="passWord">
+                    <span class="pwd-icon"></span>
+                </div>
+                <!--新增验证码-->
+                <div class="identifying-code clearfix" style="display: none;">
+                    <input type="text" class="code-inp" placeholder="请输入验证码" id="aw-login-valid-code" name="validCode" maxlength="4">
+                    <span class="show-code">
+                        <img alt="验证码" id="imgcode" src="/Account/GetValidateCode"></span>
+                    <span class="change-code">换一张</span>
+                </div>
+                <div class="error-info"></div>
+                <div class="radio-bar">
+                    <div class="chk_fl" id="chk">
+                        <span id="rember" class=""></span>
+                        <label for="rember">记住我</label>
+                    </div>
+                    <a class="forget_pwd" href="/Account/ForgotPassword">忘记密码？</a>
+                </div>
+                <a class="login-btn" id="login_submit" onclick="logindata();">登录</a>
+                <span class="login-tip">欢迎来到奥鹏教师教育网</span>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!----------------页脚------------------------>
+<div class="com_width foot">
+        <p>版权所有 北京奥鹏远程教育中心有限公司</p>
+        <p>©Copyright 2009 - 2017. ourteacher.com.cn. All Rights Reserved</p>
+
+</div>
+<script type="text/javascript">
+    var valideCount = getCookie("valideCount");
+    $(function () {
+        if ("" == "") {
+            $("#aw-login-user-name").focus();
+        } else {
+            $("#aw-login-user-password").focus();
+        }
+        //换一张
+        $(".change-code,#imgcode").click(function () {
+            $("#imgcode").attr("src", "/Account/GetValidateCode?t=" + (new Date()).valueOf());
+        });
+
+        //记住我
+        $("#chk").click(function () {
+            var className = $("#rember").attr("class");
+            $("#rember").attr("class", className == "" ? "ok" : "");
+        });
+        //回车提交
+        $('#login_form input').keydown(function (e) {
+            if (e.keyCode == 13) {
+                logindata();
+            }
+        });
+    })
+    if (valideCount >= 3) {
+        $('.identifying-code').show();
+    }
+    //登陆
+    function logindata() {
+        $("#login_submit").html("登录中...");
+        var username = $("#aw-login-user-name").val();
+        var password = $("#aw-login-user-password").val();
+        var validCode = $("#aw-login-valid-code").val();
+
+        if (username == "") {
+            showError("请输入用户名");
+            $("#aw-login-user-name").focus();
+            return false;
+        } else if (password == "") {
+            showError("请输入密码");
+            $("#aw-login-user-password").focus();
+            return false;
+        }
+
+        if (valideCount >= 3) {
+            if (validCode == "") {
+                showError("请输入验证码");
+                $("#aw-login-valid-code").focus();
+                return false;
+            }
+        }
+
+        var data = {
+            userName: username,
+            passWord: password,
+            validCode: validCode,
+            remmeberMe: $("#rember").attr("class") == "ok" ? "1" : "",
+            returnUrl: $("#returnUrl").val()
+        };
+        var url = "/Account/UserLoginValidCode";
+        $.post(url, data, function (res) {
+            if (res.IsSuccess) {
+                clearCookie("valideCount");
+                //国培平台用户网上行为采集代码
+                SetUserIDLogerr(res.UserId);
+                window.location.href = res.Message;
+              
+            }
+            else {
+                valideCount = res.ValidateCount;
+                setCookie("valideCount", valideCount);
+                if (valideCount >= 3) {
+                    $('.identifying-code').show();
+                }
+                $("#imgcode").click();
+                showError(res.Message);
+            }
+        });
+
+    }
+    //展示错误
+    function showError(message) {
+        $(".error-info").show();
+        $(".error-info").html(message);
+        $("#login_submit").html("登录");
+    }
+</script>
+<script src="http://static.ourteacher.com.cn/Scripts/tongji.js?s=20140916001"></script><script type="text/javascript">
+var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3F8f0092cb19df2eb9527fc8c0a5765c89' type='text/javascript'%3E%3C/script%3E"));
+</script><script src=" http://hm.baidu.com/h.js?8f0092cb19df2eb9527fc8c0a5765c89" type="text/javascript"></script>
+
+<script type="text/javascript">
+LogChannelID= "100400";    //设置频道ID
+document.write('<script src="http://pv.open.com.cn/datacollect.js"><\/script>'); //安装数据采集脚本
+</script><script src="http://pv.open.com.cn/datacollect.js"></script>
+
+
+
+
+
+    </div>
+
+
+</body></html>

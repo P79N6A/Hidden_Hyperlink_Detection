@@ -1,0 +1,150 @@
+<html><head><title>积分详情</title>
+<meta name="viewport" content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<script type="text/javascript" src="/js/zepto/zepto.min.js"></script>
+<link rel="stylesheet" href="/css/weixin-global.css">
+<style>
+#title{background-color:#e8e8e8;  font-size:14px;    color: #666666;  font-weight: normal;}
+#content{padding:10px 0; background-color:#fff;}
+.th32 th{line-height:32px;}
+.txtcenter td{line-height:36px; text-align:center; font-size:14px; color:#999999;}
+dl dd .pager{padding:10px 8px 20px;}
+
+</style>
+<script type="text/javascript">
+var page = 1;
+var pageSize = 10;
+var currentPage = 1;
+var acquireWay;
+var customerId = "";
+var flagPage = "";
+ $(function(){
+	loadData('get');
+}); 
+
+	
+function loadData(flag){
+	
+	if(flag == "get"){
+		$("#get").removeClass('react');
+	    $("#consume").addClass('react');
+	    currentPage = 1;
+		//获得包括签到和赠送
+	//	$("#get").removeAttr("onclick");
+	//	$("#consume").attr("onclick","loadData('consume')");
+		flagPage = "get";
+		getPage(flag);
+	}else if(flag == "consume"){
+		$("#get").addClass('react');
+		 $("#consume").removeClass('react');
+		 currentPage = 1;
+		//消耗
+	//	$("#consume").removeAttr("onclick");
+	//	$("#get").attr("onclick","loadData('get')");
+		flagPage = "consume";
+		getPage(flag);
+	}
+	
+}
+//加载数据
+function getPage(flag){
+	$("#info").html("");
+	$.post('/weixin/weixin-common!getIntegralRecord.action',{customerId:customerId, 
+		flag : flag, currentPage:currentPage, pageSize:pageSize},
+			function(data) {
+				if(data!=''){
+					$("#currentPage").html(currentPage);
+					$("#content").show();
+					$("#tips").hide();
+					$("#page_div").show();
+					$.each(data, function(i, value){
+						if(i == 0){
+							$("#pages").val(value.pages);
+						}
+						 if(currentPage == 1){//首页
+							$("#first").addClass("btn-disabled");
+							if(value.pages == 1){
+								$("#next").addClass("btn-disabled");
+							}else{
+								$("#next").removeClass("btn-disabled");
+							}
+						}else if(currentPage == value.pages){//末页
+							$("#next").addClass("btn-disabled");
+							$("#first").removeClass("btn-disabled");
+						}else{
+							$("#first").removeClass("btn-disabled");
+							$("#next").removeClass("btn-disabled");
+						} 
+						 $("#info").append(
+								"<li>"
+						  	 	  +"<div class=\"line title_left\"><b>"+value.acquireWay
+						  	 	  +"</b><span class=\"time_right\"><i>"+value.date+"</i></span></div>"
+						  	 	  +"<div class=\"line sub_title_left\">"+value.detaiInfo
+						  	 	  +"<span class=\"other_right\">"+value.integral+"</span></div>"
+						  	 	  +"</li>");
+					}); 
+				}else{
+					$("#content").hide();
+					$("#page_div").hide();
+					$("#tips").show();
+				}
+		  },'json');
+}
+//上一页
+function prevPage() {
+	if(currentPage == 1){
+		return;
+	}
+	currentPage--;
+	getPage(flagPage);
+}
+// 下一页
+function nextPage() {
+	if(currentPage == $("#pages").val()){
+		return;
+	}	 
+	currentPage++;
+	getPage(flagPage);
+}
+</script>
+</head><body>
+<header class="navbar">
+   <div class="nav-wrap-left">
+      <a id="back_a" class="react back" href="javascript:history.back()"><i class="text-icon icon-back"></i></a>
+   </div>
+   <span class="nav-header h1">积分详情</span>
+  
+</header>
+<div class="nav-bar">
+    	<ul class="nav" id="itemList" style="border-bottom:1px solid #ccc;">
+    	  <li id="get" class="dropdown-toggle category">
+    	    <a onclick="loadData('get')">
+    	     <span class="nav-head-name">最近获得的积分</span></a>
+    	  </li>
+    	  <li id="consume" class="dropdown-toggle category react">
+    	    <a onclick="loadData('consume')">
+    	     <span class="nav-head-name">最近消耗的积分</span></a>
+    	  </li>
+    	</ul>
+</div>   
+<div id="tips" style="display: none; "><span>暂时没找到相关信息</span></div>
+<div id="content" class="content">
+  	<input type="hidden" id="pages">
+  	 <ul id="info" class="info_list_two consume_list"></ul>
+</div> 
+<dl class="list list-in poiList">
+			<dd>
+			 <div class="pager" id="page_div" style="">
+	<a id="first" class="btn btn-weak" href="javascript:void(0)" onclick="prevPage()">上一页</a>
+		<span class="pager-current" id="currentPage">1</span>
+	<a id="next" href="javascript:void(0)" class="btn btn-weak" onclick="nextPage()">下一页</a>
+	</div>
+			</dd>
+</dl>
+<footer>
+        <div class="footer-copyright">
+            <div class="hr"></div>
+            <span class="footer-copyright-text">太平洋产险江西分公司</span>
+        </div>
+</footer>
+
+</body></html>

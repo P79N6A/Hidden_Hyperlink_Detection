@@ -1,0 +1,278 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>MinerW 矿机守望者</title>
+<meta name="keywords" content="MinerW,矿机监控,矿工监控,比特币矿机,阿瓦隆矿机监控,矿机守望者,矿机保姆,蚂蚁矿机监控,贝壳矿机,贝壳矿机监控,雨版矿机,雨版矿机监控" />
+<meta name="description" content="矿机守护者是一个专门为比特币矿机进行集群监控的平台,可以大大减少人力成本,提高矿机收益。" />
+<link rel="stylesheet" type="text/css" href="./template/uadmin/main/css/main.css">
+<link rel="stylesheet" type="text/css" href="./template/uadmin/main/css/basic.css">
+<link rel="stylesheet" type="text/css" href="./template/uadmin/main/css/nav.css">
+<link rel="stylesheet" type="text/css" href="./template/uadmin/main/css/demo.css" />
+<link rel="stylesheet" type="text/css" href="./template/uadmin/main/css/component.css" />
+<link rel="stylesheet" type="text/css" href="./template/uadmin/main/css/content.css" />
+<style type="text/css">
+
+.onShow,.onFocus,.onError,.onCorrect,.onLoad{background:url(./template/uadmin/images/reg_bg_new.png) no-repeat 3000px 3000px;padding-left:30px; font-size: 12px; height:25px; width:124px; display:inline-block; line-height:25px; vertical-align:middle; overflow:hidden; margin-left:6px;margin-top:-8px}
+.onShow{color:#999; padding-left:0px}
+.onFocus{background-position:0px -30px; color:#333}
+.onError{background-position:0px -60px; color:#333}
+.onCorrect{background-position:0px 0; text-indent:-9000px}
+.onLoad{background-position:0px 0}
+
+</style>
+<script src="./template/uadmin/main/js/modernizr.custom.js"></script>
+<script src="./template/uadmin/main/js/jquery.js"></script> 
+<script type="text/javascript" src="./template/uadmin/js/jquery.form.js"></script>
+<script type="text/javascript" src="./template/uadmin/js/ajaxsubmit.js"></script>
+<script src="./template/uadmin/js/formValidator_min.js" type="text/javascript" charset="UTF-8"></script>
+<script src="./template/uadmin/js/formValidatorRegex.js" type="text/javascript" charset="UTF-8"></script>
+<!--[if lt IE 9]> <script src="./template/uadmin/main/js/html5shiv.js"></script> <![endif]-->
+<script type="text/javascript">
+$(document).ready(function(){
+	$.formValidator.initConfig({formid:"form1",debug:false,submitonce:true,
+		onerror:function(msg,obj,errorlist){
+			//$.map(errorlist,function(msg1){alert(msg1)});
+			alert(msg);
+		}
+	});
+	$("#t_UserName").formValidator({onshow:"(5-16个字符)",onfocus:"5-16个字符",oncorrect:"该用户名可以注册"}).inputValidator({min:5,max:16,onerror:"账号输入有误"}).regexValidator({regexp:"username",datatype:"enum",onerror:"账号格式有误"});
+	$("#iptNickName").formValidator({onshow:"(至少4个字符)",onfocus:"至少4个字符",oncorrect:"通过"}).inputValidator({min:4,empty:{leftempty:false,rightempty:false,emptyerror:"密码输入有误"},onerror:"密码输入有误"});
+	$("#t_UserPass").formValidator({onshow:"(至少6个字符)",onfocus:"至少6个字符",oncorrect:"密码合法"}).inputValidator({min:6,empty:{leftempty:false,rightempty:false,emptyerror:"密码输入有误"},onerror:"密码输入有误"});
+	$("#t_RePass").formValidator({onshow:"(请再次输入密码)",onfocus:"请再次输入密码",oncorrect:"密码一致"}).inputValidator({min:6,empty:{leftempty:false,rightempty:false,emptyerror:"密码确认有误"},onerror:"密码确认有误"}).compareValidator({desid:"t_UserPass",operateor:"=",onerror:"密码不一致"});	
+	$("#iptName").formValidator({onshow:"(至少4个字符)",onfocus:"至少4个字符",oncorrect:"通过"}).inputValidator({min:4,empty:{leftempty:false,rightempty:false,emptyerror:"输入有误"},onerror:"输入有误"});
+	$("#iptCard").formValidator({onshow:"(15或18位的身份证)",onfocus:"15或18位的身份证",oncorrect:"输入正确"}).functionValidator({fun:isCardID});
+	$("#t_Email").formValidator({onshow:"(6-100个字符)",onfocus:"6-100个字符",oncorrect:"恭喜你,你输对了",defaultvalue:"@"}).inputValidator({min:6,max:100,onerror:"邮箱长度非法"}).regexValidator({regexp:"^([\\w-.]+)@(([[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.)|(([\\w-]+.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(]?)$",onerror:"邮箱格式不正确"});
+});
+function test1(obj)
+{
+	if(obj.value=="全角字符当做1个长度")
+	{
+		$.formValidator.getInitConfig("1").wideword = false;
+		obj.value = "全角字符当做2个长度";
+	}
+	else
+	{
+		$.formValidator.getInitConfig("1").wideword = true;
+		obj.value = "全角字符当做1个长度";
+	}
+	
+}
+
+</script>
+</head>
+
+<body>
+<div id="nav" >
+<div class="navcontent">
+<div class="navlogo"><img src="./template/uadmin/main/images/logo.png" width="96" height="74" alt="logo" title="MinerW 矿机守望者官网"/></div>
+  <li class="padding140"><a href="#section-1">关于我们<br>About</a></li>
+  <li><a href="#section-2">我们的服务<br>Service</a></li>
+  <li><a href="#section-3">管理模式<br>Mode</a></li>
+  <li><a href="#section-4">系统集成<br>System</a></li>
+  <li><a href="#section-5">登陆/注册<br>Login/Sign&nbsp;up</a></li>
+  <li><a href="download.html">下载中心<br>Download</a></li>
+  <li><a href="/support" target="_blank">使用手册<br>Help</a></li>
+  </div>
+</div>
+
+<div class="page_spinner"></div>
+<div id="wrap">
+    <div id="container">
+    	<div id="section-1"> 
+        <div class="banner">
+        <div class="bannercontent">
+        <div class="bannerimg"><img src="./template/uadmin/main/images/bannertxt.png" width="492" height="280"  alt="矿机守望者" title="我们是您矿机的超级英雄，全天候24小时守护您的矿机。我们只能做最专业的矿机监控系统，您有需求我们有平台和能力与您匹配。"/></div>
+        </div>
+        </div>  	
+		</div>
+        <div id="section-2">
+        <div class="service">
+        <div class="servicetitle"><img src="./template/uadmin/main/images/servicetitle.png" width="449" height="166"  alt="比特币矿机状态云端同步" title="成熟的监控于报警机制，降低您的监控成本，随时随地监控您的矿机运行状况"/></div>
+        <div class="serviceimg"></div>
+        </div>
+        </div>
+        <div id="section-3">    
+        <div class="mode">
+        <div class="modecontent">
+        <div class="modetxt"><img src="./template/uadmin/main/images/modetxt.png" width="535" height="340"  alt="多方式管理模式" title="矿机守望者支持Web版、安卓版.成熟的监控于报警机制。降低您的监控成本，手机监控更加方便，随时随地监控您的矿机运行状况。"/></div>
+        <div class="modeimg"><img src="./template/uadmin/main/images/modeimg.png" width="298" height="460"  alt=""/></div>
+        </div>
+        </div>
+        </div>
+      <div id="section-4">   
+        <div class="system">
+        <div class="systemcontent"><img src="./template/uadmin/main/images/systemimg.png" alt="稳定智能的比特币矿机监控系统" title="矿机守望者是目前市面上最佳的比特币矿机助手软件，让挖矿变得如此简单。目前支持阿瓦隆、蚂蚁等openwrt平台的所有矿机，对T级矿机监控批量扫描添加矿机、定时重启、日志记录、一键设置矿池等功能。"/></div> 
+        </div>
+      </div>
+     
+        <div id="section-5"> 
+        <div class="section section-5"  style="height:361px; background-color:#f3f5f7;">
+        <div class="login">
+        <div class="logintitle"><img src="./template/uadmin/main/images/logintitle.png" width="390" height="91"  alt=""/></div>
+        <section class="logincontent">
+				<div class="mockup-content">
+					<div class="morph-button morph-button-modal morph-button-modal-2 morph-button-fixed">
+						<button type="button"><img src="./template/uadmin/main/images/login.png" width="184" height="184"  alt="登录窗口" title="点击弹出登录窗口"/></button>
+						<div class="morph-content">
+							<div>
+								<div class="content-style-form content-style-form-1">
+									<span class="icon icon-close">Close the dialog</span>
+									<form class="ajax_form" method="post" action="user?a=User&f=check">
+										<p><label>账号</label><input id="uname" name="uname" dataType="require" title="请输入帐号" type="text" /></p>
+										<p><label>密码</label><input id="pwd" name="pwd" type="password" dataType="require" title="请输入密码" type="password" /></p>
+                                        <p><label>验证码</label><input id="verify" name="verify_code" dataType="require" title="请输入验证码" type="yanzhengma" />
+                                        <div style=" padding-left:20px; float:left; width:50px; height:24px;">
+                                        <img src="user?a=User&f=verify" width="48" height="24" onclick="this.src='user?a=User&f=verify&'+Math.random()" id="verify_img" title="点击刷新" />
+                                        </div>
+                                        </p>
+                                        <div class="cl"></div>
+										<p><input class="login_button" type="submit" value="登录" /></p>
+									</form>
+								</div>
+							</div>
+						</div>
+					</div><!-- morph-button -->
+					<strong class="joiner" style="color:#3882cd; position:absolute; width:30px; height:30px; left:50%; margin-left:-15px; z-index:99; padding-top:93px;">or</strong>
+					<div class="morph-button morph-button-modal morph-button-modal-3 morph-button-fixed">
+						<button type="button"><img src="./template/uadmin/main/images/signup.png" width="184" height="184"  alt="注册窗口" title="点击弹出账号注册窗口"/></button>
+						<div class="morph-content">
+							<div>
+								<div class="content-style-form content-style-form-2">
+									<span class="icon icon-close">Close the dialog</span>
+									<form action="user?a=Reg&f=reg" method="post" name="form1" id="form1">
+										<p><label>账号<span id="t_UserNameTip" class="onshow"></span></label><input name="t_UserName" id="t_UserName" onblur="checkusername(this.value);" type="Reg_text" /></p>
+										<p><label>密码<span id="t_UserPassTip" class="onshow"></span></label><input onblur="return checkpasswd(this);" id="t_UserPass" name="t_UserPass" type="Reg_password"/></p>
+										<p><label>密码确认<span id="t_RePassTip" class="onshow"></span></label><input onblur="checkdoublepassword();" type="Reg_password" id="t_RePass" name="t_RePass"/></p>
+                                        <p><label>邮箱地址<span id="t_EmailTip" class="onshow"></span></label><input name="t_Email" type="Reg_text" id="t_Email" onblur="checkemail(this.value)" /></p>
+                                        <p><label>验证码</label><input id="verify" name="verify_code" type="yanzhengma" maxlength="4" /><div style=" padding-left:20px; float:left; width:50px; height:24px; "><img src="user?a=User&f=verify" width="48" height="24" onclick="this.src='user?a=User&f=verify&'+Math.random()" id="verify_img" title="点击刷新" /></div></p>
+										<div class="cl"></div>
+										<p><input class="login_button" type="submit" value="注册" /></p>
+									</form>
+								</div>
+							</div>
+						</div>
+					</div><!-- morph-button -->
+				</div><!-- /form-mockup -->
+			</section>
+        </div>
+        </div>
+        </div>      
+    </div>
+</div>
+<footer>
+Copyright © 2013-2014 minerw.com All Rights Reserved.     辽ICP备05009408号-5    Power by KddDesgin
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?3c9c2746d8b0b606a96ab61488314764";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+</br><a href="http://www.puxbao.com" target="_blank">P2P理财</a>
+</footer>
+<div class="safe" id="service">
+    <div class="back_top" id="goTop" title="返回顶部"><a>&nbsp;</a></div>
+    <div class="phone"><div class="namber">&nbsp;</div></div>
+    <div class="qq">
+      <div class="namqq">
+	 <a target="_blank" href="http://shang.qq.com/wpa/qunwpa?idkey=d78be42ebeca2af57fd7e7e1798d2c6395a35035cee9f08c34451c20bb5df950"><img src="./template/uadmin/main/images/namber_01.png" alt="点击加群" title="点击加入守望者官方群"/></a>
+      </div>
+    </div>
+    <div class="kf"><a class="ui-footer-img-link online-customer-service cursor-pointer" href="tencent://message/?uin=688344&Site=企业网站&Menu=yes">
+        <img src="./template/uadmin/main/images/kefu.png" alt="客服QQ" title="客服QQ：688344"/></a></div>
+  </div>
+<!--客服-->
+<script type="text/javascript" src="./template/uadmin/main/js/service.js">	</script>
+<!--客服-->
+<!--导航JS-->
+<script type="text/javascript" src="./template/uadmin/main/js/jquery.nav.js"></script>
+<script type="text/javascript" src="./template/uadmin/main/js/jquery.scrollTo.js"></script>
+<!--导航JS-->
+<script>
+$(document).ready(function() {
+  $('#nav').onePageNav({
+    begin: function() {
+	  console.log('start');
+    },
+    end: function() {
+	  console.log('stop');
+    },
+	scrollOffset:74
+  });
+});
+</script>
+<!--登陆-->
+<script src="./template/uadmin/main/js/classie.js"></script>
+<script src="./template/uadmin/main/js/uiMorphingButton_fixed.js"></script>
+<script>
+			(function() {
+				var docElem = window.document.documentElement, didScroll, scrollPosition;
+
+				// trick to prevent scrolling when opening/closing button
+				function noScrollFn() {
+					window.scrollTo( scrollPosition ? scrollPosition.x : 0, scrollPosition ? scrollPosition.y : 0 );
+				}
+
+				function noScroll() {
+					window.removeEventListener( 'scroll', scrollHandler );
+					window.addEventListener( 'scroll', noScrollFn );
+				}
+
+				function scrollFn() {
+					window.addEventListener( 'scroll', scrollHandler );
+				}
+
+				function canScroll() {
+					window.removeEventListener( 'scroll', noScrollFn );
+					scrollFn();
+				}
+
+				function scrollHandler() {
+					if( !didScroll ) {
+						didScroll = true;
+						setTimeout( function() { scrollPage(); }, 60 );
+					}
+				};
+
+				function scrollPage() {
+					scrollPosition = { x : window.pageXOffset || docElem.scrollLeft, y : window.pageYOffset || docElem.scrollTop };
+					didScroll = false;
+				};
+
+				scrollFn();
+
+				[].slice.call( document.querySelectorAll( '.morph-button' ) ).forEach( function( bttn ) {
+					new UIMorphingButton( bttn, {
+						closeEl : '.icon-close',
+						onBeforeOpen : function() {
+							// don't allow to scroll
+							noScroll();
+						},
+						onAfterOpen : function() {
+							// can scroll again
+							canScroll();
+						},
+						onBeforeClose : function() {
+							// don't allow to scroll
+							noScroll();
+						},
+						onAfterClose : function() {
+							// can scroll again
+							canScroll();
+						}
+					} );
+				} );
+
+				// for demo purposes only
+				[].slice.call( document.querySelectorAll( 'form button' ) ).forEach( function( bttn ) { 
+					bttn.addEventListener( 'click', function( ev ) { ev.preventDefault(); } );
+				} );
+			})();
+</script>
+<!--登陆end-->
+</body>
+</html>

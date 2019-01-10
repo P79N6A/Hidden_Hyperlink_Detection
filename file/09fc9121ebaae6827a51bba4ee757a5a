@@ -1,0 +1,471 @@
+<html><head></head><body><pre style="word-wrap: break-word; white-space: pre-wrap;">/**
+* ds.base
+* admin@laoshu133.com
+*/
+;(function(global, document, undefined){
+	var ds = global.ds || (global.ds = {});
+	
+	if(typeof ds.mix !== 'function'){
+		ds.mix = function(target, source, cover){
+			if(typeof source !== 'object'){
+				cover = source;
+				source = target;
+				target = this;
+			}
+			for(var k in source){
+				if(cover || target[k] === undefined){
+					target[k] = source[k];
+				}
+			}
+			return target;
+		}
+	}
+
+	var _uuid = 0, noop = function(){}, w3c = !!document.dispatchEvent;
+	ds.mix(ds, {
+		noop: noop,
+		uuid: function(){ return ++_uuid; },
+		each: function(arr, callback){
+			for(var i=0,len=arr.length; i&lt;len; i++){
+				if(callback.call(arr[i], i, arr[i]) === false){
+					break;
+				}
+			}
+			return this;
+		},
+		//String
+		mixUrl: function(url, params, noCache){
+			var tmp = [];
+			if(params &amp;&amp; typeof params === 'object'){
+				for(var k in params){
+					tmp.push(encodeURIComponent(k) + '=' + encodeURIComponent(params[k]));
+				}
+			}
+			if(noCache){
+				tmp.push('_=' + new Date().getTime());
+			}
+			return url + (url.indexOf('?')&lt;0?'?':'&amp;') + tmp.join('&amp;');
+		},
+		//DOM
+		$d: function(id){ return document.getElementById(id.replace('#', '')); },
+		$D: function(tag, context){ return (context || document).getElementsByTagName(tag); },
+		addClass: function(elem, className){
+			if(!this.hasClass(elem, className)){
+				className = elem.className + ' ' + className;
+				elem.className = className.replace(/\s+/, ' ');
+			}
+			return this;
+		},
+		removeClass: function(elem, className){
+			if(this.hasClass(elem, className)){
+				className = elem.className.replace(new RegExp('(?:^|\\s)' + className + '(?:\\s|$)'), ' ');
+				elem.className = className.replace(/\s+/, ' ');
+			}
+			return this;
+		},
+		hasClass: function(elem, className){
+			return new RegExp('(?:^|\\s)' + className + '(?:\\s|$)').test(elem.className);
+		},
+		//Events
+		eventCache: {},
+		_getEventCache: function(elem){
+			var _key = 'ds_event_key', key = elem[_key];
+			if(!key){
+				key = elem[_key] = 'ds_event_' + (++_uuid);
+			}
+
+			var cache = this.eventCache[key];
+			if(!cache){
+				cache = this.eventCache[key] = {};
+			}
+			return cache;
+		},
+		on: function(elem, type, handler){
+			var 
+			cache = this._getEventCache(elem),
+			handlers = cache[type];
+
+			if(!handlers){
+				handlers = cache[type] = [];
+			}
+			if(!handlers.handle){
+				handlers.handle = function(e){
+					ds.trigger(elem, type, e);
+				};
+				if(w3c){
+					elem.addEventListener(type, handlers.handle, false);
+				}
+				else{
+					elem.attachEvent('on' + type, handlers.handle);
+				}
+			}
+			handlers.push(handler);
+			return this;
+		},
+		off: function(elem, type, handler){
+			var 
+			cache = this._getEventCache(elem),
+			handlers = cache[type] || [];
+
+			if(!handler){
+				cache[type] = [];
+			}
+			else if(handlers.length &gt; 0){
+				for(var i=handlers.length-1; i&gt;=0; i--){
+					if(handlers[i] === handler){
+						handlers.splice(i, 1);
+					}
+				}
+			}
+			if(handlers.length &lt;= 0 &amp;&amp; handlers.handle){
+				if(w3c){
+					elem.removeEventListener(type, handlers.handle, false);
+				}
+				else{
+					elem.detachEvent('on' + type, handlers.handle);
+				}
+				delete handlers.handle;
+			}
+			return this;
+		},
+		trigger: function(elem, type, event, data){
+			var 
+			evt = event,
+			cache = this._getEventCache(elem),
+			handlers = cache ? cache[type] : [];
+
+			if(handlers &amp;&amp; handlers.length &gt; 0){
+				if(!evt){
+					if(w3c){
+						evt = document.createEvent('Event');
+						evt.initEvent(type, true, true);
+					}
+					else{
+						evt = document.createEventObject();
+					}
+				}
+				evt = this.fixEvent(evt);
+
+				for(var i=0,len=handlers.length; i&lt;len; i++){
+					handlers[i].call(elem, evt, data);
+				}
+			}
+			return this;
+		},
+		fixEvent: function(e){
+			var originEvent = e || global.event, evt = originEvent;
+			evt.originEvent = originEvent;
+			if(!w3c){
+				evt = this.mix({}, evt);
+				this.mix(evt, {
+					target: evt.srcElement,
+					preventDefault: function(){
+						originEvent.returnValue = false;
+					}
+				});
+			}
+			return evt;
+		},
+		//Cookies
+		getCookie: function(name){
+			var ret = new RegExp('(?:^|[^;])' + name + '=([^;]+)').exec(document.cookie);
+			return ret ? decodeURIComponent(ret[1]) : '';
+		},
+		setCookie: function(name, value, expir){
+			var cookie = name + '=' + encodeURIComponent(value);
+			if(expir !== void 0){
+				var now = new Date();
+				now.setDate(now.getDate() + ~~expir);
+				cookie += '; expires=' + now.toGMTString();
+			}
+			document.cookie = cookie;
+		},
+		//Hacker
+		isIE6: !-[1,] &amp;&amp; !global.XMLHttpRequest
+	});
+
+	//AJAX
+	ds.mix((function(){
+		var _uuid = 0, _ops = {
+			url: '',
+			type: 'get',
+			data: null,
+			async: true,
+			cache: true,
+			timeout: 30000,
+			dataType: 'string',
+			complete: ds.noop,
+			success: ds.noop,
+			error: ds.noop
+		};
+		function getXHR(){
+			return global.XMLHttpRequest ? new XMLHttpRequest() : new ActiveXObject('Microsoft.XMLHTTP');
+		}
+		function serialize(data, noCache){
+			var ret = [];
+			for(var k in (data = data || {})){
+				ret.push(encodeURIComponent(k) + '=' + encodeURIComponent(data[k]));
+			}
+			!!noCache &amp;&amp; ret.push('_=' + new Date().getTime());
+			return ret.join('&amp;');
+		}
+		function AJAX(ops){
+			this.init(ops);
+		}
+		AJAX.prototype = {
+			constructor: AJAX,
+			init: function(ops){
+				ops = this.ops = ds.mix(ops || {}, _ops);
+				var 
+				self = this,
+				xhr = this.xhr = getXHR(),
+				_timer = setTimeout(function(){
+					xhr.onreadystatechange = null;
+					self.statusText = 'timeout';
+					self.fail().complete();
+				}, ops.timeout);
+				xhr.onreadystatechange = function(){
+					if((self.readyState = xhr.readyState) === 4){
+						var isSuccess = true;
+						self.statusText = xhr.statusText.toLowerCase();
+						var data = null, status = self.status = xhr.status;
+						if(status &gt;= 200 &amp;&amp; status &lt; 300 || status === 304){
+							if(self.statusText === 'ok'){
+								self.statusText = 'success';
+							}
+							else if(status === 304){
+								self.statusText = 'notmodified';
+							}
+							data = ops.dataType === 'xml' ? xhr.responseXML: xhr.responseText;
+							if(ops.dataType === 'json'){
+								try{
+									data = global.JSON ? JSON.parse(data) : eval('('+ data +')');
+								}
+								catch(e){
+									isSuccess = false;
+									self.statusText = 'parsererror';
+								}
+							}
+						}
+						else{
+							isSuccess = false;
+							self.statusText = self.statusText || 'error';
+						}
+						self.data = data;
+						global.clearTimeout(_timer);
+						xhr.onreadystatechange = ds.noop;
+						self[isSuccess ? 'success': 'fail']().complete();
+					}
+				};
+				var 
+				isPost = ops.type.toUpperCase() === 'POST',
+				data = serialize(ops.data, (!isPost &amp;&amp; !ops.cache));
+				this.url = ops.url + (isPost || !data ? '' : (ops.url.indexOf('?')&lt;0 ? '?' : '&amp;') + data);
+				xhr.open(ops.type.toUpperCase(), this.url, ops.async, ops.username, ops.password);
+				!ops.cache &amp;&amp; xhr.setRequestHeader('Cache-Control', 'no-store, no-cache');
+				isPost &amp;&amp; xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+				//isPost &amp;&amp; xhr.setRequestHeader('Content-Length', this.serialize(ops.data).length);
+				xhr.send(isPost ? data: null);
+			},
+			status: 0,
+			readyState: 0,
+			statusText: 'init',
+			abort: function(){
+				this.xhr.abort();
+				return this;
+			},
+			fail: function(){
+				this.abort();
+				this.ops.error.call(this, this, this.statusText);
+				return this;
+			},
+			success: function(){
+				this.ops.success.call(this, this.data, this.statusText);
+				return this;
+			},
+			complete: function(){
+				this.ops.complete.call(this, this.xhr, this.statusText, this.data);
+				return this;
+			}
+		};
+		return {
+			ajax: function(ops){
+				return new AJAX(ops);
+			},
+			get: function(url, data, success, dataType){
+				if(typeof data === 'function'){
+					dataType = success;
+					success = data;
+					data = null;
+				}
+				return new AJAX({url: url, type: 'get', data: data, dataType: dataType, success: success});
+			},
+			post: function(url, data, success, dataType){
+				if(typeof data === 'function'){
+					dataType = success;
+					success = data;
+					data = null;
+				}
+				return new AJAX({url: url, type: 'post', data: data, dataType: dataType, success: success});
+			},
+			getScript: function(url, callback, cache){
+				if(cache === false){
+					url += (url.indexOf('?')&lt;0 ? '?_=' : '&amp;_=') + (+new Date);
+				}
+
+				var 
+				fScript = document.getElementsByTagName('script')[0],
+				script = document.createElement('script');
+				script.type = 'text/javascript';
+				script.async = true;
+				script.src = url;
+				script.onerror = script.onreadystatechange = 
+				script.onload = function(e){
+					if(/undefined|loaded|complete/.test(this.readyState)){
+						script = script.onerror = script.onreadystatechange = 
+						script.onload = null;
+
+						typeof callback === 'function' &amp;&amp; callback.call(script, e||global.event);
+					}
+				};
+				fScript.parentNode.insertBefore(script, fScript);
+				return script;
+			},
+			getJSON: function(url, callback, cache){
+				var id = '_ds_callback_' + (++_uuid);
+				global[id] = function(data){
+					typeof callback === 'function' &amp;&amp; callback(data);
+				};
+
+				if(url.indexOf('=?') &gt; -1){
+					url = url.replace('=?', id);
+				}
+				else{
+					url += (url.indexOf('?')&lt;0 ? '?callback=' : '&amp;callback=') + id;
+				}
+
+				var script = this.getScript(url, null, cache);
+				script.setAttribute('data-callback-id', id);
+				return script;
+			}
+		};
+	})());
+})(this, document);
+
+/**
+* WeSSO
+* admin@laoshu133.com
+* 2013.12.30
+*/
+;(function(global, document){
+	var sso = global.WeSSO || (global.WeSSO = {});
+
+	var 
+	baseUrl = 'http://passport.feng.com/',
+	_options = {
+		appId: 0,
+		title: 'å¨é”‹ç½‘',
+		redirectUrl: '',
+		loginUrl: baseUrl + '?r=sso/index',
+		staticUrl: baseUrl + 'common_assets/',
+		flag: 0,
+
+		onshow: ds.noop,
+		onhide: ds.noop
+	};
+
+	ds.mix(sso, {
+		_options: _options,
+		setOptions: function(options){
+			ds.mix(_options, options || {}, true);
+		},
+		showLogin: function(ops){
+			this.setOptions(ops);
+
+			var shell = this.shell;
+			if(!shell){
+				this.insertCSS();
+				_options.fixedLoginUrl = ds.mixUrl(_options.loginUrl, {
+					redirectUrl: _options.redirectUrl,
+					appId: _options.appId,
+					title: _options.title,
+					flag: _options.flag,
+					iframe: 1
+				});
+				shell = this.shell = document.createElement('div');
+				shell.className = 'sso_login_dialog';
+				shell.id = 'sso_login_shell';
+				shell.style.display = 'none';
+				shell.innerHTML = '&lt;div class="sso_login_title"&gt;&lt;h3&gt;ç™»å½•åˆ°&lt;strong&gt;'+ _options.title +'&lt;/strong&gt;&lt;/h3&gt;&lt;/div&gt;&lt;div class="sso_login_inner"&gt;&lt;iframe id="sso_login_iframe" src="'+ _options.fixedLoginUrl +'" frameborder="0" scrolling="no" height="100%" width="100%" allowtransparency="true"&gt;&lt;/iframe&gt;&lt;/div&gt;&lt;div class="sso_login_close"&gt;&lt;a href="javascript:;" title="å…³é—­" role="button" id="close_login"&gt;Ã—&lt;/a&gt;&lt;/div&gt;';
+				document.body.appendChild(shell);
+
+				ds.on(shell, 'click', function(e){
+					if(e.target.id === 'close_login'){
+						e.preventDefault();
+						sso.hideLogin();
+					}
+				});
+			}
+			if(shell.offsetWidth &lt;= 0){
+				shell.style.display = 'block';
+				if(ds.isIE6){
+					var 
+					docElem = document.documentElement,
+					top = docElem.scrollTop + .382 * docElem.clientHeight;
+					shell.style.top = top + 'px';
+				}
+				_options.onshow.call(this);
+				this.showMask();
+			}
+		},
+		hideLogin: function(){
+			if(this.shell){
+				this.shell.parentNode.removeChild(this.shell);
+				_options.onhide.call(this);
+				this.shell = null;
+				this.hideMask();
+			}
+		},
+		showMask: function(){
+			var maskElem = this.maskElem;
+			if(!maskElem){
+				maskElem = this.maskElem = document.createElement('div');
+				maskElem.innerHTML = ds.isIE6 ? '&lt;iframe src="javascript:false" frameborder="0" scrolling="no" height="100%" width="100%"&gt;&lt;/iframe&gt;' : '&amp;nbsp;';
+				maskElem.className = 'sso_login_mask';
+				document.body.appendChild(maskElem);
+			}
+			if(maskElem.offsetWidth &lt;= 0){
+				ds.removeClass(this.maskElem, 'sso_login_mask_hide');
+				maskElem.style.display = 'block';
+			}
+		},
+		hideMask: function(){
+			var maskElem = this.maskElem;
+			if(maskElem){
+				ds.addClass(maskElem, 'sso_login_mask_hide');
+				maskElem.style.display = 'none';
+			}
+		},
+		_cssInited: false,
+		insertCSS: function(){
+			if(!this._cssInited){
+				this._cssInited = true;
+				
+				var inserted = false;
+				ds.each(ds.$D('link'), function(){
+					if(this.href.indexOf('sso_common.css') &gt; -1){
+						inserted = true;
+						return false;
+					}
+				});
+				if(!inserted){
+					var head = ds.$D('head')[0], link = document.createElement('link');
+					link.href = _options.staticUrl + 'style/sso_common.css';
+					link.rel = 'stylesheet';
+					link.type = 'text/css';
+					head.insertBefore(link, head.firstChild);
+				}
+			}
+		}
+	});
+})(this, document);</pre></body></html>

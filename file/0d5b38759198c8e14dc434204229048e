@@ -1,0 +1,1317 @@
+<html><head><meta charset="utf-8" http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	<meta name="keywords" content="山东农商银行智e购,山东省农村信用社,山东农信,智e购,智e购商城,智E购,智E购商城,O2O,山东农信商城,山东农信网上商城,网上商城,农村信用社,农商银行,农商行,农村合作银行,购物,消费,金融,安全,银行,理财,缴费,交费,在线购物">
+	<meta name="description" content="山东农商银行智e购，是山东省农商银行的网上商城，为您提供商品购买、销售、理财产品、生活缴费等综合服务。">
+	<link rel="icon" href="/MallWeb/favicon.ico" type="image/x-icon">
+	<link rel="stylesheet" type="text/css" href="indexs/css/public.css">
+	</head><body class="resIndexBox">
+		
+
+<meta name="renderer" content="ie-stand">
+<meta charset="utf-8" http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<link href="/MallWeb/css/member/settlement.css" rel="stylesheet" type="text/css" media="all">
+<link href="/MallWeb/css/base.css" rel="stylesheet" type="text/css" media="all">
+<link rel="stylesheet" type="text/css" href="/MallWeb/nx/css/indexpublic.css">
+<link rel="stylesheet" type="text/css" href="/MallWeb/nx/css/index.css">
+<script type="text/javascript" src="/MallWeb/js/jquery1.9.1/jquery-1.9.1.min.js"></script>
+<script type="text/javascript" src="/MallWeb/js/Alert.js"></script>
+<script type="text/javascript" src="/MallWeb/js/pblc.js"></script>
+<script type="text/javascript" src="/MallWeb/js/slide.js"></script>
+<script type="text/javascript" src="/MallWeb/js/cart-head.js"></script>
+<script type="text/javascript" src="/MallWeb/js/index/keyWord.js"></script>
+<script type="text/javascript" src="/MallWeb/top/js/slide.js"></script>
+<script type="text/javascript" src="/MallWeb/nx/js/indexCommon.js"></script>
+<script type="text/javascript" src="/MallWeb/nx/js/topcommon.js"></script><script src="/MallWeb/js/jquery1.9.1/jquery-1.9.1.min.js"></script>
+<script type="text/javascript" src="/MallWeb/js/cloud-carousel.1.0.5.min.js"></script>
+
+<script type="text/javascript">
+	var mallurl = "http://mall.sdrcu.com";
+	var passporturl = "http://user.sdrcu.com";
+	var membertype=5;
+	var membertype_=5;
+	var islogin="";
+	$(document).ready(function(){
+		loadNavigation();//获取导航栏地址
+		//$("#topbar_left").html('<span>您好！欢迎来到山东农商银行智e购</span><a style="color:#444444;" href="/MallWeb/teseguan/Feature_List.html">【切换地区】</a>');
+		// 为了避免首次加载时头部空白页，先初始化一句话
+		var url = "/MallWeb/pages/base/header.jsp";
+		$.post(url,function(result){
+			eval("var obj = " + result);
+			islogin = obj.flag;//是否登录
+			if(islogin == 0){//用户未登录
+				showTopText(0);//获取未登录时顶部内容
+				$("#myorder").attr("href","javascript:showLoginPenl('"+passporturl+"',mallurl+'/MallWeb/member/index_buy_public.html?url=buy_myorder')");
+			}else{//用户已登录
+				// 用户类型
+				var obj_membertype = obj.membertype;
+				//如果用户为登录状态且存在用户类型时设置用户类型
+				if(obj_membertype!=null||obj_membertype!=undefined){
+					//设置全局变量用户类型值
+					membertype=obj_membertype;
+					membertype_ = membertype;
+				}
+				$.post("/MallWeb/pages/base/getnewmembertype.jsp",function(result){
+					eval("var res = " + result);
+					document.getElementById("topbar_left").innerHTML =res.type+decodeURI(obj.content) +"<span>,欢迎来到山东农商银行智e购</span><span><a href='javascript:void(0);' onclick='mallLogout()'>[退出]</a></span>&nbsp;<a style='color:#444444;' href='/MallWeb/teseguan/Feature_List.html'>【切换地区】</a>";
+				});
+				var str='';
+				$.post("/MallWeb/pages/member/isSaler.jsp",function(result){
+					var res = $.trim(result)
+					if(res=="true"){
+						showTopText(1);//获取买家登录时顶部内容
+						$("#myorder").attr("href",mallurl+"/MallWeb/member/index_buy_public.html?url=buy_myorder");
+						//买家
+					}else if(res=="ischild"){
+						showTopText(3);//获取子账户登录时顶部内容
+					}else{
+						showTopText(2);//获取卖家登录时顶部内容
+						$("#myorder").attr("href",mallurl+"/MallWeb/member/index_buy_public.html?url=buy_myorder");
+					}
+				});
+				readTotalNewLetter()//获取未读消息总数
+				window.setTimeout("showHeadCart()",1000);//设置1秒刷新购物车信息	
+				}
+	   		});
+		
+		setKey();//设置关键字
+		resSubMenu();//渲染商品分类面板悬浮效果
+	});
+	// 首页右侧  悬浮购物车
+	function cartNotLogin(){
+		//登录
+		if(islogin==1){
+			window.location.href = mallurl+"/MallWeb/cart/index.html";
+		}else{
+			var showUrl=passporturl+"/PassportWeb/zh_cn/member/loginDiv.html?url="+mallurl+"/MallWeb/cart/index.html";
+			PopupWnd.show("您尚未登录",360,150,showUrl);
+		}
+	}
+	// 首页右侧  悬浮我的订单
+	function orderNotLogin(){
+		//登录
+		if(islogin==1){  
+			window.location.href = mallurl+"/MallWeb/member/index_buy_public.html?url=buy_myorder";
+		}else{
+			var showUrl=passporturl+"/PassportWeb/zh_cn/member/loginDiv.html?url="+mallurl+"/MallWeb/member/index_buy_public.html?url=buy_myorder";
+			PopupWnd.show("您尚未登录",360,150,showUrl);
+		}
+	}
+	function change(){
+		$("#searchList").hide();
+	}
+
+ </script>
+
+
+
+<input id="showcategory" style="display:none" value="0">
+<div display="none">
+	<form action="/MallWeb/proList.html" method="post" id="hid_form">
+		<input type="hidden" name="title" value="" id="title_hid">
+		<input type="hidden" name="t" value="1" id="searchtype">
+	</form>
+</div>
+<div class="head_box">
+	<div class="area clearfix">
+		<div class="head_l" id="topbar_left"><span>您好！欢迎来到山东农商银行智e购</span><a style="color:#444444;" href="/MallWeb/teseguan/Feature_List.html">【切换地区】</a></div>
+		<div class="head_r clearfix" "="" id="topbar_right"><div class="head_l"><a href="http://user.sdrcu.com/PassportWeb/zh_cn/member/login.html?url=http://mall.sdrcu.com/MallWeb/">请登录</a><a href="http://user.sdrcu.com/PassportWeb/zh_cn/member/register.html?url=http://mall.sdrcu.com/MallWeb/">免费注册</a></div><ul><li>|</li><i></i><li><div onmouseleave="sweepleave()"> <span id="firstSweep" onmouseover="sweepover()" style="cursor:pointer;color:black;" class="btnIm">手机APP</span><div id="sweepList" style="z-index:99;display:none;background-color:#bb000d;line-height:18px; border:1px solid #bb000d;width:70px;position:fixed;text-align:center;margin-left:-1.5%;margin-top: -9px;">    <a href="/MallWeb/downloadApp.html" style="color:#FFF;" target="_blank">扫二维码</a><br>    <a href="/MallWeb/downloadAppLJ.html" style="color:#FFF;" target="_blank">点击下载</a> </div></div></li><li>|</li><li><a href="javascript:void(0);" onclick="showLoginPenl(&quot;http://user.sdrcu.com&quot;,&quot;http%3A%2F%2Fmall.sdrcu.com%2FMallWeb%2Fmember%2Findex_buy_public.html&amp;passport=http://user.sdrcu.com&quot;);" class="btnIm">用户中心</a></li><li>|</li><li><a href="javascript:void(0);" onclick="showLoginPenl(&quot;http://user.sdrcu.com&quot;,&quot;http%3A%2F%2Fmall.sdrcu.com%2FMallWeb%2Fmember%2Findex_buy_public.html%3Furl%3Dbuy_favorites_goods&quot;);" class="btnIm">收藏夹</a></li><li>|</li><li><a href="http://mall.sdrcu.com/MallWeb/helpcenter/first.html?id=14" class="btnIm">帮助中心</a></li><li>|</li><span>客服热线：96668</span></ul></div>
+	</div>
+</div>
+<div class="lingsou_shiwu_logo clearfix area">
+	<h1><a href="/MallWeb/"><img width="287" height="74" src="/MallWeb/nx/image/sd_logo2.png"></a></h1>
+   		<div class="lingsou_shiwu_seach fl">
+    		<div class="lingsou_shiwu_seach_t clearfix">
+          		<div class="lingsou_sw_sl">
+	          		<div class="lingsou_sw_sll fl" onmouseleave="change();">
+	                    <span id="firstS" onmouseover="changeSearch(this);" order="1">宝贝</span>
+	                    <ul class="lingsou_sw_act" id="searchList">
+	                        <li id="baobei" onclick="changeSearch(this);" order="1" style="display: none;"><a href="javascript:;">宝贝</a></li>
+	                        <li id="dianpu" onclick="changeSearch(this);" order="2"><a href="javascript:;">店铺</a></li>
+	                    </ul>
+	                </div>
+	             </div>
+                <div class="lingsou_sw_sc fl">
+                	<img class="fl" src="/MallWeb/images/seach_bg_03.png" width="21" height="34">
+                	<input class="fl" type="text" name="" id="con_one_1" onkeydown="onkey(event);" value="" style="color: rgb(101, 102, 102); ">
+                </div>
+                <div class="lingsou_sw_sr fl">
+              		<a href="#" id="searchButton" onclick="tosearch()">搜索</a>
+              		<!-- <img src="/MallWeb/images/seachBtn.png" width="97" height="34"> -->
+            	</div>
+          	</div>
+	        <div class="lingsou_shiwu_seach_b clearfix">
+	    	<span id="hotSearch" style="position:relative;top:5px;">
+	    		&nbsp;&nbsp;&nbsp;热门搜索：
+	    		
+						<a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=108101" style="color:red;margin-left:5px" target="_blank">蔬菜</a>
+				
+						<a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=108103" style="color:#444444;margin-left:5px" target="_blank">海鲜水产</a>
+				
+						<a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=108105100102" style="color:#444444;margin-left:5px" target="_blank">米面杂粮</a>
+				
+						<a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=124102" style="color:#444444;margin-left:5px" target="_blank">休闲食品</a>
+				
+						<a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=108108101" style="color:#444444;margin-left:5px" target="_blank">红茶</a>
+				
+						<a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=108105103" style="color:#444444;margin-left:5px" target="_blank">干果</a>
+				
+	    	</span>
+	        </div>
+        </div>
+	    <div class="lingsou_shiwu_gouwuche fr" id="orderandcartpenl">
+			  <div class="lingsou_shiwu_ding fl">
+	               <i></i>
+	               <a id="myorder" href="javascript:showLoginPenl('http://user.sdrcu.com',mallurl+'/MallWeb/member/index_buy_public.html?url=buy_myorder')">订单查询</a>
+	          </div>
+	          <div class="lingsou_shiwu_gou fl" id="cartTop"><div style=" " id="J_MyMiniCart" class="fl"><i></i><a onclick="cartNotLogin(&quot;http://user.sdrcu.com&quot;);">购物车<em id="_cart_totals">0</em>件<b></b></a><h2 id="buycar_head" class="myMiniCart-hd"></h2><div id="car1" class="myMiniCart-bd"><div style="display: block;text-align:right;" class="norcode">您的购物车里没商品，欢迎您去选购！</div><div class="cart-goods-wrap"><div id="head_cart_div" class="cart-goods-list"></div><div class="total">共<strong class="num">0</strong>件商品&nbsp;&nbsp;&nbsp;金额总计：<strong class="money">0.00</strong><br><div class="sliter_nav"><a onclick="cartNotLogin(&quot;http://user.sdrcu.com&quot;);" class="btnCart"></a></div></div></div></div></div><div onclick="window.location.href='/MallWeb/cart/index.html'"></div></div>
+	    </div>
+</div>
+<div class="lingsou_shiwu_menu_box clearfix">
+	<div class="lingsou_shiwu_menu area">
+        <div class="lingsou_shiwu_menul fl" id="firstcategory">
+			
+			<h2 id="categorys-hd">商品分类</h2><div class="lingsou_shiwu_menula sy_cur" style="display: block; height: 460px; "><div class="lingsou_shiwu_menulaa"><h3 class="clearfix"><span class="sy_menu2 fr"></span><span class="sy_menu1 fl"><a href="" '="" target="_blank">山东特产</a></span></h3><ul class="clearfix"><li><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=108100" target="_blank">绿色鲜果</a></li><li><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=108103104" target="_blank">滋补佳品</a></li></ul></div><div class="lingsou_shiwu_menulaa"><h3 class="clearfix"><span class="sy_menu2 fr"></span><span class="sy_menu1 fl"><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=111" '="" target="_blank">农资商品</a></span></h3><ul class="clearfix"><li><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=111100" target="_blank">肥料</a></li><li><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=111101" target="_blank">种子</a></li></ul></div><div class="lingsou_shiwu_menulaa"><h3 class="clearfix"><span class="sy_menu2 fr"></span><span class="sy_menu1 fl"><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=108" '="" target="_blank">绿色农产</a></span></h3><ul class="clearfix"><li><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=108100" target="_blank">水果</a></li><li><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=108101" target="_blank">蔬菜</a></li></ul></div><div class="lingsou_shiwu_menulaa"><h3 class="clearfix"><span class="sy_menu2 fr"></span><span class="sy_menu1 fl"><a href="" '="" target="_blank">精品悦购</a></span></h3><ul class="clearfix"><li><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=198" target="_blank">家用中心</a></li><li><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=115" target="_blank">电脑办公  手机数码</a></li></ul></div><div class="lingsou_shiwu_menulaa"><h3 class="clearfix"><span class="sy_menu2 fr"></span><span class="sy_menu1 fl"><a href="http://mall.sdrcu.com/MallWeb/o2oIndex/o2oIndex.html" '="" target="_blank">社区生活</a></span></h3><ul class="clearfix"><li><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=130" target="_blank">美食</a></li><li><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=210" target="_blank">生活服务</a></li></ul></div></div>
+			<div class="g_list_con"><div class="g_subList"><div class="subCateBox"><dl class="subCate subCate1 clearfix"><dt><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=108100">绿色鲜果</a></dt><dd class="clearfix"><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=108100111">青州蜜桃</a><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=108100100100">烟台苹果</a></dd></dl><dl class="subCate subCate1 clearfix"><dt><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=108103104">滋补佳品</a></dt><dd class="clearfix"><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=108106100">东阿阿胶</a><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=108103104">精品海参</a><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=108106101">福牌阿胶</a></dd></dl><dl class="subCate subCate1 clearfix"><dt><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=108105">美食名吃</a></dt><dd class="clearfix"><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=108102101100100">德州扒鸡</a><a href="http://mall.sdrcu.com/MallWeb/shop/goodsList.html?id=2016091343519&amp;morestatus=2">香玲核桃</a><a href="http://mall.sdrcu.com/MallWeb/shop/goodsList.html?id=2016092193918&amp;morestatus=2">大蜜枣糕点</a><a href="http://mall.sdrcu.com/MallWeb/shop/goodsList.html?id=2016101460290&amp;morestatus=2">胶东面点</a><a href="http://mall.sdrcu.com/MallWeb/shop/index.html?id=2016111183633">糖酥火烧</a><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=108107">粉丝</a><a href="http://mall.sdrcu.com/MallWeb/shop/index.html?id=2016120820134">莱芜南肠</a></dd></dl><dl class="subCate subCate1 clearfix"><dt><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=124100">酒水茶饮</a></dt><dd class="clearfix"><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=124100101100">青岛啤酒</a><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=124100100">精酿白酒</a><a href="http://mall.sdrcu.com/MallWeb/shop/goodsList.html?id=2016091820370&amp;morestatus=2">怡明茶</a></dd></dl><dl class="subCate subCate1 clearfix"><dt><a href="http://mall.sdrcu.com/MallWeb/shop/goodsList.html?id=2016092223143">工艺礼品</a></dt><dd class="clearfix"><a href="http://mall.sdrcu.com/MallWeb/shop/goodsList.html?id=2016092223143&amp;morestatus=2">泥塑</a></dd></dl></div></div><div class="g_subList"><div class="subCateBox"><dl class="subCate subCate1 clearfix"><dt><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=111100">肥料</a></dt><dd class="clearfix"><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=111100103">复合肥</a><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=111100104">有机肥</a><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=111100105">其他肥料</a><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=111100106">微肥</a></dd></dl><dl class="subCate subCate1 clearfix"><dt><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=111101">种子</a></dt><dd class="clearfix"><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=111101101">蔬菜种子</a><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=111101102">玉米种子</a><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=111101103">大豆种子</a><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=111101104">小麦种子</a><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=111101105">棉花种子</a></dd></dl><dl class="subCate subCate1 clearfix"><dt><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=111105">饲料</a></dt><dd class="clearfix"><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=111105">宠物饲料</a></dd></dl><dl class="subCate subCate1 clearfix"><dt><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=111107">农业机械</a></dt><dd class="clearfix"><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=111107100">耕作机</a></dd></dl></div></div><div class="g_subList"><div class="subCateBox"><dl class="subCate subCate1 clearfix"><dt><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=108100">水果</a></dt><dd class="clearfix"><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=108100100">苹果</a><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=108100111">桃</a><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=108100112">梨</a><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=108100110">枣</a><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=108100102">柠檬</a><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=108100104">草莓</a><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=108100108">西瓜</a><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=108100113">葡萄</a><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=108100101">猕猴桃</a></dd></dl><dl class="subCate subCate1 clearfix"><dt><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=108101">蔬菜</a></dt><dd class="clearfix"><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=108101110">时令蔬菜套餐</a><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=108101111">食用菌</a><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=108101100">小白菜</a><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=108101101">韭菜</a><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=108101105">萝卜</a><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=108101104">黄瓜</a><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=108101102">红薯</a><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=108101105">土豆</a><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=108101102">芋头</a><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=108101111">香菇</a><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=108101111">黑木耳</a><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=108101111">蘑菇</a><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=108101105">洋葱</a><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=108101103">辣椒</a></dd></dl><dl class="subCate subCate1 clearfix"><dt><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=108105">粮油副食</a></dt><dd class="clearfix"><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=108105100100">食用油</a><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=108105100101">调味品</a><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=108105103">干果</a><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=108105100102">粮食</a><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=108105101">食用菌</a><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=108105102">副食品</a><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=108105105">豆类</a><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=108105106">油料作物</a></dd></dl><dl class="subCate subCate1 clearfix"><dt><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=108103">海鲜水产</a></dt><dd class="clearfix"><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=108103102">贝类</a><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=108103103">虾类</a><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=108103100">鱼类（活鲜）</a><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=108103101">鱼类（冰鲜）</a></dd></dl><dl class="subCate subCate1 clearfix"><dt><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=108104">蛋奶</a></dt><dd class="clearfix"><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=108104100">蛋类</a></dd></dl><dl class="subCate subCate1 clearfix"><dt><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=108102">肉禽</a></dt><dd class="clearfix"><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=108102100">肉类</a><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=108102101">禽类</a></dd></dl><dl class="subCate subCate1 clearfix"><dt><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=124100">酒水茶饮</a></dt><dd class="clearfix"><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=124100100">白酒</a><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=124100101">啤酒</a><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=124100103">红酒</a><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=108108">茶饮</a></dd></dl></div></div><div class="g_subList"><div class="subCateBox"><dl class="subCate subCate1 clearfix"><dt><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=198">家用中心</a></dt><dd class="clearfix"><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=198100">电视机</a><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=198103">生活电器</a><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=198104">个护健康</a></dd></dl><dl class="subCate subCate1 clearfix"><dt><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=115">电脑办公  手机数码</a></dt><dd class="clearfix"><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=115100">手机通讯</a><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=115101">手机配件</a><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=116100">电脑整机</a><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=116102">外设产品</a><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=116105">办公设备</a><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=116106">文具耗材</a><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=115105">智能设备</a></dd></dl><dl class="subCate subCate1 clearfix"><dt><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=117">家居 家装 厨具</a></dt><dd class="clearfix"><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=117102">家具</a><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=117104">厨具</a><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=117103">家纺</a><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=117100">生活用品</a><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=117101">家装软饰</a><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=117106">家装建材</a></dd></dl><dl class="subCate subCate1 clearfix"><dt><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=118">个护 母婴</a></dt><dd class="clearfix"><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=118100">面部护理</a><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=123100">奶粉</a><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=123104">喂养用品</a><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=123108">妈妈专区</a><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=123105">童车童床</a><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=123110">玩具乐器</a><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=123107">寝居服饰</a><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=118101">洗发护发</a><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=118102">身体护理</a><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=118104">女性护理</a><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=123103">洗护用品</a><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=123102">尿裤湿巾</a></dd></dl><dl class="subCate subCate1 clearfix"><dt><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=121">运动户外</a></dt><dd class="clearfix"><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=121101">运动服饰</a><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=121103">骑行运动</a><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=121104">体育用品</a><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=121107">垂钓用品</a><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=121106">户外设备</a></dd></dl><dl class="subCate subCate1 clearfix"><dt><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=109">服饰箱包</a></dt><dd class="clearfix"><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=109100">女装</a><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=109101">男装</a><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=109102">内衣</a><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=109103">配饰</a><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=123109">童装童鞋</a><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=119101">流行男鞋</a><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=119102">潮流女包</a></dd></dl></div></div><div class="g_subList"><div class="subCateBox"><dl class="subCate subCate1 clearfix"><dt><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=130">美食</a></dt><dd class="clearfix"><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=130104">代金券</a><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=130102">甜点饮品</a><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=130105">海鲜</a><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=130106">烧烤</a><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=130107">鲁菜</a><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=130109">其他菜系</a><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=130101">火锅</a></dd></dl><dl class="subCate subCate1 clearfix"><dt><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=210">生活服务</a></dt><dd class="clearfix"><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=210100">婚纱摄影</a><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=210101">个性写真</a><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=132100">汽车服务</a><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=134">母婴亲子</a><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=137100">体检</a><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=210105">其他生活</a></dd></dl><dl class="subCate subCate1 clearfix"><dt><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=211">酒店</a></dt><dd class="clearfix"><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=211100">经济型酒店</a><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=211101">豪华酒店</a><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=211102">主题酒店</a></dd></dl><dl class="subCate subCate1 clearfix"><dt><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=131">休闲娱乐</a></dt><dd class="clearfix"><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=131103">电影</a></dd></dl><dl class="subCate subCate1 clearfix"><dt><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=133">运动锻炼</a></dt><dd class="clearfix"><a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=133100">健身</a></dd></dl></div></div></div>          
+        </div>
+        <div class="lingsou_shiwu_menur fl">
+            <ul id="navigationbar" style="width:900px; height:50px;padding-left:25px; overflow:hidden;"><li><a href="http://mall.sdrcu.com/MallWeb/index.jsp" target="_blank">首页</a></li><li><a href="http://mall.sdrcu.com/MallWeb/finance/Gren_banking.html" target="_blank">个人金融</a></li><li><a href="http://mall.sdrcu.com/MallWeb/finance/Qye_banking.html" target="_blank">企业金融</a></li><li><a href="http://mall.sdrcu.com/MallWeb/teseguan/Feature_List.html" target="_blank">农商银行</a></li><li><a href="http://mall.sdrcu.com/MallWeb/choujian.jsp" target="_blank">京东惠购</a></li><li><a href="http://mall.sdrcu.com/MallWeb/groupbuy/groupbuy.html" target="_blank">团购</a></li><li><a href="http://mall.sdrcu.com/MallWeb/seckill.jsp" target="_blank">秒杀</a></li></ul>
+        </div>
+    </div>
+</div>
+<!--购物车加客服  首页-->
+<div id="rightTools" class="g_r">
+	<a onclick="cartNotLogin()" href="javascript:;"></a>
+    <a id="myorder" onclick="orderNotLogin()"></a>
+    <a href="javascript:;"></a>
+</div>
+
+		<a name="topn" id="topn"></a>
+		
+
+
+
+
+
+
+
+
+
+
+
+
+			 
+
+
+
+
+
+
+
+
+
+<meta charset="utf-8" http-equiv="X-UA-Compatible" content="IE=8">
+
+<link rel="stylesheet" type="text/css" href="indexs/css/public.css">
+<link rel="stylesheet" type="text/css" href="gaiban/css/style.css">
+<link rel="stylesheet" type="text/css" href="gaiban/css/public.css">
+<link href="css/base.css" rel="stylesheet" type="text/css" media="all">
+<link href="css/member/settlement.css" rel="stylesheet" type="text/css" media="all">
+<link href="css/index.css" rel="stylesheet" type="text/css" media="all">
+<!-- <script type="text/javascript" src="gaiban/js/jquery-1.7.1.min.js"></script> -->
+<script type="text/javascript" src="gaiban/js/slide.js"></script> 
+<script type="text/javascript" src="/MallWeb/js/slide.js"></script>
+<link rel="stylesheet" type="text/css" href="/MallWeb/nx/css/index.css">
+    <style type="text/css">
+        ul, li
+        {
+            margin: 0;
+            padding: 0;
+        }
+        #scrollDiv
+        {
+            width: 97%;
+            height: 25px;
+            line-height: 25px;
+            border: #ccc 1px solid;
+            overflow: hidden;
+        }
+        #scrollDiv li
+        {
+            height: 25px;
+            padding-left: 10px;
+        }
+    </style>
+<script type="text/javascript">
+
+
+$(document).ready(function(){
+	$.post("/MallWeb/pages/base/header.jsp",function(result){
+		eval("var obj = " + result);
+		islogin = obj.flag;//是否登录
+		if(islogin == 0){//未登录情况下在线申请贷款点击弹出登录框
+			$("#daikuan").attr("href","javascript:void(0);");
+			$("#daikuan").bind("click",function(){
+		    	showLoginPenl(passporturl,mallurl+"/MallWeb/loan/loanapplication.html");
+		    });
+		}else{
+			$("#daikuan").attr("href",mallurl+"/MallWeb/loan/loanapplication.html");
+		}
+	});
+	$(".lingsou_shiwu_menula").css("display", "block");
+	$("#nav_san_span").css("display", "block");
+	//showcategory();
+	
+	$("#categorys-hd").mouseover(function() {
+	$("#showcategory").val(1);
+	 $("#nav_san_span").removeClass("nav_san");
+	 $("#nav_san_span").addClass("nav_san2");
+	 $("#J_categorys_category").css("display", "block");
+	 $("#nav_san_span").css("display", "block");
+		 if($("#firstcategory0").html()==""||$("#firstcategory0").html()==null||$("#showcategory").val()==0){
+				//alert($("#showcategory").val())
+			$("#showcategory").val(1);
+		 	//showcategory();
+
+		 }
+	 });
+	 $("#categorys-hd").mouseout(function() {
+		 $("#nav_san_span").removeClass("nav_san2");
+		 $("#nav_san_span").addClass("nav_san");
+		 $("#nav_san_span").css("display", "block");
+		 $("#J_categorys_category").css("display", "block");
+	 });
+
+	 $("#J_categorys_category").mouseover(function() {
+		 $("#nav_san_span").removeClass("nav_san");
+		 $("#nav_san_span").addClass("nav_san2");
+		  $("#nav_san_span").css("display", "block");
+		 $("#J_categorys_category").css("display", "block");
+	 });
+	 $("#J_categorys_category").mouseout(function() {
+		 $("#nav_san_span").removeClass("nav_san2");
+		 $("#nav_san_span").addClass("nav_san");
+		  $("#nav_san_span").css("display", "block");
+		 $("#J_categorys_category").css("display", "block");
+	 });
+	 
+	 $("#childcategory").mouseover(function() {
+		 $("#nav_san_span").removeClass("nav_san");
+		 $("#nav_san_span").addClass("nav_san2");
+		  $("#nav_san_span").css("display", "block");
+		 $("#J_categorys_category").css("display", "block");
+	 });
+	 
+	 $("#childcategory").mouseout(function() {
+		 $("#nav_san_span").removeClass("nav_san2");
+		 $("#nav_san_span").addClass("nav_san");
+		  $("#nav_san_span").css("display", "block");
+		 $("#J_categorys_category").css("display", "block");
+	 });
+ 
+	 $.post("/MallWeb/pages/member/isSaler.jsp",function(result){
+		 var res = $.trim(result)
+			if(res!="true"){
+					$(".ticnav").hide();
+					$(".saljia").hide();
+		 			//document.getElementById("ticketnav").style.display = "none";
+		 		}else{
+		 			$(".ticnav").show();
+		 			$(".saljia").show();
+		 			//document.getElementById("ticketnav").style.display = "";
+		 		}
+		    });
+
+});
+    function clock(){
+	     var t = $("#scrollDiv ul li");
+		 if(t.size()>1){	//只有一条记录时不滚动
+	    	$("#scrollDiv ul").animate({marginTop:"-25px"},1000,function(){
+	           $(this).css({marginTop:"0px"}).find("li:first").appendTo(this);      
+		    })
+        }
+    }
+    $(function(){
+	   var myvar=setInterval("clock()",8000);
+	      $("#scrollDiv").mouseover(function(){
+	          clearInterval(myvar);                          
+	      }).mouseout(function(){
+	      	  clearInterval(myvar);
+	          myvar = setInterval("clock()",8000);
+	   });
+    })
+    
+   //10.20首页改版JS.....
+$(function(){
+	$('.x_leftBtn').hide();
+	var w = $('.x_slidBox').width();
+	var l = $('.x_sliderInfo').length;
+	var d = $('.x_sliderInfo').width();
+		$('.x_slidBox').width(l*d);
+		w = l*d;
+	var z = w-d;
+	
+	$('.x_rightBtn').click(function(){
+		var newL =$('.x_slidBox').css('left');
+		var t = parseInt(newL);
+		if(-t == z-d){			
+			$('.x_rightBtn').hide();
+			
+		}
+		if(-t == z){			
+			$('.x_rightBtn').hide();
+			return;
+		}
+		$('.x_slidBox').animate({'left':t-d});
+		$('.x_leftBtn').show();
+	});
+	$('.x_leftBtn').click(function(){
+		var newL =$('.x_slidBox').css('left');
+		var t = parseInt(newL);
+		if(t == -d){
+			$('.x_leftBtn').hide();			
+		}
+		if(t == 0){				
+			return;
+		}
+		$('.x_slidBox').animate({'left':(t+d)});
+		$('.x_rightBtn').show();		
+	});
+});
+</script>
+<title>山东农商银行智e购</title>
+
+
+<div class="sy_banner area" id="resIndexBanner">
+		<div class="sy_banner1">
+    	<ul>
+    	
+    		<li style="display: block; overflow: hidden; height: 473.8991860323853px; margin: 0px; padding: 0px; width: 937.9130011372309px; opacity: 0.9872634363932886; "><a href="http://mall.sdrcu.com/MallWeb/seckill.jsp" target="_blank"><img src="http://pic.sdrcu.com/fileServer/files/image/pc/2017/04/01/914/apk/20170401085615260Io3dTjJ0.jpg" width="950" height="480"></a></li>
+    		
+    		<li style="display: none; "><a href="http://mall.sdrcu.com/MallWeb/product/proDetail.html?id=20170316172114000001" target="_blank"><img src="http://pic.sdrcu.com/fileServer/files/image/pc/2017/03/27/920/apk/201703271534415271PgU8S8y.jpg" width="950" height="480"></a></li>
+    		
+    		<li style="display: none; "><a href="http://mall.sdrcu.com/MallWeb/shop/index.html?id=2016122287157" target="_blank"><img src="http://pic.sdrcu.com/fileServer/files/image/pc/2017/03/27/920/apk/2017032716182256344tWCEbZ.jpg" width="950" height="480"></a></li>
+    		
+    		<li style="display: none; "><a href="http://mall.sdrcu.com/MallWeb/product/proDetail.html?id=20161021150911000001" target="_blank"><img src="http://pic.sdrcu.com/fileServer/files/image/pc/2017/03/29/914/apk/20170329175600864UY0jbY06.jpg" width="950" height="480"></a></li>
+    		
+    		<li style="display: block; overflow: hidden; height: 6.113550531221449px; margin: 0px; padding: 0px; width: 12.099735426375787px; opacity: 0.012736563606711382; "><a href="http://mall.sdrcu.com/MallWeb/product/proDetail.html?id=20170117085716000001" target="_blank"><img src="http://pic.sdrcu.com/fileServer/files/image/pc/2017/04/01/914/apk/20170401082600942dDTF6ue3.jpg" width="950" height="480"></a></li>
+    		
+    	</ul>
+        
+    </div>
+    <div class="sy_banner2">
+         <ol>
+         	<li class="sy_banner2_cur"></li>
+		    	<li class=""></li><li class=""></li><li class=""></li><li class=""></li>
+         </ol>
+     </div>
+    <form id="form1" runat="server">
+     <div class="sy_banner3" style="width: 3%;height: 25px;border-right:none">
+     	<span class="sy_banner3_img fl"></span>
+     </div>     
+     <div class="sy_banner3" id="scrollDiv" style="position:relative;left:35px;top:486px;border-left:none">
+        <ul>
+              		
+        </ul>             
+     </div>
+    </form>     
+</div>
+<style type="text/css">
+.g_banner{ width:100%; height:433px;}
+.g_pic_all{ position:relative; height:433px;}
+
+.g_banner1{
+	background:url(http://pic.sdrcu.com/fileServer/files/image/pc/2017/04/01/914/apk/20170401085615260Io3dTjJ0.jpg) no-repeat center top;}
+
+.g_banner2{
+	background:url(http://pic.sdrcu.com/fileServer/files/image/pc/2017/03/27/920/apk/201703271534415271PgU8S8y.jpg) no-repeat center top;}
+
+.g_banner3{
+	background:url(http://pic.sdrcu.com/fileServer/files/image/pc/2017/03/27/920/apk/2017032716182256344tWCEbZ.jpg) no-repeat center top;}
+
+.g_banner4{
+	background:url(http://pic.sdrcu.com/fileServer/files/image/pc/2017/03/29/914/apk/20170329175600864UY0jbY06.jpg) no-repeat center top;}
+
+.g_banner5{
+	background:url(http://pic.sdrcu.com/fileServer/files/image/pc/2017/04/01/914/apk/20170401082600942dDTF6ue3.jpg) no-repeat center top;}
+	
+</style> 
+<div class="clearfix area sy_center10 m-t-20">
+    <div class="sy_gbc_l fl">
+           <h2 class="sy_gbc_lt">
+              <i></i>
+              <span class="sy_gbc_ltt">电子银行</span>
+           </h2>
+           <div class="sy_gbc_lc">
+               <h3>
+                  <a href="https://mybank.sdrcu.com/pweb/prelogin.do?_locale=zh_CN&amp;BankId=305100001008&amp;LoginType=C" class="sy_gbc_lch3"><i></i>个人电子银行</a>
+               </h3>
+               <ul class="sy_gbc_lcli clearfix m-t-10">
+                  <li>
+                     <a href="https://mybank.sdrcu.com/pweb/OnlineRegisterNotice.do?_locale=zh_CN&amp;BankId=305100001008">注册</a>
+                  </li>
+                  <li>
+                     <a href="https://mybank.sdrcu.com/pweb/prelogin.do?_locale=zh_CN&amp;BankId=305100001008&amp;LoginType=C">登录</a>
+                  </li>
+                  <li>
+                     <a href="https://pbank.sdrcu.com/pweb/proBussinessGuide.do?_locale=zh_CN&amp;BankId=305100001008&amp;LoginType=R">助手</a>
+                  </li>
+                  <li>
+                     <a href="https://mybank.sdrcu.com/pweb/Demo/demo.html">演示</a>
+                  </li>
+                  <li>
+                     <a href="https://pbank.sdrcu.com/pweb/CertCodeDownPre.do?_locale=zh_CN&amp;BankId=305100001008&amp;LoginType=R">证书下载</a>
+                  </li>
+                  <li>
+                     <a href="https://pbank.sdrcu.com/pweb/perProblerm.do?_locale=zh_CN&amp;BankId=305100001008&amp;LoginType=R">常见问题</a>
+                  </li>
+               </ul>
+           </div>
+           <div class="sy_gbc_lc">
+               <h3>
+                  <a href="https://ebank.sdrcu.com/eweb/prelogin.do?_locale=zh_CN&amp;BankId=305100001008&amp;LoginType=C" class="sy_gbc_lch3 sy_gbc_lci"><i></i>企业电子银行</a>
+               </h3>
+               <ul class="sy_gbc_lcli clearfix m-t-10">
+                  <li>
+                     <a href="https://pbank.sdrcu.com/pweb/entRegisterHelp.do?_locale=zh_CN&amp;BankId=305100001008&amp;LoginType=R">注册</a>
+                  </li>
+                  <li>
+                     <a href="https://ebank.sdrcu.com/eweb/prelogin.do?_locale=zh_CN&amp;BankId=305100001008&amp;LoginType=C">登录</a>
+                  </li>
+                  <li>
+                     <a href="https://pbank.sdrcu.com/pweb/entBussinessGuide.do?_locale=zh_CN&amp;BankId=305100001008&amp;LoginType=R">助手</a>
+                  </li>
+                  <li>
+                     <a href="https://pbank.sdrcu.com/pweb/EntCertCodeDownPre.do?_locale=zh_CN&amp;BankId=305100001008&amp;LoginType=R">证书下载</a>
+                  </li>
+                  <li>
+                     <a href="https://pbank.sdrcu.com/pweb/entProblerm.do?_locale=zh_CN&amp;BankId=305100001008&amp;LoginType=R">常见问题</a>
+                  </li>
+               </ul>
+           </div>
+           <div class="sy_gbc_lb">
+           		<ul>
+		           <a class="sy_gbc_lbb" href="/MallWeb/MallWeb/agricultural/infoMationdetail_yin.html?id=31&amp;catid=105">
+			    	    	<i></i>
+               	 			 银企直联服务
+			    	    </a>
+			       
+			   </ul>
+           </div>
+     </div>
+     
+     
+     <div class="sy_gbc_c fl">
+           <div class="sy_gbc_ct">
+              <h3 class="sy_gbc_cth">个人网上银行
+                 <span>轻松一点</span>
+                 <span>汇通天下</span>
+              </h3>
+              <ul class="sy_gbc_ctul clearfix m-t-10">
+              <li><a href="https://pbank.sdrcu.com/pweb/prelogin.do?_locale=zh_CN&amp;BankId=305100001008&amp;LoginType=R"><img class="lazy" data-original="http://pic.sdrcu.com/fileServer/files/image/pc/2016/11/01/914/apk/201611011109351977ufrdOlk.jpg" width="141px;" height="65px;" src=""></a></li><li><a href="https://pbank.sdrcu.com/pweb/prelogin.do?_locale=zh_CN&amp;BankId=305100001008&amp;LoginType=R"><img class="lazy" data-original="http://pic.sdrcu.com/fileServer/files/image/pc/2016/11/01/914/apk/20161101123755589ncUFKdC8.jpg" width="141px;" height="65px;" src=""></a></li><li><a href="https://pbank.sdrcu.com/pweb/prelogin.do?_locale=zh_CN&amp;BankId=305100001008&amp;LoginType=R"><img class="lazy" data-original="http://pic.sdrcu.com/fileServer/files/image/pc/2016/11/01/914/apk/20161101110959786xEJ0eaCv.jpg" width="141px;" height="65px;" src=""></a></li><li><a href="https://pbank.sdrcu.com/pweb/prelogin.do?_locale=zh_CN&amp;BankId=305100001008&amp;LoginType=R"><img class="lazy" data-original="http://pic.sdrcu.com/fileServer/files/image/pc/2016/11/01/914/apk/20161101111013659CuT880KM.jpg" width="141px;" height="65px;" src=""></a></li>   			       
+               
+              </ul>
+           </div>
+           
+           <div class="sy_gbc_ct">
+              <h3 class="sy_gbc_cth sy_gbc_ctc">企业网上银行
+                 <span>安全快捷</span>
+                 <span>精准专业</span>
+              </h3>
+              <ul class="sy_gbc_ctul clearfix m-t-10">
+                 <li><a href="https://ebank.sdrcu.com/eweb/prelogin.do?_locale=zh_CN&amp;BankId=305100001008&amp;LoginType=C"><img class="lazy" data-original="http://pic.sdrcu.com/fileServer/files/image/pc/2016/11/01/914/apk/20161101110833962uAjO6rHC.jpg" width="141px;" height="65px;" src=""></a></li><li><a href="https://ebank.sdrcu.com/eweb/prelogin.do?_locale=zh_CN&amp;BankId=305100001008&amp;LoginType=C"><img class="lazy" data-original="http://pic.sdrcu.com/fileServer/files/image/pc/2016/11/01/914/apk/20161101110852194ZNz8ZsA9.jpg" width="141px;" height="65px;" src=""></a></li><li><a href="https://ebank.sdrcu.com/eweb/prelogin.do?_locale=zh_CN&amp;BankId=305100001008&amp;LoginType=C"><img class="lazy" data-original="http://pic.sdrcu.com/fileServer/files/image/pc/2016/11/01/914/apk/20161101110905549xZMrHzMP.jpg" width="141px;" height="65px;" src=""></a></li><li><a href="https://ebank.sdrcu.com/eweb/prelogin.do?_locale=zh_CN&amp;BankId=305100001008&amp;LoginType=C"><img class="lazy" data-original="http://pic.sdrcu.com/fileServer/files/image/pc/2016/11/01/914/apk/20161101110918125hoYraXsf.jpg" width="141px;" height="65px;" src=""></a></li>               
+              </ul>
+           </div>
+           <div class="sy_gbc_ctb">
+		       <div class="x_sliderBox">
+	           	<div class="x_slidBox clearfix" style="width: 1218px; ">
+	           		<div class="clearfix fl x_sliderInfo">
+	           			 <a href="http://mall.sdrcu.com/MallWeb/finance/ElectronicBank2.html"><img class="lazy" data-original="http://pic.sdrcu.com/fileServer/files/image/pc/2016/11/01/914/apk/20161101111109340HFilCJXV.jpg" width="202px;" height="109px;" src=""></a> <a href="http://mall.sdrcu.com/MallWeb/finance/ElectronicBank3.html"><img class="lazy" data-original="http://pic.sdrcu.com/fileServer/files/image/pc/2016/11/01/914/apk/201611011111225032BPd3wbj.jpg" width="202px;" height="109px;" src=""></a> <a href="http://mall.sdrcu.com/MallWeb/finance/ElectronicBank6.html"><img class="lazy" data-original="http://pic.sdrcu.com/fileServer/files/image/pc/2016/11/01/914/apk/20161101111133724vJmNbKoA.jpg" width="202px;" height="109px;" src=""></a>
+	           		</div>
+	           		<div class="clearfix fl x_sliderInfo">
+	           			 <a href="http://mall.sdrcu.com/MallWeb/finance/ElectronicBank5.html"><img class="lazy" data-original="http://pic.sdrcu.com/fileServer/files/image/pc/2016/11/01/914/apk/20161101111144460qR0LNYJE.jpg" width="202px;" height="109px;" src=""></a> <a href="http://mall.sdrcu.com/MallWeb/finance/ElectronicBank4.html"><img class="lazy" data-original="http://pic.sdrcu.com/fileServer/files/image/pc/2016/11/01/914/apk/20161101111155280ysLgxRPs.jpg" width="202px;" height="109px;" src=""></a> <a href="https://pay.sdrcu.com"><img class="lazy" data-original="http://pic.sdrcu.com/fileServer/files/image/pc/2016/11/01/914/apk/20161101111206860ZYL5fvew.jpg" width="202px;" height="109px;" src=""></a>
+	           		</div>
+           		</div>   
+           		<span class="x_leftBtn" style="display: none; "></span>
+	           	<span class="x_rightBtn"></span>              
+           </div>
+     	</div>
+     </div>
+    	 <div class="sy_gbc_r fl x_adIndexBox">
+	         <div class="x_adBox">
+	         	<div class="ad_top clearfix">
+	         		<span class="ad_Title fl">商城快报</span>
+	         		<a class="fr" id="infoList" href="/MallWeb/agricultural/infoMationdetail_shangcheng.html?id=99&amp;catid=101105">更多&gt;</a>
+	         	</div>
+	         	<div class="ad_infoBox">
+	         		<ul>
+	         			<li><a href="/MallWeb/MallWeb/agricultural/infoMationdetail_shangcheng.html?id=67&amp;catid=101105">【资讯】芯片磁条复合银行卡的磁条交易功能...</a></li>
+					       <li><a href="/MallWeb/MallWeb/agricultural/infoMationdetail_shangcheng.html?id=65&amp;catid=101105">【资讯】快递又有新规定！网上买这些商品可...</a></li>
+					       <li><a href="/MallWeb/MallWeb/agricultural/infoMationdetail_shangcheng.html?id=63&amp;catid=101105">【资讯】电信诈骗盯上开学季 四类诈骗需警...</a></li>
+					       
+	         		</ul>
+	         	</div>
+	         </div>
+	         <div class="x_adBox">
+	         	<div class="ad_top clearfix">
+	         		<span class="ad_Title color_origin fl">三农资讯</span>
+	         		<a class="fr" id="infoList" href="/MallWeb/agricultural/infoMationdetail_sannong.html?id=99&amp;catid=101106">更多&gt;</a>
+	         	</div>
+	         	<div class="ad_infoBox">
+	         		<ul>
+	         			<li><a href="/MallWeb/MallWeb/agricultural/infoMationdetail_sannong.html?id=66&amp;catid=101106">【三农】农业部专家释疑：使用植物激素的草...</a></li>
+					       <li><a href="/MallWeb/MallWeb/agricultural/infoMationdetail_sannong.html?id=64&amp;catid=101106">【三农】春耕临近今年到底种什么？来看专家...</a></li>
+					       <li><a href="/MallWeb/MallWeb/agricultural/infoMationdetail_sannong.html?id=62&amp;catid=101106">【资讯】中央一号文件连续14年聚焦三农 ...</a></li>
+					       
+	         		</ul>
+	         	</div>
+	         </div>
+	         <div class="x_adBox">
+	         	<div class="ad_top clearfix">
+	         		<span class="ad_Title color_red fl">视频兴农</span>
+	         		<a class="fr" id="infoList" href="/MallWeb/agricultural/infoMationdetail_shipin.html?id=99&amp;catid=101107">更多&gt;</a>
+	         	</div>
+	         	<div class="ad_infoBox">
+	         		<ul>
+	         			<li><a href="http://www.saas.ac.cn/saas/?content-296.html" target="_blank">【视频】鲁禽3号麻鸡</a></li>
+					       <li><a href="http://www.saas.ac.cn/saas/?content-295.html" target="_blank">【视频】鲁农1号猪的选育与推广</a></li>
+					       <li><a href="http://www.saas.ac.cn/saas/?content-1646.html" target="_blank">【视频】苹果优质高产配套栽培技术</a></li>
+					       
+	         		</ul>
+	         	</div>
+	         </div>
+          
+     </div>
+</div>
+<div class="area m-t-20 clearfix">
+  
+  <div class="sy_center2_l fl">
+		<h2>
+          <span class="sy_center2_lh">金融产品</span>
+          <span>贷款</span>
+          <span>理财</span>
+          <span>融资</span>
+       </h2>
+       <table cellpadding="0" cellspacing="0" class="sy_center10_table m-t-15">
+       
+           <tbody><tr>
+              <td>
+				<a id="daikuan" href="javascript:void(0);" cursor="pointer" title=""><img class="lazy" data-original="http://pic.sdrcu.com/fileServer/files/image/pc/2016/11/01/914/apk/201611011750055203S2nOJ63.jpg" width="292" height="151" src=""></a>
+               </td>
+              <td>
+                 <div class="sy_center2_lp">
+                    <a target="_blank" href="http://mall.sdrcu.com/MallWeb/financeList/financelist.html" cursor="pointer" title=""><img class="lazy" data-original="http://pic.sdrcu.com/fileServer/files/image/pc/2016/11/01/914/apk/20161101175016488GwpXR9qa.jpg" width="292" height="151" src=""></a>
+                 </div>
+              </td>
+              <td>
+                 <a target="_blank" href="http://mall.sdrcu.com/MallWeb/product/proDetail.html?id=20170308171139000001" cursor="pointer" title=""><img class="lazy" data-original="http://pic.sdrcu.com/fileServer/files/image/pc/2017/03/09/920/apk/20170309102919931tW9gigNa.jpg" width="292" height="151" src=""></a>
+              </td>
+           </tr>
+           <tr>
+              <td>
+                 <div class="sy_center2_lp">
+                    <a target="_blank" href="https://pbank.sdrcu.com/pweb/prelogin.do?_locale=zh_CN&amp;BankId=305100001008&amp;LoginType=R" cursor="pointer" title=""><img class="lazy" data-original="http://pic.sdrcu.com/fileServer/files/image/pc/2016/11/01/914/apk/20161101175033659bGJZjY6c.jpg" width="292" height="151" src=""></a>
+                 </div>
+              </td>
+              <td>
+                 <div class="sy_center2_lp">
+                    <a target="_blank" href="https://pbank.sdrcu.com/pweb/prelogin.do?_locale=zh_CN&amp;BankId=305100001008&amp;LoginType=R" cursor="pointer" title=""><img class="lazy" data-original="http://pic.sdrcu.com/fileServer/files/image/pc/2016/11/01/914/apk/2016110117505328416ioAIyE.jpg" width="292" height="151" src=""></a>
+                 </div>
+              </td>
+              <td>
+                 <div class="sy_center2_lp">
+                    <a target="_blank" href="http://mall.sdrcu.com/MallWeb/product/proDetail.html?id=20170122115828000001" cursor="pointer" title=""><img class="lazy" data-original="http://pic.sdrcu.com/fileServer/files/image/pc/2017/03/09/920/apk/20170309103129463JJVwCQj8.jpg" width="292" height="151" src=""></a>
+                 </div>
+              </td>
+           </tr>
+       </tbody></table>
+   </div>
+  
+   <div class="sy_center1r fr">
+         <h2 class="clearfix">
+            <span class="fl">便民缴费</span>
+            <span class="sy_center1r7 fr">
+                <!--暂时去掉 <i class="sy_center1r5 fl"></i>
+                <i class="sy_center1r1 fr"></i> -->
+            </span>
+          </h2>
+          <div class="sy_center1r4">
+              <ul>
+                  <li>
+                    <table cellpadding="0" cellspacing="0">
+                         <tbody><tr class="sy_center1r7">
+                            <td width="30%">
+                              <a href="./choujian.jsp" class="sy_mouse1">
+                               <img src="images/sy_icon11.png" width="26" height="39" class="sy_syimg1" style="margin-bottom:16px;/">
+                               <p>话费充值</p>
+                              </a>
+                            </td>
+                            <td width="30%">
+                              <a href="./choujian.jsp" class="sy_mouse2">
+                               <img src="images/sy_icon71.png" width="30" height="44">
+                               <p>物业费</p>
+                              </a>
+                            </td>
+                            <td width="30%">
+                              <a href="./choujian.jsp" class="sy_mouse3">
+                               <img src="images/sy_icon31.png" width="40" height="36" style="margin-bottom:20px;">
+                               <p>取暖费</p>
+                              </a>
+                            </td>
+                         </tr>
+                         <tr>
+                            <td width="30%">
+                              <a href="./choujian.jsp" class="sy_mouse4">
+                               <img src="images/sy_icon41.png" width="29" height="38">
+                               <p>电费</p>
+                              </a>
+                            </td>
+                            <td width="30%">
+                             <a href="./choujian.jsp" class="sy_mouse5">
+                               <img src="images/sy_icon51.png" width="31" height="40">
+                               <p>水费</p>
+                              </a>
+                            </td>
+                            <td width="30%">
+                              <a href="http://www.ly.com/huochepiao" class="sy_mouse7">
+                               <img src="images/sy_icon61.png" width="30" height="44">
+                               <p>同程旅游</p>
+                              </a>
+                            </td>
+                         </tr>
+                     </tbody></table>
+                 </li>
+                  <!-- <li> 暂时隐藏
+                    <table cellpadding="0" cellspacing="0">
+                         <tr class="sy_center1r3">
+                            <td width="30%">
+                              <a href="./choujian.jsp" class="sy_mouse6">
+                               <img src="images/sy_icon6.png" width="26" height="39" class="sy_syimg1" style="margin-bottom:16px;/">
+                               <p>有线电视费</p>
+                              </a>
+                            </td>
+                            <td width="30%">
+                              <a href="./choujian.jsp" class="sy_mouse1">
+                               <img src="images/sy_icon11.png" width="30" height="44"/>
+                               <p>话费充值</p>
+                              </a>
+                            </td>
+                            <td class="sy_center1r2" width="30%">
+                              <a href="./choujian.jsp" class="sy_mouse2">
+                               <img src="images/sy_icon71.png" width="40" height="36" style="margin-bottom:20px;" />
+                               <p>物业费</p>
+                              </a>
+                            </td>
+                         </tr>
+                         <tr>
+                            <td width="30%">
+                              <a href="./choujian.jsp" class="sy_mouse3">
+                               <img src="images/sy_icon31.png" width="29" height="38"/>
+                               <p>取暖费</p>
+                              </a>
+                            </td>
+                            <td width="30%">
+                             <a href="./choujian.jsp" class="sy_mouse4">
+                               <img src="images/sy_icon41.png" width="31" height="40"/>
+                               <p>电费</p>
+                              </a>
+                            </td>
+                            <td class="sy_center1r3" width="30%">
+                              <a href="./choujian.jsp"  class="sy_mouse5">
+                               <img src="images/sy_icon51.png" width="40" height="43"/>
+                               <p>水费</p>
+                              </a>
+                            </td>
+                         </tr>
+                     </table>
+                 </li> -->
+              </ul>
+         </div>
+    </div>
+    	
+</div>
+
+<!--center2-->
+    	  
+
+<div class="sy_center2 area"><a href="http://mall.sdrcu.com/MallWeb/shop/index.html?id=2016110233340"> <img class="lazy" data-original="http://pic.sdrcu.com/fileServer/files/image/pc/2017/03/17/914/apk/20170317151411132jRW9U5ni.jpg" width="1200" height="80" src=""></a></div>
+
+
+
+<!--center4-->
+<div class="sy_center44 area clearfix">
+     <div class="sy_center4l fl">
+          <div class="sy_center4lt">
+              <span class="sy_center4ltt">1F</span>
+              <span class="sy_center4ltb">农副产品</span>
+          </div>
+          <div class="sy_center4lb">
+              <div class="sy_center4lbt sy_g_sy clearfix">
+                   <a href="/MallWeb/proList.html?catid=108100" target="_blank">水果</a>
+                   <a href="/MallWeb/proList.html?catid=108101" target="_blank">蔬菜</a>
+                   <a href="/MallWeb/proList.html?catid=108103" target="_blank">海鲜水产</a>
+                   <a href="/MallWeb/proList.html?catid=108102" target="_blank">肉禽</a>
+                   <a href="/MallWeb/proList.html?catid=108104" target="_blank">蛋奶</a>
+                   <a href="/MallWeb/proList.html?catid=108105" target="_blank">粮油副食</a>
+              </div>
+              <div class="sy_center6lbb">
+              
+                   <ul>
+                      	  <li>
+                             <a href="http://mall.sdrcu.com/MallWeb/shop/index.html?id=2016111559917"><img class="lazy" data-original="http://pic.sdrcu.com/fileServer/files/image/pc/2017/01/18/918/apk/201701181425246457xh5Tvln.jpg" width="96" height="38" src=""></a>
+                             <a href="http://mall.sdrcu.com/MallWeb/shop/index.html?id=2016121641789"><img class="lazy" data-original="http://pic.sdrcu.com/fileServer/files/image/pc/2016/12/21/918/apk/20161221084405323yOIjLUWn.jpg" width="96" height="38" src=""></a>
+                             <a href="http://mall.sdrcu.com/MallWeb/shop/index.html?id=2016111636682"><img class="lazy" data-original="http://pic.sdrcu.com/fileServer/files/image/pc/2016/12/21/918/apk/20161221084442761lhGubimd.jpg" width="96" height="38" src=""></a>
+                          </li>
+                          <li>
+                             <a href="http://mall.sdrcu.com/MallWeb/shop/index.html?id=2016110283036"><img class="lazy" data-original="http://pic.sdrcu.com/fileServer/files/image/pc/2016/12/22/918/apk/201612221349396461sLSfMnE.jpg" width="96" height="38" src=""></a>
+                             <a href="http://mall.sdrcu.com/MallWeb/shop/index.html?id=2016121358818"><img class="lazy" data-original="http://pic.sdrcu.com/fileServer/files/image/pc/2016/12/29/918/apk/201612291436089853KX1umXV.jpg" width="96" height="38" src=""></a>
+                             <a href="http://mall.sdrcu.com/MallWeb/shop/index.html?id=2016111555757"><img class="lazy" data-original="http://pic.sdrcu.com/fileServer/files/image/pc/2016/12/21/918/apk/201612210846197310pWcLMv4.jpg" width="96" height="38" src=""></a>
+                          </li>
+                   </ul>
+                   <span class="sy_center6lbb2"></span>
+                   <span class="sy_center6lbb1"></span>
+              </div>
+          </div>
+     </div>
+     <div style="margin-bottom:18px;">
+     	
+		<a href="/MallWeb/proList.html?catid=108" target="_blank" class="sy_gbc_rca fr" style="font-weight: bolder;">更多&gt;&gt;</a>
+	</div>
+     <div class="sy_center4r fr">
+         <table cellpadding="0" cellspacing="0" class="sy_table">
+             <tbody><tr>
+    			               
+                <td width="25%" colspan="2">
+                  <a href="http://mall.sdrcu.com/MallWeb/shop/index.html?id=2016111162847">
+                    <img class="lazy" data-original="http://pic.sdrcu.com/fileServer/files/image/pc/2017/03/31/920/apk/201703311532027755meSwVgQ.jpg" width="468" height="220" src="">
+                  </a>
+                </td>
+                <td width="25%">
+		                  	      
+                   <div class="sy_center4r1">
+                        <a href="http://mall.sdrcu.com/MallWeb/product/proDetail.html?id=20161111160858000001">
+                            <img class="lazy" data-original="http://pic.sdrcu.com/fileServer/files/imageTemp/pc/2017/03/31/920/apk/20170331160411203JjceiJBO.jpg" width="235" height="220" src="">
+                        </a>
+                            <span class="sy_center4r2">
+                              <a href="http://mall.sdrcu.com/MallWeb/product/proDetail.html?id=20161111160858000001">
+                               <span class="sy_center4r3">丰之方精选红小豆</span>
+                              </a>
+                               <span class="sy_center4r4">￥<i>13.50</i></span>
+                               <del>￥<i>19.90</i></del>
+                            </span>
+                        
+                   </div>
+                </td>
+                <td width="25%">
+                   <div class="sy_center4r1">
+                        <a href="http://mall.sdrcu.com/MallWeb/product/proDetail.html?id=20170226134255000001">
+                            <img class="lazy" data-original="http://pic.sdrcu.com/fileServer/files/imageTemp/pc/2017/03/31/920/apk/20170331160500514CLk9vl7w.jpg" width="235" height="220" src="">
+                        </a>
+                            <span class="sy_center4r2">
+                              <a href="http://mall.sdrcu.com/MallWeb/product/proDetail.html?id=20170226134255000001">
+                               <span class="sy_center4r3">山东高筋面粉 小麦面粉 大富豪水饺馒头小麦粉 1kg</span>
+                              </a>
+                               <span class="sy_center4r4">￥<i>8.90</i></span>
+                               <del>￥<i>9.90</i></del>
+                            </span>
+                        
+                   </div>
+                </td>
+             </tr>
+             <tr>
+                <td width="25%"> 
+                    <div class="sy_center4r8">
+                        <a href="http://mall.sdrcu.com/MallWeb/product/proDetail.html?id=20170117085716000001">
+                            <img class="lazy" data-original="http://pic.sdrcu.com/fileServer/files/imageTemp/pc/2017/04/01/914/apk/201704010847033130tfeyJVo.jpg" width="232" height="220" src="">
+                        </a>
+                           <span class="sy_center4r5">
+                               <a href="http://mall.sdrcu.com/MallWeb/product/proDetail.html?id=20170117085716000001" class="sy_center4r6">万金源 土鸡蛋 柴鸡蛋 生态散养 30枚起包邮</a>
+                               <span class="sy_center4r7">￥<i>0.90</i></span>
+                            </span>
+                   </div>
+                </td>
+                <td width="25%"> 
+                    <div class="sy_center4r8">
+                        <a href="http://mall.sdrcu.com/MallWeb/product/proDetail.html?id=20161217212604000001">
+                            <img class="lazy" data-original="http://pic.sdrcu.com/fileServer/files/imageTemp/pc/2017/03/31/920/apk/201703311607261333hI9Vsd3.jpg" width="232" height="220" src="">
+                        </a>
+                           <span class="sy_center4r5">
+                               <a href="http://mall.sdrcu.com/MallWeb/product/proDetail.html?id=20161217212604000001" class="sy_center4r6">春光种植专业合作社 富硒紫薯 纯天然 不打农药 无污染 绿色有机</a>
+                               <span class="sy_center4r7">￥<i>28.00</i></span>
+                            </span>
+                   </div>
+                </td>
+                 <td width="25%"> 
+                    <div class="sy_center4r8">
+                        <a href="http://mall.sdrcu.com/MallWeb/product/proDetail.html?id=20161127095119000001">
+                            <img class="lazy" data-original="http://pic.sdrcu.com/fileServer/files/imageTemp/pc/2017/03/31/920/apk/20170331160812108yHSbmkdI.jpg" width="232" height="220" src="">
+                        </a>
+                           <span class="sy_center4r5">
+                               <a href="http://mall.sdrcu.com/MallWeb/product/proDetail.html?id=20161127095119000001" class="sy_center4r6">【老刘的水果】山东黄金梨5斤天然带皮吃绿色包邮</a>
+                               <span class="sy_center4r7">￥<i>29.90</i></span>
+                            </span>
+                   </div>
+                </td>
+                <td width="25%"> 
+                    <div class="sy_center4r8">
+                        <a href="http://mall.sdrcu.com/MallWeb/product/proDetail.html?id=20170318173247000001">
+                            <img class="lazy" data-original="http://pic.sdrcu.com/fileServer/files/imageTemp/pc/2017/03/31/920/apk/20170331160908694ImJe7Mh8.jpg" width="232" height="220" src="">
+                        </a>
+                           <span class="sy_center4r5">
+                               <a href="http://mall.sdrcu.com/MallWeb/product/proDetail.html?id=20170318173247000001" class="sy_center4r6">【依康斋】山东特产齐鲁名吃全牛宴正宗牛肉熟食礼盒装200*6包邮</a>
+                               <span class="sy_center4r7">￥<i>150.00</i></span>
+                            </span>
+                   </div>
+                </td>
+             </tr>
+         </tbody></table>
+     </div>
+</div>
+
+
+
+<!--center3-->
+<div class="sy_center44 area clearfix">
+     <div class="sy_center4l fl">
+          <div class="sy_center4lt sy_center6lt">
+              <span class="sy_center4ltt">2F</span>
+              <span class="sy_center4ltb">农用物资</span>
+          </div>
+          <div class="sy_center4lb">
+              <div class="sy_center4lbt clearfix">
+                   <a href="/MallWeb/proList.html?catid=111100" target="_blank">化肥</a>
+                   <a href="/MallWeb/proList.html?catid=111101100" target="_blank">种子</a>
+                   <a href="/MallWeb/proList.html?catid=111107" target="_blank">农业机械</a>
+                   <a href="/MallWeb/proList.html?catid=111102" target="_blank">农药</a>
+                   <a href="/MallWeb/proList.html?catid=111105" target="_blank">饲料</a>
+                   <a href="/MallWeb/proList.html?catid=111106" target="_blank">农业工具</a>
+              </div>
+              <div class="sy_center4lbb">
+              
+                  
+                       <ul>
+                          <li>
+                             <a href="http://mall.sdrcu.com/MallWeb/choujian.jsp"><img class="lazy" data-original="http://pic.sdrcu.com/fileServer/files/image/pc/2016/09/27/918/apk/20160927101927856cIzt35MA.jpg" width="96" height="38" src=""></a>
+                             <a href="http://mall.sdrcu.com/MallWeb/shop/index.html?id=2016112166607"><img class="lazy" data-original="http://pic.sdrcu.com/fileServer/files/image/pc/2016/11/30/918/apk/20161130144609540psfhrmfe.jpg" width="96" height="38" src=""></a>
+                             <a href="http://mall.sdrcu.com/MallWeb/shop/index.html?id=2016102713659"><img class="lazy" data-original="http://pic.sdrcu.com/fileServer/files/image/pc/2016/11/04/918/apk/20161104115133805wImBuNnO.jpg" width="96" height="38" src=""></a>
+                          </li>
+                          <li>
+                             <a href="http://mall.sdrcu.com/MallWeb/choujian.jsp"><img class="lazy" data-original="http://pic.sdrcu.com/fileServer/files/image/pc/2016/09/27/918/apk/20160927102225642GX9X01zX.jpg" width="96" height="38" src=""></a>
+                             <a href="http://mall.sdrcu.com/MallWeb/shop/index.html?id=2016112166607"><img class="lazy" data-original="http://pic.sdrcu.com/fileServer/files/image/pc/2016/11/30/918/apk/20161130144835444QsDNEXbV.jpg" width="96" height="38" src=""></a>
+                             <a href="http://mall.sdrcu.com/MallWeb/shop/index.html?id=2016102713659"><img class="lazy" data-original="http://pic.sdrcu.com/fileServer/files/image/pc/2016/11/04/918/apk/20161104115142881sU1r5G4R.jpg" width="96" height="38" src=""></a>
+                          </li>
+                       </ul>
+                   
+                   <span class="sy_center4lbb2"></span>
+                   <span class="sy_center4lbb1"></span>
+              </div>
+          </div>
+     </div>
+     <div style="margin-bottom:18px;">
+     	
+		<a href="/MallWeb/proList.html?catid=111" target="_blank" class="sy_gbc_rca fr" style="font-weight: bolder;">更多&gt;&gt;</a>
+	</div>
+     <div class="sy_center4r fr">
+
+         <table cellpadding="0" cellspacing="0" class="sy_table">
+             <tbody><tr>
+    				             
+                <td width="25%" colspan="2">
+                	  <a href="http://mall.sdrcu.com/MallWeb/proList.html?catid=111" target="_blank"><img class="lazy" data-original="http://pic.sdrcu.com/fileServer/files/image/pc/2017/03/15/914/apk/20170315171910482K4nqazL7.jpg" width="468" height="220" src=""></a>  
+                </td>
+			                     
+                <td width="25%">
+                   <div class="sy_center4r1">
+                        <a href="http://mall.sdrcu.com/MallWeb/product/proDetail.html?id=20161024212846000001" target="_blank">
+                            <img class="lazy" data-original="http://pic.sdrcu.com/fileServer/files/imageTemp/pc/2017/03/22/914/apk/201703221809104940tqntn8T.jpg" width="235" height="220" src="">
+                        </a>
+                            <span class="sy_center4r2">
+                              <a href="http://mall.sdrcu.com/MallWeb/product/proDetail.html?id=20161024212846000001" target="_blank">
+                               <span class="sy_center4r3">纸上种菜芽苗菜种子育苗盘 种植盘水培芽苗菜盘芽菜种子天天芽苗菜</span>
+                              </a>
+                               <span class="sy_center4r4">￥<i>28.00</i></span>
+                               <del>￥<i>29.90</i></del>
+                            </span>
+                        
+                   </div>
+                </td>
+                <td width="25%">
+                   <div class="sy_center4r1">
+                        <a href="http://mall.sdrcu.com/MallWeb/product/proDetail.html?id=20170315100708000001" target="_blank">
+                            <img class="lazy" data-original="http://pic.sdrcu.com/fileServer/files/imageTemp/pc/2017/03/23/920/apk/20170323112403674vQXryulW.jpg" width="235" height="220" src="">
+                        </a>
+                            <span class="sy_center4r2">
+                              <a href="http://mall.sdrcu.com/MallWeb/product/proDetail.html?id=20170315100708000001" target="_blank">
+                               <span class="sy_center4r3">黛比 多肉微景观 观赏盆景花卉 可批发零售 满38元包邮</span>
+                              </a>
+                               <span class="sy_center4r4">￥<i>4.60</i></span>
+                               <del>￥<i>5.50</i></del>
+                            </span>
+                        
+                   </div>
+                </td>
+             </tr>
+             <tr>
+                <td width="25%"> 
+                    <div class="sy_center4r8">
+                        <a href="http://mall.sdrcu.com/MallWeb/product/proDetail.html?id=20161122120412000001" target="_blank">
+                            <img class="lazy" data-original="http://pic.sdrcu.com/fileServer/files/imageTemp/pc/2017/03/22/914/apk/201703221810247589BL1JO9N.jpg" width="232" height="220" src="">
+                        </a>
+                            <span class="sy_center4r5">
+                               <a href="http://mall.sdrcu.com/MallWeb/product/proDetail.html?id=20161122120412000001" class="sy_center4r6" target="_blank">有机肥 果树专用 生物肥 有机水果 肥料 生态 绿色 健康 山杠子</a>
+                               <span class="sy_center4r7">￥<i>130.00</i></span>
+                            </span>
+                       
+                   </div>
+                </td>
+                <td width="25%"> 
+                    <div class="sy_center4r8">
+                        <a href="http://mall.sdrcu.com/MallWeb/product/proDetail.html?id=20170309161351000001" target="_blank">
+                            <img class="lazy" data-original="http://pic.sdrcu.com/fileServer/files/imageTemp/pc/2017/03/22/914/apk/20170322181124854SpcCb4kZ.jpg" width="232" height="220" src="">
+                        </a>
+                            <span class="sy_center4r5">
+                               <a href="http://mall.sdrcu.com/MallWeb/product/proDetail.html?id=20170309161351000001" class="sy_center4r6" target="_blank">新农道固体微生物菌剂40Kg-适用作物：蔬菜、果树等经济作物</a>
+                               <span class="sy_center4r7">￥<i>90.00</i></span>
+                            </span>
+                       
+                   </div>
+                </td>
+                <td width="25%"> 
+                    <div class="sy_center4r8">
+                        <a href="http://mall.sdrcu.com/MallWeb/product/proDetail.html?id=20161124140916000001" target="_blank">
+                            <img class="lazy" data-original="http://pic.sdrcu.com/fileServer/files/imageTemp/pc/2017/03/22/914/apk/20170322181208680cz29dvYM.jpg" width="232" height="220" src="">
+                        </a>
+                            <span class="sy_center4r5">
+                               <a href="http://mall.sdrcu.com/MallWeb/product/proDetail.html?id=20161124140916000001" class="sy_center4r6" target="_blank">【嘉施利出品】洋洋牌复合肥料 玉米针对性配方26-6-8</a>
+                               <span class="sy_center4r7">￥<i>110.00</i></span>
+                            </span>
+                       
+                   </div>
+                </td>
+                 <td width="25%"> 
+                    <div class="sy_center4r8">
+                        <a href="http://mall.sdrcu.com/MallWeb/product/proDetail.html?id=20161124135704000001" target="_blank">
+                            <img class="lazy" data-original="http://pic.sdrcu.com/fileServer/files/imageTemp/pc/2017/03/22/914/apk/20170322181243701oj4NeRjE.jpg" width="232" height="220" src="">
+                        </a>
+                            <span class="sy_center4r5">
+                               <a href="http://mall.sdrcu.com/MallWeb/product/proDetail.html?id=20161124135704000001" class="sy_center4r6" target="_blank">【嘉施利出品】洋洋牌硝铵磷30-4-0复合肥料</a>
+                               <span class="sy_center4r7">￥<i>100.00</i></span>
+                            </span>
+                       
+                   </div>
+                </td>
+             </tr>
+         </tbody></table>
+     </div>
+</div>
+
+
+<!--center5-->
+    				  
+
+<div class="sy_center5 area"><a href="http://mall.sdrcu.com/MallWeb/shop/index.html?id=2017022384335"> <img class="lazy" data-original="http://pic.sdrcu.com/fileServer/files/image/pc/2017/03/17/914/apk/20170317160712198jM5yQfJJ.jpg" width="1200" height="80" src=""></a></div>     
+
+<!--center6-->
+<div class="sy_center44 area clearfix">
+     <div class="sy_center4l fl">
+          <div class="sy_center4lt sy_center3lt">
+              <span class="sy_center4ltt">3F</span>
+              <span class="sy_center4ltb">精品悦购</span>
+          </div>
+          <div class="sy_center4lb">
+              <div class="sy_center4lbt sy_g_sy clearfix">
+                   <a href="/MallWeb/proList.html?catid=198" target="_blank">家电中心</a>
+                   <a href="/MallWeb/proList.html?catid=116" target="_blank">电脑办公</a>
+                   <a href="/MallWeb/proList.html?catid=117" target="_blank">家居家装</a>
+                   <a href="/MallWeb/proList.html?catid=118" target="_blank">个护母婴</a>
+                   <a href="/MallWeb/proList.html?catid=121" target="_blank">运动户外</a>
+                   <a href="/MallWeb/proList.html?catid=109" target="_blank">服饰箱包</a>
+              </div>
+              <div class="sy_center7lbb">
+              
+                   <ul>         
+                      <li>
+                         <a href="http://mall.sdrcu.com/MallWeb/shop/goodsList.html?id=2016091255294#"><img class="lazy" data-original="http://pic.sdrcu.com/fileServer/files/image/pc/2016/11/04/918/apk/20161104145325006hXQTlPGA.jpg" width="96" height="38" src=""></a>
+                         <a href="http://mall.sdrcu.com/MallWeb/shop/index.html?id=2016102246190"><img class="lazy" data-original="http://pic.sdrcu.com/fileServer/files/image/pc/2016/11/04/918/apk/20161104115102805KCJ66nwg.jpg" width="96" height="38" src=""></a>
+                         <a href="http://mall.sdrcu.com/MallWeb/shop/index.html?id=2016120960771"><img class="lazy" data-original="http://pic.sdrcu.com/fileServer/files/image/pc/2017/01/18/918/apk/20170118142625834CqzdNitn.jpg" width="96" height="38" src=""></a>
+                      </li>
+                      <li>
+                         <a href="http://mall.sdrcu.com/MallWeb/shop/index.html?id=2016091411300"><img class="lazy" data-original="http://pic.sdrcu.com/fileServer/files/image/pc/2016/11/07/918/apk/201611071025054643JfJTeYM.jpg" width="96" height="38" src=""></a>
+                         <a href="http://mall.sdrcu.com/MallWeb/shop/index.html?id=2016102212358"><img class="lazy" data-original="http://pic.sdrcu.com/fileServer/files/image/pc/2016/11/07/918/apk/201611071025250682z4tFt1m.jpg" width="96" height="38" src=""></a>
+                         <a href="http://mall.sdrcu.com/MallWeb/shop/index.html?id=2016091716126"><img class="lazy" data-original="http://pic.sdrcu.com/fileServer/files/image/pc/2016/09/30/914/apk/20160930154842995BLE7ZNod.jpg" width="96" height="38" src=""></a>
+                      </li>
+                   </ul>
+                   <span class="sy_center7lbb2"></span>
+                   <span class="sy_center7lbb1"></span>
+            </div>
+          </div>
+     </div>
+     <div style="margin-bottom:18px;">
+     	
+		<a href="/MallWeb/proList.html" target="_blank" class="sy_gbc_rca fr" style="font-weight: bolder;">更多&gt;&gt;</a>
+	</div>
+     <div class="sy_center4r fr">
+         <table cellpadding="0" cellspacing="0" class="sy_table">
+    	  
+             <tbody><tr>
+                <td width="25%" colspan="2">
+                  <a href="http://mall.sdrcu.com/MallWeb/shop/index.html?id=2017022312930">
+                    <img class="lazy" data-original="http://pic.sdrcu.com/fileServer/files/image/pc/2017/03/31/920/apk/20170331153520552dg4u5Eg0.jpg" width="468" height="220" src="">
+                  </a>
+                </td>
+                <td width="25%">
+                         
+                   <div class="sy_center4r1">
+                        <a href="http://mall.sdrcu.com/MallWeb/product/proDetail.html?id=20161204143149000001">
+                            <img class="lazy" data-original="http://pic.sdrcu.com/fileServer/files/imageTemp/pc/2017/03/31/920/apk/20170331161047623M36b3jOW.jpg" width="235" height="220" src="">
+                        </a>
+                            <span class="sy_center4r2">
+                              <a href="http://mall.sdrcu.com/MallWeb/product/proDetail.html?id=20161204143149000001">
+                               <span class="sy_center4r3">100%天然乳胶枕 释压按摩 送天鹅绒枕套</span>
+                              </a>
+                               <span class="sy_center4r4">￥<i>129.00</i></span>
+                               <del>￥<i>399.00</i></del>
+                            </span>
+                        
+                   </div>
+                </td>
+                <td width="25%">
+                   <div class="sy_center4r1">
+                        <a href="http://mall.sdrcu.com/MallWeb/product/proDetail.html?id=20161217124536000001">
+                            <img class="lazy" data-original="http://pic.sdrcu.com/fileServer/files/imageTemp/pc/2017/03/31/920/apk/20170331161810756AgaItUch.jpg" width="235" height="220" src="">
+                        </a>
+                            <span class="sy_center4r2">
+                              <a href="http://mall.sdrcu.com/MallWeb/product/proDetail.html?id=20161217124536000001">
+                               <span class="sy_center4r3">正宇旗舰店实木衣架挂衣架衣帽架阳台落地衣架</span>
+                              </a>
+                               <span class="sy_center4r4">￥<i>128.00</i></span>
+                               <del>￥<i>208.00</i></del>
+                            </span>
+                        
+                   </div>
+                </td>
+             </tr>
+             <tr>
+                <td width="25%"> 
+                    <div class="sy_center4r8">
+                        <a href="http://mall.sdrcu.com/MallWeb/product/proDetail.html?id=20161109152439000001">
+                            <img class="lazy" data-original="http://pic.sdrcu.com/fileServer/files/imageTemp/pc/2017/03/31/920/apk/20170331161851259WMBQKt59.jpg" width="232" height="220" src="">
+                        </a>
+                            <span class="sy_center4r5">
+                               <a href="http://mall.sdrcu.com/MallWeb/product/proDetail.html?id=20161109152439000001" class="sy_center4r6">曹县田美家居 收纳篓 收纳衣篓 时尚收衣篓</a>
+                               <span class="sy_center4r7">￥<i>45.00</i></span>
+                            </span>
+                       
+                   </div>
+                </td>
+                <td width="25%"> 
+                    <div class="sy_center4r8">
+                        <a href="http://mall.sdrcu.com/MallWeb/product/proDetail.html?id=20161018142654000001">
+                            <img class="lazy" data-original="http://pic.sdrcu.com/fileServer/files/imageTemp/pc/2017/03/31/920/apk/201703311619443961AA6gJ64.jpg" width="232" height="220" src="">
+                        </a>
+                            <span class="sy_center4r5">
+                               <a href="http://mall.sdrcu.com/MallWeb/product/proDetail.html?id=20161018142654000001" class="sy_center4r6">路力优品抽纸盒装面巾纸盒抽纸硬盒整箱批发汽车抽纸盒整箱包邮</a>
+                               <span class="sy_center4r7">￥<i>3.10</i></span>
+                            </span>
+                       
+                   </div>
+                </td>
+                 <td width="25%"> 
+                    <div class="sy_center4r8">
+                        <a href="http://mall.sdrcu.com/MallWeb/product/proDetail.html?id=20161127020040000001">
+                            <img class="lazy" data-original="http://pic.sdrcu.com/fileServer/files/imageTemp/pc/2017/03/30/914/apk/20170330125621302WwhkdBdU.jpg" width="232" height="220" src="">
+                        </a>
+                            <span class="sy_center4r5">
+                               <a href="http://mall.sdrcu.com/MallWeb/product/proDetail.html?id=20161127020040000001" class="sy_center4r6">泉林本色母婴专用抽纸 不漂白纸巾 面巾纸 健康抽纸巾180抽*15包五提</a>
+                               <span class="sy_center4r7">￥<i>56.90</i></span>
+                            </span>
+                       
+                   </div>
+                </td>
+                <td width="25%"> 
+                    <div class="sy_center4r8">
+                        <a href="http://mall.sdrcu.com/MallWeb/product/proDetail.html?id=20161216205929000001">
+                            <img class="lazy" data-original="http://pic.sdrcu.com/fileServer/files/imageTemp/pc/2017/03/31/920/apk/20170331162130050PNqThwgp.jpg" width="232" height="220" src="">
+                        </a>
+                            <span class="sy_center4r5">
+                               <a href="http://mall.sdrcu.com/MallWeb/product/proDetail.html?id=20161216205929000001" class="sy_center4r6">baellerry男士长款钱包多功能拉链手拿包欧美男手包批发厂家直销</a>
+                               <span class="sy_center4r7">￥<i>38.80</i></span>
+                            </span>
+                       
+                   </div>
+                </td>
+             </tr>
+         </tbody></table>
+     </div>
+</div>
+<!--center7-->
+    	  
+
+<div class="sy_center2 area" style="margin-bottom:20px;"><a href="https://www.tmall.com"> <img class="lazy" data-original="http://pic.sdrcu.com/fileServer/files/image/pc/2016/09/30/914/apk/20160930174559694lC5n7no4.jpg" width="1200" height="80" src=""></a></div>
+<!--楼层1-->
+<div class="lc">
+	<div class="lc_mian">
+    	<ul>
+    		<li><span class="sp">1楼</span><span class="sp1">食品</span></li>
+    		<li><span class="sp">2楼</span><span class="sp1">图书</span></li>
+    		<li><span class="sp">3楼</span><span class="sp1">旅游</span></li>
+    		<li><span class="sp">4楼</span><span class="sp1">家居</span></li>
+    	</ul>
+    </div>
+</div>
+<script type="text/javascript" src="/MallWeb/js/jquery.lazyload.js?v=1.7.1"></script>
+<script type="text/javascript">
+$(function(){
+    $("img.lazy").lazyload({effect:"fadeIn",threshold:200});
+});
+</script>
+
+
+
+
+
+
+
+ 
+		 
+<meta charset="utf-8">
+<link rel="stylesheet" type="text/css" href="/MallWeb/nx/css/style.css">
+<link rel="stylesheet" type="text/css" href="/MallWeb/nx/css/mycss.css">
+<link rel="stylesheet" type="text/css" href="/MallWeb/nx/css/public.css">
+<title>尾部页面</title>
+
+<div class="bian_bottom_box" style="margin-top:0px">
+     <div class="bian_bottom area">
+          <ul>
+             <li class="bian_bottom_li">
+                <h3>新手入门</h3>
+                <img src="/MallWeb/nx/image/sd_bian_bline.png" width="121" height="2">
+                <ul>
+                   <li><a href="/MallWeb/helpcenter/first.html?id=14&amp;helpid=11">会员注册</a></li>
+                   <li><a href="/MallWeb/helpcenter/first.html?id=14&amp;helpid=12">智e付注册</a></li>
+                   <li><a href="/MallWeb/helpcenter/first.html?id=14&amp;helpid=14">智e付支付</a></li>
+                   <li><a href="/MallWeb/helpcenter/first.html?id=14&amp;helpid=13">购物流程</a></li>
+                </ul>
+             </li>
+             <li class="bian_bottom_li">
+                <h3>售后服务</h3>
+                <img src="/MallWeb/nx/image/sd_bian_bline.png" width="121" height="2">
+                <ul>
+                   <li><a href="/MallWeb/helpcenter/first.html?id=14&amp;helpid=15">退换货规则</a></li>
+                   <li><a href="/MallWeb/helpcenter/first.html?id=14&amp;helpid=16">维权和举报</a></li>
+                   <li><a href="/MallWeb/helpcenter/first.html?id=14&amp;helpid=10">退款规则</a></li>
+                </ul>
+             </li>
+             <li class="bian_bottom_li">
+                <h3>商户服务</h3>
+                <img src="/MallWeb/nx/image/sd_bian_bline.png" width="121" height="2">
+                <ul>
+                   <li><a href="/MallWeb/helpcenter/first.html?id=14&amp;helpid=18">商户中心</a></li>
+                   <li><a href="/MallWeb/helpcenter/first.html?id=14&amp;helpid=17">商户入驻</a></li>
+                   <li><a href="/MallWeb/helpcenter/first.html?id=14&amp;helpid=30">商户规则</a></li>
+                </ul>
+             </li>
+             <li class="bian_bottom_li">
+                <h3>关于我们</h3>
+                <img src="/MallWeb/nx/image/sd_bian_bline.png" width="121" height="2">
+                <ul>
+                   <li><a href="/MallWeb/helpcenter/first.html?id=14&amp;helpid=19">商城简介</a></li>
+                   <li><a href="/MallWeb/helpcenter/first.html?id=14&amp;helpid=20">常见问题</a></li>
+                   <li><a href="/MallWeb/helpcenter/first.html?id=14&amp;helpid=21">联系我们</a></li>
+                </ul>
+             </li>
+          </ul>
+          
+          <div class="bian_er">
+          	<ul>
+          		<li>
+	              <img src="/MallWeb/Android/image/Android_buyer_0.0.1.png" width="140" height="140">
+	              <img src="/MallWeb/Android/image/Android_zhiefu_0.0.1.png" width="140" height="140">
+	              <ul>
+	              	<li class="erweima">Android智e购&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Android智e付</li>
+	              </ul>
+	            </li>
+            </ul>
+          </div>
+     </div>
+</div>
+<!--copy-->
+<div class="bian_copy_box">
+   <p class="m-t-15"><img src="/MallWeb/nx/image/banquan.gif">2008山东省农村信用社联合社版权所有&nbsp;鲁ICP备12008279号</p>
+   <div style="width:200px;margin:0 auto;">
+       <a target="_blank" href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=37010202000481" style="display:inline-block;text-decoration:none;height:20px;line-height:20px;">
+       <img src="/MallWeb/nx/image/beian.png" style="float:left;">
+       <p style="float:left;height:20px;line-height:20px;margin: 0px 0px 0px 5px;">鲁公网安备 37010202000481号</p>
+       </a>
+   </div>
+</div>
+
+  
+	
+
+<script type="text/javascript">
+	$(document).ready(function(){
+		// 获取当前地址，参数，
+		var href = window.location.href;
+		var referrer = document.referrer;
+		var param ='href:'+ href +' | '+'referrer:'+ referrer;
+		$.post("/MallWeb/pages/index/saveIndexRecords.jsp",{"param":param});
+		
+		$("#J_categorys_category").css("display", "block");
+		$("#nav_san_span").css("display", "block");
+	
+		$("#categorys-hd").mouseover(function() {
+			$("#showcategory").val(1);
+			 $("#nav_san_span").removeClass("nav_san");
+			 $("#nav_san_span").addClass("nav_san2");
+			 $("#J_categorys_category").css("display", "block");
+			 $("#nav_san_span").css("display", "block");
+			 if($("#firstcategory0").html()==""||$("#firstcategory0").html()==null||$("#showcategory").val()==0){
+					//alert($("#showcategory").val())
+					$("#showcategory").val(1);
+				 	//showcategory();
+	
+			 }
+		 });
+		 $("#categorys-hd").mouseout(function() {
+			 $("#nav_san_span").removeClass("nav_san2");
+			 $("#nav_san_span").addClass("nav_san");
+			 $("#nav_san_span").css("display", "block");
+			 $("#J_categorys_category").css("display", "block");
+		 });
+	
+		 $("#J_categorys_category").mouseover(function() {
+			 $("#nav_san_span").removeClass("nav_san");
+			 $("#nav_san_span").addClass("nav_san2");
+			  $("#nav_san_span").css("display", "block");
+			 $("#J_categorys_category").css("display", "block");
+		 });
+		 $("#J_categorys_category").mouseout(function() {
+			 $("#nav_san_span").removeClass("nav_san2");
+			 $("#nav_san_span").addClass("nav_san");
+			  $("#nav_san_span").css("display", "block");
+			 $("#J_categorys_category").css("display", "block");
+		 });
+		 
+		 $("#childcategory").mouseover(function() {
+			 $("#nav_san_span").removeClass("nav_san");
+			 $("#nav_san_span").addClass("nav_san2");
+			  $("#nav_san_span").css("display", "block");
+			 $("#J_categorys_category").css("display", "block");
+		 });
+		 
+		 $("#childcategory").mouseout(function() {
+			 $("#nav_san_span").removeClass("nav_san2");
+			 $("#nav_san_span").addClass("nav_san");
+			  $("#nav_san_span").css("display", "block");
+			 $("#J_categorys_category").css("display", "block");
+		 });
+
+});
+
+</script>
+
+<script type="text/javascript" src="/MallWeb/js/slide.js"></script>
+<script type="text/javascript" src="/MallWeb/js/im.js"></script>
+<link href="http://imweb.sdrcu.com:8055/webim/dialogMini/dialogMini.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="http://imweb.sdrcu.com:8055/webim/js/imfd.js"></script>
+<script type="text/javascript" src="http://imweb.sdrcu.com:8055/webim/js/webi.js"></script>
+<script type="text/javascript" src="http://imweb.sdrcu.com:8055/webim/js/uploadify.js"></script> </body></html>

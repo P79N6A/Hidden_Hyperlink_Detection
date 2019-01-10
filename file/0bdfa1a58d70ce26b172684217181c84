@@ -1,0 +1,421 @@
+<!DOCTYPE html><html><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0">
+    <title>手机充值</title>
+    <link href="/Content/weui-1.1.0.min.css" rel="stylesheet">
+    <link href="/Content/weui-0.4.2.min.css" rel="stylesheet">
+    <link href="/Content/weui.example.css" rel="stylesheet">
+    <script src="/Scripts/jquery-3.0.0.min.js"></script>
+    <script src="http://res.wx.qq.com/open/js/jweixin-1.0.0.js"></script>
+    
+    <link href="/Content/Pay/Pay.css" rel="stylesheet">
+        <script>$(document).ready(function () { $('#divNotWxTip').show(); }); </script>
+    <script>
+    var appId = "wx833a6ab96a1fe473";
+    var TimeStamp, NonceStr, Signature;
+
+    var shareTitle; //分享图片
+    var shareContent; //分享url
+    var shareUrl; //分享标题
+    var shareImageUrl; //分享图片地址
+
+
+    //设置分享信息
+    function resetShareInfo(title, content, url, imgurl) {
+        shareTitle = title;
+        shareContent = content;
+        shareUrl = url;
+        shareImageUrl = imgurl; 
+        resetWxShare();
+        try {
+            window.Android.shareTitle(shareTitle);
+            window.Android.shareString(shareContent);
+            window.Android.shareUrl(shareUrl);
+            window.Android.shareImg(shareImageUrl);
+        } catch (e) {
+        }
+    }
+
+    $.ajax({
+        type: "POST",
+        url: "/WeiXin/GetWeiXinShare",
+        data: { sigUrl: window.location.href },
+        success: function (msg) {
+            TimeStamp = msg.TimeStamp;
+            NonceStr = msg.NonceStr;
+            Signature = msg.Signature;
+            wx.config({
+                debug: false,
+                appId: appId,
+                timestamp: TimeStamp,
+                nonceStr: NonceStr,
+                signature: Signature,
+                jsApiList: [
+                    'checkJsApi',
+                    'onMenuShareTimeline',
+                    'onMenuShareAppMessage',
+                    'onMenuShareQQ',
+                    'onMenuShareWeibo',
+                    'hideMenuItems',
+                    'showMenuItems',
+                    'hideAllNonBaseMenuItem',
+                    'showAllNonBaseMenuItem',
+                    'translateVoice',
+                    'startRecord',
+                    'stopRecord',
+                    'onRecordEnd',
+                    'playVoice',
+                    'pauseVoice',
+                    'stopVoice',
+                    'uploadVoice',
+                    'downloadVoice',
+                    'chooseImage',
+                    'previewImage',
+                    'uploadImage',
+                    'downloadImage',
+                    'getNetworkType',
+                    'openLocation',
+                    'getLocation',
+                    'hideOptionMenu',
+                    'showOptionMenu',
+                    'closeWindow',
+                    'scanQRCode',
+                    'chooseWXPay',
+                    'openProductSpecificView',
+                    'addCard',
+                    'chooseCard',
+                    'openCard'
+                ]
+            });
+
+        },
+        error: function () {
+            //alert("请求出错或超时");
+        }
+    });
+
+    wx.ready(function () {
+        resetWxShare();
+        wx.checkJsApi({
+            jsApiList: ['addCard'], // 需要检测的JS接口列表，所有JS接口列表见附录2,
+            success: function (res) {
+                //可以用
+                if (res != null && res.checkResult != undefined) {
+                    //页面的方法，存在则调用。
+                    if (typeof CheckAddCard === 'function') {
+                        CheckAddCard(res.checkResult.addCard);
+                    }
+                }
+                // 以键值对的形式返回，可用的api值true，不可用为false
+                // 如：{"checkResult":{"chooseImage":true},"errMsg":"checkJsApi:ok"}
+            }
+        });
+    });
+
+    function resetWxShare() {
+        wx.onMenuShareTimeline({
+            title: shareTitle, // 分享标题
+            desc:shareContent, // 分享描述
+            link: shareUrl, // 分享链接
+            imgUrl: shareImageUrl, // 分享图标
+            success: function () {
+                //alert('success'); // 用户确认分享后执行的回调函数
+            },
+            cancel: function () {
+                //alert('cancel'); // 用户取消分享后执行的回调函数
+            }
+        });
+
+        wx.onMenuShareAppMessage({
+            title: shareTitle, // 分享标题
+            desc: shareContent, // 分享描述
+            link: shareUrl, // 分享链接
+            imgUrl: shareImageUrl, // 分享图标
+            type: 'link', // 分享类型,music、video或link，不填默认为link
+            dataUrl: '', // 如果type是music或video，则要提供数据链接，默认为空
+            success: function () {
+                //alert('success'); // 用户确认分享后执行的回调函数
+            },
+            cancel: function () {
+                //alert('cancel'); // 用户取消分享后执行的回调函数
+            }
+        });
+    }
+</script>
+    <script>
+        $(document).ready(function () {
+            shareTitle = '黑龙江移动手机充值交费';
+            shareContent = '黑龙江移动官方充值渠道，10秒到账，值得信赖！';
+            shareUrl = 'http://fwh.hl139.net/r/pay';
+            shareImageUrl = "http://fwh.hl139.net/Content/Bind/images/logo108.png";
+            resetShareInfo(shareTitle, shareContent, shareUrl, shareImageUrl);
+        });
+    </script>
+    <script>
+        //显示提示信息,icontype,值：success、success_circle、success_nocircle、info、waiting、waiting_circle、warn、download、info_circle、cancel、search、clear等
+        function ShowResult(icontype, desc, title) {
+            $('#resultIcon').addClass('weui_icon_' + icontype);
+            $('#resultDesc').text(desc);
+            $('#resultTitle').text(title);
+            $('#home').hide();
+            $('#loadingToast').hide();
+            $('#divResult').show();
+            if (icontype === "success") {
+                $('#resultBtn2').show();
+            } else {
+                $('#resultBtn2').hide();
+            }
+        }
+
+        function ShowTip(desc, title) {
+            $('#divTipTitle').text(title);
+            $('#divTipBody').text(desc);
+            $('#loadingToast').hide();
+            $('#divTipInfo').show();
+        }
+
+        //调用微信JS api 支付
+        function jsApiCall() {
+            var mobile = $('#txtMobile').val();
+            var amount = $('#hdAmount').val();
+            $.ajax({
+                type: "POST",
+                url: "/Pay",
+                data: "mobile=" + mobile + "&amount=" + amount,
+                success: function (result) {
+                    if (result.errCode != 0) {
+                        ShowTip('生成支付订单时出错，请稍后再试。错误信息：' + result.errMsg);
+                        return;
+                    }
+                    WeixinJSBridge.invoke('getBrandWCPayRequest', result.Data, function (res) {
+                        if (res.err_msg.indexOf("ok") >= 0) {
+                            ShowResult("success", "充值金额：" + amount + "元，预计将在10分钟内到账，敬请留意短信提醒。感谢您使用手机充值！", "充值成功");
+                        } else {
+                            ShowResult("cancel", "很抱歉，充值失败，请稍后再试！", "充值失败");
+                        }
+                    });
+                },
+                error: function (result) {
+                    ShowTip('很抱歉，生成支付订单时出错，请稍后再试！错误信息：' + result);
+                }
+            });
+        }
+
+        function Charge() {
+            var mobile = $('#txtMobile').val();
+            var amount = $('#hdAmount').val(); //TODO: 选择金额
+            if (mobile.length != 11) {
+                ShowTip('请输入您的号码！');
+                return;
+            }
+            if (amount.length < 1) {
+                ShowTip('请选择交费金额！');
+                return;
+            }
+            $('#loadingToast').show();
+            if (typeof WeixinJSBridge == "undefined") {
+                if (document.addEventListener) {
+                    document.addEventListener('WeixinJSBridgeReady', jsApiCall, false);
+                } else if (document.attachEvent) {
+                    document.attachEvent('WeixinJSBridgeReady', jsApiCall);
+                    document.attachEvent('onWeixinJSBridgeReady', jsApiCall);
+                }
+            } else {
+                jsApiCall();
+            }
+        }
+
+        function SelectItem(index, amount, count) {
+            $('#hdAmount').val(amount);
+            for (var i = 0; i < count; i++) {
+                if (i == index) {
+                    $('#item_' + i).addClass("choose");
+                } else {
+                    $('#item_' + i).removeClass("choose");
+                }
+            }
+        }
+    </script>
+
+</head>
+<body>
+    <div>
+        <div class="container">
+    <!--BEGIN home-->
+    <div class="home" id="home">
+        <div class="hd">
+            <h1 class="page_title">手机充值</h1>
+            <p class="page_desc">本页面仅为黑龙江移动号码提供充值服务</p>
+        </div>
+        <div class="bd">
+            <div class="weui_cells">
+                <div class="weui_cell">
+                    <div class="weui_cell_bd weui_cell_primary">
+                        <p>充值号码</p>
+                    </div>
+                    <div class="weui_cell_bd">
+                        <input id="txtMobile" class="weui_input" pattern="[0-9]11" placeholder="请输入手机号码" value="" type="number">
+                        <input id="hdAmount" type="hidden">
+                    </div>
+                </div>
+            </div>
+            <div class="weui_cells_title">请选择交费金额</div>
+            <div class="weui_cells">
+                <div class="prepaid">
+                        <div class="prepaid-small">
+                            <a href="javascript:SelectItem(0,10.00,6);" id="item_0">
+                                <div class="text-20">
+                                    <span>10.00</span>元
+                                </div>
+                                <div class="text-12 top-5">
+                                    售价<span>9.98</span>元
+                                </div>
+                            </a>
+                        </div>
+                        <div class="prepaid-small">
+                            <a href="javascript:SelectItem(1,30.00,6);" id="item_1">
+                                <div class="text-20">
+                                    <span>30.00</span>元
+                                </div>
+                                <div class="text-12 top-5">
+                                    售价<span>29.94</span>元
+                                </div>
+                            </a>
+                        </div>
+                        <div class="prepaid-small">
+                            <a href="javascript:SelectItem(2,50.00,6);" id="item_2">
+                                <div class="text-20">
+                                    <span>50.00</span>元
+                                </div>
+                                <div class="text-12 top-5">
+                                    售价<span>49.90</span>元
+                                </div>
+                            </a>
+                        </div>
+                        <div class="prepaid-small">
+                            <a href="javascript:SelectItem(3,100.00,6);" id="item_3">
+                                <div class="text-20">
+                                    <span>100.00</span>元
+                                </div>
+                                <div class="text-12 top-5">
+                                    售价<span>99.80</span>元
+                                </div>
+                            </a>
+                        </div>
+                        <div class="prepaid-small">
+                            <a href="javascript:SelectItem(4,200.00,6);" id="item_4">
+                                <div class="text-20">
+                                    <span>200.00</span>元
+                                </div>
+                                <div class="text-12 top-5">
+                                    售价<span>199.60</span>元
+                                </div>
+                            </a>
+                        </div>
+                        <div class="prepaid-small">
+                            <a href="javascript:SelectItem(5,300.00,6);" id="item_5">
+                                <div class="text-20">
+                                    <span>300.00</span>元
+                                </div>
+                                <div class="text-12 top-5">
+                                    售价<span>299.40</span>元
+                                </div>
+                            </a>
+                        </div>
+                </div>
+            </div>
+            <div class="bd">
+                <div class="weui_btn_area">
+                    <a class="weui_btn weui_btn_primary" href="javascript:Charge();" id="btnBind">立即充值</a>
+                </div>
+                <p class="weui_btn_area">
+                    <a href="/pay/faillist" class="weui_btn weui_btn_default">微信支付交费状态查询</a>
+                </p>
+            </div>
+            <div class="weui_panel weui_panel_access">
+                <div class="weui_panel_bd">
+                    <div class="weui_media_box weui_media_text">
+                        <h4 class="weui_media_title">充值说明</h4>
+                        <p class="weui_media_desc">充值成功后正常情况下充值金额10分钟内到账。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--END home-->
+    <!--BEGIN divTipInfo-->
+    <div class="weui_dialog_alert" id="divTipInfo" style="display: none;">
+        <div class="weui_mask"></div>
+        <div class="weui_dialog">
+            <div class="weui_dialog_hd">
+                <strong class="weui_dialog_title" id="divTipTitle">提示信息</strong>
+            </div>
+            <div class="weui_dialog_bd" id="divTipBody">弹窗内容，告知当前页面信息等</div>
+            <div class="weui_dialog_ft">
+                <a href="javascript:$('#divTipInfo').hide();" class="weui_btn_dialog primary">确定</a>
+            </div>
+        </div>
+    </div>
+    <!--END divTipInfo-->
+    <!--BEGIN divNotWxTip-->
+    <div class="weui_dialog_alert" id="divNotWxTip" style="">
+        <div class="weui_mask"></div>
+        <div class="weui_dialog">
+            <div class="weui_dialog_hd">
+                <strong class="weui_dialog_title">提示信息</strong>
+            </div>
+            <div class="weui_dialog_bd" id="divNotWxTipInfo">
+                <span>很抱歉，未能获取到您的微信信息，请确认通过微信客户端访问该功能。</span>
+            </div>
+            <div class="weui_dialog_ft">
+                <a href="/r/pay" class="weui_btn_dialog primary">刷新重试</a>
+            </div>
+        </div>
+    </div>
+    <!--END divNotWxTip-->
+    <!--BEGIN divResult-->
+    <div class="weui_msg" id="divResult" style="display: none;">
+        <div class="weui_icon_area">
+            <i class="weui_icon_msg" id="resultIcon"></i>
+        </div>
+        <div class="weui_text_area">
+            <h2 class="weui_msg_title" id="resultTitle">充值成功</h2>
+            <p class="weui_msg_desc" id="resultDesc">您已成功充值。</p>
+        </div>
+        <div class="weui_opr_area">
+            <p class="weui_btn_area">
+                <a href="/pay" class="weui_btn weui_btn_primary" id="resultBtn">确定</a>
+            </p>
+            <p class="weui_btn_area">
+                <a href="http://jf.hl139.net/r/" class="weui_btn weui_btn_default" id="resultBtn2">领取财富中心金币</a>
+            </p>
+        </div>
+    </div><!--END divResult-->
+    <div id="loadingToast" class="weui_loading_toast" style="display: none;">
+        <div class="weui_mask_transparent"></div>
+        <div class="weui_toast">
+            <div class="weui_loading">
+                <div class="weui_loading_leaf weui_loading_leaf_0"></div>
+                <div class="weui_loading_leaf weui_loading_leaf_1"></div>
+                <div class="weui_loading_leaf weui_loading_leaf_2"></div>
+                <div class="weui_loading_leaf weui_loading_leaf_3"></div>
+                <div class="weui_loading_leaf weui_loading_leaf_4"></div>
+                <div class="weui_loading_leaf weui_loading_leaf_5"></div>
+                <div class="weui_loading_leaf weui_loading_leaf_6"></div>
+                <div class="weui_loading_leaf weui_loading_leaf_7"></div>
+                <div class="weui_loading_leaf weui_loading_leaf_8"></div>
+                <div class="weui_loading_leaf weui_loading_leaf_9"></div>
+                <div class="weui_loading_leaf weui_loading_leaf_10"></div>
+                <div class="weui_loading_leaf weui_loading_leaf_11"></div>
+            </div>
+            <p class="weui_toast_content">准备支付中…</p>
+        </div>
+    </div>
+    <div class="weui-footer">
+        <p class="weui-footer__text">黑龙江移动</p>
+    </div> 
+</div>
+    </div>
+
+
+</body></html>

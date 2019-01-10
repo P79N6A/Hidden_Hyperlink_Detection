@@ -1,0 +1,362 @@
+<!DOCTYPE html><html><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+<title>中国天气网</title>
+<link type="text/css" href="../css/tqt.css" rel="stylesheet">
+<link rel="stylesheet" href="../css/citysearch.css">
+
+<style>
+#loading{
+	width: 100%;
+	height:100%;
+	background-color: #395BA2;
+	position: absolute;
+	left: 0;
+	top: 0;
+	z-index:10000;
+}
+#loading div{
+	height: 70px;
+	text-align:center;
+	width: 100px;
+	background-color:white;
+	border-radius: 5px;
+	-moz-border-radius: 5px;
+	margin: 0 auto;
+	position: absolute;
+	top:50%;
+	left:50%;
+	margin-left: -50px;
+	margin-top: -30px;
+	padding-top: 20px;
+	color: #bbb;
+}
+#mainBody{
+	z-index:1;
+}
+</style>
+<script type="text/javascript" src="../js/touchslider.js"></script>
+<script type="text/javascript" src="../js/jquery-1.8.2.js"></script>
+
+<script type="text/javascript" src="../js/citysearch.js"></script>
+<script type="text/javascript" src="../js/tqt.js"></script>
+<script type="text/javascript" src="../js/cookie.js"></script>
+<script type="text/javascript" src="../js/forecast.js"></script>
+
+
+</head>
+
+<body class="loadingBody" onload="list();">
+<div id="loading" style="display: none; "><div><img src="../images/loading.gif"><br>正在努力为您加载...</div></div>
+<div id="mainBody">
+<div class="mainBox">
+	  <header class="head">
+		<div class="logo"> <a href="http://samsung.weather.com.cn/mobile/"><img src="/mobile/images/logos.jpg" width="63"> </a></div>
+		<div class="inputs">
+		
+			<input type="text" value="查询城市天气" id="txtZip" class="textinput searchkey"><input type="submit" style="width:20px;color:#fff;float:right;" value="" id="btnZip" class="btn searchbtn">
+		</div>
+		
+		<div class="nav">
+			<img src="/mobile/images/nav.jpg" id="butt">
+			<img src="/mobile/images/nav.jpg" id="butt1" style="display:none;">
+		</div>
+	</header>
+    
+	<!--<div class="navs">
+<ul id="exampleMenu">
+
+	<li><a href="http://mobile.weather.com.cn/index.html">首页</a></li>
+	<li><a href="http://mobile.weather.com.cn/list.html">灾害预警</a></li>
+	<li><a href="http://mobile.weather.com.cn/city/index.html">国内天气</a></li>
+	<li><a href="http://mobile.weather.com.cn/external/index.html">国际天气</a></li>
+	<li><a href="http://mobile.weather.com.cn/airport/index.html">机场天气</a></li>
+	<li><a href="http://mobile.weather.com.cn/news/index.html">天气资讯</a></li>
+	<li><a href="http://mobile.weather.com.cn/video/index.html">天气视频</a></li>
+	<li><a href="http://www.weather.com.cn">网页版</a></li>
+	
+
+</ul>
+</div>
+-->
+
+<div class="navs">
+<ul id="exampleMenu" style="padding: 0px; margin: 0px; left: -160px; top: 10px; position: absolute;">
+
+	
+	<li style="padding: 0px; margin: 0px 0px 10px; list-style: none outside none; display: block; position: relative; height: 40px;"><a href="http://samsung.weather.com.cn/mobile/index.html" class="sweetMenuAnchor" style="display: block; padding: 10px 10px 10px 8px;  white-space: nowrap; width: 138px; position: absolute; left: 0px; background-repeat: no-repeat; background-position: 154px 50%;"><span>首　　页</span></a></li>
+	<li style="padding: 0px; margin: 0px 0px 10px; list-style: none outside none; display: block; position: relative; height: 40px;"><a href="http://samsung.weather.com.cn/mobile/list.html" class="sweetMenuAnchor" style="display: block; padding: 10px 10px 10px 8px;  white-space: nowrap; width: 138px; position: absolute; left: 0px;  background-repeat: no-repeat; background-position: 154px 50%;"><span>灾害预警</span></a></li>
+	<li style="padding: 0px; margin: 0px 0px 10px; list-style: none outside none; display: block; position: relative; height: 40px;"><a href="http://samsung.weather.com.cn/mobile/city/index.html" class="sweetMenuAnchor" style="display: block; padding: 10px 10px 10px 8px;  white-space: nowrap; width: 138px; position: absolute; left: 0px; background-repeat: no-repeat; background-position: 154px 50%;"><span>国内天气</span></a></li>
+		<li style="padding: 0px; margin: 0px 0px 10px; list-style: none outside none; display: block; position: relative; height: 40px;"><a href="http://samsung.weather.com.cn/mobile/external/index.html" class="sweetMenuAnchor" style="display: block; padding: 10px 10px 10px 8px;  white-space: nowrap; width: 138px; position: absolute; left: 0px;  background-repeat: no-repeat; background-position: 154px 50%;"><span>国际天气</span></a></li>
+	<li style="padding: 0px; margin: 0px 0px 10px; list-style: none outside none; display: block; position: relative; height: 40px;" id="clicks"><a href="http://samsung.weather.com.cn/mobile/airport/index.html" class="sweetMenuAnchor" style="display: block; padding: 10px 10px 10px 8px;  white-space: nowrap; width: 138px; position: absolute; left: 0px; background-repeat: no-repeat; background-position: 154px 50%;"><span style="font-weight:bold;">机场天气</span></a></li>
+	<li style="padding: 0px; margin: 0px 0px 10px; list-style: none outside none; display: block; position: relative; height: 40px;" id="clicks"><a href="http://samsung.weather.com.cn/mobile/news/index.html" class="sweetMenuAnchor" style="display: block; padding: 10px 10px 10px 8px;  white-space: nowrap; width: 138px; position: absolute; left: 0px; background-repeat: no-repeat; background-position: 154px 50%;"><span style="font-weight:bold;">天气资讯</span></a></li>
+	<li style="padding: 0px; margin: 0px 0px 10px; list-style: none outside none; display: block; position: relative; height: 40px;" id="clicks"><a href="http://samsung.weather.com.cn/mobile/video/index.html" class="sweetMenuAnchor" style="display: block; padding: 10px 10px 10px 8px;  white-space: nowrap; width: 138px; position: absolute; left: 0px; background-repeat: no-repeat; background-position: 154px 50%;"><span style="font-weight:bold;">天气视频</span></a></li>
+
+
+</ul>
+</div>
+<div class="navs1">
+<div id="show">
+       </div>
+<h1><span><img src="http://mobile.weather.com.cn/images/bianji.png" id="delete"></span><b>我的收藏</b></h1>
+<ul id="citylist">
+    
+<li><img src="http://mobile.weather.com.cn/images/jianhao.jpg" style="display:none;"><a href="../../mobile/city/101320101.html">香港</a></li><b style="display:none;">101320101</b></ul>
+</div>
+
+
+	
+	<div class="ad"><img src="http://mobile.weather.com.cn/images/sp.jpg" width="100%"></div>
+	<div class="yubao">
+		<h1> <a class="move">今日天气</a><a>3小时预报</a> <a style="border:none;">一周天气</a> </h1>
+		<div class="box" style="display:block;">
+			<dl>
+				<dt>
+					<p style="color:#fff; font-size:18px;font-weight:bold;" id="cityname"><b>香港，中国</b></p>
+					<p style="font-size:60px; font-family:微软雅黑; " id="wd"></p>
+					<p style="color:#cccccc; line-height:30px; padding-top:10px;" id="oneday"><b>16℃</b><br><b id="sd"></b></p> 
+					<p style="color:#cccccc; line-height:10px; padding-top:10px;" id="update"><b>4/1 20:55更新</b></p> 
+				</dt>
+				<dd>
+				<p id="onedayimg"><img alt="多云" src="../images/nightb/01.png" width="110"></p>
+				<p style="text-align:center;" id="ondayweather"><span style="color:#ccc; font-size:16px; padding-left:10px;">多云</span></p>
+				
+				
+				</dd>
+			</dl>
+			<h3 class="xqs">预报详情</h3>
+			
+			<table width="100%" cellspacing="0" cellpadding="0" border="0" style="display:none;" class="tab tbs" id="forecastxq">
+				
+			<tbody><tr><td>风力风向</td><td>无持续风向微风</td></tr><tr><td>日出时间</td><td>06:15 </td></tr><tr><td>日落时间</td><td>18:38</td></tr></tbody></table>
+	    </div>	
+	    <div class="box">
+			<table width="100%" border="0" cellpadding="0" cellspacing="0" class="tab tts" id="forecast3h"><tbody><tr><td>01日05时-08时</td><td><span style="width:40px;position:relative;"><img alt="多云" src="../images/night/01.png"></span></td><td>15℃~15℃</td></tr><tr><td>01日08时-11时</td><td><span style="width:40px;position:relative;"><img alt="多云" src="../images/day/01.png"></span></td><td>15℃~20℃</td></tr><tr><td>01日11时-14时</td><td><span style="width:40px;position:relative;"><img alt="多云" src="../images/day/01.png"></span></td><td>20℃~19℃</td></tr><tr><td>01日14时-17时</td><td><span style="width:40px;position:relative;"><img alt="多云" src="../images/day/01.png"></span></td><td>19℃~18℃</td></tr><tr><td>01日17时-20时</td><td><span style="width:40px;position:relative;"><img alt="多云" src="../images/day/01.png"></span></td><td>18℃~18℃</td></tr><tr><td>01日20时-23时</td><td><span style="width:40px;position:relative;"><img alt="多云" src="../images/night/01.png"></span></td><td>18℃~16℃</td></tr><tr><td>01日23时-02日02时</td><td><span style="width:40px;position:relative;"><img alt="多云" src="../images/night/01.png"></span></td><td>16℃~15℃</td></tr><tr><td>02日02时-05时</td><td><span style="width:40px;position:relative;"><img alt="多云" src="../images/night/01.png"></span></td><td>15℃~16℃</td></tr></tbody></table>
+			<div id="flist"><h3 class="fxqs">下一天预报</h3></div>
+		</div>
+		<div class="box">
+			<table width="100%" border="0" cellpadding="0" cellspacing="0" class="tab tts" id="forecast">
+				
+				
+			<tbody><tr><td>周六</td><td><span style="width:40px;position:relative;"><img alt="多云" src="../images/night/01.png"></span></td><td>16℃</td></tr><tr><td>周日</td><td><span style="width:40px;position:relative;"><img alt="多云" src="../images/day/01.png"><img alt="多云" src="../images/night/01.png"></span></td><td>21℃~17℃</td></tr><tr><td>周一</td><td><span style="width:40px;position:relative;"><img alt="多云" src="../images/day/01.png"><img alt="多云" src="../images/night/01.png"></span></td><td>21℃~18℃</td></tr><tr><td>周二</td><td><span style="width:40px;position:relative;"><img alt="多云" src="../images/day/01.png"><img alt="多云" src="../images/night/01.png"></span></td><td>22℃~19℃</td></tr><tr><td>周三</td><td><span style="width:40px;position:relative;"><img alt="多云" src="../images/day/01.png"><img alt="多云" src="../images/night/01.png"></span></td><td>23℃~20℃</td></tr><tr><td>周四</td><td><span style="width:40px;position:relative;"><img alt="多云" src="../images/day/01.png"><img alt="多云" src="../images/night/01.png"></span></td><td>23℃~20℃</td></tr><tr><td>周五</td><td><span style="width:40px;position:relative;"><img alt="多云" src="../images/day/01.png"><img alt="小雨" src="../images/night/07.png"></span></td><td>24℃~21℃</td></tr></tbody></table>
+		</div>
+	</div>
+	<div class="box-163css box-163css-arrow" style="background:#ffffff;" id="tqzs">
+		<h1>天气指数</h1>
+		<div id="slider4" class="swipe" style="height: 80px; overflow: hidden; visibility: visible; list-style: none; position: relative; ">
+			<ul class="piclist" id="dtzs" style="position: relative; -webkit-transition: 0ms; width: 0px; left: 0px; ">
+				
+			<li style="width: 0px; display: table-cell; margin: 0px; float: left; vertical-align: top; "><p style="width:60px; float:left;line-height:30px;"><img width="60" src="http://mobile.weather.com.cn/images/zs/ct.png"></p><p style="float:right; width:80%;line-height:25px;"><span>穿衣指数:较舒适</span><br>建议着薄外套、开衫牛仔衫裤等服装。年老体弱者应适当添加衣物，宜着夹克衫、薄毛衣等。</p></li><li style="width: 0px; display: table-cell; margin: 0px; float: left; vertical-align: top; "><p style="width:60px; float:left;line-height:30px;"><img width="60" src="http://mobile.weather.com.cn/images/zs/co.png"></p><p style="float:right; width:80%;line-height:25px;"><span>舒适度指数:舒适</span><br>白天不太热也不太冷，风力不大，相信您在这样的天气条件下，应会感到比较清爽和舒适。</p></li><li style="width: 0px; display: table-cell; margin: 0px; float: left; vertical-align: top; "><p style="width:60px; float:left;line-height:30px;"><img width="60" src="http://mobile.weather.com.cn/images/zs/cl.png"></p><p style="float:right; width:80%;line-height:25px;"><span>晨练指数:较适宜</span><br>早晨气象条件较适宜晨练，但晨练时会感觉有点凉，建议晨练着装不要过于单薄，以防感冒。</p></li><li style="width: 0px; display: table-cell; margin: 0px; float: left; vertical-align: top; "><p style="width:60px; float:left;line-height:30px;"><img width="60" src="http://mobile.weather.com.cn/images/zs/jt.png"></p><p style="float:right; width:80%;line-height:25px;"><span>交通指数:良好</span><br>天气较好，路面干燥，交通气象条件良好，车辆可以正常行驶。</p></li><li style="width: 0px; display: table-cell; margin: 0px; float: left; vertical-align: top; "><p style="width:60px; float:left;line-height:30px;"><img width="60" src="http://mobile.weather.com.cn/images/zs/yd.png"></p><p style="float:right; width:80%;line-height:25px;"><span>运动指数:适宜</span><br>天气较好，赶快投身大自然参与户外运动，尽情感受运动的快乐吧。</p></li></ul>
+		</div>
+		<div class="arrdiv"> <b class="pre" id="pre4">prev</b><b class="next" id="next4">next</b> </div>
+		<div id="pagenavi4" class="page"> 
+		<a class="active"></a> 
+		<a></a> 
+		<a></a> 
+		<a></a> 
+		<a></a> 
+		</div>
+	 </div>
+		
+<script type="text/javascript">
+$(function(){
+	dealLoading();
+	var url=window.location.href;
+	var areaid=url.substr(-14,9);
+	hqdata(areaid);
+})
+
+</script> 
+	
+	<div class="box-163css box-163css-arrow">
+		<h1>天气视频</h1>
+		<div id="slider2" class="swipe" style="overflow: hidden; visibility: visible; list-style: none; position: relative; ">
+			<ul class="piclist" style="position: relative; -webkit-transition: 0ms; width: 0px; left: 0px; ">
+				<li style="width: 0px; display: table-cell; margin: 0px; float: left; vertical-align: top; "><a target="_blank" href="../video/content.html?name=lianbo"><img src="http://mobile.weather.com.cn/images/lianbo.jpg"></a><em></em><strong>天气预报</strong></li>
+                <li style="width: 0px; display: table-cell; margin: 0px; float: left; vertical-align: top; "><a target="_blank" href="../video/content.html?name=cctv20757_iphone"> <img src="http://mobile.weather.com.cn/images/dysj.jpg"></a><em></em><strong>第一时间</strong></li>
+                <li style="width: 0px; display: table-cell; margin: 0px; float: left; vertical-align: top; "><a target="_blank" href="../video/content.html?name=lvyou1157_iphone"> <img src="http://mobile.weather.com.cn/images/tqzbh.jpg"></a><em></em><strong>天气在变化</strong></li>
+			</ul>
+		</div>
+		<div class="arrdiv"> <b class="pre" onclick="tt2.prev();return false;">prev</b> <b class="next" onclick="tt2.next();return false;">next</b> </div>
+		<div id="pagenavi2" class="page"> 
+		<a class="active"></a> 
+		<a></a> 
+		<a></a> 
+		</div>
+	</div>
+<script type="text/javascript">
+var as2=document.getElementById('pagenavi2').getElementsByTagName('a'),p2=0;
+var tt2=new TouchSlider({id:'slider2','auto':'-1',fx:'ease-out',direction:'left',speed:600,timeout:5000,'before':function(index){
+	var as2=document.getElementById('pagenavi2').getElementsByTagName('a');
+	if(typeof p2 != 'undeinfed') as2[p2].className='';
+	as2[index].className='active';
+	p2=index;
+}});
+console.dir(tt2); console.dir(tt2.__proto__);
+for(var i=0;i<as2.length;i++){
+	(function(){
+		var j=i;
+		as2[j].onclick=function(){
+			tt2.slide(j);
+			return false;
+		}
+	})();
+}
+</script> 
+    <div class="box-163css box-163css-arrow">
+		<h1>天气资讯</h1>
+		<div id="slider3" class="swipe" style="overflow: hidden; visibility: visible; list-style: none; position: relative; ">
+			<ul class="piclist" id="newslist" style="position: relative; -webkit-transition: 0ms; width: 0px; left: 0px; ">
+
+			<li style="width: 0px; display: table-cell; margin: 0px; float: left; vertical-align: top; "><a href="content.html?id=2431376"><img src="http://i.weather.com.cn/images/cn/khd/tqxw/2015/12/04/60638851FFCA0BBB8700B7ACB144555E_m.jpg"></a><em></em><strong>重庆金佛山迎今冬首场降雪 较去年偏晚近半月</strong></li><li style="width: 0px; display: table-cell; margin: 0px; float: left; vertical-align: top; "><a href="content.html?id=2431302"><img src="http://i.weather.com.cn/images/cn/khd/tqxw/2015/12/04/D697677C18DD6B5B330ED98D64B21116_m.jpg"></a><em></em><strong>东北雪减弱风力强劲 广西广东局地暴雨</strong></li><li style="width: 0px; display: table-cell; margin: 0px; float: left; vertical-align: top; "><a href="content.html?id=2431301"><img src="http://i.weather.com.cn/images/cn/khd/tqxw/2015/12/04/90652AB88ADFE2053D57E7EA0E03BD9B_m.jpg"></a><em></em><strong>黑龙江暴雪接近尾声 今明仍有大风天气</strong></li><li style="width: 0px; display: table-cell; margin: 0px; float: left; vertical-align: top; "><a href="content.html?id=2428393"><img src="http://i.weather.com.cn/images/cn/khd/tqxw/2015/11/28/73A2B27E40B63CEC4C103C3F452273B8_m.jpg"></a><em></em><strong>上海全面“解冻” 今起最高气温回归10℃以上</strong></li><li style="width: 0px; display: table-cell; margin: 0px; float: left; vertical-align: top; "><a href="content.html?id=2428353"><img src="http://i.weather.com.cn/images/cn/khd/tqxw/2015/11/28/4D2E82B3ECBA582A5D48D93E3F69C5AD_m.jpg"></a><em></em><strong>霾黄色预警：京津冀等地部分地区有中度霾</strong></li></ul>
+		</div>
+		<div class="arrdiv"> <b class="pre" id="pre3">prev</b> <b class="next" id="next3">next</b> </div>
+		<div id="pagenavi3" class="page"> 
+		<a class="active"></a> 
+		<a></a> 
+		<a></a>
+		<a></a> 
+		<a></a>
+		</div>
+	</div>	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<script src="http://samsung.weather.com.cn/mobile/js/history.js" type="text/javascript"></script>
+	
+	
+		  <div class="chaox"><h1>气象数据查询</h1><h2>香港<span>2007.12.1</span></h2><ul><li>无天气现象数据</li></ul><ul><li>最高温度：23℃ </li><li>最低温度：14℃ </li></ul><ul><li>湿度：47%</li><li>南风:3级</li></ul></div>
+			<div class="srtq">
+			
+				<div class="se">
+					
+					<p>选择城市:</p>
+					<select name="provid" id="provid">
+						<option value="00000">请选择省份</option>
+						<option value="10101">北京</option>
+						<option value="10102">上海</option>
+						<option value="10103">天津</option>
+						<option value="10104">重庆</option>
+						<option value="10105">黑龙江</option>
+						<option value="10106">吉林</option>
+						<option value="10107">辽宁</option>
+						<option value="10108">内蒙古</option>
+						<option value="10109">河北</option>
+						<option value="10110">山西</option>
+						<option value="10111">陕西</option>
+						<option value="10112">山东</option>
+						<option value="10113">新疆</option>
+						<option value="10114">西藏</option>
+						<option value="10115">青海</option>
+						<option value="10116">甘肃</option>
+						<option value="10117">宁夏</option>
+						<option value="10118">河南</option>
+						<option value="10119">江苏</option>
+						<option value="10120">湖北</option>
+						<option value="10121">浙江</option>
+						<option value="10122">安徽</option>
+						<option value="10123">福建</option>
+						<option value="10124">江西</option>
+						<option value="10125">湖南</option>
+						<option value="10126">贵州</option>
+						<option value="10127">四川</option>
+						<option value="10128">广东</option>
+						<option value="10129">云南</option>
+						<option value="10130">广西</option>
+						<option value="10131">海南</option>
+						<option value="10132">香港</option>
+					</select>
+					<select name="areaid" id="areaid">
+						<option selected="selected" value="000000000">请选择城市</option>
+					</select>
+					<p style="clear:both; ">选择日期：</p>
+		
+            <select id="year" name="year" onchange="febday();">  
+            <option value="1997">1997</option><option value="1998">1998</option><option value="1999">1999</option><option value="2000">2000</option><option value="2001">2001</option><option value="2002">2002</option><option value="2003">2003</option><option value="2004">2004</option><option value="2005">2005</option><option value="2006">2006</option></select>年  
+            <select name="month" id="month" onchange="febday();">  
+            <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option></select>月  
+            <select name="day" id="day">  
+            <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option><option value="14">14</option><option value="15">15</option><option value="16">16</option><option value="17">17</option><option value="18">18</option><option value="19">19</option><option value="20">20</option><option value="21">21</option><option value="22">22</option><option value="23">23</option><option value="24">24</option><option value="25">25</option><option value="26">26</option><option value="27">27</option><option value="28">28</option><option value="29">29</option><option value="30">30</option><option value="31">31</option></select>日  
+    
+						<input id="tijiao" type="submit" value="查询">
+					
+					
+				</div>
+			</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+<div class="yubaox">
+<h1> <a class="move">今日天气</a><a>3小时预报</a> <a style="border:none;">一周天气</a> </h1>
+</div>
+    <footer class="footer">
+
+
+<h2><span><a>返回顶部</a></span></h2>
+<!--<p><a href="http://itunes.apple.com/cn/app/id457959333?mt=8" target="_blank"><img src="http://mobile.weather.com.cn/images/appstore.jpg"></a><a href="http://download.weather.com.cn/3g/ChinaWeather_AndroidV2.1.4.apk" target="_blank"><img src="http://mobile.weather.com.cn/images/anzhuo.jpg"></a><a href="http://download.weather.com.cn/3g/ChinaWeather_WindowsPhone8V1.0.0.xap" target="_blank"><img src="http://mobile.weather.com.cn/images/windows.jpg"></a></p>-->
+    <p>Copyright©中国气象局公共气象服务中心</p>
+    
+   </footer>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- START WRating v1.0 -->
+<script type="text/javascript" src="http://c.wrating.com/a1.js">
+</script>
+<script type="text/javascript">
+var vjAcc="860010-2099020100";
+var wrUrl="http://c.wrating.com/";
+vjTrack("");
+</script><div style="display:none"><img src="http://c.wrating.com/a.gif?a=15b2995cd98&amp;t=%E4%B8%AD%E5%9B%BD%E5%A4%A9%E6%B0%94%E7%BD%91&amp;i=1c837a9a.15b2995cd98.0.51b68c5d&amp;b=http%3A//samsung.weather.com.cn/mobile/city/101320101.html&amp;c=860010-2099020100&amp;s=0x0x0&amp;l=en-us&amp;z=8&amp;j=0&amp;f=-&amp;ut=30&amp;n=&amp;js=&amp;ck=1" id="wrTagImage" width="1" height="1"></div>
+<noscript>&lt;img src="http://c.wrating.com/a.gif?a=&amp;c=860010-2099020100" width="1" height="1"/&gt;</noscript>
+<!-- END WRating v1.0 -->
+
+
+
+</body></html>

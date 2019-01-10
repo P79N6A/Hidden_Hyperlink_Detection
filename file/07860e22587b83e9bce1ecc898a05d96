@@ -1,0 +1,483 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8;">
+<title>铁路客户服务中心--行包服务</title>
+<meta name="description" content="中国铁路客户服务中心网站是铁路服务客户的重要窗口，将集成全路客货运输信息，为社会和铁路客户提供客货运输业务和公共信息查询服务。客户通过登录本网站，可以查询旅客列车时刻表、票价、列车正晚点、车票余票、售票代售点、货物运价、车辆技术参数以及有关客货运规章。">
+<script language="JavaScript" type="text/javascript" src="/mormhweb/images/jquery-1.4.2.min.js"></script>
+<script language="JavaScript" type="text/javascript" src="/mormhweb/images/jquery.flash.js"></script>
+<!--[if IE 6]>  
+<script type="text/javascript" src="/mormhweb/images/iepng.js"></script>
+<![endif]-->
+<link href="/mormhweb/images/hy120202.css" rel="stylesheet" type="text/css">
+<link href="/mormhweb/images/global.css" rel="stylesheet" type="text/css">
+<link rel="shortcut icon" type="image/x-icon" href="http://www.12306.cn/mormhweb/images/favicon.ico">
+<link rel="icon" type="image/x-icon" href="http://www.12306.cn/mormhweb/images/favicon.ico">
+
+<link href="/mormhweb/images/site_1.css" rel="stylesheet" type="text/css">
+<link href="/mormhweb/images/cre.css" rel="stylesheet" type="text/css">
+<script>
+//滚动
+(function($){
+
+	$.fn.kxbdMarquee = function(options){
+		var opts = $.extend({},$.fn.kxbdMarquee.defaults, options);
+		
+		return this.each(function(){
+			var $marquee = $(this);//滚动元素容器
+			var _scrollObj = $marquee.get(0);//滚动元素容器DOM
+			var scrollW = $marquee.width();//滚动元素容器的宽度
+			var scrollH = $marquee.height();//滚动元素容器的高度
+			var $element = $marquee.children(); //滚动元素
+			var $kids = $element.children();//滚动子元素
+			var scrollSize=0;//滚动元素尺寸
+			var _type = (opts.direction == 'left' || opts.direction == 'right') ? 1:0;//滚动类型，1左右，0上下
+
+			//防止滚动子元素比滚动元素宽而取不到实际滚动子元素宽度
+			$element.css(_type?'width':'height',10000);
+			//获取滚动元素的尺寸
+			if (opts.isEqual) {
+				scrollSize = $kids[_type?'outerWidth':'outerHeight']() * $kids.length;
+			}else{
+				$kids.each(function(){
+					scrollSize += $(this)[_type?'outerWidth':'outerHeight']();
+				});
+			}
+			//滚动元素总尺寸小于容器尺寸，不滚动
+			if (scrollSize<(_type?scrollW:scrollH)) return; 
+			//克隆滚动子元素将其插入到滚动元素后，并设定滚动元素宽度
+			$element.append($kids.clone()).css(_type?'width':'height',scrollSize*2);
+			
+			var numMoved = 0;
+			function scrollFunc(){
+				var _dir = (opts.direction == 'left' || opts.direction == 'right') ? 'scrollLeft':'scrollTop';
+				if (opts.loop > 0) {
+					numMoved+=opts.scrollAmount;
+					if(numMoved>scrollSize*opts.loop){
+						_scrollObj[_dir] = 0;
+						return clearInterval(moveId);
+					} 
+				}
+				if(opts.direction == 'left' || opts.direction == 'up'){
+					var newPos = _scrollObj[_dir] + opts.scrollAmount;
+					if(newPos>=scrollSize){
+						newPos -= scrollSize;
+					}
+					_scrollObj[_dir] = newPos;
+				}else{
+					var newPos = _scrollObj[_dir] - opts.scrollAmount;
+					if(newPos<=0){
+						newPos += scrollSize;
+					}
+					_scrollObj[_dir] = newPos;
+				}
+			};
+			//滚动开始
+			var moveId = setInterval(scrollFunc, opts.scrollDelay);
+			//鼠标划过停止滚动
+			$marquee.hover(
+				function(){
+					clearInterval(moveId);
+				},
+				function(){
+					clearInterval(moveId);
+					moveId = setInterval(scrollFunc, opts.scrollDelay);
+				}
+			);
+			
+			//控制加速运动
+			if(opts.controlBtn){
+				$.each(opts.controlBtn, function(i,val){
+					$(val).bind(opts.eventA,function(){
+						opts.direction = i;
+						opts.oldAmount = opts.scrollAmount;
+						opts.scrollAmount = opts.newAmount;
+					}).bind(opts.eventB,function(){
+						opts.scrollAmount = opts.oldAmount;
+					});
+				});
+			}
+		});
+	};
+	$.fn.kxbdMarquee.defaults = {
+		isEqual:true,//所有滚动的元素长宽是否相等,true,false
+		loop: 0,//循环滚动次数，0时无限
+		direction: 'left',//滚动方向，'left','right','up','down'
+		scrollAmount:1,//步长
+		scrollDelay:10,//时长
+		newAmount:3,//加速滚动的步长
+		eventA:'mousedown',//鼠标事件，加速
+		eventB:'mouseup'//鼠标事件，原速
+	};
+	
+	$.fn.kxbdMarquee.setDefaults = function(settings) {
+		$.extend( $.fn.kxbdMarquee.defaults, settings );
+	};
+	
+})(jQuery);
+
+</script>
+<style>
+.marquee {width:900px;height:100px;overflow:hidden;margin-top:8px;}
+.marquee li{ display:inline; float:left; margin-right:12px;}
+.marquee li a{ width:230px; height:260px; display:block; float:left; text-align:center; font-size:14px;}
+</style>
+
+<script type="text/javascript">
+$(document).ready(function(){
+	$('.marquee').kxbdMarquee({
+			direction:'left',
+			eventA:'mouseenter',
+			eventB:'mouseleave'
+	});
+});
+</script> 
+
+</head>
+
+<body>
+
+<!--div id="img" style="position:absolute;"  onmouseover="pause_resume();" onMouseOut="pause_resume();">
+<a  href="../hyfw/pic/" ><img width="130" height="100" border="0" src="20070810100858879_1.gif" /></a><div><a href="###" onClick="document.getElementById('img').style.display='none'"><img src="close1_1.gif" style="position:absolute;right:0px;bottom:0px;" border="0" /></a></div>
+</div-->
+<div id="page">
+
+<div id="top" class="flash-update"><p style="line-height:30px;text-align:center;">您需要安装Flash播放器查看这部分内容 <a href="http://www.adobe.com/go/getflashplayer"><font color="red">下载播放器</font></a>. 已经有播放器请 <a href="http://www.12306.cn/mormhweb/xbfw/?hasFlash=true&amp;"><font color="red">点击这里</font>.</a></p><span class="alt"></span></div>
+<script type="text/javascript">
+    $(function(){
+        $('#top').flash({src:'/mormhweb/images/index-top.swf',width:960,height:149,wmode:'transparent'});
+    })
+</script>
+<div id="menu">
+<ul class="menubg">
+  <li id="currentDate"><script language="JavaScript" src="/mormhweb/images/date.js" type="text/javascript"></script><font lang="ZH-CN" color="#FFFF99">2017年4月1日 </font> <span id="Clock" style="font-size:12px; color=#FFFF999"></span><font color="#FFFF99">星期六</font> <span id="Clock" style="font-size:12px; color=#FFFF99"></span></li>
+  <li><a href="../">首&nbsp;&nbsp;页</a></li><li><a href="https://kyfw.12306.cn/otn/" target="_blank">客运服务</a></li><li><a href="../hyfw/">货运服务</a></li><li><a href="./">行包服务</a></li><li><a href="http://travel.12306.cn/" target="_blank">旅游超市</a></li><li><a href="../czyd/">车站引导</a></li><li><a href="../tlcs/">铁路常识</a></li><li><a href="../zcfc/">站车风采</a></li><li><a href="../khmail/">客户信箱</a></li>
+</ul>
+</div>
+<table height="600" border="0" align="center" cellpadding="0" cellspacing="0" class="wrapper">
+  <tbody><tr>
+    <td valign="top" class="bluebg"><table width="100%" border="0" cellspacing="0" cellpadding="0">
+  <tbody><tr>
+    <td height="8"></td>
+  </tr>
+</tbody></table>
+
+      <table cellspacing="0" cellpadding="0" width="99%" align="center" border="0" style="margin:auto;">
+        <tbody>
+          <tr>
+            <td width="8"><img height="31" src="/mormhweb/images/c_l_1.gif" width="8"></td>
+            <td background="/mormhweb/images/c_b_1.gif" class="dzjgtd2"><img height="13" src="/mormhweb/images/c_d_1.gif" width="5" align="absmiddle">&nbsp;当前位置:<a href="../" title="首页" class="CurrChnlCls">首页</a>&nbsp;&gt;&nbsp;<a href="./" title="行包服务" class="CurrChnlCls">行包服务</a></td>
+            <td width="9"><img height="31" src="/mormhweb/images/c_r_1.gif" width="9"></td>
+          </tr>
+        </tbody>
+      </table>
+      <table cellspacing="0" cellpadding="0" width="100%" border="0">
+        <tbody>
+          <tr>
+            <td height="8"></td>
+          </tr>
+        </tbody>
+      </table>
+      <table width="916" height="64" border="0" cellpadding="0" cellspacing="3" align="center" style="margin:auto;">
+        <!-- 第一行：物流网链接 -->
+        <!--      <tr><td colspan="5" width="916" height="70" align="center" valign="middle" class="crelink"><a href="http://www.cre.cn" target="_blank"><img src="images/30.gif" width="916" height="68" style="border:#9fa0a0 solid 1px;padding:1px;" /></a></td></tr> 
+-->
+        <!-- 第二行：快速链接 -->
+        <tbody><tr>
+          <td width="20%" height="64" align="center" style="border:#9fa0a0 solid 1px;" class="imglink"><a href="./crecpjs/" target="_blank"><img src="/mormhweb/images/41.gif" width="169" height="59"></a></td>
+          <td width="20%" height="64" align="center" style="border:#9fa0a0 solid 1px;" class="imglink"><a href="./yfcx/" target="_blank"><img src="/mormhweb/images/42.gif" width="169" height="59"></a></td>
+          <td width="20%" height="64" align="center" style="border:#9fa0a0 solid 1px;" class="imglink"><a href="./crexbzz/" target="_blank"><img src="/mormhweb/images/43.jpg" width="169" height="59"></a></td>
+          <td width="20%" height="64" align="center" style="border:#9fa0a0 solid 1px;" class="imglink"><a href="./bljg/" target="_blank"><img src="/mormhweb/images/44.gif" width="169" height="59"></a></td>
+          <td width="20%" height="64" align="center" style="border:#9fa0a0 solid 1px;" class="imglink"><a href="./ywbl/" target="_blank"><img src="/mormhweb/images/47.jpg" width="169" height="59"></a></td>
+        </tr>
+      </tbody></table>
+      <table border="0" align="center" cellpadding="0" cellspacing="0" class="hybg margin_top10px" style="margin:auto;">
+        <tbody><tr>
+          <td><table border="0" cellpadding="0" cellspacing="0">
+            <tbody><tr>
+              <td width="914" height="28" background="/mormhweb/images/50.gif" valign="bottom"><img src="/mormhweb/images/51.gif" width="175" height="26" style="padding-left:4px"></td>
+            </tr>
+          </tbody></table></td>
+        </tr>
+        <tr>
+          <td><table width="100%" border="0" cellspacing="0" cellpadding="0">
+              <tbody><tr>
+                <td height="10px"></td>
+              </tr>
+          </tbody></table></td>
+        </tr>
+        
+          <tr>
+            <td>
+                <table width="98%" height="75" border="0" align="center" cellpadding="2" cellspacing="0" style="margin:auto;">
+                  <tbody><tr>
+                    
+                      
+                        <td valign="top" align="left" width="245"><table width="244" border="0" align="center" cellpadding="0" cellspacing="0">
+                            <tbody><tr>
+                              <td height="6px" style="font-size:5px"><img src="/mormhweb/images/index1_68_1.jpg" width="300" height="6" alt=""></td>
+                            </tr>
+                            <tr>
+                              <td background="/mormhweb/images/index1_92_1.jpg"><table width="96%" border="0" align="center" cellpadding="0" cellspacing="2" style="margin:auto">
+                                  <tbody><tr>
+                                    <td bgcolor="f5f4f2"><table width="100%" border="0" cellspacing="0" cellpadding="0">
+                                        <tbody><tr>
+                                          <td width="9%" align="center"><img src="/mormhweb/images/index1_72_1.jpg" width="12" height="11" alt=""></td>
+                                          <td width="69%" height="20" class="paddingLeft20px" style="padding-left:0px;">办理机构</td>
+                                          <td width="22%" align="center"><a href="./ywzx/bljg/" target="_blank" class="redfont"><img src="/mormhweb/images/more_1.gif" border="0"></a></td>
+                                        </tr>
+                                    </tbody></table></td>
+                                  </tr>
+                                  <tr>
+                                    <td height="80" valign="top"><table width="100%">
+                                        <!--5个-->
+                                        
+
+                                          <tbody><tr>
+                                            <td width="100%"><table width="100%" border="0" cellpadding="0" cellspacing="0">
+                                                <tbody><tr>
+                                                  <td width="12px" align="center" valign="top" class="dian18">·</td>
+                                                  <td background="/mormhweb/images/bg_list_18_1.gif" height="22" valign="top" id="list18"><a href="http://www.12306.cn/mormhweb/xbfw/ywzx/bljg/mdm/" target="_blank" title="门到门办理机构">门到门办理机构</a></td>
+                                                </tr>
+                                            </tbody></table></td>
+                                          </tr>
+                                        
+
+                                          <tr>
+                                            <td width="100%"><table width="100%" border="0" cellpadding="0" cellspacing="0">
+                                                <tbody><tr>
+                                                  <td width="12px" align="center" valign="top" class="dian18">·</td>
+                                                  <td background="/mormhweb/images/bg_list_18_1.gif" height="22" valign="top" id="list18"><a href="http://www.12306.cn/mormhweb/kyyyz/" target="_blank" title="行包办理站">行包办理站</a></td>
+                                                </tr>
+                                            </tbody></table></td>
+                                          </tr>
+                                        
+                                        <tr>
+                                          <td></td>
+                                        </tr>
+                                    </tbody></table></td>
+                                  </tr>
+                              </tbody></table></td>
+                            </tr>
+                            <tr>
+                              <td><img src="/mormhweb/images/index1_93_1.jpg" width="300" height="6" alt=""></td>
+                            </tr>
+                        </tbody></table></td>
+                      
+                      
+                    
+                      
+                        <td valign="top" align="left" width="245"><table width="244" border="0" align="center" cellpadding="0" cellspacing="0">
+                            <tbody><tr>
+                              <td height="6px" style="font-size:5px"><img src="/mormhweb/images/index1_68_1.jpg" width="300" height="6" alt=""></td>
+                            </tr>
+                            <tr>
+                              <td background="/mormhweb/images/index1_92_1.jpg"><table width="96%" border="0" align="center" cellpadding="0" cellspacing="2" style="margin:auto">
+                                  <tbody><tr>
+                                    <td bgcolor="f5f4f2"><table width="100%" border="0" cellspacing="0" cellpadding="0">
+                                        <tbody><tr>
+                                          <td width="9%" align="center"><img src="/mormhweb/images/index1_72_1.jpg" width="12" height="11" alt=""></td>
+                                          <td width="69%" height="20" class="paddingLeft20px" style="padding-left:0px;">办理流程</td>
+                                          <td width="22%" align="center"><a href="./ywzx/bllc/" target="_blank" class="redfont"><img src="/mormhweb/images/more_1.gif" border="0"></a></td>
+                                        </tr>
+                                    </tbody></table></td>
+                                  </tr>
+                                  <tr>
+                                    <td height="80" valign="top"><table width="100%">
+                                        <!--5个-->
+                                        
+
+                                          <tbody><tr>
+                                            <td width="100%"><table width="100%" border="0" cellpadding="0" cellspacing="0">
+                                                <tbody><tr>
+                                                  <td width="12px" align="center" valign="top" class="dian18">·</td>
+                                                  <td background="/mormhweb/images/bg_list_18_1.gif" height="22" valign="top" id="list18"><a href="http://www.12306.cn/mormhweb/xbfw/ywzx/bllc/tybl/" target="_blank" title="托运办理流程">托运办理流程</a></td>
+                                                </tr>
+                                            </tbody></table></td>
+                                          </tr>
+                                        
+
+                                          <tr>
+                                            <td width="100%"><table width="100%" border="0" cellpadding="0" cellspacing="0">
+                                                <tbody><tr>
+                                                  <td width="12px" align="center" valign="top" class="dian18">·</td>
+                                                  <td background="/mormhweb/images/bg_list_18_1.gif" height="22" valign="top" id="list18"><a href="./ywzx/bllc/201101/t20110115_1423.html" target="_blank" title="取货办理流程">取货办理流程</a></td>
+                                                </tr>
+                                            </tbody></table></td>
+                                          </tr>
+                                        
+                                        <tr>
+                                          <td></td>
+                                        </tr>
+                                    </tbody></table></td>
+                                  </tr>
+                              </tbody></table></td>
+                            </tr>
+                            <tr>
+                              <td><img src="/mormhweb/images/index1_93_1.jpg" width="300" height="6" alt=""></td>
+                            </tr>
+                        </tbody></table></td>
+                      
+                      
+                    
+                      
+                        <td valign="top" align="left" width="245"><table width="244" border="0" align="center" cellpadding="0" cellspacing="0">
+                            <tbody><tr>
+                              <td height="6px" style="font-size:5px"><img src="/mormhweb/images/index1_68_1.jpg" width="300" height="6" alt=""></td>
+                            </tr>
+                            <tr>
+                              <td background="/mormhweb/images/index1_92_1.jpg"><table width="96%" border="0" align="center" cellpadding="0" cellspacing="2" style="margin:auto">
+                                  <tbody><tr>
+                                    <td bgcolor="f5f4f2"><table width="100%" border="0" cellspacing="0" cellpadding="0">
+                                        <tbody><tr>
+                                          <td width="9%" align="center"><img src="/mormhweb/images/index1_72_1.jpg" width="12" height="11" alt=""></td>
+                                          <td width="69%" height="20" class="paddingLeft20px" style="padding-left:0px;">业务相关</td>
+                                          <td width="22%" align="center"><a href="./ywzx/ywxg/" target="_blank" class="redfont"><img src="/mormhweb/images/more_1.gif" border="0"></a></td>
+                                        </tr>
+                                    </tbody></table></td>
+                                  </tr>
+                                  <tr>
+                                    <td height="80" valign="top"><table width="100%">
+                                        <!--5个-->
+                                        
+
+                                          <tbody><tr>
+                                            <td width="100%"><table width="100%" border="0" cellpadding="0" cellspacing="0">
+                                                <tbody><tr>
+                                                  <td width="12px" align="center" valign="top" class="dian18">·</td>
+                                                  <td background="/mormhweb/images/bg_list_18_1.gif" height="22" valign="top" id="list18"><a href="./ywzx/ywxg/201101/t20110115_1428.html" target="_blank" title="禁运品查询">禁运品查询</a></td>
+                                                </tr>
+                                            </tbody></table></td>
+                                          </tr>
+                                        
+
+                                          <tr>
+                                            <td width="100%"><table width="100%" border="0" cellpadding="0" cellspacing="0">
+                                                <tbody><tr>
+                                                  <td width="12px" align="center" valign="top" class="dian18">·</td>
+                                                  <td background="/mormhweb/images/bg_list_18_1.gif" height="22" valign="top" id="list18"><a href="./ywzx/ywxg/201101/t20110115_1427.html" target="_blank" title="办理须知">办理须知</a></td>
+                                                </tr>
+                                            </tbody></table></td>
+                                          </tr>
+                                        
+                                        <tr>
+                                          <td></td>
+                                        </tr>
+                                    </tbody></table></td>
+                                  </tr>
+                              </tbody></table></td>
+                            </tr>
+                            <tr>
+                              <td><img src="/mormhweb/images/index1_93_1.jpg" width="300" height="6" alt=""></td>
+                            </tr>
+                        </tbody></table></td>
+                      
+                      
+                    
+                    <td>&nbsp;</td>
+                  </tr>
+                </tbody></table></td>
+          </tr>
+        
+        <tr>
+          <td><table width="100%" border="0" cellspacing="0" cellpadding="0">
+              <tbody><tr>
+                <td height="10px"></td>
+              </tr>
+          </tbody></table></td>
+        </tr>
+ 
+      </tbody></table>
+      <table border="0" align="center" cellpadding="0" cellspacing="0" class="hybg margin_top10px" style="border:#0b4f94 solid 0px;margin-top:2px;margin:2px auto;">
+        <tbody><tr>
+        <td background="/mormhweb/images/50.gif" width="913" height="28" valign="bottom" style="padding-left:4px"><img src="/mormhweb/images/61.gif" width="175" height="26"></td>
+        </tr>
+        <tr>
+          <td><table width="94%" height="39" border="0" align="center" cellpadding="0" cellspacing="0">
+              <tbody><tr>
+          
+                <td width="77%"> <table width="100%">
+						    <!--5个-->
+							
+					       
+						   <tbody><tr>
+							  
+							  <td width="30%" height="22px">&nbsp;<img src="/mormhweb/images/fh_2_1.gif" width="12" height="12">&nbsp;<a href="./cpjs/201101/t20110115_1429.html" target="_blank" title="站到站运输">站到站运输</a></td>
+								 
+							
+							  <td width="30%" height="22px">&nbsp;<img src="/mormhweb/images/fh_2_1.gif" width="12" height="12">&nbsp;<a href="./cpjs/201101/t20110115_1430.html" target="_blank" title="门到门运输">门到门运输</a></td>
+								 
+							
+							  <td width="30%" height="22px">&nbsp;<img src="/mormhweb/images/fh_2_1.gif" width="12" height="12">&nbsp;<a href="./cpjs/201101/t20110115_1432.html" target="_blank" title="物流服务">物流服务</a></td>
+								 
+							
+							</tr>
+					
+							
+							<tr><td></td></tr>
+						  </tbody></table></td>
+                <td width="2%">&nbsp;</td>
+              </tr>
+          </tbody></table></td>
+        </tr>
+
+      </tbody></table>
+      <table border="0" align="center" cellpadding="0" cellspacing="0" class="hybg margin_top10px" style="border:#0b4f94 solid 0px;margin-top:2px;margin:2px auto;">
+        <tbody><tr>
+          <td background="/mormhweb/images/50.gif" width="913" height="28" valign="bottom" style="padding-left:4px"><img src="/mormhweb/images/yzgj51.jpg" width="175" height="26"></td>
+        </tr>
+        <tr>
+          <td><table width="94%" height="39" border="0" align="center" cellpadding="0" cellspacing="0">
+              <tbody><tr>
+                <td width="77%"><table width="100%">
+                    <!--5个-->
+                    
+                      <tbody><tr>
+                        
+                          <td width="30%" height="22px">&nbsp;<img src="/mormhweb/images/fh_2_1.gif" width="12" height="12">&nbsp;
+                              <a href="./yzgj/201101/t20110115_1433.html" target="_blank" title="旅客列车行李车">旅客列车行李车</a></td>
+                        
+                          <td width="30%" height="22px">&nbsp;<img src="/mormhweb/images/fh_2_1.gif" width="12" height="12">&nbsp;
+                              <a href="./yzgj/201101/t20110115_1436.html" target="_blank" title="配送车辆">配送车辆</a></td>
+                        
+                      </tr>
+                    
+                    <tr>
+                      <td></td>
+                    </tr>
+                </tbody></table></td>
+                <td width="2%">&nbsp;</td>
+              </tr>
+          </tbody></table></td>
+        </tr>
+
+      </tbody></table></td>
+  </tr>
+  <tr><td><table border="0" align="center" cellpadding="0" cellspacing="0" class="hybg margin_top10px" style="border:#0b4f94 solid 0px;margin-top:2px;margin:2px auto;">
+        <tbody><tr>
+         <td background="/mormhweb/images/50.gif" width="913" height="28" valign="bottom" style="padding-left:4px"><img src="/mormhweb/images/71.gif" width="175" height="26"></td>
+        </tr>
+        <tr>
+          <td align="center"><div class="marquee"><ul style="width: 2600px; ">
+             <li><img src="./xgtp/201101/W020121205751035657495.jpg" width="130" height="100" border="0"></li><li><img src="./xgtp/201101/W020121205751036598190.jpg" width="130" height="100" border="0"></li><li><img src="./xgtp/201101/W020121205751037378393.jpg" width="130" height="100" border="0"></li><li><img src="./xgtp/201101/W020121205751038785818.jpg" width="130" height="100" border="0"></li><li><img src="./xgtp/201101/W020121205751039878120.jpg" width="130" height="100" border="0"></li><li><img src="./xgtp/201101/W020121205751038158029.jpg" width="130" height="100" border="0"></li><li><img src="./xgtp/201101/W020121205751040656857.jpg" width="130" height="100" border="0"></li><li><img src="./xgtp/201101/W020121205751041749082.jpg" width="130" height="100" border="0"></li><li><img src="./xgtp/201101/W020121205751032374339.jpg" width="130" height="100" border="0"></li><li><img src="./xgtp/201101/W020121205751033152586.jpg" width="130" height="100" border="0"></li><li><img src="./xgtp/201101/W020121205751035657495.jpg" width="130" height="100" border="0"></li><li><img src="./xgtp/201101/W020121205751036598190.jpg" width="130" height="100" border="0"></li><li><img src="./xgtp/201101/W020121205751037378393.jpg" width="130" height="100" border="0"></li><li><img src="./xgtp/201101/W020121205751038785818.jpg" width="130" height="100" border="0"></li><li><img src="./xgtp/201101/W020121205751039878120.jpg" width="130" height="100" border="0"></li><li><img src="./xgtp/201101/W020121205751038158029.jpg" width="130" height="100" border="0"></li><li><img src="./xgtp/201101/W020121205751040656857.jpg" width="130" height="100" border="0"></li><li><img src="./xgtp/201101/W020121205751041749082.jpg" width="130" height="100" border="0"></li><li><img src="./xgtp/201101/W020121205751032374339.jpg" width="130" height="100" border="0"></li><li><img src="./xgtp/201101/W020121205751033152586.jpg" width="130" height="100" border="0"></li></ul></div>
+
+
+</td>
+        </tr>
+     
+      </tbody></table></td>
+  </tr>
+</tbody></table>
+</div>
+<div class="bottom_copy">
+	<div class="bottom_line1"></div>
+	<div><br>
+	<a href="../gljd/gywm/">关于我们</a>  |  <a href="../gljd/wzls/">网站声明</a>
+	<br>
+      版权所有 © 2008-2017 中国铁路信息技术中心 中国铁道科学研究院 <br>京ICP备15003716号-3&nbsp;&nbsp;|&nbsp;&nbsp;京ICP证150437号
+	</div>
+	<div class="bottom_line2"></div>
+</div>
+<map name="Map5">
+<area shape="rect" coords="25,6,143,29" href="./ywzx/">
+</map>
+
+</body></html>

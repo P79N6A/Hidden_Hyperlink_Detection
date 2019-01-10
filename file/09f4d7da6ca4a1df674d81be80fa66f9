@@ -1,0 +1,378 @@
+<html><head></head><body><pre style="word-wrap: break-word; white-space: pre-wrap;">// 若url包含参数fedebug，则打印调试信息(接口返回数据等)
+var fedebug = location.href.indexOf('fedebug') &gt; -1;
+
+/*一些必须的变量*/
+// var actId = 'demoForTest'; //在index.html页面定义较好
+
+var isLogin;
+var fromApp;
+var appVer ="";
+
+
+/*后端接口无提供 但不一定需要的变量
+wapConsumer='';
+isFromLogin='';
+
+可复用的部分 public.js share.js*/
+
+requirejs.config({
+  baseUrl: "//ma.vip.com/statics/js/dev/dist",
+  paths: {
+    lib: "../../lib",
+    plugins: "../../plugins",
+    jquery: "../../lib/jquery_2.1.0.min",
+    lazyload: "../../plugins/jquery.lazyload",
+    weixin: "//res.wx.qq.com/open/js/jweixin-1.0.0",
+    mars: "//3rd-app.vipstatic.com/mars/mars_wap"
+  },
+  shim: {
+    mars: {
+      deps: ["jquery"],
+      exports: "Mar"
+    }
+  },
+  deps: ["mars", "jquery"], //会触发加载 deps定义的模块
+  callback: function (Mar, $) {
+    loadMaJs();
+  }, //入口：获取环境变量(isLogin fromApp), 然后加载其他js模块，执行页面初始化方法
+  waitSeconds: 15,
+  urlArgs: "v=21"
+});
+
+var loadMaJs = (function(){
+
+  function log() {
+    if ((typeof fedebug != 'undefined') &amp;&amp; fedebug) {
+      console.log.apply(console, arguments);
+    }
+  }
+
+  function loadJs(deps) { //loadJs('public', 'share');
+    var dfd = $.Deferred();
+    // 后端变量输出为js全局变量，以模块的形式提供给外部使用
+    function defineVars() {
+      define('public.bevars', function () {
+        window.appVer = window.appVer.replace(/8\./, ''); //测试版 8.后面才是真实版本号
+        return {
+          appVer: window.appVer,
+          fromApp: window.fromApp,
+          isLogin: window.isLogin
+        };
+      });
+    }
+
+    function doLoadJs() {
+      defineVars(); //先定义public.bevars,屏蔽旧的
+
+      require(deps, function () {
+
+        //添加常用函数到VIP
+        var fns = {
+          wxUrl: function (data, isRegUrl) {
+            // 根据接口返回的数据， 获取weixin登录url
+            var urlKey = isRegUrl ? 'registerUrl' : 'loginUrl';
+            var url = data.redirectUrl || data[urlKey];
+            var keys = ['hash', 'type', 'src'];
+            data.src = encodeURIComponent(location.href);
+
+            // url += (url.indexOf('?') &gt; -1 ? '&amp;' : '?') + keys.map(function (key, i) {
+            //   return key + '=' + data[key];
+            // }).join('&amp;');
+
+            return url;
+          },
+          goLogin: function (data) {
+            // 接口返回未登录，则根据接口数据去登录
+            //viva-api.vip.com/user/hasLogined接口, data{loginUrl:..,registerUrl:..}
+            location.href = VIP.browser.weixin ? VIP.wxUrl(data) : (data.redirectUrl || data.loginUrl);
+          },
+          goReg: function (data) {
+            location.href = VIP.browser.weixin ? VIP.wxUrl(data, true) : (data.redirectUrl || data.registerUrl);
+          },
+          'log': log
+        };
+        VIP.extend(fns);
+
+        dfd.resolve.apply(dfd, arguments);
+      });
+
+      return dfd;
+    }
+
+    return doLoadJs;
+  }
+
+  function getVars(onLogin, onUnlogin) {
+
+    function getVarIsLogin(onLogin, onUnlogin) {
+      var api = "//viva-api.vip.com/user/hasLogined?back_act=" + encodeURI(window.location.href);
+      // jsonp接口
+      return $.ajax({
+        url: api,
+        type: 'get',
+        dataType: 'jsonp',
+        jsonp: 'jsonp',
+        data: {}
+      }).done(function (res) {
+        log("hasLogined, res:", res);
+
+        $('body').on('loginChecked', function(){ return res.data; });//VIP可用时再触发
+        
+        if (res.code == 1) {
+          log("已登录");
+          window.isLogin = true;
+        } else {
+          log("未登录");
+          window.isLogin = false;
+        }
+      }).fail(function () {
+        log("获取登录状态失败");
+      });
+    }
+
+    function getVarFromApp() {
+      
+      var api = '//viva.vip.com/?c=server&amp;m=cli_type';
+      return $.ajax({
+          url: api,
+          type: 'post',
+          dataType: 'json',
+          data: {}
+        })
+        .done(function (res) {
+          log('cli_type res:', res);
+          if (res.data) {
+            window.fromApp = res.data.isApp;
+            window.appVer = res.data.ver;
+            console.log("fromApp:"+fromApp)
+          }
+        })
+        .fail(function () {
+          log('获取客户端类型失败');
+        });
+    }
+
+
+    return $.when(getVarIsLogin(), getVarFromApp());
+  }
+
+
+  function getScripts() {
+    getVars().then(loadJs($('body').data('deps'))).done(function(){
+      var initFn = $('body').data('init');
+      if(typeof window[initFn] == 'function'){
+        window[initFn].apply(this, arguments);
+      }
+    });
+  }
+
+  return getScripts;
+}());
+
+/*----------------------------------------------------------------
+ 抽奖
+----------------------------------------------------------------*/
+function Lottery(options) {
+  var defaults = {
+    drawBtn: '.drawBtn',
+    triggerBtn: '.triggerDrawBtn',
+    actId: '',
+    autoInit: true,
+    autoDraw: false //若为登录状态是否自动抽奖
+  };
+
+  $.extend(this, defaults, options);
+
+  var self = this;
+  var domKeys = ['drawBtn', 'triggerBtn'];
+  $.each(domKeys, function (i, key) {
+    self[key] = $(self[key]);
+  });
+
+  if (!Lottery.prototype.draw) {
+    Lottery.prototype = {
+      constructor: Lottery,
+      init: function () {
+        var evtName = VIP.browser.mobile ? 'touchstart' : 'click';
+        var self = this;
+
+        // 绑定事件
+        self.drawBtn.on(evtName, self.draw.bind(self));
+        self.triggerBtn.on(evtName, function () {
+          self.drawBtn.trigger(evtName);
+        });
+
+        if (this.autoDraw &amp;&amp; window.isLogin) { //若已登录 并设置自动抽奖
+          this.draw();
+          VIP.cookie.del('drawing'); //并没使用这个数据
+        }
+      },
+      draw: function () {
+        if (this.drawBtn.data("drawing")) return;
+        this.drawBtn.data('drawing', true);
+        VIP.tips('提交中..');
+
+        var api = this.getApi();
+
+        $.ajax({
+            url: api,
+            type: 'get',
+            dataType: 'jsonp',
+            jsonp: 'jsonp',
+            data: {},
+            context: this
+          })
+          .done(this.drawCallback)
+          .fail(function (xhr, statue, err) {
+            VIP.log('draw err..');
+          });
+      },
+      drawCallback: function (res) {
+
+        this.drawBtn.data('drawing', false);
+        VIP.tips.close();
+
+        VIP.log('draw res:', res);
+
+        var code = res.code - 0;
+
+        switch (code) {
+        case 0:
+          if (res.data.id - 0 === 0) {
+            showTips('fail');
+          } else {
+            showTips('success');
+          }
+          break;
+        case -101:
+        case -102:
+          showTips('repeat');
+          break;
+        case -33:
+          VIP.log('-33 需登录');
+          VIP.tips('请登录,跳转中..');
+          VIP.goLogin(res.data);
+          VIP.cookie.set('drawing', 'true');
+          break;
+        case -110:
+        case -119:
+          showTips('fail'); //库存不足或未中奖
+          break;
+        default:
+          res.msg &amp;&amp; VIP.tips(res.msg);
+          VIP.log('code:' + res.code, ', msg:' + res.msg);
+        }
+
+      },
+      showTips: function (state) {
+        $('.pop').hide();
+        $('.pop-' + state).show(); //.pop-success, .pop-fail, .pop-repeat
+      },
+      getApi: function () {
+        return '//viva-api.vip.com/lottery/draw?actId=' + this.actId;
+      }
+    };
+  }
+
+  if (self.autoInit) {
+    self.init();
+  }
+
+}
+
+/*--------------------------------------------------
+ 保存手机号
+--------------------------------------------------*/
+function SaveMobile(options) {
+  var defaults = {
+    saveBtn: '.saveMobileBtn',
+    mobileInput: '.mobileInput',
+    actId: '', //actId不能为空
+    autoInit: true,
+    onSuccess: undefined,
+    onError: undefined
+  };
+
+  var self = this;
+  $.extend(self, defaults, options);
+
+  var domKeys = ['saveBtn', 'mobileInput'];
+  $.each(domKeys, function (i, key) {
+    self[key] = $(self[key]);
+  });
+
+  if (self.actId === '') {
+    console.log('注意：actId参数不能为空');
+  }
+
+  if (!SaveMobile.prototype.save) {
+    saveMobile.prototype = {
+      constructor: SaveMobile,
+      init: function () {
+        var evtName = VIP.browser.mobile ? 'touchstart' : 'click';
+        this.saveBtn.on(evtName, function () {
+          if ($(this).data('saving')) return;
+          $(this).data('saving', true);
+
+          this.mobile = this.mobileInput.val();
+          if (!this.checkMobile(this.mobile)) return;
+
+          this.save(); //保存手机号
+        });
+      },
+      save: function () {
+        var api = this.getApi();
+
+        $.ajax({
+            url: api,
+            type: 'get',
+            dataType: 'jsonp',
+            jsonp: 'jsonp',
+            data: {},
+            context: this
+          })
+          .done(function (res) {
+            this.saveBtn.data('saving', false);
+
+            var code = res.code - 0;
+            if (code === 0) {
+              this.onSuccess();
+            } else {
+              this.onError();
+            }
+          })
+          .fail(function (xhr, status, err) {
+            console.log('save mobile error..');
+          });
+      },
+      onSuccess: function (res) {
+        VIP.tips('手机号保存成功');
+      },
+      onError: function () {
+        VIP.tips('手机号保存失败');
+      },
+      checkMobile: function (mobile) {
+        var isValid = false;
+
+        if (mobile === '') {
+          VIP.tips('手机号不能为空哦~');
+        } else if (!VIP.validate('mobile', mobile)) {
+          VIP.tips('手机号格式有误~');
+        } else {
+          isValid = true;
+        }
+
+        return isValid;
+      },
+      getApi: function () {
+        return '//viva-api.vip.com/lottery/saveContact?actId=' + this.actId + '&amp;mobile=' + this.mobile;
+      }
+    };
+  }
+
+  if (self.autoInit) {
+    self.init();
+  }
+}
+
+</pre></body></html>

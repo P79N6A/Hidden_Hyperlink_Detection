@@ -1,0 +1,507 @@
+<html><head lang="en">
+		<meta http-equiv="Content-Type" content="text/html;charset=utf-8;">
+		<link rel="stylesheet" type="text/css" href="/bower_components/bootstrap/dist/css/bootstrap.min.css">
+    	<link rel="stylesheet" href="/static/css/reset.less">
+		<link rel="stylesheet" type="text/css" href="/static/css/baike-utils.css">
+		<link rel="stylesheet" type="text/css" href="/question/css/question-exampaper.css">
+		<link rel="stylesheet" type="text/css" href="/static/css/font-awesome.min.css">
+		<link rel="stylesheet" type="text/css" href="/static/css/paging.css">
+		<link rel="stylesheet" type="text/css" href="/static/css/zTreeStyle.css">
+		<link rel="stylesheet" type="text/css" href="/question/css/question.css">
+		<link rel="stylesheet" type="text/css" href="/static/css/hfs-kb.css">
+		<title>云校-知识库</title>
+        <script type="text/javascript" src="/mathjax/MathJax.js?config=TeX-AMS-MML_HTMLorMML&amp;delayStartupUntil=configured"></script>
+		<script language="javascript" src="/bower_components/requirejs/require.js"></script>
+		
+<script id="paper-item" type="text/template">
+	<div class="paper-item">
+		<table>
+			<tr>
+				<td rowspan=2 width=14%>
+					<em class="glyphicon glyphicon-file"></em>
+				</td>
+				<td>
+					<div><a href="/frontend/paper/?paper=<%=link%>"><%=title%></a></div>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<div class="info">
+						<em><%=region%></em>
+						<em> • </em>
+						<em><%=view_times%>次浏览</em>
+						<em> • </em>
+						<em><%=from_year%>-<%=to_year%></em>
+					</div>
+				</td>
+			</tr>
+		</table>
+	</div>
+</script>
+
+<script id="paper-item-list" type="text/template">
+	<li class="paper-item-list">
+			<span><a href="/frontend/exampaper-details/?paper=<%=link%>" target="_blank"><%=title%></a></span>
+			<span class="info">
+				<em class="glyphicon glyphicon-eye-open" style="margin-right:5px"></em><em style="display:inline-block;width:40px;text-align:right"><%=view_times%></em>
+			</span>
+	</li>
+</script>
+
+<script id="paper-list-novip" type="text/template">
+	<li class="paper-item-list">
+			<span><a href="javascript:void(0)"><%=title%></a></span>
+			<span class="info">
+				<em class="glyphicon glyphicon-eye-open" style="margin-right:5px"></em><em style="display:inline-block;width:40px;text-align:right"><%=view_times%></em>
+			</span>
+	</li>
+</script>
+
+<script id="paper-item-list-old" type="text/template">
+	<li class="paper-item-list">
+		<em style="font-size:50px;color:rgba(0,167,233, 0.8)" class="glyphicon glyphicon-file"></em>
+		<div class="li-inline">
+			<div><a href="/frontend/exampaper-details/?paper=<%=link%>" target="_blank"><%=title%></a></div>
+			<div class="info">
+				<em><%=view_times%>次浏览</em>
+			</div>
+		</div>
+	</li>
+</script>
+
+<script id="exampaper-list" type="text/template">
+	<div class="exampaper-master">
+
+		<div class="exampaper-panel">
+			<div class="period-subject-selector">
+				<div class="selector-item selector-item-hover">
+					<span class="select-item-label">学习阶段</span>
+					<span class="select-item-value">
+						<div class="tt-period inline-ul">
+						</div>
+					</span>
+				</div>
+				<div class="selector-item selector-item-hover">
+					<span class="select-item-label">选择科目</span>
+					<span class="select-item-value item-subject">
+						<div class="tt-subject inline-ul">
+						</div>
+					</span>
+				</div>
+				<div class="selector-item selector-item-hover">
+					<span class="select-item-label">教材版本</span>
+					<span class="select-item-value item-subject">
+						<div class="tt-press inline-ul">
+						</div>
+					</span>
+				</div>
+
+				<div class="selector-item selector-item-hover">
+					<span class="select-item-label">考试类型</span>
+					<span class="select-item-value item-type">
+						<div class="tt-spec inline-ul">
+
+						</div>
+					</span>
+				</div>
+
+				<div class="selector-item selector-item-hover">
+					<span class="select-item-label">试卷类型</span>
+					<span class="select-item-value">
+						<div id="user_nav_list" class="inline-ul">
+
+						</div>
+					</span>
+				</div>
+
+				<div class="selector-item">
+					<span class="select-item-label">条件筛选</span>
+					<span class="select-item-value blob">
+					<span class="blob-selector">
+							地区:
+						<span class="dropdown">
+							<a class="dropdown-toggle" id="region_link" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+								<em>全部</em>
+								<span class="caret"></span>
+							</a>
+							<ul id="region-ul" class="dropdown-menu" aria-labelledby="region_link">
+								<li><a href="javascript:void(0)">全部</a></li>
+								<li><a href="javascript:void(0)">全国</a></li>
+								<li><a href="javascript:void(0)">北京</a></li>
+								<li><a href="javascript:void(0)">天津</a></li>
+								<li><a href="javascript:void(0)">河北</a></li>
+								<li><a href="javascript:void(0)">山西</a></li>
+								<li><a href="javascript:void(0)">内蒙古</a></li>
+								<li><a href="javascript:void(0)">辽宁</a></li>
+								<li><a href="javascript:void(0)">吉林</a></li>
+								<li><a href="javascript:void(0)">黑龙江</a></li>
+								<li><a href="javascript:void(0)">上海</a></li>
+								<li><a href="javascript:void(0)">江苏</a></li>
+								<li><a href="javascript:void(0)">浙江</a></li>
+								<li><a href="javascript:void(0)">安徽</a></li>
+								<li><a href="javascript:void(0)">福建</a></li>
+								<li><a href="javascript:void(0)">江西</a></li>
+								<li><a href="javascript:void(0)">山东</a></li>
+								<li><a href="javascript:void(0)">河南</a></li>
+								<li><a href="javascript:void(0)">湖北</a></li>
+								<li><a href="javascript:void(0)">湖南</a></li>
+								<li><a href="javascript:void(0)">广东</a></li>
+								<li><a href="javascript:void(0)">广西</a></li>
+								<li><a href="javascript:void(0)">海南</a></li>
+								<li><a href="javascript:void(0)">重庆</a></li>
+								<li><a href="javascript:void(0)">四川</a></li>
+								<li><a href="javascript:void(0)">贵州</a></li>
+								<li><a href="javascript:void(0)">云南</a></li>
+								<li><a href="javascript:void(0)">西藏</a></li>
+								<li><a href="javascript:void(0)">陕西</a></li>
+								<li><a href="javascript:void(0)">甘肃</a></li>
+								<li><a href="javascript:void(0)">青海</a></li>
+								<li><a href="javascript:void(0)">宁夏</a></li>
+								<li><a href="javascript:void(0)">新疆</a></li>
+								<li><a href="javascript:void(0)">台湾</a></li>
+								<li><a href="javascript:void(0)">香港</a></li>
+							</ul>
+						</span>
+						年份:
+						<span class="dropdown">
+							<a class="dropdown-toggle" id="year_link" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+								<em>全部</em>
+								<span class="caret"></span>
+							</a>
+							<ul id="year-ul" class="dropdown-menu" aria-labelledby="year_link">
+								<li><a href="javascript:void(0)">全部</a></li>
+								<li><a href="javascript:void(0)">2016</a></li>
+								<li><a href="javascript:void(0)">2015</a></li>
+								<li><a href="javascript:void(0)">2014</a></li>
+								<li><a href="javascript:void(0)">2013</a></li>
+								<li><a href="javascript:void(0)">2012</a></li>
+								<li><a href="javascript:void(0)">2011</a></li>
+								<li><a href="javascript:void(0)">2010</a></li>
+								<li><a href="javascript:void(0)">2009</a></li>
+								<li><a href="javascript:void(0)">2008</a></li>
+								<li><a href="javascript:void(0)">2007</a></li>
+								<li><a href="javascript:void(0)">2006</a></li>
+							</ul>
+						</span>
+						<!--
+						<a href="javascript:void(0)" id="is_elite"> 精品试卷</a>
+						-->
+					</span>
+					<!--
+					<span class="sorted-selector">
+						<a id="lll" href="javascript:void(0)" sort-by="et_des" >浏览量<em></em></a>
+					</span>
+					-->
+
+						</span>
+					</div>
+				</div>
+            <div class="background">
+			<ul class="paper-list">
+			</ul>
+			<div class="page-num">
+			</div>
+			</div>
+		</div>
+
+		<div class="config-panel">
+			<div class="user-information">
+				<div class="userinfo_details">
+					<div class="userinfo-details-head">
+						<div class="my-school-title"><a class="black-link"><h3>学籍信息设置</h3></a></div>
+					</div>
+					<div id='my-school-template' class="userinfo_items">
+
+					</div>
+				</div>
+			</div>
+
+			<div class="user-information">
+				<div class="userinfo_details">
+					<div class="userinfo-details-head">
+						<a class="black-link" name="version-info-link">教材版本设置</a>
+					</div>
+					<div id='version-set-template' class="userinfo_items">
+						
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+</script>
+
+		<script id="question-block" type="text/template">
+	<div class="question-block">
+		<div class="question-block-title">
+			<h3><%=title%></h3>
+		</div>
+		<div class="question-block-body">
+			<%=content%>
+		</div>
+	</div>
+</script>
+
+<script id="choice-options-container-1" type="text/template">
+	<div class="options-ul">
+		<div class="option-li"><%=A%></div>
+		<div class="option-li"><%=B%></div>
+		<div class="option-li"><%=C%></div>
+		<div class="option-li"><%=D%></div>
+	</div>
+</script>
+
+<script id="choice-options-container-2" type="text/template">
+	<ul class="options-ul">
+		<li><%=A%></li>
+		<li><%=B%></li>
+		<li><%=C%></li>
+		<li><%=D%></li>
+	</ul>
+</script>
+
+<script id="process-work-path" type="text/template">
+	<span>
+	当前所在位置:
+	<a href="/kb_baike/index/">知识百科</a>
+	<em class="glyphicon glyphicon-menu-right"></em>
+	<a href="/kb_baike/exampaper/">试卷</a>
+	<em class="glyphicon glyphicon-menu-right"></em>
+	<a href="#"><%=paper_name%></a>
+	</span>
+</script>
+
+<script id="paper-title" type="text/template">
+	<div class="paper-title">
+		<div class="paper-title-header">
+		<h3><%=title%></h3>
+		<!--
+		<a href="javascript:void(0)" value="display" id="display-answer"><em class="glyphicon glyphicon-eye-open"></em><em id='display-text'>显示正确答案</em></a>
+		-->
+		</div>
+		<div class="paper-info">
+			<span>热度：<%=hot%></span>
+			<span><a href="/frontend/exampaper-statistics/?paper=<%=paper_id%>" target="_blank">查看阅卷分析</a></span>
+			<span><a id="exampaper_download" href="javascript:void(0)" paper=<%=paper_id%> title="<%=title%>">下载试卷</a></span>
+		</div>
+	</div>
+</script>
+
+<script id="question-instance" type="text/template">
+	<div class="question">
+		<div class="question-instance-body">
+			<span class="question-number"><%=number%></span>
+			<%=question_instance_body%>
+		</div>
+		<div style="clear:right;"></div>
+
+		<div class="analytically">
+			<button type="button" onclick="javascript:void(0)" class="btn-ckjx btn btn-default" value="<%=question_id%>">查看解析</button>
+		</div>
+	</div>
+</script>
+
+<script id="question-instance-body" type="text/template">
+	<span class="question-stem">
+		<span class="question-stem"><%=stem%></span>
+	</span>
+	<%=question_other_info%>
+</script>
+
+<script id="choice-option" type="text/template">
+	<span class="choice-option">
+		<span class="option-label"><%=option_label%>.</span>
+		<span class="option-text"><%=option_text%></span>
+	</span>
+</script>
+
+
+<script id="choice-options" type="text/template">
+	<div class="choice-options">
+		<%=options%>
+	</div>
+</script>
+
+<script id="question-block-body" type="text/template">
+	<div class="question-block-body">
+		<%=content%>
+	</div>
+</script>
+
+<script id="choice-option-checkbox" type="text/template">
+	<span class="choice-option">
+		<span><input name="question_<%=number%>" type="checkbox" /></span>
+		<span class="option-label"><%=option_label%>.</span>
+		<span class="option-text"><%=option_text%></span>
+	</span>
+</script>
+
+<script id="paper" type="text/template">
+	<div class="paper">
+	</div>
+</script>
+
+<script id="knowledge-item-template" type="text/template">
+	<li>
+		<div class="knowledge-1-line">
+			<a href="/frontend/knowledge-details/?knowledge_id=<%=id%>" target="_blank"><%=name%></a>
+		</div>
+		<div class="knowledge-2-line">
+			<%=importance%><a class="btn btn-default" href="/frontend/knowledge-statistics/?knowledge_id=<%=id%>" target="_blank" role="button"><%=period%>趋势</a>
+		</div>
+	</li>
+</script>
+
+<script id="knowledge-item-template-art" type="text/template">
+	<li>
+		<div class="knowledge-0-line">
+			<a href="/frontend/knowledge-details/?knowledge_id=<%=id%>" target="_blank"><%=name%></a>
+		</div>
+		<div class="knowledge-2-line">
+			<%=importance%>
+		</div>
+	</li>
+</script>
+
+		<script id="examques-master" type="text/template">
+			<div class="examques-master">
+				<div class="exampaper-panel">
+					<div class="period-subject-selector">
+						<div class="selector-item selector-item-hover">
+							<span class="select-item-label">学习阶段</span>
+							<span class="select-item-value">
+								<div class="tt-period inline-ul">
+								</div>
+							</span>
+						</div>
+						<div class="selector-item selector-item-hover">
+							<span class="select-item-label">选择科目</span>
+							<span class="select-item-value item-subject">
+								<div class="tt-subject inline-ul">
+								</div>
+							</span>
+						</div>
+						<div class="selector-item selector-item-hover">
+							<span class="select-item-label">筛选模式</span>
+							<span class="select-item-value">
+								<div class="tt-mode inline-ul">
+								</div>
+							</span>
+						</div>
+
+						<div class="selector-item tree-mode selector-item-hover">
+							<span class="select-item-label">知识目录</span>
+							<span class="select-item-value item-subject">
+								<div class="tt-tree inline-ul">
+								</div>
+							</span>
+						</div>
+
+						<div class="selector-item book-mode selector-item-hover">
+							<span class="select-item-label">教材版本</span>
+							<span class="select-item-value item-subject">
+								<div class="tt-press inline-ul">
+								</div>
+							</span>
+						</div>
+
+						<div class="selector-item book-mode selector-item-hover">
+							<span class="select-item-label">具体教材</span>
+							<span class="select-item-value item-type">
+								<div class="tt-grade inline-ul">
+
+								</div>
+							</span>
+						</div>
+
+					</div>
+				
+					<div style="width: 1200px;margin-top: 10px;margin-right: -15px !important;padding: 0px;background-color: white;">
+					<div style="display:table-row">
+						<ul id="knowledge-tree" class="master-left ztree">
+						</ul>
+
+						<div class="master-right">
+							<div class="question-selector-box" style="margin-top: 20px;">
+								<div class="question-selector">
+									<span class="selector-label">类型:</span>
+									<span class="span-dropdown dropdown">
+										<a class="dropdown-toggle" id="ques-type" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+											<em>全部</em>
+											<span class="caret"></span>
+										</a>
+										<ul id="examda-menu" class="dropdown-menu" aria-labelledby="ques-type">
+										</ul>
+									</span>
+
+									<span class="selector-label">难度:</span>
+									<span class="span-dropdown dropdown" style="display:inline-block;width:50px;height:100px;">
+										<a class="dropdown-toggle" id="ques-diff" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+											<em>全部</em>
+											<span class="caret"></span>
+										</a>
+										<ul id="ques-diff-menu" class="dropdown-menu" aria-labelledby="ques-diff">
+											<li><a href="javascript:void(0)">全部</a></li>
+											<li><a href="javascript:void(0)" value="1">容易</a></li>
+											<li><a href="javascript:void(0)" value="1">较易</a></li>
+											<li><a href="javascript:void(0)" value="3">中等</a></li>
+											<li><a href="javascript:void(0)" value="4">较难</a></li>
+											<li><a href="javascript:void(0)" value="5">困难</a></li>
+										</ul>
+									</span>
+
+								</div>
+							</div>
+							<div id="question-list">
+
+							</div>
+							<div class="page-num"></div>
+						</div>
+					</div>
+				</div>
+
+				<div style="clear:both"></div>
+			</div>
+		</script>
+
+		<script>
+			require(['/question/js/question.js']);
+		</script>
+		<script id="layout_header" type="text/template">
+	<header class="layout-header">
+		<div class="header-wrapper">
+			<a class="logo" href="/frontend/question/" title="云校">
+				<h1></h1>
+			</a>
+			<ul class="header-menu">
+				<li>
+				<a class="header-menu-nav active" title="知识库" href="/frontend/question/">首页</a>
+				</li>
+			</ul>
+			<div class="user-info dropdown">
+			<img id="head_img" class="head-img" src="/static/img/icon-face60.png">
+			<a id="dLabel" class="user-info-link" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+				<label id="username"></label>
+				<span class="caret"></span>
+			</a>
+			<ul class="user-info-dropdown dropdown-menu" aria-labelledby="dLabel">
+				<li><a id="logout" href="javascript:void(0)"><em class="glyphicon glyphicon-off"></em>退出</a></li>
+			</ul>
+			</div>
+		</div>
+	</header>
+</script>
+
+<script id="layout_footer" type="text/template">
+	<footer class="layout-footer home-footer-address">
+	学生/家长：400-680-0050 &nbsp;&nbsp;老师：400-851-0360 &nbsp;&nbsp; 地址： 北京朝阳区望京SOHO.T1.B座21层（100020）<br><br>
+	<span>© 2014-2016  &nbsp;北京修齐治平科技有限公司</span><b>|</b><a href="http://www.miibeian.gov.cn" target="_blank">京ICP备12037256-6号</a><b>|</b><span>京公网安备11010502027075</span>
+	<div class="clearfix"></div>
+	</footer>
+</script>
+
+	<script type="text/javascript" charset="utf-8" async="" data-requirecontext="_" data-requiremodule="/question/js/question.js" src="/question/js/question.js"></script><script type="text/javascript" charset="utf-8" async="" data-requirecontext="_" data-requiremodule="/bower_components/underscore/underscore.js" src="/bower_components/underscore/underscore.js"></script><script type="text/javascript" charset="utf-8" async="" data-requirecontext="_" data-requiremodule="/bower_components/jquery/dist/jquery.js" src="/bower_components/jquery/dist/jquery.js"></script><script type="text/javascript" charset="utf-8" async="" data-requirecontext="_" data-requiremodule="/static/js/baike-utils.js" src="/static/js/baike-utils.js"></script><script type="text/javascript" charset="utf-8" async="" data-requirecontext="_" data-requiremodule="/static/js/paging.js" src="/static/js/paging.js"></script><script type="text/javascript" charset="utf-8" async="" data-requirecontext="_" data-requiremodule="/static/js/nav.js" src="/static/js/nav.js"></script><script type="text/javascript" charset="utf-8" async="" data-requirecontext="_" data-requiremodule="/common/utils.js" src="/common/utils.js"></script><script type="text/javascript" charset="utf-8" async="" data-requirecontext="_" data-requiremodule="/static/js/question-utils.js" src="/static/js/question-utils.js"></script><script type="text/javascript" charset="utf-8" async="" data-requirecontext="_" data-requiremodule="/static/js/ztree.js" src="/static/js/ztree.js"></script><script type="text/javascript" charset="utf-8" async="" data-requirecontext="_" data-requiremodule="/bower_components/bootstrap/dist/js/bootstrap.js" src="/bower_components/bootstrap/dist/js/bootstrap.js"></script><script type="text/javascript" charset="utf-8" async="" data-requirecontext="_" data-requiremodule="/static/js/api.js" src="/static/js/api.js"></script><script type="text/javascript" charset="utf-8" async="" data-requirecontext="_" data-requiremodule="/bower_components/jquery.cookie/jquery.cookie.js" src="/bower_components/jquery.cookie/jquery.cookie.js"></script><script type="text/javascript" charset="utf-8" async="" data-requirecontext="_" data-requiremodule="/common/ViewBase.js" src="/common/ViewBase.js"></script><script type="text/javascript" charset="utf-8" async="" data-requirecontext="_" data-requiremodule="/common/ModelBase.js" src="/common/ModelBase.js"></script><script type="text/javascript" charset="utf-8" async="" data-requirecontext="_" data-requiremodule="/common/events.js" src="/common/events.js"></script></head>
+	<body>
+	
+
+</body></html>

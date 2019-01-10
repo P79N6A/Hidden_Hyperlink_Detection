@@ -1,0 +1,3237 @@
+<html><head></head><body><pre style="word-wrap: break-word; white-space: pre-wrap;">var login_question = $('#login_question')[0];
+var _preCache = null;
+// -- 查询IP相关地区信息接口
+function get_ipaddress() {
+    var myCookie = getCookie("isAdmin");
+    var ip = '';
+    if (myCookie!=null&amp;&amp;myCookie=='true') {
+        $('.ip').each(function(index, value) {
+            index++;
+            ip = $(this).html();
+            $.getJSON('http://www.jjwxc.net/lib/get_ipaddress.php?jsonp=?', {
+                ip: ip
+            }, function(json) {
+                if (json.status==200) {
+                    ip = json.IP;
+                    ip = ip.replace(/\./g, '');
+                    $('.'+ip).html(json.IPAddress);
+                }
+            });
+        });
+    }
+}
+// 复制的时候添加文章来源链接(IE)
+document.body.oncopy = function() {
+    var urlText = "\r\n本文转自晋江文学城，原文地址："+window.location.href;
+    if (window.clipboardData) {
+        setTimeout(function() {
+            if (clipboardData.getData("text")) {
+                clipboardData.setData("text", clipboardData.getData("text")+urlText);
+                copy2Clipboard(clipboardData.getData("text"));
+            }
+        }, 100);
+    }
+}
+//判断读者是否有删除这篇文章的评论以及回复的功能
+function getcommentright() {
+    if (getCookie("comtoken")!=null&amp;&amp;getCookie('readerid')!=null) {
+        var commentright = getCookie("comtoken");
+        commentright = utf8to16(decode64(commentright));
+        commentright = commentright.split('|');
+    }
+    return commentright;
+}
+
+// --- 书评投诉
+function form2submit(formvalue) {
+    nochapter = 0; //0代表有章节，;
+    notdoform = 0; //0代表跳转
+    //onebook网址参数判断
+    if (location.href.indexOf("chapterid")&lt;0)//如果不存在chapterid
+    {
+        nochapter = 1;
+    }//end of if 是否为章节
+    if ((formvalue==1)||(formvalue==6))//javascript只支持||和&amp;&amp;，不支持and和or
+    {
+        if (nochapter==1)
+        {
+            notdoform = 1;
+        }
+    }//end of if 是否是报错与评论
+    if (notdoform==1)
+    {
+        alert("请转到具体章节页面再点击　　\n否则系统无法自动处理！");
+    } else
+    {
+        f = document.getElementById('auto_form');
+        f.action = "/backend/auto.php?act="+formvalue;
+        f.submit();
+    }
+}
+
+
+// --- 判断文章
+function isMyNovel() {
+    var cookieAuthorid = getCookie("authorid");
+    var htmlAuthorid = $('#authorid_').text();
+    var isMyNovel = false;
+    if (cookieAuthorid!=null&amp;&amp;htmlAuthorid!=null&amp;&amp;htmlAuthorid!=''&amp;&amp;cookieAuthorid==htmlAuthorid) {
+        isMyNovel = true;
+    }
+    return isMyNovel;
+}
+
+function getAbsoluteLeft(objectId) {
+    o = document.getElementById(objectId)
+    oLeft = o.offsetLeft
+    while (o.offsetParent!=null) {
+        oParent = o.offsetParent
+        oLeft += oParent.offsetLeft
+        o = oParent
+    }
+    return oLeft
+}
+
+function getAbsoluteTop(objectId) {
+    o = document.getElementById(objectId)
+    oTop = o.offsetTop
+    while (o.offsetParent!=null) {
+        oParent = o.offsetParent
+        oTop += oParent.offsetTop
+        o = oParent
+    }
+    return oTop
+}
+
+function isonlinered(type) {
+    if (type==2) {
+        return true;
+    }
+    if (type!=1) {
+        return false;
+    }
+//2014.01.29-2014.02.28
+    var localtime = Math.round(new Date().getTime()/1000);
+    if (parseInt(localtime)&gt;=1390924800&amp;&amp;parseInt(localtime)&lt;=1393603199) {
+        return true;
+    }
+    return false;
+}
+
+/**
+ * 显示送红包按钮和批量送红包
+ * @param jQuery object 需要处理的dom
+ * @param 为方便将来扩展以json形式传参
+ * {
+ *      novelid:novelid 作品id
+ * }
+ */
+function deployredpay(dom, param) {
+    if (param['novelid']&gt;0) {
+        var commentidarr = new Array();
+        $('#'+dom+' [id^="comment_"]').each(function() {
+            commentidarr.push($(this).data('commentid'));
+        });
+        commentidstr = commentidarr.join('|');
+        $.post("http://my.jjwxc.net/backend/red_envelope.php?jsonp=?", {action: 'checkred', novelid: param['novelid'], commentid: commentidstr}, function(json) {
+            if (json.status==200) {
+                var showcomment = false;
+                var commentauthor = '';
+                var htm = '';
+                $('#'+dom+' [id^="comment_"]').each(function() {
+                    var i = $(this).data('commentid');
+                    var v = json.data[i]
+                    if (v!=false) {
+                        commentauthor = $(this).find('.tdtitle .blacktext:first').text();
+                        showcomment = true;
+                        htm = '&lt;a style="margin-left:300px;" onclick = "showlist(\''+commentauthor+'\',\''+param['novelid']+'\','+i+')"&gt;&lt;font color="red"&gt;[送红包]&lt;/font&gt;&lt;/a&gt;';
+                        $(this).find(".redshow_"+i).html(htm);
+                        $(this).find('.tdtitle .coltext').prepend('&lt;input type="checkbox" class="batchred" value='+i+' style="vertical-align: text-bottom; "&gt;');
+                    } else {
+                        $(this).find('.tdtitle .coltext').prepend('　');
+                    }
+                });
+                if (showcomment) {
+                    var html = '&lt;div class="batchaddcommend"&gt; '
+                            +'&lt;span style="display:inline-block;width:60px"&gt;&lt;button class="all" onclick="batch_red_select($(this),\'all\')" id="all"&gt;全选&lt;/button&gt;&lt;/span&gt;'
+                            +'&lt;span style="display:inline-block;width:60px"&gt;&lt;button class="invert" onclick="batch_red_select($(this),\'invert\')" name="invert"&gt;反选&lt;/button&gt;&lt;/span&gt;'
+                            +'&lt;span style="display:inline-block;margin-left:170px"&gt;&lt;button  onclick="batch_red_send($(this),'+param['novelid']+')"&gt;批量送红包&lt;/button&gt;&lt;/span&gt;&lt;/div&gt;';
+                    $('#'+dom).append(html)
+                }
+            }
+        }, 'json');
+    }
+
+}
+
+
+/**
+ * 送红包操作
+ */
+function redpay(novelid, commentid) {
+    $("#myredbutton").attr('disabled', 'disabled');
+    $.unblockUI();
+    var novelid = novelid;
+    var commentid = commentid;
+    var redpayval = $('input[name="redpayradio"]').filter(':checked').val();
+    var redpayreply = $('input[name="redpayreply"]').val();
+    var paypsw = $('input[name="paypsw"]').val();
+    if (redpayval==''||redpayval==undefined||redpayval==null) {
+        $.blockUI('&lt;font color="red"&gt;请选择点数后再确认提交&lt;/font&gt;&lt;br /&gt;&lt;br /&gt;&lt;input type="button" value=关闭 onclick=$.unblockUI()&gt;');
+        return false;
+    }
+    $.getJSON("http://my.jjwxc.net/backend/red_envelope.php?jsonp=?", {action: "redpayComment", novelid: novelid, redpayval: redpayval, commentid: commentid
+        , paypsw: paypsw, redpayreply: redpayreply
+    }, function(data) {
+        $("#myredbutton").removeAttr('disabled');
+        if (data.status==100) {
+            $.blockUI(data.msg+'&lt;br /&gt;&lt;br /&gt;&lt;div&gt;&lt;input type="button" value=关闭 onclick=$.unblockUI()&gt;&lt;/div&gt;');
+        } else {
+            $.blockUI('已成功送红包！&lt;br /&gt;&lt;br /&gt;&lt;div&gt;&lt;input type="button" value=关闭 onclick=$.unblockUI()&gt;&lt;/div&gt;');
+        }
+    })
+}
+
+/**
+ * 评论送红包选择金额
+ * @param string commentbyreader 需要发送红包的第一个用户名
+ * @param int novelid 作品id
+ * @param newcommentid 一个或多个commentid，以|分割
+ */
+function showlist(commentbyreader, novelid, newcommentid) {
+    var UIparams = new Array();
+    UIparams['type'] = 'comment';
+    UIparams['payname'] = commentbyreader;
+    UIparams['novelid'] = novelid;
+    if ($.isArray(newcommentid)&amp;&amp;newcommentid.length&gt;1) {
+        UIparams['paycount'] = newcommentid.length;
+    }
+    if ($.isArray(newcommentid)) {
+        newcommentid = newcommentid.join('|')
+    }
+    UIparams['commentid'] = newcommentid;
+    showlistUI(UIparams)
+}
+
+/**
+ * 读者专栏送红包选择金额
+ * @param int authorid
+ * @param int readerid
+ */
+function showlistReader(authorid, readerid) {
+    var UIparams = new Array();
+    UIparams['type'] = 'reader';
+    UIparams['authorid'] = authorid;
+    UIparams['payname'] = readerid;
+    UIparams['readerid'] = readerid;
+    showlistUI(UIparams)
+
+}
+/**
+ * 显示选择红包金额的浮层blockUI
+ * @params params json {
+ * paycount:红包个数；
+ * payname:第一个收到红包的用户名；
+ * signed:送红包是否是签约作者;
+ * paypsw:是否需要支付密码；
+ *
+ * type:comment 通过评论送红包/reader 通过读者专栏送红包
+ *
+ * novelid: 通过评论送红包 作品id
+ * commentid：通过评论送红包 评论id，多个评论id用竖线分割
+ *
+ * readerid:通过读者专栏送红包 受赠读者id
+ * }
+ */
+function showlistUI(params) {
+    $.getJSON('http://www.jjwxc.net/backend/red_envelope.php?jsonp=?', {action: 'checkPayCondition'}, function(json) {
+        var html = '';
+        html += '&lt;style&gt;#noteinfo,#selectpayval td{text-align:left}#noteinfo{text-indent:2em;margin-bottom:1em;}#selectpayval{margin:10px} #redpaypsw{margin:10px} &lt;/style&gt;';
+        html += '&lt;div id="noteinfo"&gt;';
+        var proprotion = ' 5% '
+        if (json.signed==0) {
+            proprotion = '&lt;span style="color:red"&gt; 30% &lt;/span&gt;'
+        }
+        if (params['paycount']&gt;0) {
+            html += '送红包给用户 &lt;font color="red"&gt; '+params['payname']+'等 '+params['paycount']+'个用户 &lt;/font&gt;，该操作会消耗您账户中的晋江币，扣除'+proprotion+'的手续费后，赠送给用户。请选择每个红包的金额。&lt;span id="redpaytotal" style="color:red"&gt;&lt;/span&gt;';
+        } else {
+            html += '送红包给用户 &lt;font color="red"&gt; '+params['payname']+' &lt;/font&gt;，该操作会消耗您账户中的晋江币，扣除'+proprotion+'的手续费后，赠送给用户。请选择红包的金额。';
+        }
+        html += '&lt;/div&gt;';
+        if (params['type']=='comment') {
+            var randreply = randomRedpayReply();
+            html += '&lt;div&gt;&lt;label for="redpayreply"&gt;回复：&lt;/label&gt;&lt;input name="redpayreply" id="redpayreply" class="input_text_long" value="'+randreply+'"&gt;&lt;/div&gt;';
+        }
+        html += '&lt;div id="selectpayval"&gt;';
+        html += '&lt;table  align=center&gt;';
+        html += '&lt;tr&gt;';
+        html += '&lt;td&gt;&lt;input type="radio" name="redpayradio" value="0" id="redpayradio0" /&gt;&lt;label for="redpayradio0"&gt;赠送20点&lt;/label&gt;&lt;/td&gt;';
+        html += '&lt;td&gt;&lt;input type="radio" name="redpayradio" value="1" id="redpayradio1" /&gt;&lt;label for="redpayradio1"&gt;赠送100点&lt;/label&gt;&lt;/td&gt;';
+        html += '&lt;td&gt;&lt;input type="radio" name="redpayradio" value="2" id="redpayradio2" /&gt;&lt;label for="redpayradio2"&gt;赠送200点&lt;/label&gt;&lt;/td&gt;';
+        html += '&lt;/tr&gt;&lt;tr&gt;';
+        html += '&lt;td&gt;&lt;input type="radio" name="redpayradio" value="5" id="redpayradio5" /&gt;&lt;label for="redpayradio5"&gt;赠送500点&lt;/label&gt;&lt;/td&gt;';
+        html += '&lt;td&gt;&lt;input type="radio" name="redpayradio" value="10" id="redpayradio10" /&gt;&lt;label for="redpayradio10"&gt;赠送1000点&lt;/label&gt;&lt;/td&gt;';
+        html += '&lt;td&gt;&lt;input type="radio" name="redpayradio" value="50" id="redpayradio50" /&gt;&lt;label for="redpayradio50"&gt;赠送5000点&lt;/label&gt;&lt;/td&gt;';
+        html += '&lt;/tr&gt;&lt;tr&gt;';
+        html += '&lt;td&gt;&lt;input type="radio" name="redpayradio" value="100" id="redpayradio100" /&gt;&lt;label for="redpayradio100"&gt;赠送10000点&lt;/label&gt;&lt;/td&gt;';
+        html += '&lt;td&gt;&lt;input type="radio" name="redpayradio" value="200" id="redpayradio200" /&gt;&lt;label for="redpayradio200"&gt;赠送20000点&lt;/label&gt;&lt;/td&gt;';
+        html += '&lt;td&gt;&lt;input type="radio" name="redpayradio" value="500" id="redpayradio500" /&gt;&lt;label for="redpayradio500"&gt;赠送50000点&lt;/label&gt;&lt;/td&gt;';
+        html += '&lt;tr&gt;';
+        html += '&lt;/table&gt;';
+        html += '&lt;/div&gt;';
+        if (json.paypwd) {
+            html += '&lt;div id="redpaypsw" &gt; 支付密码:&lt;input type="password" class="input_text_short" name="paypsw"/&gt; &lt;/div&gt;';
+        }
+        var onClick = '';
+        if (params['type']=='comment') {
+            onClick = '"redpay(\''+params['novelid']+'\','+'\''+params['commentid']+'\''+');"'
+        } else if (params['type']=='reader') {
+            onClick = '"readerRedPay(\''+params['authorid']+'\','+'\''+params['readerid']+'\');"'
+        }
+
+        html += '&lt;div&gt;&lt;button class=input_submit type=button id="myredbutton"  onClick='+onClick+' &gt;确认&lt;/button&gt;';
+        html += "&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;";
+        html += '&lt;button class=input_submit type=button   onClick=$.unblockUI()&gt;取消&lt;/button&gt;&lt;/div&gt;';
+        $.blockUI(html, {width: '330px', cursor: 'pointer'});
+        if (params['paycount']&gt;0) {
+            $("[name='redpayradio']").bind('change', function() {
+                var unit = $("[name='redpayradio']:checked").val()
+                if (unit==0) {
+                    unit = 20
+                } else {
+                    unit *= 100;
+                }
+                $('#redpaytotal').text('(共计'+unit*params['paycount']+'点)')
+            })
+        }
+    })
+}
+
+function randomRedpayReply() {
+    var replyarr = [
+        '我的日更不是梦，你的红包不是梦！感谢订阅~',
+        '埋个红包，将读者炸出来！',
+        '这是人家拿肾换来的红包，请慢慢享用',
+        '大手一挥，红包到来',
+        '你的意见好好哦，我只能用红包回报！',
+        '玫瑰开在三月里，红包随时到手里，请继续支持哦！'];
+    x = GetRandomNum(0, replyarr.length-1);
+    return replyarr[x];
+}
+
+/**
+ * 批量送红包全选、反选
+ * @param jQuery object 全选/反选的checkbox
+ * @param string type :all 全选；invert 反选
+ */
+function batch_red_select(dom, type) {
+    var checkboxs = dom.parents('.batchaddcommend').parent().find('input.batchred')
+    if (type=='all') {
+        checkboxs.each(function() {
+            $(this).prop('checked', true)
+        })
+    } else if (type=='invert') {
+        checkboxs.each(function() {
+            $(this).prop('checked', !$(this).prop('checked'));
+        })
+    }
+}
+/**
+ * 批量送红包
+ * @param jQuery object 批量发送按钮的jQuery对象
+ * @param int novelid
+ */
+function batch_red_send(dom, novelid) {
+    var commentidarr = new Array();
+    dom.parents('.batchaddcommend').parent().find('input.batchred:checked').each(function() {
+        commentidarr.push($(this).val());
+    })
+    if (commentidarr.length==0) {
+        alert('请至少勾选一个要送红包的评论')
+    } else {
+        commentbyreader = dom.parents('.batchaddcommend').parent().find('input.batchred:checked:first').siblings('.blacktext:first').text()
+        showlist(commentbyreader, novelid, commentidarr);
+    }
+}
+
+function favorite_novel(obj) {
+
+    setCookie('clicktype', 'favorite_1', 0, '/', '.jjwxc.net'); //这设置的clicktype为favorite_1 即收藏文章 xwb
+
+    var flag = $(obj).html();
+    if (flag!='收藏此文章'&amp;&amp;flag!='收藏此章节'&amp;&amp;flag!='插入书签'&amp;&amp;flag!='收藏此章節'&amp;&amp;flag!='插入書簽') {
+        return false;
+    }
+    var rel = $(obj).attr('rel');
+    rel = rel.split('|');
+    var novelId = getURLParam('novelid');
+    var chapterId = getURLParam('chapterid');
+    if (chapterId==null||chapterId=='null') {
+        chapterId = 0;
+    }
+    var id = rel[0];
+    var rand = Math.random();
+    if (is_login('favorite_'+id, 'click')) {
+// $('#favoriteshow_'+id).html("&lt;font color='red'&gt;请等待.....&lt;/font&gt;").show();
+        $.getJSON('http://my.jjwxc.net/insertfavorite.php?jsonp=?', {
+            novelid: novelId,
+            chapterid: chapterId,
+            rand: rand,
+            checkmaxnum: 'checkmaxnum'
+        }, function(data) {
+//$.blockUI(data.message);
+//  $('#favoriteshow_'+id).html(data.strtext);
+            if (data.oldClassname==''||data.status=='maxlimit') {                       //如果收藏章节以前没有为该小说收藏分类，那么就弹框提示分类
+                if (data.strtext!='您还没有登陆，所以无法使用书签功能') {  //判断是否登陆
+                    if (data.status=='maxlimit') {
+                        $.blockUI('&lt;div align="center"&gt;&lt;div style="float:right"&gt;&lt;img src="http://static.jjwxc.net/images/close.gif" width="12" height="12" style="cursor:pointer" onClick="$.unblockUI()"/&gt;&lt;/div&gt;&lt;br&gt;&lt;b&gt;'+data.message+'&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;input type="button" value="确 定" onClick="$.unblockUI()"/&gt;&lt;/div&gt;', {width: '330px', height: '100px', cursor: 'default', left: '43%', top: '45%'});
+                    } else {
+                        $('#float_message').html(data.strtext); //提示收藏成功信息
+                        var html = ''; //初始化html;
+                        var favorite = new Array();
+                        var classid = new Array();
+                        favorite = data.favoriteClass.split('|'); //使用|分割分类的数据
+                        classid = data.favoriteClassid.split('|'); //使用|分割分类的数据
+                        if (favorite!='') {                        //如果读者有收藏分类，就循环输出分类
+                            for (i = 0; i&lt;favorite.length; i++) {
+                                var class_id = classid[i];
+                                var title = favorite[i];
+                                if (favorite[i].length&gt;4) {
+                                    favorite[i] = favorite[i].substr(0, 3)+'…';
+                                }
+                                html += '&lt;li&gt;&lt;font style="cursor:pointer;color:green;" id="'+class_id+'" title="'+title+'" onmouseout=\"this.style.textDecoration=\'none\'\" onmouseover=\"this.style.textDecoration=\'underline\'\"&gt;'+favorite[i]+'&lt;/font&gt;&lt;/li&gt;';
+                            }
+                        } else {
+                            html = '&lt;span style="float:left;margin:38px 0 0 -16px;color:red;"&gt;~~您还没有【定制收藏类别】哦！点击定制收藏类别，增加分类吧！&lt;/span&gt;';
+                        }
+
+                        $('#float_comment_ul').html(html);
+                        if ($('#float_favorite').css('display')=='none') {
+                            var xOffset = 130; //定义x的偏移量
+                            var x = getAbsoluteLeft('favorite_1');
+                            var left = x+xOffset;
+                            $('#mongolia_layer').show();
+                            $('#float_favorite').css({
+                                left: left+'px'
+                            }).show();
+                        }
+                    }
+                } else {
+                    var message = ''; //初始化变量
+                    message = '&lt;span&gt;'+data.strtext+'&lt;/span&gt;'; //未登陆的提示
+                    $.blockUI(message);
+                    setTimeout(function() {
+                        $.unblockUI();
+                    }, 1500);
+                    false;
+                }
+            } else {
+                $('#favoriteshow_'+id).html(data.strtext).show(); //文章《novelname》novleid 之前已经被成功收藏，您可以在收藏列表的【oldClassname】 类别当中找到^_^
+            }
+            $('#float_comment_ul font').click(function() {
+                var spans = $(this).attr('id');
+                var readerid = getCookie("readerid");
+                var action = 'articlesCategory';
+                $.getJSON('http://my.jjwxc.net/insertfavorite.php?jsonp=?', {
+                    action: action,
+                    novelid: novelId,
+                    chapterid: chapterId,
+                    classid: spans
+                }, function(result) {
+                    if (result.status==200) {
+                        $('#float_comment_ul').html('&lt;span style="margin:35px 0 0 120px;float:left;font-size:14px;"&gt;文章收藏分类&lt;font color="green"&gt;成功&lt;/font&gt;&lt;/span&gt;');
+                    } else {
+                        $('#float_comment_ul').html('&lt;span style="margin:35px 0 0 120px;float:left;font-size:14px;"&gt;文章收藏分类&lt;font color="red"&gt;失败&lt;/font&gt;&lt;/span&gt;');
+                    }
+                    setTimeout(close_fav, 2000);
+                });
+            })
+            //重置，防止多次操作
+            setCookie('clicktype', '', 0, '/', '.jjwxc.net');
+        });
+    }
+}
+
+function close_fav() {
+    $('#mongolia_layer').hide(); //关闭蒙层
+    $('#float_favorite').hide(); //关闭浮层
+}
+
+// --- 打印评论用户名
+function getCommentUserName()
+{
+    if (getCookie("cookieofcommentusername")!=null) {
+        document.getElementById("commentauthor").value = unescape(decodeURI(getCookie("cookieofcommentusername")));
+    } else if (getCookie("cookieofauthorname1")!=null) {
+        document.getElementById("commentauthor").value = unescape(decodeURI(getCookie("cookieofauthorname1")));
+    } else if (getCookie("cookieofemail")!=null) {
+        cookieofemail = getCookie("cookieofemail").split('@');
+        document.getElementById("commentauthor").value = cookieofemail[0];
+    } else {
+        document.getElementById("commentauthor").value = '';
+    }
+}
+// --- 验证码登陆提示
+function auth_num_ajax() {
+    var auth_num = $('#auth_num_login_ajax').val();
+    if (auth_num.length==0) {
+        $('#auth_message_ajax').html('请输入验证码再提交登陆！');
+    } else {
+        $('#auth_message_ajax').html('');
+        if ($('#auth_num_ajax').size()==0) {
+            $('#login_alert').append('&lt;input type="hidden" id="auth_num_ajax" name="auth_num_ajax" value="" /&gt;');
+        }
+        $('#auth_num_ajax').val(auth_num);
+        login_ajax()
+    }
+}
+// 作者赠送积分
+function sendpoint(novelid, commentid) {
+    $.blockUI('&lt;img src="http://static.jjwxc.net/imagesloading.gif"&gt;&lt;strong&gt;请稍候...&lt;/strong&gt;', {
+        padding: '20px'
+    });
+    $.post('/sendpoint.php', {
+        novelid: novelid,
+        commentid: commentid,
+        action: 'send'
+    }, function(date) {
+        $.blockUI($(date));
+    });
+}
+
+function setonfcous() {
+    $("#fcous").html('on');
+}
+
+function setofffcous() {
+    $("#fcous").html('off');
+}
+
+
+function login_ajax() {
+    var USEUUID;
+    $("input[name='USEUUID_ajax']").each(function() {
+        if ($(this).attr('checked')=='checked'||$(this).attr('checked')=='checked') {
+            USEUUID = $(this).val();
+        }
+    });
+    if (USEUUID==undefined) {
+        USEUUID = $('#USEUUID_ajax').val();
+    }
+    var loginname = encodeURI($('#loginname_ajax').val());
+    var loginpassword = $('#loginpassword_ajax').val();
+    var Ekey = $('#Ekey_ajax').val();
+    var Challenge = $('#Challenge_ajax').val();
+    var action = $('#action_ajax').val();
+    var callback = $('#callback').val();
+    var submit_at = $('#submit_at').val();
+    var auth_num = $('#auth_num_ajax').val();
+    var randid = Math.random();
+    $.blockUI('&lt;img src="http://static.jjwxc.net/images/loading.gif"&gt;  &lt;strong&gt;请稍候...&lt;/strong&gt;');
+    $.getJSON("http://my.jjwxc.net/login.php?action=login&amp;login_mode=ajax&amp;USEUUID="+USEUUID+"&amp;loginname="+loginname+"&amp;loginpassword="+loginpassword+"&amp;Ekey="+Ekey+"&amp;Challenge="+Challenge+"&amp;auth_num="+auth_num+"&amp;jsonp=?", function(data) {
+        if (typeof (data.state)!='undefined') {
+            if (data.state==1) {
+                if (submit_at=='click') {
+                    if ($.browser.msie) {
+                        document.getElementById(callback).click();
+                    } else {
+                        $('#'+callback).click();
+                    }
+                } else if (submit_at=='url') {
+                    if (($('#'+callback).attr('rel')).indexOf('ttp://')) {
+                        window.location.href = $('#'+callback).attr('rel');
+                    } else {
+                        window.location.href = 'http://www.jjwxc.net/'+$('#'+callback).attr('rel');
+                    }
+                } else if (submit_at=='submit') {
+                    $('#'+callback).submit();
+                } else if (submit_at=='change') {
+                    $('#'+callback).change();
+                } else if (submit_at=='yrt') {	// 易瑞特“免费得晋江币”活动跳转页面
+                    window.location.href = 'http://my.jjwxc.net/yrt/jump.php';
+                }
+                $.unblockUI();
+            } else if (data.state==-1) {
+                $.blockUI('&lt;b&gt;登陆失败&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;input type="button" value="确  定" onclick="$.unblockUI()"/&gt;');
+            } else if (data.state==10) {
+                $.blockUI('&lt;div id="login_alert" align="conter" style="cursor: default;"&gt;&lt;br/&gt;&lt;span id="auth_message_ajax" style="color: red;"&gt;&lt;/span&gt;&lt;br/&gt;&lt;strong&gt;请输入验证码再登陆&lt;/strong&gt;&lt;br/&gt;验证码&amp;nbsp;&amp;nbsp;&lt;input id="auth_num_login_ajax" class="input" maxlength="8" size="10" name="auth_num_login_ajax"/&gt;挑战码&lt;img src="http://my.jjwxc.net/lib/Authimg.php?r='+randid+'"/&gt;&lt;br/&gt;&lt;br/&gt;&lt;input type="hidden" id="USEUUID_ajax" value="'+USEUUID+'"/&gt;&lt;input type="hidden" id="loginname_ajax" value="'+loginname+'"/&gt;&lt;input type="hidden" id="loginpassword_ajax" value="'+loginpassword+'"/&gt;&lt;input type="hidden" id="Ekey_ajax" value="'+Ekey+'"/&gt;&lt;input type="hidden" id="Challenge_ajax" value="'+Challenge+'"/&gt;&lt;span id="login_loading" style="display: none"&gt;&lt;/span&gt;&lt;span id="login_but"&gt;&lt;input type="submit" id="login" value="确定" onClick="auth_num_ajax()"/&gt;&lt;/span&gt;&lt;/div&gt;', {
+                    width: '330px',
+                    height: '130px',
+                    cursor: 'default'
+                });
+            } else {
+                $.blockUI('&lt;b&gt;'+decodeURI(data.state)+'&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;input type="button" value="确  定" onclick="$.unblockUI()"/&gt;');
+            }
+        } else {
+            $.blockUI('&lt;b&gt;当前网络请求有延迟，请稍候再尝试&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;input type="button" value="确 定" onClick="$.unblockUI()"/&gt;');
+        }
+    });
+}
+
+function ajax_login(id) {
+    var j = 1;
+    var rand = 0;
+    for (i = 1; i&lt;=4; i++) {
+        rand += parseInt(Math.random()*(6-1+1)+1)*j;
+        j *= 10;
+    }
+    $("#ajax_login").html('&lt;table width="100%" border="0" cellspacing="0" cellpadding="2" style="font-size:12px"&gt;&lt;tr&gt;&lt;td width="29%" align="right"&gt;密宝密码：&lt;/td&gt;&lt;td width="46%"&gt;&lt;input name="Ekey" type="text" class="input_text" id="Ekey_ajax" size="20" maxlength="10" value="无则不填"/&gt;&lt;/td&gt;&lt;td width="25%"&gt;&lt;input name="Challenge" type="hidden" id="Challenge_ajax" value="'+rand+'" /&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td align="right"&gt;挑战码：&lt;/td&gt;&lt;td align="left"&gt;'+rand+'&lt;/td&gt;&lt;td&gt;&amp;nbsp;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;');
+}
+
+function is_login(callback, submit_at) {
+    if (getCookie('readerid')==null) {
+        $('#callback').val(callback);
+        $('#submit_at').val(submit_at);
+        //$.blockUI(login_question, {width: '300px', cursor: 'default'});
+        show_login();
+        window.scroll(0, 0);
+        return false;
+    } else {
+        return true;
+    }
+}
+
+
+function umdget(novelid, get)
+{
+    if (is_login(get, 'url')) {
+        window.open('http://my.jjwxc.net/'+$('#'+get).attr('rel'));
+    }
+}
+
+
+
+// --- 获取元素相对位置
+function getElementViewTop(element) {
+    var actualTop = element.offsetTop;
+    var current = element.offsetParent;
+    while (current!==null) {
+        actualTop += current.offsetTop;
+        current = current.offsetParent;
+    }
+    if (document.compatMode=="BackCompat") {
+        var elementScrollTop = document.body.scrollTop;
+    } else {
+// 360浏览器兼容方案
+        var nav = navigator.userAgent.toLowerCase();
+        if (nav.match(/chrome/)) {
+            var elementScrollTop = document.body.scrollTop;
+            // 火狐兼容方案
+        } else if (nav.match(/firefox/)) {
+            var elementScrollTop = document.documentElement.scrollTop;
+        }
+    }
+    if ($.browser.safari) {
+        var elementScrollTop = window.pageYOffset;
+    }
+    return actualTop-elementScrollTop-document.documentElement.clientHeight;
+}
+
+// --- 评论回复展开/收起
+function reply_init() {
+    $('.reply_toggle').css('cursor', 'pointer');
+    $('.reply_toggle').toggle(
+            function() {
+                var id = $(this).attr('id');
+                var reply_total = $(this).attr('rel');
+                $(this).html('[+展开：'+reply_total+'楼]');
+                $('#reply_'+id).fadeOut("slow");
+            },
+            function() {
+                var id = $(this).attr('id');
+                $(this).html('[-收起]');
+                $('#reply_'+id).fadeIn("slow");
+            }
+    );
+}
+
+// 回复评论提交
+function reply_submit(commentid) {
+    var r = 0;
+    if ($("#code_random").length&gt;0) {
+        r = $("#code_random").val();
+    }
+    var novelid = $('#novelid').val();
+    if (novelid==undefined) {
+        novelid = getURLParam('novelid');
+    }
+    var chapterid = $('#chapterid').val();
+    var novelname = $('#novelname').val();
+    var reply_author = $('#reply_author').val();
+    var reply_commentmark = 3;
+    var reply_commentsubject = $('#reply_commentsubject').val();
+    var reply_body = $('#reply_body').val();
+    var comment_auth_num = $('#auth_num_login').val();
+    var message = '';
+    var html = '';
+    if (reply_body.length==0) {
+        message = '请输入回复内容后再提交！';
+    } else if (reply_author.length==0) {
+        message = '至少要输入个名字吧＾＾';
+    }
+
+    if (message!='') {
+        $.blockUI('&lt;strong&gt;'+message+'&lt;/strong&gt;');
+        setTimeout($.unblockUI, 2000);
+        return false;
+    }
+
+    if (reply_author.length&gt;0) {
+//reply_author = tt2sf(reply_author);
+        reply_author = reply_author;
+    }
+    if (reply_body.length&gt;0) {
+// reply_body = tt2sf(reply_body);
+        reply_body = reply_body;
+    }
+
+    $.blockUI('&lt;img src="http://static.jjwxc.net/images/loading.gif"&gt;  &lt;strong&gt;请稍候...&lt;/strong&gt;');
+    $.post('/backend/review_reply_ajax.php?type=reply', {
+        novelid: novelid,
+        chapterid: chapterid,
+        novelname: novelname,
+        commentid: commentid,
+        reply_body: reply_body,
+        reply_author: reply_author,
+        reply_commentmark: reply_commentmark,
+        reply_commentsubject: reply_commentsubject,
+        comment_auth_num: comment_auth_num,
+        r: r
+    }, function(json) {
+        var json = eval('('+json+')');
+        if (json.code==200) {
+            var commentmark = 0;
+            if (reply_commentmark&gt;=3) {
+                commentmark = reply_commentmark-3;
+            } else {
+                commentmark = reply_commentmark;
+            }
+
+            var mark = json.isdel==3||json.isdel==6 ? json.readerid!=0 ? '&lt;font color="#ABABAB"&gt;·&lt;/font&gt;' : '&lt;font color="black"&gt;·&lt;/font&gt;' : '';
+            if (json.author_readerid!=0&amp;&amp;json.readerid==json.author_readerid) {
+                html = '&lt;div class="replybody" style="color: #009900"&gt;作者回复　发表时间：'+json.commentdate+mark+'&lt;br&gt;'+json.commentbody;
+            } else {
+                html = '&lt;div class="replybody"&gt;网友：'+reply_author+'　打分：'+commentmark+'　发表时间：'+json.commentdate+mark+'&lt;br&gt;'+json.commentbody;
+            }
+            html += '&lt;div class="readcontrolbar"&gt;'
+            html += get_replyAdminPannel(json.ip, json.novelid, json.replyid, json.readerid, json.examinstatus, json.commentid, json.commentdate);
+            html += '&lt;/div&gt;&lt;/div&gt;';
+            $('#reply_'+commentid).append(html);
+            $('.reply_box').remove();
+            if (json.commentid_up&gt;0) {
+                $('#comment_'+json.commentid_up).prependTo('#comment_list');
+            }
+            $.blockUI('&lt;img src="http://static.jjwxc.net/images/loading.gif"&gt;  &lt;strong&gt;评论已回复...&lt;/strong&gt;');
+            setTimeout($.unblockUI, 1000);
+        } else if (json.code==10) {
+            var randid = Math.random();
+            $.blockUI('&lt;div align="center"&gt;&lt;div style="float:right"&gt;&lt;img src="http://static.jjwxc.net/images/close.gif" width="12" height="12" style="cursor:pointer" onClick="$.unblockUI()"/&gt;&lt;/div&gt;&lt;b&gt;请输入验证码再提交&lt;/b&gt;&lt;br&gt;&lt;br&gt;验证码 &lt;input name="auth_num_login" class="input" id="auth_num_login" size="10" maxlength="8" /&gt;&amp;nbsp; &lt;img id="img_auth" rel="2" src=\"http://my.jjwxc.net/include/checkImage.php?action=pay&amp;r='+randid+'\"&gt; &lt;span id="img_auth_reload" style="cursor:pointer; color: blue; text-decoration: underline;" onClick="imgautoreload()"&gt;看不清&lt;/span&gt;&lt;br&gt;&lt;br&gt;&lt;span id="Ekey_message" style="color: red"&gt;&lt;/span&gt;&lt;br&gt;&lt;br&gt;&lt;input type="button" value="提 交" onClick="reply_auth_num('+commentid+')"/&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&lt;/div&gt;', {
+                width: '350px',
+                height: '130px',
+                cursor: 'default'
+            });
+            if ($("#code_random").length&gt;0) {
+                $("#code_random").val(randid);
+            } else {
+                $("#publish_comment").append("&lt;input type='hidden' value='"+randid+"' name='random' id='code_random'&gt;");
+            }
+        } else {
+            $.blockUI('&lt;br&gt;&lt;div align="center"&gt;&lt;b&gt;'+json.message+'&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;div align="center"&gt;&lt;input type="button" id="yesbuy" value="确　定" onClick="$.unblockUI()"/&gt;&lt;/div&gt;', {
+                width: '300px',
+                height: '100px',
+                cursor: 'default'
+            });
+        }
+    })
+
+}
+
+
+function reply_submit_open(commentid) {
+    $('.reply_box').remove();
+    var site = $('#'+commentid).attr('rel');
+    var nicknameAndsign = decodeURIComponent(getCookie("nicknameAndsign")!=null) ? decodeURIComponent(getCookie("nicknameAndsign")) : '';
+    var nicknameArray = nicknameAndsign.split('~)$');
+    var isnickname = nicknameArray[0];
+    var nickname = nicknameArray[1];
+    if (nickname!=''&amp;&amp;isnickname=='2'&amp;&amp;nickname!=null) {
+        var commentauthor = nickname;
+    } else {
+        var commentauthor = unescape(decodeURI(getCookie("cookieofcommentusername")));
+        if (commentauthor==null||commentauthor=='null') {
+            commentauthor = '';
+        } else if (commentauthor!=''&amp;&amp;commentauthor!=undefined&amp;&amp;commentauthor!='undefined') {
+            commentauthor = commentauthor;
+        } else {
+            commentauthor = '';
+        }
+    }
+    _preCache = isMyNovel();
+    if (_preCache=="true") {
+        html = '&lt;div class="replybody reply_box"&gt;&lt;div style="width: 660px; height: 26px; color:#009900; float:left;" align="center"&gt;↓这是对评论的回复，用于读者之间交流，不会对文章的积分造成影响↑&lt;/div&gt;&lt;div style="width: 50px; float:left" align="center"&gt;&lt;img src="http://static.jjwxc.net/images/close.gif" width="12" height="12" style="cursor:pointer" onClick="$(\'.reply_box\').remove();"/&gt;&lt;/div&gt;&lt;div style="clear:both;"&gt;&lt;div&gt;&lt;span style="color: #008F00;"&gt;作者回复　　　　&lt;/span&gt; &lt;input name="reply_author" id="reply_author" type="hidden" value="本文作者"/&gt; 评论主题：&lt;input type="text" class="input_text" name="reply_commentsubject" id="reply_commentsubject" size="28" maxlength="100" style="width: 498px" onfocus="setonfcous()" onblur="setofffcous()"/&gt;&lt;br /&gt;&lt;br /&gt;&lt;/div&gt;&lt;div&gt;&lt;div style="float:left"&gt;&lt;textarea name="reply_body" class="input_textarea_short" id="reply_body" style="width:660px;height: 100px" onfocus="setonfcous()" onblur="setofffcous()"&gt;&lt;/textarea&gt;&lt;/div&gt;&lt;div style="width: 70px; float:left; padding-top: 30px" align="center"&gt;&lt;input type="button" id="yesbuy" class="fanbutton" value="确定" onClick="reply_submit('+commentid+')"/&gt;&lt;/div&gt;&lt;div style="clear: both;"&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;';
+    } else {
+        html = '&lt;div class="replybody reply_box"&gt;&lt;div style="width: 660px; height: 26px; color:#009900; float:left;" align="center"&gt;↓这是对评论的回复，用于读者之间交流，不会对文章的积分造成影响↑&lt;/div&gt;&lt;div style="width: 50px; float:left" align="center"&gt;&lt;img src="http://static.jjwxc.net/images/close.gif" width="12" height="12" style="cursor:pointer" onClick="$(\'.reply_box\').remove();"/&gt;&lt;/div&gt;&lt;div style="clear:both;"&gt;&lt;div&gt;网友：&lt;input name="reply_author" id="reply_author" type="text" size="10" class="input_text" maxlength="50" style="width: 150px" onfocus="setonfcous()" onblur="setofffcous()" value="'+commentauthor+'"/&gt; 评论主题：&lt;input type="text" class="input_text" name="reply_commentsubject" id="reply_commentsubject" size="28" maxlength="100" style="width: 408px" onfocus="setonfcous()" onblur="setofffcous()"/&gt;&lt;br /&gt;&lt;br /&gt;&lt;/div&gt;&lt;div&gt;&lt;div style="float:left"&gt;&lt;textarea name="reply_body" class="input_textarea_short" id="reply_body" style="width:660px;height: 100px" onfocus="setonfcous()" onblur="setofffcous()"&gt;&lt;/textarea&gt;&lt;/div&gt;&lt;div style="width: 70px; float:left; padding-top: 30px" align="center"&gt;&lt;input type="button" id="yesbuy" class="fanbutton" value="确定" onClick="reply_submit('+commentid+')"/&gt;&lt;/div&gt;&lt;div style="clear: both;"&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;';
+    }
+    if (site=='end') {
+        $('#reply_'+commentid).append(html);
+    } else {
+        $('#reply_'+commentid).prepend(html);
+    }
+}
+
+function get_comment_new() {
+    var url = 'http://s8.static.jjwxc.net/comment_json.php';
+    var chapterid = getURLParam('chapterid');
+    var novelid = getURLParam('novelid');
+    $('#comment_list').html('&lt;img src="http://s9.static.jjwxc.net/images/loadings.gif" border="0"&gt;'); //多加一行，为二次请求的时候增加一个过渡效果
+    if ($.browser.msie) {       //浏览器判断，判断是非标准IE类浏览器，还是标准Firefox类浏览器 2012-08-08 Sushang
+        var objectXML_IE = $.ajax({
+            type: "GET",
+            url: url,
+            dataType: "jsonp",
+            cache: true, //开始缓存 不然会出现_=随机数
+            jsonp: 'jsonpCallback',
+            jsonpCallback: 'commnet_onebook_140421', //值随便设置
+            ifModified: true, //此函数中有两个ajax请求和这个有一定的关系，主要是涉及到服务器的时时刷新功能 2012-08-08 Sushang 理解性(注释)
+            data: ({
+                novelid: getURLParam('novelid'),
+                chapterid: getURLParam('chapterid')
+            }),
+            error: function() {
+                //alert('Error loading XML document');
+            },
+            success: function(data) {
+                if (data.state==200) {
+                    var fontstyle = '';
+                    if (getURLParam('chapterid')=='') {
+                        fontstyle = 'smallreadbody'
+                    } else {
+                        fontstyle = 'readbody';
+                    }
+
+                    if (data['topics']) {
+                        $('#topics_list').html('');
+                        var topics_html = '';
+                        $.each(data['topics'], function(index, value) {
+                            topics_html += '&lt;li&gt;★ &lt;a href="/comment.php?commentid='+value['commentid']+'&amp;novelid='+value['novelid']+'" target="_blank"&gt;'+value['commentbody']+'&lt;/a&gt;&lt;/li&gt;';
+                        })
+                        if (topics_html!='') {
+                            url = "comment.php?novelid="+getURLParam('novelid');
+                            if (getURLParam('chapterid')!='') {
+                                url += "&amp;chapterid="+getURLParam('chapterid');
+                            }
+                            url += "&amp;huati=1";
+                            topics_html += "&lt;li&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&lt;a href='"+url+"' target='_blank'&gt;查看全部话题&amp;gt;&amp;gt;&amp;gt;&lt;/a&gt;&lt;/li&gt;";
+                            $('#topics_list').append(topics_html);
+                        }
+                    }
+
+
+                    $('#comment_list').html('');
+                    $.each(data['body'], function(index, value) {
+                        var html = '';
+                        var iconimg = '';
+                        var commentmark = 0;
+                        if (value['commentmark']&gt;=3) {
+                            commentmark = value['commentmark']-3;
+                        } else {
+                            commentmark = value['commentmark'];
+                            value['commentmark'] = commentmark+3;
+                        }
+                        html += '&lt;div id="comment_'+value['commentid']+'"&gt;&lt;div class="readtd" style="width: 760px;"&gt;&lt;div class="tdtitle" align="left"&gt;&lt;span class="coltext"&gt;';
+                        if (value['reply_total']&gt;0&amp;&amp;value['reply']!=undefined) {
+                            html += '&lt;span class="toright reply_toggle" id="'+value['commentid']+'" rel="'+value['reply_total']+'"&gt;[-收起]&lt;/span&gt;';
+                        }
+                        if (value['readerid']!=0) {
+                            //=====主评论 图标小达人 登陆用户发评图标展示
+                            if (value['iconimg']) {
+                                iconimg = '&lt;a style="float:left;clear:both;margin-right:10px"&gt;&lt;img title="晋江十周年图标" src="http://static.jjwxc.net/sp/tbdl/images/'+value['iconimg']+'" width="60" &gt;&lt;/a&gt;';
+                            } else {
+                                iconimg = '';
+                            }
+                            html += '№'+value['key']+' 网友：&lt;span class="blacktext"&gt;&lt;a target="_blank" href=\"http://www.jjwxc.net/onereader.php?readerid='+value['readerid']+'\"&gt;'+value['commentauthor']+'&lt;/a&gt;&lt;/span&gt;';
+                        } else {
+                            html += '№'+value['key']+' 网友：&lt;span class="blacktext"&gt;'+value['commentauthor']+'&lt;/span&gt;';
+                        }
+                        html += ' 评论： &lt;a href="/onebook.php?novelid='+value['novelid']+'&amp;chapterid=';
+                        html += value['chapterid']+'"&gt;《'+value['novelname']+'》&lt;/a&gt;';
+                        html += ' 打分：&lt;span class="blacktext"&gt;'+commentmark+'&lt;/span&gt;';
+                        var mark = '';
+                        if (value['isdel']==3||value['isdel']==6) {
+                            if (value['readerid']!=0) {
+                                mark = '&lt;font color="#ABABAB"&gt;·&lt;/font&gt; ';
+                            } else {
+                                mark = '&lt;font color="black"&gt;·&lt;/font&gt; ';
+                            }
+                        }
+                        html += ' 发表时间：'+value['commentdate']+mark+' 所评章节：'+value['chapterid']+'&lt;/span&gt;&lt;/div&gt;';
+                        html += '&lt;div class="'+fontstyle+'" style="overflow:hidden"&gt;';
+                        var str = value['commentdate'];
+                        var new_str = str.replace(/:/g, '-');
+                        new_str = new_str.replace(/ /g, '-');
+                        var arr = new_str.split('-');
+                        var datum = new Date(Date.UTC(arr[0], arr[1]-1, arr[2], arr[3]-8, arr[4], arr[5]));
+                        var commenttime = datum.getTime()/1000;
+                        var dt = +new Date()/1000;
+                        var ltime = Math.ceil(dt);
+                        var commentauthor = value['commentauthor'];
+                        var novelid = value['novelid'];
+                        var newcommentid = value['commentid'];
+                        if (value['commentsubject']!='') {
+                            html += '&lt;div class="textcenter"&gt;&lt;span class="bigtext"&gt;'+value['commentsubject'];
+                            if (value['comment_novelid']&gt;0) {
+                                html += '-&gt;&lt;a href="/onebook.php?novelid='+value['comment_novelid']+'" target="_blank"&gt;(评论文章)&lt;/a&gt;';
+                            }
+                            html += '&lt;/span&gt;';
+                            if (value['iswonderful']==1) {
+                                html += '&lt;img src=http://static.jjwxc.net/images/wonderful.gif&gt;';
+                            }
+                            html += '&lt;/div&gt;';
+                        }
+                        //下面的时间的判断挪到lib/Net/cache/Comment.php中的json方法中执行
+//                        if (value['isdel']==3&amp;&amp;ltime-commenttime&gt;21600) {
+//                            html += '&lt;font color="#ABABAB"&gt;此评论超过6小时，暂被系统自动屏蔽！&lt;/font&gt;';
+//                        } else if (value['isdel']==3&amp;&amp;ltime-commenttime&lt;21600) {
+//                            html += '&lt;font color="#ABABAB"&gt;此评论如果超过6小时未被审核将被屏蔽！&lt;/font&gt;&lt;br/&gt;';
+//                            //==添加 图标
+//                            html += iconimg;
+//                            html += value['commentbody'];
+//                        } else {
+//                            //==添加 图标
+//                            html += iconimg;
+//                            html += value['commentbody'];
+//                        }
+                        //添加图标
+                        html += iconimg;
+                        //添加评论内容
+                        html += value['commentbody'];
+                        iconimg = ""; //清空变量,防止后者加上图标
+                        html += '&lt;/div&gt;';
+                        html += '&lt;div class="readcontrolbar replysubmit" id="reply_submit"&gt;&lt;span id="myredbutton_'+index+'" style="float:left;margin-left:180px;cursor:pointer;display:inline-block"&gt;&lt;/span&gt;';
+                        if (isonlinered(2)) {
+                            _preCache = isMyNovel();
+                            if (_preCache==true) {
+                                $.post("http://my.jjwxc.net/backend/red_envelope.php?jsonp=?", {action: 'checkred', novelid: novelid, commentid: newcommentid}, function(data) {
+                                    if (data.status==200&amp;&amp;data.data[newcommentid]!=false) {
+                                        var htm = "";
+                                        htm = '&lt;a onclick = "showlist(\''+commentauthor+'\',\''+novelid+'\',\''+newcommentid+'\')" &gt;&lt;font color="red"&gt;[送红包]&lt;/font&gt;&lt;/a&gt;';
+                                        $("#myredbutton_"+index).html(htm);
+                                    }
+                                }, 'json');
+                            }
+                        }
+                        html += get_genUserPannel(value['novelid'], value['chapterid'], value['commentid'], value['belike'], value['commentmark'], value['readerid'], value['commentsize'], value['vip_flag']);
+                        html += '　&lt;a href="/backend/auto.php?act=6&amp;error2='+value['novelname']+'&amp;error6='+value['commentauthor']+'&amp;error4=http://www.jjwxc.net/onebook.php?novelid='+value['novelid']+'&amp;commentnovel='+value['novelid']+'_'+value['commentid']+'" target="_blank"&gt;[投诉]&lt;/a&gt;　&lt;span name="reply_submit" class="reply_submit" style="cursor: pointer" id="'+value['commentid']+'" rel="top" onClick="reply_submit_open('+value['commentid']+')"&gt;[回复]&lt;/span&gt;&lt;/div&gt;';
+                        html += '&lt;div class="readcontrolbar"&gt;';
+                        if (value['commentsubject']!=''&amp;&amp;value['commentsize']&gt;=1000) {
+                            html += get_genAdminPannel(value['ip'], value['novelid'], value['commentid'], value['iswonderful'], 1, value['key'], value['readerid'], value['examinstatus'], value['commentdate']);
+                        } else {
+                            html += get_genAdminPannel(value['ip'], value['novelid'], value['commentid'], value['iswonderful'], 0, value['key'], value['readerid'], value['examinstatus'], value['commentdate']);
+                        }
+                        html += '&lt;/div&gt;';
+                        html += '&lt;div id="reply_'+value['commentid']+'" class="replycontent"&gt;';
+                        var j = 0;
+                        if (value['reply_total']&gt;0&amp;&amp;value['reply']!=undefined) {
+                            $.each(value['reply'], function(i, v) {
+                                var mark = v.isdel==3||v.isdel==6 ? v['readerid']!=0 ? '&lt;font color="#ABABAB"&gt;·&lt;/font&gt;' : '&lt;font color="black"&gt;·&lt;/font&gt;' : '';
+                                if (v['author_readerid']!=0&amp;&amp;v['readerid']==v['author_readerid']) {
+                                    html += '&lt;div class="replybody" style="color: #009900;overflow:hidden"&gt;';
+                                    if (v['floor']!=undefined) {
+                                        html += '['+v['floor']+'楼] ';
+                                    }
+                                    html += '作者回复　发表时间：'+v['commentdate']+mark+'&lt;br&gt;';
+                                } else {
+                                    html += '&lt;div class="replybody" style="overflow:hidden"&gt;';
+                                    if (v['floor']!=undefined) {
+                                        html += '['+v['floor']+'楼] ';
+                                    }
+                                    if (v['readerid']!=0) {
+                                        //== 评论回复部分
+                                        if (v['iconimg']) {
+                                            iconimg = '&lt;a style="float:left;clear:both;margin-right:10px"&gt;&lt;img title="晋江十周年图标" src="http://static.jjwxc.net/sp/tbdl/images/'+v['iconimg']+'" width="60"&gt;&lt;/a&gt;';
+                                        } else {
+                                            iconimg = '';
+                                        }
+                                        html += '网友：&lt;a target="_blank" href=\"http://www.jjwxc.net/onereader.php?readerid='+v['readerid']+'\"&gt;'+v['commentauthor']+'&lt;/a&gt;　发表时间：'+v['commentdate']+mark+'&lt;br&gt;';
+                                    } else {
+                                        html += '网友：'+v['commentauthor']+'　发表时间：'+v['commentdate']+mark+'&lt;font color="#ABABAB"&gt;.&lt;/font&gt;&lt;br&gt;';
+                                    }
+                                }
+                                var strr = v['commentdate'];
+                                var new_strr = strr.replace(/:/g, '-');
+                                new_strr = new_strr.replace(/ /g, '-');
+                                var arrr = new_strr.split('-');
+                                //添加图标
+                                html += iconimg;
+                                //添加回复内容
+                                html += v['commentbody'];
+                                iconimg = ""; //清空变量,防止后者加上图标
+                                html += '&lt;div class="readcontrolbar"&gt;'
+                                html += get_replyAdminPannel(v['ip'], v['novelid'], v['replyid'], v['readerid'], v['examinstatus'], v['commentid'], v['commentdate']);
+                                html += '&lt;/div&gt;&lt;/div&gt;';
+                                j++;
+                            })
+                        }
+
+                        if (j&gt;=2) {
+                            html += '&lt;div class="readcontrolbar replysubmit" id="reply_submit"&gt;&lt;span name="reply_submit" class="reply_submit" style="cursor: pointer" id="'+value['commentid']+'" rel="end" onClick="reply_submit_open('+value['commentid']+')"&gt;[回复]&lt;/span&gt;&lt;/div&gt;'
+                        }
+                        html += '&lt;/div&gt;';
+                        html += '&lt;/div&gt;&lt;br&gt;&lt;/div&gt;';
+                        $('#comment_list').append(html);
+                    });
+                    get_ipaddress();
+                    reply_init();
+                    show_google_ads();
+                } else {
+                    $('#comment_list').html('');
+                }
+            }
+        });
+        setTimeout(function() {
+            objectXML_IE.abort(); //当请求超过设置的5000毫秒时，断开ajax请求
+            var comment_list = $('#comment_list').html();
+            var message = "&lt;div style=\"border: 1px solid green; background-color:#EEFAEE;width: 760px; height: 35px;font-size:14px;line-height:35px;\"&gt;&lt;span onmouseout=\"this.style.color=''\" onmouseover=\"this.style.color='green'\" onclick=\"get_comment_new()\"&gt;评论加载失败，请点击&lt;font color=\"red\"&gt;重新刷新&lt;/font&gt;评论&lt;/span&gt;&lt;/div&gt;";
+            if (comment_list=='&lt;img src="http://s9.static.jjwxc.net/images/loadings.gif" border="0"&gt;') {
+                $('#comment_list').html(message);
+            }
+        }, 9000); //这里设置延迟的时间,当服务器出现不稳定的时候或延迟过高的时候，可能会出现大面积的评论无法显示，可以把5000设置大一些 2012-08-08 Sushang (预测性)
+
+
+    } else {
+
+        var objectXML_FF = $.ajax({
+            url: url,
+            dataType: 'jsonp',
+            type: "get",
+            cache: true, //开始缓存 不然会出现_=随机数
+            jsonp: 'jsonpCallback',
+            jsonpCallback: 'commnet_onebook_140421', //值随便设置
+            data: 'novelid='+novelid+'&amp;chapterid='+chapterid,
+            success: function(data) {
+                if (data.state==200) {
+                    var fontstyle = '';
+                    if (getURLParam('chapterid')=='') {
+                        fontstyle = 'smallreadbody'
+                    } else {
+                        fontstyle = 'readbody';
+                    }
+
+                    $('#topics_list').html('');
+                    var topics_html = '';
+                    if (data['topics']) {
+                        $.each(data['topics'], function(index, value) {
+                            topics_html += '&lt;li&gt;★ &lt;a href="/comment.php?commentid='+value['commentid']+'&amp;novelid='+value['novelid']+'" target="_blank"&gt;'+value['commentbody']+'&lt;/a&gt;&lt;/li&gt;';
+                        })
+                        if (topics_html!='') {
+                            url = "comment.php?novelid="+getURLParam('novelid');
+                            if (getURLParam('chapterid')!='') {
+                                url += "&amp;chapterid="+getURLParam('chapterid');
+                            }
+                            url += "&amp;huati=1";
+                            topics_html += "&lt;li&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&lt;a href='"+url+"' target='_blank'&gt;查看全部话题&amp;gt;&amp;gt;&amp;gt;&lt;/a&gt;&lt;/li&gt;";
+                            $('#topics_list').append(topics_html);
+                        }
+                    }
+
+
+                    $('#comment_list').html('');
+                    $.each(data['body'], function(index, value) {
+                        var html = '';
+                        var iconimg = '';
+                        var commentmark = 0;
+                        var novelid = value['novelid'];
+                        var newcommentid = value['commentid'];
+                        var commentauthor = value['commentauthor'];
+                        if (value['commentmark']&gt;=3) {
+                            commentmark = value['commentmark']-3;
+                        } else {
+                            commentmark = value['commentmark'];
+                            value['commentmark'] = commentmark+3;
+                        }
+                        html += '&lt;div id="comment_'+value['commentid']+'"&gt;&lt;div class="readtd" style="width: 760px;"&gt;&lt;div class="tdtitle" align="left"&gt;&lt;span class="coltext"&gt;';
+                        if (value['reply_total']&gt;0&amp;&amp;value['reply']!=undefined) {
+                            html += '&lt;span class="toright reply_toggle" id="'+value['commentid']+'" rel="'+value['reply_total']+'"&gt;[-收起]&lt;/span&gt;';
+                        }
+                        if (value['readerid']!=0) {
+                            html += '№'+value['key']+' 网友：&lt;span class="blacktext"&gt;&lt;a target="_blank" href=\"http://www.jjwxc.net/onereader.php?readerid='+value['readerid']+'\"&gt;'+value['commentauthor']+'&lt;/a&gt;&lt;/span&gt;';
+                            //== 加载图标
+                            if (value['iconimg']) {
+                                iconimg = '&lt;a style="float:left;clear:both;margin-right:10px"&gt;&lt;img title="晋江十周年图标" src="http://static.jjwxc.net/sp/tbdl/images/'+value['iconimg']+'" width="60"&gt;&lt;/a&gt;';
+                            } else {
+                                iconimg = '';
+                            }
+                        } else {
+                            html += '№'+value['key']+' 网友：&lt;span class="blacktext"&gt;'+value['commentauthor']+'&lt;/span&gt;';
+                        }
+                        html += ' 评论： &lt;a href="/onebook.php?novelid='+value['novelid']+'&amp;chapterid=';
+                        html += value['chapterid']+'"&gt;《'+value['novelname']+'》&lt;/a&gt;';
+                        html += ' 打分：&lt;span class="blacktext"&gt;'+commentmark+'&lt;/span&gt;';
+                        var mark = '';
+                        if (value.isdel==3||value.isdel==6) {
+                            if (value['readerid']!=0) {
+                                mark = '&lt;font color="#ABABAB"&gt;·&lt;/font&gt; ';
+                            } else {
+                                mark = '&lt;font color="black"&gt;·&lt;/font&gt; ';
+                            }
+                        }
+                        html += ' 发表时间：'+value['commentdate']+mark+' 所评章节：'+value['chapterid']+'&lt;/span&gt;&lt;/div&gt;';
+                        html += '&lt;div class="'+fontstyle+'" style="overflow:hidden"&gt;';
+                        if (value['commentsubject']!='') {
+                            html += '&lt;div class="textcenter"&gt;&lt;span class="bigtext"&gt;'+value['commentsubject'];
+                            if (value['comment_novelid']&gt;0) {
+                                html += '-&gt;&lt;a href="/onebook.php?novelid='+value['comment_novelid']+'" target="_blank"&gt;(评论文章)&lt;/a&gt;';
+                            }
+                            html += '&lt;/span&gt;';
+                            if (value['iswonderful']==1) {
+                                html += '&lt;img src=http://static.jjwxc.net/images/wonderful.gif&gt;';
+                            }
+                            html += '&lt;/div&gt;';
+                        }
+                        var str = value['commentdate'];
+                        var new_str = str.replace(/:/g, '-');
+                        new_str = new_str.replace(/ /g, '-');
+                        var arr = new_str.split('-');
+//                    var datum = new Date(Date.UTC(arr[0], arr[1]-1, arr[2], arr[3]-8, arr[4], arr[5]));
+//                    var commenttime = datum.getTime()/1000;
+//                    var dt = +new Date()/1000;
+//                    var ltime = Math.ceil(dt);
+//                    if (value['isdel']==3&amp;&amp;ltime-commenttime&gt;21600) {
+//                        html += '&lt;font color="#ABABAB"&gt;此评论超过6小时，暂被系统自动屏蔽！&lt;/font&gt;';
+//                    } else if (value['isdel']==3&amp;&amp;ltime-commenttime&lt;21600) {
+//                        html += '&lt;font color="#ABABAB"&gt;此评论如果超过6小时未被审核将被屏蔽！&lt;/font&gt;&lt;br/&gt;';
+//                        //== 添加图标主评论部分
+//                        html += iconimg;
+//                        html += value['commentbody'];
+//                    } else {
+//                        //== 添加图标主评论部分
+//                        html += iconimg;
+//                        html += value['commentbody'];
+//                    }
+                        //添加图标
+                        html += iconimg;
+                        //添加评论内容
+                        html += value['commentbody'];
+                        iconimg = ""; //清空变量,防止后者加上图标
+                        html += '&lt;/div&gt;';
+                        html += '&lt;div class="readcontrolbar replysubmit" id="reply_submit"&gt;&lt;span id="myredbutton_'+index+'" style="float:left;margin-left:180px;cursor:pointer;display:inline-block"&gt;&lt;/span&gt;';
+                        if (isonlinered(2)) {
+                            _preCache = isMyNovel();
+                            if (_preCache==true) {
+                                $.post("http://my.jjwxc.net/backend/red_envelope.php?jsonp=?", {action: 'checkred', novelid: novelid, commentid: newcommentid}, function(data) {
+                                    if (data.status==200&amp;&amp;data.data[newcommentid]!=false) {
+                                        var htm = "";
+                                        htm = '&lt;a onclick = "showlist(\''+commentauthor+'\',\''+novelid+'\',\''+newcommentid+'\')" &gt;&lt;font color="red"&gt;[送红包]&lt;/font&gt;&lt;/a&gt;';
+                                        $("#myredbutton_"+index).html(htm);
+                                    }
+                                }, 'json');
+                            }
+                        }
+                        html += get_genUserPannel(value['novelid'], value['chapterid'], value['commentid'], value['belike'], value['commentmark'], value['readerid'], value['commentsize'], value['vip_flag']);
+                        html += '　&lt;a href="/backend/auto.php?act=6&amp;error2='+value['novelname']+'&amp;error6='+value['commentauthor']+'&amp;error4=http://www.jjwxc.net/onebook.php?novelid='+value['novelid']+'&amp;commentnovel='+value['novelid']+'_'+value['commentid']+'" target="_blank"&gt;[投诉]&lt;/a&gt;　&lt;span name="reply_submit" class="reply_submit" style="cursor: pointer" id="'+value['commentid']+'" onClick="reply_submit_open('+value['commentid']+')"&gt;[回复]&lt;/span&gt;&lt;/div&gt;';
+                        html += '&lt;div class="readcontrolbar"&gt;';
+                        if (value['commentsubject']!=''&amp;&amp;value['commentsize']&gt;=1000) {
+                            html += get_genAdminPannel(value['ip'], value['novelid'], value['commentid'], value['iswonderful'], 1, value['key'], value['readerid'], value['examinstatus'], value['commentdate']);
+                        } else {
+                            html += get_genAdminPannel(value['ip'], value['novelid'], value['commentid'], value['iswonderful'], 0, value['key'], value['readerid'], value['examinstatus'], value['commentdate']);
+                        }
+                        html += '&lt;/div&gt;';
+                        html += '&lt;div id="reply_'+value['commentid']+'" class="replycontent"&gt;';
+                        var j = 0;
+                        if (value['reply_total']&gt;0&amp;&amp;value['reply']!=undefined) {
+                            $.each(value['reply'], function(i, v) {
+                                var mark = v.isdel==3||v.isdel==6 ? v['readerid']!=0 ? '&lt;font color="#ABABAB"&gt;·&lt;/font&gt;' : '&lt;font color="black"&gt;·&lt;/font&gt;' : '';
+                                if (v['author_readerid']!=0&amp;&amp;v['readerid']==v['author_readerid']) {
+                                    html += '&lt;div class="replybody" style="color: #009900;overflow:hidden"&gt;';
+                                    if (v['floor']!=undefined) {
+                                        html += '['+v['floor']+'楼] ';
+                                    }
+                                    html += '作者回复　发表时间：'+v['commentdate']+mark+'&lt;br&gt;';
+                                } else {
+                                    html += '&lt;div class="replybody" style="overflow:hidden"&gt;';
+                                    if (v['floor']!=undefined) {
+                                        html += '['+v['floor']+'楼] ';
+                                    }
+                                    if (v['readerid']!=0) {
+                                        //== 用户登录 发评
+                                        if (v['iconimg']) {
+                                            iconimg = '&lt;a style="float:left;clear:both;margin-right:10px"&gt;&lt;img title="晋江十周年图标" src="http://static.jjwxc.net/sp/tbdl/images/'+v['iconimg']+'" width="60"&gt;&lt;/a&gt;';
+                                        } else {
+                                            iconimg = '';
+                                        }
+                                        html += '网友：&lt;a target="_blank" href=\"http://www.jjwxc.net/onereader.php?readerid='+v['readerid']+'\"&gt;'+v['commentauthor']+'&lt;/a&gt;　发表时间：'+v['commentdate']+mark+'&lt;br&gt;';
+                                    } else {
+                                        html += '网友：'+v['commentauthor']+'　发表时间：'+v['commentdate']+mark+'&lt;br&gt;';
+                                    }
+                                }
+                                var strr = v['commentdate'];
+                                var new_strr = strr.replace(/:/g, '-');
+                                new_strr = new_strr.replace(/ /g, '-');
+                                var arrr = new_strr.split('-');
+//                            var datumr = new Date(Date.UTC(arrr[0], arrr[1]-1, arrr[2], arrr[3]-8, arrr[4], arrr[5]));
+//                            var replaytime = datumr.getTime()/1000;
+//                            if (v['isdel']==3&amp;&amp;ltime-replaytime&gt;21600) {
+//                                html += '&lt;font color="#ABABAB"&gt;此回复超过6小时，暂被系统自动屏蔽！&lt;/font&gt;';
+//                            } else if (v['isdel']==3&amp;&amp;ltime-replaytime&lt;21600) {
+//                                html += '&lt;font color="#ABABAB"&gt;此回复如果超过6小时未被审核将被屏蔽!&lt;/font&gt;&lt;br/&gt;';
+//                                //== 添加图标 回复评论部分
+//                                html += iconimg;
+//                                html += v['commentbody'];
+//                            } else {
+//                                html += iconimg;
+//                                html += v['commentbody'];
+//                            }
+                                //添加图标
+                                html += iconimg;
+                                //添加回复内容
+                                html += v['commentbody'];
+                                iconimg = ""; //清空变量,防止后者加上图标
+                                html += '&lt;div class="readcontrolbar"&gt;'
+                                html += get_replyAdminPannel(v['ip'], v['novelid'], v['replyid'], v['readerid'], v['examinstatus'], v['commentid'], v['commentdate']);
+                                html += '&lt;/div&gt;&lt;/div&gt;';
+                                j++;
+                            })
+                        }
+
+                        if (j&gt;=2) {
+                            html += '&lt;div class="readcontrolbar replysubmit" id="reply_submit"&gt;&lt;span name="reply_submit" class="reply_submit" style="cursor: pointer" id="'+value['commentid']+'" rel="end" onClick="reply_submit_open('+value['commentid']+')"&gt;[回复]&lt;/span&gt;&lt;/div&gt;'
+                        }
+                        html += '&lt;/div&gt;';
+                        html += '&lt;/div&gt;&lt;br&gt;&lt;/div&gt;';
+                        $('#comment_list').append(html);
+                    });
+                    get_ipaddress();
+                    reply_init();
+                    show_google_ads();
+                } else {
+                    $('#comment_list').html('');
+                }
+            }
+        });
+        setTimeout(function() {
+            objectXML_FF.abort(); //当请求超过设置的5000毫秒时，断开ajax请求
+            var comment_list = $('#comment_list').html();
+            var message = "&lt;div style=\"border: 1px solid green; background-color:#EEFAEE;width: 760px; height: 35px;font-size:14px;line-height:35px;\"&gt;&lt;span onmouseout=\"this.style.color=''\" onmouseover=\"this.style.color='green'\" onclick=\"get_comment_new()\"&gt;评论加载失败，请点击&lt;font color=\"red\"&gt;重新刷新&lt;/font&gt;评论&lt;/span&gt;&lt;/div&gt;";
+            if (comment_list=='&lt;img src="http://s9.static.jjwxc.net/images/loadings.gif" border="0"&gt;') {
+                $('#comment_list').html(message);
+            }
+        }, 9000); //这里设置延迟的时间,当服务器出现不稳定的时候或延迟过高的时候，可能会出现大面积的评论无法显示，可以把9000设置大一些 2012-08-08 Sushang (预测性)
+    }
+}
+
+
+
+
+function chapterlist_init() {
+    var vip_month_flag = parseInt($('#vip_month_flag').html());
+    var novelId = getURLParam('novelid');
+    var chapterId = parseInt(getURLParam('chapterid'));
+    if ($('#chapter_list &gt; option').size()&lt;=1) {
+        $.getJSON('/getchapterlist.php', {
+            novelid: novelId
+        }, function(json) {
+            if (json.state==200) {
+                chapter_flag = false;
+                var html = '';
+                var append_html = '';
+                $.each(json['body'], function(index, value) {
+                    if (value['chaptertype']==0) {
+                        var str = '';
+                        var book_url = '';
+                        var style = '';
+                        var selected = '';
+                        if (chapterId==value['chapterId']) {
+                            selected = 'selected="selected"';
+                        }
+                        if ((value['lockstatus']=='authorlock'||value['isLock']==1)&amp;&amp;vip_month_flag==0) {
+                            str = '&lt;span class="graytext"&gt;[锁]&lt;/span&gt;';
+                        } else if (value['lockstatus']=='managerlock'||value['isLock']==2) {
+                            str = '&lt;span&gt;&lt;font color=red&gt;[锁]&lt;/font&gt;&lt;/span&gt;';
+                        } else if (vip_month_flag&gt;0&amp;&amp;parseInt(value['chapterId'])&gt;=vip_month_flag) {
+                            str = '第'+value['chapterId']+'章 '+value['chapterName']+' &lt;font color="green"&gt;[包月]&lt;/font&gt;';
+                            book_url = 'http://my.jjwxc.net/onebook_vip.php?novelid='+novelId+'&amp;chapterid='+value['chapterId'];
+                        } else if (value['vip_flag']&gt;0&amp;&amp;parseInt(value['chapterId'])&gt;=parseInt(value['vip_flag'])) {
+                            str = '第'+value['chapterId']+'章 '+value['chapterName']+' &lt;font color="red"&gt;[VIP]&lt;/font&gt;';
+                            book_url = 'http://my.jjwxc.net/onebook_vip.php?novelid='+novelId+'&amp;chapterid='+value['chapterId'];
+                        } else {
+                            str = '第'+value['chapterId']+'章 '+value['chapterName'];
+                            book_url = 'http://www.jjwxc.net/onebook.php?novelid='+novelId+'&amp;chapterid='+value['chapterId'];
+                        }
+
+                        if (value['chapterId']&lt;chapterId) {
+                            html += '&lt;option value="'+book_url+'" '+selected+'&gt;'+str+'&lt;/option&gt;';
+                        } else if (value['chapterId']&gt;chapterId) {
+                            append_html += '&lt;option value="'+book_url+'" '+selected+'&gt;'+str+'&lt;/option&gt;';
+                        }
+                    }
+                });
+                $('#chapter_list').prepend(html).append(append_html);
+                $('#chapter_list').bind('change', function() {
+                    var book_url = $(this).val();
+                    var reg = /onebook_vip/i;
+                    if (book_url.length&gt;0) {
+                        if (reg.test(book_url)) {
+                            if (is_login($(this).attr('id'), 'change')) {
+                                location.href = book_url;
+                            }
+                        } else {
+                            location.href = book_url;
+                        }
+                    }
+                })
+            }
+        })
+    }
+}
+
+function clickpage(novelid, chapterid)
+{
+    $('#message').html("请稍候，正在获取文章").css("color", "red").fadeIn("slow");
+    $.get('/onebook_page.php', {
+        novelid: novelid,
+        chapterid: chapterid
+    }, function(data) {
+        var data = data.replace(/(^\s*)|(\s*$)/g, "");
+        if (data=='请求文章不存在'||data=='请求失败') {
+            $.blockUI("&lt;strong&gt;"+data+"&lt;/strong&gt;&lt;br&gt;&lt;br&gt;&lt;input type='button'  value='确定' onClick='$.unblockUI()'/&gt;");
+        } else {
+            $('#message').fadeOut("slow");
+            location.href = data;
+        }
+    });
+}
+
+/**
+ * ################################################################################
+ * 判断用户是否作者,生成管理链接
+ *
+ */
+function get_genUserPannel(novelid, chapterid, commentid, state, mark, readerid, commentsize, novelvip) {
+    if (_preCache==null) {
+        _preCache = isMyNovel();
+    }
+    var result = '';
+    if (_preCache) {
+        stateText = (state==0) ? '[作者加精]' : '[取消精华]';
+        stateParm = (state==0) ? '' : '&amp;likeit=1';
+        result = "&lt;a href=\"/likeit.php?novelid="+novelid+"&amp;chapterid="+chapterid+"&amp;commentid="+commentid+stateParm+"\" target=\"_blank\"&gt;"+stateText+"&lt;\/a&gt;";
+        if (mark==5) {
+            result += "　&lt;a href=\"/likeit.php?novelid="+novelid+"&amp;commentid="+commentid+"&amp;likeit=2\" target=\"_blank\"&gt;[删除评论]&lt;\/a&gt;";
+        }
+        if (mark&gt;3) {
+            result += "　&lt;a  style='cursor:pointer' onclick=\"handleComment('my.jjwxc.net/zero.php',"+novelid+','+commentid+','+null+",this,'')\"&gt;[清零]&lt;\/a&gt;";
+        }
+        if (readerid&gt;0&amp;&amp;commentsize&gt;=25&amp;&amp;novelvip==1) {
+            result += " &lt;a style='cursor:pointer' onClick=\"$.blockUI('&lt;div&gt;&lt;b&gt;您确定要给发表这篇评论的读者赠送阅读本文VIP章节的专用奖励积分吗？&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;input type=button value=确定 onClick=sendpoint("+novelid+","+commentid+") &gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&lt;input type=button value=取消 onClick=$.unblockUI() &gt;&lt;/div&gt;')\"&gt;[赠送积分]&lt;/a&gt;";
+        }
+    }
+    return result;
+}
+
+function genUserPannel(novelid, commentid, state, mark, readerid, commentsize, novelvip) {
+    if (_preCache==null) {
+        _preCache = isMyNovel();
+    }
+
+    if (_preCache) {
+        stateText = (state==0) ? '[作者加精]' : '[取消精华]';
+        stateParm = (state==0) ? '' : '&amp;likeit=1';
+        document.write("&lt;a href=\"/likeit.php?novelid="+novelid+"&amp;commentid="+commentid+stateParm+"\" target=\"_blank\"&gt;"+stateText+"&lt;\/a&gt;");
+        if (mark==5)
+        {
+            document.write("　&lt;a href=\"/likeit.php?novelid="+novelid+"&amp;commentid="+commentid+"&amp;likeit=2\" target=\"_blank\"&gt;[删除评论]&lt;\/a&gt;");
+        }
+        if (mark&gt;3)
+        {
+            document.write("　&lt;a  style='cursor:pointer' onclick=\"handleComment('my.jjwxc.net/zero.php',"+novelid+','+commentid+','+null+",this,'')\"&gt;[清零]&lt;\/a&gt;")
+        }
+        if (readerid&gt;0&amp;&amp;commentsize&gt;=25&amp;&amp;novelvip==1)
+        {
+            document.write(" &lt;a style='cursor:pointer' onClick=\"$.blockUI('&lt;div&gt;&lt;b&gt;您确定要给发表这篇评论的读者赠送阅读本文VIP章节的专用奖励积分吗？&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;input type=button value=确定 onClick=sendpoint("+novelid+","+commentid+") &gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&lt;input type=button value=取消 onClick=$.unblockUI() &gt;&lt;/div&gt;')\"&gt;[赠送积分]&lt;/a&gt;");
+        }
+    }
+}
+
+
+/**
+ * 判断用户是否有管理权限,生成管理链接
+ *
+ */
+function genAdminPannel(ip, novelid, commentid, iswonderful, iswonderful_admin, index, readerid, examinstatus, commentdate) {
+    var myCookie = getCookie("isAdmin");
+    var url = getCookie('loginSource');
+    if (!url) {
+        url = 'my.jjwxc.net';
+    }
+    if (myCookie!=null&amp;&amp;myCookie=='true') {
+        var ip_class = ip.replace(/\./g, '');
+        var examin;
+        if (examinstatus!=null) {
+            if (examinstatus!='评论专审通过'&amp;&amp;examinstatus!='正常') {
+                examin = "&lt;a target='_blank' style='cursor:pointer' href=\"http://go.jjwxc.net/guanli/menu.php?act=examine_comment_reader_count&amp;action=search&amp;submit=%A1%BE%B2%E9%D1%AF%A1%BF&amp;novelid="+novelid+"&amp;commentid="+commentid+"&amp;replyid=0&amp;export=0\"&gt;["+examinstatus+"]&lt;\/a&gt;";
+            } else {
+                examin = "&lt;a target='_blank' style='cursor:pointer' href=\"http://go.jjwxc.net/guanli/menu.php?act=showCount&amp;do=search&amp;novelIdOfComment="+novelid+"&amp;commentId="+commentid+"&amp;replyId=0\"&gt;["+examinstatus+"]&lt;\/a&gt;";
+            }
+        } else {
+            examin = null;
+        }
+        document.write("&lt;span class=\"toleft\"&gt;IP：&lt;a href=\"http:\/\/"+url+"\/guanli/menu.php?act=allsearch&amp;ip="+ip+"&amp;novelidforsearch="+novelid+"&amp;op=do\" target=\"_blank\"&gt; &lt;span class=\"redtext ip\"&gt;"+ip+"&lt;\/span&gt; &lt;font class='"+ip_class+"'&gt;&lt;\/font&gt;&lt;/a&gt;&lt;\/span&gt;"+examin+"&amp;nbsp;&amp;nbsp;&amp;nbsp;&lt;a style='cursor:pointer' onclick=\"handleComment('"+url+'/guanli/delete.php\','+novelid+','+commentid+','+null+",this,'')\"&gt;[删除]&lt;\/a&gt;　&lt;a style='cursor:pointer' onclick=\"handleComment('"+url+'/guanli/delete.php\','+novelid+','+commentid+','+null+",this,'punish',"+readerid+")\"&gt;[删除并处置网审人员]&lt;\/a&gt;    &lt;a  style='cursor:pointer' onclick=\"handleComment('"+url+'/guanli/zero.php\','+novelid+','+commentid+','+null+",this,'')\"&gt;[清零]&lt;\/a&gt;");
+    } else {
+//判断读者是否有对这篇文章删评的权限
+        var commentright = getcommentright();
+        if (commentright!=null) {
+            var authorid = $("#authorid_").text();
+            if (commentdate&gt;=commentright[0]&amp;&amp;commentright[1]&gt;=commentdate&amp;&amp;commentright[2]==authorid&amp;&amp;commentright[3]==getCookie('readerid')) {
+                document.write("&lt;a style='cursor:pointer' onclick=\"delPowerComment('"+url+'/delcomment_ajax.php\','+novelid+','+commentid+','+null+",this,4)\"&gt;[删除评论]&lt;\/a&gt;");
+            }
+        }
+    }
+}
+
+function handleComment(url, novelid, commentid, type, obj, punish, readerid) {
+    $.ajax({
+        type: "get",
+        async: true,
+        url: "http://"+url+"?novelid="+novelid+"&amp;commentid="+commentid+'&amp;type='+type+'&amp;from=front&amp;punish='+punish+'&amp;readerid='+readerid+'&amp;jsonp=?',
+        cache: true,
+        dataType: "jsonp",
+        ifModified: false,
+        success: function(json) {
+            if (json.status!=1) {
+                alert(json.msg);
+            } else if (url.indexOf('delete')&gt;-1) {
+                if (type==null) {
+                    $('#comment_'+commentid).remove();
+                } else {
+                    $(obj).parent().parent().remove();
+                }
+
+            } else if (url.indexOf('net/zero')&gt;-1) {
+                $(obj).parent().prev().prev().children().children().next().next().html(0);
+            } else if (url.indexOf('guanli/zero')&gt;-1) {
+                $(obj).parent().prev().prev().prev().children().children().next().next().html(0);
+            }
+        }
+    });
+}
+function delPowerComment(url, novelid, commentid, type, obj, likeit) {
+    $.ajax({
+        type: "get",
+        async: true,
+        url: "http://"+url+"?novelid="+novelid+"&amp;commentid="+commentid+'&amp;likeit='+likeit+'&amp;type='+type+'&amp;jsonp=?',
+        cache: true,
+        dataType: "jsonp",
+        ifModified: false,
+        success: function(json) {
+            if (json.status!=1) {
+                alert(json.msg);
+            } else if (url.indexOf('delcomment_ajax')&gt;-1&amp;&amp;json.status==1) {
+                if (type==null) {
+                    $('#comment_'+commentid).remove();
+                } else {
+                    $(obj).parent().parent().remove();
+                }
+            }
+        }
+    });
+}
+
+/**
+ * 判断用户是否有管理权限,生成导出链接
+ *
+ */
+function genExportPannel(novelid) {
+    var myCookie = getCookie("isAdmin");
+    if (myCookie!=null&amp;&amp;myCookie=='true') {
+        $('#genExportPannel').html("&lt;a href=\"http://my.jjwxc.net/comment.php?novelid="+novelid+"\"&gt;[查看全部书评]&lt;\/a&gt;");
+    }
+}
+
+/**
+ * 判断用户是否有文章管理员权限,生成管理
+ *
+ */
+function genWarningPannel(novelid) {
+    var myCookie = getCookie("managername");
+    if (myCookie!=null&amp;&amp;myCookie!='') {
+        html = '';
+        html += "&lt;form method=\"post\" action=\"http:\/\/my.jjwxc.net\/guanli\/insertedit.php\"  onsubmit=\"return makesure()\"&gt;";
+        html += "   &lt;div class=\"warning\"&gt;";
+        html += "    &lt;div class=\"warningtitle\"&gt;";
+        html += "    &lt;input name=\"novelid\" type=\"hidden\" id=\"novelid\" value=\""+novelid+"\"&gt;&amp;nbsp;&amp;nbsp;"+myCookie+"：";
+        html += "    &amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&lt;select name=\"cardtype\" id=\"cardtype\"&gt;";
+        html += "    &lt;option value=\"0\" selected&gt;通知&lt;\/option&gt;";
+        html += "    &lt;option value=\"1\"&gt;黄牌&lt;\/option&gt;";
+        html += "    &lt;option value=\"2\"&gt;红牌&lt;\/option&gt;";
+        html += "    &lt;\/select&gt;";
+        html += "    &amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&lt;span id='novelmodulus' style='display:none'&gt;文章积分变化为&lt;input name=\"modulus\" type=\"text\" id=\"modulus\" class=\"input_text_veryshort\" value=\"1\" &gt;&lt;/span&gt;";
+        html += "    &lt;\/div&gt;";
+        html += "    &lt;div class=\"warningbody\"&gt;";
+        html += "    &lt;div class=\"textcenter\"&gt;";
+        html += "    &lt;span class=\"toright\"&gt;";
+        html += "    &lt;div class=\"fanbuttondiv\"&gt;";
+        html += "    &lt;input name=\"submit\" type=\"submit\" class=\"fanbutton\" id=\"submit\" value=\"确定\"&gt;";
+        html += "    &lt;\/div&gt;";
+        html += "   &lt;\/span&gt;";
+        html += "    &lt;textarea name=\"editbody\" cols=\"100\" rows=\"7\" class=\"input_textarea_short\" id=\"editbody\"&gt;&lt;\/textarea&gt;";
+        html += "    &lt;\/div&gt;";
+        html += "    &lt;\/div&gt;";
+        html += "   &lt;\/div&gt;";
+        html += "&lt;\/form&gt;";
+        $("#genWarningPannel").html(html);
+    }
+}
+
+/**
+ * 判断用户是否有管理权限,生成管理链接
+ *
+ */
+function get_genAdminPannel(ip, novelid, commentid, iswonderful, iswonderful_admin, index, readerid, examinstatus, commentdate) {
+    var myCookie = getCookie("isAdmin");
+    var result = '';
+    var url = getCookie('loginSource');
+    if (!url) {
+        url = 'my.jjwxc.net';
+    }
+    if (myCookie!=null&amp;&amp;myCookie=='true') {
+        var ip_class = ip.replace(/\./g, '');
+        var examin;
+        if (examinstatus!=null) {
+            if (examinstatus!='评论专审通过'&amp;&amp;examinstatus!='正常') {
+                examin = "&lt;a target='_blank' style='cursor:pointer' href=\"http://go.jjwxc.net/guanli/menu.php?act=examine_comment_reader_count&amp;action=search&amp;submit=%A1%BE%B2%E9%D1%AF%A1%BF&amp;novelid="+novelid+"&amp;commentid="+commentid+"&amp;replyid=0&amp;export=0\"&gt;["+examinstatus+"]&lt;\/a&gt;";
+            } else {
+                examin = "&lt;a target='_blank' style='cursor:pointer' href=\"http://go.jjwxc.net/guanli/menu.php?act=showCount&amp;do=search&amp;novelIdOfComment="+novelid+"&amp;commentId="+commentid+"&amp;replyId=0\"&gt;["+examinstatus+"]&lt;\/a&gt;";
+            }
+        } else {
+            examin = null;
+        }
+        result = "&lt;span class=\"toleft\"&gt;IP：&lt;a href=\"http:\/\/"+url+"\/guanli/menu.php?act=allsearch&amp;ip="+ip+"&amp;novelidforsearch="+novelid+"&amp;op=do\" target=\"_blank\"&gt; &lt;span class=\"redtext ip\"&gt;"+ip+"&lt;\/span&gt; &lt;font class='"+ip_class+"'&gt;&lt;\/font&gt;&lt;/a&gt;&lt;\/span&gt;"+examin+"&amp;nbsp;&amp;nbsp;&amp;nbsp;&lt;a style='cursor:pointer' onclick=\"handleComment('"+url+'/guanli/delete.php\','+novelid+','+commentid+','+null+",this,'')\"&gt;[删除]&lt;\/a&gt;　 &lt;a style='cursor:pointer' onclick=\"handleComment('"+url+'/guanli/delete.php\','+novelid+','+commentid+','+null+",this,'punish',"+readerid+")\"&gt;[删除并处置网审人员]&lt;\/a&gt; 　&lt;a  style='cursor:pointer' onclick=\"handleComment('"+url+'/guanli/zero.php\','+novelid+','+commentid+','+null+",this,'')\"&gt;[清零]&lt;\/a&gt;";
+    } else {
+//判断读者是否有对这篇文章删评的权限
+        var commentright = getcommentright();
+        if (commentright!=null) {
+            var authorid = $("#authorid_").text();
+            if (commentdate&gt;=commentright[0]&amp;&amp;commentright[1]&gt;=commentdate&amp;&amp;commentright[2]==authorid&amp;&amp;commentright[3]==getCookie('readerid')) {
+                result = "&lt;a style='cursor:pointer' onclick=\"delPowerComment('"+url+'/delcomment_ajax.php\','+novelid+','+commentid+','+null+",this,4)\"&gt;[删除评论]&lt;\/a&gt;";
+            }
+        }
+    }
+    return result;
+}
+
+/**
+ * 判断用户是否有管理权限,生成管理链接(回复评论)
+ *
+ */
+function get_replyAdminPannel(ip, novelid, replyid, readerid, examinstatus, commentid, commentdate) {
+    var myCookie = getCookie("isAdmin");
+    var result = '';
+    var url = getCookie('loginSource');
+    if (!url) {
+        url = 'my.jjwxc.net';
+    }
+    if (myCookie!=null&amp;&amp;myCookie=='true') {
+        var ip_class = ip.replace(/\./g, '');
+        var examin;
+        if (examinstatus!=null) {
+            if (examinstatus!='评论专审通过'&amp;&amp;examinstatus!='正常') {
+                examin = "&lt;a target='_blank' style='cursor:pointer' href=\"http://go.jjwxc.net/guanli/menu.php?act=examine_comment_reader_count&amp;action=search&amp;submit=%A1%BE%B2%E9%D1%AF%A1%BF&amp;novelid="+novelid+"&amp;commentid="+commentid+"&amp;replyid="+replyid+"&amp;export=0\"&gt;["+examinstatus+"]&lt;\/a&gt;";
+            } else {
+                examin = "&lt;a target='_blank' style='cursor:pointer' href=\"http://go.jjwxc.net/guanli/menu.php?act=showCount&amp;do=search&amp;novelIdOfComment="+novelid+"&amp;commentId="+commentid+"&amp;replyId="+replyid+"\"&gt;["+examinstatus+"]&lt;\/a&gt;";
+            }
+        } else {
+            examin = null;
+        }
+        result = "&lt;span class=\"toleft\"&gt;IP：&lt;a href=\"http:\/\/"+url+"\/guanli/menu.php?act=allsearch&amp;ip="+ip+"&amp;novelidforsearch="+novelid+"&amp;op=do&amp;type=reply\" target=\"_blank\"&gt; &lt;span class=\"redtext ip\"&gt;"+ip+"&lt;\/span&gt; &lt;font class='"+ip_class+"'&gt;&lt;\/font&gt;&lt;/a&gt;&lt;\/span&gt;"+examin+"&amp;nbsp;&amp;nbsp;&amp;nbsp;&lt;a style='cursor:pointer' onclick=\"handleComment('"+url+'/guanli/delete.php\','+novelid+','+replyid+",\'reply\',this,'')\"&gt;[删除]&lt;\/a&gt;   &lt;a style='cursor:pointer' onclick=\"handleComment('"+url+'/guanli/delete.php\','+novelid+','+replyid+",\'reply\',this,'punish',"+readerid+")\"&gt;[删除并处置网审人员]&lt;\/a&gt;　　&lt;a  style='cursor:pointer' onclick=\"handleComment('"+url+'/guanli/zero.php\','+novelid+','+replyid+",\'reply\',this,'')\"&gt;[清零]&lt;\/a&gt;";
+    } else {
+//判断读者是否有对这篇文章删评的权限
+        var commentright = getcommentright();
+        if (commentright!=null) {
+            var authorid = $("#authorid_").text();
+            if (commentdate&gt;=commentright[0]&amp;&amp;commentright[1]&gt;=commentdate&amp;&amp;commentright[2]==authorid&amp;&amp;commentright[3]==getCookie('readerid')) {
+                result = "&lt;a style='cursor:pointer' onclick=\"delPowerComment('"+url+'/delcomment_ajax.php\','+novelid+','+replyid+",\'reply\',this,4)\"&gt;[删除回复]&lt;\/a&gt;";
+            }
+        }
+    }
+    return result;
+}
+
+/**
+ * 判断用户是否有管理权限,生成管理链接(回复评论)
+ *
+ */
+function replyAdminPannel(ip, novelid, replyid, readerid, examinstatus, commentid, commentdate) {
+    var myCookie = getCookie("isAdmin");
+    var result = '';
+    var url = getCookie('loginSource');
+    if (!url) {
+        url = 'my.jjwxc.net';
+    }
+    if (myCookie!=null&amp;&amp;myCookie=='true') {
+        var ip_class = ip.replace(/\./g, '');
+        var examin;
+        if (examinstatus!=null) {
+            if (examinstatus!='评论专审通过'&amp;&amp;examinstatus!='正常') {
+                examin = "&lt;a target='_blank' style='cursor:pointer' href=\"http://go.jjwxc.net/guanli/menu.php?act=examine_comment_reader_count&amp;action=search&amp;submit=%A1%BE%B2%E9%D1%AF%A1%BF&amp;novelid="+novelid+"&amp;commentid="+commentid+"&amp;replyid="+replyid+"&amp;export=0\"&gt;["+examinstatus+"]&lt;\/a&gt;";
+            } else {
+                examin = "&lt;a target='_blank' style='cursor:pointer' href=\"http://go.jjwxc.net/guanli/menu.php?act=showCount&amp;do=search&amp;novelIdOfComment="+novelid+"&amp;commentId="+commentid+"&amp;replyId="+replyid+"\"&gt;["+examinstatus+"]&lt;\/a&gt;";
+            }
+        } else {
+            examin = null;
+        }
+        result = "&lt;span class=\"toleft\"&gt;IP：&lt;a href=\"http:\/\/"+url+"\/guanli/menu.php?act=allsearch&amp;ip="+ip+"&amp;novelidforsearch="+novelid+"&amp;op=do&amp;type=reply\" target=\"_blank\"&gt; &lt;span class=\"redtext ip\"&gt;"+ip+"&lt;\/span&gt; &lt;font class='"+ip_class+"'&gt;&lt;\/font&gt;&lt;/a&gt;&lt;\/span&gt;"+examin+"&amp;nbsp;&amp;nbsp;&amp;nbsp;&lt;a style='cursor:pointer' onclick=\"handleComment('"+url+'/guanli/delete.php\','+novelid+','+replyid+",\'reply\',this,'')\"&gt;[删除]&lt;\/a&gt;   &lt;a style='cursor:pointer' onclick=\"handleComment('"+url+'/guanli/delete.php\','+novelid+','+replyid+",\'reply\',this,'punish',"+readerid+")\"&gt;[删除并处置网审人员]&lt;\/a&gt;　　&lt;a  style='cursor:pointer' onclick=\"handleComment('"+url+'/guanli/zero.php\','+novelid+','+replyid+",\'reply\',this,'')\"&gt;[清零]&lt;\/a&gt;";
+    } else {
+//判断读者是否有对这篇文章删评的权限
+        var commentright = getcommentright();
+        if (commentright!=null) {
+            var authorid = $("#authorid_").text();
+            if (commentdate&gt;=commentright[0]&amp;&amp;commentright[1]&gt;=commentdate&amp;&amp;commentright[2]==authorid&amp;&amp;commentright[3]==getCookie('readerid')) {
+                result = "&lt;a style='cursor:pointer' onclick=\"delPowerComment('"+url+'/delcomment_ajax.php\','+novelid+','+replyid+",\'reply\',this,4)\"&gt;[删除回复]&lt;\/a&gt;";
+            }
+        }
+    }
+    document.write(result);
+}
+
+
+// --- 评论延迟加载方案
+var comment_count = 1;
+var offset_show = function() {
+    if (!comment_count)
+        return;
+    if (getElementViewTop($('#comment_list')[0])&gt;500) {
+        setTimeout(offset_show, 200);
+        return;
+    }
+    get_comment_new();
+    comment_count--;
+    return;
+}
+
+// --- 验证码刷评提示
+function comment_auth_num() {
+    var auth_num = $('#auth_num_login').val();
+    if (auth_num==0) {
+        $('#auth_num_message').html('请输入验证码再提交登陆！');
+    } else {
+        $('#comment_auth_num').val(auth_num);
+        $.unblockUI();
+        insert_comment();
+    }
+}
+function reply_auth_num(commentid) {
+    var auth_num = $('#reply_num_login').val();
+    if (auth_num==0) {
+        $('#auth_num_message').html('请输入验证码再提交登陆！');
+    } else {
+        $.unblockUI();
+        reply_submit(commentid);
+    }
+}
+
+ajax_login(1);
+//vip  xwb
+function payclick(id) {
+    var obj = $('#'+id)
+    if (getCookie('readerid')==null) {
+        setClickType(obj);
+    }
+    if (is_login(id, 'url')) {
+        window.location = $('#'+id).attr('rel');
+    }
+}
+
+// 易瑞特“免费得晋江币”活动弹出登录界面
+function yrtlogin() {
+    setCookie('clicktype', 'yrt', 0, '/', '.jjwxc.net'); //为了点击登录成功后自动跳转
+    if (getCookie('readerid')==null) {
+        $('#submit_at').val('yrt');
+        //$.blockUI(login_question, {width: '300px', cursor: 'default'});
+        show_login();
+        window.scroll(0, 0);
+    } else {
+        return true;
+    }
+}
+
+function vip_buy(id) {
+    pop = id;
+    var obj = $('#'+id)
+    if (getCookie('readerid')==null) {
+        setClickType(obj);
+    }
+    if (is_login(id, 'click')) {
+        window.location = $('#'+id).attr('rel');
+    }
+}
+
+function imgautoreload() {
+    var r = Math.random();
+    $('#img_auth').attr('src', 'http://my.jjwxc.net/include/checkImage.php?action=pay&amp;r='+r);
+    if ($("#code_random").length&gt;0) {
+        $("#code_random").val(r);
+    } else {
+        $("#publish_comment").append("&lt;input type='hidden' value='"+r+"' name='random' id='code_random'&gt;");
+    }
+}
+
+$(function() {
+    ajax_login(1);
+    $(".bigtext").click(function() {
+        $('#message').html("请稍候，正在获取文章").css("color", "red").fadeIn("slow");
+    })
+
+    $(".payclick").click(function() {
+        if (is_login($(this).attr('id'), 'url')) {
+            window.location = $('#'+$(this).attr('id')).attr('rel');
+        }
+    })
+
+    $(".load-local").hover(function() {
+        var id = $(this).attr('rel');
+        var left = getAbsoluteLeft($(this).attr('id'))-290;
+        var top = getAbsoluteTop($(this).attr('id'));
+        $('#cluetip').css('left', left+'px').css('top', top);
+        $('#cluetip').html($(id).html());
+        $('#cluetip').toggle();
+    }, function() {
+        $('#cluetip').toggle();
+    })
+
+
+    $(".vip_month_package").click(function() {
+        if (getCookie('readerid')==null) {
+            setClickType(this);
+        }
+
+        var novelid = getURLParam('novelid');
+        if (is_login($(this).attr('id'), 'click')) {
+            window.location = 'http://my.jjwxc.net/backend/buynovel.php?novelid='+novelid+'&amp;chapterid='+$(this).attr('chapterid');
+        }
+    });
+    $(".vip_buy").click(function() {
+        if (is_login($(this).attr('id'), 'click')) {
+            window.location = $(this).attr('ref');
+        }
+    });
+    $('#chapter_list').bind('mouseover', function() {
+        chapterlist_init();
+    })
+//   加载评论
+    if (url=='onebook.php'||url=='onebook_vip.php'||url.indexOf('book/')!=-1||url.indexOf('vip/')!=-1) {
+        offset_show();
+    } else if (url=='comment.php') {
+// --- 加载回复评论提交行为
+        $('.reply_submit').bind('click', function() {
+            $('.reply_box').remove();
+            var id = $(this);
+            var commentid = id.attr('id');
+            var site = id.attr('rel');
+            var nicknameAndsign = decodeURIComponent(getCookie("nicknameAndsign")!=null) ? decodeURIComponent(getCookie("nicknameAndsign")) : '';
+            var nicknameArray = nicknameAndsign.split('~)$');
+            var isnickname = nicknameArray[0];
+            var nickname = nicknameArray[1];
+            if (nickname!=''&amp;&amp;isnickname=='2'&amp;&amp;nickname!=null) {
+                var commentauthor = nickname;
+            } else {
+                var commentauthor = unescape(decodeURI(getCookie("cookieofcommentusername")));
+                if (commentauthor==null||commentauthor=='null') {
+                    commentauthor = '';
+                } else if (commentauthor!=''&amp;&amp;commentauthor!=undefined&amp;&amp;commentauthor!='undefined') {
+                    commentauthor = commentauthor;
+                } else {
+                    commentauthor = '';
+                }
+            }
+            _preCache = isMyNovel();
+            if (_preCache=="true") {
+                html = '&lt;div class="replybody reply_box"&gt;&lt;div style="width: 660px; height: 26px; color:#009900; float:left;" align="center"&gt;↓这是对评论的回复，用于读者之间交流，不会对文章的积分造成影响↑&lt;/div&gt;&lt;div style="width: 50px; float:left" align="center"&gt;&lt;img src="http://static.jjwxc.net/images/close.gif" width="12" height="12" style="cursor:pointer" onClick="$(\'.reply_box\').remove();"/&gt;&lt;/div&gt;&lt;div style="clear:both;"&gt;&lt;div&gt;&lt;span style="color: #008F00;"&gt;作者回复　　　　&lt;/span&gt; &lt;input name="reply_author" id="reply_author" type="hidden" value="本文作者"/&gt; 评论主题：&lt;input type="text" class="input_text" name="reply_commentsubject" id="reply_commentsubject" size="28" maxlength="100" style="width: 493px" onfocus="setonfcous()" onblur="setofffcous()"/&gt;&lt;br /&gt;&lt;br /&gt;&lt;/div&gt;&lt;div&gt;&lt;div style="float:left"&gt;&lt;textarea name="reply_body" class="input_textarea_short" id="reply_body" style="width:660px;height: 100px" onfocus="setonfcous()" onblur="setofffcous()"&gt;&lt;/textarea&gt;&lt;/div&gt;&lt;div style="width: 50px; float:left; padding-top: 30px" align="center"&gt;&lt;input type="button" id="yesbuy" class="fanbutton" value="确定" onClick="reply_submit('+commentid+')"/&gt;&lt;/div&gt;&lt;div style="clear: both;"&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;';
+            } else {
+                html = '&lt;div class="replybody reply_box"&gt;&lt;div style="width: 660px; height: 26px; color:#009900; float:left;" align="center"&gt;↓这是对评论的回复，用于读者之间交流，不会对文章的积分造成影响↑&lt;/div&gt;&lt;div style="width: 50px; float:left" align="center"&gt;&lt;img src="http://static.jjwxc.net/images/close.gif" width="12" height="12" style="cursor:pointer" onClick="$(\'.reply_box\').remove();"/&gt;&lt;/div&gt;&lt;div style="clear:both;"&gt;&lt;div&gt;网友：&lt;input name="reply_author" id="reply_author" type="text" size="10" class="input_text" maxlength="50" style="width: 150px" onfocus="setonfcous()" onblur="setofffcous()" value="'+commentauthor+'"/&gt; 评论主题：&lt;input type="text" class="input_text" name="reply_commentsubject" id="reply_commentsubject" size="28" maxlength="100" style="width: 408px" onfocus="setonfcous()" onblur="setofffcous()"/&gt;&lt;br /&gt;&lt;br /&gt;&lt;/div&gt;&lt;div&gt;&lt;div style="float:left"&gt;&lt;textarea name="reply_body" class="input_textarea_short" id="reply_body" style="width:660px;height: 100px" onfocus="setonfcous()" onblur="setofffcous()"&gt;&lt;/textarea&gt;&lt;/div&gt;&lt;div style="width: 50px; float:left; padding-top: 30px" align="center"&gt;&lt;input type="button" id="yesbuy" class="fanbutton" value="确定" onClick="reply_submit('+commentid+')"/&gt;&lt;/div&gt;&lt;div style="clear: both;"&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;';
+            }
+
+            if (site=='end') {
+                $('#reply_'+commentid).append(html);
+            } else {
+                $('#reply_'+commentid).prepend(html);
+            }
+        })
+    }
+
+    $('body').focus();
+    // 加载文章收藏行为  注意这里是收藏章节。上面是收藏文章作品。
+    $('.favorite_novel').bind('click', function() {
+        if (getCookie('clicktype')=='favorite_2'||getCookie('clicktype')=='favorite_3') {
+//当用户没登录时，点击触发登录，异步登陆后，收藏章节和书签执行此段 xwb
+            var flag = $('#'+getCookie('clicktype')).html();
+            var rel = $('#'+getCookie('clicktype')).attr('rel');
+        } else {
+            var flag = $(this).html();
+            var rel = $(this).attr('rel');
+        }
+
+        if (flag!='收藏此文章'&amp;&amp;flag!='收藏此章节'&amp;&amp;flag!='插入书签'&amp;&amp;flag!='收藏此章?'&amp;&amp;flag!='插入??') {
+            return false;
+        }
+
+        rel = rel.split('|');
+        var novelId = getURLParam('novelid');
+        var chapterId = getURLParam('chapterid');
+        if (chapterId==null||chapterId=='null') {
+            chapterId = 0;
+        }
+        var id = rel[0];
+        setCookie('clicktype', 'favorite_'+id, 0, '/', '.jjwxc.net'); //这设置的clicktype为favorite_2 即收藏章节 favorite_3为加入书签 xwb
+        var chapterbookmarks = "yes"; //点击 收藏章节，插入书签标识
+        var rand = Math.random();
+        if (is_login('favorite_'+id, 'click')) {
+//$('#favoriteshow_'+id).html("&lt;font color='red'&gt;请等待.....&lt;/font&gt;").show();
+            $.getJSON('/insertfavorite.php', {
+                novelid: novelId,
+                chapterid: chapterId,
+                chapterbookmarks: chapterbookmarks,
+                rand: rand,
+                checkmaxnum: 'checkmaxnum'
+            }, function(data) {
+//  $('#favoriteshow_'+id).html(data.strtext);
+                if (data.oldClassname==''||data.status=='maxlimit') {                       //如果收藏章节以前没有为该小说收藏分类，那么就弹框提示分类
+                    if (data.strtext!='您还没有登陆，所以无法使用书签功能') {  //判断是否登陆
+                        if (data.status=='maxlimit') {
+                            $.blockUI('&lt;div align="center"&gt;&lt;div style="float:right"&gt;&lt;img src="http://static.jjwxc.net/images/close.gif" width="12" height="12" style="cursor:pointer" onClick="$.unblockUI()"/&gt;&lt;/div&gt;&lt;br&gt;&lt;b&gt;'+data.message+'&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;input type="button" value="确 定" onClick="$.unblockUI()"/&gt;&lt;/div&gt;', {width: '330px', height: '100px', cursor: 'default', left: '43%', top: '45%'});
+                        } else {
+                            $('#float_message').html(data.strtext); //提示收藏成功信息
+                            var html = ''; //初始化html;
+                            var favorite = new Array();
+                            var classid = new Array();
+                            favorite = data.favoriteClass.split('|'); //使用|分割分类的数据
+                            classid = data.favoriteClassid.split('|'); //使用|分割分类的数据
+                            if (favorite!='') {                        //如果读者有收藏分类，就循环输出分类
+                                for (i = 0; i&lt;favorite.length; i++) {
+                                    var class_id = classid[i];
+                                    var title = favorite[i];
+                                    if (favorite[i].length&gt;4) {
+                                        favorite[i] = favorite[i].substr(0, 3)+'…';
+                                    }
+                                    html += '&lt;li&gt;&lt;font style="cursor:pointer;color:green;" id="'+class_id+'" title="'+title+'" onmouseout=\"this.style.textDecoration=\'none\'\" onmouseover=\"this.style.textDecoration=\'underline\'\"&gt;'+favorite[i]+'&lt;/font&gt;&lt;/li&gt;';
+                                }
+                            } else {
+                                html = '&lt;span style="float:left;margin:38px 0 0 -16px;color:red;"&gt;~~您还没有【定制收藏类别】哦！点击定制收藏类别，增加分类吧！&lt;/span&gt;';
+                            }
+
+                            $('#float_comment_ul').html(html);
+                            if ($('#float_favorite').css('display')=='none'&amp;&amp;getCookie('clicktype')=='favorite_2') {
+                                var xOffset = 7; //定义x的偏移量
+                                var yOffset = 14; //定义y的偏移量
+                                var x = getAbsoluteLeft('favorite_2');
+                                var y = getAbsoluteTop('favorite_2');
+                                var left = x+xOffset;
+                                var top = y+yOffset;
+                                $('#mongolia_layer').show();
+                                $('#float_favorite').css({
+                                    left: left+'px',
+                                    top: top+'px'
+                                }).show();
+                            } else {
+                                var xOffset = -430; //定义x的偏移量
+                                var yOffset = -120; //定义y的偏移量
+                                var x = getAbsoluteLeft('favorite_3');
+                                var y = getAbsoluteTop('favorite_3');
+                                var left = x+xOffset;
+                                var top = y+yOffset;
+                                $('#mongolia_layer').show();
+                                $('#float_favorite').css({
+                                    left: left+'px',
+                                    top: top+'px'
+                                }).show();
+                            }
+                        }
+                    } else {
+                        var message = ''; //初始化变量
+                        message = '&lt;span&gt;'+data.strtext+'&lt;/span&gt;'; //未登陆的提示
+                        $.blockUI(message);
+                        setTimeout(function() {
+                            $.unblockUI();
+                        }, 1500);
+                        false;
+                    }
+                } else {
+                    $('#favoriteshow_'+id).html(data.strtext).show(); //文章《novelname》novleid 之前已经被成功收藏，您可以在收藏列表的【oldClassname】 类别当中找到^_^
+                }
+                $('#float_comment_ul font').click(function() {
+                    var spans = $(this).attr('id');
+                    var readerid = getCookie("readerid");
+                    var action = 'articlesCategory';
+                    $.post('/insertfavorite.php?rand='+rand, {
+                        action: action,
+                        novelid: novelId,
+                        chapterid: chapterId,
+                        classid: spans
+                    }, function(result) {
+                        if (result=='200') {
+                            $('#float_comment_ul').html('&lt;span style="margin:35px 0 0 0;margin:35px 0 0 120px\\9;float:left;font-size:14px;"&gt;文章收藏分类&lt;font color="green"&gt;成功&lt;/font&gt;&lt;/span&gt;');
+                        } else {
+                            $('#float_comment_ul').html('&lt;span style="margin:35px 0 0 0;margin:35px 0 0 120px\\9;float:left;font-size:14px;"&gt;文章收藏分类&lt;font color="red"&gt;失败&lt;/font&gt;&lt;/span&gt;');
+                        }
+                        setTimeout(close_fav, 2000);
+                    });
+                })
+                //清空cookie防止冲突 xwb
+                setCookie('clicktype', '', 0, '/', '.jjwxc.net');
+            });
+        }
+    }).css({
+        'cursor': 'pointer',
+        'font-size': '12px'
+    });
+    $('#report_menu1').hover(
+            function() {
+                $('#report_list1').show();
+            },
+            function() {
+                $('#report_list1').hide();
+            }
+    )
+
+    $('#report_list1 &gt; li').css({
+        'list-style-type': 'none',
+        'background-color': '#FFFFFF',
+        'color': '#8B8C8B'
+    }).hover(
+            function() {
+                $(this).css({
+                    'background-color': '#ECF1E9',
+                    'color': '#E6211A'
+                });
+            },
+            function() {
+                $(this).css({
+                    'background-color': '#FFFFFF',
+                    'color': '#8B8C8B'
+                });
+            }
+    );
+    $('#report_menu2').hover(
+            function() {
+                $('#report_list2').show();
+            },
+            function() {
+                $('#report_list2').hide();
+            }
+    )
+
+    $('#report_list2 &gt; li').css({
+        'list-style-type': 'none',
+        'background-color': '#FFFFFF',
+        'color': '#8B8C8B'
+    }).hover(
+            function() {
+                $(this).css({
+                    'background-color': '#ECF1E9',
+                    'color': '#E6211A'
+                });
+            },
+            function() {
+                $(this).css({
+                    'background-color': '#FFFFFF',
+                    'color': '#8B8C8B'
+                });
+            }
+    );
+    var novelintronum = 0;
+    if ($('#novelintro').size()&gt;0) {
+        var novelintro = $('#novelintro').html();
+        if (novelintro!='') {
+            if (novelintro.indexOf("http://product.dangdang.com/")!=-1) {
+                novelintronum++;
+                novelintro = novelintro.replace(/http:\/\/product.dangdang.com\//g, "http://count.chanet.com.cn/click.cgi?a=38707&amp;d=155762&amp;u=&amp;e=&amp;url=http://product.dangdang.com/");
+            }
+            if (novelintro.indexOf("http://www.amazon.cn/")!=-1) {
+                novelintronum++;
+                novelintro = novelintro.replace(/http:\/\/www.amazon.cn\//g, "http://count.chanet.com.cn/click.cgi?a=38707&amp;d=155754&amp;u=&amp;e=&amp;url=http://www.amazon.cn/");
+            }
+            if (novelintronum&gt;0) {
+                $('#novelintro').html(novelintro);
+            }
+        }
+    }
+})
+
+if (isMyNovel()) {
+    document.write("&lt;style type=\"text\/css\"&gt;.manageArea{display:block}&lt;\/style&gt;")
+}
+
+function windowOpen(url, width, height) {
+    window.open(url, 'mb', ['toolbar=0,status=0,resizable=1,width='+width+',height='+height+',left=', (screen.width-width)/2, ',top=', (screen.height-height)/2].join(''));
+}
+
+function blockOpen(url, width, height) {
+    $.unblockUI();
+    if (/Firefox/.test(navigator.userAgent)) {
+        setTimeout("windowOpen('"+url+"', "+width+", "+height+")", 0);
+    } else {
+        windowOpen(url, width, height);
+    }
+}
+//检测是否使用支付密码
+function checkpaypwd(id, comment) {
+    if (is_login()) {
+        var readerid = getCookie("readerid");
+        $.ajax({
+            type: "GET",
+            url: 'backend/kingTicketsPay_ajax.php?action=checkpaypwd&amp;readerid='+readerid+'&amp;jsonp=?',
+            dataType: 'jsonp',
+            async: false,
+            success: function(json) {
+                if (json.status==200) {//需要验证码
+                    $.blockUI('&lt;div&gt;&lt;div style="float:right"&gt;&lt;img src="http://static.jjwxc.net/images/close.gif" width="12" height="12" style="cursor:pointer" onClick="$.unblockUI()"/&gt;&lt;/div&gt;&lt;br&gt;&lt;b&gt;请输入您设定的支付密码（格式为6位纯数字)&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;input name="paypwd" type="password" id="paypwd" maxlength="6" /&gt;&lt;br/&gt;&lt;br/&gt;&lt;input type="button" onclick="kingTicketsPay(\''+id+'\','+comment+');" value="确 定" /&gt;&amp;nbsp;&amp;nbsp;&lt;input type="button" value="取消" onclick="$.unblockUI();"/&gt;&lt;br&gt;&lt;br&gt;&lt;center&gt;&lt;a href="http://help.jjwxc.net/user/password/2"&gt;[忘记支付密码?]&lt;/a&gt;&lt;/center&gt;&lt;/div&gt;', {width: '330px',
+                        height: '150px',
+                        cursor: 'default'
+                    });
+                } else {//不需要
+                    kingTicketsPay(id, comment);
+                }
+            }
+        })
+    }
+}
+//加入第二个参数,目录页投霸王票将发评
+function kingTicketsPay(id) {
+    var comment = arguments[1] ? arguments[1] : false;
+    var novelid = getURLParam('novelid');
+    var t = $('#'+id).attr('rel');
+    //霸王票数量,默认为1
+    var num = 1;
+    if ($('#'+id).next().attr('id')=='KingTickets_deeptorpedo_num') {
+        num = $('#'+id).next().val();
+    }
+    var paypwd = $('#paypwd').val();
+    var r = 0;
+    if ($("#code_random").length&gt;0) {
+        r = $("#code_random").val();
+    }
+    if (is_login(id, 'click')) {
+        $.blockUI('&lt;img src="http://static.jjwxc.net/images/loading.gif"&gt;  &lt;strong&gt;请稍候...&lt;/strong&gt;');
+        //评论信息参数
+        var chapterid, commentmark, commentbody, comment_auth_num, commentsubject;
+        if (comment===true) {//目录页
+            chapterid = 1;
+            commentmark = 5;
+            commentbody = $("#ticket_comment").val();
+            comment_auth_num = ''; //验证码
+            commentsubject = '';
+        } else {//章节页
+            var subObj = $("#publish_comment");
+            $('#submit_comment').html('&lt;img src="http://static.jjwxc.net/images/loading.gif"&gt;');
+            chapterid = subObj.find("#chapterid").val();
+            commentmark = subObj.find("#commentmark").val();
+            commentsubject = subObj.find("#commentsubject").val();
+            commentbody = subObj.find("#commentbody").val().replace(/^\s+|\s+$/g, '');
+            if (commentbody=='') {
+                commentbody = $("#ticket_comment").val();
+            }
+            comment_auth_num = subObj.find('#comment_auth_num').val();
+        }
+        var commentauthor = decodeURIComponent(getCookie("nicknameAndsign"));
+        commentauthor = commentauthor.split('~)$');
+        commentauthor = commentauthor[1];
+        var datapost = {novelid: novelid, chapterid: chapterid, commentauthor: commentauthor, commentmark: commentmark, commentsubject: commentsubject, commentbody: commentbody, comment_auth_num: comment_auth_num, r: r};
+        $.post('backend/kingTicketsPay_ajax.php?action=pay&amp;num='+num+'&amp;t='+t+'&amp;paypwd='+paypwd+'&amp;jsonp=?', datapost, function(json) {
+            if (json.status==200) {
+                $.blockUI('&lt;div align="center" style="font-size: 12px;"&gt;&lt;div style="float:right"&gt;&lt;img src="http://static.jjwxc.net/images/close.gif" width="12" height="12" style="cursor:pointer" onClick="$.unblockUI()"/&gt;&lt;/div&gt;&lt;br&gt;&lt;b&gt;'+json.message+'&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;input type="button" value="确 定" onClick="$.unblockUI()"/&gt;&lt;/div&gt;', {
+                    width: '330px',
+                    height: '250px',
+                    cursor: 'default'
+                });
+                //重新加载霸王票排行
+                if (((window.location.href).indexOf("onebook.php")&gt;=0||(window.location.href).indexOf("onebook_vip.php")&gt;=0)&amp;&amp;$("#ticketsort").length&gt;0) {
+                    onebook_ticketsort(true);
+                }
+                if ((window.location.href).indexOf("noveloverlist.php")&gt;=0&amp;&amp;$("#tickettd").length&gt;0) {
+                    novelover_ticketSort(true);
+                    getLastTicketList();
+                }
+                if (((window.location.href).indexOf("onebook.php")&gt;=0||(window.location.href).indexOf("onebook_vip.php")&gt;=0)&amp;&amp;$("#tickets_box").length&gt;0) {
+                    onebook_ticketrankall(true);
+                }
+                setCookie('comment_submit', '', 0, '/'); //清除发评2分限制
+            } else if (json.status==10) {
+                var randid = Math.random();
+                $.blockUI('&lt;div align="center"&gt;&lt;div style="float:right"&gt;&lt;img src="http://static.jjwxc.net/images/close.gif" width="12" height="12" style="cursor:pointer" onClick="$.unblockUI()"/&gt;&lt;/div&gt;&lt;b&gt;请输入验证码再提交&lt;/b&gt;&lt;br&gt;&lt;br&gt;验证码 &lt;input name="auth_num_login" class="input" id="auth_num_login" size="10" maxlength="8" /&gt;&amp;nbsp; &lt;img id="img_auth" rel="2" src=\"http://my.jjwxc.net/include/checkImage.php?action=pay&amp;r='+randid+'\"&gt; &lt;span id="img_auth_reload" style="cursor:pointer; color: blue; text-decoration: underline;" onClick="imgautoreload()"&gt;看不清&lt;/span&gt;&lt;br&gt;&lt;br&gt;&lt;span id="Ekey_message" style="color: red"&gt;&lt;/span&gt;&lt;br&gt;&lt;br&gt;&lt;input type="button" value="提 交" onClick="comment_auth_num()"/&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&lt;/div&gt;', {
+                    width: '350px',
+                    height: '130px',
+                    cursor: 'default'
+                });
+                if ($("#code_random").length&gt;0) {
+                    $("#code_random").val(randid);
+                } else {
+                    $("#publish_comment").append("&lt;input type='hidden' value='"+randid+"' name='random' id='code_random'&gt;");
+                }
+                $('#submit_comment').html('&lt;input type="button" value="确定" tabindex="7" class="fanbutton" name="button1" onclick="insert_comment()"/&gt;');
+            } else {
+                $.blockUI('&lt;div align="center" style="font-size: 12px;"&gt;&lt;div style="float:right"&gt;&lt;img src="http://static.jjwxc.net/images/close.gif" width="12" height="12" style="cursor:pointer" onClick="$.unblockUI()"/&gt;&lt;/div&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;'+json.message+'&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;input type="button" value="确 定" onClick="$.unblockUI()"/&gt;&lt;/div&gt;', {
+                    width: '330px',
+                    height: '200px',
+                    cursor: 'default'
+                });
+            }
+            $('#submit_comment').html('&lt;input type="button" value="确定" tabindex="7" class="fanbutton" name="button1" onclick="insert_comment()"/&gt;');
+        }, "json");
+    }
+}
+
+//末章下一页的霸王票显示
+if ($("#lastticketList").length&gt;0) {
+    getLastTicketList();
+}
+
+function getLastTicketList() {
+    var novelid = getURLParam('novelid');
+    $('#lastticketList').html('&lt;div style="margin-left:90px;margin-top:100px"&gt;&lt;img src="http://static.jjwxc.net/images/loading.gif"&gt;&lt;/div&gt;');
+    $.get('http://my.jjwxc.net/getKingTickets.php?jsonp=?', {
+        novelid: novelid,
+        action: 'lastchapter',
+        type: 'new'
+    }, function(data) {
+        $('#lastticketList').html(data.html);
+    }, 'json')
+
+}
+
+//onebook 加载霸王票排行
+function onebook_ticketsort(hostFlag) {
+//防止缓存，在投完霸王票后，不走缓存
+    if (hostFlag===true) {
+        var host = 'http://my.jjwxc.net/getKingTickets.php?r='+Math.random();
+    } else {
+        var host = 'http://s8.static.jjwxc.net/getKingTickets.php?ver=20161204';
+    }
+    $.ajax({
+        url: host,
+        data: {novelid: getURLParam('novelid'), action: 'ticketsort', type: 0},
+        dataType: 'jsonp',
+        type: "get",
+        cache: true, //开始缓存 不然会出现_=随机数
+        jsonp: 'jsonpcallback',
+        jsonpCallback: 'kingticketsortAll', //值随便设置
+        success: function(data) {
+            if (data.ranking=='暂无排名'&amp;&amp;parseInt(data.gap)==0) {
+                var tickethtml = '当前霸王票全站排行&lt;span style="font-size:2em;font-weight:bold;"&gt;暂无&lt;/span&gt;，投&lt;span style="font-size:2em;font-weight:bold;"&gt;1&lt;/span&gt;颗地雷就有名次啦';
+            } else {
+                var tickethtml = '当前霸王票全站排行&lt;span style="font-size:2em;font-weight:bold;"&gt;'+data.ranking+'&lt;/span&gt;，还差                &lt;span style="font-size:2em;font-weight:bold;"&gt;'+data.gap+'&lt;/span&gt;颗地雷就可以前进一名';
+            }
+            $("#ticketsort").html(tickethtml);
+        }
+    })
+}
+
+//霸王票显示
+function onebook_ticketrankall(hostFlag) {
+    var host = '';
+    if (hostFlag===true) {
+        host = 'http://my.jjwxc.net/getKingTickets.php?r='+Math.random();
+    } else {
+        host = 'http://s8.static.jjwxc.net/getKingTickets.php?ver=20170321';
+    }
+    $.ajax({
+        url: host,
+        data: {novelid: getURLParam('novelid'), page: 1},
+        dataType: 'jsonp',
+        type: "get",
+        cache: true, //开始缓存 不然会出现_=随机数
+        jsonp: 'jsonpcallback',
+        jsonpCallback: 'ticketrankall', //值随便设置
+        success: function(json) {
+            if (json.total&gt;0) {
+                var html = '&lt;ul&gt;';
+                $.each(json.tickets, function(index, v) {
+                    if (index&gt;6) {
+                        return false;
+                    }
+                    html += '&lt;li&gt;&lt;a target="_blank" href=\"http://www.jjwxc.net/onereader.php?readerid='+v['readerid']+'\"&gt;'+v['consumers']+'&lt;/a&gt;扔了一颗'+v['desc']+'&lt;/li&gt;';
+                })
+                $('#tickets_box').html(html);
+            }
+        }
+    })
+}
+
+//最后章节下一章 霸王票总排行加载
+function novelover_ticketSort(hostFlag) {
+//防止缓存，在投完霸王票后，不走缓存
+    if (hostFlag===true) {
+        var host = 'http://my.jjwxc.net/getKingTickets.php?r='+Math.random();
+    } else {
+        var host = 'http://s8.static.jjwxc.net/getKingTickets.php?ver=20161204';
+    }
+    $.ajax({
+        url: host,
+        data: {novelid: getURLParam('novelid'), action: 'ticketsort', type: 1},
+        dataType: 'jsonp',
+        type: "get",
+        cache: true, //开始缓存 不然会出现_=随机数
+        jsonp: 'jsonpcallback',
+        jsonpCallback: 'kingticketsortAll', //值随便设置
+        success: function(data) {
+            var lasthtml = '上一名:&lt;a href="http://www.jjwxc.net/onebook.php?novelid='+data.lastid+'"&gt;《'+data.last_novel_name+'》&lt;/a&gt;&lt;a href="http://www.jjwxc.net/oneauthor.php?authorid='+data.last_authorid+'"&gt;'+data.last_author_name+'&lt;/a&gt;';
+            var nexthtml = '下一名:&lt;a href="http://www.jjwxc.net/onebook.php?novelid='+data.nextid+'"&gt;《'+data.next_novel_name+'》&lt;/a&gt;&lt;a href="http://www.jjwxc.net/oneauthor.php?authorid='+data.next_authorid+'"&gt;'+data.next_author_name+'&lt;/a&gt;';
+            if (data.ranking=='暂无排名'&amp;&amp;parseInt(data.gap)==0) {
+                var tickethtml = '当前霸王票全站排行&lt;span style="font-size:2em;font-weight:bold;"&gt;暂无&lt;/span&gt;，投&lt;span style="font-size:2em;font-weight:bold;"&gt;1&lt;/span&gt;颗地雷就有名次啦';
+            } else {
+                var tickethtml = '当前霸王票全站排行&lt;span style="font-size:2em;font-weight:bold;"&gt;'+data.ranking+'&lt;/span&gt;，还差                &lt;span style="font-size:2em;font-weight:bold;"&gt;'+data.gap+'&lt;/span&gt;颗地雷就可以前进一名';
+            }
+            $("#lasttd").html(lasthtml);
+            $("#nexttd").html(nexthtml);
+            $("#tickettd").html(tickethtml);
+        }
+    })
+}
+
+// --- 加载评论提交行为
+//评论发表函数
+function comment_submit() {
+    var r = 0;
+    if ($("#code_random").length&gt;0) {
+        r = $("#code_random").val();
+    }
+    var subObj = $("#publish_comment");
+    $('#submit_comment').html('&lt;img src="http://static.jjwxc.net/images/loading.gif"&gt;');
+    var novelid = subObj.find("#novelid").val();
+    var chapterid = subObj.find("#chapterid").val();
+    var novelname = subObj.find("#novelname").val();
+    var commentauthor = subObj.find("#commentauthor").val().replace(/^\s+|\s+$/g, '');
+    var commentmark = subObj.find("#commentmark").val();
+    var commentsubject = subObj.find("#commentsubject").val();
+    var commentbody = subObj.find("#commentbody").val().replace(/^\s+|\s+$/g, '');
+//    var comment_novel = subObj.find('#comment_novel').val();
+    var comment_auth_num = subObj.find('#comment_auth_num').val();
+    if (subObj.find('#comment_auth_num').size()==0) {
+        $('#publish_comment').append('&lt;input type="hidden" name="comment_auth_num" id="comment_auth_num" value="" /&gt;');
+    } else {
+        $('#comment_auth_num').val('');
+    }
+
+    if (commentauthor=='') {
+        $.blockUI('&lt;br&gt;&lt;div align="center"&gt;&lt;b&gt;至少要输入个名字吧＾＾&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;div align="center"&gt;&lt;input type="button" id="yesbuy" value="确　定" onClick="$.unblockUI()"/&gt;&lt;/div&gt;', {
+            width: '300px',
+            height: '100px',
+            cursor: 'default'
+        });
+        $('#submit_comment').html('&lt;input type="button" value="确定" tabindex="7" class="fanbutton" name="button1" onclick="insert_comment()"/&gt;');
+        return false;
+    }
+
+    if (commentbody=='') {
+        alert('评论内容不能为空');
+        $('#submit_comment').html('&lt;input type="button" value="确定" tabindex="7" class="fanbutton" name="button1" onclick="insert_comment()"/&gt;');
+        return false;
+    }
+    $.post('/backend/review_reply_ajax.php?type=comment', {//D:\jjwxc\jjwxc.net\www.jjwxc\backend\review_reply_ajax.php
+        novelid: novelid,
+        chapterid: chapterid,
+        commentauthor: commentauthor,
+        commentmark: commentmark,
+        commentsubject: commentsubject,
+        commentbody: commentbody,
+        comment_auth_num: comment_auth_num,
+        r: r
+    }, function(data) {
+        if (data.code==200) {
+            if (data.nextid&gt;chapterid) {
+                $('#commentbody_message').html('&lt;img src="http://static.jjwxc.net/images/ok.gif" style="margin-bottom:-2px"&gt; 评论/打分成功，显示会有延迟，感谢您的支持！您还可以选择进入下一章。');
+                window.location = data.url+'?novelid='+data.novelid+'&amp;chapterid='+data.nextid;
+            } else {
+                window.location.href = window.location.href;
+            }
+            return false;
+        } else if (data.code==10) {
+            var randid = Math.random();
+            $.blockUI('&lt;div align="center"&gt;&lt;div style="float:right"&gt;&lt;img src="http://static.jjwxc.net/images/close.gif" width="12" height="12" style="cursor:pointer" onClick="$.unblockUI()"/&gt;&lt;/div&gt;&lt;b&gt;请输入验证码再提交&lt;/b&gt;&lt;br&gt;&lt;br&gt;验证码 &lt;input name="auth_num_login" class="input" id="auth_num_login" size="10" maxlength="8" /&gt;&amp;nbsp; &lt;img id="img_auth" rel="2" src=\"http://my.jjwxc.net/include/checkImage.php?action=pay&amp;r='+randid+'\"&gt; &lt;span id="img_auth_reload" style="cursor:pointer; color: blue; text-decoration: underline;" onClick="imgautoreload()"&gt;看不清&lt;/span&gt;&lt;br&gt;&lt;br&gt;&lt;span id="Ekey_message" style="color: red"&gt;&lt;/span&gt;&lt;br&gt;&lt;br&gt;&lt;input type="button" value="提 交" onClick="comment_auth_num()"/&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&lt;/div&gt;', {
+                width: '350px',
+                height: '130px',
+                cursor: 'default'
+            });
+            if ($("#code_random").length&gt;0) {
+                $("#code_random").val(randid);
+            } else {
+                $("#publish_comment").append("&lt;input type='hidden' value='"+randid+"' name='random' id='code_random'&gt;");
+            }
+            $('#submit_comment').html('&lt;input type="button" value="确定" tabindex="7" class="fanbutton" name="button1" onclick="insert_comment()"/&gt;');
+        } else {
+            alert(data.message);
+            $('#submit_comment').html('&lt;input type="button" value="确定" tabindex="7" class="fanbutton" name="button1" onclick="insert_comment()"/&gt;');
+        }
+    }, 'json');
+    return false;
+}
+
+
+
+
+
+
+
+//滚动插件
+(function($) {
+//页面加载完后 加载霸王票总排行
+    var url = window.location.href;
+    if (((window.location.href).indexOf("onebook.php")&gt;=0||(window.location.href).indexOf("onebook_vip.php")&gt;=0)&amp;&amp;$("#ticketsort").length&gt;0) {
+        onebook_ticketsort();
+    } else if (url.indexOf("noveloverlist.php")&gt;=0&amp;&amp;$("#tickettd").length&gt;0) {
+        novelover_ticketSort();
+    }
+    if (((window.location.href).indexOf("onebook.php")&gt;=0||(window.location.href).indexOf("onebook_vip.php")&gt;=0)&amp;&amp;$("#tickets_box").length&gt;0) {
+        onebook_ticketrankall();
+    }
+
+    $.fn.extend({
+        Scroll: function(opt, callback) {
+//参数初始化
+            if (!opt)
+                var opt = {};
+            var _this = this.eq(0).find("ul:first");
+            var lineH = _this.find("li:first").height(), //获取行高
+                    line = opt.line ? parseInt(opt.line, 10) : parseInt(this.height()/lineH, 10), //每次滚动的行数，默认为一屏，即父容器高度
+                    speed = opt.speed ? parseInt(opt.speed, 10) : 1000, //卷动速度，数值越大，速度越慢（毫秒）
+                    timer = opt.timer ? parseInt(opt.timer, 10) : 5000; //滚动的时间间隔（毫秒）
+            if (line==0)
+                line = 1;
+            var upHeight = 0-line*lineH;
+            //滚动函数
+            scrollUp = function() {
+                _this.animate({
+                    marginTop: upHeight
+                }, speed, function() {
+                    for (i = 1; i&lt;=line; i++) {
+                        _this.find("li:first").appendTo(_this);
+                    }
+                    _this.css({
+                        marginTop: 0
+                    });
+                });
+            }
+//鼠标事件绑定
+            _this.hover(function() {
+                clearInterval(timerID);
+            }, function() {
+                timerID = setInterval("scrollUp()", timer);
+            }).mouseout();
+        }
+    })
+})(jQuery);
+function showpage(novelid) {
+    $.getJSON('http://my.jjwxc.net/getKingTickets.php?jsonp=?', {
+        novelid: getURLParam('novelid'),
+        page: 1
+    }, function(json) {
+        var html = '&lt;h4 style="border-bottom:2px dashed #B8DAD6; text-align:left; line-height:22px; height:24px; color:#426E69;font-siaze:13px; margin:0 0 8px 0;"&gt;霸王票萌物&lt;span onclick="$.unblockUI();"&gt;&lt;img src = "http://s9.static.jjwxc.net/images/x_alt_32x32.png" width="15" height="15" style="float:right; margin-top:3px;" /&gt;&lt;/span&gt;&lt;/h4&gt;&lt;ul id="moreticket" style="text-align:left; overflow:hidden;"&gt;';
+        $.each(json.tickets, function(index, v) {
+            html += '&lt;li style="float:left; width:100%; height:20px; line-height:20px; border-bottom:1px dashed #ccc; overflow:hidden;"&gt;&lt;a target="_blank" href=\"http://www.jjwxc.net/onereader.php?readerid='+v['readerid']+'\"&gt;'+v['consumers']+'&lt;/a&gt;扔了一颗'+v['desc']+'&lt;/li&gt;';
+        })
+        html += json.pagelist+'&lt;/ul&gt;';
+        $.blockUI(html, {border: '2px solid #aaa', background: '#DDF0EE', width: '200px', left: '50%', top: '30%', cursor: 'text'});
+    })
+}
+
+function openpage(url) {
+    var a = url.split('=');
+    var page = parseInt(a.pop());
+    $.getJSON('http://my.jjwxc.net/getKingTickets.php?jsonp=?', {
+        novelid: getURLParam('novelid'),
+        page: page
+    }, function(json) {
+        var html = '';
+        $.each(json.tickets, function(index, v) {
+            html += '&lt;li style="float:left; width:100%; height:20px; line-height:20px; border-bottom:1px dashed #ccc; overflow:hidden;"&gt;&lt;a target="_blank" href=\"http://www.jjwxc.net/onereader.php?readerid='+v['readerid']+'\"&gt;'+v['consumers']+'&lt;/a&gt;扔了一颗'+v['desc']+'&lt;/li&gt;';
+        })
+        html += json.pagelist;
+        $("#moreticket").html(html)
+    })
+}
+function showTicketCount(ob) {
+    $('#ticketCount').remove();
+    var leftPx = $(ob).offset().left-20+"px";
+    var topPx = $(ob).offset().top-2+"px";
+    var count = $(ob).attr('rel');
+    var html = "&lt;div id='ticketCount' style='position:absolute;left:"+leftPx+";top:"+topPx+";z-index: 1002; position: absolute; height: 15px; width: 30px;text-align: center; color: rgb(0, 0, 0); background-color: rgb(255, 255, 247); border: 1px solid rgb(255, 204, 0); '&gt;"+count+"&lt;/div&gt;";
+    $('body').append(html)
+}
+function closeTicketCount() {
+    $('#ticketCount').remove();
+}
+//随机数函数
+function GetRandomNum(Min, Max) {
+    var Range = Max-Min;
+    var Rand = Math.random();
+    return(Min+Math.round(Rand*Range));
+}
+$(function() {
+//读者霸王票排行榜
+    if ($('#ticketsrank_box').size()&gt;0) {
+        $.ajax({
+            url: 'http://s8.static.jjwxc.net/getKingTickets.php?ver=20161204',
+            data: {novelid: getURLParam('novelid'), action: 'readerrank'},
+            dataType: 'jsonp',
+            type: "get",
+            cache: true, //开始缓存 不然会出现_=随机数
+            jsonp: 'jsonpcallback',
+            jsonpCallback: 'kingticketsort', //值随便设置
+            success: function(json) {
+                if (json.total&gt;0) {
+                    var html = '&lt;table width="170"&gt;';
+                    $.each(json.tickets, function(index, v) {
+                        if (index&gt;9) {
+                            return false;
+                        }
+                        if (v['rank']&lt;=3) {
+                            v['rank'] = "&lt;span style='color:red;font-weight:bold'&gt;"+v['rank']+"&lt;/span&gt;";
+                        }
+                        html += '&lt;tr&gt;&lt;td style="text-align:right;"&gt;'+v['rank']+'.&lt;/td&gt;&lt;td&gt;&lt;a target="_blank" href=\"http://www.jjwxc.net/onereader.php?readerid='+v['readerid']+'\"&gt;'+v['consumers']+'&lt;/a&gt;&lt;/td&gt;&lt;td style="text-align:right;cursor: pointer" rel="'+v['score']+'" onmouseover="showTicketCount(this)" onmouseout="closeTicketCount()"&gt;'+v['name']+'&lt;/td&gt;&lt;/tr&gt;';
+                    })
+                    html += '&lt;/table&gt;&lt;div style="margin-top:8px;display:block;cursor: pointer;clear:both"&gt;&lt;a style="margin-left:15px;color:#4C5A5A" href="http://www.jjwxc.net/reader_kingticket.php?novelid='+getURLParam('novelid')+'#rank" target="_blank"&gt;[更多排行]&lt;/a&gt;&lt;a style="margin-left:40px;color:#4C5A5A;cursor: pointer" href="http://my.jjwxc.net/reader_kingticket.php?novelid='+getURLParam('novelid')+'#info" target="_blank"&gt;[等级说明]&lt;/a&gt;&lt;/div&gt;';
+                    $('#ticketsrank_box').html(html);
+                }
+            }
+        });
+    }
+// 霸王票显示
+    //    if ($('#tickets_box').size()&gt;0) {
+    //        var chapterid = getURLParam('chapterid');
+    //        $.getJSON('http://my.jjwxc.net/getKingTickets.php?jsonp=?', {
+    //            novelid: getURLParam('novelid'),
+    //            page: 1
+    //        }, function(json) {
+    //            if (json.total&gt;0) {
+    //                var html = '&lt;ul&gt;';
+    //                $.each(json.tickets, function(index, v) {
+    //                    if (index&gt;6) {
+    //                        return false;
+    //                    }
+    //                    html += '&lt;li&gt;&lt;a target="_blank" href=\"http://www.jjwxc.net/onereader.php?readerid='+v['readerid']+'\"&gt;'+v['consumers']+'&lt;/a&gt;扔了一颗'+v['desc']+'&lt;/li&gt;';
+//                })
+    //                $('#tickets_box').html(html);
+//            }
+    //        })
+//    }
+
+
+
+    //生成随机的霸王票评论
+    function ticket_comment(i) {
+        var a = [
+            '你问我爱你有多深，'+i+'代表我的心',
+            '扔出一个'+i+'，等待你带来的更多精彩',
+            '不鸣则已，一鸣惊人，'+i+'就是我对你深深的热爱',
+            '煮酒论英雄，霸王出我辈。'+i+'一枚，代表我海枯石烂永恒不变的真爱！',
+            '作者更文辛苦了，来一个'+i+'提提神吧！',
+            '求更新，求速肥，来颗'+i+'激发作者潜能吧！',
+            '妙笔生花，给一颗'+i+'做奖励吧！',
+            '文文很有爱，'+i+'包养！',
+            '埋个'+i+'，将作者炸出来！',
+            '日更日更不是梦，'+i+'来一发！',
+            '请用强大的更新向我开炮，投一颗'+i+'！',
+            i+'恒久远，一颗永流传！',
+            '投一颗'+i+'，表达对你的爱如同滔滔江水连绵不决、又如黄河泛滥一发不可收拾！',
+            '我越过高山，爬过铁网，潜伏而来，只为用一颗'+i+'砸中你！',
+            '你写，或者还在写，'+i+'就在那里，只增不减。',
+            '啾~~~~~bang！一枚'+i+'砸向了作者的后台！',
+            '在这历史性的时刻，在这伟大的时刻，作者大人你有看到我'+i+'般诚挚的心么？',
+            i+'在手，偷懒抖三抖，作者大大快去码字！！！（催更版）',
+            '击掌赞叹，此文只应天上有，人间难得几回见，非'+i+'不足以炸出吾等倾慕之心。',
+            '晋江潭水深千尺，不及'+i+'砸你情~',
+            '玫瑰开在九月里，我的心中只有你，好想和你在一起，一颗'+i+'送给你！',
+            '土豪土豪，这是你掉的'+i+'么？',
+            '埋下一颗'+i+'，会结出好多好多更新章节咩？',
+            '大人~这是人家卖肾换来的'+i+'，请不要辜负人家，天天更新呀~',
+            '小手一挥，'+i+'一堆。',
+            '走，'+i+'来一发！ ',
+            '我上不管天，下不管地，中间也不管空气，只管用'+i+'埋了你！',
+            '小妖精，看我对你好吧，抱着'+i+'来看你，更新不杀！',
+            '瞄准！发射'+i+'！作者大大接住我对你深沉的爱！',
+            '有人节操好，有人人品好，有人智商好……但是……我心情好，砸你个'+i+'，不要潜水了出来码字吧~~~',
+            '通缉对象：作者大大。通缉理由：没有变身打字机。通缉悬赏：'+i+'。别傻乐了，赶紧变身吧。',
+            '轻轻地我走了，正如我轻轻地来，我挥一挥衣袖，砸下了一颗'+i
+        ];
+        x = GetRandomNum(0, a.length-1);
+        return a[x];
+    }
+
+//投霸王票相关事件
+    if ($("input[name='KingTickets_radio']").length&gt;0) {
+        $("input[name='KingTickets_radio']").change(function() {
+            var kingcomment = $(this).parents().parents().prev().attr("rel");
+            var ticketvalue = $(this).val();
+            ticketvalue = parseInt(ticketvalue);
+            var ticketname = '';
+            if (ticketvalue===0) {
+                ticketname = '地雷';
+            } else if (ticketvalue===1) {
+                ticketname = '手榴弹';
+            } else if (ticketvalue===2) {
+                ticketname = '火箭炮';
+            } else if (ticketvalue===3) {
+                ticketname = '潜水炸弹';
+            } else if (ticketvalue===4) {
+                ticketname = '深水鱼雷';
+            }
+            $("#commentmark").val(5);
+            var html = ticket_comment(ticketname);
+            if ($("#commentbody").length&gt;0&amp;&amp;kingcomment!=="nocomment") {
+                var preHtml = $("#commentbody").val();
+                if (preHtml.length&gt;0) {
+                    html = preHtml+'||'+html;
+                }
+                $("#commentbody").val(html);
+            }
+            $("#ticket_comment").val(html);
+        });
+    }
+// 社交网站分享
+    $('.social_share').click(function() {
+        var id = $(this).attr('id');
+        var novelId = getURLParam('novelid');
+        var chapterId = getURLParam('chapterid');
+        if (chapterId=='') {
+            chapterId = 1;
+        }
+        var InviteUrl = '';
+        var d = '';
+        var title = '';
+        var content = '';
+        var cover = $(this).attr('rel');
+        var shortintro = $(this).attr('shortintro');
+        if (is_login(id, 'click')) {
+            $.blockUI('&lt;img src="http://static.jjwxc.net/images/loading.gif"&gt;  &lt;strong&gt;请稍候...&lt;/strong&gt;');
+            $.getJSON('http://my.jjwxc.net/backend/import_msn.php?action=copy_invite&amp;invite_type=1&amp;novelid='+novelId+'&amp;chapterid='+chapterId+'&amp;jsonp=?', function(json) {
+                if (json.status==200&amp;&amp;json.inviteId&gt;0) {
+                    var novelName = json.data.novelname;
+                    var chapterName = json.data.chaptername;
+                    var authorName = json.data.authorname;
+                    InviteUrl = 'http://www.jjwxc.net/backend/invite.php?inviteId='+json.inviteId;
+                    switch (id) {
+                        case 'tengxun':
+                            title = encodeURIComponent('我在晋江文学城阅读《'+novelName+'》');
+                            d = 'http://v.t.qq.com/share/share.php?title='+title+'&amp;url='+InviteUrl+'&amp;appkey=0aefe15e4a20472ca4414d01a16086f7&amp;site=http://www.jjwxc.net&amp;pic='+cover;
+                            $.blockUI('&lt;br&gt;&lt;div align="center"&gt;&lt;b&gt;您确认要分享这篇作品到腾讯微博上吗？&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;div align="center"&gt;&lt;input type="button" value="确　定" onClick="blockOpen(\''+d+'\', 700, 680)"/&gt;&lt;/div&gt;', {
+                                width: '300px',
+                                height: '100px',
+                                cursor: 'default'
+                            });
+                            break;
+                        case 'kaixin':
+                            title = encodeURIComponent('晋江文学城-《'+novelName+'》'+authorName);
+                            content = encodeURIComponent('第'+chapterId+'章 '+chapterName);
+                            d = 'http://www.kaixin001.com/repaste/share.php?rtitle='+title+'&amp;rcontent='+content+'&amp;rurl='+InviteUrl;
+                            $.blockUI('&lt;br&gt;&lt;div align="center"&gt;&lt;b&gt;您确认要分享这篇作品到开心网上吗？&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;div align="center"&gt;&lt;input type="button" value="确　定" onClick="blockOpen(\''+d+'\', 626, 436)"/&gt;&lt;/div&gt;', {
+                                width: '300px',
+                                height: '100px',
+                                cursor: 'default'
+                            });
+                            break;
+                        case 'sina':
+                            title = encodeURIComponent('我在晋江文学城阅读《'+novelName+'》。小伙伴们不来看看么？ 文章简介：'+shortintro+'（分享自 @晋江文学城）');
+                            var source = encodeURIComponent('晋江文学城');
+                            var sourceUrl = 'http://www.jjwxc.net';
+                            d = 'http://v.t.sina.com.cn/share/share.php?ralateUid=1732420735&amp;appkey=1409224402&amp;url='+InviteUrl+'&amp;title='+title+'&amp;source='+source+'&amp;sourceUrl='+sourceUrl+'&amp;content=gb2312&amp;pic='+cover;
+                            $.blockUI('&lt;br&gt;&lt;div align="center"&gt;&lt;b&gt;您确认要分享这篇作品到新浪微博上吗？&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;div align="center"&gt;&lt;input type="button" value="确　定" onClick="blockOpen(\''+d+'\', 440, 430)"/&gt;&lt;/div&gt;', {
+                                width: '300px',
+                                height: '100px',
+                                cursor: 'default'
+                            });
+                            break;
+                        case 'renren':
+                            title = encodeURIComponent('我在晋江文学城阅读《'+novelName+'》');
+                            d = 'http://share.renren.com/share/buttonshare?link='+InviteUrl+'&amp;title='+title;
+                            $.blockUI('&lt;br&gt;&lt;div align="center"&gt;&lt;b&gt;您确认要分享这篇作品到人人网上吗？&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;div align="center"&gt;&lt;input type="button" value="确　定" onClick="blockOpen(\''+d+'\', 626, 436)"/&gt;&lt;/div&gt;', {
+                                width: '300px',
+                                height: '100px',
+                                cursor: 'default'
+                            });
+                            break;
+                    }
+
+                } else {
+                    $.blockUI('&lt;br&gt;&lt;div align="center"&gt;&lt;b&gt;对不起，请重新操作&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;div align="center"&gt;&lt;input type="button" value="确　定" onClick="$.unblockUI()"/&gt;&lt;/div&gt;', {
+                        width: '300px',
+                        height: '100px',
+                        cursor: 'default'
+                    });
+                }
+            });
+        }
+
+    }).css('cursor', 'pointer')
+
+
+
+
+
+    //目录页投霸王票
+    $('#sendKingTickets_button').bind('click', function() {
+        var sendKingTicketstype = $("#sendKingTickets2").attr("rel");
+        if (sendKingTicketstype=="nocomment") {
+            ticketsubmit();
+        } else {
+            ticketsubmit(true);
+        }
+
+    })
+
+    //发评及霸王票+发评
+    $('#publish_comment').submit(function() {
+        if ($("#ticketsort").length&gt;0||$("#tickettd").length&gt;0) {
+            var ticketval = $("input:checked[name='KingTickets_radio']").val();
+            if (ticketval!==undefined) {
+                ticketsubmit();
+            } else {
+                comment_submit();
+            }
+        } else {
+            comment_submit();
+        }
+        return false;
+    });
+    $('#download_action').bind('mousemove', function() {
+        if ($('#download_box').css('display')=='none') {
+            var xOffset = 0; //定义x的偏移量
+            var yOffset = 13; //定义y的偏移量
+            var x = getAbsoluteLeft($(this).attr('id'));
+            var y = getAbsoluteTop($(this).attr('id'));
+            var left = x+xOffset;
+            var top = y+yOffset;
+            $('#download_box').css({
+                left: left+'px',
+                top: top+'px'
+            }).show();
+        }
+    })
+
+
+    $('#download_action').bind('mouseleave', function() {
+        $('#download_box').hide()
+    })
+    $('#download_box').bind('mouseover', function() {
+        $('#download_box').show()
+    })
+    $('#download_box').bind('mouseleave', function() {
+        $('#download_box').hide()
+    })
+
+
+    $('#sendKingTickets').bind('mousemove', function() {
+        if ($('#sendKingTickets_box').css('display')=='none') {
+            var xOffset = 0; //定义x的偏移量
+            var yOffset = 13; //定义y的偏移量
+            var x = getAbsoluteLeft($(this).attr('id'));
+            var y = getAbsoluteTop($(this).attr('id'));
+            var left = x+xOffset;
+            var top = y+yOffset;
+            $('#sendKingTickets_box').css({
+                left: left+'px',
+                top: top+'px'
+            }).show();
+        }
+    })
+
+    $('#sendKingTickets2').bind('mousemove', function() {
+        if ($('#sendKingTickets_box').css('display')=='none') {
+            var xOffset = -50; //定义x的偏移量
+            var yOffset = 13; //定义y的偏移量
+            var x = getAbsoluteLeft($(this).attr('id'));
+            var y = getAbsoluteTop($(this).attr('id'));
+            var left = x+xOffset;
+            var top = y+yOffset;
+            $('#sendKingTickets_box').css({
+                left: left+'px',
+                top: top+'px'
+            }).show();
+        }
+    })
+
+    $('#sendKingTickets').bind('mouseleave', function() {
+        $('#sendKingTickets_box').hide()
+    })
+    $('#sendKingTickets2').bind('mouseleave', function() {
+        $('#sendKingTickets_box').hide()
+    })
+    $('#sendKingTickets_box').bind('mouseover', function() {
+        $('#sendKingTickets_box').show()
+    })
+    $('#sendKingTickets_box').bind('mouseleave', function() {
+        $('#sendKingTickets_box').hide()
+    })
+
+
+
+    $('#invite').bind('click', function() {
+        if (is_login('invite', 'click')) {
+            var coverImg = $("#facephoto").attr('src');
+            var html = '&lt;div style="width: 600px; height: 40px; line-height: 20px; text-align:left;"&gt;分享到：';
+            html += '&lt;a id="tengxun" title="分享到腾讯微博" class="social_share" rel="'+coverImg+'" style="background:url(\'http://static.jjwxc.net/images/tengxun01.gif\') no-repeat scroll 0 0 transparent;line-height:normal;padding:3px 5px 0 20px;color:#1A66B3;"&gt;腾讯微博&lt;/a&gt;';
+            html += '&lt;a id="kaixin" title="分享到开心网" class="social_share" rel="'+coverImg+'" style="background:url(\'http://static.jjwxc.net/images/icon_kx001.gif\') no-repeat scroll 0 0 transparent;line-height:normal;padding:3px 5px 0 20px;color:#1A66B3;"&gt;开心网&lt;/a&gt;';
+            html += '&lt;a id="sina" title="分享到新浪微博" class="social_share" rel="'+coverImg+'" style="background:url(\'http://static.jjwxc.net/images/sharesina16.png\') no-repeat scroll 0 0 transparent;line-height:normal;padding:3px 5px 0 20px;color:#1A66B3;"&gt;新浪微博&lt;/a&gt;';
+            html += '&lt;a id="renren" title="分享到人人" class="social_share" rel="'+coverImg+'" style="background:url(\'http://xnimg.cn/imgpro/share/share-tinybtn.png\') no-repeat scroll 0 0 transparent;line-height:normal;padding:3px 5px 0 20px;color:#1A66B3;"&gt;人人网&lt;/a&gt;';
+            html += '&lt;/div&gt;';
+            html += '&lt;button onclick="$.unblockUI()"&gt;关闭&lt;/button&gt;';
+            $.blockUI(html, {
+                left: ($(window).width()-200)/2+'px',
+                top: ($(window).height()-200)/2+'px',
+                width: '400px',
+                height: '50px',
+                cursor: 'default',
+                border: '1px solid #565656'
+            });
+            // 社交网站分享
+            $('.social_share').click(function() {
+                var id = $(this).attr('id');
+                var novelId = getURLParam('novelid');
+                var chapterId = getURLParam('chapterid');
+                if (chapterId=='') {
+                    chapterId = 1;
+                }
+                var InviteUrl = '';
+                var d = '';
+                var title = '';
+                var content = '';
+                var cover = $(this).attr('rel');
+                if (is_login(id, 'click')) {
+                    $.blockUI('&lt;img src="http://static.jjwxc.net/images/loading.gif"&gt;  &lt;strong&gt;请稍候...&lt;/strong&gt;');
+                    $.getJSON('http://my.jjwxc.net/backend/import_msn.php?action=copy_invite&amp;invite_type=1&amp;novelid='+novelId+'&amp;chapterid='+chapterId+'&amp;jsonp=?', function(json) {
+                        if (json.status==200&amp;&amp;json.inviteId&gt;0) {
+                            var novelName = json.data.novelname;
+                            var chapterName = json.data.chaptername;
+                            var authorName = json.data.authorname;
+                            InviteUrl = 'http://www.jjwxc.net/backend/invite.php?inviteId='+json.inviteId;
+                            switch (id) {
+                                case 'tengxun':
+                                    title = encodeURIComponent('我在晋江文学城阅读《'+novelName+'》');
+                                    d = 'http://v.t.qq.com/share/share.php?title='+title+'&amp;url='+InviteUrl+'&amp;appkey=0aefe15e4a20472ca4414d01a16086f7&amp;site=http://www.jjwxc.net&amp;pic='+cover;
+                                    $.blockUI('&lt;br&gt;&lt;div align="center"&gt;&lt;b&gt;您确认要分享这篇作品到腾讯微博上吗？&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;div align="center"&gt;&lt;input type="button" value="确　定" onClick="blockOpen(\''+d+'\', 700, 680)"/&gt;&lt;/div&gt;', {
+                                        width: '300px',
+                                        height: '100px',
+                                        cursor: 'default'
+                                    });
+                                    break;
+                                case 'kaixin':
+                                    title = encodeURIComponent('晋江文学城-《'+novelName+'》'+authorName);
+                                    content = encodeURIComponent('第'+chapterId+'章 '+chapterName);
+                                    d = 'http://www.kaixin001.com/repaste/share.php?rtitle='+title+'&amp;rcontent='+content+'&amp;rurl='+InviteUrl;
+                                    $.blockUI('&lt;br&gt;&lt;div align="center"&gt;&lt;b&gt;您确认要分享这篇作品到开心网上吗？&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;div align="center"&gt;&lt;input type="button" value="确　定" onClick="blockOpen(\''+d+'\', 626, 436)"/&gt;&lt;/div&gt;', {
+                                        width: '300px',
+                                        height: '100px',
+                                        cursor: 'default'
+                                    });
+                                    break;
+                                case 'sina':
+                                    title = encodeURIComponent('我在晋江文学城阅读《'+novelName+'》');
+                                    d = 'http://v.t.sina.com.cn/share/share.php?appkey=1409224402&amp;url='+InviteUrl+'&amp;title='+title+'&amp;source=&amp;sourceUrl=&amp;content=gb2312&amp;pic='+cover;
+                                    $.blockUI('&lt;br&gt;&lt;div align="center"&gt;&lt;b&gt;您确认要分享这篇作品到新浪微博上吗？&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;div align="center"&gt;&lt;input type="button" value="确　定" onClick="blockOpen(\''+d+'\', 440, 430)"/&gt;&lt;/div&gt;', {
+                                        width: '300px',
+                                        height: '100px',
+                                        cursor: 'default'
+                                    });
+                                    break;
+                                case 'renren':
+                                    title = encodeURIComponent('我在晋江文学城阅读《'+novelName+'》');
+                                    d = 'http://share.renren.com/share/buttonshare?link='+InviteUrl+'&amp;title='+title;
+                                    $.blockUI('&lt;br&gt;&lt;div align="center"&gt;&lt;b&gt;您确认要分享这篇作品到人人网上吗？&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;div align="center"&gt;&lt;input type="button" value="确　定" onClick="blockOpen(\''+d+'\', 626, 436)"/&gt;&lt;/div&gt;', {
+                                        width: '300px',
+                                        height: '100px',
+                                        cursor: 'default'
+                                    });
+                                    break;
+                            }
+
+                        } else {
+                            $.blockUI('&lt;br&gt;&lt;div align="center"&gt;&lt;b&gt;对不起，请重新操作&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;div align="center"&gt;&lt;input type="button" value="确　定" onClick="$.unblockUI()"/&gt;&lt;/div&gt;', {
+                                width: '300px',
+                                height: '100px',
+                                cursor: 'default'
+                            });
+                        }
+                    });
+                }
+
+            }).css('cursor', 'pointer')
+        }
+    })
+
+
+
+    //加载 TXT下载 行为
+    $('#download_text').bind('click', function() {
+        if (is_login('download_text', 'click')) {
+            var point = 0;
+            var novelid = $('#download_text').attr('rel');
+            $.getJSON('http://my.jjwxc.net/backend/download_text.php?jsonp=?', {
+                action: 'balance',
+                novelid: novelid,
+                r: Math.random()
+            }, function(json) {
+                if (json.status==200) {
+                    point = json.point;
+                    rows = json.rows;
+                    var message = '&lt;div style="font-size:14px;"&gt;下载当前作品所需花费为1月石。&lt;br /&gt;重复下载不会扣除月石。&lt;br/&gt;您的月石为'+point+'&lt;br /&gt;&lt;a target="_blank" href="http://help.jjwxc.net/user/article/157" style="color:blue;text-decoration:underline;"&gt;TXT下载说明&lt;/a&gt;&lt;br&gt;&lt;a target="_blank" href="http://help.jjwxc.net/user/article/156" style="color:red;text-decoration:underline;"&gt;如何获取月石？&lt;/a&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;input type="button" id="addsubmit" ';
+                    if (point==0&amp;&amp;rows=='0') {
+                        message += ' disabled="disabled" ';
+                    }
+                    message += 'value="下载"/&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&lt;input type="button" value="取消" onclick="javaScript:$.unblockUI();"/&gt;&lt;/div&gt;';
+                    $.blockUI(message, {
+                        cursor: 'default'
+                    });
+                    $('#addsubmit').click(function() {
+                        $.unblockUI();
+                        var novelid = $('#download_text').attr('rel');
+                        $.getJSON('http://my.jjwxc.net/backend/download_text.php?jsonp=?', {
+                            action: 'charge',
+                            novelid: novelid,
+                            r: Math.random()
+                        }, function(json) {
+                            if (json.status==200) {
+                                $.blockUI('&lt;img src="http://static.jjwxc.net/images/loading.gif"&gt;  &lt;strong&gt;请稍候...&lt;/strong&gt;');
+                                $.getJSON('http://my.jjwxc.net/backend/download_text.php?jsonp=?', {
+                                    action: 'export',
+                                    novelid: novelid,
+                                    r: Math.random()
+                                }, function(json) {
+                                    if (json.status==1) {
+                                        location.href = json.path
+                                        $.unblockUI();
+                                    } else {
+                                        $.blockUI('&lt;br&gt;&lt;div align="center"&gt;&lt;b&gt;'+json.message+'&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;div align="center"&gt;&lt;input type="button" id="yesbuy" value="确　定" onClick="$.unblockUI()"/&gt;&lt;/div&gt;', {
+                                            width: '300px',
+                                            height: '100px',
+                                            cursor: 'default'
+                                        });
+                                    }
+                                })
+                            } else {
+                                $.blockUI('&lt;br&gt;&lt;div align="center"&gt;&lt;b&gt;'+json.message+'&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;div align="center"&gt;&lt;input type="button" id="yesbuy" value="确　定" onClick="$.unblockUI()"/&gt;&lt;/div&gt;', {
+                                    width: '300px',
+                                    height: '100px',
+                                    cursor: 'default'
+                                });
+                            }
+                        })
+                    })
+                } else {
+                    $.blockUI('&lt;br&gt;&lt;div align="center"&gt;&lt;b&gt;位置错误，请稍候重试！&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;div align="center"&gt;&lt;input type="button" id="yesbuy" value="确　定" onClick="$.unblockUI()"/&gt;&lt;/div&gt;', {
+                        width: '300px',
+                        height: '100px',
+                        cursor: 'default'
+                    });
+                }
+            })
+        }
+    })
+})
+
+
+// --- 作品推荐功能
+var unBlock = function() {
+    $('#copy_invite_click').remove();
+    $.unblockUI();
+}
+
+var import_msn = function() {
+    $('#copy_invite_click').remove();
+    var html = '';
+    html += '&lt;div style="font-size: 12px;"&gt;';
+    html += '&lt;div style="padding: 0 10px 0 10px;;background: none repeat scroll 0 0 #53B61B; height: 30px; border-bottom: 1px solid #565656;"&gt;&lt;div style="float:right; padding: 5px;"&gt;&lt;img src="http://static.jjwxc.net/images/close.gif" width="12" height="12" style="cursor:pointer" onClick="$.unblockUI();"/&gt;&lt;/div&gt;';
+    html += '&lt;div align="left" style="font-size: 14px; color: #FFFFFF; ; font-weight: bold; line-height: 30px;"&gt;推荐给朋友&lt;/div&gt;&lt;/div&gt;';
+    html += '&lt;div align="left" style="height: 250px; padding: 10px; line-height: 30px;"&gt;'
+    html += '&lt;div style="float: left; line-height: 48px;"&gt;&lt;b&gt;从我的MSN导入朋友名单，选择待推荐人并发送推荐邮件&lt;/b&gt;&lt;/div&gt;';
+    html += '&lt;div style="float: left;"&gt;&lt;img alt="导入MSN朋友名单" src="http://static.jjwxc.net/images/msnlg.gif"&gt;&lt;/div&gt;';
+    html += '&lt;div style="clear: both;"&gt;';
+    html += 'MSN账号：&lt;input id="msn_name" type="text" style="border: 1px solid black; width: 150px; height: 20px;" value="" name="account" size="33"&gt;&lt;br&gt;';
+    html += 'MSN密码：&lt;input id="msn_pwd" type="password" style="border: 1px solid black; width: 150px; height: 20px;" name="passwd" size="20"&gt;&lt;br&gt;';
+    html += '&lt;div style="height: 30px;"&gt;&lt;div class="import_submit"&gt;&lt;input type="button" value="　导　入　" onclick="import_msn_start()" /&gt;&lt;/div&gt;';
+    html += '&lt;div class="import_loading" style="display: none; color: red;"&gt;&lt;img alt="导入中" src="http://static.jjwxc.net/images/loading_2010.gif"&gt; 导入名单需要一会时间，请耐心等待&lt;/div&gt;&lt;/div&gt;';
+    html += '&lt;div class="import_message" style="color: red;"&gt;&lt;/div&gt;';
+    html += '晋江不会存储你的MSN密码，请放心使用。'
+    html += '&lt;/div&gt;';
+    html += '&lt;/div&gt;';
+    html += '&lt;/div&gt;';
+    $.blockUI(html, {
+        left: ($(window).width()-300)/2+'px',
+        top: ($(window).height()-200)/2+'px',
+        width: '500px',
+        height: '250px',
+        cursor: 'default',
+        padding: '0',
+        border: '1px solid #565656'
+    });
+}
+
+var import_msn_start = function() {
+    var msn_name = $('#msn_name').val();
+    var msn_pwd = $('#msn_pwd').val();
+    if (msn_name.length==0||msn_pwd.length==0) {
+        $('.import_message').html('请输入MSN账号和密码再导入').show();
+    } else {
+        $('.import_message').html('').hide();
+        $('.import_submit').hide();
+        $('.import_loading').show();
+        $('#msn_name').attr('disabled', true);
+        $('#msn_pwd').attr('disabled', true);
+        $.getJSON('http://my.jjwxc.net/backend/import_msn.php?action=get&amp;msn_name='+msn_name+'&amp;msn_pwd='+msn_pwd+'&amp;jsonp=?', function(json) {
+            if (json.status==200) {
+                var html = '';
+                html += '&lt;div style="font-size: 12px;"&gt;';
+                html += '&lt;div style="padding: 0 10px 0 10px;;background: none repeat scroll 0 0 #53B61B; height: 30px; border-bottom: 1px solid #565656;"&gt;&lt;div style="float:right; padding: 5px;"&gt;&lt;img src="http://static.jjwxc.net/images/close.gif" width="12" height="12" style="cursor:pointer" onClick="$.unblockUI();"/&gt;&lt;/div&gt;';
+                html += '&lt;div align="left" style="font-size: 14px; color: #FFFFFF; ; font-weight: bold; line-height: 30px;"&gt;推荐给朋友&lt;/div&gt;&lt;/div&gt;';
+                html += '&lt;div align="left" style="height: 250px; padding: 10px;"&gt;'
+                html += '&lt;div style="height: 30px; line-height: 30px;"&gt;以下是该通讯录里的其他联系人，请选择推荐对象&lt;/div&gt;';
+                html += '&lt;div style="border: 1px solid #808080; display: table;"&gt;';
+                html += '&lt;div style="background: none repeat scroll 0 0 #FFFFFF; height: 200px; margin-bottom: 10px; overflow-y: scroll; padding: 2px 1px 2px 2px; border-left: 1px solid #000000; border-top: 1px solid #000000; color: #333333;"&gt;';
+                html += '&lt;div style="background: none repeat scroll 0 0 #EDEDED; border-bottom: 1px solid #C0C0C0; padding-bottom: 4px;"&gt;&lt;input type="checkbox" onclick="selallemail()" id="allClick"&gt;全选&lt;/div&gt;';
+                $.each(json.body, function(i, v) {
+                    html += '&lt;div style="'+v['style']+'"&gt;&lt;p style="float: left; width: 220px;"&gt;&lt;input type="checkbox" value="'+v['email']+'" name="email"&gt; '+v['user']+'&lt;/p&gt;&lt;p style="float: left;"&gt;&amp;lt;'+v['email']+'&amp;gt;&lt;/p&gt;&lt;p style="clear: both;"&gt;&lt;/p&gt;&lt;/div&gt;';
+                })
+                html += '&lt;/div&gt;';
+                html += '&lt;/div&gt;';
+                html += '&lt;div style="height: 35px; line-height: 35px;"&gt;您的姓名：&lt;input id="send_name" type="text" style="border: 1px solid black; width: 100px; height: 20px;" value="" name="send_name" size="33"&gt;&lt;/div&gt;';
+                html += '&lt;div style="clear: both; height: 30px; line-height: 30px; text-align: center;"&gt;&lt;span class="send_invite_submit"&gt;&lt;input class="send_invite" type="button" value="发送推荐" onclick="send_invite()"/&gt;&lt;/span&gt;&lt;span class="send_invite_loading" style="display: none;"&gt;&lt;img alt="发送中" src="http://static.jjwxc.net/images/loading_2010.gif"&gt;&lt;/span&gt;&amp;nbsp;&lt;/div&gt;';
+                html += '&lt;div style="height: 30px; line-height: 30px; display: none; color: red; text-align: center;" class="send_message"&gt;请选择联系人后再发送&lt;/div&gt;';
+                html += '&lt;/div&gt;';
+                html += '&lt;/div&gt;';
+                $.blockUI(html, {
+                    left: ($(window).width()-300)/2+'px',
+                    top: ($(window).height()-200)/2+'px',
+                    width: '500px',
+                    height: '400px',
+                    cursor: 'default',
+                    padding: '0',
+                    border: '1px solid #565656'
+                });
+            } else {
+                $('.import_message').html(json.message).show();
+                $('.import_submit').show();
+                $('.import_loading').hide();
+                $('#msn_name').attr('disabled', false);
+                $('#msn_pwd').attr('disabled', false);
+            }
+        })
+    }
+
+}
+
+var selallemail = function() {
+    if ($('#allClick').attr('checked')=='checked'||$(this).attr('checked')=='checked') {
+        $('input[name=email]').attr('checked', true);
+    } else {
+        $('input[name=email]').attr('checked', false);
+    }
+
+}
+
+var send_invite = function() {
+    var send_email = '';
+    var send_name = $('#send_name').val();
+    var novelId = getURLParam('novelid');
+    $('.send_invite_loading').show();
+    $('.send_invite_submit').hide();
+    $('.send_message').hide();
+    $('input[name=email]').each(function() {
+        if ($(this).attr('checked')=='checked'||$(this).attr('checked')=='checked') {
+            if (send_email=='') {
+                send_email += $(this).val();
+            } else {
+                send_email += '|'+$(this).val();
+            }
+        }
+    })
+
+    if (send_email=='') {
+        $('.send_invite_submit').show();
+        $('.send_message').html('请选择联系人后再发送').show();
+        $('.send_invite_loading').hide();
+    } else if (send_name=='') {
+        $('.send_invite_submit').show();
+        $('.send_message').html('请输入您的姓名再发送').show();
+        $('.send_invite_loading').hide();
+    } else {
+        $.getJSON('http://my.jjwxc.net/backend/import_msn.php?action=send_invite&amp;novelid='+novelId+'&amp;send_name='+send_name+'&amp;send_email='+send_email+'&amp;jsonp=?', function(json) {
+            if (json.status==200) {
+                var html = '';
+                html += '&lt;div style="font-size: 12px;"&gt;';
+                html += '&lt;div style="padding: 0 10px 0 10px;;background: none repeat scroll 0 0 #53B61B; height: 30px; border-bottom: 1px solid #565656;"&gt;&lt;div style="float:right; padding: 5px;"&gt;&lt;img src="http://static.jjwxc.net/images/close.gif" width="12" height="12" style="cursor:pointer" onClick="unBlock();"/&gt;&lt;/div&gt;';
+                html += '&lt;div align="left" style="font-size: 14px; color: #FFFFFF; ; font-weight: bold; line-height: 30px;"&gt;推荐给朋友&lt;/div&gt;&lt;/div&gt;';
+                html += '&lt;div align="left" style="height: 250px; padding: 10px; line-height: 30px; font-size: 14px;"&gt;'
+                html += '&lt;div style="height: 150px; text-align: center; font-size: 12px; font-weight: bold;"&gt;'+json.message+'&lt;/div&gt;';
+                html += '&lt;div style="text-align: center;"&gt;&lt;input type="button" value="　确　定　" onclick="$.unblockUI()" /&gt;&lt;/div&gt;';
+                html += '&lt;/div&gt;';
+                html += '&lt;/div&gt;';
+                $.blockUI(html, {
+                    left: ($(window).width()-300)/2+'px',
+                    top: ($(window).height()-200)/2+'px',
+                    width: '500px',
+                    height: '250px',
+                    cursor: 'default',
+                    padding: '0',
+                    border: '1px solid #565656'
+                });
+            } else {
+                $('.send_invite_loading').hide();
+                $('.send_invite_submit').show();
+                $('.send_message').html(json.message).show();
+            }
+        })
+    }
+}
+
+var copy_invite = function() {
+    var novelId = getURLParam('novelid');
+    var reg = /([0-9]{4})\-([0-9]{2})\-([0-9]{2}) ([0-9]{2}):([0-9]{2}):([0-9]{2})/;
+    var favorite_novel = $('#favorite_1').attr('rel');
+    favorite_novel = favorite_novel.split('|');
+    var novelName = favorite_novel[1]
+    if (!reg.test(favorite_novel[4])) {
+        var authorName = favorite_novel[4];
+    } else {
+        var authorName = favorite_novel[5];
+    }
+
+    $.getJSON('http://my.jjwxc.net/backend/import_msn.php?action=copy_invite&amp;novelid='+novelId+'&amp;jsonp=?', function(json) {
+        if (json.status==200&amp;&amp;json.inviteId&gt;0) {
+            $('#copy_invite_body').html('&lt;div style="padding: 5px; font-size: 13px; border: 5px double #53B61B;"&gt;'+authorName+'的《'+novelName+'》很好看，推荐给你，不注册就能免费看，晋江文学城阅读链接：http://www.jjwxc.net/backend/invite.php?inviteId='+json.inviteId+'&lt;/div&gt;&lt;br&gt;&lt;b&gt;请复制此邀请内容，用QQ、MSN等发送给你的朋友&lt;/b&gt;');
+        }
+    });
+}
+
+var alert_invite = function(html) {
+    $.blockUI(html, {
+        left: ($(window).width()-300)/2+'px',
+        top: ($(window).height()-200)/2+'px',
+        width: '500px',
+        height: '250px',
+        cursor: 'default',
+        padding: '0',
+        border: '1px solid #565656'
+    });
+}
+
+
+setTimeout(offset_show, 500);
+
+//当用户点击某事件触发登录后，登录成功后自动触发点击的事件
+$(function() {
+    var clicktype = getCookie('clicktype');
+    setCookie('clicktype', '', 0, '/', '.jjwxc.net');
+    //收藏和书签
+    if (clicktype=='favorite_2'||clicktype=='favorite_3') {
+        $('#'+clicktype).click();
+    } else if (clicktype=='favorite_1') {
+        favorite_novel('favorite_1');
+    } else if (clicktype=='yrt') {
+//易瑞特活动
+        if (getCookie('readerid')!='null'&amp;&amp;getCookie('readerid')!='') {
+            $.blockUI('&lt;img src="http://static.jjwxc.net/images/loading.gif"&gt;  &lt;strong&gt;登录成功，页面跳转中,请稍候...&lt;/strong&gt;');
+            var url = 'http://my.jjwxc.net/yrt/jump.php';
+            window.location.href = url
+        }
+    } else {
+        if (clicktype!=null&amp;&amp;clicktype!='') {
+            var rel = clicktype.split('|');
+            var type = rel[0];
+            var novelid = rel[1];
+            var chapterid = rel[2];
+            //vip阅读
+            if (type=='vip') {
+                var url = "http://my.jjwxc.net/onebook_vip.php?novelid="+novelid+"&amp;chapterid="+chapterid;
+                window.location.href = url;
+            } else if (type=='pay') {
+//充值页面自动跳
+                location.href = rel[1];
+            }
+        }
+    }
+})
+//设置激活登陆，登陆后触发之前点的功能 主要是vip阅读，obj是点击的对象
+function setClickType(obj) {
+    var id = obj.attr('id');
+    var res = id.split('_');
+    var chapterid = res[1];
+    var novelid = getURLParam('novelid');
+    var key = 'vip|'+novelid+'|'+chapterid;
+    setCookie('clicktype', key, 0, '/', '.jjwxc.net'); //为了点击登录成功后自动跳转
+}
+
+//当页面加载完成，去获取用户的昵称，判断是否设置，设置则显示昵称
+$(document).ready(function() {
+    var nicknameAndsign = decodeURIComponent(getCookie("nicknameAndsign")!=null) ? decodeURIComponent(getCookie("nicknameAndsign")) : '';
+    var nicknameArray = nicknameAndsign.split('~)$');
+    var isnickname = nicknameArray[0];
+    var nickname = nicknameArray[1];
+    if (nickname!=''&amp;&amp;isnickname=='2'&amp;&amp;nickname!=null) {
+        $('#commentauthor').val(nickname);
+        $('#reply_author').val(nickname);
+    } else {
+        var commentauthor = unescape(decodeURI(getCookie("cookieofcommentusername")));
+        if (commentauthor==null||commentauthor=='null') {
+            $('#commentauthor').val('');
+            $('#reply_author').val('');
+        } else {
+            if (commentauthor!=''&amp;&amp;commentauthor!=undefined&amp;&amp;commentauthor!='undefined') {
+                $('#commentauthor').val(commentauthor);
+                $('#reply_author').val(commentauthor);
+            } else {
+                $('#commentauthor').val('');
+                $('#reply_author').val('');
+            }
+        }
+    }
+});
+//返回顶部功能
+var current_url = document.location.href;
+var exp = /onebook/;
+if (exp.test(current_url)) {
+    (function() {
+        var $backToTopTxt = "返回顶部";
+        var classText = "display: none;width: 18px;line-height: 1.2;padding: 5px 0;background-color: #000;color: #fff;font-size: 12px;text-align: center;position: fixed;_position: absolute;right: 10px;bottom: 100px;_bottom: auto;cursor: pointer;opacity: .6;filter: Alpha(opacity=60);"
+        var $backToTopEle = $('&lt;div style="'+classText+'"&gt;&lt;/div&gt;').appendTo($("body"))
+                .text($backToTopTxt).attr("title", $backToTopTxt).click(function() {
+            $("html, body").animate({
+                scrollTop: 0
+            }, 120);
+        }), $backToTopFun = function() {
+            var st = $(document).scrollTop(), winh = $(window).height();
+            (st&gt;0) ? $backToTopEle.show() : $backToTopEle.hide();
+            //IE6下的定位
+            if (!window.XMLHttpRequest) {
+                $backToTopEle.css("top", st+winh-166);
+            }
+        };
+        $(window).bind("scroll", $backToTopFun);
+        $(function() {
+            $backToTopFun();
+        });
+    })();
+}
+
+/**
+ * 营养液投放程序
+ * @param {int} obj 文章ID
+ * @returns {undefined}
+ */
+function getforest(obj) {
+    if (is_login()) {
+        var html = '';
+        var readerid = getCookie('readerid');
+        $.getJSON('http://my.jjwxc.net/givenutrition_ajax.php?jsonp=?', {readerid: readerid, action: 'getnutritionnum'}, function(json) {
+            html += '&lt;div style="text-align:left" id="forestbox"&gt;';
+            html += '&lt;h3&gt;您确定给本文灌溉营养液吗？&lt;/h3&gt;&lt;br&gt;&lt;br&gt;';
+            html += '&lt;input id="onebottle" type="radio" value="1" name="sendBottleNum" onclick="$(\'#writeNum\').val(\'\')"&gt;灌溉一瓶营养液&lt;br&gt;&lt;br&gt;';
+            html += '&lt;input id="somebottle" type="radio" value="2" name="sendBottleNum" onclick="$(\'#writeNum\').focus()"&gt;';
+            html += '灌溉&lt;input id="writeNum" type="text" name="bottlenum" value="" style="width:30px" onclick="$(this).prev().attr(\'checked\',true)"&gt;瓶营养液&lt;br&gt;&lt;br&gt;';
+            html += '&lt;input id="allbottle" type="radio" value="3" name="sendBottleNum" onclick="$(\'#writeNum\').val(\'\')"&gt;我要把所有营养液都灌溉给大大&lt;span id="nutritionnum"&gt;&amp;nbsp;（您当前剩余'+json.num+'瓶营养液）&lt;/span&gt;&lt;br&gt;&lt;br&gt;';
+            html += '&lt;input type="button" onclick="sendforest('+obj+')" style="width:50px;text-align:center;" value="确认"&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;';
+            html += '&lt;input type="button" onclick="$.unblockUI()" style="width:50px;text-align:center;" value="取消"&gt;';
+            html += '&lt;/div&gt;';
+            $.blockUI(html);
+        });
+    }
+}
+function sendforest(obj) {
+    var type = '';
+    var num = '';
+    $('input[name=sendBottleNum]').each(function(i, v) {
+        if ($(this).attr('checked')=='checked') {
+            type = $(this).val();
+            if ($(this).next().attr('id')=='writeNum') {
+                num = $(this).next().val();
+            }
+        }
+    })
+    $.blockUI('&lt;img src="http://static.jjwxc.net/images/loading.gif"&gt;  &lt;strong&gt;请稍候...&lt;/strong&gt;');
+    $.ajax({
+        type: "get", //使用get方法访问后台
+        dataType: "jsonp", //返回json格式的数据
+        data: {novelid: obj, type: type, num: num},
+        jsonpCallback: "person",
+        url: "http://my.jjwxc.net/givenutrition_ajax.php?callback=?", //要访问的后台地址
+        complete: function() {
+        }, //AJAX请求完成时隐藏loading提示
+        success: function(msg) {//msg为返回的数据，在这里做数据绑定
+            $.unblockUI();
+            $.blockUI('&lt;div  style="line-height:13px"&gt;&lt;div style="float:right"&gt;&lt;img src="http://static.jjwxc.net/images/close.gif" width="12" height="12" style="cursor:pointer;margin-top:-10px" onClick="$.unblockUI()"/&gt;&lt;/div&gt;&lt;b&gt;'+msg+'&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;input type="button" value="确 定" onClick="$.unblockUI()" style="margin:0 auto"/&gt;&lt;/div&gt;', {
+                cursor: 'text'
+            });
+        }
+    });
+}
+//封装投霸王票事件
+function ticketsubmit() {
+    var comment = arguments[0] ? arguments[0] : false;
+    var id = '';
+    var t = '';
+    var num = 1;
+    var novelId = getURLParam('novelid');
+    $('input[name=KingTickets_radio]').each(function(i, v) {
+        if ($(this).attr('checked')=='checked'||$(this).attr('checked')=='checked') {
+            id = $(this).attr('id');
+            t = $(this).attr('rel');
+            if ($(this).next().attr('id')=='KingTickets_deeptorpedo_num') {
+                num = $(this).next().val();
+            }
+        }
+    })
+    if (t==''&amp;&amp;id=='') {
+        $.blockUI('请选择霸王票类型，点击&lt;b&gt;【确定】&lt;/b&gt;返回!&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;input type="button" value="确 定" onClick="$.unblockUI()"/&gt;', {
+            width: '330px',
+            height: '70px',
+            cursor: 'default'
+        });
+        return false;
+    }
+    if (is_login(id, 'click')) {
+        $.blockUI('&lt;img src="http://static.jjwxc.net/images/loading.gif"&gt;  &lt;strong&gt;请稍候...&lt;/strong&gt;');
+        $.ajax({
+            type: "GET",
+            url: 'backend/kingTicketsPay_ajax.php?action=check&amp;novelid='+novelId+'&amp;t='+t+'&amp;num='+num+'&amp;jsonp=?',
+            dataType: 'jsonp',
+            async: false,
+            success: function(json) {
+                if (json.status==200) {
+                    $.blockUI('&lt;div align="center" style="font-size: 12px;line-height:15px;"&gt;&lt;div style="float:right"&gt;&lt;img src="http://static.jjwxc.net/images/close.gif" width="12" height="12" style="cursor:pointer" onClick="$.unblockUI()"/&gt;&lt;/div&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;'+json.message+'&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;input type="button" value="确 定" onClick="checkpaypwd(\''+id+'\','+comment+')"/&gt;　　　　&lt;input type="button" value="取 消" onClick="$.unblockUI()"/&gt;&lt;/div&gt;', {
+                        width: '330px',
+                        height: '150px',
+                        cursor: 'default'
+                    });
+                } else if (json.status==108) {
+                    $.blockUI('&lt;div align="center" style="font-size: 12px;"&gt;&lt;div style="float:right"&gt;&lt;img src="http://static.jjwxc.net/images/close.gif" width="12" height="12" style="cursor:pointer" onClick="$.unblockUI()"/&gt;&lt;/div&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;'+json.message+'&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;input type="button" value="确 定" onClick="checkpaypwd(\''+id+'\','+comment+')"/&gt;　　　　&lt;input type="button" value="取 消" onClick="$.unblockUI()"/&gt;&lt;/div&gt;', {
+                        width: '330px',
+                        height: '100px',
+                        cursor: 'default'
+                    });
+                } else if (json.status==100) {
+                    $.blockUI('&lt;div align="center" style="font-size: 12px;line-height:15px;"&gt;&lt;div style="float:right"&gt;&lt;img src="http://static.jjwxc.net/images/close.gif" width="12" height="12" style="cursor:pointer" onClick="$.unblockUI()"/&gt;&lt;/div&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;'+json.message+'&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;input type="button" value="确 定" onClick="$.unblockUI();window.open(\'http://my.jjwxc.net/pay/pay.php\');"/&gt;&lt;/div&gt;', {
+                        width: '330px',
+                        height: '130px',
+                        cursor: 'default'
+                    });
+                } else {
+                    $.blockUI('&lt;div align="center" style="font-size: 12px;line-height:15px;"&gt;&lt;div style="float:right"&gt;&lt;img src="http://static.jjwxc.net/images/close.gif" width="12" height="12" style="cursor:pointer" onClick="$.unblockUI()"/&gt;&lt;/div&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;'+json.message+'&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;input type="button" value="确 定" onClick="$.unblockUI()"/&gt;&lt;/div&gt;', {
+                        width: '330px',
+                        height: '100px',
+                        cursor: 'default'
+                    });
+                }
+            }
+        });
+    }
+}
+
+//发评及霸王票+发评
+function insert_comment() {
+    if ($("#ticketsort").length&gt;0||$("#tickettd").length&gt;0) {
+        var ticketval = $("input:checked[name='KingTickets_radio']").val();
+        if (ticketval!==undefined) {
+            ticketsubmit();
+        } else {
+            comment_submit();
+        }
+    } else {
+        comment_submit();
+    }
+}
+</pre></body></html>

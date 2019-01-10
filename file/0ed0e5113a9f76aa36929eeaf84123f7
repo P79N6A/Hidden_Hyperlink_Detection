@@ -1,0 +1,560 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+ <head> 
+  <meta http-equiv="Content-Type" content="text/html; charset=gb2312" /> 
+  <title>基于eXosip协议栈的SIP电话的研究与实现_安徽合肥会议电话设备网</title> 
+  <meta name="keywords" content="SIP,oSIP,eXosip协议栈,SIP电话" /> 
+  <meta name="description" content="简单介绍了oSIP协议栈及eXosip协议栈 的基本内容，并在此基础上详细介绍了嵌入式SIP电话的硬件及软件设计过程，并进行试验得到了预期的效果。" /> 
+  <meta name="technicalsupport" content="安徽办公用品公司-合肥安惠办公" /> 
+  <meta name="copyright" content="安徽办公用品-合肥办公用品" /> 
+  <link href="/videocss/main.css?v=33" rel="stylesheet" type="text/css" /> 
+  <script type="text/javascript" src="/jquery-1.5.1.min.js?v=1" charset="gb2312"></script> 
+ </head> 
+ <body> 
+  <!--?php include_once("baidu_js_push.php") ?--> 
+  <script language="javascript">
+var menu_num = 4 + 2 + 4;
+</script> 
+  <script type="text/javascript" src="/site.js"></script> 
+  <div id="top"> 
+   <div class="logo">
+    <a href="http://www.ahpbx.com/"><img src="/images/Logo.jpg" width="194" height="64" alt="合肥办公用品" /></a>
+   </div> 
+   <div class="logo_R"> 
+    <div class="logo_lxwm">
+     <img src="/tel.jpg" alt="全国统一咨询热线:0551-63645505" />
+    </div> 
+    <div id="mainmenu_top"> 
+     <ul> 
+      <li><a id="mm1" href="http://www.ahpbx.com/" onmouseover="showM(this,1);" onmouseout="OnMouseLeft();" target="_parent">网站首页</a></li> 
+      <li><a id="mm2" href="http://www.ahpbx.com/list-1/" onmouseover="showM(this,2);" onmouseout="OnMouseLeft();" target="_parent">电话会议</a></li> 
+      <li><a id="mm3" href="http://www.ahpbx.com/list-6/" onmouseover="showM(this,3);" onmouseout="OnMouseLeft();" target="_parent">视频会议</a></li> 
+      <li><a id="mm4" href="http://www.ahpbx.com/list-9/" onmouseover="showM(this,4);" onmouseout="OnMouseLeft();" target="_parent">会议设备</a></li> 
+      <li><a id="mm5" href="http://www.ahpbx.com/news-2/" onmouseover="showM(this,5);" onmouseout="OnMouseLeft();" target="_parent">办公资讯</a></li> 
+      <li><a id="mm6" href="http://www.ahpbx.com/news-4/" onmouseover="showM(this,6);" onmouseout="OnMouseLeft();" target="_parent">解决方案</a></li> 
+      <li><a id="mm7" href="http://www.ahpbx.com/news-5/" onmouseover="showM(this,7);" onmouseout="OnMouseLeft();" target="_parent">服务支持</a></li> 
+      <li><a id="mm8" href="http://www.ahpbx.com/news-6/" onmouseover="showM(this,8);" onmouseout="OnMouseLeft();" target="_parent">常见问题</a></li> 
+      <li><a id="mm9" href="http://www.ahpbx.com/news-7/" onmouseover="showM(this,9);" onmouseout="OnMouseLeft();" target="_parent">成功案例</a></li> 
+     </ul> 
+    </div> 
+   </div> 
+  </div> 
+  <div class="Top_NavBg_HotNews"> 
+   <div id="mainmenu_bottom"> 
+    <div class="mainmenu_rbg"> 
+     <ul id="mb1" class=""> 
+      <li><a href="http://www.ahpbx.com/">欢迎光临，请选择您需要的服务</a></li> 
+     </ul> 
+     <ul id="mb2" class="hide"> 
+      <li><a href="http://www.ahpbx.com/list-1/1/" target="_parent">Polycom电话会议</a></li>
+      <li><a href="http://www.ahpbx.com/list-1/2/" target="_parent">好会通会议电话机</a></li>
+      <li><a href="http://www.ahpbx.com/list-1/3/" target="_parent">音络电话会议</a></li>
+      <li><a href="http://www.ahpbx.com/list-1/4/" target="_parent">财务设备</a></li>
+      <li><a href="http://www.ahpbx.com/list-1/5/" target="_parent">办公耗材</a></li>
+      <li><a href="http://www.ahpbx.com/list-1/6/" target="_parent">办公电器</a></li> 
+     </ul> 
+     <ul id="mb3" class="hide"> 
+      <li><a href="http://www.ahpbx.com/list-6/1/" target="_parent"> Polycom视频会议</a></li>
+      <li><a href="http://www.ahpbx.com/list-6/2/" target="_parent">SONY视频会议</a></li>
+      <li><a href="http://www.ahpbx.com/list-6/3/" target="_parent">lifesize视频会议</a></li> 
+     </ul> 
+     <ul id="mb4" class="hide"> 
+      <li><a href="http://www.ahpbx.com/list-9/1/" target="_parent">饮料冲调</a></li>
+      <li><a href="http://www.ahpbx.com/list-9/2/" target="_parent">休闲食品</a></li>
+      <li><a href="http://www.ahpbx.com/list-9/3/" target="_parent">休闲食品</a></li>
+      <li><a href="http://www.ahpbx.com/list-9/4/" target="_parent">地方特产</a></li> 
+     </ul> 
+     <ul id="mb5" class="hide"> 
+      <li><a href="http://www.ahpbx.com/News-2/1/" target="_parent">公司动态</a></li>
+      <li><a href="http://www.ahpbx.com/News-2/2/" target="_parent">行业资讯</a></li> 
+     </ul> 
+     <ul id="mb6" class="hide"> 
+      <li><a href="http://www.ahpbx.com/news-4/1/" target="_parent">企业单位</a></li> 
+     </ul> 
+     <ul id="mb7" class="hide"> 
+      <li><a href="http://www.ahpbx.com/news-5/1/" target="_parent">技术服务</a></li> 
+     </ul> 
+     <ul id="mb8" class="hide"> 
+      <li><a href="http://www.ahpbx.com/news-6/1/" target="_parent">电话交换机新闻</a></li>
+      <li><a href="http://www.ahpbx.com/news-6/2/" target="_parent">办公设备</a></li> 
+     </ul> 
+     <ul id="mb9" class="hide"> 
+      <li><a href="http://www.ahpbx.com/news-70/" target="_parent">华东大区</a></li>
+      <li><a href="http://www.ahpbx.com/news-72/" target="_parent">外企案例</a></li>
+      <li><a href="http://www.ahpbx.com/news-73/" target="_parent">其他地区</a></li>
+      <li><a href="http://www.ahpbx.com/news-74/" target="_parent">华南大区</a></li>
+      <li><a href="http://www.ahpbx.com/news-75/" target="_parent">华北大区</a></li> 
+     </ul> 
+    </div> 
+   </div> 
+  </div> 
+  <script type="text/javascript" language="javascript">
+var nav = document.getElementById("mb5");
+var links = nav.getElementsByTagName("li");
+var lilen = nav.getElementsByTagName("a");
+var currenturl = document.location.href;
+var last = 0;
+for (var i=0;i<links.length;i++)
+{
+   var linkurl =  lilen[i].getAttribute("href");
+     if(currenturl.indexOf(linkurl)!=-1)
+        {
+         last = i;
+        }
+}
+         links[last].className = "se";
+</script> 
+  <div id="flsosuo"> 
+   <div id="qbcpfl"> 
+    <div class="goods-top">
+     全部产品分类
+    </div> 
+    <div class="all-goods"> 
+     <div class="item"> 
+      <div class="product"> 
+       <h3> <a href="http://www.ahpbx.com/list-1/">电话会议</a> <p> <span><a href="http://www.ahpbx.com/list-1/1/">Polycom电话会议</a></span> <span><a href="http://www.ahpbx.com/list-1/2/">好会通会议电话机</a></span> </p> </h3> 
+       <i style="display:block;" class="s13"></i> 
+      </div> 
+      <div class="product-wrap posone"> 
+       <div class="goodsleft"> 
+        <ul> 
+         <li> <h4><a href="http://www.ahpbx.com/list-1/1/">Polycom电话会议</a></h4> <p> <span><a href="http://www.ahpbx.com/list-1/A10/">模拟会议电话</a></span> <span><a href="http://www.ahpbx.com/list-1/A20/">Polycom IP话机</a></span> <span><a href="http://www.ahpbx.com/list-1/A30/">一体机</a></span> <span><a href="http://www.ahpbx.com/list-1/A40/">传真机</a></span> <span><a href="http://www.ahpbx.com/list-1/A50/">扫描仪</a></span> </p> </li>
+         <li> <h4><a href="http://www.ahpbx.com/list-1/2/">好会通会议电话机</a></h4> <p> <span><a href="http://www.ahpbx.com/list-1/B10/">考勤机</a></span> <span><a href="http://www.ahpbx.com/list-1/B20/">碎纸机</a></span> <span><a href="http://www.ahpbx.com/list-1/B30/">装订机</a></span> <span><a href="http://www.ahpbx.com/list-1/B40/">塑封机</a></span> <span><a href="http://www.ahpbx.com/list-1/B50/">热熔机</a></span> <span><a href="http://www.ahpbx.com/list-1/B60/">封口机</a></span> </p> </li>
+         <li> <h4><a href="http://www.ahpbx.com/list-1/3/">音络电话会议</a></h4> <p> <span><a href="http://www.ahpbx.com/list-1/C10/">音频会议电话</a></span> <span><a href="http://www.ahpbx.com/list-1/C20/">投影幕布</a></span> <span><a href="http://www.ahpbx.com/list-1/C30/">电子白板</a></span> <span><a href="http://www.ahpbx.com/list-1/C40/">激光笔</a></span> </p> </li>
+         <li> <h4><a href="http://www.ahpbx.com/list-1/4/">财务设备</a></h4> <p> <span><a href="http://www.ahpbx.com/list-1/D10/">装订机</a></span> <span><a href="http://www.ahpbx.com/list-1/D20/">点钞机</a></span> <span><a href="http://www.ahpbx.com/list-1/D30/">收银机</a></span> <span><a href="http://www.ahpbx.com/list-1/D40/">电子称</a></span> </p> </li>
+         <li> <h4><a href="http://www.ahpbx.com/list-1/5/">办公耗材</a></h4> <p> <span><a href="http://www.ahpbx.com/list-1/E10/">打印机硒鼓</a></span> <span><a href="http://www.ahpbx.com/list-1/E20/">墨盒</a></span> <span><a href="http://www.ahpbx.com/list-1/E30/">墨粉</a></span> <span><a href="http://www.ahpbx.com/list-1/E40/">色带</a></span> <span><a href="http://www.ahpbx.com/list-1/E50/">鼓组件</a></span> </p> </li>
+         <li> <h4><a href="http://www.ahpbx.com/list-1/6/">办公电器</a></h4> <p> <span><a href="http://www.ahpbx.com/list-1/F2/">电视机</a></span> </p> </li> 
+        </ul> 
+        <p class="cl"></p> 
+       </div> 
+      </div> 
+     </div>
+     <div class="item"> 
+      <div class="product"> 
+       <h3> <a href="http://www.ahpbx.com/list-2/">全向麦克风</a> <p> <span><a href="http://www.ahpbx.com/list-2/1/">电脑整机</a></span> <span><a href="http://www.ahpbx.com/list-2/2/">电脑配件</a></span> </p> </h3> 
+       <i style="display:block;" class="s14"></i> 
+      </div> 
+      <div class="product-wrap posone"> 
+       <div class="goodsleft"> 
+        <ul> 
+         <li> <h4><a href="http://www.ahpbx.com/list-2/1/">电脑整机</a></h4> <p> <span><a href="http://www.ahpbx.com/list-2/A10/">笔记本电脑</a></span> <span><a href="http://www.ahpbx.com/list-2/A20/">平板电脑</a></span> <span><a href="http://www.ahpbx.com/list-2/A30/">组装电脑</a></span> <span><a href="http://www.ahpbx.com/list-2/A40/">超级本</a></span> <span><a href="http://www.ahpbx.com/list-2/A50/">服务器</a></span> <span><a href="http://www.ahpbx.com/list-2/A60/">台式电脑</a></span> </p> </li>
+         <li> <h4><a href="http://www.ahpbx.com/list-2/2/">电脑配件</a></h4> <p> <span><a href="http://www.ahpbx.com/list-2/B01/">显示器</a></span> <span><a href="http://www.ahpbx.com/list-2/B10/">CPU</a></span> <span><a href="http://www.ahpbx.com/list-2/B20/">主板</a></span> <span><a href="http://www.ahpbx.com/list-2/B30/">显卡</a></span> <span><a href="http://www.ahpbx.com/list-2/B40/">硬盘</a></span> <span><a href="http://www.ahpbx.com/list-2/B50/">刻录机/光驱</a></span> <span><a href="http://www.ahpbx.com/list-2/B60/">电源</a></span> <span><a href="http://www.ahpbx.com/list-2/B70/">机箱</a></span> <span><a href="http://www.ahpbx.com/list-2/B80/">内存</a></span> <span><a href="http://www.ahpbx.com/list-2/B90/">散热器</a></span> </p> </li>
+         <li> <h4><a href="http://www.ahpbx.com/list-2/3/">外设产品</a></h4> <p> <span><a href="http://www.ahpbx.com/list-2/C01/">鼠标/键盘</a></span> <span><a href="http://www.ahpbx.com/list-2/C10/">鼠标垫</a></span> <span><a href="http://www.ahpbx.com/list-2/C20/">插座</a></span> <span><a href="http://www.ahpbx.com/list-2/C30/">UPS电源</a></span> <span><a href="http://www.ahpbx.com/list-2/C40/">电脑清洁</a></span> <span><a href="http://www.ahpbx.com/list-2/C50/">摄像头</a></span> <span><a href="http://www.ahpbx.com/list-2/C60/">线缆网线</a></span> <span><a href="http://www.ahpbx.com/list-2/C70/">集线器</a></span> <span><a href="http://www.ahpbx.com/list-2/C80/">电脑包</a></span> <span><a href="http://www.ahpbx.com/list-2/C90/">键鼠套装</a></span> </p> </li>
+         <li> <h4><a href="http://www.ahpbx.com/list-2/4/">网络设备</a></h4> <p> <span><a href="http://www.ahpbx.com/list-2/D01/">路由器</a></span> <span><a href="http://www.ahpbx.com/list-2/D10/">交换机</a></span> <span><a href="http://www.ahpbx.com/list-2/D20/">网卡</a></span> <span><a href="http://www.ahpbx.com/list-2/D30/">布线工具</a></span> <span><a href="http://www.ahpbx.com/list-2/D40/">网络存储</a></span> <span><a href="http://www.ahpbx.com/list-2/D50/">3G上网</a></span> <span><a href="http://www.ahpbx.com/list-2/D60/">网络盒子</a></span> <span><a href="http://www.ahpbx.com/list-2/D70/">D70</a></span> <span><a href="http://www.ahpbx.com/list-2/D80/">D80</a></span> </p> </li>
+         <li> <h4><a href="http://www.ahpbx.com/list-2/5/">存储设备</a></h4> <p> <span><a href="http://www.ahpbx.com/list-2/E01/">E01</a></span> <span><a href="http://www.ahpbx.com/list-2/E10/">E10</a></span> </p> </li>
+         <li> <h4><a href="http://www.ahpbx.com/list-2/6/">摄影摄像</a></h4> <p> <span><a href="http://www.ahpbx.com/list-2/F01/">F01</a></span> <span><a href="http://www.ahpbx.com/list-2/F10/">F10</a></span> <span><a href="http://www.ahpbx.com/list-2/F20/">F20</a></span> </p> </li>
+         <li> <h4><a href="http://www.ahpbx.com/list-2/7/">数码影音</a></h4> <p> <span><a href="http://www.ahpbx.com/list-2/G01/">G01</a></span> <span><a href="http://www.ahpbx.com/list-2/G10/">G10</a></span> <span><a href="http://www.ahpbx.com/list-2/G20/">G20</a></span> <span><a href="http://www.ahpbx.com/list-2/G30/">G30</a></span> <span><a href="http://www.ahpbx.com/list-2/G40/">G40</a></span> </p> </li>
+         <li> <h4><a href="http://www.ahpbx.com/list-2/8/">通讯设备</a></h4> <p> <span><a href="http://www.ahpbx.com/list-2/1/">电脑整机</a></span> <span><a href="http://www.ahpbx.com/list-2/2/">电脑配件</a></span> <span><a href="http://www.ahpbx.com/list-2/3/">外设产品</a></span> <span><a href="http://www.ahpbx.com/list-2/4/">网络设备</a></span> <span><a href="http://www.ahpbx.com/list-2/5/">存储设备</a></span> <span><a href="http://www.ahpbx.com/list-2/6/">摄影摄像</a></span> <span><a href="http://www.ahpbx.com/list-2/7/">数码影音</a></span> <span><a href="http://www.ahpbx.com/list-2/8/">通讯设备</a></span> <span><a href="http://www.ahpbx.com/list-2/9/">通讯配件</a></span> </p> </li>
+         <li> <h4><a href="http://www.ahpbx.com/list-2/9/">通讯配件</a></h4> <p> <span><a href="http://www.ahpbx.com/list-2/1/">电脑整机</a></span> <span><a href="http://www.ahpbx.com/list-2/2/">电脑配件</a></span> <span><a href="http://www.ahpbx.com/list-2/3/">外设产品</a></span> <span><a href="http://www.ahpbx.com/list-2/4/">网络设备</a></span> <span><a href="http://www.ahpbx.com/list-2/5/">存储设备</a></span> <span><a href="http://www.ahpbx.com/list-2/6/">摄影摄像</a></span> <span><a href="http://www.ahpbx.com/list-2/7/">数码影音</a></span> <span><a href="http://www.ahpbx.com/list-2/8/">通讯设备</a></span> <span><a href="http://www.ahpbx.com/list-2/9/">通讯配件</a></span> </p> </li> 
+        </ul> 
+        <p class="cl"></p> 
+       </div> 
+      </div> 
+     </div>
+     <div class="item"> 
+      <div class="product"> 
+       <h3> <a href="http://www.ahpbx.com/list-3/">多媒体会议室</a> <p> <span><a href="http://www.ahpbx.com/list-3/1/">头部防护</a></span> <span><a href="http://www.ahpbx.com/list-3/2/">呼吸防护</a></span> </p> </h3> 
+       <i style="display:block;" class="s15"></i> 
+      </div> 
+      <div class="product-wrap posone"> 
+       <div class="goodsleft"> 
+        <ul> 
+         <li> <h4><a href="http://www.ahpbx.com/list-3/1/">头部防护</a></h4> <p> <span><a href="http://www.ahpbx.com/list-3/A01/">A01</a></span> <span><a href="http://www.ahpbx.com/list-3/A10/">A10</a></span> </p> </li>
+         <li> <h4><a href="http://www.ahpbx.com/list-3/2/">呼吸防护</a></h4> <p> <span><a href="http://www.ahpbx.com/list-3/B01/">B01</a></span> <span><a href="http://www.ahpbx.com/list-3/B10/">B10</a></span> </p> </li>
+         <li> <h4><a href="http://www.ahpbx.com/list-3/3/">眼面部防护</a></h4> <p> <span><a href="http://www.ahpbx.com/list-3/C01/">C01</a></span> <span><a href="http://www.ahpbx.com/list-3/C10/">C10</a></span> <span><a href="http://www.ahpbx.com/list-3/C20/">C20</a></span> <span><a href="http://www.ahpbx.com/list-3/C30/">C30</a></span> </p> </li>
+         <li> <h4><a href="http://www.ahpbx.com/list-3/4/">听力防护</a></h4> <p> <span><a href="http://www.ahpbx.com/list-3/D01/">D01</a></span> <span><a href="http://www.ahpbx.com/list-3/D10/">D10</a></span> <span><a href="http://www.ahpbx.com/list-3/D20/">D20</a></span> </p> </li>
+         <li> <h4><a href="http://www.ahpbx.com/list-3/5/">工业擦拭</a></h4> <p> <span><a href="http://www.ahpbx.com/list-3/1/">头部防护</a></span> <span><a href="http://www.ahpbx.com/list-3/2/">呼吸防护</a></span> <span><a href="http://www.ahpbx.com/list-3/3/">眼面部防护</a></span> <span><a href="http://www.ahpbx.com/list-3/4/">听力防护</a></span> <span><a href="http://www.ahpbx.com/list-3/5/">工业擦拭</a></span> <span><a href="http://www.ahpbx.com/list-3/6/">消防应急</a></span> <span><a href="http://www.ahpbx.com/list-3/7/">手部防护</a></span> <span><a href="http://www.ahpbx.com/list-3/zubufanghu/">足部防护</a></span> <span><a href="http://www.ahpbx.com/list-3/8/">身体防护</a></span> <span><a href="http://www.ahpbx.com/list-3/9/">防坠落防护</a></span> <span><a href="http://www.ahpbx.com/list-3/10/">护肤防护</a></span> </p> </li>
+         <li> <h4><a href="http://www.ahpbx.com/list-3/6/">消防应急</a></h4> <p> <span><a href="http://www.ahpbx.com/list-3/1/">头部防护</a></span> <span><a href="http://www.ahpbx.com/list-3/2/">呼吸防护</a></span> <span><a href="http://www.ahpbx.com/list-3/3/">眼面部防护</a></span> <span><a href="http://www.ahpbx.com/list-3/4/">听力防护</a></span> <span><a href="http://www.ahpbx.com/list-3/5/">工业擦拭</a></span> <span><a href="http://www.ahpbx.com/list-3/6/">消防应急</a></span> <span><a href="http://www.ahpbx.com/list-3/7/">手部防护</a></span> <span><a href="http://www.ahpbx.com/list-3/zubufanghu/">足部防护</a></span> <span><a href="http://www.ahpbx.com/list-3/8/">身体防护</a></span> <span><a href="http://www.ahpbx.com/list-3/9/">防坠落防护</a></span> <span><a href="http://www.ahpbx.com/list-3/10/">护肤防护</a></span> </p> </li>
+         <li> <h4><a href="http://www.ahpbx.com/list-3/7/">手部防护</a></h4> <p> <span><a href="http://www.ahpbx.com/list-3/1/">头部防护</a></span> <span><a href="http://www.ahpbx.com/list-3/2/">呼吸防护</a></span> <span><a href="http://www.ahpbx.com/list-3/3/">眼面部防护</a></span> <span><a href="http://www.ahpbx.com/list-3/4/">听力防护</a></span> <span><a href="http://www.ahpbx.com/list-3/5/">工业擦拭</a></span> <span><a href="http://www.ahpbx.com/list-3/6/">消防应急</a></span> <span><a href="http://www.ahpbx.com/list-3/7/">手部防护</a></span> <span><a href="http://www.ahpbx.com/list-3/zubufanghu/">足部防护</a></span> <span><a href="http://www.ahpbx.com/list-3/8/">身体防护</a></span> <span><a href="http://www.ahpbx.com/list-3/9/">防坠落防护</a></span> <span><a href="http://www.ahpbx.com/list-3/10/">护肤防护</a></span> </p> </li>
+         <li> <h4><a href="http://www.ahpbx.com/list-3/zubufanghu/">足部防护</a></h4> <p> <span><a href="http://www.ahpbx.com/list-3/1/">头部防护</a></span> <span><a href="http://www.ahpbx.com/list-3/2/">呼吸防护</a></span> <span><a href="http://www.ahpbx.com/list-3/3/">眼面部防护</a></span> <span><a href="http://www.ahpbx.com/list-3/4/">听力防护</a></span> <span><a href="http://www.ahpbx.com/list-3/5/">工业擦拭</a></span> <span><a href="http://www.ahpbx.com/list-3/6/">消防应急</a></span> <span><a href="http://www.ahpbx.com/list-3/7/">手部防护</a></span> <span><a href="http://www.ahpbx.com/list-3/zubufanghu/">足部防护</a></span> <span><a href="http://www.ahpbx.com/list-3/8/">身体防护</a></span> <span><a href="http://www.ahpbx.com/list-3/9/">防坠落防护</a></span> <span><a href="http://www.ahpbx.com/list-3/10/">护肤防护</a></span> </p> </li>
+         <li> <h4><a href="http://www.ahpbx.com/list-3/8/">身体防护</a></h4> <p> <span><a href="http://www.ahpbx.com/list-3/1/">头部防护</a></span> <span><a href="http://www.ahpbx.com/list-3/2/">呼吸防护</a></span> <span><a href="http://www.ahpbx.com/list-3/3/">眼面部防护</a></span> <span><a href="http://www.ahpbx.com/list-3/4/">听力防护</a></span> <span><a href="http://www.ahpbx.com/list-3/5/">工业擦拭</a></span> <span><a href="http://www.ahpbx.com/list-3/6/">消防应急</a></span> <span><a href="http://www.ahpbx.com/list-3/7/">手部防护</a></span> <span><a href="http://www.ahpbx.com/list-3/zubufanghu/">足部防护</a></span> <span><a href="http://www.ahpbx.com/list-3/8/">身体防护</a></span> <span><a href="http://www.ahpbx.com/list-3/9/">防坠落防护</a></span> <span><a href="http://www.ahpbx.com/list-3/10/">护肤防护</a></span> </p> </li>
+         <li> <h4><a href="http://www.ahpbx.com/list-3/9/">防坠落防护</a></h4> <p> <span><a href="http://www.ahpbx.com/list-3/1/">头部防护</a></span> <span><a href="http://www.ahpbx.com/list-3/2/">呼吸防护</a></span> <span><a href="http://www.ahpbx.com/list-3/3/">眼面部防护</a></span> <span><a href="http://www.ahpbx.com/list-3/4/">听力防护</a></span> <span><a href="http://www.ahpbx.com/list-3/5/">工业擦拭</a></span> <span><a href="http://www.ahpbx.com/list-3/6/">消防应急</a></span> <span><a href="http://www.ahpbx.com/list-3/7/">手部防护</a></span> <span><a href="http://www.ahpbx.com/list-3/zubufanghu/">足部防护</a></span> <span><a href="http://www.ahpbx.com/list-3/8/">身体防护</a></span> <span><a href="http://www.ahpbx.com/list-3/9/">防坠落防护</a></span> <span><a href="http://www.ahpbx.com/list-3/10/">护肤防护</a></span> </p> </li>
+         <li> <h4><a href="http://www.ahpbx.com/list-3/10/">护肤防护</a></h4> <p> <span><a href="http://www.ahpbx.com/list-3/1/">头部防护</a></span> <span><a href="http://www.ahpbx.com/list-3/2/">呼吸防护</a></span> <span><a href="http://www.ahpbx.com/list-3/3/">眼面部防护</a></span> <span><a href="http://www.ahpbx.com/list-3/4/">听力防护</a></span> <span><a href="http://www.ahpbx.com/list-3/5/">工业擦拭</a></span> <span><a href="http://www.ahpbx.com/list-3/6/">消防应急</a></span> <span><a href="http://www.ahpbx.com/list-3/7/">手部防护</a></span> <span><a href="http://www.ahpbx.com/list-3/zubufanghu/">足部防护</a></span> <span><a href="http://www.ahpbx.com/list-3/8/">身体防护</a></span> <span><a href="http://www.ahpbx.com/list-3/9/">防坠落防护</a></span> <span><a href="http://www.ahpbx.com/list-3/10/">护肤防护</a></span> </p> </li> 
+        </ul> 
+        <p class="cl"></p> 
+       </div> 
+      </div> 
+     </div>
+     <div class="item"> 
+      <div class="product"> 
+       <h3> <a href="http://www.ahpbx.com/list-4/">摄像头采集卡</a> <p> <span><a href="http://www.ahpbx.com/list-4/1/">网真系统</a></span> <span><a href="http://www.ahpbx.com/list-4/2/">高清终端</a></span> </p> </h3> 
+       <i style="display:block;" class="s16"></i> 
+      </div> 
+      <div class="product-wrap posone"> 
+       <div class="goodsleft"> 
+        <ul> 
+         <li> <h4><a href="http://www.ahpbx.com/list-4/1/">网真系统</a></h4> <p> <span><a href="http://www.ahpbx.com/list-4/A01/">A01</a></span> <span><a href="http://www.ahpbx.com/list-4/A10/">A10</a></span> <span><a href="http://www.ahpbx.com/list-4/A20/">A20</a></span> </p> </li>
+         <li> <h4><a href="http://www.ahpbx.com/list-4/2/">高清终端</a></h4> <p> <span><a href="http://www.ahpbx.com/list-4/B01/">B01</a></span> <span><a href="http://www.ahpbx.com/list-4/B10/">B10</a></span> <span><a href="http://www.ahpbx.com/list-4/B20/">B20</a></span> </p> </li>
+         <li> <h4><a href="http://www.ahpbx.com/list-4/3/">标清终端</a></h4> <p> <span><a href="http://www.ahpbx.com/list-4/C01/">C01</a></span> </p> </li>
+         <li> <h4><a href="http://www.ahpbx.com/list-4/4/">编解码器</a></h4> <p> <span><a href="http://www.ahpbx.com/list-4/D01/">D01</a></span> <span><a href="http://www.ahpbx.com/list-4/D10/">D10</a></span> <span><a href="http://www.ahpbx.com/list-4/D20/">D20</a></span> <span><a href="http://www.ahpbx.com/list-4/D30/">D30</a></span> <span><a href="http://www.ahpbx.com/list-4/D40/">D40</a></span> <span><a href="http://www.ahpbx.com/list-4/D50/">D50</a></span> </p> </li>
+         <li> <h4><a href="http://www.ahpbx.com/list-4/5/">MCU系列</a></h4> <p> <span><a href="http://www.ahpbx.com/list-4/E01/">E01</a></span> <span><a href="http://www.ahpbx.com/list-4/E10/">E10</a></span> <span><a href="http://www.ahpbx.com/list-4/E20/">E20</a></span> <span><a href="http://www.ahpbx.com/list-4/E30/">E30</a></span> <span><a href="http://www.ahpbx.com/list-4/E40/">E40</a></span> <span><a href="http://www.ahpbx.com/list-4/E50/">E50</a></span> </p> </li> 
+        </ul> 
+        <p class="cl"></p> 
+       </div> 
+      </div> 
+     </div>
+     <div class="item"> 
+      <div class="product"> 
+       <h3> <a href="http://www.ahpbx.com/list-5/">软件视频会议</a> <p> <span><a href="http://www.ahpbx.com/list-5/1/">Express系列</a></span> <span><a href="http://www.ahpbx.com/list-5/2/">Room系列</a></span> </p> </h3> 
+       <i style="display:block;" class="s17"></i> 
+      </div> 
+      <div class="product-wrap posone"> 
+       <div class="goodsleft"> 
+        <ul> 
+         <li> <h4><a href="http://www.ahpbx.com/list-5/1/">Express系列</a></h4> <p> <span><a href="http://www.ahpbx.com/list-5/A01/">A01</a></span> <span><a href="http://www.ahpbx.com/list-5/A10/">A10</a></span> <span><a href="http://www.ahpbx.com/list-5/A20/">A20</a></span> <span><a href="http://www.ahpbx.com/list-5/A30/">A30</a></span> </p> </li>
+         <li> <h4><a href="http://www.ahpbx.com/list-5/2/">Room系列</a></h4> <p> <span><a href="http://www.ahpbx.com/list-5/B01/">B01</a></span> <span><a href="http://www.ahpbx.com/list-5/B10/">B10</a></span> <span><a href="http://www.ahpbx.com/list-5/B20/">B20</a></span> </p> </li>
+         <li> <h4><a href="http://www.ahpbx.com/list-5/3/">Team系列</a></h4> <p> <span><a href="http://www.ahpbx.com/list-5/C01/">C01</a></span> <span><a href="http://www.ahpbx.com/list-5/C10/">C10</a></span> <span><a href="http://www.ahpbx.com/list-5/C20/">C20</a></span> </p> </li>
+         <li> <h4><a href="http://www.ahpbx.com/list-5/4/">Conference系列</a></h4> <p> <span><a href="http://www.ahpbx.com/list-5/D01/">D01</a></span> <span><a href="http://www.ahpbx.com/list-5/D10/">D10</a></span> <span><a href="http://www.ahpbx.com/list-5/D20/">D20</a></span> </p> </li> 
+        </ul> 
+        <p class="cl"></p> 
+       </div> 
+      </div> 
+     </div>
+     <div class="item"> 
+      <div class="product"> 
+       <h3> <a href="http://www.ahpbx.com/list-6/">视频会议</a> <p> <span><a href="http://www.ahpbx.com/list-6/1/"> Polycom视频会议</a></span> <span><a href="http://www.ahpbx.com/list-6/2/">SONY视频会议</a></span> </p> </h3> 
+       <i style="display:block;" class="s18"></i> 
+      </div> 
+      <div class="product-wrap posone"> 
+       <div class="goodsleft"> 
+        <ul> 
+         <li> <h4><a href="http://www.ahpbx.com/list-6/1/"> Polycom视频会议</a></h4> <p> <span><a href="http://www.ahpbx.com/list-6/A01/">管孔文件夹</a></span> <span><a href="http://www.ahpbx.com/list-6/A10/">轻便文件夹</a></span> <span><a href="http://www.ahpbx.com/list-6/A20/">资料册</a></span> <span><a href="http://www.ahpbx.com/list-6/A30/">档案盒/袋</a></span> <span><a href="http://www.ahpbx.com/list-6/A40/">分类页</a></span> <span><a href="http://www.ahpbx.com/list-6/A50/">事物/风琴包</a></span> <span><a href="http://www.ahpbx.com/list-6/A60/">板夹</a></span> <span><a href="http://www.ahpbx.com/list-6/A70/">抽杆夹</a></span> <span><a href="http://www.ahpbx.com/list-6/A80/">吊挂夹/架</a></span> <span><a href="http://www.ahpbx.com/list-6/A90/">文件套/袋</a></span> <span><a href="http://www.ahpbx.com/list-6/A100/">装钉夹/胶圈</a></span> <span><a href="http://www.ahpbx.com/list-6/110/">名片存储</a></span> <span><a href="http://www.ahpbx.com/list-6/110/">相册</a></span> </p> </li>
+         <li> <h4><a href="http://www.ahpbx.com/list-6/2/">SONY视频会议</a></h4> <p> <span><a href="http://www.ahpbx.com/list-6/B01/">B01</a></span> <span><a href="http://www.ahpbx.com/list-6/B10/">B10</a></span> </p> </li>
+         <li> <h4><a href="http://www.ahpbx.com/list-6/3/">lifesize视频会议</a></h4> <p> <span><a href="http://www.ahpbx.com/list-6/C01/">C01</a></span> </p> </li> 
+        </ul> 
+        <p class="cl"></p> 
+       </div> 
+      </div> 
+     </div>
+     <div class="item"> 
+      <div class="product"> 
+       <h3> <a href="http://www.ahpbx.com/list-7/">会议线材</a> <p> <span><a href="http://www.ahpbx.com/list-7/1/">Konftel电话会议</a></span> <span><a href="http://www.ahpbx.com/list-7/2/">Yamaha电话会议</a></span> </p> </h3> 
+       <i style="display:block;" class="s19"></i> 
+      </div> 
+      <div class="product-wrap posone"> 
+       <div class="goodsleft"> 
+        <ul> 
+         <li> <h4><a href="http://www.ahpbx.com/list-7/1/">Konftel电话会议</a></h4> <p> <span><a href="http://www.ahpbx.com/list-7/A01/">A01</a></span> </p> </li>
+         <li> <h4><a href="http://www.ahpbx.com/list-7/2/">Yamaha电话会议</a></h4> <p> <span><a href="http://www.ahpbx.com/list-7/B01/">B01</a></span> <span><a href="http://www.ahpbx.com/list-7/B10/">B10</a></span> <span><a href="http://www.ahpbx.com/list-7/B20/">B20</a></span> <span><a href="http://www.ahpbx.com/list-7/B30/">B30</a></span> <span><a href="http://www.ahpbx.com/list-7/B40/">B40</a></span> </p> </li>
+         <li> <h4><a href="http://www.ahpbx.com/list-7/3/">Clearone电话会议</a></h4> <p> <span><a href="http://www.ahpbx.com/list-7/3/C01/">C01</a></span> </p> </li> 
+        </ul> 
+        <p class="cl"></p> 
+       </div> 
+      </div> 
+     </div>
+     <div class="item"> 
+      <div class="product"> 
+       <h3> <a href="http://www.ahpbx.com/list-8/">商务礼品</a> <p> <span><a href="http://www.ahpbx.com/list-8/1/">奇朗移动推车</a></span> <span><a href="http://www.ahpbx.com/list-8/2/">艾格生移动推车</a></span> </p> </h3> 
+       <i style="display:block;" class="s20"></i> 
+      </div> 
+      <div class="product-wrap posone"> 
+       <div class="goodsleft"> 
+        <ul> 
+         <li> <h4><a href="http://www.ahpbx.com/list-8/1/">奇朗移动推车</a></h4> <p> <span><a href="http://www.ahpbx.com/list-8/A01/">A01</a></span> </p> </li>
+         <li> <h4><a href="http://www.ahpbx.com/list-8/2/">艾格生移动推车</a></h4> <p> <span><a href="http://www.ahpbx.com/list-8/B01/">B01</a></span> </p> </li>
+         <li> <h4><a href="http://www.ahpbx.com/list-8/3/">佳誉媒体中心</a></h4> <p> <span><a href="http://www.ahpbx.com/list-8/C01/">C01</a></span> </p> </li>
+         <li> <h4><a href="http://www.ahpbx.com/list-8/4/">投影机推车</a></h4> <p> <span><a href="http://www.ahpbx.com/list-8/D01/">D01</a></span> </p> </li> 
+        </ul> 
+        <p class="cl"></p> 
+       </div> 
+      </div> 
+     </div> 
+    </div> 
+    <div class="line_15"></div> 
+    <div class="Pro_Left_Main"> 
+     <div class="Pro_Left_cjcp">
+      <img src="/images/cp_tjcp_Title.jpg" width="230" height="40" />
+     </div> 
+     <div class="Pro_Left_cjcp_Main"> 
+      <div class="Pro_Left_cjcp_Pic">
+       <a href="http://www.ahpbx.com/news-1/1/481.html" target="_blank"><img src="http://www.ahpbx.com/uploads/allimg/161029/0TAa540_lit.jpg" width="190" height="125" border="0" alt="盈利模式不清 成都半数VR上市公司上半年亏损" /></a>
+      </div> 
+      <div align="center">
+       <a href="http://www.ahpbx.com/news-1/1/481.html" target="_blank">盈利模式不清 成都半数VR上市公司上半年亏</a>
+      </div> 
+     </div> 
+     <div class="Pro_Left_cjcp_Main"> 
+      <div class="Pro_Left_cjcp_Pic">
+       <a href="http://www.ahpbx.com/news-1/1/480.html" target="_blank"><img src="http://www.ahpbx.com/images/defaultpic.gif" width="190" height="125" border="0" alt="宝利通网络会议电话" /></a>
+      </div> 
+      <div align="center">
+       <a href="http://www.ahpbx.com/news-1/1/480.html" target="_blank">宝利通网络会议电话</a>
+      </div> 
+     </div> 
+     <div class="Pro_Left_cjcp_Main"> 
+      <div class="Pro_Left_cjcp_Pic">
+       <a href="http://www.ahpbx.com/news-1/1/477.html" target="_blank"><img src="http://www.ahpbx.com/images/defaultpic.gif" width="190" height="125" border="0" alt="视频会议报价及图片" /></a>
+      </div> 
+      <div align="center">
+       <a href="http://www.ahpbx.com/news-1/1/477.html" target="_blank">视频会议报价及图片</a>
+      </div> 
+     </div> 
+     <div class="Pro_Left_cjcp_Main"> 
+      <div class="Pro_Left_cjcp_Pic">
+       <a href="http://www.ahpbx.com/news-1/1/466.html" target="_blank"><img src="http://www.ahpbx.com/uploads/allimg/161027/1K203K12_lit.jpg" width="190" height="125" border="0" alt="南方电讯为湖南省统计局打造联网直报指挥调度系统" /></a>
+      </div> 
+      <div align="center">
+       <a href="http://www.ahpbx.com/news-1/1/466.html" target="_blank">南方电讯为湖南省统计局打造联网直报指挥调</a>
+      </div> 
+     </div> 
+     <div class="Pro_Left_cjcp_Main"> 
+      <div class="Pro_Left_cjcp_Pic">
+       <a href="http://www.ahpbx.com/news-1/1/454.html" target="_blank"><img src="http://www.ahpbx.com/images/defaultpic.gif" width="190" height="125" border="0" alt="深圳市艾比尔科技有限公司" /></a>
+      </div> 
+      <div align="center">
+       <a href="http://www.ahpbx.com/news-1/1/454.html" target="_blank">深圳市艾比尔科技有限公司</a>
+      </div> 
+     </div> 
+     <div class="Pro_Left_cjcp_Main"> 
+      <div class="Pro_Left_cjcp_Pic">
+       <a href="http://www.ahpbx.com/news-1/1/446.html" target="_blank"><img src="http://www.ahpbx.com/uploads/allimg/161027/091945ZT_lit.jpg" width="190" height="125" border="0" alt="宝利通2 EX会议电话扩展型杭州促销返利" /></a>
+      </div> 
+      <div align="center">
+       <a href="http://www.ahpbx.com/news-1/1/446.html" target="_blank">宝利通2 EX会议电话扩展型杭州促销返利</a>
+      </div> 
+     </div> 
+     <div class="Pro_Left_rmcp_Title">
+      <img src="/images/cp_rmcp_Title.jpg" width="230" height="40" />
+     </div> 
+     <ul class="Pro_Left_rmcp_List"> 
+      <div id="tagf82213de37e4b20e6d200cc85f64882d"> 
+       <li><a href="http://www.ahpbx.com/news-1/1/382.html" title="IP电话在宁东电力通信网末端-通信节点中的应用研究">IP电话在宁东电力通信网末端-通信节点中的应用研究</a></li> 
+       <li><a href="http://www.ahpbx.com/news-1/1/405.html" title="论基于VPN的IP电话在煤炭企业信息化中的应用">论基于VPN的IP电话在煤炭企业信息化中的应用</a></li> 
+       <li><a href="http://www.ahpbx.com/news-1/1/475.html" title="2015年视频会议市场看点不少 六大热词分析">2015年视频会议市场看点不少 六大热词分析</a></li> 
+       <li><a href="http://www.ahpbx.com/news-1/1/317.html" title="基于FreeSwitch的会议电话系统研究与实现">基于FreeSwitch的会议电话系统研究与实现</a></li> 
+       <li><a href="http://www.ahpbx.com/news-1/1/470.html" title="易用高清视频 宝利通Group550不足4万元">易用高清视频 宝利通Group550不足4万元</a></li> 
+       <li><a href="http://www.ahpbx.com/news-1/1/359.html" title="高清话质一无与伦比的VoIP话质">高清话质一无与伦比的VoIP话质</a></li> 
+       <li><a href="http://www.ahpbx.com/news-1/1/356.html" title="基于P2P的IP电话模型">基于P2P的IP电话模型</a></li> 
+       <li><a href="http://www.ahpbx.com/news-1/1/225.html" title="我市组织收听收看省2016年学校传染病防控工作电视电话会议">我市组织收听收看省2016年学校传染病防控工作电视电话会议</a></li> 
+       <li><a href="http://www.ahpbx.com/news-1/1/309.html" title="浅谈铁路会议电话到会议电视技术的发展">浅谈铁路会议电话到会议电视技术的发展</a></li> 
+       <li><a href="http://www.ahpbx.com/news-1/1/282.html" title="好会通中秋福利提前到">好会通中秋福利提前到</a></li> 
+      </div> 
+     </ul> 
+    </div> 
+   </div> 
+   <div id="Top_Right_Main"> 
+    <form name="formsearch" action="/plus/search.php"> 
+     <div class="sosuo_main"> 
+      <input name="q" type="text" class="sosuo_input" id="search-keyword" value="在这里搜索..." onfocus="if(this.value=='在这里搜索...'){this.value='';}" onblur="if(this.value==''){this.value='在这里搜索...';}" /> 
+      <div class="sosuo_botton"> 
+       <button type="submit" class="search-submit">搜索</button> 
+      </div>  
+      <div class="sosuo_hot">
+        热搜： 
+       <a href="www.ahpbx.com/list-1/" target="_blank">办公设备</a>&nbsp;&nbsp;
+       <a href="www.ahpbx.com/list-2/" target="_blank">数码产品</a>&nbsp;&nbsp;
+       <a href="www.ahpbx.com/list-3/" target="_blank">办公用品</a> 
+       <a href="www.ahpbx.com/list-4/" target="_blank">百货</a> 
+       <a href="www.ahpbx.com/list-5/" target="_blank">工业用品</a> 
+       <a href="www.ahpbx.com/list-6/" target="_blank">礼品</a> 
+       <a href="www.ahpbx.com/list-7/" target="_blank">劳保用品</a>
+      </div> 
+      <div class="clear"></div> 
+     </div>
+    </form> 
+    <div class="Pro_List_Title">
+     <strong>当前位置：</strong>
+     <a href="http://www.ahpbx.com/">安徽合肥</a> &gt; 
+     <a href="http://www.ahpbx.com/news-1/">导购专区</a> &gt; 
+     <a href="http://www.ahpbx.com/news-1/1/">产品导购</a> &gt; 
+    </div> 
+    <div id="Pro_nr_Main"> 
+     <h1 class="Pro_nr_Title">基于eXosip协议栈的SIP电话的研究与实现</h1> 
+     <div class="Pro_nr_ly">
+      安徽合肥会议电话设备网 http://www.ahpbx.com 
+     </div> 
+     <div class="Pro_nr_jj"> 
+      <div class="Pro_nr_Pic">
+       <img src="http://www.ahpbx.com/uploads/allimg/c161019/14LWI3146110-1Y39_lit.jpg" width="142" height="92" alt="基于eXosip协议栈的SIP电话的研究与实现" />
+      </div> 
+      <div class="Pro_List_Centert"> 
+       <div class="Pro_nr_jj_Title">
+        基于eXosip协议栈的SIP电话的研究与实现
+       </div> 
+       <div class="Pro_nr_jj_Text">
+         简单介绍了oSIP协议栈及eXosip协议栈 的基本内容，并在此基础上详细介绍了嵌入式SIP电话的硬件及软件设计过程，并进行试验得到了预期的效果。...
+       </div> 
+      </div> 
+     </div> 
+     <div class="Pro_nr_SubTitle">
+      <strong>基于eXosip协议栈的SIP电话的研究与实现</strong>详细介绍
+     </div> 
+     <div class="Pro_nr_Centert">
+      <p>　</p>
+      <p> SIP(Session Initiation Protoco1)称为会话初始化协议，工作在应用层，用来建立、修改、终结一个或者多个参与者会话的 进程。SIP协议是基于lP网络的实时通信应用协议，主要用来解 决lP网络上的信令控制，为因特网的成功应用提供的接入。SIP电话是通过lP网络承载语音业务，且IP电话系统、多媒体会议 控制系统在VOIP系统实现、多媒体通信系统、无线语音通信领域应用更加广泛，且大多数系统均采用SIP协议作为其信令控制协议，因此，SIP协议栈的选择和应用就显得尤为重要。 </p> 
+      <p> eXosip2是一个源码公开的、使用标准C编写的免费协议栈，是oSlP的扩展协议集，部分封装了oSIP协议栈，结构简单小巧，更容易被使用，是实现SIP协议的较好的选择。 </p> 
+      <p>1、oSIP和eXosip协议栈简介 </p> 
+      <p>1．1 oSIP协议栈特点 </p> 
+      <p> oSlP是按照RFC3261(SIP)和RFC2327(SDP)的标准，公开源代码，应用标准C语言的一个协议栈。oSlP结构简单、快速、小巧、功能齐全，在SIP客户端、服务器端和嵌入式系统等方面具有广泛的应用前景。 </p> 
+      <p> oSlP不提供高层的 SIP会话控制的API，主要提供一些解析SIP／SDP消 息的API和事务处理的状 态机。oSIP协议栈主要由 语法解析器模块、状态及模块和工具模块构成。如图1所示。 </p> 
+      <p><img src="/uploads/allimg/c161019/14LWI3146110-1Y39.jpg" alt="oSlP结构图 " width="260" height="161" class="aligncenter size-full wp-image-2902" /><br /> oSIP解析模块主要用来对SIP请求与响应进行封装和解析处理，完成SIP消息的结构分析、SDP消息结构分析和URL结构分析。 </p> 
+      <p> 状态机模块主要完成对某个事务的状态记录，并在特定的状态下出发相应的回调函数完成对该事件的响应行为。状态机的类型可分为：ICT(Invite Client Transaction)、NICT(Non―In vite Client Transaction)、IST(Invite Server Transaction)、NIST (Non-Invite Server Transaction)。 </p> 
+      <p> 工具模块主要由两部分组成：SDP协商工具和对话管理工具。SDP协商用于终端之间的能力协商功能，主要采用offer／an―swer模式，对话管理工具主要是利用协议栈提供的一些API函数来实现自己的对话管理，把不同的事务映射到相应的事务层。 </p> 
+      <p>1．2 eXosiP协议栈 </p> 
+      <p> eXosip是oSlP协议栈的一个扩展协议集，部分封装了oS-IP，使其更容易被使用。它实现了作为单个的SIP终端的大部分功能，如认证、注册、呼叫等。eXosip使用UDP socket来实现底层SIP协议的接收与发送，并且使用定时轮询的方式来调用 oSlP的事务处理函数，通过添加与读取事务消息管道的方式来 驱动事务的状态机，使得远端的SIP信令能够汇报给调用程序， 来自调用程序的反馈能通过SIP信令回传给远端。使用jevent 消息管道向上通知调用程序底层发生的事件，调用程序只需要 读取该消息管道，即可获得感兴趣的时间，进行相关的处理。 eXosip增加了call、dialog、registration、subscription等过程的解析，使其使用性更强，但由于局限于UA的实现，在register、 sip server等应用中不容易，且eXosip未增加线程并发处理机制，只实现了音频支持，缺少对视频及其他数据格式的支持。因此，oSlP与eXosip协议栈相结合是实现SIP协议栈较好的选 择，但需要根据不同的需求增加相应的内容。</p> 
+      <p>2、SIP电话的设计 </p> 
+      <p>2．1系统总体设计 </p> 
+      <p> eXosip是分布式的协议栈，采用 C／S结构的消息机制，将控制信息封装到消息的头域中，通过消息的传递来实现呼叫控制。与基于其他协议如H．323协议的IP电话相比，利用eXosip协议栈实现的SIP电话结构更加小巧，更加的智能化，更加简单灵活、可扩展性强，可传递数据、控制信息等，实现呼叫、注册、接听、挂断 等功能。SIP终端系统的总体架构主要由3部分组成：底层硬件平台部分、操作系统、SIP终端软件系统(应用程序)。设计框架如图2所示。</p> 
+      <p><img src="/uploads/allimg/c161019/14LWI31KP-2R50.jpg" alt="SIP电话系统总体框架图 " width="318" height="197" class="aligncenter size-full wp-image-2903" /></p> 
+      <p>2．2硬件设计 </p> 
+      <p><img src="/uploads/allimg/c161019/14LWI3221110-32c6.jpg" alt="图3硬件设计框图 " width="268" height="166" class="aligncenter size-full wp-image-2904" /></p> 
+      <p> 本设计硬件部分采用三星公司的ARM9开发板Mini2440，以Samsung S3C2440为微处理器，包含专业稳定的硬件特性，该设 计硬件主要包含以下几部分：电源系统，复位系统，网络通信系统，串口通信部分及JTAG调试部分。 </p> 
+      <p> 经过大量的资料收集，选择Mini2440开发板，该处理器集 成度高，外围电路简单，高性价比，低功耗，基于ARM92OT内 核，主频为400MHz，最高可达533MHz，非常适用于手持设备和网络应用，能够满足嵌入式系统对于体积小、低成本、低功耗、高性能的要求。 </p> 
+      <p> 存储系统包括,~DRAM内存和Flash存储。该开发板采用两片外接的共64M bytes的SDRAM芯片，并接形成32．bit的 总线数据宽度，增加了访问速度，用于运行操作系统和应用程序。Mini2440具备两种Flash：Nor Flash和Nand Flash，本设计中使用Nand Flash，主要用来存储操作系统、应用程序和用户数据等。 </p> 
+      <p> 网络接口采用DM9000网卡芯片，可以自适应1O／10OM 网络。 </p> 
+      <p>2．3软件设计流程 </p> 
+      <p> 软件系统的设计主要包含两个方面：协议栈层和用户程序层。协议栈层主要实现的是消息解析，UAS及UAC事务处理，多媒体流的传输等功能，主要包括SIP模块和RTP模块，应用socket的 模式与上层进行信息交换，本设计采用eXosip2协议栈和oRTP 协议栈来实现。用户程序层主要由用户交互模块，用户代理模块及语音处理模块等组成。用户交互模块主要负责接收用户输入的信息，同时向用户反馈底层的信息。用户代理模块则根据用户的请求类型去调用协议栈层的功能，实现eXosip的回调，同时将结果反馈给用户。语音处理模块主要实现音频的编解码功能。 </p> 
+      <p>2．3．1协议栈层 </p> 
+      <p> eXosip是一个分布式的协议栈，采用C／S结构的消息机制，提供SIP操作所需的基本数据结构和各种应用程序编程接口，将控制信息封装到消息头域中，通过消息的传递来实现呼叫控制。点到点的呼叫流程如下：首先，用户要想服务器端发起注册请求，平台进行鉴权分析，确认用户注册权限并接受注册请求。用户代理U1向服务器端发出lNVITE请求发起会话，并通过服务器设备转发，到达另一用户代理U2，若U2同意建立本次会话，返回2xx响应，不同意则返回 3xx、4xx、5xx、6xx响应。在U1收到最终响应之前，U2可发送临时响应通知U1当前处理进展。U1收到服务器端的响应后，发送ACK确认收到响应，之后便建立会话，消息传输结束时一方发送Bye请求，另一方给一个200响应结束会话，流程如图4所示。 </p> 
+      <p><img src="/uploads/allimg/c161019/14LWI324LF-4U08.jpg" alt="会话流程图 " width="183" height="238" class="aligncenter size-full wp-image-2905" /></p> 
+     </div> 
+     <div class="Pro_nr_tishi">
+      本产品基于eXosip协议栈的SIP电话的研究与实现信息来源于安徽合肥会议电话设备网 http://www.ahpbx.com 转载请注明出处！
+      <br /> 
+     </div> 
+     <div class="Pro_nr_SubTitle">
+      最新办公用品产品图片
+     </div> 
+     <div class="Pro_nr_NewPro"> 
+      <div class="Top_cxcp_cp"> 
+       <div class="Top_cxcp_cp_Pic">
+        <a href="http://www.ahpbx.com/list-1/61.html" target="_blank"><img src="http://www.ahpbx.com/uploads/100311/161021/1-161021200J0P7.jpg" border="0" width="140" height="92" alt="宝利通会议设备大卖场" /></a>
+       </div> 
+       <div class="Top_cxcp_cp_Title">
+        <a href="http://www.ahpbx.com/list-1/61.html" target="_blank">宝利通会议设备大卖场</a>
+       </div> 
+      </div> 
+      <div class="clear"></div> 
+     </div> 
+     <div class="Pro_nr_SubTitle">
+      与基于eXosip协议栈的SIP电话的研究与实现相关资讯
+     </div> 
+     <div class="Pro_nr_xgzx"> 
+      <div> 
+       <a href="http://www.ahpbx.com/news-1/1/416.html" target="_blank"> 基于RTP协议与SIP协议的VOIP系统</a> 
+       <a href="http://www.ahpbx.com/news-1/1/409.html" target="_blank">基于SIP的IP电话终端软件设计</a> 
+       <a href="http://www.ahpbx.com/news-1/1/401.html" target="_blank">基于AR1688的IP电话机的解决方案</a> 
+       <a href="http://www.ahpbx.com/news-1/1/400.html" target="_blank">基于ARM9微处理器S3C2410的IP电话通信设计</a> 
+       <a href="http://www.ahpbx.com/news-1/1/399.html" target="_blank">基于SIP协议嵌人式IP电话的研究</a> 
+       <a href="http://www.ahpbx.com/news-1/1/398.html" target="_blank">基于VolP的SIP服务器和嵌入式终端的研究和实现</a> 
+       <a href="http://www.ahpbx.com/news-1/1/388.html" target="_blank">利用N2000网管进行IP电话故障处理的摸索</a> 
+       <a href="http://www.ahpbx.com/news-1/1/387.html" target="_blank">IP电话与模拟电话互通实现方法</a> ------- 
+       <div class="Pro_nr_SubTitle">
+        最新资讯
+       </div> 
+       <div class="Pro_nr_xgzx"> 
+        <a href="http://www.ahpbx.com/news-4/700.html">宝利通会议电话SoundStation2W报</a> 
+        <a href="http://www.ahpbx.com/news-4/699.html">宝利通电话SoundStation 2标准型</a> 
+        <a href="http://www.ahpbx.com/news-4/698.html">宝利通 2标准型会议电话济南仅36</a> 
+        <a href="http://www.ahpbx.com/news-4/697.html">宝利通集团电话PolycomSoundStat</a> 
+        <a href="http://www.ahpbx.com/news-1/694.html">宝利通（POLYCOM）soundstation2</a> 
+        <a href="http://www.ahpbx.com/news-1/693.html">Polycom宝利通HDX7000</a> 
+        <a href="http://www.ahpbx.com/news-3/686.html">宝利通SoundStation 2扩展型报价</a> 
+        <a href="http://www.ahpbx.com/news-3/685.html">宝利通视频会议的整合方案迅速刷</a> 
+        <div class="clear"></div> 
+       </div> 
+      </div> 
+     </div> 
+    </div> 
+   </div> 
+   <div class="clear"></div> 
+  </div> 
+  <div id="banquan"> 
+   <div id="banquan_Title">
+    合作伙伴 &amp; 友情链接 
+   </div> 
+   <div id="Links_Content"> 
+    <ul> 
+     <!-- <li><a href='http://www.ahpbx.com/diqu/wuhu/' target='_blank'>芜湖</a> </li> <li><a href='http://www.ahpbx.com/diqu/maanshan/' target='_blank'>马鞍山办公用品</a> </li> <li><a href='http://www.ahpbx.com/diqu/tongling/' target='_blank'>铜陵办公用品</a> </li> <li><a href='http://www.ahpbx.com/diqu/chizhou/' target='_blank'>池州办公用品</a> </li> <li><a href='http://www.ahpbx.com/diqu/xuancheng/' target='_blank'>宣城办公用品</a> </li> <li><a href='http://www.ahpbx.com/diqu/huangshan/' target='_blank'>黄山办公用品</a> </li> <li><a href='http://www.ahpbx.com/diqu/chaohu/' target='_blank'>巢湖办公用品</a> </li> <li><a href='http://www.ahpbx.com/diqu/liuan/' target='_blank'>六安办公用品</a> </li> <li><a href='http://www.ahpbx.com/diqu/anqing/' target='_blank'>安庆</a> </li> <li><a href='http://www.ahpbx.com/diqu/huainan/' target='_blank'>淮南</a> </li> <li><a href='http://www.ahpbx.com/diqu/huaibei/' target='_blank'>淮北</a> </li> <li><a href='http://www.ahpbx.com/diqu/bangbu/' target='_blank'>蚌埠</a> </li> <li><a href='http://www.ahpbx.com/diqu/fuyang/' target='_blank'>阜阳</a> </li> <li><a href='http://www.ahpbx.com/diqu/suzhou/' target='_blank'>宿州</a> </li> <li><a href='http://www.ahpbx.com/diqu/bozhou/' target='_blank'>亳州</a> </li> <li><a href='http://www.ahpbx.com/diqu/chuzhou/' target='_blank'>滁州</a> </li>  --> 
+     <li><a href="http://www.222.com" target="_blank">合肥</a> </li>
+     <li><a href="http://www.ah12345.com" target="_blank">安徽</a> </li>
+     <li><a href="http://www.ah12345.com" target="_blank">安徽</a> </li>
+     <li><a href="http://www.ah12345.com" target="_blank">安徽办公</a> </li>
+     <li><a href="http://www.ah12345.com/data/baidunews.xml" target="_blank">百度</a> </li>
+     <li><a href="http://www.ah12345.com" target="_blank">安徽办公用品</a> </li>
+     <li><a href="http://www.ah12345.com" target="_blank">合肥滨湖办公用品</a> </li>
+     <li><a href="http://www.ah12345.com" target="_blank">合肥巢湖</a> </li>
+     <li><a href="http://www.ah12345.com" target="_blank">合肥办公用品采购</a> </li>
+     <li><a href="http://www.ah12345.com" target="_blank">合肥</a> </li>
+     <li><a href="http://www.ah12345.com" target="_blank">合肥</a> </li>
+     <li><a href="http://www.ah12345.com" target="_blank">合肥办公用品</a> </li>
+     <li><a href="http://www.ah12345.com" target="_blank">合肥论坛</a> </li> 
+    </ul> 
+    <div class="clear"></div> 
+   </div> 
+  </div> 
+  <p align="center"> <img border="0" src="/images/topbanner.jpg" width="990" height="38" /></p> 
+  <div align="center" id="banquan_main">
+   分类地区： 
+   <a href="http://www.ahpbx.com/diqu/wuhu/" target="_blank">芜湖</a> | 
+   <a href="http://www.ahpbx.com/diqu/maanshan/" target="_blank">马鞍山办公用品</a> | 
+   <a href="http://www.ahpbx.com/diqu/tongling/" target="_blank">铜陵办公用品</a> | 
+   <a href="http://www.ahpbx.com/diqu/chizhou/" target="_blank">池州办公用品</a> | 
+   <a href="http://www.ahpbx.com/diqu/xuancheng/" target="_blank">宣城办公用品</a> | 
+   <a href="http://www.ahpbx.com/diqu/huangshan/" target="_blank">黄山办公用品</a> | 
+   <a href="http://www.ahpbx.com/diqu/chaohu/" target="_blank">巢湖办公用品</a> | 
+   <a href="http://www.ahpbx.com/diqu/liuan/" target="_blank">六安办公用品</a> | 
+   <a href="http://www.ahpbx.com/diqu/anqing/" target="_blank">安庆</a> | 
+   <a href="http://www.ahpbx.com/diqu/huainan/" target="_blank">淮南</a> | 
+   <a href="http://www.ahpbx.com/diqu/huaibei/" target="_blank">淮北</a> | 
+   <a href="http://www.ahpbx.com/diqu/bangbu/" target="_blank">蚌埠</a> | 
+   <a href="http://www.ahpbx.com/diqu/fuyang/" target="_blank">阜阳</a> | 
+   <a href="http://www.ahpbx.com/diqu/suzhou/" target="_blank">宿州</a> | 
+   <a href="http://www.ahpbx.com/diqu/bozhou/" target="_blank">亳州</a> | 
+   <a href="http://www.ahpbx.com/diqu/chuzhou/" target="_blank">滁州</a> | 
+   <br />
+   <a href="http://www.ahpbx.com/rss.xml" target="_blank">网站RSS</a> | 
+   <a href="http://www.ahpbx.com/sitemap.html" target="_blank">网站地图</a> | 
+   <a href="http://www.ahpbx.com/baidumap.xml" target="_blank">百度地图</a> | 
+   <a href="http://www.ahpbx.com/tags.html" target="_blank">网站TAG</a> 2017 版权所有.All Rights Reserved.全国统一销售热线：0551-63645505 联系电话：0551-63645505 
+   <br /> 
+  </div> 
+  <br /> 
+  <br /> 
+  <link href="http://www.ahpbx.com/kefu/css/dedejs.css" rel="stylesheet" type="text/css" /> 
+  <script type="text/javascript" src="http://www.ahpbx.com/kefu/js/jquery-1.8.0.min.js"></script> 
+  <script type="text/javascript" src="http://www.ahpbx.com/kefu/js/dedejs.js"></script> 
+  <!-- 代码 开始 --> 
+  <div class="scrollsidebar" id="scrollsidebar"> 
+   <div class="side_content"> 
+    <div class="side_list"> 
+     <div class="side_title">
+      <a title="隐藏" class="close_btn"><span>关闭</span></a>
+     </div> 
+     <div class="side_center"> 
+      <div class="custom_service"> 
+       <p> <a title="点击这里给我发消息" href="http://wpa.qq.com/msgrd?v=3&amp;uin=45481697&amp;site=www.cactussoft.cn&amp;menu=yes" target="_blank"><img src="http://wpa.qq.com/pa?p=2:45481697:41" /></a> </p>
+       <p> <a title="点击这里给我发消息" href="http://wpa.qq.com/msgrd?v=3&amp;uin=45481697&amp;site=www.cactussoft.cn&amp;menu=yes" target="_blank"><img src="http://wpa.qq.com/pa?p=2:45481697:41" /></a> </p> 
+       <p> <a title="点击这里给我发消息" href="http://wpa.qq.com/msgrd?v=3&amp;uin=45481697&amp;site=www.cactussoft.cn&amp;menu=yes" target="_blank"><img src="http://wpa.qq.com/pa?p=2:45481697:41" /></a> </p> 
+       <p> <a title="点击这里给我发消息" href="http://wpa.qq.com/msgrd?v=3&amp;uin=45481697&amp;site=www.cactussoft.cn&amp;menu=yes" target="_blank"><img src="http://wpa.qq.com/pa?p=2:45481697:41" /></a> </p> 
+       <p></p> 
+      </div> 
+      <div class="other"> 
+       <p>企业公司客户服务热线: 0551-63645505</p> 
+      </div> 
+      <div class="msgserver"> 
+       <p> 您的满意,是我们的期望;您的期望,是我们的追求!</p> 
+       <p><img src="http://www.ahpbx.com/kefu/images/qrcode.jpg" /></p> 
+      </div> 
+     </div> 
+     <div class="side_bottom"></div> 
+    </div> 
+   </div> 
+   <div class="show_btn">
+    <span>在线客服</span>
+   </div> 
+  </div> 
+  <!-- 代码 结束 --> 
+  <script type="text/javascript"> 
+$(function() { 
+	$("#scrollsidebar").fix({
+		float : 'right',	//default.left or right
+		//minStatue : true,
+		skin : 'green',	//green or blue
+		durationTime : 600
+	});
+});
+</script> 
+  <script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_1113285'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s13.cnzz.com/stat.php%3Fid%3D1113285%26show%3Dpic1' type='text/javascript'%3E%3C/script%3E"));</script>   
+ </body>
+</html>

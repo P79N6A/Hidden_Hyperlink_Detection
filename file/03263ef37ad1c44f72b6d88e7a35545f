@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+ <head> 
+  <meta charset="UTF-8" /> 
+  <meta name="viewport" content="width=device-width, initial-scale=1" /> 
+  <title>Laravel 支付解决方案之 Laravel Cashier （一）—— 安装配置篇  –  Laravel学院</title> 
+  <meta name="keywords" content="Laravel学院,Laravel,Lumen,PHP,PHP框架,文档,教程,中文,资源,学习" /> 
+  <meta name="description" content="Laravel学院致力于提供优质Laravel中文学习资源" /> 
+  <link rel="profile" href="http://gmpg.org/xfn/11" /> 
+  <link rel="pingback" href="http://laravelacademy.org/xmlrpc.php" /> 
+  <link rel="shortcut icon" href="/favicon.png" title="Favicon" /> 
+  <link rel="dns-prefetch" href="//s.w.org" /> 
+  <link rel="alternate" type="application/rss+xml" title="Laravel学院 &raquo; Feed" href="http://laravelacademy.org/feed" /> 
+  <link rel="alternate" type="application/rss+xml" title="Laravel学院 &raquo; 评论Feed" href="http://laravelacademy.org/comments/feed" /> 
+  <link rel="alternate" type="application/rss+xml" title="Laravel学院 &raquo; Laravel 支付解决方案之 Laravel Cashier （一）—— 安装配置篇评论Feed" href="http://laravelacademy.org/post/1403.html/feed" /> 
+  <script type="text/javascript">
+			window._wpemojiSettings = {"baseUrl":"https:\/\/s.w.org\/images\/core\/emoji\/2.2.1\/72x72\/","ext":".png","svgUrl":"https:\/\/s.w.org\/images\/core\/emoji\/2.2.1\/svg\/","svgExt":".svg","source":{"concatemoji":"http:\/\/laravelacademy.org\/wp-includes\/js\/wp-emoji-release.min.js?ver=4.7.3"}};
+			!function(a,b,c){function d(a){var b,c,d,e,f=String.fromCharCode;if(!k||!k.fillText)return!1;switch(k.clearRect(0,0,j.width,j.height),k.textBaseline="top",k.font="600 32px Arial",a){case"flag":return k.fillText(f(55356,56826,55356,56819),0,0),!(j.toDataURL().length<3e3)&&(k.clearRect(0,0,j.width,j.height),k.fillText(f(55356,57331,65039,8205,55356,57096),0,0),b=j.toDataURL(),k.clearRect(0,0,j.width,j.height),k.fillText(f(55356,57331,55356,57096),0,0),c=j.toDataURL(),b!==c);case"emoji4":return k.fillText(f(55357,56425,55356,57341,8205,55357,56507),0,0),d=j.toDataURL(),k.clearRect(0,0,j.width,j.height),k.fillText(f(55357,56425,55356,57341,55357,56507),0,0),e=j.toDataURL(),d!==e}return!1}function e(a){var c=b.createElement("script");c.src=a,c.defer=c.type="text/javascript",b.getElementsByTagName("head")[0].appendChild(c)}var f,g,h,i,j=b.createElement("canvas"),k=j.getContext&&j.getContext("2d");for(i=Array("flag","emoji4"),c.supports={everything:!0,everythingExceptFlag:!0},h=0;h<i.length;h++)c.supports[i[h]]=d(i[h]),c.supports.everything=c.supports.everything&&c.supports[i[h]],"flag"!==i[h]&&(c.supports.everythingExceptFlag=c.supports.everythingExceptFlag&&c.supports[i[h]]);c.supports.everythingExceptFlag=c.supports.everythingExceptFlag&&!c.supports.flag,c.DOMReady=!1,c.readyCallback=function(){c.DOMReady=!0},c.supports.everything||(g=function(){c.readyCallback()},b.addEventListener?(b.addEventListener("DOMContentLoaded",g,!1),a.addEventListener("load",g,!1)):(a.attachEvent("onload",g),b.attachEvent("onreadystatechange",function(){"complete"===b.readyState&&c.readyCallback()})),f=c.source||{},f.concatemoji?e(f.concatemoji):f.wpemoji&&f.twemoji&&(e(f.twemoji),e(f.wpemoji)))}(window,document,window._wpemojiSettings);
+		</script> 
+  <style type="text/css">
+img.wp-smiley,
+img.emoji {
+	display: inline !important;
+	border: none !important;
+	box-shadow: none !important;
+	height: 1em !important;
+	width: 1em !important;
+	margin: 0 .07em !important;
+	vertical-align: -0.1em !important;
+	background: none !important;
+	padding: 0 !important;
+}
+</style> 
+  <link rel="stylesheet" id="font-awesome-css" href="http://laravelacademy.org/wp-content/themes/wp-knowledge-base/lib/bootstrap/css/font-awesome.css" type="text/css" media="screen" /> 
+  <link rel="stylesheet" id="wp-pagenavi-css" href="http://laravelacademy.org/wp-content/plugins/wp-pagenavi/pagenavi-css.css?ver=2.70" type="text/css" media="all" /> 
+  <link rel="stylesheet" id="ipt_kb-style-css" href="http://laravelacademy.org/wp-content/themes/wp-knowledge-base/style.css?ver=1.6.0" type="text/css" media="all" /> 
+  <link rel="stylesheet" id="ipt_kb-bootstrap-css" href="http://laravelacademy.org/wp-content/themes/wp-knowledge-base/lib/bootstrap/css/bootstrap.min.css?ver=1.6.0" type="text/css" media="all" /> 
+  <link rel="stylesheet" id="ipt_kb-bootstrap-theme-css" href="http://laravelacademy.org/wp-content/themes/wp-knowledge-base/lib/bootstrap/css/bootstrap-theme.min.css?ver=1.6.0" type="text/css" media="all" /> 
+  <link rel="stylesheet" id="ipt_kb-icomoon-css" href="http://laravelacademy.org/wp-content/themes/wp-knowledge-base/lib/icomoon/style.css?ver=1.6.0" type="text/css" media="all" /> 
+  <link rel="stylesheet" id="ipt_kb-fix-css" href="http://laravelacademy.org/wp-content/themes/wp-knowledge-base/lib/fix/fix.css?ver=1.6.0-1.6.3" type="text/css" media="all" /> 
+  <script type="text/javascript" src="http://laravelacademy.org/wp-includes/js/jquery/jquery.js?ver=1.12.4"></script> 
+  <script type="text/javascript" src="http://laravelacademy.org/wp-includes/js/jquery/jquery-migrate.min.js?ver=1.4.1"></script> 
+  <script type="text/javascript" src="http://laravelacademy.org/wp-content/themes/wp-knowledge-base/lib/bootstrap/js/bootstrap.min.js?ver=1.6.0"></script> 
+  <script type="text/javascript" src="http://laravelacademy.org/wp-content/themes/wp-knowledge-base/lib/bootstrap/js/jquery.ipt-kb-bootstrap.js?ver=1.6.0"></script> 
+  <script type="text/javascript" src="http://laravelacademy.org/wp-content/themes/wp-knowledge-base/lib/sticky-kit/jquery.sticky-kit.min.js?ver=1.6.0"></script> 
+  <script type="text/javascript">
+/* <![CDATA[ */
+var iptKBJS = {"ajaxurl":"http:\/\/laravelacademy.org\/wp-admin\/admin-ajax.php","ajax_error":"Oops, some problem to connect. Try again?"};
+/* ]]> */
+</script> 
+  <script type="text/javascript" src="http://laravelacademy.org/wp-content/themes/wp-knowledge-base/js/ipt-kb.js?ver=1.6.0"></script> 
+  <link rel="https://api.w.org/" href="http://laravelacademy.org/wp-json/" /> 
+  <link rel="EditURI" type="application/rsd+xml" title="RSD" href="http://laravelacademy.org/xmlrpc.php?rsd" /> 
+  <link rel="wlwmanifest" type="application/wlwmanifest+xml" href="http://laravelacademy.org/wp-includes/wlwmanifest.xml" /> 
+  <link rel="prev" title="使用 Laravel 快速构建网站系列 —— 内容管理系统：PyroCMS" href="http://laravelacademy.org/post/1391.html" /> 
+  <link rel="next" title="如何在 Laravel 中渲染不包含布局的视图" href="http://laravelacademy.org/post/1420.html" /> 
+  <meta name="generator" content="WordPress 4.7.3" /> 
+  <link rel="canonical" href="http://laravelacademy.org/post/1403.html" /> 
+  <link rel="shortlink" href="http://laravelacademy.org/?p=1403" /> 
+  <link rel="alternate" type="application/json+oembed" href="http://laravelacademy.org/wp-json/oembed/1.0/embed?url=http%3A%2F%2Flaravelacademy.org%2Fpost%2F1403.html" /> 
+  <link rel="alternate" type="text/xml+oembed" href="http://laravelacademy.org/wp-json/oembed/1.0/embed?url=http%3A%2F%2Flaravelacademy.org%2Fpost%2F1403.html&amp;format=xml" /> 
+  <style>
+.scroll-back-to-top-wrapper {
+    position: fixed;
+	opacity: 0;
+	visibility: hidden;
+	overflow: hidden;
+	text-align: center;
+	z-index: 99999999;
+    background-color: #e74430;
+	color: #eeeeee;
+	width: 50px;
+	height: 48px;
+	line-height: 48px;
+	right: 30px;
+	bottom: 30px;
+	padding-top: 2px;
+	border-top-left-radius: 10px;
+	border-top-right-radius: 10px;
+	border-bottom-right-radius: 10px;
+	border-bottom-left-radius: 10px;
+	-webkit-transition: all 0.5s ease-in-out;
+	-moz-transition: all 0.5s ease-in-out;
+	-ms-transition: all 0.5s ease-in-out;
+	-o-transition: all 0.5s ease-in-out;
+	transition: all 0.5s ease-in-out;
+}
+.scroll-back-to-top-wrapper:hover {
+	background-color: #f4645f;
+  color: #eeeeee;
+}
+.scroll-back-to-top-wrapper.show {
+    visibility:visible;
+    cursor:pointer;
+	opacity: 1.0;
+}
+.scroll-back-to-top-wrapper i.fa {
+	line-height: inherit;
+}
+.scroll-back-to-top-wrapper .fa-lg {
+	vertical-align: 0;
+}
+</style>
+  <script type="text/javascript">
+	window._wp_rp_static_base_url = 'https://wprp.zemanta.com/static/';
+	window._wp_rp_wp_ajax_url = "http://laravelacademy.org/wp-admin/admin-ajax.php";
+	window._wp_rp_plugin_version = '3.6.3';
+	window._wp_rp_post_id = '1403';
+	window._wp_rp_num_rel_posts = '5';
+	window._wp_rp_thumbnails = false;
+	window._wp_rp_post_title = 'Laravel+%E6%94%AF%E4%BB%98%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88%E4%B9%8B+Laravel+Cashier+%EF%BC%88%E4%B8%80%EF%BC%89%E2%80%94%E2%80%94+%E5%AE%89%E8%A3%85%E9%85%8D%E7%BD%AE%E7%AF%87';
+	window._wp_rp_post_tags = ['%E5%AE%89%E8%A3%85', 'laravel', '%E6%94%AF%E4%BB%98', 'stripe', 'cashier', '%E9%85%8D%E7%BD%AE', '%E5%AE%9E%E4%BE%8B%E6%95%99%E7%A8%8B', '%E7%83%AD%E9%97%A8%E5%8C%85', 'implement', 'gt', 'date', 'user', 'secret', 'protect', 'artisan', 'class', 'extend', 'model', 'publish', 'stripe', 'kei'];
+	window._wp_rp_promoted_content = true;
+</script> 
+  <link rel="stylesheet" href="http://laravelacademy.org/wp-content/plugins/wordpress-23-related-posts-plugin/static/themes/modern.css?version=3.6.3" /> 
+  <style type="text/css">.recentcomments a{display:inline !important;padding:0 !important;margin:0 !important;}</style> 
+ </head> 
+ <body class="post-template-default single single-post postid-1403 single-format-standard group-blog"> 
+  <div id="page" class="hfeed site"> 
+   <header id="masthead" class="site-header" role="banner"> 
+    <nav class="navbar navbar-default navbar-static-top main-navigation" role="navigation" id="site_navigation"> 
+     <div class="container"> 
+      <!-- Brand and toggle get grouped for better mobile display --> 
+      <div class="navbar-header"> 
+       <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse"> <span class="sr-only">Toggle navigation</span> <span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span> </button> 
+       <a class="site-anchor" href="http://laravelacademy.org/"> <img src="http://laravelacademy.org/wp-content/themes/wp-knowledge-base/logo.png" width="200" height="50" alt="" /> </a> 
+      </div> 
+      <!-- Collect the nav links, forms, and other content for toggling --> 
+      <div class="collapse navbar-collapse navbar-ex1-collapse"> 
+       <ul id="menu-%e5%af%bc%e8%88%aa%e8%8f%9c%e5%8d%95" class="nav navbar-nav">
+        <li id="menu-item-7" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-has-children menu-item-7 dropdown"><a title="文档" href="#" data-toggle="dropdown" class="dropdown-toggle">文档 <span class="caret"></span></a> 
+         <ul role="menu" class=" dropdown-menu"> 
+          <li id="menu-item-6676" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-6676"><a title="Laravel 5.4" href="http://laravelacademy.org/laravel-docs-5_4">Laravel 5.4</a></li> 
+          <li id="menu-item-5711" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-5711"><a title="Laravel 5.3" href="http://laravelacademy.org/laravel-docs-5_3">Laravel 5.3</a></li> 
+          <li id="menu-item-2931" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-2931"><a title="Laravel 5.2" href="http://laravelacademy.org/laravel-docs-5_2">Laravel 5.2</a></li> 
+          <li id="menu-item-285" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-285"><a title="Laravel 5.1" href="http://laravelacademy.org/laravel-docs-5_1">Laravel 5.1</a></li> 
+          <li id="menu-item-508" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-508"><a title="Lumen" href="http://laravelacademy.org/lumen-docs">Lumen</a></li> 
+         </ul> </li> 
+        <li id="menu-item-3168" class="menu-item menu-item-type-taxonomy menu-item-object-category current-post-ancestor menu-item-has-children menu-item-3168 dropdown"><a title="教程" href="#" data-toggle="dropdown" class="dropdown-toggle">教程 <span class="caret"></span></a> 
+         <ul role="menu" class=" dropdown-menu"> 
+          <li id="menu-item-948" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-948"><a title="基础教程" href="http://laravelacademy.org/laravel-tutorial-5_1">基础教程</a></li> 
+          <li id="menu-item-2122" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-2122"><a title="博客系列" href="http://laravelacademy.org/tutorials/blog">博客系列</a></li> 
+          <li id="menu-item-3513" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-3513"><a title="新特性系列" href="http://laravelacademy.org/tutorials/feature">新特性系列</a></li> 
+          <li id="menu-item-5612" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-5612"><a title="Vue入门教程" href="http://laravelacademy.org/tutorials/vuejs">Vue入门教程</a></li> 
+         </ul> </li> 
+        <li id="menu-item-671" class="menu-item menu-item-type-taxonomy menu-item-object-category current-post-ancestor menu-item-has-children menu-item-671 dropdown"><a title="项目" href="#" data-toggle="dropdown" class="dropdown-toggle">项目 <span class="caret"></span></a> 
+         <ul role="menu" class=" dropdown-menu"> 
+          <li id="menu-item-2044" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-2044"><a title="网站" href="http://laravelacademy.org/project/website">网站</a></li> 
+          <li id="menu-item-1327" class="menu-item menu-item-type-taxonomy menu-item-object-category current-post-ancestor current-menu-parent current-post-parent menu-item-1327"><a title="扩展包" href="http://laravelacademy.org/project/packages">扩展包</a></li> 
+         </ul> </li> 
+        <li id="menu-item-159" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-has-children menu-item-159 dropdown"><a title="资源" href="#" data-toggle="dropdown" class="dropdown-toggle">资源 <span class="caret"></span></a> 
+         <ul role="menu" class=" dropdown-menu"> 
+          <li id="menu-item-2482" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-2482"><a title="设计模式" href="http://laravelacademy.org/resources/design-patterns">设计模式</a></li> 
+          <li id="menu-item-644" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-644"><a title="代码片段" href="http://laravelacademy.org/resources/code">代码片段</a></li> 
+          <li id="menu-item-3187" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-3187"><a title="运维部署" href="http://laravelacademy.org/resources/linux">运维部署</a></li> 
+          <li id="menu-item-3178" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-3178"><a title="编辑器" href="http://laravelacademy.org/resources/editor">编辑器</a></li> 
+          <li id="menu-item-680" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-680"><a title="工具系列" href="http://laravelacademy.org/resources/tools">工具系列</a></li> 
+          <li id="menu-item-5343" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-5343"><a title="读书笔记" href="http://laravelacademy.org/resources/notebook">读书笔记</a></li> 
+          <li id="menu-item-410" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-410"><a title="相关下载" href="http://laravelacademy.org/resources-download">相关下载</a></li> 
+         </ul> </li> 
+        <li id="menu-item-4225" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-has-children menu-item-4225 dropdown"><a title="现代PHP" href="#" data-toggle="dropdown" class="dropdown-toggle">现代PHP <span class="caret"></span></a> 
+         <ul role="menu" class=" dropdown-menu"> 
+          <li id="menu-item-4226" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-4226"><a title="新特性" href="http://laravelacademy.org/modern-php/feature-modern-php">新特性</a></li> 
+          <li id="menu-item-4513" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-4513"><a title="最佳实践" href="http://laravelacademy.org/modern-php/best-practice">最佳实践</a></li> 
+          <li id="menu-item-4496" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-4496"><a title="编码规范" href="https://github.com/PizzaLiu/PHP-FIG">编码规范</a></li> 
+          <li id="menu-item-2397" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-2397"><a title="PHP 7" href="http://laravelacademy.org/resources/php7">PHP 7</a></li> 
+         </ul> </li> 
+        <li id="menu-item-3999" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-3999"><a title="问答" href="http://forum.laravelacademy.org">问答</a></li> 
+        <li id="menu-item-6268" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-6268"><a title="招聘" href="http://forum.laravelacademy.org/t/job">招聘</a></li> 
+        <li id="menu-item-599" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-599"><a title="新闻" href="http://laravelacademy.org/news">新闻</a></li> 
+        <li id="menu-item-6287" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-6287"><a title="投稿" href="http://forum.laravelacademy.org/t/tutorial">投稿</a></li> 
+        <li id="menu-item-1939" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-1939"><a title="捐赠" href="http://laravelacademy.org/donate-us">捐赠</a></li> 
+        <li id="menu-item-38" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-38"><a title="关于学院" href="http://laravelacademy.org/about-us">关于学院</a></li> 
+       </ul> 
+      </div> 
+     </div> 
+    </nav> 
+   </header>
+   <!-- #masthead --> 
+   <div id="content" class="site-content container"> 
+    <ol id="breadcrumbs" class="breadcrumb" xmlns:v="http://rdf.data-vocabulary.org/#"> 
+     <li typeof="v:Breadcrumb"> <a rel="v:url" property="v:title" href="http://laravelacademy.org/">首页</a> </li> 
+     <li typeof="v:Breadcrumb"> <a rel="v:url" property="v:title" href="http://laravelacademy.org/tutorials">教程</a> </li> 
+     <li typeof="v:Breadcrumb"> <a rel="v:url" property="v:title" href="http://laravelacademy.org/tutorials/basic">基础教程</a> </li> 
+     <li class="active" typeof="v:Breadcrumb"> <span property="v:title">Laravel 支付解决方案之 Laravel Cashier （一）—— 安装配置篇</span> </li> 
+    </ol> 
+    <div id="primary" class="content-area col-md-8"> 
+     <main id="main" class="site-main" role="main"> 
+      <article id="post-1403" class="post-1403 post type-post status-publish format-standard has-post-thumbnail hentry category-basic category-packages tag-cashier tag-laravel tag-stripe tag-11 tag-308 tag-12"> 
+       <header class="entry-header page-header"> 
+        <h1 class="entry-title">Laravel 支付解决方案之 Laravel Cashier （一）—— 安装配置篇</h1> 
+        <div class="entry-meta text-muted"> 
+         <span class="posted-on"><i class="glyphicon glyphicon-calendar"></i> Posted on <a href="http://laravelacademy.org/post/1403.html" rel="bookmark"><time class="entry-date published" datetime="2015-10-20T23:58:35+00:00">2015年10月20日</time><time class="updated" datetime="2015-10-23T09:43:04+00:00">2015年10月23日</time></a></span>
+         <span class="byline"> by <span class="author vcard"><i class="glyphicon glyphicon-user"></i> <a class="url fn n" href="http://laravelacademy.org/post/author/nonfu">学院君</a></span></span> 
+        </div>
+        <!-- .entry-meta --> 
+       </header>
+       <!-- .entry-header --> 
+       <div class="entry-content"> 
+        <p><img class=" size-full wp-image-1404 aligncenter" src="http://laravelacademy.org/wp-content/uploads/2015/10/laravel-5-cashier-stripe-2.png" alt="laravel cashier stripe" width="679" height="187" srcset="http://laravelacademy.org/wp-content/uploads/2015/10/laravel-5-cashier-stripe-2.png 679w, http://laravelacademy.org/wp-content/uploads/2015/10/laravel-5-cashier-stripe-2-300x83.png 300w" sizes="(max-width: 679px) 100vw, 679px" /></p> 
+        <h3 id="ipt_kb_toc_1403_0"><strong>0、开始之前</strong></h3> 
+        <p>在开始之前我们先理清几个概念。</p> 
+        <p><a href="http://laravelacademy.org/tags/stripe" title="View all posts in Stripe" target="_blank">Stripe</a>是一个为个人和公司提供在线<a href="http://laravelacademy.org/tags/%e6%94%af%e4%bb%98" title="View all posts in 支付" target="_blank">支付</a>解决方案的工具，支持Web和移动App。</p> 
+        <p><a href="http://laravelacademy.org/tags/laravel" title="View all posts in Laravel" target="_blank">Laravel</a> <a href="http://laravelacademy.org/tags/cashier" title="View all posts in Cashier" target="_blank">Cashier</a>为Stripe提供了相应接口以便在Laravel中实现订购支付功能，从而避免让我们编写重复的样板化的代码，真正专注于业务逻辑处理，提高编程效率。</p> 
+        <p>那么，Laravel Cashier到底是怎样的一把利器，下面让我们一一揭晓。</p> 
+        <h3 id="ipt_kb_toc_1403_1"><strong>1、<a href="http://laravelacademy.org/tags/%e5%ae%89%e8%a3%85" title="View all posts in 安装" target="_blank">安装</a><a href="http://laravelacademy.org/tags/%e9%85%8d%e7%bd%ae" title="View all posts in 配置" target="_blank">配置</a></strong></h3> 
+        <h4 id="ipt_kb_toc_1403_2"><strong>使用composer安装</strong></h4> 
+        <p>我们使用Composer安装Laravel Cashier依赖包，首先将如下依赖添加到<code>composer.json</code>：</p> 
+        <pre>&quot;laravel/cashier&quot;: &quot;~5.0&quot;</pre> 
+        <p>然后运行<code>composer update</code>。</p> 
+        <p>安装完成后，注册服务提供者<code>Laravel\Cashier\CashierServiceProvider::class</code>到<code>config/app.php</code>。</p> 
+        <h4 id="ipt_kb_toc_1403_3"><strong>新增数据表字段</strong></h4> 
+        <p>我们还要对<code>users</code>表添加相关字段，这可以通过以下命令生成迁移文件：</p> 
+        <pre>php artisan cashier:table users</pre> 
+        <p>然后运行</p> 
+        <pre>php artisan migrate</pre> 
+        <p>执行成功后去查看<code>users</code>表，可见新增了与stripe相关的字段：</p> 
+        <p><img class="alignnone size-full wp-image-1405" src="http://laravelacademy.org/wp-content/uploads/2015/10/2015-10-20_232919.jpg" alt="users表新增与Cashier相关字段" width="749" height="117" srcset="http://laravelacademy.org/wp-content/uploads/2015/10/2015-10-20_232919.jpg 749w, http://laravelacademy.org/wp-content/uploads/2015/10/2015-10-20_232919-300x47.jpg 300w" sizes="(max-width: 749px) 100vw, 749px" /></p> 
+        <h4 id="ipt_kb_toc_1403_4"><strong>修改User模型</strong></h4> 
+        <p>此外还需要修改<code>User</code>模型类如下：</p> 
+        <pre>&lt;?php
+
+namespace App;
+
+use Illuminate\Auth\Authenticatable;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Auth\Passwords\CanResetPassword;
+use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
+use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
+
+use Laravel\Cashier\Billable;
+use Laravel\Cashier\Contracts\Billable as BillableContract;
+
+class User extends Model implements AuthenticatableContract, CanResetPasswordContract,BillableContract
+{
+    use Authenticatable, CanResetPassword, Billable;
+
+    protected $dates = ['trial_ends_at', 'subscription_ends_at'];
+
+    ... //其他代码
+
+}</pre> 
+        <h4 id="ipt_kb_toc_1403_5"><strong>配置Stripe选项</strong></h4> 
+        <p>最后还要去<code>config/services.php</code>中配置<code>stripe</code>选项。</p> 
+        <pre>'stripe' =&gt; [
+    'model' =&gt; App\User::class,
+    'key' =&gt; env('STRIPE_KEY'),
+    'secret' =&gt; env('STRIPE_SECRET'),
+],</pre> 
+        <p><code>model</code>不用修改，<code>key</code>和<code>secret</code>需要我们去<a href="https://stripe.com/" target="_blank">Stripe官网</a>注册一个账户，然后查看账户设置，通过<a href="https://dashboard.stripe.com/account/apikeys" target="_blank">https://dashboard.stripe.com/account/apikeys</a>获取API Keys：</p> 
+        <p><img class="alignnone size-full wp-image-1406" src="http://laravelacademy.org/wp-content/uploads/2015/10/2015-10-20_233643.jpg" alt="注册Stripe获取API Keys" width="976" height="697" srcset="http://laravelacademy.org/wp-content/uploads/2015/10/2015-10-20_233643.jpg 976w, http://laravelacademy.org/wp-content/uploads/2015/10/2015-10-20_233643-300x214.jpg 300w" sizes="(max-width: 976px) 100vw, 976px" /></p> 
+        <p>这里我们使用使用<code>Test Publishable Key</code>作为配置文件中stripe选项的<code>key</code>，<code>Test Secret Key</code>作为stripe选项的<code>secret</code>。当然我们需要将相应值配置到<code>.env</code>中。</p> 
+        <p>本节我们先讲到这里，下一节我们将重点探讨订购相关实现。</p> 
+       </div>
+       <!-- .entry-content --> 
+       <footer class="entry-meta text-muted well well-sm">
+         分类： 
+        <i class="glyphicon glyphicon-folder-open"></i>&nbsp;&nbsp;
+        <a href="http://laravelacademy.org/tutorials/basic" rel="category tag">基础教程</a>, 
+        <a href="http://laravelacademy.org/project/packages" rel="category tag">扩展包</a> 
+        <div class="clearfix"></div> 标签： 
+        <i class="glyphicon glyphicon-tags"></i>&nbsp;&nbsp;
+        <a href="http://laravelacademy.org/tags/cashier" rel="tag">Cashier</a>, 
+        <a href="http://laravelacademy.org/tags/laravel" rel="tag">Laravel</a>, 
+        <a href="http://laravelacademy.org/tags/stripe" rel="tag">Stripe</a>, 
+        <a href="http://laravelacademy.org/tags/%e5%ae%89%e8%a3%85" rel="tag">安装</a>, 
+        <a href="http://laravelacademy.org/tags/%e6%94%af%e4%bb%98" rel="tag">支付</a>, 
+        <a href="http://laravelacademy.org/tags/%e9%85%8d%e7%bd%ae" rel="tag">配置</a>
+        <div class="clearfix"></div> 
+        <div class="share-jiathis">
+         <span class="share-jiathis-label">分享：</span>
+         <div class="jiathis_style"> 
+          <a class="jiathis_button_weixin"></a> 
+          <a class="jiathis_button_tsina"></a> 
+          <a class="jiathis_button_qzone"></a> 
+          <a class="jiathis_button_douban"></a> 
+          <a class="jiathis_button_googleplus"></a> 
+          <a class="jiathis_button_fb"></a> 
+          <a class="jiathis_button_twitter"></a> 
+          <a class="jiathis_button_evernote"></a> 
+          <a class="jiathis_button_ydnote"></a> 
+          <a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jtico jtico_jiathis" target="_blank"></a> 
+          <a class="jiathis_counter_style"></a> 
+         </div>
+        </div>
+        <div class="clearfix"></div> 
+        <div>
+         声明： 原创文章，未经允许，禁止转载！
+        </div> 
+       </footer>
+       <!-- .entry-meta --> 
+      </article>
+      <!-- #post-## --> 
+      <p class="hidden-xs"> <span class="ipt_kb_like_article_info pull-right text-info"><i class="glyphicon glyphicon-fire"></i>&nbsp;&nbsp;6 人觉得这篇文章很有用</span> <button type="button" data-loading-text="请稍等" class="btn btn-success ipt_kb_like_article" data-postid="1403" data-nonce="ccdcf75aaa"> <i class="glyphicon glyphicon-thumbs-up"></i> <span class="text">这篇文章对我很有帮助</span> </button> </p> 
+      <p class="visible-xs"> <button type="button" data-loading-text="请稍等" class="btn btn-success btn-block ipt_kb_like_article" data-postid="1403" data-nonce="ccdcf75aaa"> <i class="glyphicon glyphicon-thumbs-up"></i> <span class="text">这篇文章对我很有帮助</span> </button> </p> 
+      <p class="ipt_kb_like_article_info text-info text-center visible-xs"><i class="glyphicon glyphicon-fire"></i>&nbsp;&nbsp;6 觉得这篇文章很有用</p> 
+      <ul role="navigation" id="nav-below" class="post-navigation pager"> 
+       <li class="screen-reader-text">Post navigation</li> 
+       <li class="nav-previous previous"><a href="http://laravelacademy.org/post/1374.html" rel="prev"><span class="meta-nav"><span class="glyphicon glyphicon-arrow-left"></span></span> Laravel 5.1 中创建自定义 Artisan 控制台命令实例教程</a></li> 
+       <li class="nav-next next"><a href="http://laravelacademy.org/post/1432.html" rel="next">Laravel 支付解决方案之 Laravel Cashier （二）—— 付费会员&amp;分期付款&amp;生成发票 <span class="meta-nav"><span class="glyphicon glyphicon-arrow-right"></span></span></a></li> 
+      </ul>
+      <!-- #nav-below --> 
+      <div class="well author-meta"> 
+       <div class="author-avatar text-center pull-left"> 
+        <a href="http://laravelacademy.org/post/author/nonfu"><img alt="" src="http://0.gravatar.com/avatar/699bfa8486547de4b21d7984876627f6?s=96&amp;d=retro&amp;r=g" srcset="http://0.gravatar.com/avatar/699bfa8486547de4b21d7984876627f6?s=192&amp;d=retro&amp;r=g 2x" class="avatar avatar-96 photo" height="96" width="96" /></a> 
+       </div> 
+       <h4 class="author-meta-title"> 学院君 has written <a href="http://laravelacademy.org/post/author/nonfu">614</a> articles </h4> 
+       <div class="author-meta-bio"> 
+        <p>资深PHP工程师，Laravel学院院长</p> 
+       </div> 
+       <div class="author-meta-buttons text-right"> 
+        <div class="btn-group"> 
+         <a href="http://laravelacademy.org" class="btn btn-info bstooltip" title="Website"><span class="glyphicon ipt-icon-home"></span></a> 
+        </div> 
+       </div> 
+       <div class="clearfix"></div> 
+      </div> 
+      <div class="google-ads" style="margin-bottom:8px;"> 
+       <script async="" src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script> 
+       <!-- Laravel学院详情页底部横幅广告 --> 
+       <ins class="adsbygoogle" style="display:inline-block;width:728px;height:90px" data-ad-client="ca-pub-6544917749399342" data-ad-slot="4898369711"></ins> 
+       <script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script> 
+      </div> 
+      <!-- 多说评论框 start --> 
+      <!-- 多说评论框 end --> 
+      <div id="comments" class="comments-area"> 
+       <h4 class="comments-title"> 6 thoughts on “<span>Laravel 支付解决方案之 Laravel Cashier （一）—— 安装配置篇</span>” </h4> 
+       <ol class="comment-list"> 
+        <li id="comment-4202" class="comment even thread-even depth-1 parent"> 
+         <article id="div-comment-4202" class="comment-body panel panel-default"> 
+          <div class="panel-heading comment-meta"> 
+           <div class="comment-author vcard pull-left"> 
+            <img alt="" src="http://0.gravatar.com/avatar/?s=32&amp;d=retro&amp;r=g" srcset="http://1.gravatar.com/avatar/?s=64&amp;d=retro&amp;r=g 2x" class="avatar avatar-32 photo avatar-default" height="32" width="32" /> 
+            <cite class="fn"><a href="http://t.qq.com/caijielong002" rel="external nofollow" class="url">蔡杰龙</a></cite> 
+            <span class="says">says:</span> 
+           </div>
+           <!-- .comment-author --> 
+           <div class="clearfix"></div> 
+          </div> 
+          <div class="comment-content panel-body"> 
+           <p>在app.php中，providers添加 LaravelCashierCashierServiceProvider::class 那在aliases要添加什么呢</p> 
+          </div> 
+          <div class="panel-footer"> 
+           <div class="pull-right"> 
+            <div class="reply text-right">
+             <a rel="nofollow" class="comment-reply-link btn btn-info btn-sm" href="http://laravelacademy.org/post/1403.html?replytocom=4202#respond" onclick="return addComment.moveForm( &quot;div-comment-4202&quot;, &quot;4202&quot;, &quot;respond&quot;, &quot;1403&quot; )" aria-label="回复给蔡杰龙"><i class="glyphicon ipt-icon-reply"></i>&nbsp;&nbsp;回复</a>
+            </div> 
+           </div> 
+           <div class="comment-metadata"> 
+            <a href="http://laravelacademy.org/post/1403.html#comment-4202"> <time datetime="2016-05-11T09:47:10+00:00"> <i class="glyphicon glyphicon-calendar"></i>&nbsp;&nbsp;2016年5月11日 at 上午9:47 </time> </a> 
+           </div>
+           <!-- .comment-metadata --> 
+           <div class="clearfix"></div> 
+          </div> 
+         </article>
+         <!-- .comment-body --> 
+         <ol class="children"> 
+          <li id="comment-4207" class="comment byuser comment-author-nonfu bypostauthor odd alt depth-2"> 
+           <article id="div-comment-4207" class="comment-body panel panel-info"> 
+            <div class="panel-heading comment-meta"> 
+             <div class="comment-author vcard pull-left"> 
+              <img alt="" src="http://0.gravatar.com/avatar/699bfa8486547de4b21d7984876627f6?s=32&amp;d=retro&amp;r=g" srcset="http://0.gravatar.com/avatar/699bfa8486547de4b21d7984876627f6?s=64&amp;d=retro&amp;r=g 2x" class="avatar avatar-32 photo" height="32" width="32" /> 
+              <cite class="fn"><a href="http://laravelacademy.org/" rel="external nofollow" class="url">学院君</a></cite> 
+              <span class="says">says:</span> 
+             </div>
+             <!-- .comment-author --> 
+             <div class="clearfix"></div> 
+            </div> 
+            <div class="comment-content panel-body"> 
+             <p>这个扩展包没有提供门面 无需添加aliases</p> 
+            </div> 
+            <div class="panel-footer"> 
+             <div class="pull-right"> 
+              <div class="reply text-right">
+               <a rel="nofollow" class="comment-reply-link btn btn-info btn-sm" href="http://laravelacademy.org/post/1403.html?replytocom=4207#respond" onclick="return addComment.moveForm( &quot;div-comment-4207&quot;, &quot;4207&quot;, &quot;respond&quot;, &quot;1403&quot; )" aria-label="回复给学院君"><i class="glyphicon ipt-icon-reply"></i>&nbsp;&nbsp;回复</a>
+              </div> 
+             </div> 
+             <div class="comment-metadata"> 
+              <a href="http://laravelacademy.org/post/1403.html#comment-4207"> <time datetime="2016-05-11T11:25:30+00:00"> <i class="glyphicon glyphicon-calendar"></i>&nbsp;&nbsp;2016年5月11日 at 上午11:25 </time> </a> 
+             </div>
+             <!-- .comment-metadata --> 
+             <div class="clearfix"></div> 
+            </div> 
+           </article>
+           <!-- .comment-body --> </li>
+          <!-- #comment-## --> 
+         </ol>
+         <!-- .children --> </li>
+        <!-- #comment-## --> 
+        <li id="comment-1594" class="comment even thread-odd thread-alt depth-1 parent"> 
+         <article id="div-comment-1594" class="comment-body panel panel-default"> 
+          <div class="panel-heading comment-meta"> 
+           <div class="comment-author vcard pull-left"> 
+            <img alt="" src="http://0.gravatar.com/avatar/32ea01579d55a60ec8cd27147482287e?s=32&amp;d=retro&amp;r=g" srcset="http://0.gravatar.com/avatar/32ea01579d55a60ec8cd27147482287e?s=64&amp;d=retro&amp;r=g 2x" class="avatar avatar-32 photo" height="32" width="32" /> 
+            <cite class="fn"><a href="http://7in0.me" rel="external nofollow" class="url">7IN0SAN9</a></cite> 
+            <span class="says">says:</span> 
+           </div>
+           <!-- .comment-author --> 
+           <div class="clearfix"></div> 
+          </div> 
+          <div class="comment-content panel-body"> 
+           <p>可惜stripe不支持国内业务</p> 
+          </div> 
+          <div class="panel-footer"> 
+           <div class="pull-right"> 
+            <div class="reply text-right">
+             <a rel="nofollow" class="comment-reply-link btn btn-info btn-sm" href="http://laravelacademy.org/post/1403.html?replytocom=1594#respond" onclick="return addComment.moveForm( &quot;div-comment-1594&quot;, &quot;1594&quot;, &quot;respond&quot;, &quot;1403&quot; )" aria-label="回复给7IN0SAN9"><i class="glyphicon ipt-icon-reply"></i>&nbsp;&nbsp;回复</a>
+            </div> 
+           </div> 
+           <div class="comment-metadata"> 
+            <a href="http://laravelacademy.org/post/1403.html#comment-1594"> <time datetime="2015-12-11T16:25:12+00:00"> <i class="glyphicon glyphicon-calendar"></i>&nbsp;&nbsp;2015年12月11日 at 下午4:25 </time> </a> 
+           </div>
+           <!-- .comment-metadata --> 
+           <div class="clearfix"></div> 
+          </div> 
+         </article>
+         <!-- .comment-body --> 
+         <ol class="children"> 
+          <li id="comment-1598" class="comment byuser comment-author-nonfu bypostauthor odd alt depth-2"> 
+           <article id="div-comment-1598" class="comment-body panel panel-info"> 
+            <div class="panel-heading comment-meta"> 
+             <div class="comment-author vcard pull-left"> 
+              <img alt="" src="http://0.gravatar.com/avatar/699bfa8486547de4b21d7984876627f6?s=32&amp;d=retro&amp;r=g" srcset="http://0.gravatar.com/avatar/699bfa8486547de4b21d7984876627f6?s=64&amp;d=retro&amp;r=g 2x" class="avatar avatar-32 photo" height="32" width="32" /> 
+              <cite class="fn"><a href="http://laravelacademy.org/" rel="external nofollow" class="url">学院君</a></cite> 
+              <span class="says">says:</span> 
+             </div>
+             <!-- .comment-author --> 
+             <div class="clearfix"></div> 
+            </div> 
+            <div class="comment-content panel-body"> 
+             <p>之前看其官方文档是支持支付宝的</p> 
+            </div> 
+            <div class="panel-footer"> 
+             <div class="pull-right"> 
+              <div class="reply text-right">
+               <a rel="nofollow" class="comment-reply-link btn btn-info btn-sm" href="http://laravelacademy.org/post/1403.html?replytocom=1598#respond" onclick="return addComment.moveForm( &quot;div-comment-1598&quot;, &quot;1598&quot;, &quot;respond&quot;, &quot;1403&quot; )" aria-label="回复给学院君"><i class="glyphicon ipt-icon-reply"></i>&nbsp;&nbsp;回复</a>
+              </div> 
+             </div> 
+             <div class="comment-metadata"> 
+              <a href="http://laravelacademy.org/post/1403.html#comment-1598"> <time datetime="2015-12-11T16:49:08+00:00"> <i class="glyphicon glyphicon-calendar"></i>&nbsp;&nbsp;2015年12月11日 at 下午4:49 </time> </a> 
+             </div>
+             <!-- .comment-metadata --> 
+             <div class="clearfix"></div> 
+            </div> 
+           </article>
+           <!-- .comment-body --> </li>
+          <!-- #comment-## --> 
+          <li id="comment-1600" class="comment even depth-2 parent"> 
+           <article id="div-comment-1600" class="comment-body panel panel-default"> 
+            <div class="panel-heading comment-meta"> 
+             <div class="comment-author vcard pull-left"> 
+              <img alt="" src="http://0.gravatar.com/avatar/32ea01579d55a60ec8cd27147482287e?s=32&amp;d=retro&amp;r=g" srcset="http://0.gravatar.com/avatar/32ea01579d55a60ec8cd27147482287e?s=64&amp;d=retro&amp;r=g 2x" class="avatar avatar-32 photo" height="32" width="32" /> 
+              <cite class="fn"><a href="http://7in0.me" rel="external nofollow" class="url">7IN0SAN9</a></cite> 
+              <span class="says">says:</span> 
+             </div>
+             <!-- .comment-author --> 
+             <div class="clearfix"></div> 
+            </div> 
+            <div class="comment-content panel-body"> 
+             <p>呃，我的意思是 stripe 不支持国内商户，如果国内要用只能到支持的地区弄个皮包公司或者找个代理人</p> 
+            </div> 
+            <div class="panel-footer"> 
+             <div class="pull-right"> 
+              <div class="reply text-right">
+               <a rel="nofollow" class="comment-reply-link btn btn-info btn-sm" href="http://laravelacademy.org/post/1403.html?replytocom=1600#respond" onclick="return addComment.moveForm( &quot;div-comment-1600&quot;, &quot;1600&quot;, &quot;respond&quot;, &quot;1403&quot; )" aria-label="回复给7IN0SAN9"><i class="glyphicon ipt-icon-reply"></i>&nbsp;&nbsp;回复</a>
+              </div> 
+             </div> 
+             <div class="comment-metadata"> 
+              <a href="http://laravelacademy.org/post/1403.html#comment-1600"> <time datetime="2015-12-11T16:53:34+00:00"> <i class="glyphicon glyphicon-calendar"></i>&nbsp;&nbsp;2015年12月11日 at 下午4:53 </time> </a> 
+             </div>
+             <!-- .comment-metadata --> 
+             <div class="clearfix"></div> 
+            </div> 
+           </article>
+           <!-- .comment-body --> 
+           <ol class="children"> 
+            <li id="comment-1604" class="comment byuser comment-author-nonfu bypostauthor odd alt depth-3"> 
+             <article id="div-comment-1604" class="comment-body panel panel-info"> 
+              <div class="panel-heading comment-meta"> 
+               <div class="comment-author vcard pull-left"> 
+                <img alt="" src="http://0.gravatar.com/avatar/699bfa8486547de4b21d7984876627f6?s=32&amp;d=retro&amp;r=g" srcset="http://0.gravatar.com/avatar/699bfa8486547de4b21d7984876627f6?s=64&amp;d=retro&amp;r=g 2x" class="avatar avatar-32 photo" height="32" width="32" /> 
+                <cite class="fn"><a href="http://laravelacademy.org/" rel="external nofollow" class="url">学院君</a></cite> 
+                <span class="says">says:</span> 
+               </div>
+               <!-- .comment-author --> 
+               <div class="clearfix"></div> 
+              </div> 
+              <div class="comment-content panel-body"> 
+               <p>这个我倒不清楚 还没有在实际生产环境中使用过 </p> 
+              </div> 
+              <div class="panel-footer"> 
+               <div class="pull-right"> 
+                <div class="reply text-right">
+                 <a rel="nofollow" class="comment-reply-link btn btn-info btn-sm" href="http://laravelacademy.org/post/1403.html?replytocom=1604#respond" onclick="return addComment.moveForm( &quot;div-comment-1604&quot;, &quot;1604&quot;, &quot;respond&quot;, &quot;1403&quot; )" aria-label="回复给学院君"><i class="glyphicon ipt-icon-reply"></i>&nbsp;&nbsp;回复</a>
+                </div> 
+               </div> 
+               <div class="comment-metadata"> 
+                <a href="http://laravelacademy.org/post/1403.html#comment-1604"> <time datetime="2015-12-11T17:01:51+00:00"> <i class="glyphicon glyphicon-calendar"></i>&nbsp;&nbsp;2015年12月11日 at 下午5:01 </time> </a> 
+               </div>
+               <!-- .comment-metadata --> 
+               <div class="clearfix"></div> 
+              </div> 
+             </article>
+             <!-- .comment-body --> </li>
+            <!-- #comment-## --> 
+           </ol>
+           <!-- .children --> </li>
+          <!-- #comment-## --> 
+         </ol>
+         <!-- .children --> </li>
+        <!-- #comment-## --> 
+       </ol>
+       <!-- .comment-list --> 
+       <div id="respond" class="comment-respond"> 
+        <span class="pull-right"><a class="btn btn-danger btn-sm" rel="nofollow" id="cancel-comment-reply-link" href="/post/1403.html#respond" style="display:none;">取消回复</a></span> 
+        <h3 id="reply-title" class="comment-reply-title">发表评论</h3> 
+        <form action="http://laravelacademy.org/wp-comments-post.php" method="post" id="commentform" class="comment-form form-horizontal" novalidate=""> 
+         <p class="comment-notes alert alert-info"> 标记为<span class="required">*</span>的字段是必填项（邮箱地址不会被公开）</p> 
+         <div class="col-sm-5"> 
+          <div class="form-group comment-form-author">
+           <label class="sr-only control-label" for="author">名字 <span class="required">*</span></label> 
+           <div class="input-group">
+            <span class="input-group-addon"><span class="glyphicon ipt-icon-user"></span></span>
+            <input placeholder="名字 *" class="form-control" id="author" name="author" type="text" value="" size="30" aria-required="true" />
+           </div>
+          </div> 
+          <div class="form-group comment-form-email">
+           <label class="sr-only control-label" for="email">邮箱 <span class="required">*</span></label> 
+           <div class="input-group">
+            <span class="input-group-addon"><span class="glyphicon ipt-icon-mail"></span></span>
+            <input placeholder="邮箱 *" class="form-control" id="email" name="email" type="email" value="" size="30" aria-required="true" />
+           </div>
+          </div> 
+          <div class="form-group comment-form-url">
+           <label class="sr-only control-label" for="url">站点</label> 
+           <div class="input-group">
+            <span class="input-group-addon"><span class="glyphicon ipt-icon-link"></span></span>
+            <input placeholder="站点" class="form-control" id="url" name="url" type="url" value="" size="30" />
+           </div>
+          </div> 
+         </div> 
+         <div class="col-sm-7"> 
+          <div class="comment-form-comment form-group">
+           <label class="sr-only control-label" for="comment">评论内容</label>
+           <textarea placeholder="评论内容" class="form-control" id="comment" name="comment" rows="6" aria-required="true"></textarea>
+          </div> 
+         </div> 
+         <div class="clearfix"></div> 
+         <div class="col-sm-12"> 
+         </div> 
+         <div class="clearfix"></div> 
+         <p class="form-allowed-tags well well-sm">你可以使用这些<abbr title="HyperText Markup Language">HTML</abbr> 标签和属性: <code>&lt;a href=&quot;&quot; title=&quot;&quot;&gt; &lt;abbr title=&quot;&quot;&gt; &lt;acronym title=&quot;&quot;&gt; &lt;b&gt; &lt;blockquote cite=&quot;&quot;&gt; &lt;cite&gt; &lt;code&gt; &lt;del datetime=&quot;&quot;&gt; &lt;em&gt; &lt;i&gt; &lt;q cite=&quot;&quot;&gt; &lt;s&gt; &lt;strike&gt; &lt;strong&gt; </code></p> 
+         <p class="form-submit text-right"> <button name="submit" class="btn btn-primary" type="submit" id="submit">提交评论</button> <input type="hidden" name="comment_post_ID" value="1403" id="comment_post_ID" /> <input type="hidden" name="comment_parent" id="comment_parent" value="0" /> </p> 
+         <p style="display: none;"><input type="hidden" id="akismet_comment_nonce" name="akismet_comment_nonce" value="1f5319db06" /></p>
+         <p style="display: none;"><input type="hidden" id="ak_js" name="ak_js" value="34" /></p> 
+        </form> 
+       </div>
+       <!-- #respond --> 
+      </div>
+      <!-- #comments --> 
+     </main>
+     <!-- #main --> 
+    </div>
+    <!-- #primary --> 
+    <div id="secondary" class="widget-area col-md-4" role="complementary"> 
+     <div class="company-ads" style="margin-bottom:5px;"> 
+      <a href="https://www.mysubmail.com/sms?s=laravelacademy" target="_blank"><img src="http://laravelacademy.org/wp-content/uploads/2016/12/submail_ad_for_larvavel_700x180.jpg" width="350" /></a> 
+     </div> 
+     <!--<div class="forum-20160919142357">
+                           <a href="http://www.henghost.com/ul-xinyunhost.shtml" target="_blank">
+                               <img src="http://laravelacademy.org/wp-content/uploads/2016/09/20160919142222.gif" width="100%" border="0" alt="恒创主机"/>
+                           </a>
+                        </div>--> 
+     <div class="forum-20160919142357">
+      <script charset="utf-8" language="JavaScript" type="text/javascript" src="https://adman.henghost.com/data/forum-20160919142357.js"></script>
+     </div> 
+     <div class="google-ads" style="text-align:center;margin-bottom:10px;margin-top:10px;"> 
+      <script async="" src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script> 
+      <!-- Laravel侧边栏大矩形广告 --> 
+      <ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-6544917749399342" data-ad-slot="6375165315"></ins> 
+      <script>
+				(adsbygoogle = window.adsbygoogle || []).push({});
+				</script> 
+     </div> 
+     <aside id="ipt_kb_affix-2" class="widget ipt_kb_affix panel panel-default">
+      <div class="panel-heading">
+       <h3 class="widget-title panel-title">教程</h3>
+      </div>
+      <div class="panel-body"> 
+       <!-- Stick it or not --> 
+       <input type="hidden" class="dontfix" value="1" /> 
+       <!-- Search form --> 
+       <form role="search" method="get" class="search-form" action="http://laravelacademy.org/"> 
+        <input type="hidden" name="cat" value="578" /> 
+        <div class="form-group"> 
+         <div class="input-group input-group-sm"> 
+          <input type="search" class="search-field form-control" placeholder="搜索…" value="" name="s" /> 
+          <span class="input-group-btn"><button type="submit" class="btn btn-default"><span class="ipt-icon-search"></span></button></span> 
+         </div> 
+        </div> 
+       </form> 
+       <!-- TOC for single posts --> 
+       <div class="text-muted ipt-kb-toc"> 
+        <a href="#ipt-kb-toc-scrollspy" title="点击显示/隐藏内容目录" class="bstooltip pull-right btn btn-xs btn-default accordion-toggle ipt-kb-sub-toc-toggle" data-toggle="collapse"><i class="glyphicon ipt-icon-menu"></i></a> 
+        <h4> 内容目录 </h4> 
+        <div class="clearfix"></div> 
+       </div> 
+       <nav id="ipt-kb-toc-scrollspy" class="collapse in"> 
+        <ul class="nav"> 
+         <li> <a href="#ipt_kb_toc_1403_0">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0、开始之前</a></li> 
+         <li> <a href="#ipt_kb_toc_1403_1">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1、安装配置</a></li> 
+         <li> <a href="#ipt_kb_toc_1403_2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;使用composer安装</a></li> 
+         <li> <a href="#ipt_kb_toc_1403_3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;新增数据表字段</a></li> 
+         <li> <a href="#ipt_kb_toc_1403_4">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;修改User模型</a></li> 
+         <li> <a href="#ipt_kb_toc_1403_5">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;配置Stripe选项</a></li> 
+        </ul> 
+       </nav> 
+       <!-- Get support --> 
+       <!-- Category Listing --> 
+       <div class="list-group"> 
+        <a href="http://laravelacademy.org/tutorials/vuejs" class="list-group-item "> <i class="glyphicon ipt-icon-books"></i> Vue.js教程</a> 
+        <a href="http://laravelacademy.org/tutorials/blog" class="list-group-item "> <i class="glyphicon ipt-icon-books"></i> 博客系列</a> 
+        <div class="list-group-item active-cat"> 
+         <a href="#ipt-kb-affix-active-post" title="点击显示/隐藏当前所属分类下的所有文章" class="bstooltip accordion-toggle pull-right btn btn-default btn-xs text-center ipt-kb-sub-cat-toggle collapsed" data-toggle="collapse"> <i class="glyphicon ipt-icon-enter"></i> </a> 
+         <i class="glyphicon ipt-icon-books"></i> 基础教程
+        </div> 
+        <div id="ipt-kb-affix-active-post" class="collapse">
+         <a href="http://laravelacademy.org/post/153.html" class="list-group-item ">Laravel 精选资源大全（持续更新）</a> 
+         <a href="http://laravelacademy.org/post/306.html" class="list-group-item ">在 Windows 中安装 Laravel 5.1.X</a> 
+         <a href="http://laravelacademy.org/post/354.html" class="list-group-item ">在 Windows 上进行 Laravel Homestead 安装、配置及测试</a> 
+         <a href="http://laravelacademy.org/post/377.html" class="list-group-item ">在Laravel Homestead中使用Blackfire Profiler对应用性能进行分析</a> 
+         <a href="http://laravelacademy.org/post/398.html" class="list-group-item ">HTTP路由实例教程（一）—— 基本使用及路由参数</a> 
+         <a href="http://laravelacademy.org/post/417.html" class="list-group-item ">HTTP路由实例教程（二）—— 路由命名和路由分组</a> 
+         <a href="http://laravelacademy.org/post/525.html" class="list-group-item ">HTTP路由实例教程（三）—— CSRF攻击原理及其防护</a> 
+         <a href="http://laravelacademy.org/post/537.html" class="list-group-item ">中间件实例教程 —— 中间件的创建使用及中间件参数定义</a> 
+         <a href="http://laravelacademy.org/post/549.html" class="list-group-item ">HTTP控制器实例教程 —— 创建RESTFul风格控制器实现文章增删改查</a> 
+         <a href="http://laravelacademy.org/post/606.html" class="list-group-item ">HTTP 请求实例教程 —— 获取请求数据、Cookie及文件上传处理</a> 
+         <a href="http://laravelacademy.org/post/623.html" class="list-group-item ">HTTP响应实例教程 —— 基本使用、生成Cookie、返回视图、JSON/JSONP、文件下载及重定向</a> 
+         <a href="http://laravelacademy.org/post/697.html" class="list-group-item ">Laravel 视图实例教程 —— 在视图间共享数据及视图Composer</a> 
+         <a href="http://laravelacademy.org/post/727.html" class="list-group-item ">Laravel 5.x 启动过程分析</a> 
+         <a href="http://laravelacademy.org/post/769.html" class="list-group-item ">Laravel 服务容器实例教程 —— 深入理解控制反转（IoC）和依赖注入（DI）</a> 
+         <a href="http://laravelacademy.org/post/796.html" class="list-group-item ">Laravel 服务提供者实例教程 —— 创建 Service Provider 测试实例</a> 
+         <a href="http://laravelacademy.org/post/817.html" class="list-group-item ">Laravel 门面实例教程 —— 创建自定义 Facades 类</a> 
+         <a href="http://laravelacademy.org/post/832.html" class="list-group-item ">Laravel Spark 牛刀初试 —— 安装、设置及使用</a> 
+         <a href="http://laravelacademy.org/post/854.html" class="list-group-item ">Laravel 数据库实例教程 —— 使用DB门面操作数据库</a> 
+         <a href="http://laravelacademy.org/post/908.html" class="list-group-item ">Laravel 数据库实例教程 —— 使用查询构建器对数据库进行增删改查</a> 
+         <a href="http://laravelacademy.org/post/920.html" class="list-group-item ">Laravel 数据库实例教程 —— 使用查询构建器实现对数据库的高级查询</a> 
+         <a href="http://laravelacademy.org/post/966.html" class="list-group-item ">Eloquent ORM 实例教程 —— ORM概述、模型定义及基本查询</a> 
+         <a href="http://laravelacademy.org/post/984.html" class="list-group-item ">Eloquent ORM 实例教程 —— 模型创建、更新及批量赋值</a> 
+         <a href="http://laravelacademy.org/post/1020.html" class="list-group-item ">Eloquent ORM 实例教程 —— 模型删除及软删除相关实现</a> 
+         <a href="http://laravelacademy.org/post/1073.html" class="list-group-item ">Eloquent ORM 实例教程 —— 查询作用域和模型事件</a> 
+         <a href="http://laravelacademy.org/post/1095.html" class="list-group-item ">Eloquent ORM 实例教程 —— 关联关系及其在模型中的定义（一）</a> 
+         <a href="http://laravelacademy.org/post/1150.html" class="list-group-item ">在 Windows 上快速安装 Flarum 指南</a> 
+         <a href="http://laravelacademy.org/post/1174.html" class="list-group-item ">Eloquent ORM 实例教程 —— 关联关系及其在模型中的定义（二）</a> 
+         <a href="http://laravelacademy.org/post/1219.html" class="list-group-item ">Laravel 实例教程 —— 如何在Laravel 5.1中进行自定义包开发</a> 
+         <a href="http://laravelacademy.org/post/1258.html" class="list-group-item ">Laravel 5.1用户认证（一） —— 使用Laravel内置组件快速实现注册登录</a> 
+         <a href="http://laravelacademy.org/post/1290.html" class="list-group-item ">Laravel 5.1用户认证（二） —— 使用Laravel内置组件快速实现密码重置</a> 
+         <a href="http://laravelacademy.org/post/1305.html" class="list-group-item ">Laravel 5.1用户认证（三） —— 使用Socialite实现GitHub登录认证</a> 
+         <a href="http://laravelacademy.org/post/1337.html" class="list-group-item ">Laravel 5.1 中的ACL用户授权及权限检查功能实现教程</a> 
+         <a href="http://laravelacademy.org/post/1374.html" class="list-group-item ">Laravel 5.1 中创建自定义 Artisan 控制台命令实例教程</a> 
+         <a href="http://laravelacademy.org/post/1403.html" class="list-group-item active">Laravel 支付解决方案之 Laravel Cashier （一）—— 安装配置篇</a> 
+         <a href="http://laravelacademy.org/post/1432.html" class="list-group-item ">Laravel 支付解决方案之 Laravel Cashier （二）—— 付费会员&amp;分期付款&amp;生成发票</a> 
+         <a href="http://laravelacademy.org/post/1475.html" class="list-group-item ">Laravel 支付解决方案之如何使用支付宝进行支付</a> 
+         <a href="http://laravelacademy.org/post/1492.html" class="list-group-item ">Laravel 支付解决方案之如何使用银联支付进行支付</a> 
+         <a href="http://laravelacademy.org/post/1501.html" class="list-group-item ">Laravel 支付解决方案之如何使用微信支付进行支付</a> 
+         <a href="http://laravelacademy.org/post/1649.html" class="list-group-item ">Laravel 缓存实例教程（一） —— 基于Memcached缓存驱动的配置</a> 
+         <a href="http://laravelacademy.org/post/1659.html" class="list-group-item ">如何在Windows上快速安装配置PyroCMS</a> 
+         <a href="http://laravelacademy.org/post/1688.html" class="list-group-item ">Laravel 缓存实例教程（二） —— 基于模型+缓存对文章增删改查进行优化</a> 
+         <a href="http://laravelacademy.org/post/1755.html" class="list-group-item ">Laravel中运行Gulp任务的利器 —— Laravel Elixir简介及入门教程</a> 
+         <a href="http://laravelacademy.org/post/1770.html" class="list-group-item ">如何在 Laravel 5.1 中使用 Laravel Elixir 集成安装 Bootstrap</a> 
+         <a href="http://laravelacademy.org/post/1783.html" class="list-group-item ">Laravel Elixir 深入探究（一）：Elixir配置选项、前端资源文件编译及合并</a> 
+         <a href="http://laravelacademy.org/post/1803.html" class="list-group-item ">Laravel Elixir 深入探究（二）：版本控制、测试套件、任务执行以及自定义任务和扩展</a> 
+         <a href="http://laravelacademy.org/post/1839.html" class="list-group-item ">Laravel 5.1中 Redis 的安装配置及基本使用教程</a> 
+         <a href="http://laravelacademy.org/post/1854.html" class="list-group-item ">Laravel 5.1 分页功能实现及如何自定义分页样式</a> 
+         <a href="http://laravelacademy.org/post/1867.html" class="list-group-item ">Laravel 5.1 中的异常处理器和HTTP异常处理实例教程</a> 
+         <a href="http://laravelacademy.org/post/1878.html" class="list-group-item ">基于 Laravel 集成的 Monolog 库对日志进行配置和记录</a> 
+         <a href="http://laravelacademy.org/post/1889.html" class="list-group-item ">Laravel 5.1 定义事件、事件监听器以及触发事件实例教程</a> 
+         <a href="http://laravelacademy.org/post/1911.html" class="list-group-item ">使用 Laravel 5.1 的文件系统对文件进行存储、移动和删除操作</a> 
+         <a href="http://laravelacademy.org/post/1947.html" class="list-group-item ">使用 Laravel 5.1 内置的本地化功能轻松实现多语言支持</a> 
+         <a href="http://laravelacademy.org/post/1986.html" class="list-group-item ">在 Laravel 5.1 中使用SMTP驱动实现邮件发送（含附件和图片）详细教程</a> 
+         <a href="http://laravelacademy.org/post/2012.html" class="list-group-item ">Laravel 队列系列 —— 基于 Redis 实现任务队列的基本配置和使用</a> 
+         <a href="http://laravelacademy.org/post/2045.html" class="list-group-item ">Laravel 5.1 中 Session 数据存储、访问、删除及一次性Session实例教程</a> 
+         <a href="http://laravelacademy.org/post/2070.html" class="list-group-item ">如何在新浪云 SAE 上安装部署 Laravel 5.1 应用并测试数据库连接</a> 
+         <a href="http://laravelacademy.org/post/2100.html" class="list-group-item ">Laravel 5.1 测试系列 —— PHPUnit 安装及简单单元测试示例</a> 
+         <a href="http://laravelacademy.org/post/4935.html" class="list-group-item ">使用 Php Artisan Tinker 来调试你的 Laravel</a> 
+         <a href="http://laravelacademy.org/post/5075.html" class="list-group-item ">使用 Laravel 纯手工打造一个简单的电子商务网站（一） —— 后台新增商品及前台显示</a> 
+         <a href="http://laravelacademy.org/post/5114.html" class="list-group-item ">使用 Laravel 纯手工打造一个简单的电子商务网站（二） —— 用户认证及购物车功能实现</a> 
+         <a href="http://laravelacademy.org/post/5679.html" class="list-group-item ">在 Mac 开发环境 Laravel Valet 中配置运行 Flarum 论坛系统</a> 
+         <a href="http://laravelacademy.org/post/5925.html" class="list-group-item ">Laravel 5.3 多用户表登录实现</a> 
+         <a href="http://laravelacademy.org/post/6440.html" class="list-group-item ">Laravel 5.3 后台开发实例 —— 基于权限自动生成菜单栏及前后端用户分表登录</a> 
+         <a href="http://laravelacademy.org/post/6449.html" class="list-group-item ">使用 Lumen 框架创建 REST API 实例教程</a> 
+         <a href="http://laravelacademy.org/post/6456.html" class="list-group-item ">Laravel 5 中基于 jQuery 实现分层级的类目树结构实例教程</a> 
+         <a href="http://laravelacademy.org/post/6481.html" class="list-group-item ">将 Sequel Pro 中已存在的数据表导出为 Laravel 迁移文件</a> 
+         <a href="http://laravelacademy.org/post/6486.html" class="list-group-item ">将 MySQL Workbench 中已存在的数据表导出到 Laravel 迁移文件</a> 
+         <a href="http://laravelacademy.org/post/6569.html" class="list-group-item ">基于 LaraDock 在 Docker 中快速构建 Laravel 应用系列教程 —— 搭建开发环境</a> 
+         <a href="http://laravelacademy.org/post/6576.html" class="list-group-item ">基于 LaraDock 在 Docker 中快速构建 Laravel 应用系列教程 —— 常用Docker命令</a> 
+         <a href="http://laravelacademy.org/post/6582.html" class="list-group-item ">基于 LaraDock 在 Docker 中快速构建 Laravel 应用系列教程 —— 工具软件使用</a> 
+        </div> 
+        <a href="http://laravelacademy.org/tutorials/feature" class="list-group-item "> <i class="glyphicon ipt-icon-books"></i> 新特性系列</a> 
+       </div> 
+      </div>
+     </aside>
+     <div class="pin-wrapper">
+      <div class="pinned">
+       <aside id="wp_related_posts_widget" class="widget widget_wp_related_posts panel panel-default"> 
+        <div class="panel-heading">
+         <h3 class="widget-title panel-title">相关文章</h3>
+        </div>
+        <div class="panel-body">
+         <div class="list-group">
+          <a href="http://laravelacademy.org/post/174.html" class="wp_rp_title list-group-item kb-list-date kb-post-list"><h3><span class="glyphicon ipt-icon-file"></span> [ Laravel 5.1 文档 ] 服务 —— Laravel Cashier</h3><span class="clearfix"></span></a>
+          <a href="http://laravelacademy.org/post/1432.html" class="wp_rp_title list-group-item kb-list-date kb-post-list"><h3><span class="glyphicon ipt-icon-file"></span> Laravel 支付解决方案之 Laravel Cashier （二）—— 付费会员&amp;分期付款&amp;生成发票</h3><span class="clearfix"></span></a>
+          <a href="http://laravelacademy.org/post/3114.html" class="wp_rp_title list-group-item kb-list-date kb-post-list"><h3><span class="glyphicon ipt-icon-file"></span> [ Laravel 5.2 文档 ] 服务 —— 订阅支付实现：Laravel Cashier</h3><span class="clearfix"></span></a>
+          <a href="http://laravelacademy.org/post/6269.html" class="wp_rp_title list-group-item kb-list-date kb-post-list"><h3><span class="glyphicon ipt-icon-file"></span> [ Laravel 5.3 文档 ] 官方包 —— Laravel Cashier</h3><span class="clearfix"></span></a>
+          <a href="http://laravelacademy.org/post/832.html" class="wp_rp_title list-group-item kb-list-date kb-post-list"><h3><span class="glyphicon ipt-icon-file"></span> Laravel Spark 牛刀初试 —— 安装、设置及使用</h3><span class="clearfix"></span></a>
+         </div> 
+        </div>
+       </aside> 
+       <div class="google-ads" style="text-align:center;"> 
+        <script async="" src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script> 
+        <!-- Laravel侧边栏矩形滚动广告 --> 
+        <ins class="adsbygoogle" style="display:inline-block;width:336px;height:280px" data-ad-client="ca-pub-6544917749399342" data-ad-slot="3421636513"></ins> 
+        <script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script> 
+       </div> 
+      </div>
+     </div> 
+    </div>
+    <!-- #secondary --> 
+   </div>
+   <!-- #content --> 
+   <footer id="colophon" class="site-footer" role="contentinfo"> 
+    <div class="site-info"> 
+     <p class="copyright text-muted"> &copy; 2015-2017 Laravel Academy | <a href="http://www.miitbeian.gov.cn/" target="_blank">浙ICP备16003554号</a> | <a href="http://forum.laravelacademy.org" target="_blank">社区</a> | <a href="http://laravelacademy.org/feed">订阅</a> | <a href="http://laravelacademy.org/about-us#ads">广告</a> | <a href="http://laravelacademy.org/donate-us">捐赠</a> | <a href="http://gjsq.me/15561494" target="_blank">VPN</a> | <script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_1256294264'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s4.cnzz.com/stat.php%3Fid%3D1256294264' type='text/javascript'%3E%3C/script%3E"));</script> </p> 
+    </div>
+    <!-- .site-info --> 
+    <div class="scroll-back-to-top-wrapper"> 
+     <span class="scroll-back-to-top-inner"> <i class="fa fa-2x fa-arrow-up"></i> </span> 
+    </div>
+    <script type="text/javascript" src="http://laravelacademy.org/wp-content/plugins/akismet/_inc/form.js?ver=3.3"></script> 
+    <script type="text/javascript">
+/* <![CDATA[ */
+var scrollBackToTop = {"scrollDuration":"500","fadeDuration":"0.5"};
+/* ]]> */
+</script> 
+    <script type="text/javascript" src="http://laravelacademy.org/wp-content/plugins/scroll-back-to-top/assets/js/scroll-back-to-top.js"></script> 
+    <script type="text/javascript">
+/* <![CDATA[ */
+var viewsCacheL10n = {"admin_ajax_url":"http:\/\/laravelacademy.org\/wp-admin\/admin-ajax.php","post_id":"1403"};
+/* ]]> */
+</script> 
+    <script type="text/javascript" src="http://laravelacademy.org/wp-content/plugins/wp-postviews/postviews-cache.js?ver=1.68"></script> 
+    <script type="text/javascript" src="http://laravelacademy.org/wp-content/themes/wp-knowledge-base/js/skip-link-focus-fix.js?ver=1.6.0"></script> 
+    <script type="text/javascript" src="http://laravelacademy.org/wp-content/themes/wp-knowledge-base/js/jquery.pin.js?ver=1.6.0"></script> 
+    <script type="text/javascript" src="http://laravelacademy.org/wp-includes/js/comment-reply.min.js?ver=4.7.3"></script> 
+    <script type="text/javascript" src="http://laravelacademy.org/wp-includes/js/wp-embed.min.js?ver=4.7.3"></script> 
+   </footer>
+   <!-- #colophon --> 
+  </div>
+  <!-- #page --> 
+  <script type="text/javascript">
+        jQuery(document).ready(function() {
+            var s = jQuery(".pinned");
+            var pos = s.position();
+            jQuery(window).scroll(function() {
+                var windowpos = jQuery(window).scrollTop();
+                if (windowpos >= pos.top) {
+                    s.addClass("stick");
+                } else {
+                    s.removeClass("stick");
+                }
+            });
+        });
+    </script> 
+  <script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script> 
+  <script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?0149df826a6be49c34721817692bbf7f";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script> 
+  <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-66519426-1', 'auto');
+    ga('send', 'pageview');
+
+</script>   
+  <!-- Dynamic page generated in 0.360 seconds. --> 
+  <!-- Cached page generated by WP-Super-Cache on 2017-03-30 04:26:47 --> 
+  <!-- Super Cache dynamic page detected but late init not set. See the readme.txt for further details. --> 
+  <!-- Dynamic Super Cache --> 
+  <!-- Compression = gzip -->
+ </body>
+</html>

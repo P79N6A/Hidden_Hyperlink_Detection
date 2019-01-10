@@ -1,0 +1,135 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head>
+    <title>客舱综合业务管理系统</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Bootstrap -->
+    <link href="/mobile/css/bootstrap.min.css" rel="stylesheet" media="screen">
+    <link href="/mobile/css/style.css" rel="stylesheet" media="screen">
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/libs/html5shiv/3.6.2/html5shiv.js"></script>
+      <script src="../../docs-assets/js/respond.min.js"></script>
+    <![endif]-->
+   <meta http-equiv="Content-Type" content="text/html;charset=utf-8;">
+   <script type="text/javascript">
+   function forgetPwd(){ 
+		window.location.href="https://ids.csair.com/ids/custom/PasswordManage.html";
+	}
+	
+   //刷新验证码
+   function changeImg(){
+  	document.getElementById("authImg").src = '/authImg?now=' + new Date();
+   }
+ //转换全角字符
+  function changeStr(obj){
+   var str=obj.value;
+   var result="";
+   var change = false;
+    for (var i = 0; i < str.length; i++)
+     {
+      if (str.charCodeAt(i)==12288)
+       {
+         change = true;
+         result+= String.fromCharCode(str.charCodeAt(i)-12256);
+         continue;
+        }
+       if (str.charCodeAt(i)>65280 && str.charCodeAt(i)<65375){
+          result+= String.fromCharCode(str.charCodeAt(i)-65248);
+          change = true;
+          }
+        else
+          result+= String.fromCharCode(str.charCodeAt(i));
+    } 
+       if(change==true)
+         obj.value=result;
+}
+// 重置密码
+  function needResetPassword(userId) {
+		if (userId != 'null' && userId != '') {
+			//var resetPassForm=document.getElementById("resetPassForm");
+			//resetPassForm.submit();
+			document.forms[0].submit();
+		}
+	}
+//提交表单
+function chkValid(){
+
+ 	var staff = $("#j_username").val();
+ 	var pwd = $("#j_password").val();
+ 	var vercode = $("#j_code").val();
+ 	if((staff != "")&&(pwd != "")&&(vercode != "")){
+ 		if (!validstr(staff) || !validstr(pwd) ||  !validstr(vercode)) {
+			alert("输入信息不规范，只接受数字、英文、点号及'-'和'_'！");
+			return false;
+		}else{
+		    // 检测密码强度
+	   		return true;
+		}
+ 	}
+ 	else{
+   		alert("请完整输入!!");	
+   		return false;
+ 	}
+ }
+ 
+ function validstr(str) {
+	if (str == "")
+		return false;
+		
+	if (str.replace(/[0-9a-zA-Z\-_\.]/g, "") != "") {
+		return false;
+	}
+	return true;
+ }
+  </script>
+  </head>
+  
+<body onload="needResetPassword('null');">
+    <form method="post" id="resetPassForm" name="resetPassForm" action="/systemmanage/adminModifyPWDByExt.jsp">
+       <input type="hidden" value="true" name="isNeedUpdateResetDate">
+       <input type="hidden" value="null" name="id">
+    </form>
+	<form action="/j_spring_security_check" method="post">
+    <div class="container">
+    <div class="col-sm-12 logo_img"><img src="/mobile/images/logo_03.png"></div>
+       <div class="form-signin">
+        <input type="hidden" name="mode" value="mobile">
+      	<div class="fj_img collapse navbar-collapse"><img src="/mobile/images/fj_06.png"></div>
+        <h2 class="form-signin-heading text-center"></h2>
+        <div class="form-st">
+            <input class="form-control" placeholder="用户名" type="text" name="j_username" id="j_username" value="" onkeyup="changeStr(this)">
+            <input class="form-control" placeholder="密码" type="password" name="j_password" id="j_password" value="" onkeyup="changeStr(this)">
+            <div class="row">
+            <div class="col-xs-7">
+            <input class="form-control" placeholder="验证码" type="text" name="j_code" id="j_code"></div>
+            <div class="col-xs-4 code" style="padding-right: 0px;padding-bottom: 0px;"><img id="authImg" src="/authImg" width="100%" onclick="changeImg();"></div>
+            <div class="col-xs-4 code" style="padding-right: 0px;padding-bottom: 0px;"> 
+				 
+				</div>
+            
+           <font color="red"><b><label id="messageResult"></label></b></font>
+            </div>
+            
+              <div class="row">
+              	   <label onclick="forgetPwd();" style="color: red;cursor: pointer; margin-left: 30px;">&nbsp;忘记密码</label>
+               </div>
+            <div>
+          
+             <font color="red">            
+            
+		    
+		    
+		    
+		      </font>
+		      </div>
+             <input type="submit" class="btn-lg btn-primary btn-block" value=" 登  录 " onclick="return chkValid();">
+       	  
+        </div>
+        </div>
+               
+	     <div class="foot_text">Copyrights (C) 2010中国南方航空股份有限公司版权所有</div>
+	    <div class="text-center"><font color="FF0000">IT支持热线020-86112345 IT支持邮箱：cimsweb@csair.com</font></div>
+	</div>
+	</form>
+  
+
+</body></html>

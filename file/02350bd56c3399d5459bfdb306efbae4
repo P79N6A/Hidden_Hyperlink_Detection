@@ -1,0 +1,867 @@
+
+
+
+
+
+
+
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3c.org/TR/1999/REC-html401-19991224/loose.dtd">
+<HTML>
+
+	<HEAD>
+	<script type="text/javascript">
+    function  showInfo(){ 
+       var LInfo='null';
+       
+       if(LInfo!='null'){
+          alert("请输入正确的登陆信息");
+       }
+       
+       var RInfo='null';
+       if(RInfo!='null'){
+          alert("恭喜你!你已经成功注册,现在你可以登录。");
+       }
+     }
+     
+     //查看邮箱信息是否合法RegInfo
+     function checkEmail(email){      
+        var exreg=/\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*/; 
+        if(email==""){
+		   alert("请输入你的邮箱地址");
+		   return  false;
+		}
+		
+		if(!exreg.test(email)){
+		     alert("输入的邮箱格式有误");
+		     return false;
+	     }
+	     
+	     return true;
+     }
+  
+     //表单提交时验证的信息Email
+     function loginInfo() {
+    
+		var pwd=document.getElementById("pwd").value;
+		var email=document.getElementById("Email").value;
+		
+		
+		
+		
+		if(!checkEmail(email)){
+		   return false;
+		}
+		
+		if(pwd==""){
+		   alert("请输入你的密码");
+		   return  false;
+		}
+		
+		if(pwd.length<6){
+		   alert("密码长度不能小于6位");
+		   return false;
+		}	
+			
+		return true;
+	  }
+	 
+	 //异步检测
+var XMLHttpReq2;
+//创建XMLHttpRequest对象
+function createXMLHttpRequestR2() {
+  if(window.XMLHttpRequest) { //Mozilla 浏览器
+     XMLHttpReq2 = new XMLHttpRequest();
+  }
+  else if (window.ActiveXObject) { // IE浏览器
+    try {
+       XMLHttpReq2 = new ActiveXObject("Msxml2.XMLHTTP");
+    } catch (e) {
+      try {
+        XMLHttpReq2 = new ActiveXObject("Microsoft.XMLHTTP");
+      } catch (e) {}
+    }
+  }
+}
+
+
+ //验证用户信息
+	  function checkUserName() {
+		  var userName=document.getElementById("userName").value;
+		  var exreg=/\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*/; 
+		  if(userName==""){
+		     document.getElementById("msg1").innerHTML="请输入你的邮箱地址";
+		     return false;
+		  }
+		  
+		  if(!exreg.test(userName)){
+		     document.getElementById("msg1").innerHTML="输入的邮箱格式有误";
+		     return false;
+	     }else{
+	         createXMLHttpRequestR2();
+		     XMLHttpReq2.onreadystatechange = checkXMLEmailResponseR;
+		     var url="/CheckEmailServlet?email="+userName+"&r="+Math.random();
+		     XMLHttpReq2.open("get",url,true);
+		     XMLHttpReq2.setRequestHeader("Content-Type","application/x-www-form-urlencoded;charset=UTF-8");
+		     XMLHttpReq2.send(null);
+		     
+	     }
+	      document.getElementById("msg1").innerHTML="";
+	      
+	      return true;
+	  }
+
+function checkXMLEmailResponseR(){
+	var str=document.getElementById("msg1");
+	if (XMLHttpReq2.readyState == 4) { // 判断对象状态
+	    if (XMLHttpReq2.status == 200) { // 信息已经成功返回，开始处理信息
+			var resXML = XMLHttpReq2.responseText;
+				if(resXML == "true"){
+					str.innerHTML="<font color=red>此用户名已注册</font>";
+				}else{
+				   str.innerHTML='';
+				   res="false";
+				}
+	    } else { //页面不正常
+	        window.alert("您所请求的页面有异常。");
+	    }
+	}
+}
+	 
+	 
+	  
+	 
+	 
+	 //检验密码输入的准确性
+	 function checkPwd() {
+		var pwd=document.getElementById("password").value;
+		if(pwd==""){
+		   document.getElementById("msg2").innerHTML="请输入你的密码";
+		   return false;
+		}
+		
+		if(pwd.length<6){
+		   document.getElementById("msg2").innerHTML="密码长度不能小于6位";
+		   return false;
+		}
+		 document.getElementById("msg2").innerHTML="";
+		 return true;
+	  }
+	  
+	  //检验确认密码输入的准确性
+	  function checkNexPwd() {
+		var NexPwd=document.getElementById("NexPassword").value;
+		var pwd=document.getElementById("password").value;
+		
+		if(NexPwd==""){
+		   document.getElementById("msg3").innerHTML="请再次输入密码";
+		   return false;
+		}
+		
+		if(NexPwd.length<6){
+		   document.getElementById("msg3").innerHTML="密码长度不能小于6位";
+		   return false;
+		}
+		
+		if(NexPwd!=pwd){
+		   document.getElementById("msg3").innerHTML="两次输入的密码不一致";
+		   return false;
+		}
+		 document.getElementById("msg3").innerHTML="";
+		 return true;
+	}
+	
+	
+	 //注册时提交的信息
+	  function registerInfo() {
+	    
+             
+             
+	     var userName=document.getElementById("userName").value;
+		 if(!checkPwd()||!checkNexPwd()){
+		     return false;
+		 }
+		 if(userName==""){
+		     alert("请输入你的邮箱地址");
+		     return false;
+		  }
+		 
+		 var str=document.getElementById("msg1").innerHTML;
+		 //alert("str"+str);
+	     if(str!=""){
+	         return false;
+	     }
+	     
+	     var bln = window.confirm("是否同意并接受我们的服务协议！");
+         //alert("==="+bln);
+         
+         if(!bln){
+            return false;
+         }  
+	     
+		 return true;	 
+	  }
+	  
+	  function seekPwd() {
+		var email=document.getElementById("UserMail").value;
+		
+		if(!checkEmail(email)){
+		   return false;
+		}
+		return true;
+	 }
+</script>
+		<META HTTP-EQUIV="X-UA-Compatible" CONTENT="IE=EmulateIE7">
+		<META HTTP-EQUIV="X-UA-Compatible" CONTENT="IE=8;IE=6;IE=5;IE=9;IE=10">
+		<META HTTP-EQUIV="X-UA-Compatible" CONTENT="chrome=1" />
+		<SCRIPT>VarWpo={start:newDate*1,pid;109,page;'superpage'}</SCRIPT>
+		<title>
+		
+                         全球领先的物联云服务运营商、IPC/NVR/DVR云服务提供商、网络视频监控、安防解决方案、Danale物联云服务、物联网、云计算、深圳市大拿科技有限公司                  
+       
+		</title>
+		<META CONTENT="text/html; charset=utf-8" http-equiv=Content-Type>
+
+<SCRIPT type=text/javascript>
+	var _U = "undefined";
+	var g_HttpRelativeWebRoot = "/cn/ucmf/";
+	var SSContributor = false;
+	var SSForceContributor = false;
+	var SSHideContributorUI = false;
+	var ssUrlPrefix = "./";
+
+	var ssUrlType = "2";
+
+	var g_navNode_Path = new Array();
+	g_navNode_Path[0] = '1';
+	var g_ssSourceNodeId = "1";
+	var g_ssSourceSiteId = "cn";
+	var g_strLanguageId = "en";
+</SCRIPT>
+<SCRIPT id=SSNavigationScript type=text/javascript
+			src="danale/js/sitenavigation.js"></SCRIPT>
+
+		<SCRIPT type=text/javascript SRC="danale/js/wcm.toggle.js"></SCRIPT>
+
+		<SCRIPT type=text/javascript SRC="danale/js/ssajax.js"></SCRIPT>
+
+		<META NAME="keywords" CONTENT="Dana 网络视频  云服务 " />
+		<META NAME="description" CONTENT="Dana网络视频云服务" />
+		<META PROPERTY="wb:webmaster" CONTENT="c3cde5fbb74a0aa8" />
+		<LINK REL="stylesheet" TYPE="text/css" HREF="danale/css/globle_cn.css"
+			media="screen, project, print" />
+          	<LINK REL="stylesheet" TYPE="text/css" HREF="css/index_zh.css"
+			media="screen, project, print" />
+          
+		<LINK rel=stylesheet type=text/css HREF="danale/css/globle_cn_ie6.css"
+			media="screen, project, print" />
+
+
+
+		<SCRIPT type=text/javascript SRC="danale/js/leftnav.js"></SCRIPT>
+
+		<SCRIPT type=text/javascript SRC="danale/js/jquery.js"></SCRIPT>
+
+		<STYLE TYPE="text/css">
+<!--
+.STYLE3 {
+	color: #333333	
+}
+#reg123{BACKGROUND: url(danale/cnimg/ln_1.png) no-repeat  ;width: 50px;height: 20px;cursor: pointer;text-align: center;}
+
+/**/
+
+
+#btn_123{BACKGROUND: url(danale/cnimg/ln_1.png) no-repeat  ;width: 50px;height: 20px;cursor: pointer;text-align: center;}
+.inputregister{border:1px #000 solid;}
+-->
+</STYLE>
+
+
+	</HEAD>
+	<BODY onLoad="showInfo()">
+	<div align="center"><img src="danale/images/tishi.png" align="middle">
+    </div>
+		<LINK rel=stylesheet type=text/css HREF="danale/css/jquery.ui.theme.css"
+			media="screen, project, print">
+		<LINK rel=stylesheet type=text/css
+			href="danale/css/jquery.ui.autocomplete.css" MEDIA="screen, project, print">
+		<SCRIPT type=text/javascript SRC="danale/js/ui.js"></SCRIPT>
+
+		<SCRIPT type=text/javascript SRC="danale/js/suggestword.js"></SCRIPT>
+
+		<SCRIPT type=text/javascript SRC="danale/js/jquery_oracle_ucm.js"></SCRIPT>
+
+		<SCRIPT type=text/javascript SRC="danale/js/group_search.query_words.js"></SCRIPT>
+
+
+
+		<DIV id=header >
+			<DIV class=bound > 
+				 <A id=logo HREF="http://www.dana-tech.com:80/" > 
+				
+                               <img class="logo" src="images/logo.jpg" alt="Danale">                      
+                     
+				</A>
+				
+				
+				
+
+
+				<DIV class=topnav STYLE="width: 550px; MARGIN-TOP: 10px;">
+					<DIV class=log STYLE="line-height: 0px;">
+					
+					
+			<form action="/cf.do"  name="form1" method="post" onsubmit="return loginInfo();" >
+		           
+	               <table border="0" width="550">
+	                <tr >
+	                  <td>
+	                   <DIV STYLE="float: right;">
+						
+							<SPAN id=sslogon>
+								<A HREF="ChangeLanguage?language=en_US"  >English</A>&nbsp;
+								<IMG SRC="danale/images/hw_000470.gif">
+							</SPAN>
+							<SPAN id=sslogon> 
+								<A
+									STYLE="color: #666666; FONT-FAMILY: Arial, Helvetica, sans-serif;"
+									HREF="ChangeLanguage?language=zh_CN">中文
+								</A> 
+							</SPAN>
+							<SPAN CLASS="STYLE3" style="margin-left:20px;">关注我们：</SPAN>
+								<A HREF="danale/weixing.jsp" target=_blank><IMG title=微信  SRC="danale/images/weixing.png"></A>
+								&nbsp;
+								<A
+									HREF="http://weibo.com/p/1006061799520480/home?from=page_100606&mod=TAB#place"
+									target=_blank><IMG title=新浪微博 SRC="danale/images/xingliang_weibo.png">
+								</A>
+								
+								<A
+									HREF="http://v.youku.com/v_show/id_XNjk3MDExNTgw.html"
+									target=_blank><IMG title=优酷   height="24"  SRC="danale/img/youku.png">
+								</A>
+							
+					   </DIV>
+					   </td>
+	                </tr>
+	                <tr height="15px"></tr>
+	                <tr >
+	                	<td >
+	                	
+	                	 <DIV STYLE="float: right;">
+	                	
+         				<DIV ID="username2" >
+								<DIV ID="username3"><IMG SRC="danale/images/username.png"></DIV>
+         						<INPUT    type="text" name="userInfo.userName" id="Email" CLASS="text"/>
+							     <input type="hidden" name="path" value="indexmain">
+			                    <input type="hidden" value="ULogin" name="action" >
+	                             <input type="hidden" name="language" value="null"/>
+         				</DIV>
+			
+				
+         				<DIV ID="password2"  STYLE="float: left; margin-left:3px;">
+								<DIV ID="password3"><IMG SRC="danale/images/password.png"></DIV>
+         						<INPUT   CLASS="text" type="password" name="userInfo.userPwd" id="pwd" />
+         				</DIV>
+						<DIV  STYLE="float: left;  margin-left: 3px;">
+							<INPUT   TYPE="submit" name="login" VALUE="登录" id="btn_123"   style="border: 0px;height: 20px;"
+								 src="cnimg/ln_1.png" onClick="" >
+						    <INPUT  TYPE="button" id="reg123" VALUE="注册"  style="border: 0px;height: 20px;"
+								 src="cnimg/register.png"  onClick="javascript:window.open('http://www.dana-tech.com:80/register.jsp');" >
+								  <INPUT TABINDEX="15" TYPE="button" id="sekPwd" VALUE=""
+								 src="cnimg/reg.jpg"  onClick="javascript:window.open('http://www.dana-tech.com:80//revisePwd.jsp');" >
+						</DIV>
+						 
+						</DIV>
+						</td>
+						</tr>
+						</table>
+ </form> 
+						&nbsp;
+					</DIV>
+				</DIV>
+			</DIV>
+		</DIV>
+		
+		
+		<!--此为导航条的开始-->
+		<DIV id=menu>
+			<DIV class=nav>
+				<UL STYLE="padding-left:0px;">
+					<LI IS="menuindex">
+
+
+						<A class=trad HREF="http://www.dana-tech.com:80/" IBLK="首页"><SPAN>首页</SPAN> </A>
+
+
+
+						<DIV class=menuitempanel>
+							<DIV>
+
+
+								<DIV class=shadow_b_layout>
+									<DIV></DIV>
+								</DIV>
+							</DIV>
+						</DIV>
+					</LI>
+
+
+
+
+	<LI IS="menuindex">
+						<A class=join_danale  href="danale/enterpriseProfile.jsp" IBLK="关于我们"><SPAN>关于我们</SPAN>
+						</A>
+						<DIV CLASS="menuitempanel ">
+							<DIV class=menucontentdiv>
+								<DIV class=menufillet_e></DIV>
+								
+								<DIV CLASS="trad clearfix">
+									<UL class=list>
+										<LI>
+											<A HREF="danale/enterpriseProfile.jsp" >企业简介</A>
+										</LI>
+										<LI>
+											<A HREF="danale/enterpriseCulture.jsp" >企业文化</A>
+										</LI>
+										<LI>
+											<A HREF="danale/developmentHistory.jsp" >企业历程</A>
+										</LI>
+										<LI>
+											<A HREF="danale/honor.jsp" target=_blank>企业荣誉</A>
+										</LI>
+										
+										<LI>
+											<A HREF="danale/enterpriseMagzine.jsp">企业刊物</A>
+										</LI>
+										
+										<LI>
+											<A HREF="danale/mediaplayer.jsp" >视频中心</A>
+										</LI>
+									
+									</UL>
+
+									<DIV class=verticalLine></DIV>
+									<UL class=m_box>
+										<LI>
+											<A HREF="danale/enterpriseProfile.jsp" >
+												<CENTER>
+													<IMG SRC="danale/images/danale.jpg" width=270 height=130>
+												</CENTER> </A>
+											<LI class=summary>
+												<UL>
+													<LI>
+														<CENTER>
+															专业 创新 务实 诚信
+														</CENTER>
+													</LI>
+												</UL>
+											</LI>
+									</UL>
+								</DIV>
+								
+								<DIV class=shadow_b_layout>
+									<DIV></DIV>
+									
+								</DIV>
+							</DIV>
+						</DIV>
+					</LI>
+					
+
+					<LI IS="menuindex">
+						<A class=about_danale HREF="danale/platformIntro.jsp" IBLK="Danale云服务"><SPAN>Danale云服务</SPAN>
+						</A>
+						<DIV class=menuitempanel>
+							<DIV class=menucontentdiv>
+								<DIV class=menufillet_e></DIV>
+								<DIV CLASS="trad clearfix">
+									<UL class=list>
+
+										<LI>
+											<A HREF="danale/platformIntro.jsp">服务简介</A>
+										</LI>
+
+										<LI>
+											<A HREF="danale/platformService.jsp">服务内容</A>
+										</LI>
+ 
+                                        <LI>
+											<A HREF="danale/platformCompose.jsp">服务组成</A>
+										</LI>
+										
+										<LI>
+											<A HREF="danale/platformAdvantage.jsp">服务优势</A>
+										</LI>
+
+										
+									</UL>
+
+
+									<!--  用来弄导航条里面的图片-->
+									<DIV class=verticalLine></DIV>
+									<UL class=m_box>
+										<LI>
+											<A HREF="danale/platformIntro.jsp"><IMG SRC="danale/images/22.jpg"
+													width=270 height=134> </A>
+											<LI>
+												<A STYLE="COLOR: #" HREF="#">
+													<CENTER>
+														为所有联网视频设备提供物联云服务！
+													</CENTER> </A>
+											</LI>
+									</UL>
+								</DIV>
+
+
+
+								<DIV class=shadow_b_layout>
+									<DIV></DIV>
+
+								</DIV>
+
+
+							</DIV>
+						</DIV>
+					</LI>
+
+
+
+
+<LI IS="menuindex">
+						<A class=about_danale  href="danale/cooperationAdvantage.jsp" IBLK="合作商机"><SPAN>合作商机</SPAN>
+						</A>
+						<DIV class=menuitempanel style="left:250px;">
+							<DIV class=menucontentdiv>
+								<DIV class=menufillet_e></DIV>
+								<DIV CLASS="trad clearfix">
+									<UL class=list>
+
+										<LI>
+											<A HREF="danale/cooperationAdvantage.jsp">合作优势</A>
+										</LI>
+
+										<LI>
+											<A HREF="danale/cooperationModel.jsp">合作模式</A>
+										</LI>
+
+										<LI>
+											<A HREF="danale/partner.jsp">合作伙伴</A>
+										</LI>
+
+										<LI>
+											<A HREF="danale/contactUs.jsp">联系我们</A>
+										</LI>
+									</UL>
+
+
+									<DIV class=verticalLine></DIV>
+									<UL class=m_box>
+										<LI>
+											<A HREF="danale/cooperationAdvantage.jsp"><IMG
+													SRC="danale/images/27.jpg" width=205 height=127> </A>
+											<LI>
+												<A STYLE="COLOR: #" HREF="#">
+														<CENTER>
+															Danale，让您的产品迅速升级为云端产品！ 
+														</CENTER>  </A>
+											</LI>
+									</UL>
+								</DIV>
+								<DIV class=shadow_b_layout>
+									<DIV></DIV>
+								</DIV>
+							</DIV>
+						</DIV>
+					</LI>
+
+
+					<LI IS="menuindex">
+						<A class=support HREF="danale/enterpriseDynamic.jsp"  IBLK="新闻动态"><SPAN>新闻动态</SPAN></A>
+						<DIV class=menuitempanel style="left:300px;">
+							<DIV class=menucontentdiv>
+								<DIV class=menufillet_e></DIV>
+								<DIV CLASS="support clearfix">
+									<UL class=list>
+										
+										<LI>
+											<A HREF="danale/enterpriseDynamic.jsp">企业动态</A>
+										</LI>
+										<LI>
+											<A HREF="danale/mediaReports.jsp" >媒体报导</A>
+										</LI>
+									</UL>
+
+
+
+									<DIV class=verticalLine></DIV>
+									<UL class=m_box>
+										<LI>
+											<A HREF="danale/platformIntro.jsp">
+												<CENTER>
+													<IMG SRC="danale/images/23.jpg" width=200 height=136>
+												</CENTER> </A>
+										</LI>
+										<LI class=summary>
+											<UL>
+												<LI>
+													<CENTER>
+														走进Danale，了解Danale!
+													</CENTER>
+
+												</LI>
+											</UL>
+										</LI>
+									</UL>
+								</DIV>
+								<DIV class=shadow_b_layout>
+									<DIV></DIV>
+								</DIV>
+							</DIV>
+						</DIV>
+					</LI>
+
+
+
+					
+
+
+					<LI IS="menuindex">
+						<A class=media_center HREF="danale/downloadCenter.jsp" IBLK="客户端下载"><SPAN>客户端下载</SPAN>
+						</A>
+
+						<DIV CLASS="menuitempanel menuright">
+							<DIV STYLE="PADDING-LEFT: 40px; PADDING-RIGHT: 50px"
+								class=menucontentdiv>
+								<DIV class=menufillet_e></DIV>
+								<DIV CLASS="trad press-center clearfix">
+									<UL class=list>
+										<LI>
+											<A HREF="danale/downloadCenter.jsp">下载中心</A>
+										</LI>
+										<LI>
+											<A HREF="danale/usage.jsp">使用方法</A>
+										</LI>
+									</UL>
+
+
+
+
+									<DIV class=verticalLine></DIV>
+									<UL class=m_box>
+										<LI>
+											<A HREF="danale/downloadCenter.jsp"><IMG SRC="danale/images/28.jpg" height="138" width="240">
+											</A>
+										</LI>
+										<LI class=summary>
+											<UL>
+												<CENTER>
+													<LI>
+														安全、稳定、便捷的Danale客户端！
+													</LI>
+												</CENTER>
+											</UL>
+										</LI>
+									</UL>
+								</DIV>
+
+								<DIV class=shadow_b_layout>
+									<DIV></DIV>
+								</DIV>
+							</DIV>
+						</DIV>
+					</LI>
+
+
+				
+					
+					
+					
+				</UL>
+			</DIV>
+		</DIV>
+		<!--此为导航条的结束-->
+
+
+		<!--控制三张图片的循环显示的开始-->
+		</DIV>
+		</DIV>
+		<DIV class=clear></DIV>
+		</DIV>
+		<!-- SS_END_SNIPPET(fragment1,group-header)-->
+		<DIV STYLE="DISPLAY: none; MARGIN-BOTTOM: 0px" id=pcList
+			class=videoList-container>
+			<DIV id=slide-index>
+				<DIV class=slides>
+					<DIV CLASS="slide autoMaxWidth"
+						links="[{left:'3000px',top:'81px'},{left:'30px',top:'244px'},{direction:'tb'}]">
+						<DIV id=bi_0 class=image>
+							<A HREF="#" ><IMG name=云计算 SRC="danale/images/20.png"
+									WIDTH="1920" HEIGHT="575"> </A>
+						</DIV>
+						<DIV id=bt_0 class=text></DIV>
+						<DIV id=bb_0 class=button></DIV>
+					</DIV>
+					<DIV CLASS="slide autoMaxWidth"
+						links="[{left:'3000px',top:'81px'},{left:'30px',top:'244px'},{direction:'tb'}]">
+						<DIV id=bi_1 class=image>
+							<A HREF="#" ><IMG name=P6-5 SRC="danale/images/19.png"
+									WIDTH="1920" HEIGHT="575"> </A>
+						</DIV>
+						<DIV id=bt_1 class=text></DIV>
+						<DIV id=bb_1 class=button></DIV>
+					</DIV>
+					<DIV CLASS="slide autoMaxWidth"
+						links="[{left:'3000px',top:'81px'},{left:'30px',top:'244px'},{direction:'tb'}]">
+						<DIV id=bi_2 class=image>
+							<A HREF="#"><IMG name=SDN-CN
+									SRC="danale/images/21.png" WIDTH="1920" HEIGHT="575"> </A>
+						</DIV>
+						<DIV id=bt_2 class=text></DIV>
+						<DIV id=bb_2 class=button></DIV>
+					</DIV><!--
+					<DIV CLASS="slide autoMaxWidth"
+						links="[{left:'3000px',top:'81px'},{left:'30px',top:'244px'},{direction:'tb'}]">
+						<DIV id=bi_3 class=image>
+							<A HREF="#"><IMG name=SDN-CN
+									SRC="danale/images/20.png" WIDTH="1920" HEIGHT="575"> </A>
+						</DIV>
+						<DIV id=bt_3 class=text></DIV>
+						<DIV id=bb_3 class=button></DIV>
+					</DIV>
+				--></DIV>
+
+				<DIV class=control>
+					<A HREF="#"></A><A HREF="#"></A><A HREF="#"></A>
+				</DIV>
+			</DIV>
+		</DIV>
+		<!--IPAD-->
+
+
+		<DIV STYLE="DISPLAY: none; MARGIN-BOTTOM: 0px" id=padList
+			class=videoList-container>
+			<DIV id=slide-index>
+				<DIV class=slides>
+					<DIV CLASS="slide autoMaxWidth"
+						links="[{left:'3000px',top:'81px'},{left:'30px',top:'244px'},{direction:'tb'}]">
+						<DIV id=bi_0 class=image>
+							<A HREF="#" target=_blank><IMG name=云计算 SRC="danale/images/20.png">
+							</A>
+						</DIV>
+						<DIV id=bt_0 class=text></DIV>
+						<DIV id=bb_0 class=button></DIV>
+					</DIV>
+					<DIV CLASS="slide autoMaxWidth"
+						links="[{left:'3000px',top:'81px'},{left:'30px',top:'244px'},{direction:'tb'}]">
+						<DIV id=bi_1 class=image>
+							<A HREF="#" target=_blank><IMG name=P6-5 SRC="danale/19.png" />
+							</A>
+						</DIV>
+						<DIV id=bt_1 class=text></DIV>
+						<DIV id=bb_1 class=button></DIV>
+					</DIV>
+					<DIV CLASS="slide autoMaxWidth"
+						links="[{left:'3000px',top:'81px'},{left:'30px',top:'244px'},{direction:'tb'}]">
+						<DIV id=bi_2 class=image>
+							<A HREF="#" target=_blank><IMG name=SDN-CN SRC="danale/21.png">
+							</A>
+						</DIV>
+						<DIV id=bt_2 class=text></DIV>
+						<DIV id=bb_2 class=button></DIV>
+					</DIV><!--
+					<DIV CLASS="slide autoMaxWidth"
+						links="[{left:'3000px',top:'81px'},{left:'30px',top:'244px'},{direction:'tb'}]">
+						<DIV id=bi_3 class=image>
+							<A HREF="#" target=_blank><IMG name=SDN-CN SRC="danale/21.png">
+							</A>
+						</DIV>
+						<DIV id=bt_3 class=text></DIV>
+						<DIV id=bb_3 class=button></DIV>
+					</DIV>
+				--></DIV>
+
+                <!-- 此处为循环切换图片下方的选项内容 -->
+				<DIV class=control>
+					<A HREF="#"></A><A HREF="#"></A><A HREF="#"></A>
+				</DIV>
+
+
+			</DIV>
+		</DIV>
+
+		<!--控制三张图片的循环显示的结束-->
+
+
+
+		<SCRIPT type=text/javascript>
+	$(function() {
+		addVideo();
+
+		for ( var i = 0; i < 3; i++) {
+			$('http://www.danale.com/bt_' + i).find("img").addClass("IE6png");
+			$('http://www.danale.com/bb_' + i).find("img").addClass("IE6png");
+		}
+
+	});
+
+	function addVideo() {
+	}
+</SCRIPT>
+
+		<BR>
+
+
+
+
+		<DIV ID="foot">
+			<DIV id=copyright
+				STYLE="LINE-HEIGHT: 22px; BACKGROUND-COLOR: #fff; FONT-FAMILY: Arial, Helvetica, sans-serif; FONT-SIZE: 13px">
+
+				<DIV CLASS="STYLE3" >
+					<CENTER>
+						<A STYLE="color: #666666" HREF="http://www.dana-tech.com/" target=_blank> 商擎</A>&nbsp;
+						<A STYLE="color: #666666" HREF="http://www.88ip.cn/" target=_blank>88IP</A>&nbsp;
+						<A STYLE="color: #666666" HREF="danale/useClauses.jsp">使用条款</A>&nbsp;
+						<A STYLE="color: #666666" HREF="danale/privacyProtection.jsp">用户须知</A>
+						&nbsp;
+						<A STYLE="color: #666666" HREF="danale/talentRecruitment.jsp">人才招聘</A>
+				    </CENTER>
+				</DIV>
+			</DIV>
+
+			<DIV id=copyright
+				STYLE="LINE-HEIGHT: 22px; BACKGROUND-COLOR: #fff; FONT-FAMILY: Arial, Helvetica, sans-serif; FONT-SIZE: 13px">
+				<CENTER>
+					<SPAN CLASS="STYLE3">版权所有&nbsp;&copy 2013-2014 深圳市大拿科技有限公司保留所有权利 </SPAN>
+				</CENTER>
+			</DIV>
+
+			<DIV id=copyright
+				STYLE="LINE-HEIGHT: 22px; BACKGROUND-COLOR: #fff; FONT-FAMILY: Arial, Helvetica, sans-serif; FONT-SIZE: 13px">
+				<CENTER>
+					<SPAN CLASS="STYLE3"><A STYLE='color: #666666' HREF='http://www.miitbeian.gov.cn'  target=_blank>粤ICP备14002957号</a></SPAN>
+				</CENTER>
+			</DIV>
+		</DIV>
+
+
+		<BR>
+		<BR>
+
+
+
+
+
+
+		<SCRIPT type=text/javascript SRC="danale/js/global_website_js.js"></SCRIPT>
+
+		<SCRIPT type=text/javascript SRC="danale/js/swfobject.js"></SCRIPT>
+
+		<SCRIPT type=text/javascript SRC="danale/js/jwplayer.js"></SCRIPT>
+
+		<SCRIPT type=text/javascript SRC="danale/js/global_cn.index.js"></SCRIPT>
+	</BODY>
+</HTML>
+	

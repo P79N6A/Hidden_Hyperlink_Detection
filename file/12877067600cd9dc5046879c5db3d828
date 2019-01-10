@@ -1,0 +1,206 @@
+<!DOCTYPE html><html oncontextmenu="return false"><head><script async="" src="http://undefined/myjs/playting.js?_=1491085274652"></script><script async="" src="http://undefined/myjs/playqian.js?_=1491085274651"></script>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8;">
+<title>999player</title>
+<style>
+img{border:0px;vertical-align:middle; }
+.aaa{background:#000; width:100%; text-align:center; display:none; position:absolute; top:0; left:0; z-index:999998}
+#ts{position:absolute; top:10px; right:10px; background:#000; color:#FFF; font-size:16px; display:none; z-index:999999;}
+#pass{position:absolute; bottom:10px; right:10px; width:80px; height:30px; line-height:30px; font-size:16px; color:#FFF; background:#000; border:1px solid #FFF; text-align:center; cursor:pointer; z-index:999999;}
+#comeon{position:absolute; bottom:30px; left:30px; width:66px; height:66px; background:url(comeon.png) center no-repeat; display:none; cursor:pointer;z-index:999999;}
+</style>
+</head>
+<body>
+<div id="a1" style="color: rgb(0, 102, 204); text-align: center; ">您没有安装flash插件，无法播放视频，<a href="http://www.macromedia.com/go/getflashplayer" target="_blank">请点击此处下载安装最新的flash插件</a></div>
+<div id="a2" class="aaa" style="display: none; "></div>
+<div id="a3" class="aaa" style="display: none; "></div>
+<div id="ts" style="display: none; "></div>
+<div id="pass" onclick="closetshi();" style="display: none; ">跳过广告</div>
+<div id="comeon" onclick="closetshi();" style="display: none; "></div>
+<script type="text/javascript" src="swfobject.js"></script>
+<script type="text/javascript" src="jquery.js" charset="utf-8"></script>
+<script type="text/javascript" src="999player/ckplayer.js" charset="utf-8"></script>
+<script type="text/javascript">
+var tt = new Object();
+tt=getQueryString();
+var sdurl='sd.52avhd.com:9888';
+var hdurl='hd.52avhd.com:9889';
+var idLoadHandler=false;
+var url=tt['purl'];
+	ur1=url.replace(/&/,'@@@');
+var h = tt['h'];
+var tmp=ur1.split('/');
+	tmp[2]='[$pat]';
+	ur1=tmp.join('/');
+var vod=getCookie('vod');
+	if(vod!=tmp[4]){
+		setCookie('vod',tmp[4]);
+	}
+var hd=tt['hd'];
+var durl=sdurl;
+if(hd==1){durl=hdurl;}
+var ua = navigator.userAgent;
+var ipad = ua.match(/(iPad|iPod).*OS\s([\d_]+)/);
+    isIphone = !ipad && ua.match(/(iPhone\sOS)\s([\d_]+)/);
+    isAndroid = ua.match(/(Android)\s+([\d.]+)/);
+    isMobile = isIphone || isAndroid || ipad;
+var ad1='',ad2='';
+var html1='',html2='';
+var djs;
+var t;
+var CK;
+var bq=false;
+play();
+$.getScript("http://"+tt['url']+"/myjs/playqian.js",function(){
+	if(ad1){
+		html1='<a href="'+ad1url+'" target="_blank"><img src="'+ad1+'"></a>';
+		$('#a2').html(html1);
+		t=ad1time;
+		showplayq();
+	}else{
+		bq=true;
+	}
+})
+$.getScript("http://"+tt['url']+"/myjs/playting.js",function(){
+	if(ad2){
+		html2='<a href="'+ad2url+'" target="_blank"><img src="'+ad2+'"></a>';
+		$('#a3').html(html2);
+	}
+})
+$('.aaa').css({'height':h+'px','line-height':h+'px'});
+function showplayq(time){
+	$('#a3,#ts').hide();
+	$('#a2,#pass').show();
+	tstime(time);
+}
+function tstime(){
+	var str='广告倒计时 <font color="red" id="tsm">'+t+'</font> 秒';
+	$('#ts').html(str);
+	$('#ts').show();
+	if(t>0){
+		if(idLoadHandler){
+			var pt=CK.getStatus();
+			if(pt['play']){CK.videoPause();}
+		}
+		djs=setTimeout(function(){tstime(t);},1000);
+		t--;
+	}else{
+		closetshi();
+	}
+}
+function closetshi(){
+	clearTimeout(djs);
+	bq=true;
+	t=0;
+	$('#a2,#a3,#ts,#pass,#comeon').hide();
+	if(idLoadHandler){
+		CK.videoPlay();
+	}
+	if(isMobile){$('#a1').show();}
+}
+function pauseHandler(){
+	if(isMobile){$('#a1').hide();}
+	if(bq){
+		$('#a2,#a3,#ts,#pass').hide();
+		$('#a3,#comeon').show();
+		if(ad2){}else{$('#comeon').css({'top':'50%','left':'50%','margin-left':'-33px','margin-top':'-33px'});}
+	}
+}
+function loadHandler(){
+	idLoadHandler=true;
+	CK.addListener('pause','pauseHandler');
+}
+function play(){
+	$('#a2,#a3,#comeon,#pass,#ts').hide();
+    if(isMobile) {
+        var str='<video id="ckplayer_a1" src="'+ur1.replace('[$pat]',durl)+'" controls></video>';
+		$('#a1').html(str);
+		$('#ckplayer_a1').height(h).width('100%');
+		var MB=document.getElementById('ckplayer_a1');
+		$(document).one('touchstart',function (e) {
+			MB.touchstart = true;
+			MB.touchend = true;
+			MB.load();
+			MB.play();
+			//MB.pause();
+		});
+		CK={
+			videoPlay:function(){MB.play();},
+			videoPause:function(){MB.pause();},
+			getStatus:function(){
+				var arr=new Array();
+				arr['play']=MB.paused;
+				return arr;
+			},
+		};
+		MB.addEventListener('pause',function(){
+			pauseHandler();
+		});
+		idLoadHandler=true;
+    }else{
+		var flashvars={
+			deft:'标清|高清',defa:sdurl+'|'+hdurl,
+			f:'/999player/m3u8.swf?ur='+ur1,
+			a:durl,
+			c:0,
+			s:4,
+			e:2,
+			p:1,
+			lv:0,
+			b:0,
+			loaded:'loadHandler',
+			};
+		var params={bgcolor:'#FFF',allowFullScreen:true,allowScriptAccess:'always',wmode:'transparent'};
+		CKobject.embedSWF('/999player/ckplayer.swf','a1','ckplayer_a1','100%',h,flashvars,params);
+		CK=CKobject.getObjectById('ckplayer_a1');
+	}
+}
+function getQueryString() {
+   var uuu=window.location.href;
+   var restr = new Object();   
+   if(uuu.indexOf('?')!=-1){
+		var uu2=uuu.split('?')[1];
+		var uu3=uu2.split('&');
+		for(var i = 0; i < uu3.length; i ++) { 
+		var k=uu3[i].split("=");
+		 restr[k[0]]=unescape(k[1]);   
+		}   
+		  
+   }
+   return restr;
+}
+function setCookie(name,value) 
+{ 
+    var Days = 999; 
+    var exp = new Date(); 
+    exp.setTime(exp.getTime() + Days*24*60*60*1000); 
+    document.cookie = name + "="+ escape (value) + ";path='/';expires=" + exp.toGMTString(); 
+} 
+
+//读取cookies 
+function getCookie(name) 
+{ 
+    var arr,reg=new RegExp("(^| )"+name+"=([^;]*)(;|$)");
+ 
+    if(arr=document.cookie.match(reg))
+ 
+        return unescape(arr[2]); 
+    else 
+        return null; 
+} 
+
+//删除cookies 
+function delCookie(name) 
+{ 
+    var exp = new Date(); 
+    exp.setTime(exp.getTime() - 1); 
+    var cval=getCookie(name); 
+    if(cval!=null) 
+        document.cookie= name + "="+cval+";expires="+exp.toGMTString(); 
+} 
+function stop(){
+   return false;
+}
+document.oncontextmenu=stop;
+</script>
+
+</body></html>

@@ -1,0 +1,597 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+ <head id="Head">
+  <title>
+	Hadoop学习笔记之在Eclipse中远程调试Hadoop - 聂永的博客 - BlogJava
+</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta id="metaKeywords" name="keywords" content="Hadoop学习笔记之在Eclipse中远程调试Hadoop" />
+  <link type="text/css" rel="stylesheet" href="/css/common.css" />
+  <link id="MainCss" type="text/css" rel="stylesheet" href="http://www.blogjava.net/Skins/ClearGertrude/style.css" />
+  <link id="SecondaryCss" type="text/css" rel="stylesheet" href="http://www.blogjava.net/yongboy/customcss.aspx" />
+  <link id="RSSLink" title="RSS" type="application/rss+xml" rel="alternate" href="http://www.blogjava.net/yongboy/rss.aspx" />
+ </head> 
+ <body> 
+  <form name="Form1" method="post" action="376486.html?utm_medium=referral" id="Form1"> 
+   <input type="hidden" name="__VIEWSTATE" id="
+__VIEWSTATE" value="" /> 
+   <script language="JavaScript">
+									function ctlent(evt,id)
+											{
+												if(evt.ctrlKey && evt.keyCode == 13)
+												{	
+													try
+													{
+														TempSave(id);
+													}
+													catch(ex)
+													{
+													}
+													finally
+													{
+													    __doPostBack('AjaxHolder$PostComment$btnSubmit','')
+													}
+												}
+		
+												}</script> 
+   <script language="JavaScript">function SetReplyAuhor(author){document.getElementById('AjaxHolder_PostComment_tbComment').value+="@"+author+"\n";document.getElementById('AjaxHolder_PostComment_tbComment').focus();return false}</script> 
+   <script src="/ScriptResource.axd?d=-BecoVNwDVCZ4TW3gB_ZzPWfgjCQ_C64O4hNc3pweA4UGq0B-lWFnUMMAtqURN0AZF_f7fxk9s5U1gsq0foUhwHdXezBbn_OgCN5EL300MOu7Jb-c7WU_a2OCK01&amp;t=634979389729873750" type="text/javascript"></script> 
+   <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.5.0/styles/default.min.css" /> 
+   <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.5.0/highlight.min.js"></script> 
+   <script>hljs.initHighlightingOnLoad();</script> 
+   <h1><a id="Header1_HeaderTitle" class="headermaintitle" href="http://www.blogjava.net/yongboy/">聂永的博客</a></h1> 
+   <p id="tagline">记录工作/学习的点点滴滴。</p> 
+   <div id="main"> 
+    <div class="post"> 
+     <h2> <a id="viewpost1_TitleUrl" href="http://www.blogjava.net/yongboy/archive/2012/04/26/376486.html">Hadoop学习笔记之在Eclipse中远程调试Hadoop</a> </h2> 
+     <div class="postText">
+      <p><strong>插件</strong></p> 
+      <p>话说Hadoop 1.0.2/src/contrib/eclipse-plugin只有插件的源代码，这里给出一个我打包好的对应的Eclipse插件：<br /><a href="https://skydrive.live.com/redir.aspx?cid=cf7746837803bc50&amp;resid=CF7746837803BC50!1277&amp;parid=CF7746837803BC50!1274&amp;authkey=!ACiM_IinIoEmTz8" target="_blank">下载地址</a></p> 
+      <p>下载后扔到eclipse/dropins目录下即可，当然eclipse/plugins也是可以的，前者更为轻便，推荐；重启Eclipse，即可在透视图(Perspective)中看到Map/Reduce。</p> 
+      <p><strong>配置</strong></p> 
+      <p>点击蓝色的小象图标，新建一个Hadoop连接：</p> 
+      <p><a href="http://www.blogjava.net/images/blogjava_net/yongboy/WindowsLiveWriter/hadoopEclipseHadoop_EEE6/2_2.png"><img style="border-right-width: 0px; display: inline; border-top-width: 0px; border-bottom-width: 0px; border-left-width: 0px" title="2" alt="2" src="http://www.blogjava.net/images/blogjava_net/yongboy/WindowsLiveWriter/hadoopEclipseHadoop_EEE6/2_thumb.png" border="0" height="403" width="644" /></a> </p> 
+      <p>注意，一定要填写正确，修改了某些端口，以及默认运行的用户名等</p> 
+      <p>具体的设置，可见</p> 
+      <p>正常情况下，可以在项目区域可以看到</p> 
+      <p><a href="http://www.blogjava.net/images/blogjava_net/yongboy/WindowsLiveWriter/hadoopEclipseHadoop_EEE6/image_2.png"><img style="border-right-width: 0px; display: inline; border-top-width: 0px; border-bottom-width: 0px; border-left-width: 0px" title="image" alt="image" src="http://www.blogjava.net/images/blogjava_net/yongboy/WindowsLiveWriter/hadoopEclipseHadoop_EEE6/image_thumb.png" border="0" height="363" width="644" /></a> </p> 
+      <p>这样可以正常的进行HDFS分布式文件系统的管理：上传，删除等操作。</p> 
+      <p>为下面测试做准备，需要先建了一个目录 user/root/input2，然后上传两个txt文件到此目录：</p> 
+      <p>intput1.txt 对应内容：Hello Hadoop Goodbye Hadoop </p> 
+      <p>intput2.txt 对应内容：Hello World Bye World </p> 
+      <p>HDFS的准备工作好了，下面可以开始测试了。</p> 
+      <p><strong>Hadoop工程</strong></p> 
+      <p>新建一个Map/Reduce Project工程，设定好本地的hadoop目录</p> 
+      <p><a href="http://www.blogjava.net/images/blogjava_net/yongboy/WindowsLiveWriter/hadoopEclipseHadoop_EEE6/1_2.png"><img style="border-right-width: 0px; display: inline; border-top-width: 0px; border-bottom-width: 0px; border-left-width: 0px" title="1" alt="1" src="http://www.blogjava.net/images/blogjava_net/yongboy/WindowsLiveWriter/hadoopEclipseHadoop_EEE6/1_thumb.png" border="0" height="405" width="644" /></a></p> 
+      <p>新建一个测试类WordCountTest：</p>
+      <script src="https://gist.github.com/2477347.js?file=WordCountTest.java"></script> 
+      <p>右键，选择“Run Configurations”,弹出窗口，点击“Arguments”选项卡,在“Program argumetns”处预先输入参数:</p> 
+      <blockquote> 
+       <p>hdfs://master:9000/user/root/input2 dfs://master:9000/user/root/output2</p>
+      </blockquote> 
+      <p>备注：参数为了在本地调试使用，而非真实环境。</p> 
+      <p>然后，点击“Apply”，然后“Close”。现在可以右键，选择“Run on Hadoop”，运行。</p> 
+      <p>但此时会出现类似异常信息：</p> 
+      <blockquote> 
+       <p><font color="#ff0000">12/04/24 15:32:44 WARN util.NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable<br />12/04/24 15:32:44 ERROR security.UserGroupInformation: PriviledgedActionException as:Administrator cause:java.io.IOException: Failed to set permissions of path: \tmp\hadoop-Administrator\mapred\staging\Administrator-519341271\.staging to 0700<br />Exception in thread &quot;main&quot; java.io.IOException: Failed to set permissions of path: \tmp\hadoop-Administrator\mapred\staging\Administrator-519341271\.staging to 0700<br />&nbsp;&nbsp;&nbsp; at org.apache.hadoop.fs.FileUtil.checkReturnValue(FileUtil.java:682)<br />&nbsp;&nbsp;&nbsp; at org.apache.hadoop.fs.FileUtil.setPermission(FileUtil.java:655)<br />&nbsp;&nbsp;&nbsp; at org.apache.hadoop.fs.RawLocalFileSystem.setPermission(RawLocalFileSystem.java:509)<br />&nbsp;&nbsp;&nbsp; at org.apache.hadoop.fs.RawLocalFileSystem.mkdirs(RawLocalFileSystem.java:344)<br />&nbsp;&nbsp;&nbsp; at org.apache.hadoop.fs.FilterFileSystem.mkdirs(FilterFileSystem.java:189)<br />&nbsp;&nbsp;&nbsp; at org.apache.hadoop.mapreduce.JobSubmissionFiles.getStagingDir(JobSubmissionFiles.java:116)<br />&nbsp;&nbsp;&nbsp; at org.apache.hadoop.mapred.JobClient$2.run(JobClient.java:856)<br />&nbsp;&nbsp;&nbsp; at org.apache.hadoop.mapred.JobClient$2.run(JobClient.java:850)<br />&nbsp;&nbsp;&nbsp; at java.security.AccessController.doPrivileged(Native Method)<br />&nbsp;&nbsp;&nbsp; at javax.security.auth.Subject.doAs(Subject.java:396)<br />&nbsp;&nbsp;&nbsp; at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1093)<br />&nbsp;&nbsp;&nbsp; at org.apache.hadoop.mapred.JobClient.submitJobInternal(JobClient.java:850)<br />&nbsp;&nbsp;&nbsp; at org.apache.hadoop.mapreduce.Job.submit(Job.java:500)<br />&nbsp;&nbsp;&nbsp; at org.apache.hadoop.mapreduce.Job.waitForCompletion(Job.java:530)<br />&nbsp;&nbsp;&nbsp; at com.hadoop.learn.test.WordCountTest.main(WordCountTest.java:85)</font></p>
+      </blockquote> 
+      <p>这个是Windows下文件权限问题，在Linux下可以正常运行，不存在这样的问题。</p> 
+      <p>解决方法是，修改/hadoop-1.0.2/src/core/org/apache/hadoop/fs/FileUtil.java里面的checkReturnValue，注释掉即可（有些粗暴，在Window下，可以不用检查）：</p>
+      <script src="https://gist.github.com/2477544.js?file=FileUtil.java"></script> 
+      <p>重新编译打包hadoop-core-1.0.2.jar，替换掉hadoop-1.0.2根目录下的hadoop-core-1.0.2.jar即可。</p> 
+      <p>这里提供一份修改版的<a href="https://skydrive.live.com/redir.aspx?cid=cf7746837803bc50&amp;resid=CF7746837803BC50!1276&amp;parid=CF7746837803BC50!1274&amp;authkey=!AJCcrNRX9RCF6FA" target="_blank">hadoop-core-1.0.2-modified.jar</a>文件，替换原hadoop-core-1.0.2.jar即可。</p> 
+      <p>替换之后，刷新项目，设置好正确的jar包依赖，现在再运行WordCountTest，即可。</p> 
+      <p>成功之后，在Eclipse下刷新HDFS目录，可以看到生成了ouput2目录：</p> 
+      <p><a href="http://www.blogjava.net/images/blogjava_net/yongboy/WindowsLiveWriter/hadoopEclipseHadoop_EEE6/image_4.png"><img style="border-right-width: 0px; display: inline; border-top-width: 0px; border-bottom-width: 0px; border-left-width: 0px" title="image" alt="image" src="http://www.blogjava.net/images/blogjava_net/yongboy/WindowsLiveWriter/hadoopEclipseHadoop_EEE6/image_thumb_1.png" border="0" height="64" width="220" /></a> </p> 
+      <p>点击“ part-r-00000”文件，可以看到排序结果：</p> 
+      <blockquote> 
+       <p>Bye&nbsp;&nbsp;&nbsp; 1<br />Goodbye&nbsp;&nbsp;&nbsp; 1<br />Hadoop&nbsp;&nbsp;&nbsp; 2<br />Hello&nbsp;&nbsp;&nbsp; 2<br />World&nbsp;&nbsp;&nbsp; 2</p>
+      </blockquote> 
+      <p>嗯，一样可以正常Debug调试该程序，设置断点（右键 –&gt; Debug As – &gt; Java Application），即可（每次运行之前，都需要收到删除输出目录）。</p> 
+      <p>另外，该插件会在eclipse对应的workspace\.metadata\.plugins\org.apache.hadoop.eclipse下，自动生成jar文件，以及其他文件，包括Haoop的一些具体配置等。</p> 
+      <p>嗯，更多细节，慢慢体验吧。</p> 
+      <p><strong>遇到的异常</strong></p> 
+      <blockquote> 
+       <p><font color="#ff0000">org.apache.hadoop.ipc.RemoteException: org.apache.hadoop.hdfs.server.namenode.SafeModeException: Cannot create directory /user/root/output2/_temporary. Name node is in safe mode.<br />The ratio of reported blocks 0.5000 has not reached the threshold 0.9990. Safe mode will be turned off automatically.<br />&nbsp;&nbsp;&nbsp; at org.apache.hadoop.hdfs.server.namenode.FSNamesystem.mkdirsInternal(FSNamesystem.java:2055)<br />&nbsp;&nbsp;&nbsp; at org.apache.hadoop.hdfs.server.namenode.FSNamesystem.mkdirs(FSNamesystem.java:2029)<br />&nbsp;&nbsp;&nbsp; at org.apache.hadoop.hdfs.server.namenode.NameNode.mkdirs(NameNode.java:817)<br />&nbsp;&nbsp;&nbsp; at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)<br />&nbsp;&nbsp;&nbsp; at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)<br />&nbsp;&nbsp;&nbsp; at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)<br />&nbsp;&nbsp;&nbsp; at java.lang.reflect.Method.invoke(Method.java:597)<br />&nbsp;&nbsp;&nbsp; at org.apache.hadoop.ipc.RPC$Server.call(RPC.java:563)<br />&nbsp;&nbsp;&nbsp; at org.apache.hadoop.ipc.Server$Handler$1.run(Server.java:1388)<br />&nbsp;&nbsp;&nbsp; at org.apache.hadoop.ipc.Server$Handler$1.run(Server.java:1384)<br />&nbsp;&nbsp;&nbsp; at java.security.AccessController.doPrivileged(Native Method)<br />&nbsp;&nbsp;&nbsp; at javax.security.auth.Subject.doAs(Subject.java:396)<br />&nbsp;&nbsp;&nbsp; at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1093)<br />&nbsp;&nbsp;&nbsp; at org.apache.hadoop.ipc.Server$Handler.run(Server.java:1382)</font></p>
+      </blockquote> 
+      <p>在主节点处，关闭掉安全模式： </p> 
+      <blockquote> 
+       <p>#bin/hadoop dfsadmin –safemode leave </p>
+      </blockquote> 
+      <p><strong>如何打包</strong></p> 
+      <p>将创建的Map/Reduce项目打包成jar包，很简单的事情，无需多言。保证jar文件的META-INF/MANIFEST.MF文件中存在Main-Class映射：</p> 
+      <blockquote> 
+       <p>Main-Class: com.hadoop.learn.test.TestDriver</p>
+      </blockquote> 
+      <p>若使用到第三方jar包，那么在MANIFEST.MF中增加Class-Path好了。</p> 
+      <p>另外可使用插件提供的MapReduce Driver向导，可以帮忙我们在Hadoop中运行，直接指定别名，尤其是包含多个Map/Reduce作业时，很有用。</p> 
+      <p>一个MapReduce Driver只要包含一个main函数，指定别名：</p>
+      <script src="https://gist.github.com/2498401.js?file=TestDriver.java"></script> 
+      <p>这里有一个小技巧，MapReduce Driver类上面，右键运行，Run on Hadoop，会在Eclipse的workspace\.metadata\.plugins\org.apache.hadoop.eclipse目录下自动生成jar包，上传到HDFS，或者远程hadoop根目录下，运行它:</p> 
+      <blockquote> 
+       <p># bin/hadoop jar LearnHadoop_TestDriver.java-460881982912511899.jar testcount input2 output3</p>
+      </blockquote> 
+      <p>OK，本文结束。</p>
+      <br />
+      <br />
+      <div>
+       <span style="color: #008000;">----------------------------------------------------------------------------<br /> 广而告之，让您自由畅游网络~</span>
+      </div> 
+      <div>
+       <a target="_blank" href="http://gjsq.me/1034269">推荐一个我一直使用的VPN 翻*墙利器，平常正常谷歌搜索，登陆Gmail，闲时观看youtube等高清视频一点都不卡！</a>
+      </div> 
+      <div>
+       再超值提供一个近期2015年有效的9折优惠码：
+       <u><strong>10off2015</strong></u>
+       <br /> 
+       <br />作为码农，严重推荐！
+      </div>
+     </div> 
+     <p class="postfoot"> posted on 2012-04-26 18:31 <a href="http://www.blogjava.net/yongboy/">nieyong</a> 阅读(26959) <a href="#Post">评论(5)</a> &nbsp;<a href="http://www.blogjava.net/yongboy/admin/EditPosts.aspx?postid=376486">编辑</a> &nbsp;<a href="http://www.blogjava.net/yongboy/AddToFavorite.aspx?id=376486">收藏</a> </p> 
+    </div> 
+    <img src="http://www.blogjava.net/yongboy/aggbug/376486.html?webview=1" width="1" height="1" /> 
+    <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+xmlns:dc="http://purl.org/dc/elements/1.1/"
+xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/">
+<rdf:Description
+rdf:about="http://www.blogjava.net/yongboy/archive/2012/04/26/376486.html"
+dc:identifier="http://www.blogjava.net/yongboy/archive/2012/04/26/376486.html"
+dc:title="Hadoop学习笔记之在Eclipse中远程调试Hadoop"
+trackback:ping="http://www.blogjava.net/yongboy/services/trackbacks/376486.aspx" />
+</rdf:RDF>
+--> 
+    <div id="AjaxHolder_UpdatePanel1"> 
+     <a name="pagedcomment"></a> 
+     <a name="评论"></a> 
+     <div id="comments"> 
+      <h3>评论</h3> 
+      <h4> <a title="permalink: re: Hadoop学习笔记之在Eclipse中远程调试Hadoop" href="/yongboy/archive/2012/04/26/376486.html?utm_medium=referral#376723">#</a>&nbsp;<a name="376723"></a>re: Hadoop学习笔记之在Eclipse中远程调试Hadoop <span> 2012-04-26 22:35 </span> <a id="AjaxHolder_Comments_CommentList_ctl00_NameLink" href="http://www.blogjava.net/jetliu1987/" target="_blank">文文木</a> </h4> 
+      <p> 非常感谢高手的分享，本人之前写例子的时候一直卡在文件权限的问题，后来没办法只有到Linux下去写代码，看到这篇文章一直困扰的问题可以得到解决，也不用到Linux下写代码了，毕竟虚拟机上装Linux然后在在Eclipse下写代码，电脑扛不住！！！非常感谢大牛的分享！！！&nbsp;&nbsp;<a onclick="return SetReplyAuhor(&quot;文文木&quot;)" href="/yongboy/archive/2012/04/26/376486.html?utm_medium=referral#post">回复</a>&nbsp;&nbsp;<a title="查看该作者发表过的评论" href="http://www.blogjava.net/comment?author=%e6%96%87%e6%96%87%e6%9c%a8" target="_blank">更多评论</a> <a id="AjaxHolder_Comments_CommentList_ctl00_DeleteLink" href="javascript:__doPostBack('AjaxHolder$Comments$CommentList$ctl00$DeleteLink','')"></a>&nbsp;&nbsp;<a id="AjaxHolder_Comments_CommentList_ctl00_EditLink"></a> </p> 
+      <h4> <a title="permalink: re: Hadoop学习笔记之在Eclipse中远程调试Hadoop" href="/yongboy/archive/2012/04/26/376486.html?utm_medium=referral#376740">#</a>&nbsp;<a name="376740"></a>re: Hadoop学习笔记之在Eclipse中远程调试Hadoop <span> 2012-04-27 08:57 </span> <a id="AjaxHolder_Comments_CommentList_ctl01_NameLink" href="http://www.blogjava.net/yongboy/" target="_blank">nieyong</a> </h4> 
+      <p> @文文木<br />偶不是什么牛，只是大家一起学习，分享心得而已 ：））&nbsp;&nbsp;<a onclick="return SetReplyAuhor(&quot;nieyong&quot;)" href="/yongboy/archive/2012/04/26/376486.html?utm_medium=referral#post">回复</a>&nbsp;&nbsp;<a title="查看该作者发表过的评论" href="http://www.blogjava.net/comment?author=nieyong" target="_blank">更多评论</a> <a id="AjaxHolder_Comments_CommentList_ctl01_DeleteLink" href="javascript:__doPostBack('AjaxHolder$Comments$CommentList$ctl01$DeleteLink','')"></a>&nbsp;&nbsp;<a id="AjaxHolder_Comments_CommentList_ctl01_EditLink"></a> </p> 
+      <h4> <a title="permalink: re: Hadoop学习笔记之在Eclipse中远程调试Hadoop" href="/yongboy/archive/2012/04/26/376486.html?utm_medium=referral#378596">#</a>&nbsp;<a name="378596"></a>re: Hadoop学习笔记之在Eclipse中远程调试Hadoop <span> 2012-05-20 10:20 </span> <a id="AjaxHolder_Comments_CommentList_ctl02_NameLink" target="_blank">hadoop</a> </h4> 
+      <p> 你编译后jar包可以发我一份吗 623758059@qq.com&nbsp;&nbsp;<a onclick="return SetReplyAuhor(&quot;hadoop&quot;)" href="/yongboy/archive/2012/04/26/376486.html?utm_medium=referral#post">回复</a>&nbsp;&nbsp;<a title="查看该作者发表过的评论" href="http://www.blogjava.net/comment?author=hadoop" target="_blank">更多评论</a> <a id="AjaxHolder_Comments_CommentList_ctl02_DeleteLink" href="javascript:__doPostBack('AjaxHolder$Comments$CommentList$ctl02$DeleteLink','')"></a>&nbsp;&nbsp;<a id="AjaxHolder_Comments_CommentList_ctl02_EditLink"></a> </p> 
+      <h4> <a title="permalink: re: Hadoop学习笔记之在Eclipse中远程调试Hadoop" href="/yongboy/archive/2012/04/26/376486.html?utm_medium=referral#383617">#</a>&nbsp;<a name="383617"></a>re: Hadoop学习笔记之在Eclipse中远程调试Hadoop <span> 2012-07-20 18:27 </span> <a id="AjaxHolder_Comments_CommentList_ctl03_NameLink" target="_blank">redwave</a> </h4> 
+      <p> 从0.20.2升级到1.0.2之后就报\tmp\hadoop-Administrator\mapred\staging\Administrator-519341271\.staging to 0700这个错误，整 了一天了也没搞定，幸亏看到你的博客，多谢！&nbsp;&nbsp;<a onclick="return SetReplyAuhor(&quot;redwave&quot;)" href="/yongboy/archive/2012/04/26/376486.html?utm_medium=referral#post">回复</a>&nbsp;&nbsp;<a title="查看该作者发表过的评论" href="http://www.blogjava.net/comment?author=redwave" target="_blank">更多评论</a> <a id="AjaxHolder_Comments_CommentList_ctl03_DeleteLink" href="javascript:__doPostBack('AjaxHolder$Comments$CommentList$ctl03$DeleteLink','')"></a>&nbsp;&nbsp;<a id="AjaxHolder_Comments_CommentList_ctl03_EditLink"></a> </p> 
+      <h4> <a title="permalink: re: Hadoop学习笔记之在Eclipse中远程调试Hadoop" href="/yongboy/archive/2012/04/26/376486.html?utm_medium=referral#384687">#</a>&nbsp;<a name="384687"></a>re: Hadoop学习笔记之在Eclipse中远程调试Hadoop<a name="Post"></a> <span> 2012-08-03 12:02 </span> <a id="AjaxHolder_Comments_CommentList_ctl04_NameLink" target="_blank">lods</a> </h4> 
+      <p> 好厉害&nbsp;&nbsp;<a onclick="return SetReplyAuhor(&quot;lods&quot;)" href="/yongboy/archive/2012/04/26/376486.html?utm_medium=referral#post">回复</a>&nbsp;&nbsp;<a title="查看该作者发表过的评论" href="http://www.blogjava.net/comment?author=lods" target="_blank">更多评论</a> <a id="AjaxHolder_Comments_CommentList_ctl04_DeleteLink" href="javascript:__doPostBack('AjaxHolder$Comments$CommentList$ctl04$DeleteLink','')"></a>&nbsp;&nbsp;<a id="AjaxHolder_Comments_CommentList_ctl04_EditLink"></a> </p> 
+     </div> 
+     <style>
+td { font-size: 12px }
+.commentTextBox 
+{ 
+    font-family : Verdana; 
+    font-size: 13px;
+ }
+</style> 
+     <!--Beging Temp Save--> 
+     <style>.userData { BEHAVIOR: url(#default#userdata) }
+	</style> 
+     <div class="userData" id="CommentsPersistDiv"></div> 
+     <script type="text/javascript">
+function pageLoad()
+{
+    Sys.WebForms.PageRequestManager.getInstance().add_initializeRequest(handleInitializeRequest);
+    //Sys.WebForms.PageRequestManager.getInstance().add_endRequest(handleEndRequest);
+}
+
+function handleInitializeRequest(sender, args)
+{
+    var prm = Sys.WebForms.PageRequestManager.getInstance();
+    var eid = args.get_postBackElement().id;
+    if (eid.indexOf("DeleteLink")>0) 
+    {
+       args.get_postBackElement().innerHTML = "<font color='red'>正在删除...</font>";         
+    }    
+    else if (eid.indexOf("btnSubmit")>0) 
+    {
+       document.getElementById("AjaxHolder_PostComment_ltSubmitMsg").innerHTML="正在提交...";
+       document.getElementById("AjaxHolder_PostComment_btnSubmit").disabled = true;       
+    }   
+    else if(eid.indexOf("refreshList")>0)
+    {
+        document.getElementById("AjaxHolder_PostComment_refreshList").innerHTML="<font color='red'>正在刷新...</font>";
+    }
+   
+}	
+
+function TempSave(ElementID)
+{
+	try
+	{
+	CommentsPersistDiv.setAttribute("CommentContent",document.getElementById(ElementID).value);
+	CommentsPersistDiv.save("CommentXMLStore");
+	}
+	catch(ex)
+	{
+	}
+	
+}
+function Restore(ElementID)
+{
+	CommentsPersistDiv.load("CommentXMLStore");
+	document.getElementById(ElementID).value=CommentsPersistDiv.getAttribute("CommentContent");
+}	
+			
+			
+</script> 
+     <!--Ene TempSave--> 
+     <div id="divRefreshComments" style="text-align:right;margin-right:10px;margin-bottom:5px;font-size:12px">
+      <a href="/RequireRegister.aspx">新用户注册</a>&nbsp;&nbsp;
+      <a id="AjaxHolder_PostComment_refreshList" href="javascript:__doPostBack('AjaxHolder$PostComment$refreshList','')">刷新评论列表</a>&nbsp;&nbsp;
+     </div> 
+     <div class="commentform"> 
+      <span id="AjaxHolder_PostComment_ltSubmitMsg"><font color="Red"></font></span> 
+      <br /> 
+      <a name="Feedback"></a> 
+      <table cellspacing="1" cellpadding="1" border="0"> 
+       <tbody>
+        <tr> 
+         <td id="AjaxHolder_PostComment_tdOnCommentForm" colspan="3" style="line-height:1.5"> </td> 
+        </tr> 
+        <tr>
+         <td colspan="3">只有注册用户<a href="http://www.blogjava.net/login.aspx?ReturnUrl=/yongboy/archive/2012/04/26/376486.html?utm_medium=referral">登录</a>后才能发表评论。</td>
+        </tr> 
+        <tr> 
+         <td colspan="3">
+          <!----></td> 
+        </tr> 
+        <!--
+		<TR>
+			<TD colSpan="3" height="5"></TD>
+		</TR>	
+		--> 
+        <tr> 
+         <td colspan="3"> <br /> <script type="text/javascript">
+var googletag = googletag || {};
+googletag.cmd = googletag.cmd || [];
+(function() {
+var gads = document.createElement('script');
+gads.async = true;
+gads.type = 'text/javascript';
+var useSSL = 'https:' == document.location.protocol;
+gads.src = (useSSL ? 'https:' : 'http:') + 
+'//www.googletagservices.com/tag/js/gpt.js';
+var node = document.getElementsByTagName('script')[0];
+node.parentNode.insertBefore(gads, node);
+})();
+</script> <script type="text/javascript">
+googletag.cmd.push(function() {
+googletag.defineSlot('/1090369/blogjava_blogpost_bottom', [300, 250], 'div-gpt-ad-1364133350381-0').addService(googletag.pubads());
+googletag.pubads().enableSingleRequest();
+googletag.enableServices();
+});
+</script> 
+          <!-- blogjava_blogpost_bottom --> 
+          <div id="div-gpt-ad-1364133350381-0" style="width:300px; height:250px;"> 
+           <script type="text/javascript">
+googletag.cmd.push(function() { googletag.display('div-gpt-ad-1364133350381-0'); });
+</script> 
+          </div> <br /> </td> 
+        </tr> 
+        <tr> 
+         <td colspan="3"> </td> 
+        </tr> 
+        <tr> 
+         <td colspan="3"></td> 
+        </tr> 
+        <tr> 
+         <td colspan="3" height="1">网站导航:
+          <div id="blogsite"> 
+           <a href="http://www.cnblogs.com" title="开发者的网上家园">博客园</a>&nbsp;&nbsp; 
+           <a href="https://news.cnblogs.com">IT新闻</a>&nbsp;&nbsp; 
+           <a href="http://kb.cnblogs.com">知识库</a>&nbsp;&nbsp; 
+           <a href="http://www.cppblog.com">C++博客</a>&nbsp;&nbsp; 
+           <a href="https://q.cnblogs.com">博问</a>&nbsp;&nbsp; 
+           <a href="/yongboy/archive/2012/04/26/376486.html?opt=admin">管理</a> 
+          </div> </td> 
+        </tr> 
+        <tr> 
+         <td colspan="3" height="5"></td> 
+        </tr> 
+        <tr> 
+         <td colspan="3">&nbsp;</td> 
+        </tr> 
+        <tr> 
+         <td colspan="3" height="5"></td> 
+        </tr> 
+        <tr> 
+         <td colspan="3"> </td> 
+        </tr> 
+       </tbody>
+      </table> 
+     </div> 
+    </div> 
+   </div> 
+   <div id="rightmenu"> 
+    <h3>公告</h3> 
+    <div>
+     所有文章皆为原创，若转载请标明出处，谢谢~ 
+    </div> 
+    <br /> 新浪微博，欢迎关注：
+    <br /> 
+    <a href="http://weibo.com/u/1639071877?s=6uyXnP" target="_blank"><img src="http://service.t.sina.com.cn/widget/qmd/1639071877/e3de2f22/1.png" alt="" border="0" width="270" /></a> 
+    <h3>导航</h3> 
+    <ul> 
+     <li><a id="MyLinks1_HomeLink" href="http://www.blogjava.net/">BlogJava</a></li> 
+     <li><a id="MyLinks1_MyHomeLink" href="http://www.blogjava.net/yongboy/">首页</a></li> 
+     <li><a id="MyLinks1_NewPostLink" href="http://www.blogjava.net/yongboy/admin/EditPosts.aspx?opt=1">新随笔</a></li> 
+     <li><a id="MyLinks1_ContactLink" accesskey="9" href="http://www.blogjava.net/yongboy/contact.aspx?id=1">联系</a></li> 
+     <li><a id="MyLinks1_Syndication" href="http://www.blogjava.net/yongboy/rss">聚合</a><a id="MyLinks1_XMLLink" href="http://www.blogjava.net/yongboy/rss"><img src="http://www.blogjava.net/images/xml.gif" border="0" /></a> </li>
+     <li><a id="MyLinks1_Admin" href="http://www.blogjava.net/yongboy/admin/EditPosts.aspx">管理</a></li> 
+    </ul> 
+    <table id="Calendar1_entryCal" class="Cal" cellspacing="0" cellpadding="0" title="日历" border="0"> 
+     <tbody>
+      <tr>
+       <td colspan="7" bgcolor="Silver">
+        <table class="CalTitle" cellspacing="0" border="0" width="100%"> 
+         <tbody>
+          <tr>
+           <td class="CalNextPrev" width="15%"><a href="javascript:__doPostBack('Calendar1$entryCal','V4443')" style="color:Black" title="转到上一个月">&lt;</a></td>
+           <td align="center" width="70%">2012年4月</td>
+           <td class="CalNextPrev" align="right" width="15%"><a href="javascript:__doPostBack('Calendar1$entryCal','V4504')" style="color:Black" title="转到下一个月">&gt;</a></td>
+          </tr> 
+         </tbody>
+        </table></td>
+      </tr>
+      <tr>
+       <th class="CalDayHeader" align="center" abbr="日" scope="col">日</th>
+       <th class="CalDayHeader" align="center" abbr="一" scope="col">一</th>
+       <th class="CalDayHeader" align="center" abbr="二" scope="col">二</th>
+       <th class="CalDayHeader" align="center" abbr="三" scope="col">三</th>
+       <th class="CalDayHeader" align="center" abbr="四" scope="col">四</th>
+       <th class="CalDayHeader" align="center" abbr="五" scope="col">五</th>
+       <th class="CalDayHeader" align="center" abbr="六" scope="col">六</th>
+      </tr>
+      <tr>
+       <td class="CalOtherMonthDay" align="center" width="14%">25</td>
+       <td class="CalOtherMonthDay" align="center" width="14%">26</td>
+       <td class="CalOtherMonthDay" align="center" width="14%">27</td>
+       <td class="CalOtherMonthDay" align="center" width="14%">28</td>
+       <td class="CalOtherMonthDay" align="center" width="14%">29</td>
+       <td class="CalOtherMonthDay" align="center" width="14%">30</td>
+       <td class="CalOtherMonthDay" align="center" width="14%">31</td>
+      </tr>
+      <tr>
+       <td class="CalWeekendDay" align="center" width="14%">1</td>
+       <td align="center" width="14%">2</td>
+       <td align="center" width="14%">3</td>
+       <td align="center" width="14%">4</td>
+       <td align="center" width="14%">5</td>
+       <td align="center" width="14%">6</td>
+       <td class="CalWeekendDay" align="center" width="14%"><a href="http://www.blogjava.net/yongboy/archive/2012/04/07.html"><u>7</u></a></td>
+      </tr>
+      <tr>
+       <td class="CalWeekendDay" align="center" width="14%">8</td>
+       <td align="center" width="14%">9</td>
+       <td align="center" width="14%">10</td>
+       <td align="center" width="14%">11</td>
+       <td align="center" width="14%">12</td>
+       <td align="center" width="14%">13</td>
+       <td class="CalWeekendDay" align="center" width="14%">14</td>
+      </tr>
+      <tr>
+       <td class="CalWeekendDay" align="center" width="14%">15</td>
+       <td align="center" width="14%">16</td>
+       <td align="center" width="14%">17</td>
+       <td align="center" width="14%">18</td>
+       <td align="center" width="14%">19</td>
+       <td align="center" width="14%">20</td>
+       <td class="CalWeekendDay" align="center" width="14%">21</td>
+      </tr>
+      <tr>
+       <td class="CalWeekendDay" align="center" width="14%">22</td>
+       <td align="center" width="14%"><a href="http://www.blogjava.net/yongboy/archive/2012/04/23.html"><u>23</u></a></td>
+       <td align="center" width="14%">24</td>
+       <td align="center" width="14%">25</td>
+       <td align="center" width="14%"><a href="http://www.blogjava.net/yongboy/archive/2012/04/26.html"><u>26</u></a></td>
+       <td align="center" width="14%">27</td>
+       <td class="CalWeekendDay" align="center" width="14%">28</td>
+      </tr>
+      <tr>
+       <td class="CalWeekendDay" align="center" width="14%">29</td>
+       <td align="center" width="14%">30</td>
+       <td class="CalOtherMonthDay" align="center" width="14%">1</td>
+       <td class="CalOtherMonthDay" align="center" width="14%">2</td>
+       <td class="CalOtherMonthDay" align="center" width="14%">3</td>
+       <td class="CalOtherMonthDay" align="center" width="14%">4</td>
+       <td class="CalOtherMonthDay" align="center" width="14%">5</td>
+      </tr> 
+     </tbody>
+    </table> 
+    <h3>统计</h3> 
+    <ul> 
+     <li>随笔 - 147 </li>
+     <li>文章 - 0 </li>
+     <li>评论 - 309 </li>
+     <li>引用 - 0 </li> 
+    </ul> 
+    <h3>常用链接</h3> 
+    <ul> 
+     <li><a id="SingleColumn1_ctl00_repeaterLinks_ctl01_lnkLinkItem" href="http://www.blogjava.net/yongboy/MyPosts.html">我的随笔</a></li> 
+     <li><a id="SingleColumn1_ctl00_repeaterLinks_ctl02_lnkLinkItem" href="http://www.blogjava.net/yongboy/MyComments.html">我的评论</a></li> 
+     <li><a id="SingleColumn1_ctl00_repeaterLinks_ctl03_lnkLinkItem" href="http://www.blogjava.net/yongboy/OtherPosts.html">我的参与</a></li> 
+     <li><a id="SingleColumn1_ctl00_repeaterLinks_ctl04_lnkLinkItem" href="http://www.blogjava.net/yongboy/RecentComments.html">最新评论</a></li> 
+    </ul> 
+    <h3>留言簿<span style="font-size:11px;font-weight:normal;">(41)</span></h3> 
+    <ul> 
+     <li> <a id="SingleColumn1_ctl01_lnkMessages" href="http://www.blogjava.net/yongboy/Contact.aspx?id=1">给我留言</a> </li>
+     <li> <a id="SingleColumn1_ctl01_lnkPublicMsgView" href="http://www.blogjava.net/yongboy/default.aspx?opt=msg">查看公开留言</a> </li>
+     <li> <a id="SingleColumn1_ctl01_lnkPrivateMsgView" href="http://www.blogjava.net/yongboy/admin/MyMessages.aspx">查看私人留言</a> </li> 
+    </ul> 
+    <h3>随笔分类<span style="font-size:11px;font-weight:normal">(123)</span></h3> 
+    <ul> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl01_Link" href="http://www.blogjava.net/yongboy/category/54842.html">C1M(6)</a> <a id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl01_RssLink" title="Subscribe to C1M(6)" href="http://www.blogjava.net/yongboy/category/54842.html/rss">(rss)</a></li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl02_Link" href="http://www.blogjava.net/yongboy/category/54836.html">HTTP(6)</a> <a id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl02_RssLink" title="Subscribe to HTTP(6)" href="http://www.blogjava.net/yongboy/category/54836.html/rss">(rss)</a></li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl03_Link" href="http://www.blogjava.net/yongboy/category/54839.html">Java(20)</a> <a id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl03_RssLink" title="Subscribe to Java(20)" href="http://www.blogjava.net/yongboy/category/54839.html/rss">(rss)</a></li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl04_Link" href="http://www.blogjava.net/yongboy/category/54835.html">MQTT(15)</a> <a id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl04_RssLink" title="Subscribe to MQTT(15)" href="http://www.blogjava.net/yongboy/category/54835.html/rss">(rss)</a></li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl05_Link" href="http://www.blogjava.net/yongboy/category/48044.html">Servlet3(26)</a> <a id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl05_RssLink" title="Subscribe to Servlet3(26)" href="http://www.blogjava.net/yongboy/category/48044.html/rss">(rss)</a></li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl06_Link" href="http://www.blogjava.net/yongboy/category/54837.html">Socket(19)</a> <a id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl06_RssLink" title="Subscribe to Socket(19)" href="http://www.blogjava.net/yongboy/category/54837.html/rss">(rss)</a></li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl07_Link" href="http://www.blogjava.net/yongboy/category/54838.html">socket.io(12)</a> <a id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl07_RssLink" title="Subscribe to socket.io(12)" href="http://www.blogjava.net/yongboy/category/54838.html/rss">(rss)</a></li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl08_Link" href="http://www.blogjava.net/yongboy/category/55089.html">压测(10)</a> <a id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl08_RssLink" title="Subscribe to 压测(10)" href="http://www.blogjava.net/yongboy/category/55089.html/rss">(rss)</a></li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl09_Link" href="http://www.blogjava.net/yongboy/category/54841.html">容器(7)</a> <a id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl09_RssLink" title="Subscribe to 容器(7)" href="http://www.blogjava.net/yongboy/category/54841.html/rss">(rss)</a></li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl10_Link" href="http://www.blogjava.net/yongboy/category/54840.html">移动后端(2)</a> <a id="SingleColumn1_Categories_CatList_ctl00_LinkList_ctl10_RssLink" title="Subscribe to 移动后端(2)" href="http://www.blogjava.net/yongboy/category/54840.html/rss">(rss)</a></li> 
+    </ul> 
+    <h3>随笔档案<span style="font-size:11px;font-weight:normal">(146)</span></h3> 
+    <ul> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl01_Link" href="http://www.blogjava.net/yongboy/archive/2016/08.html">2016年8月 (2)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl02_Link" href="http://www.blogjava.net/yongboy/archive/2016/07.html">2016年7月 (8)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl03_Link" href="http://www.blogjava.net/yongboy/archive/2015/05.html">2015年5月 (1)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl04_Link" href="http://www.blogjava.net/yongboy/archive/2015/04.html">2015年4月 (1)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl05_Link" href="http://www.blogjava.net/yongboy/archive/2015/03.html">2015年3月 (7)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl06_Link" href="http://www.blogjava.net/yongboy/archive/2015/02.html">2015年2月 (6)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl07_Link" href="http://www.blogjava.net/yongboy/archive/2015/01.html">2015年1月 (9)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl08_Link" href="http://www.blogjava.net/yongboy/archive/2014/12.html">2014年12月 (3)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl09_Link" href="http://www.blogjava.net/yongboy/archive/2014/11.html">2014年11月 (2)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl10_Link" href="http://www.blogjava.net/yongboy/archive/2014/10.html">2014年10月 (1)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl11_Link" href="http://www.blogjava.net/yongboy/archive/2014/09.html">2014年9月 (1)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl12_Link" href="http://www.blogjava.net/yongboy/archive/2014/08.html">2014年8月 (2)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl13_Link" href="http://www.blogjava.net/yongboy/archive/2014/07.html">2014年7月 (2)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl14_Link" href="http://www.blogjava.net/yongboy/archive/2014/06.html">2014年6月 (2)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl15_Link" href="http://www.blogjava.net/yongboy/archive/2014/05.html">2014年5月 (2)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl16_Link" href="http://www.blogjava.net/yongboy/archive/2014/04.html">2014年4月 (1)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl17_Link" href="http://www.blogjava.net/yongboy/archive/2014/03.html">2014年3月 (1)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl18_Link" href="http://www.blogjava.net/yongboy/archive/2014/02.html">2014年2月 (4)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl19_Link" href="http://www.blogjava.net/yongboy/archive/2013/12.html">2013年12月 (4)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl20_Link" href="http://www.blogjava.net/yongboy/archive/2013/08.html">2013年8月 (1)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl21_Link" href="http://www.blogjava.net/yongboy/archive/2013/06.html">2013年6月 (1)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl22_Link" href="http://www.blogjava.net/yongboy/archive/2013/05.html">2013年5月 (1)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl23_Link" href="http://www.blogjava.net/yongboy/archive/2013/04.html">2013年4月 (5)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl24_Link" href="http://www.blogjava.net/yongboy/archive/2013/03.html">2013年3月 (5)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl25_Link" href="http://www.blogjava.net/yongboy/archive/2012/10.html">2012年10月 (2)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl26_Link" href="http://www.blogjava.net/yongboy/archive/2012/08.html">2012年8月 (2)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl27_Link" href="http://www.blogjava.net/yongboy/archive/2012/06.html">2012年6月 (2)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl28_Link" href="http://www.blogjava.net/yongboy/archive/2012/05.html">2012年5月 (3)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl29_Link" href="http://www.blogjava.net/yongboy/archive/2012/04.html">2012年4月 (4)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl30_Link" href="http://www.blogjava.net/yongboy/archive/2012/03.html">2012年3月 (1)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl31_Link" href="http://www.blogjava.net/yongboy/archive/2012/02.html">2012年2月 (7)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl32_Link" href="http://www.blogjava.net/yongboy/archive/2012/01.html">2012年1月 (2)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl33_Link" href="http://www.blogjava.net/yongboy/archive/2011/04.html">2011年4月 (1)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl34_Link" href="http://www.blogjava.net/yongboy/archive/2011/03.html">2011年3月 (1)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl35_Link" href="http://www.blogjava.net/yongboy/archive/2011/02.html">2011年2月 (4)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl36_Link" href="http://www.blogjava.net/yongboy/archive/2011/01.html">2011年1月 (10)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl37_Link" href="http://www.blogjava.net/yongboy/archive/2010/12.html">2010年12月 (5)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl38_Link" href="http://www.blogjava.net/yongboy/archive/2010/11.html">2010年11月 (1)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl39_Link" href="http://www.blogjava.net/yongboy/archive/2010/10.html">2010年10月 (10)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl40_Link" href="http://www.blogjava.net/yongboy/archive/2010/07.html">2010年7月 (4)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl41_Link" href="http://www.blogjava.net/yongboy/archive/2009/11.html">2009年11月 (1)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl42_Link" href="http://www.blogjava.net/yongboy/archive/2009/09.html">2009年9月 (3)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl43_Link" href="http://www.blogjava.net/yongboy/archive/2009/08.html">2009年8月 (4)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl44_Link" href="http://www.blogjava.net/yongboy/archive/2009/05.html">2009年5月 (1)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl45_Link" href="http://www.blogjava.net/yongboy/archive/2009/02.html">2009年2月 (1)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl46_Link" href="http://www.blogjava.net/yongboy/archive/2009/01.html">2009年1月 (1)</a> </li> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl01_LinkList_ctl47_Link" href="http://www.blogjava.net/yongboy/archive/2008/12.html">2008年12月 (4)</a> </li> 
+    </ul> 
+    <h3>个人收藏</h3> 
+    <ul> 
+     <li><a id="SingleColumn1_Categories_CatList_ctl02_LinkList_ctl01_Link" href="http://gjsq.me/1034269" target="_blank">国内老牌GreenVPN，翻墙速度确实杠杠的！</a> </li> 
+     <li style="margin-top:2px;">个人一直在使用中，在线观看www.youtube.com上高清视频一点都不卡。 每个月才18块钱，一个季度48，再超值提供一个9折优惠码：freevpnssh。 我平常在Linux下安装/更新软件，压根不用担心GFW阻挠了， 更不用提windows 7了。</li> 
+    </ul> 
+    <h3>最新随笔</h3> 
+    <div class="RecentComment"> 
+     <ul style="word-break:break-all"> 
+      <li><a id="SingleColumn1_ctl03_RecentPostsList_ctl00_RecentPostsList2_ctl00_Hyperlink1" href="http://www.blogjava.net/yongboy/archive/2016/08/16/431601.html">1.&nbsp;Tsung笔记之IP地址和端口限制突破篇</a></li> 
+      <li><a id="SingleColumn1_ctl03_RecentPostsList_ctl01_RecentPostsList2_ctl00_Hyperlink1" href="http://www.blogjava.net/yongboy/archive/2016/08/08/431498.html">2.&nbsp;Tsung笔记之100万用户压测执行步骤篇</a></li> 
+      <li><a id="SingleColumn1_ctl03_RecentPostsList_ctl02_RecentPostsList2_ctl00_Hyperlink1" href="http://www.blogjava.net/yongboy/archive/2016/07/30/431396.html">3.&nbsp;Tsung笔记之插件编写篇</a></li> 
+      <li><a id="SingleColumn1_ctl03_RecentPostsList_ctl03_RecentPostsList2_ctl00_Hyperlink1" href="http://www.blogjava.net/yongboy/archive/2016/07/29/431367.html">4.&nbsp;Tsung笔记之监控数据收集篇</a></li> 
+      <li><a id="SingleColumn1_ctl03_RecentPostsList_ctl04_RecentPostsList2_ctl00_Hyperlink1" href="http://www.blogjava.net/yongboy/archive/2016/07/28/431354.html">5.&nbsp;Tsung笔记之IP直连支持篇</a></li> 
+      <li><a id="SingleColumn1_ctl03_RecentPostsList_ctl05_RecentPostsList2_ctl00_Hyperlink1" href="http://www.blogjava.net/yongboy/archive/2016/07/27/431340.html">6.&nbsp;Tsung笔记之分布式增强跳出SSH羁绊篇</a></li> 
+      <li><a id="SingleColumn1_ctl03_RecentPostsList_ctl06_RecentPostsList2_ctl00_Hyperlink1" href="http://www.blogjava.net/yongboy/archive/2016/07/26/431322.html">7.&nbsp;Tsung笔记之压测端资源限制篇</a></li> 
+      <li><a id="SingleColumn1_ctl03_RecentPostsList_ctl07_RecentPostsList2_ctl00_Hyperlink1" href="http://www.blogjava.net/yongboy/archive/2016/07/25/431310.html">8.&nbsp;Tsung笔记之主从资源协调篇</a></li> 
+      <li><a id="SingleColumn1_ctl03_RecentPostsList_ctl08_RecentPostsList2_ctl00_Hyperlink1" href="http://www.blogjava.net/yongboy/archive/2016/07/23/431294.html">9.&nbsp;Tsung笔记之主从模型篇</a></li> 
+      <li><a id="SingleColumn1_ctl03_RecentPostsList_ctl09_RecentPostsList2_ctl00_Hyperlink1" href="http://www.blogjava.net/yongboy/archive/2016/07/22/431291.html">10.&nbsp;Tsung笔记之开篇</a></li> 
+      <li><a id="SingleColumn1_ctl03_RecentPostsList_ctl10_RecentPostsList2_ctl00_Hyperlink1" href="http://www.blogjava.net/yongboy/archive/2015/05/07/424917.html">11.&nbsp;TCP协议缺陷不完全记录</a></li> 
+      <li><a id="SingleColumn1_ctl03_RecentPostsList_ctl11_RecentPostsList2_ctl00_Hyperlink1" href="http://www.blogjava.net/yongboy/archive/2015/04/14/424413.html">12.&nbsp;随手记之TCP Keepalive笔记</a></li> 
+      <li><a id="SingleColumn1_ctl03_RecentPostsList_ctl12_RecentPostsList2_ctl00_Hyperlink1" href="http://www.blogjava.net/yongboy/archive/2015/03/30/423963.html">13.&nbsp;移动APP后端网络处理一些问题记录</a></li> 
+      <li><a id="SingleColumn1_ctl03_RecentPostsList_ctl13_RecentPostsList2_ctl00_Hyperlink1" href="http://www.blogjava.net/yongboy/archive/2015/03/24/423791.html">14.&nbsp;HTTP/2笔记之错误处理和安全</a></li> 
+      <li><a id="SingleColumn1_ctl03_RecentPostsList_ctl14_RecentPostsList2_ctl00_Hyperlink1" href="http://www.blogjava.net/yongboy/archive/2015/03/23/423751.html">15.&nbsp;HTTP/2笔记之消息交换</a></li> 
+     </ul> 
+    </div> 
+    <script language="JavaScript">
+function SearchGoogle(key,evt,site)
+		{
+			if(evt.keyCode==13 || evt.keyCode==0 || evt.type =='click')
+			{
+				key.focus();
+				var keystr = encodeURIComponent(key.value);
+				url = "http://www.google.com/search?q=";
+				url = url+keystr;
+				url += "&ie=UTF-8&oe=GB2312&hl=zh-CN&domains="+site+"&sitesearch="+site;
+				window.location=url;
+				return false;
+			}
+		}
+</script> 
+    <h3>搜索</h3> 
+    <ul> 
+     <li> </li>
+     <li><input style="WIDTH: 130px" type="text" name="q" id="q" onkeydown="return SearchGoogle(document.getElementById('q'),event,'www.blogjava.net/yongboy')" />&nbsp;<input onclick="SearchGoogle(document.getElementById('q'),event,'www.blogjava.net/yongboy')" type="button" value="搜索" name="sa" /> </li> 
+    </ul> 
+    <h3>最新评论 <a id="SingleColumn1__2729bce_RSSHyperlink1" href="http://www.blogjava.net/yongboy/CommentsRSS.aspx"><img src="/images/xml.gif" border="0" /></a></h3> 
+    <div class="RecentComment"> 
+     <ul> 
+      <li style="word-break:break-all"> <a id="SingleColumn1__2729bce_CommentList_ctl01_Hyperlink1" href="http://www.blogjava.net/yongboy/archive/2017/01/10/409689.html#432258">1.&nbsp;re: MQTT协议笔记之发布流程</a> </li> 
+      <li style="word-break:break-all"> 评论内容较长,点击标题查看 </li> 
+      <li style="text-align:right;margin-right:4px"> --Haven</li> 
+      <li style="word-break:break-all"> <a id="SingleColumn1__2729bce_CommentList_ctl02_Hyperlink1" href="http://www.blogjava.net/yongboy/archive/2017/01/05/409689.html#432243">2.&nbsp;re: MQTT协议笔记之发布流程</a> </li> 
+      <li style="word-break:break-all"> 评论内容较长,点击标题查看 </li> 
+      <li style="text-align:right;margin-right:4px"> --nieyong</li> 
+      <li style="word-break:break-all"> <a id="SingleColumn1__2729bce_CommentList_ctl03_Hyperlink1" href="http://www.blogjava.net/yongboy/archive/2016/12/27/409689.html#432184">3.&nbsp;re: MQTT协议笔记之发布流程</a> </li> 
+      <li style="word-break:break-all"> 博主牛人呀，有一个QoS2的问题请教，为什么QoS2需要4次包，2次不就可以了吗？还望回复。 </li> 
+      <li style="text-align:right;margin-right:4px"> --Haven</li> 
+      <li style="word-break:break-all"> <a id="SingleColumn1__2729bce_CommentList_ctl04_Hyperlink1" href="http://www.blogjava.net/yongboy/archive/2016/08/19/431601.html#431642">4.&nbsp;re: Tsung笔记之IP地址和端口限制突破篇</a> </li> 
+      <li style="word-break:break-all"> 评论内容较长,点击标题查看 </li> 
+      <li style="text-align:right;margin-right:4px"> --nieyong</li> 
+      <li style="word-break:break-all"> <a id="SingleColumn1__2729bce_CommentList_ctl05_Hyperlink1" href="http://www.blogjava.net/yongboy/archive/2016/08/18/431601.html#431628">5.&nbsp;re: Tsung笔记之IP地址和端口限制突破篇</a> </li> 
+      <li style="word-break:break-all"> 博主，请问下<br />最新版1.6.1版本什么时候发布啊，最近工作需要对TCP协议做性能测试 </li> 
+      <li style="text-align:right;margin-right:4px"> --王大</li> 
+     </ul> 
+    </div> 
+    <h3>阅读排行榜</h3> 
+    <div class="RecentComment"> 
+     <ul style="word-break:break-all"> 
+      <li> <a id="SingleColumn1__1262ed9_TopList_ctl01_Hyperlink1" href="http://www.blogjava.net/yongboy/archive/2013/12/12/407498.html">1.&nbsp;Docker学习笔记之一，搭建一个JAVA Tomcat运行环境(91874)</a> </li> 
+      <li> <a id="SingleColumn1__1262ed9_TopList_ctl02_Hyperlink1" href="http://www.blogjava.net/yongboy/archive/2009/09/04/293900.html">2.&nbsp;java war 打包、解压命令(74705)</a> </li> 
+      <li> <a id="SingleColumn1__1262ed9_TopList_ctl03_Hyperlink1" href="http://www.blogjava.net/yongboy/archive/2014/03/05/410636.html">3.&nbsp;微信协议简单调研笔记(60355)</a> </li> 
+      <li> <a id="SingleColumn1__1262ed9_TopList_ctl04_Hyperlink1" href="http://www.blogjava.net/yongboy/archive/2013/05/13/399203.html">4.&nbsp;100万并发连接服务器笔记之Java Netty处理1M连接会怎么样(51185)</a> </li> 
+      <li> <a id="SingleColumn1__1262ed9_TopList_ctl05_Hyperlink1" href="http://www.blogjava.net/yongboy/archive/2013/08/26/403325.html">5.&nbsp;服务器操作系统CoreOS初体验(46819)</a> </li> 
+     </ul> 
+    </div> 
+    <h3>评论排行榜</h3> 
+    <div class="RecentComment"> 
+     <ul style="word-break:break-all"> 
+      <li> <a id="SingleColumn1__1eab524_TopList_ctl01_Hyperlink1" href="http://www.blogjava.net/yongboy/archive/2014/03/05/410636.html">1.&nbsp;微信协议简单调研笔记(22)</a> </li> 
+      <li> <a id="SingleColumn1__1eab524_TopList_ctl02_Hyperlink1" href="http://www.blogjava.net/yongboy/archive/2013/12/12/407498.html">2.&nbsp;Docker学习笔记之一，搭建一个JAVA Tomcat运行环境(19)</a> </li> 
+      <li> <a id="SingleColumn1__1eab524_TopList_ctl03_Hyperlink1" href="http://www.blogjava.net/yongboy/archive/2014/12/12/421331.html">3.&nbsp;MQTT 3.1协议非严肃反思录(17)</a> </li> 
+      <li> <a id="SingleColumn1__1eab524_TopList_ctl04_Hyperlink1" href="http://www.blogjava.net/yongboy/archive/2014/11/09/419829.html">4.&nbsp;为什么批量请求要尽可能的合并操作(17)</a> </li> 
+      <li> <a id="SingleColumn1__1eab524_TopList_ctl05_Hyperlink1" href="http://www.blogjava.net/yongboy/archive/2014/04/12/412351.html">5.&nbsp;MQTT协议笔记之订阅(16)</a> </li> 
+     </ul> 
+    </div> 
+    <div id="footer">
+      Powered by: 
+     <br /> 
+     <a id="Footer1_Hyperlink3" name="Hyperlink1" href="http://www.blogjava.net/"><font face="Verdana">BlogJava</font></a> 
+     <br /> Copyright &copy; nieyong 
+    </div> 
+   </div> 
+   <script type="text/javascript">
+//<![CDATA[
+Sys.Application.initialize();
+//]]>
+</script> 
+  </form> 
+  <script type="text/javascript" src="/script/ShowHidden.js"></script> 
+  <script type="text/javascript">
+	  var _gaq = _gaq || [];
+	  _gaq.push(['_setAccount', 'UA-476124-3']);
+	  _gaq.push(['_trackPageview']);
+
+	  (function() {
+		var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+	  })();
+	</script>   
+ </body>
+</html>

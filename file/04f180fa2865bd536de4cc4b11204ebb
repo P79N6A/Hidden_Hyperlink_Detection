@@ -1,0 +1,568 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>新煤网--永久免费的煤炭信息交互平台</title>
+<meta http-equiv="keywords" content="新煤网,新煤,煤炭,煤炭交易,大宗商品,大宗商品交易,现货资源,煤炭现货,供应,采购"/>
+<link  type="text/css" href="http://www.xinmei180.com:80/css/xinmei.css" rel="stylesheet"/>
+<script type="text/javascript" src="http://www.xinmei180.com:80/js/jquery-1.9.1.js"></script>
+<script type="text/javascript" src="http://www.xinmei180.com:80/js/o1.js"></script>
+</head>
+<body>
+	
+
+
+<link rel="stylesheet" href="http://www.xinmei180.com:80/css/head.css">
+<div class="head-topbar">
+	<div class="head-box">
+		<div class="head-topbar-left">
+			<a href="index.jsp">新煤网首页</a>
+			<a>&nbsp;|&nbsp;</a>
+			<a href="javascript:;" onclick="shoucang('http://xinmei180.com','新煤网')">收藏本站</a>
+		</div>
+		<div class="head-topbar-right">
+			<a>您好，欢迎来到新煤网！</a>
+			
+			<a style="color:#FF6600;" href="http://www.xinmei180.com:80/login.jsp">登录</a><a>&nbsp;|&nbsp;</a>
+			<a href="http://www.xinmei180.com:80/register.jsp">免费注册</a><a>&nbsp;|&nbsp;</a>
+			
+			<a href="http://www.xinmei180.com:80/center/order.jsp">会员中心</a>
+		</div>
+	</div>
+</div>
+<div class="clear"></div>
+<div class="head-top">
+	<div class="head-box">
+		<a class="logo" href="http://www.xinmei180.com:80/index.jsp"></a>
+		<div class="logo-l"></div>
+		<div class="logo-w"></div>
+		<div class="head-top-contact">
+			<div class="head-top-contact-l">
+				全国服务热线<br/>
+				<span style="color:#999;">周一至周五9:00-17:30</span>
+			</div>
+			<div class="head-top-contact-r">
+				400-165-0001
+			</div>
+		</div>
+		<div class="clear"></div>
+		<div class="nav lkm">
+			<ul class="m-item-list" id="show-tips-items">
+				<li class="m-item current-page-item" jUrl=""><a href="http://www.xinmei180.com:80/index.jsp">首页</a></li>
+				<li class="m-item" jUrl="coalShops"><a href="http://www.xinmei180.com:80/coalShops/coalShops.jsp">新煤商城</a></li>
+				<li class="m-item" jUrl="goods"><a href="http://www.xinmei180.com:80/goods/goods.jsp">现货资源</a></li>
+				<li class="m-item" jUrl="gather"><a href="http://www.xinmei180.com:80/gather/gather.jsp">采购信息</a></li>
+				<li class="m-item" jUrl="finance"><a href="http://www.xinmei180.com:80/finance/finance.jsp">金融</a></li>
+				<li class="m-item" jUrl="logistics"><a href="http://www.xinmei180.com:80/logistics/logistics.jsp">物流</a></li>
+				<li class="m-item" jUrl="price"><a href="http://www.xinmei180.com:80/price/price.jsp">现货行情</a></li>
+			</ul>
+		</div>
+		<script type="text/javascript">
+		//首页动画hover
+		$(function(){
+			var pathname = window.location.pathname;
+			var pathnames = pathname.split("/");
+			$.each($("#show-tips-items li"),function(i,item){
+				if($(item).attr("jUrl")==pathnames[pathnames.length-2]){
+					$("#show-tips-items li").removeClass("current-page-item");
+					$(item).addClass("current-page-item");
+				}
+			});
+		    var $el, leftPos, newWidth;
+		    var	$mainNav = $("#show-tips-items");
+		    if($("#show-tips-items").length>0){
+		        
+		        $mainNav.append("<li id='magic-line'></li>");
+
+		        var $magicLine = $("#magic-line");
+
+		        if ($(".current-page-item a").position() != undefined) {
+		            $magicLine
+		                .width($(".current-page-item").width())
+		                .css("left", $(".current-page-item a").position().left)
+		                .data("origLeft", $magicLine.position().left)
+		                .data("origWidth", $magicLine.width());
+		        }
+
+		        $("#show-tips-items li").find("a").hover(function() {
+		            $el = $(this);
+		            leftPos = $el.position().left;
+		            newWidth = $el.parent().width();
+
+		            $magicLine.stop().animate({
+		                left: leftPos,
+		                width: newWidth
+		            });
+		        }, function() {
+		            $magicLine.stop().animate({
+		                left: $(".current-page-item a").position() != undefined ?  $(".current-page-item a").position().left : 0,
+		                width: $magicLine.data("origWidth")
+		            });
+		        });
+		    }
+		    $("#fk-loginout").click(function(){
+				if (confirm("您确定要退出吗！")==true){
+					$.post("http://www.xinmei180.com:80/webjson/loginaction.do?method:logout",{},function(data){
+						if(data.message=="success"){
+							window.location.href = "http://www.xinmei180.com:80/index.jsp";
+						}
+					},"json");
+				}
+			});
+			$("#fk-search-submit").click(function(){
+				var searchkey = $.trim($("#fk-search-input").val());
+				if(searchkey != ""){
+					window.location.href = "http://www.xinmei180.com:80/goods/goods.jsp?searchkey=" + encodeURI(encodeURI(searchkey));
+				}else{
+					window.location.href = "http://www.xinmei180.com:80/goods/goods.jsp";
+				}
+			});
+		});
+
+		function shoucang(sURL, sTitle) {
+		    var ctrl=(navigator.userAgent.toLowerCase()).indexOf('mac')!=-1?'Command/Cmd':'Ctrl';
+		    sURL = encodeURI(sURL); 
+		    try{
+		        //IE
+		        window.external.addFavorite(sURL, sTitle);
+		    }catch(e){
+		        try{
+		            //其他浏览器
+		            window.sidebar.addPanel(sTitle, sURL, "");
+		        }catch(e){
+		            alert("加入收藏失败，请使用"+ctrl+"+D进行添加,或手动在浏览器里进行设置.");
+		        }
+		    }
+		}
+		</script>
+		<div class="fk-search">
+			<div class="fk-search-input">
+				<input id="fk-search-input" type="text"/>
+			</div>
+			<a class="fk-search-submit" href="javascript:void(0)" id="fk-search-submit">搜索</a>
+		</div>
+	</div>
+</div>
+
+	<div class="clear"></div>
+	<div class="xmtop" id="xm_top01">
+		<div class="xmpart">
+			<ul>
+				<li class="special"><a href="http://www.xinmei180.com:80/coalShops/coalShops.jsp">新煤商城</a></li>
+				<li><a href="#mkzq">煤矿专区</a></li>
+				<li><a href="#hbzq">华北专区</a></li>
+				<li class="special"><a href="#hdzq">华东专区</a></li>
+				<li class="special"><a href="#hnzq">华南专区</a></li>
+				<li><a href="#dbzq">东北专区</a></li>
+				<li><a href="#jkmzq">进口煤专区</a></li>
+				<li class="special"><a href="http://www.xinmei180.com:80/price/price.jsp" style="border:0;">现货行情</a></li>
+			</ul>
+			<div class='xmpart_btn'>
+				
+					<!--<a class='scroll_btn_01 scroll_btn_01_bg' id='a_first'></a>
+					<a class='scroll_btn_01 scroll_btn_02_bg' id='a_sec'></a> -->
+				
+			</div>
+			<div class="xm_data_02">
+				
+
+
+<link type="text/css" href="http://www.xinmei180.com:80/css/right.css" rel="stylesheet">
+<div class="fk-right">
+	<div class="notify-mod">
+		<a class="fk-right-font" style="color:#FFF;font-size: 18px;padding-bottom:10px;">免费注册</a>
+		<div class="welcome22"></div>
+		<div class="fk-right-font" style="color:#FFA126;font-size: 18px;font-weight: 600;">煤炭买卖新渠道</div>
+		<div class="fk-right-font" style="color:#FFF;font-size: 16px;padding-bottom:20px;">永久免费的煤炭信息交互平台</div>
+		<a class="fk-right-but" href="http://www.xinmei180.com:80/register.jsp">马上注册</a>
+		<div class="fk-right-font" style="font-size: 13px;">
+			<a style="color:#FFF;">已有账号？</a><a style="color:#FFA126;text-decoration: none;" href="http://www.xinmei180.com:80/login.jsp">立即登录</a>
+		</div>
+	</div>
+	<div class="fk-right-exp">
+		<div style="top:70px;"><span id="ljcj">0</span> 万吨</div>
+		<div style="top:160px;"><span id="jsgp">0</span> 万吨</div>
+		<div style="top:250px;"><span id="chdd">0</span> 笔</div>
+		<div style="top:340px;"><span id="zchy">0</span> 个</div>
+	</div>
+	<div id="rightRoll">
+		<div class="fk-right-pub">
+			<div class="fk-right-tit">快速发布</div>
+			<a class="fk-right-but2" id="fbxq" style="margin-top:40px;">发布需求</a>
+			<a class="fk-right-but" id="fbgy" style="margin-top:10px;">发布供应</a>
+		</div>
+		<div class="fk-right-find">
+			<div class="fk-right-tit">帮我找货</div>
+			<div class="fk-right-textarea">
+	    		<span id="spants">写下您的真实需求(煤种、煤质和需求量),并留下您的联系方式,剩下的交给我们吧!</span>
+	    		<textarea cols="50" rows="5" id="find-textarea" style="color:#000"></textarea>
+	    	</div>
+	    	<a class="fk-right-but" style="margin-top:10px;" href="javascript:void(0)" onclick="helpFind();">帮我找找</a>
+		</div>
+<!--
+		<div class='fk-right-sft'>
+			<a href='http://coaltrans.coal-china.org.cn/newdev' target='_blank'><img src='http://www.xinmei180.com:80/img/bjsft.jpg' class='sftjd'></a>
+		</div>
+-->
+	</div>
+</div>
+				
+<script type="text/javascript" language="javascript">
+$(function(){
+	var url="http://www.xinmei180.com:80/webjson/coalaction.do?method:showTjInfo";
+	$.post(url,function(rs){
+		if(rs){
+			$('#ljcj').html(rs.tljcj)
+			$('#jsgp').html(rs.tjsgp);
+			$('#chdd').html(rs.tchdd);
+			$('#zchy').html(rs.tmems);
+		}
+	},"json");
+	
+	
+		$("#fbgy").on("click",function(){
+				var dm = "";
+				if(dm == ""){
+					if(confirm("请先登录")==true){
+						window.open("http://www.xinmei180.com:80/login.jsp");
+						return;
+					}else{
+						return;
+					}
+				}else{
+					var a = "";
+					if(a == "null"){
+						if(confirm("您需要到（会员中心--帐号信息）完善公司名称及姓名后才可进行此项操作")==true){
+							window.open("http://www.xinmei180.com:80/center/account-info.jsp");
+							return;
+						}else{
+							return;
+						}
+					}
+				}
+				window.open("http://www.xinmei180.com:80/center/issue-supp.jsp");
+			});
+		$("#fbxq").on("click",function(){
+				var dm = "";
+				if(dm == ""){
+					if(confirm("请先登录")==true){
+						window.open("http://www.xinmei180.com:80/login.jsp");
+						return;
+					}else{
+						return;
+					}
+				}else{
+					var a = "";
+					if(a == "null"){
+						if(confirm("您需要到（会员中心--帐号信息）完善公司名称及姓名后才可进行此项操作")==true){
+							window.open("http://www.xinmei180.com:80/center/account-info.jsp");
+							return;
+						}else{
+							return;
+						}
+					}
+				}
+				window.open("http://www.xinmei180.com:80/center/issue_demand.jsp");
+			});
+	
+	$('#find-textarea').focus(function(){
+		var valuefo=$.trim($(this).val());
+		if(valuefo==''){
+			$("#spants").hide();
+		}
+	});
+	
+	$('#find-textarea').blur(function(){
+		var valuefo=$.trim($(this).val());
+		if(valuefo==''){
+			$("#spants").show();
+		}
+	});
+	/*
+	var top = $("#rightRoll").offset().top;
+	$(window).bind("scroll",function(){
+		s = $(document).scrollTop();	
+		if(s > top){
+			//$("#rightRoll").css('position','fixed');
+			$("#rightRoll").css("margin-top",s+"px");
+		}else{
+			//$("#rightRoll").css('position','');
+	    }   
+	});
+	*/
+});
+function helpFind(){
+	var valuefo=$.trim($('#find-textarea').val());
+	if(valuefo==""){
+		$('#find-textarea').focus(); 
+		alert("请输入您的需求！");
+		return false;
+	}
+	
+	var url="http://www.xinmei180.com:80/webjson/vwebnewsaction.do?method:save";
+   	var params={};
+   	params.valuefo = valuefo;
+   	$.post(url, params,function(rs){
+		if(rs.message=="success"){
+			alert("找货信息保存成功！");
+	   		$('#find-textarea').val("");
+	   		$("#spants").show();
+	   	}else{
+		   alert(rs.result);
+	   	}
+   	},"json");
+}
+</script>
+
+			</div>
+		</div>
+	</div>
+	<div class="mwrapper">
+		<div class="xm_mqzq">
+			<a id='mqzq'></a>
+			<div class="scroll_enterprise">
+				<div class="l_enterprise">新煤商城</div>
+				<div class="m_enterprise">
+					入住企业
+				</div>
+				<div class="r_enterprise">
+				</div>
+				<a class="sc_more" href='http://www.xinmei180.com:80/coalShops/coalShops.jsp'>更多&gt;&gt;</a>
+			</div>		
+		    <div class="enterprise_details">
+		    	<div id="enterprise_details" style='position:absolute;top:0px;'>
+		    	
+		    	</div>
+			</div>
+			<div class="mqinfo_qh">
+				<div class="down_qh" id="down_qh"></div>
+				<div class="up_qh" id="up_qh"></div>
+			</div>
+		</div>
+		
+		
+		<div class="xm_data_01">
+				<a  id="mkzq"></a>
+				<div class="xm_data_01_01" id="mkzqgd" style="height:437px;">
+					&nbsp;<br/>煤<br/>矿<br/>专<br/>区
+				</div>
+				<div class="xm_data_01_02">
+					<div class="xm_data_title">
+						<div style="height:10px;"></div>
+						<div class="btn">供应货源</div>
+						<div class="more"><a href="goods/goods.jsp?area=1">更多&gt;&gt;</a></div>
+					</div>
+					<table cellpadding="0" cellspacing="0" class="zqdata"><thead><tr class="xm_table_title"><td>分类</td><td>煤种</td><td>低位发热量</td><td>全硫分</td><td>库存(吨)</td><td>交割地</td><td>单价(元/吨)</td><td>发布时间</td><td>单卡价格(元/卡)</td><td>操作</td></tr></thead><tbody><tr><td>动力煤</td><td>筒仓洗面煤</td><td>5798</td><td>0.37</td><td>2,000</td><td>内蒙古  尔林兔煤矿</td><td class="money">378</td><td>2016-11-17</td><td>0.065</td><td><a href="goods/goods-detail.jsp?i_0=GY2016111700029" target="_blank" class="mhandler"></a></td></tr><tr class="xm_table_tr_02"><td>动力煤</td><td>筒仓洗3-8块</td><td>6258</td><td>0.32</td><td>2,000</td><td>内蒙古  尔林兔煤矿</td><td class="money">398</td><td>2016-11-17</td><td>0.064</td><td><a href="goods/goods-detail.jsp?i_0=GY2016111700028" target="_blank" class="mhandler"></a></td></tr><tr><td>动力煤</td><td>筛选4-9块</td><td>6258</td><td>0.32</td><td>2,000</td><td>内蒙古  尔林兔煤矿</td><td class="money">388</td><td>2016-11-17</td><td>0.062</td><td><a href="goods/goods-detail.jsp?i_0=GY2016111700027" target="_blank" class="mhandler"></a></td></tr><tr class="xm_table_tr_02"><td>动力煤</td><td>大块</td><td>6258</td><td>0.32</td><td>2,000</td><td>内蒙古  尔林兔煤矿</td><td class="money">398</td><td>2016-11-17</td><td>0.064</td><td><a href="goods/goods-detail.jsp?i_0=GY2016111700026" target="_blank" class="mhandler"></a></td></tr><tr><td>炼焦煤</td><td>高特焦</td><td></td><td>1.75</td><td>2,000</td><td>山西  吕梁</td><td class="money">830</td><td>2016-11-17</td><td>-</td><td><a href="goods/goods-detail.jsp?i_0=GY2016111700024" target="_blank" class="mhandler"></a></td></tr><tr class="xm_table_tr_02"><td>炼焦煤</td><td>低焦4</td><td></td><td>0.85</td><td>2,000</td><td>山西  吕梁</td><td class="money">470</td><td>2016-11-17</td><td>-</td><td><a href="goods/goods-detail.jsp?i_0=GY2016111700023" target="_blank" class="mhandler"></a></td></tr><tr><td>炼焦煤</td><td>焦煤</td><td></td><td>0.87</td><td>2,000</td><td>山西  吕梁</td><td class="money">940</td><td>2016-11-17</td><td>-</td><td><a href="goods/goods-detail.jsp?i_0=GY2016111700022" target="_blank" class="mhandler"></a></td></tr><tr class="xm_table_tr_02"><td>动力煤</td><td>电煤</td><td>5657</td><td>1.67</td><td>2,000</td><td>山西  吕梁</td><td class="money">420</td><td>2016-11-17</td><td>0.074</td><td><a href="goods/goods-detail.jsp?i_0=GY2016111700025" target="_blank" class="mhandler"></a></td></tr></tbody></table>
+					<div style="height:15px;"></div>
+					<div id="mkzq_wrapper" class="xm_wrapper01" style="display:none;">
+			
+					</div>
+				</div>
+		</div>
+		
+		<div class="xm_data_01">
+				<a id="hbzq"></a>
+				<div class="xm_data_01_01">
+					&nbsp;<br/>华<br/>北<br/>专<br/>区
+				</div>
+				<div class="xm_data_01_02">
+					<div class="xm_data_title">
+						<div style="height:10px;"></div>
+						<div class="btn">供应货源</div>
+						<div class="more"><a href="goods/goods.jsp?area=2">更多&gt;&gt;</a></div>
+					</div>
+					<table cellpadding="0" cellspacing="0" class="zqdata"><thead><tr class="xm_table_title"><td>分类</td><td>煤种</td><td>低位发热量</td><td>全硫分</td><td>库存(吨)</td><td>交割地</td><td>单价(元/吨)</td><td>发布时间</td><td>单卡价格(元/卡)</td><td>操作</td></tr></thead><tbody><tr><td>动力煤</td><td>原煤</td><td>5667</td><td>0.37</td><td>1,000</td><td>河北  阳原县</td><td class="money">待议</td><td>2016-11-14</td><td>-</td><td><a href="goods/goods-detail.jsp?i_0=GY2016111400043" target="_blank" class="mhandler"></a></td></tr><tr class="xm_table_tr_02"><td>动力煤</td><td>原煤</td><td>5000</td><td>0.5</td><td>1,000</td><td>河北  阳原县</td><td class="money">385</td><td>2016-11-09</td><td>0.077</td><td><a href="goods/goods-detail.jsp?i_0=GY2016110900030" target="_blank" class="mhandler"></a></td></tr><tr><td>无烟煤</td><td>2－4块</td><td>6989</td><td>0.89</td><td>300</td><td>天津 天津港 散货物流</td><td class="money">900</td><td>2016-11-09</td><td>0.129</td><td><a href="goods/goods-detail.jsp?i_0=GY2016110900019" target="_blank" class="mhandler"></a></td></tr><tr class="xm_table_tr_02"><td>动力煤</td><td>洗煤</td><td>5059</td><td>0.32</td><td>1,000</td><td>河北  阳原县</td><td class="money">400</td><td>2016-11-04</td><td>0.079</td><td><a href="goods/goods-detail.jsp?i_0=GY2016110400001" target="_blank" class="mhandler"></a></td></tr><tr><td>动力煤</td><td>动力煤</td><td>5400</td><td>0.5</td><td>10,000</td><td>河北  张家口市蔚县</td><td class="money">待议</td><td>2016-11-03</td><td>-</td><td><a href="goods/goods-detail.jsp?i_0=GY2016110300007" target="_blank" class="mhandler"></a></td></tr><tr class="xm_table_tr_02"><td>动力煤</td><td>面煤</td><td>5023</td><td>0.82</td><td>20,000</td><td>天津 天津港</td><td class="money">530</td><td>2016-11-01</td><td>0.106</td><td><a href="goods/goods-detail.jsp?i_0=GY2016110100037" target="_blank" class="mhandler"></a></td></tr><tr><td>动力煤</td><td>块煤</td><td>5900</td><td>0.4</td><td>8,000</td><td>河北 京唐港</td><td class="money">680</td><td>2016-11-01</td><td>0.115</td><td><a href="goods/goods-detail.jsp?i_0=GY2016110100015" target="_blank" class="mhandler"></a></td></tr><tr class="xm_table_tr_02"><td>动力煤</td><td>面煤</td><td>5500</td><td>0.77</td><td>15,000</td><td>河北 京唐港</td><td class="money">700</td><td>2016-11-01</td><td>0.127</td><td><a href="goods/goods-detail.jsp?i_0=GY2016110100012" target="_blank" class="mhandler"></a></td></tr></tbody></table>
+					<div style="height:15px;"></div>
+					<div id="hbzq_wrapper" class="xm_wrapper01">
+			
+					</div>
+				</div>
+		</div>
+		
+		<div class="xm_data_01">
+				<a id="hdzq"></a>
+				<div class="xm_data_01_01">
+					&nbsp;<br/>华<br/>东<br/>专<br/>区
+				</div>
+				<div class="xm_data_01_02">
+					<div class="xm_data_title">
+						<div style="height:10px;"></div>
+						<div class="btn">供应货源</div>
+						<div class="more"><a href="goods/goods.jsp?area=3">更多&gt;&gt;</a></div>
+					</div>
+					<table cellpadding="0" cellspacing="0" class="zqdata"><thead><tr class="xm_table_title"><td>分类</td><td>煤种</td><td>低位发热量</td><td>全硫分</td><td>库存(吨)</td><td>交割地</td><td>单价(元/吨)</td><td>发布时间</td><td>单卡价格(元/卡)</td><td>操作</td></tr></thead><tbody><tr><td>动力煤</td><td>52气化煤面煤</td><td>5900</td><td>0.29</td><td>10,000</td><td>山东  聊城</td><td class="money">待议</td><td>2016-11-16</td><td>-</td><td><a href="goods/goods-detail.jsp?i_0=GY2016111600003" target="_blank" class="mhandler"></a></td></tr><tr class="xm_table_tr_02"><td>动力煤</td><td>52气化煤2 5籽</td><td>6200</td><td>0.29</td><td>10,000</td><td>山东  聊城</td><td class="money">待议</td><td>2016-11-16</td><td>-</td><td><a href="goods/goods-detail.jsp?i_0=GY2016111600004" target="_blank" class="mhandler"></a></td></tr><tr><td>动力煤</td><td>52气化煤3 8 块</td><td>6200</td><td>0.29</td><td>10,000</td><td>山东  聊城</td><td class="money">待议</td><td>2016-11-16</td><td>-</td><td><a href="goods/goods-detail.jsp?i_0=GY2016111600005" target="_blank" class="mhandler"></a></td></tr><tr class="xm_table_tr_02"><td>动力煤</td><td>52气化煤中块</td><td>6200</td><td>0.29</td><td>10,000</td><td>山东  聊城</td><td class="money">待议</td><td>2016-11-16</td><td>-</td><td><a href="goods/goods-detail.jsp?i_0=GY2016111600006" target="_blank" class="mhandler"></a></td></tr><tr><td>无烟煤</td><td>进口铁矿</td><td>5789</td><td>0.29</td><td>10,000</td><td>江苏 连云港</td><td class="money">待议</td><td>2016-11-01</td><td>-</td><td><a href="goods/goods-detail.jsp?i_0=GY2016110100020" target="_blank" class="mhandler"></a></td></tr><tr class="xm_table_tr_02"><td>动力煤</td><td>四九块/三八块</td><td>6350</td><td>0.3</td><td>2,000</td><td>山东  聊城</td><td class="money">待议</td><td>2016-11-01</td><td>-</td><td><a href="goods/goods-detail.jsp?i_0=GY2016110100046" target="_blank" class="mhandler"></a></td></tr><tr><td>动力煤</td><td>大块/中块</td><td>6350</td><td>0.3</td><td>2,000</td><td>山东  聊城</td><td class="money">待议</td><td>2016-11-01</td><td>-</td><td><a href="goods/goods-detail.jsp?i_0=GY2016110100045" target="_blank" class="mhandler"></a></td></tr><tr class="xm_table_tr_02"><td>动力煤</td><td>二五籽</td><td>6350</td><td>0.3</td><td>2,000</td><td>山东  聊城</td><td class="money">待议</td><td>2016-11-01</td><td>-</td><td><a href="goods/goods-detail.jsp?i_0=GY2016110100044" target="_blank" class="mhandler"></a></td></tr></tbody></table>
+					<div style="height:15px;"></div>
+					<div id="hdzq_warpper" class="xm_wrapper01">
+			
+					</div>
+				</div>
+		</div>
+		
+		<div class="xm_data_01">
+				<a id="hnzq"></a>
+				<div class="xm_data_01_01">
+					&nbsp;<br/>华<br/>南<br/>专<br/>区
+				</div>
+				<div class="xm_data_01_02">
+					<div class="xm_data_title">
+						<div style="height:10px;"></div>
+						<div class="btn">供应货源</div>
+						<div class="more"><a href="goods/goods.jsp?area=4">更多&gt;&gt;</a></div>
+					</div>
+					<table cellpadding="0" cellspacing="0" class="zqdata"><thead><tr class="xm_table_title"><td>分类</td><td>煤种</td><td>低位发热量</td><td>全硫分</td><td>库存(吨)</td><td>交割地</td><td>单价(元/吨)</td><td>发布时间</td><td>单卡价格(元/卡)</td><td>操作</td></tr></thead><tbody><tr><td>动力煤</td><td>珠电10</td><td>5620</td><td>0.44</td><td>25,000</td><td>广东 珠电码头</td><td class="money">825</td><td>2016-11-15</td><td>0.147</td><td><a href="goods/goods-detail.jsp?i_0=GY2016111500004" target="_blank" class="mhandler"></a></td></tr><tr class="xm_table_tr_02"><td>动力煤</td><td>珠电11</td><td>5555</td><td>0.31</td><td>25,000</td><td>广东 珠电码头</td><td class="money">820</td><td>2016-11-15</td><td>0.148</td><td><a href="goods/goods-detail.jsp?i_0=GY2016111500005" target="_blank" class="mhandler"></a></td></tr><tr><td>动力煤</td><td>珠电11</td><td>5515</td><td>0.44</td><td>25,000</td><td>广东 珠电码头</td><td class="money">810</td><td>2016-11-15</td><td>0.147</td><td><a href="goods/goods-detail.jsp?i_0=GY2016111500006" target="_blank" class="mhandler"></a></td></tr><tr class="xm_table_tr_02"><td>动力煤</td><td>珠电11</td><td>5515</td><td>0.35</td><td>25,000</td><td>广东 珠电码头</td><td class="money">810</td><td>2016-11-15</td><td>0.147</td><td><a href="goods/goods-detail.jsp?i_0=GY2016111500007" target="_blank" class="mhandler"></a></td></tr><tr><td>动力煤</td><td>珠电12</td><td>5080</td><td>0.48</td><td>25,000</td><td>广东 其它 新沙</td><td class="money">770</td><td>2016-11-15</td><td>0.152</td><td><a href="goods/goods-detail.jsp?i_0=GY2016111500009" target="_blank" class="mhandler"></a></td></tr><tr class="xm_table_tr_02"><td>动力煤</td><td>珠电22</td><td>5270</td><td>0.48</td><td>25,000</td><td>广东 珠电码头</td><td class="money">795</td><td>2016-11-15</td><td>0.151</td><td><a href="goods/goods-detail.jsp?i_0=GY2016111500010" target="_blank" class="mhandler"></a></td></tr><tr><td>动力煤</td><td>珠电13</td><td>5000</td><td>0.33</td><td>25,000</td><td>广东 珠电码头</td><td class="money">760</td><td>2016-11-15</td><td>0.152</td><td><a href="goods/goods-detail.jsp?i_0=GY2016111500011" target="_blank" class="mhandler"></a></td></tr><tr class="xm_table_tr_02"><td>动力煤</td><td>珠电14</td><td>4900</td><td>0.33</td><td>25,000</td><td>广东 珠电码头</td><td class="money">745</td><td>2016-11-15</td><td>0.152</td><td><a href="goods/goods-detail.jsp?i_0=GY2016111500012" target="_blank" class="mhandler"></a></td></tr></tbody></table>
+					<div style="height:15px;"></div>
+					<div id="hnzq_wrapper" class="xm_wrapper01">
+			
+					</div>
+				</div>
+		</div>
+		
+		<div class="xm_data_01">
+				<a id="dbzq"></a>
+				<div class="xm_data_01_01">
+					&nbsp;<br/>东<br/>北<br/>专<br/>区
+				</div>
+				<div class="xm_data_01_02">
+					<div class="xm_data_title">
+						<div style="height:10px;"></div>
+						<div class="btn">供应货源</div>
+						<div class="more"><a href="goods/goods.jsp?area=6">更多&gt;&gt;</a></div>
+					</div>
+					<table cellpadding="0" cellspacing="0" class="zqdata"><thead><tr class="xm_table_title"><td>分类</td><td>煤种</td><td>低位发热量</td><td>全硫分</td><td>库存(吨)</td><td>交割地</td><td>单价(元/吨)</td><td>发布时间</td><td>单卡价格(元/卡)</td><td>操作</td></tr></thead><tbody><tr><td>动力煤</td><td>阜新长焰煤</td><td>3000</td><td>0.9</td><td>50,000</td><td>辽宁 锦州港</td><td class="money">320</td><td>2016-11-17</td><td>0.107</td><td><a href="goods/goods-detail.jsp?i_0=GY2016111700001" target="_blank" class="mhandler"></a></td></tr><tr class="xm_table_tr_02"><td>炼焦煤</td><td>兰炭</td><td>6500</td><td>0.2</td><td>1,000</td><td>辽宁  大连</td><td class="money">1,700</td><td>2016-11-16</td><td>0.262</td><td><a href="goods/goods-detail.jsp?i_0=GY2016111600017" target="_blank" class="mhandler"></a></td></tr><tr><td>动力煤</td><td>三八块</td><td>6200</td><td>0.5</td><td>1,000</td><td>辽宁  大连</td><td class="money">900</td><td>2016-11-16</td><td>0.145</td><td><a href="goods/goods-detail.jsp?i_0=GY2016111600016" target="_blank" class="mhandler"></a></td></tr><tr class="xm_table_tr_02"><td>动力煤</td><td>水洗中煤</td><td>5000</td><td>-</td><td>10,000</td><td>黑龙江  七台河市茄子河</td><td class="money">353</td><td>2016-11-14</td><td>0.071</td><td><a href="goods/goods-detail.jsp?i_0=GY2016111400040" target="_blank" class="mhandler"></a></td></tr><tr><td>动力煤</td><td>湿煤泥</td><td>2800</td><td>-</td><td>2,000</td><td>黑龙江  七台河市新兴洗煤厂附</td><td class="money">43</td><td>2016-11-10</td><td>0.015</td><td><a href="goods/goods-detail.jsp?i_0=GY2016110900018" target="_blank" class="mhandler"></a></td></tr><tr class="xm_table_tr_02"><td>动力煤</td><td>中块</td><td>5800</td><td>0.5</td><td>2,000</td><td>辽宁 大连港</td><td class="money">700</td><td>2016-11-09</td><td>0.121</td><td><a href="goods/goods-detail.jsp?i_0=GY2016110900022" target="_blank" class="mhandler"></a></td></tr><tr><td>动力煤</td><td>褐煤</td><td>3900</td><td>0.1</td><td>5,000</td><td>辽宁 大连港</td><td class="money">500</td><td>2016-11-09</td><td>0.128</td><td><a href="goods/goods-detail.jsp?i_0=GY2016110900021" target="_blank" class="mhandler"></a></td></tr><tr class="xm_table_tr_02"><td>动力煤</td><td>三八块</td><td>5500</td><td>0.5</td><td>1,000</td><td>辽宁 大连港</td><td class="money">840</td><td>2016-11-09</td><td>0.153</td><td><a href="goods/goods-detail.jsp?i_0=GY2016110900020" target="_blank" class="mhandler"></a></td></tr></tbody></table>
+					<div style="height:15px;"></div>
+					<div id="dbzq_wrapper" class="xm_wrapper01">
+			
+					</div>
+				</div>
+		</div>
+
+		<div class="xm_data_01">
+			<a id="jkmzq"></a>
+				<div class="xm_data_01_01">
+					&nbsp;<br/>进<br/>口<br/>煤<br/>专<br/>区
+				</div>
+				<div class="xm_data_01_02">
+					<div class="xm_data_title">
+						<div style="height:10px;"></div>
+						<div class="btn">供应货源</div>
+						<div class="more"><a href="goods/goods.jsp?area=5">更多&gt;&gt;</a></div>
+					</div>
+					<table cellpadding="0" cellspacing="0" class="zqdata"><thead><tr class="xm_table_title"><td>分类</td><td>煤种</td><td>低位发热量</td><td>全硫分</td><td>库存(吨)</td><td>交割地</td><td>单价(元/吨)</td><td>发布时间</td><td>单卡价格(元/卡)</td><td>操作</td></tr></thead><tbody><tr><td>动力煤</td><td>印尼煤</td><td>4200</td><td>1</td><td>50,000</td><td>国外 印尼 East Kalimantan</td><td class="money">380</td><td>2016-09-21</td><td>0.090</td><td><a href="goods/goods-detail.jsp?i_0=GY2016092100016" target="_blank" class="mhandler"></a></td></tr><tr class="xm_table_tr_02"><td>动力煤</td><td>印尼煤</td><td>4800</td><td>0.50</td><td>150,000</td><td>国外 印尼 East Kalimantan</td><td class="money">待议</td><td>2016-09-21</td><td>-</td><td><a href="goods/goods-detail.jsp?i_0=GY2016092100018" target="_blank" class="mhandler"></a></td></tr><tr><td>动力煤</td><td>印尼煤</td><td>5600</td><td>1</td><td>50,000</td><td>国外 印尼 south kalimatan</td><td class="money">380</td><td>2016-09-21</td><td>0.068</td><td><a href="goods/goods-detail.jsp?i_0=GY2016092100017" target="_blank" class="mhandler"></a></td></tr><tr class="xm_table_tr_02"><td>炼焦煤</td><td>俄罗斯煤1/3焦煤</td><td>6992</td><td>0.19</td><td>35,000</td><td>国外  俄罗斯</td><td class="money">待议</td><td>2016-09-12</td><td>-</td><td><a href="goods/goods-detail.jsp?i_0=GY2016091200028" target="_blank" class="mhandler"></a></td></tr><tr><td>动力煤</td><td>印尼煤</td><td>3800</td><td>0.2</td><td>50,000</td><td>国外  印度</td><td class="money">220</td><td>2016-09-08</td><td>0.058</td><td><a href="goods/goods-detail.jsp?i_0=GY2016090800058" target="_blank" class="mhandler"></a></td></tr><tr class="xm_table_tr_02"><td>动力煤</td><td>印尼煤</td><td>4700</td><td>0.2</td><td>75,000</td><td>国外  印度</td><td class="money">340</td><td>2016-09-08</td><td>0.072</td><td><a href="goods/goods-detail.jsp?i_0=GY2016090800059" target="_blank" class="mhandler"></a></td></tr><tr><td>动力煤</td><td>印尼煤</td><td>3800</td><td>0.2</td><td>50,000</td><td>国外  印度</td><td class="money">267</td><td>2016-09-08</td><td>0.070</td><td><a href="goods/goods-detail.jsp?i_0=GY2016090800060" target="_blank" class="mhandler"></a></td></tr><tr class="xm_table_tr_02"><td>动力煤</td><td>印尼煤</td><td>3800</td><td>0.2</td><td>50,000</td><td>广东</td><td class="money">273</td><td>2016-09-08</td><td>0.072</td><td><a href="goods/goods-detail.jsp?i_0=GY2016090800057" target="_blank" class="mhandler"></a></td></tr></tbody></table>
+					<div style="height:15px;"></div>
+					<div id="jkmzq_wrapper" class="xm_wrapper01">
+			
+					</div>
+				</div>
+		</div>
+		<div style="clear:both;"></div>
+		<div class="m_top_data_zx">
+		<a id="zxdt"></a>
+			<div class="t0 no_right_boder">
+				<h2 class="blue">&nbsp;&nbsp;现货行情</h2>
+				<a class="more-zx" href="http://www.xinmei180.com:80/price/price.jsp">更多</a>
+				<ul id="news_00">
+					<li><a href="http://www.xinmei180.com:80/price/nonFixedCol.jsp?col=DataNews_SCPI&tit=华南动力煤地销价格指数-SCPI">华南动力煤地销价格指数-SCPI</a></li>
+					<li><a href="http://www.xinmei180.com:80/price/nonFixedCol.jsp?col=DataNews_hngkctj&tit=华南港口船提价 ">华南港口船提价</a></li>
+					<li><a href="http://www.xinmei180.com:80/price/nonFixedCol.jsp?col=DataNews_hngkktj&tit=华南港口库提价">华南港口库提价</a></li>
+					<li><a href="http://www.xinmei180.com:80/price/nonFixedCol.jsp?col=DataNews_gjdlmgj&tit=国际动力煤估价">国际动力煤估价</a></li>
+				</ul>
+			</div>
+			<div class="t1 no_right_boder">
+				<h2 class="no_blue"></h2>
+				<ul id="news_01" style="border-left:1px solid #F1F0EE;">
+					<li><a href="http://www.xinmei180.com:80/price/nonFixedCol.jsp?col=DataNews_gjyf&tit=国际运费">国际运费</a></li>
+					<li><a href="http://www.xinmei180.com:80/price/nonFixedCol.jsp?col=DataNews_dcjhj&tit=电厂接货价">电厂接货价</a></li>
+					<li><a href="http://www.xinmei180.com:80/price/nonFixedCol.jsp?col=DataNews_dcfhl&tit=电厂负荷率">电厂负荷率</a></li>
+					<li><a href="http://www.xinmei180.com:80/price/nonFixedCol.jsp?col=DataNews_gnsdkspcj&tit=国内四大矿山平仓价 ">国内四大矿山平仓价</a></li>
+				</ul>
+			</div>
+			<div class="t2 no_right_boder" >
+				<h2 class="no_blue"></h2>
+				<ul id="news_02" style="border-left:1px solid #F1F0EE;">
+					<li><a href="http://www.xinmei180.com:80/price/nonFixedCol.jsp?col=DataNews_gnyf&tit=国内运费">国内运费</a></li>
+					<li><a href="http://www.xinmei180.com:80/price/nonFixedCol.jsp?col=DataNews_qhdpcjgj&tit=秦皇岛平仓价估价 ">秦皇岛平仓价估价</a></li>
+					<li><a href="http://www.xinmei180.com:80/price/nonFixedCol.jsp?col=DataNews_qhdgzkc&tit=秦皇岛/广州港库存">秦皇岛/广州港库存</a></li>
+					<li><a href="http://www.xinmei180.com:80/price/nonFixedCol.jsp?col=DataNews_dlmqhzlhy&tit=动力煤期货主力合约">动力煤期货主力合约</a></li>
+				</ul>
+			</div>
+			<div class="t3 no_right_boder">
+				<h2 class="no_blue"></h2>
+				<ul id="news_03" style="border-left:1px solid #F1F0EE;">
+					<li><a href="http://www.xinmei180.com:80/price/dope.jsp?flmdm=lm001">国内热点 </a></li>
+					<li><a href="http://www.xinmei180.com:80/price/dope.jsp?flmdm=lm002">进口资讯 </a></li>
+					<li><a href="http://www.xinmei180.com:80/price/dope.jsp?flmdm=lm003">华南地销动态 </a></li>
+					<li><a href="http://www.xinmei180.com:80/price/dope.jsp?flmdm=lm004">国际焦点 </a></li>
+				</ul>
+			</div>
+			<div class="t4">
+				<h2 class="blue">&nbsp;&nbsp;煤市咨询</h2>
+				<ul style="float:left;">
+					<li>地销动态</li>
+					<li>进口资讯</li>
+					<li>国内热点</li>
+				</ul>
+				<ul style="float:left;">
+					<li>400-165-0001转3-1</li>
+					<li>400-165-0001转3-2</li>
+					<li>400-165-0001转3-3</li>
+				</ul>
+			</div>
+		</div>
+	</div>
+	<div style="height:15px;"></div>
+	
+<link  type="text/css" href="http://www.xinmei180.com:80/css/onfoot.css" rel="stylesheet"/>
+<!-- foot -->
+<div class="onfoot">
+	<div class="mobottom">
+		<div class="onbtop">
+			<a href="http://www.xinmei180.com:80/about.jsp">关于我们</a><a>&nbsp;|&nbsp;</a><a href="http://www.xinmei180.com:80/legal.jsp">法律声明</a><a>&nbsp;|&nbsp;</a><a href="http://www.xinmei180.com:80/contact.jsp">联系我们</a><a>&nbsp;|&nbsp;</a><a href="http://www.xinmei180.com:80/map.jsp">网站地图</a>
+		</div>
+		<div class="onbbottom">
+			<a>Copyright &copy; 2015新煤网版权所有  www.xinmei180.com 粤ICP备15107863号-1</a>
+		</div>
+	</div>
+</div>
+	<div class="rHand">
+		<div class="rH1">
+			<div class="rH-box">
+				<img src="img/wx.png">
+			</div>
+		</div>
+		<div class="rH2">
+			<div class="rH-box" style="width:180px;padding:10px;">
+				<p>客服热线</p>
+				<p class="rH-tit">400-165-0001</p>
+				<p>QQ</p>
+				<a href="tencent://message/?uin=1489898689" target="_blank"><img src="img/online.png"/></a>
+				<p>工作时间</p>
+				<p class="rH-tit">周一至周五9:00-17:30</p>
+			</div>
+		</div>
+		<div class="rH3">
+		</div>
+	</div>
+	<script type="text/javascript">
+	$(function(){
+		$(".rH1,.rH2").hover(function(){
+			$(this).find(".rH-box").show();
+		},function(){
+			$(this).find(".rH-box").hide();
+		});
+		$(window).scroll(function () {
+	        /*监听滚动设置悬浮导航位置*/
+	        if ($(window).scrollTop() > 300) {
+	            $(".rH3").css({ display: 'block' });
+	        } else {
+	            $(".rH3").css({ display: 'none' });
+	        }
+	    });
+		$(".rH3").click(function(){
+			$('body,html').animate({ scrollTop: 0 }, 1000);
+		});
+	});
+	</script>
+</body>
+</html>

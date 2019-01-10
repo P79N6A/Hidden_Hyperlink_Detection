@@ -1,0 +1,282 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" class="x-border-box x-strict"><head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8;">
+<meta http-equiv="pragma" content="no-cache">
+<meta http-equiv="cache-control" content="no-cache">
+<meta http-equiv="expires" content="0">
+<title>管理系统</title>
+<!--引入extjs-CSS-->
+<link rel="stylesheet" type="text/css" href="extjs/resources/css/ext-all.css">
+<!--引入extjs-->
+<script type="text/javascript" src="app/util/core-min.js"></script>
+<script type="text/javascript" src="app/util/md5-min.js"></script>
+<script type="text/javascript" src="extjs/ext-all.js"></script>
+<script type="text/javascript" src="extjs/locale/ext-lang-zh_CN.js"></script>
+
+<link rel="stylesheet" href="css/login.css">
+    <script type="text/javascript" src="js/jquery-1.10.1.min.js"></script>
+    <script type="text/javascript" src="js/placeholderfriend.js"></script>
+    <script type="text/javascript" src="js/fullbg.js"></script>
+
+<script type="text/javascript" src="app/global.js"></script>
+<script>
+
+	Ext.Loader.setConfig({
+		enabled : true,
+		paths : {
+			'AM' : 'app'
+		}
+	});
+	Ext.Loader.setPath('Ext.ux', '/extjs/ux');
+	Ext.require('AM.Login');
+	Ext.onReady(function() {
+		Ext.state.Manager.setProvider(new Ext.state.CookieProvider({
+			expires : new Date(new Date().getTime() + (1000 * 60 * 60))
+		}));
+
+		//AM.Login.show();
+
+	});
+</script><script type="text/javascript" src="app/Login.js?_dc=1491057723493"></script>
+</head>
+<body style="" id="ext-gen1018" class="x-body x-webkit x-chrome x-reset">
+<div id="bg" style="width: 0px; height: 0px; ">
+    <img src="images/nuanbg.png" id="background" alt="">
+</div>
+<div class="wrap">
+    <div class="login_wrap">
+        <div class="login_top">
+            <div class="login_top_img"></div>
+
+        </div>
+        <div class="login_center">
+            <div class="center">
+                <div class="user">
+                    <i class="ico"></i>
+                    <input class="input" type="text" placeholder="请输入用户名" onkeydown="KeyDown()" onblur="onblurHide()">
+                    <i class="close"></i>
+                </div>
+                <div class="password">
+                    <i class="ico"></i>
+                    <input class="input" type="password" placeholder="请输入密码 " onkeydown="KeyDown()" onblur="onblurHide()">
+
+                </div>
+                <div class="btn">
+                    登录
+                </div>
+                <div class="cBox">
+                    <form action="" method="get">
+
+                        <label class="label1"><input class="active" name="Dl" type="checkbox" value="">记住我 </label>
+                        <label class="lebel2"><input name="Dl" type="checkbox" value="">自动登录</label>
+
+                        <div class="TiShi">
+                            <div class="TiShi_tit">
+                                <i></i>
+                                <p class="p1"></p>
+
+                            </div>
+                        </div>
+                    </form>
+
+                </div>
+
+
+            </div>
+
+        </div>
+
+
+
+
+    </div>
+
+
+</div>
+<script type="text/javascript">
+//验证 如果用户名、密码不为空，隐藏提示信息（如：您输入的用户名,密码不能为空）
+function onblurHide() {
+    if ($(".user input").val() !== "") {
+        $('.TiShi').hide();
+    } else if ($(".password input").val() !== "") {
+        $('.TiShi').hide();
+    }
+}
+function btnLogin(){
+
+//  window.location.href="region.html";
+  //判断内容不能为空
+  if( $(".user input").val()==""){
+
+
+      if($(".password input").val()==""){
+          $('.p1').text("您输入的用户名,密码不能为空");
+          $('.TiShi').show();
+      }else{
+          $('.p1').text("您输入的用户名不能为空");
+          $('.TiShi').show();
+
+      }
+}
+if($(".user input").val()!=""){
+  if($(".password input").val()==""){
+      $('.p1').text("您输入的密码不能为空");
+      $('.TiShi').show();
+  }else {
+      $('.TiShi').hide();
+  }
+  //判断用户名密码
+  if($(".password input").val()!=""||$(".user input").val()!=""){
+  	var username=$(".user input").val();
+  	var password = CryptoJS.MD5($(".password input").val()).toString();
+  	$.ajax({
+  		   type: "POST",
+  		   url: "login.do",
+  		   data: "username="+username+"&password="+password,
+  		   success: function(msg){
+  			   if(jQuery.parseJSON(msg).data=="操作成功"){//判断密码是否正确 正确跳转
+                     window.location="main.do";
+                 }else if($(".password input").val()==""){//判断密码框为空
+                     $('.p1').text("您输入的密码不能为空");
+                     $('.TiShi').show();
+
+
+                 }else if($(".password input").val()!=""){//判断密码框不为空但是不正确
+                     $('.p1').text(jQuery.parseJSON(msg).data);
+                     $('.TiShi').show();
+
+
+                 }
+  		   }
+  		});
+      /*if($(".password input").val()=="123456"){//判断密码是否正确 正确跳转
+          window.location.href="region.html";
+      }else if($(".password input").val()==""){//判断密码框为空
+          $('.p1').text("您输入的密码不能为空");
+          $('.TiShi').show();
+
+
+      }else if($(".password input").val()!=""){//判断密码框不为空但是不正确
+          $('.p1').text("您输入的密码不正确");
+          $('.TiShi').show();
+
+
+      }*/
+
+  }
+}
+
+
+
+
+  cancelBubble();
+}
+//按回车键登录
+function KeyDown() {
+    if (event.keyCode === 13) {
+        btnLogin();
+
+    }
+}
+    $(function () {
+        Rest();
+        $(window).load(function () {
+            $("#background").fullBg();
+        });
+        $(window).resize(function (e) {
+            Rest();
+        })
+        $(".user").click(function(){
+            $(".user").css("border","1px solid #4c9fea")
+            $(".password").css("border","1px solid #4b6584 ")
+            $(".user input").on('input propertychange',function(){
+                $('.close').css('display','block');
+            });
+
+            cancelBubble();
+        });
+
+        $('.close').click(function () {
+            $(".user").css("border","1px solid #4b6584 ");
+            $(this).css('display','none');
+
+            $(".user input")[0].value="";
+            cancelBubble();
+        })
+
+
+        $(".password").click(function(){
+
+            $(".user").css("border","1px solid #4b6584 ")
+
+            $(".password").css("border","1px solid #4c9fea")
+
+
+            cancelBubble();
+        });
+        $(".password input").focus(function(){
+            $(".password").css("border","1px solid #4c9fea")
+            $(".user").css("border","1px solid #4b6584 ")
+            cancelBubble();
+        })
+        $('.btn').click(function () {
+        	btnLogin();
+        })
+
+        //点击任何地方取消焦点
+        $(document).click(function(){
+            $(".user").css('border','1px solid #4b6584 ');
+            $(".password").css('border','1px solid #4b6584 ');
+            $('.TiShi').hide();
+            $('.close').css('display','none');
+        })
+
+
+
+    })
+
+
+
+
+    function Rest() {
+        $('#bg').width($(window).width()).height($(window).height());
+    }
+
+    //阻止默认事件
+
+    function getEvent() {
+        if(window.event) {
+            return window.event;
+        }
+      var  func = getEvent.caller;
+        while(func != null) {
+            var arg0 = func.arguments[0];
+            if(arg0) {
+                if((arg0.constructor == Event || arg0.constructor == MouseEvent ||
+                    arg0.constructor == KeyboardEvent) ||
+                    (typeof(arg0) == "object" && arg0.preventDefault &&
+                    arg0.stopPropagation)) {
+                    return arg0;
+                }
+            }
+            func = func.caller;
+        }
+        return null;
+    }
+    //阻止冒泡
+    function cancelBubble() {
+        var e = getEvent();
+        if(window.event) {
+            //e.returnValue=false;//阻止自身行为
+            e.cancelBubble = true; //阻止冒泡
+        } else if(e.preventDefault) {
+            //e.preventDefault();//阻止自身行为
+            e.stopPropagation(); //阻止冒泡
+        }
+    }
+
+
+</script>
+
+
+
+</body></html>

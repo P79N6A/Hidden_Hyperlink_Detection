@@ -1,0 +1,373 @@
+<!DOCTYPE html><html><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+	<link rel="stylesheet" type="text/css" href="https://imgssl.suning.com/css/mobileweb/style/base_zt.css?v=20140314">
+	<link rel="stylesheet" type="text/css" href="https://yxspimgssl.suning.com/wap_login/css/login.css?v=20140314">
+    <meta content="telephone=no" name="format-detection">
+    <title>用户登录</title>
+    <style type="text/css">
+/*author cao 2014 3 25*/
+/*common*/
+*{margin:0;padding:0;}
+/*body{font-size:;}*/
+/*导航头部*/
+
+/*输入验证码的页面*/
+.valid-code  .valid-time{width:79px;border:1px solid #ddd;}
+.valid-code .field .field-con .itxt{border:1px solid #ddd;border-right:none;}
+.valid-code .valid .valid-time{line-height:34px;background:#f4f4f4;}
+.valid-code .err .valid-time{border:none;color:#fff;background:#26d056;}
+/*h5_register_phone3_finished*/
+.success .succ-status{font-size:17px;color:#26d056;height:24px;line-height:24px;}
+.success .succ-status span{display:inline-block;height:24px;width:23px;background:url("images/pin-icon.png") 0 -55px;background-size:40px 120px;margin-right:10px;}
+.success .field .goto{font-size:13px;margin-top:20px;}
+.success .goon{height:35px;margin:7px 35px 0;background: #26d056;}
+.success .goon a{font-size: 16px;background: #26d056;color:#fff;width:100%;height:35px;line-height:35px;display:block;}
+/*h5_login1*/
+.login .user .field-con:before{background-position:0 -107px;width:13px;height:13px;left:10px;top:11px;}
+.login .login-tip{font-size:13px;margin:0 35px;line-height:24px;}
+/*h5_login3*/
+.login .user .field-con .cancel-icon{width:34px; height:34px;position:absolute;border:0;right:0;top:1px;background-color:transparent;text-align:center;}
+.login .user .field-con .cancel-icon span{display:block;height:23px;width:23px;background:url("images/pin-icon.png") 0 0 no-repeat;background-size:40px 120px;margin:0 auto;border-radius:22px;}
+/*email注册*/
+.email-con .field .field-con ul{position:absolute;z-index:10;width:100%;border:1px solid #ddd;background:#fff;display:none;border-top:none;}
+.email-con .field .field-con li{height:35px;padding-left:30px;border-bottom:1px solid #ddd;line-height:35px;}
+.email-con .field .field-con li:last-child{border-bottom:none;}
+	</style>
+</head>
+<body class="page-login">
+<form name="Logon" method="post" action="login" id="Logon"> 
+	<input type="hidden" id="service" name="service" value="https://mobts.suning.com/suning-web-mobile/auth?targetUrl=http%3A%2F%2Fmobts.suning.com%2Fsuning-web-mobile%2Fweixin%2Fauth.htm%3FweixinRedirectUrl%3Dhttp%253A%252F%252Fls.xd.suning.com%252FmyHome%252Fcoupons.html">
+	<input type="hidden" name="uuid" value="011e4354-5733-4a3b-b69c-35704440bfe4">
+	<input type="hidden" id="secPassword" name="secPassword">
+	<input type="hidden" name="loginTheme" value="MOBTS_WAP">
+<div class="login-box">
+    
+                <input name="username" id="username" value="" type="text" placeholder="手机号/邮箱" class="name">
+                <!--<button type="button" class="hidden">-->
+                    <!--<span></span>-->
+                <!--</button>-->
+            <div class="tips"></div>
+                <input name="password" id="password" type="password" placeholder="密码" class="pwd">
+                <!--<button type="button" class="hidden">-->
+                    <!--<span></span>-->
+                <!--</button>-->
+				<em id="clearpsd" class="yg-input-close"></em>
+          
+            <div class="tips "></div>
+        <div id="imageVerifyArea" class="field valid" style="display: none; ">
+            <div class="valid-box wbx">
+                <div class="field-con wbxflx1">
+                    <input type="text" name="verifyCode" id="verifyCode" placeholder="输入验证码" class="itxt itxt-valid bbx">
+                </div>
+            </div>
+			<div class="yg-yzm-btn">
+				<img id="vcodeimg1" src="https://vcs.suning.com/vcs/imageCode.htm?uuid=011e4354-5733-4a3b-b69c-35704440bfe4&amp;yys=1491093311621" onclick="fun_getVcode()">
+				<!-- <span class="gray-bg">获取验证码</span> -->
+				<!--	<span class="a3">获取验证码</span>-->
+			</div>
+        </div>
+		<a class="btn" id="login">登录</a>
+        <!--<p class="login-tip field-p">还没有账号？<a href="#" class="m-color">立即注册</a></p>-->
+    
+</div></form>
+
+
+    
+<script type="text/javascript" src="https://imgssl.suning.com/javascript/mobileweb/jquery.min.js?v=20140314"></script>
+<script type="text/javascript" src="https://imgssl.suning.com/javascript/mobileweb/base_zt.js?v=20140314"></script>
+<script type="text/javascript" src="https://imgssl.suning.com/javascript/mobileweb/yg.js?v=20140314"></script>		
+<script type="text/javascript" src="js.js"></script>
+<script type="text/javascript">
+//图片等静态资源路径路径
+//pre:   https://preimgssl.suning.com
+//dev:   https://preimgssl.suning.com
+//sit:   https://sitimgssl.suning.com
+//prd:   https://imgssl.suning.com
+
+//图片验证码输错三次才刷新
+var gImgVerCdeErrorCount = 0;
+//needVerifyCode:表示是否需要输入验证码
+var needVerifyCodeVal=false;
+
+String.prototype.Trim = function(){
+	return this.replace(/(^\s*)|(\s*$)/g, "");
+}
+
+//判断是否是数字
+function isDigit(object){
+	var pattern = /^([0-9]+)$/;
+	return pattern.test(object);
+};
+
+//初始化显示图片验证码是否显示
+function initShowVerifyCode(){
+	if(needVerifyCodeVal){
+		$("#imageVerifyArea").show();
+	}else{
+		$("#imageVerifyArea").hide();
+	}
+}
+
+//异步是指动态验证码是否显示
+function userNameBlur(o,v){
+	if ($(o).val() == ''|| $(o).val() == v){
+		//$(o).val(v);
+		//$(o).css({"color":"#333"});
+	}else{
+		var userNameVal=$(o).val();
+		userNameVal = userNameVal.Trim();
+		jQuery.ajax( {
+			type : 'POST',
+			url : 'needVerifyCode',
+			data : 'username='+encodeURIComponent(userNameVal),
+			dataType : 'json',
+			success : function(data) {
+				if(data&& data.needVerifyCode){
+					if (!needVerifyCodeVal) {
+						needVerifyCodeVal=true;
+						//hideErrorInfo();
+						$("#imageVerifyArea").show();
+					}
+				}else if(data&& !data.needVerifyCode){
+					if (needVerifyCodeVal) {
+						needVerifyCodeVal=false;
+						//hideErrorInfo();
+						$("#imageVerifyArea").hide();
+					}
+				}
+			},
+			error : function(data) {
+			}
+		});
+	}
+};
+
+	//显示服务器返回的错误信息
+function showServerErrorMsg() {
+	var errorCode='';
+	var errorMessage='';
+	var remainTimes =  '';
+	var snMemberErrorCode = '';
+	var logonId = '';
+
+	//snMemberErrorCode中的错误提示信息
+	if(snMemberErrorCode=="E4700A40"){
+	//	errorMessage = "该账号密码存在风险，您可以点击<a href='"+server_prefix_url+"RetrievePasswordView?catalogId=10051&storeId=10052' target='_blank' style='float:none'>重置密码</a>。";
+	//	showErrorInfo(errorMessage,this);
+                SUI.Use("AlertBox",{type: "mini",msg: "此账号为高危账号，请修改密码"});
+		return;
+	}else if(snMemberErrorCode=="E4700440"){
+		SUI.Use("AlertBox",{type: "mini",msg: "您输入的账号不存在，请重新输入！"});
+		return;
+	}else if(snMemberErrorCode=="E4700451"){
+		SUI.Use("AlertBox",{type: "mini",msg: "会员卡异常，请至门店更换会员卡！"});
+		return;
+	}else if(snMemberErrorCode=="E4700A37"){
+		SUI.Use("AlertBox",{type: "mini",msg: "您输入的账号不存在，请重新输入！"});
+		return;
+	}else if(snMemberErrorCode=="E4700464"){
+		SUI.Use("AlertBox",{type: "mini",msg: "您的会员账号出现异常，请联系4008-365-365！"});
+		return;
+	}else if(snMemberErrorCode=="E4700480"){
+		SUI.Use("AlertBox",{type: "mini",msg: "非个人卡会员暂不提供线上验证功能！"});
+		return;
+	}else if(snMemberErrorCode=="E4700000"){
+		SUI.Use("AlertBox",{type: "mini",msg: "不好意思，系统繁忙，请稍后再试！"});
+		return;
+	}else if(snMemberErrorCode=="E4700013"){
+		SUI.Use("AlertBox",{type: "mini",msg: "不好意思，系统繁忙，请稍后再试！"});
+		return;
+	}else if(snMemberErrorCode=="E4700450"){
+		SUI.Use("AlertBox",{type: "mini",msg: "会员资料不完整您的会员卡资料不完整，为保证您的账户安全，请携带会员卡及有效证件到就近门店补全资料！"});
+		return;
+	}else if(snMemberErrorCode=="E4700443"){
+		SUI.Use("AlertBox",{type: "mini",msg: "您的会员卡已被锁定，请联系4008-365-365！"});
+		return;
+	}else if(snMemberErrorCode=="E4700456"){
+		SUI.Use("AlertBox",{type: "mini",msg: "您输入的账号不存在，请重新输入！"});
+		return;
+	}
+	
+
+	//errorCode类型的错误提示信息
+	if(errorCode=="badVerifyCode"||errorCode=="needVerifyCode"){
+		SUI.Use("AlertBox",{type: "mini",msg: "输入的验证码错误，请重新输入！"});
+	}else if(errorCode=="badPassword.msg1"){
+		SUI.Use("AlertBox",{type: "mini",msg: "输入的用户名或密码不正确，请重新输入"});
+	}else if(errorCode=="badPassword.msg2"){
+		SUI.Use("AlertBox",{type: "mini",msg: "账户名或密码输入错误，您还有"+remainTimes+"次输入机会，机会用完后，您的账号将会被锁定"});
+	}else if(errorCode=="unknownUsername"){
+		SUI.Use("AlertBox",{type: "mini",msg: "您输入的账号不存在，请重新输入！"});
+	}else if(errorCode=="lockedBySystem"){
+		if(isDigit(logonId)&&(logonId.length==12)){
+			SUI.Use("AlertBox",{type: "mini",msg: "您的会员卡已被锁定，请联系4008-365-365"});
+		}else{
+			SUI.Use("AlertBox",{type: "mini",msg: "您的账号已被锁定，请联系4008-365-365"});
+		}
+	}else if(errorCode=="lockedByManual"){
+		SUI.Use("AlertBox",{type: "mini",msg: "您的账号已经被锁定，请联系客服4008-365-365进行解锁。"});
+	}else if(errorCode=="notOnlineMember"){
+		//会员卡未绑定
+//		errorMessage = "会员卡首次登录请点击<a href='" + server_prefix_url + "SNMbrCardInputView?storeId=10052&catalogId=10051' target='_blank' >门店会员卡首次登录</a>进行操作";
+//		showErrorInfo(errorMessage,this);
+                SUI.Use("AlertBox",{type: "mini",msg: "会员卡未绑定，您可以去苏宁易购进行绑定。"});
+	}else if(errorCode=="imperfectMemberCard"){
+		SUI.Use("AlertBox",{type: "mini",msg: "您的会员卡资料不完整，为保证您的账户安全，请携带会员卡及有效证件到就近门店补全资料！"});
+	}else if(errorCode!=""){
+		SUI.Use("AlertBox",{type: "mini",msg: errorMessage});
+	}
+}
+	
+	//刷新验证码
+	//图片验证码
+	function fun_getVcode() {
+		document.getElementById("vcodeimg1").src = 'https://vcs.suning.com/vcs/imageCode.htm?uuid='
+				+ "011e4354-5733-4a3b-b69c-35704440bfe4" + "&yys=" + new Date().getTime();
+	}
+	
+	$(function(){
+
+		//$(".yg-show-pass").toogleChar();
+		$(".sn-input-text-d").delChar();
+		//$(".yg-arrow-down").showHistory();
+		
+		//显示服务端错误信息
+		showServerErrorMsg();
+		//初始化图片验证码
+		fun_getVcode();
+		//设置是否显示图片验证码
+		initShowVerifyCode();
+		//绑定事件
+		bindEvent();
+	})
+	
+	//绑定事件
+	var bindEvent = function(){
+		//登录功能
+		$("#login").click(function(){
+		   if(checkLogonId() && checkPassword()){
+				if(needVerifyCodeVal){
+					checkImageVerifyCodeAndSubmit();
+				}else{
+					logonSubmit();
+				}
+		   }
+		});		
+		$("#username").blur(function(){
+			checkShowImageCode();
+		});
+		//清除密码输入框
+		$("#clearpsd").click(function(){
+			$("#password").val("");
+		});
+		
+	}
+	
+	//是否显示图片验证码
+    var checkShowImageCode = function (){
+		var logonIdval = $('#username').val();
+		if(logonIdval!= ''){
+			userNameBlur("#username",'');
+		}
+	}
+
+	//提交登录
+	var logonSubmit = function (){
+		$('#Logon').submit();
+	}
+
+	//提交时检查账号
+	var checkLogonId = function() {
+		var uname = $('#username').val();
+		if (uname == null || uname == "") {
+			SUI.Use("AlertBox",{type: "mini",msg: "请输入登录名"});
+			return false;
+		}else{
+			return true;
+		}
+	}
+
+	//提交时检查密码
+	var checkPassword = function() {
+		var pwd = $('#password').val();
+		if (pwd.indexOf(" ") >= 0){
+			SUI.Use("AlertBox",{type: "mini",msg: "密码不能含有空格"});
+			return false;
+		}
+		if (pwd == null || pwd == "") {
+			SUI.Use("AlertBox",{type: "mini",msg: "请输入密码"});
+			return false;
+		}else if (pwd.length<6 || pwd.length>20) {
+			SUI.Use("AlertBox",{type: "mini",msg: "请输入6-20位密码"});
+			return false;
+		} else {
+			return true;
+		}	
+	}
+
+	//图片验证码的校验  提交登录操作
+	var checkImageVerifyCodeAndSubmit = function () {
+		var vcd = $('#verifyCode').val();
+		if (vcd == null || vcd == "") {
+			SUI.Use("AlertBox",{type: "mini",msg: "请输入验证码"});
+			return ;
+		}else if((vcd.length == 4 && isAllLetterOrNum(vcd))||(vcd.length == 3 && isChn(vcd))){
+			//用户输入的验证码code
+			//请求时所传参数
+			var param = "code=" + vcd + "&uuid=" + "011e4354-5733-4a3b-b69c-35704440bfe4" + "&delFlag=0";
+			$.ajax({
+				//请求类型
+				type : 'POST',
+				//发送验证请求的url
+				url : 'https://vcs.suning.com/vcs/validate_jsonp.htm',
+				//请求时所传参数
+				data : param,
+				//返回数据类型
+				dataType : 'jsonp',
+				//回调函数方法名
+				jsonp : 'callback',
+				//请求成功后的回调函数
+				success : function(data) {
+					//显示验证结果
+					if(data[0].result == 'true'){
+						result = true;
+						//进行提交操作
+						logonSubmit();
+					}else{
+						SUI.Use("AlertBox",{type: "mini",msg: "验证码错误！"});
+						gImgVerCdeErrorCount++;
+						if (gImgVerCdeErrorCount >= 3) {
+							gImgVerCdeErrorCount = 0;
+							fun_getVcode();
+						}
+					}
+				}
+			});
+		}else{
+			SUI.Use("AlertBox",{type: "mini",msg: "验证码格式不正确，请重新输入"});
+			return ;
+		}
+	}
+
+	//是否全是字母或者数字
+	function isAllLetterOrNum(str) {
+		var patIsAllLetter = /^[0-9a-zA-Z]+$/;
+		return patIsAllLetter.test(str);
+	}
+
+	//全部为汉字
+	function isChn(str){ 
+		var reg = /^[\u4E00-\u9FA5]+$/; 
+		if(!reg.test(str)){ 
+		    return false; 
+		}else{
+			return true; 
+		}
+	}
+	
+</script>
+
+</body></html>

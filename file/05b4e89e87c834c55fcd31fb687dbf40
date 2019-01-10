@@ -1,0 +1,175 @@
+<!DOCTYPE html><html><head>
+	<meta charset="UTF-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="format-detection" content="telephone=no">
+    <title>安能快递</title>
+	<link rel="stylesheet" type="text/css" href="css/wx.css">
+	<link rel="stylesheet" type="text/css" href="css/main.css">
+    <script src="js/jquery.min.js"></script>
+<script type="text/javascript">
+	$(function(){
+		$("#main_content_contact").hide();
+		$("#detail_btn").addClass("lightgreen");
+		var url = location.search;
+		var str = url.substr(1);
+		var mailnos = str.split('=')[1];
+		if (checkEwbNo(mailnos)) {
+			$.ajax({
+						type : "post",
+						url : "./wx/queryByOrderNo",
+						data : {
+							paramKey : "mailNos",
+							paramValue : mailnos
+						},
+						success : function(a) {
+							var info = "";
+							if (a) {
+								var b = eval(a.tracesList);
+								for (var i = 0; i < b.length; i++) {
+									if (b[i].traces.length != 0) {
+										info += "<h5>快递单号：<span>"
+												+ b[i].mailNos
+												+ " </span></h5><ul>";
+										var c = b[i].traces;
+
+										for (var j = c.length - 1; j > 0; j--) {
+											if(j==c.length - 1){
+												info += "<li class='lastOne'>"
+														+ "<div class='main_content_li'>"
+														+ "<p>" + c[j].desc +"</p>"
+														+ "<span>" + c[j].time + "</span></div></li>";
+											}else if(j==c.length-2){
+												info += "<li class='lastTwo'>"
+														+ "<div class='main_content_li'>"
+														+ "<p>" + c[j].desc +"</p>"
+														+ "<span>" + c[j].time + "</span></div></li>";
+											}else{
+												info += "<li>"
+														+ "<div class='main_content_li'>"
+														+ "<p>" + c[j].desc +"</p>"
+														+ "<span>" + c[j].time + "</span></div></li>";
+											}
+										}
+										info += "</ul>";
+									} else {
+										info += "<div class='mailnos_not_found'>"
+											+ "<img src='images/4.png'>"
+											+ "<p>抱歉，无法查询到该单号的快递信息！</p>"
+											+ "<p>请确认单号是否正确！</p></div>";
+									}
+								}
+							}
+							$("#main_content_detail").html(info);
+						},
+						error : function(e) {
+							alert("查询失败!");
+						}
+					});
+		} else {
+			alert("请输入正确单号");
+		}
+	})
+	function detail_btn_click(){
+		$("#contact_btn").removeClass('lightgreen');
+		$("#detail_btn").addClass('lightgreen');
+		$("#main_content_contact").hide();
+		$("#main_content_detail").show();
+	}
+	function contact_btn_click(){
+		$("#detail_btn").removeClass("lightgreen");
+		$("#contact_btn").addClass("lightgreen");
+		$("#main_content_detail").hide();
+		$("#main_content_contact").show();
+	}
+	function checkEwbNo(ewbNo) {
+		var result = true;
+		if (isNaN(ewbNo)) {
+			result = false;
+		}
+		if (ewbNo.length != 14) {
+			result = false;
+		}
+		return result;
+	}
+	function queryOrderVo() {
+		$("#main_content_detail").html('');
+		detail_btn_click();
+		var mailnos = $("#mailnos").val();
+
+		if (checkEwbNo(mailnos)) {
+			$
+					.ajax({
+						type : "post",
+						url : "./wx/queryByOrderNo",
+						data : {
+							paramKey : "mailNos",
+							paramValue : mailnos
+						},
+						success : function(a) {
+							var info = "";
+							if (a) {
+								var b = eval(a.tracesList);
+								for (var i = 0; i < b.length; i++) {
+									if (b[i].traces.length != 0) {
+										info += "<h5>快递单号：<span>"
+												+ b[i].mailNos
+												+ " </span></h5><ul>";
+										var c = b[i].traces;
+
+										for (var j = c.length - 1; j > 0; j--) {
+											if(j==c.length - 1){
+												info += "<li class='lastOne'>"
+														+ "<div class='main_content_li'>"
+														+ "<p>" + c[j].desc +"</p>"
+														+ "<span>" + c[j].time + "</span></div></li>";
+											}else if(j==c.length-2){
+												info += "<li class='lastTwo'>"
+														+ "<div class='main_content_li'>"
+														+ "<p>" + c[j].desc +"</p>"
+														+ "<span>" + c[j].time + "</span></div></li>";
+											}else{
+												info += "<li>"
+														+ "<div class='main_content_li'>"
+														+ "<p>" + c[j].desc +"</p>"
+														+ "<span>" + c[j].time + "</span></div></li>";
+											}
+										}
+										info += "</ul>";
+									} else {
+										info += "<div class='mailnos_not_found'>"
+												+ "<img src='images/4.png'>"
+												+ "<p>抱歉，无法查询到该单号的快递信息！</p>"
+												+ "<p>请确认单号是否正确！</p></div>";
+									}
+								}
+							}
+							$("#main_content_detail").html(info);
+						},
+						error : function(e) {
+							alert("查询失败!");
+						}
+					});
+		} else {
+			alert("请输入正确单号");
+		}
+	}
+</script></head>
+
+<body style="background-color: white;overflow:auto;">
+	<div class="wx_top1">
+			<input type="text" id="mailnos" name="mailnos" placeholder="请输入快递单号">
+			<img src="images/2.png" height="25px" width="25px" onclick="queryOrderVo();">
+	</div>
+	<div class="wx_top2">
+		<input type="button" onclick="detail_btn_click();" class="darkgreen lightgreen" id="detail_btn" value="物流详情">
+		<input type="button" onclick="contact_btn_click();" class="darkgreen" id="contact_btn" value="联系客服">
+	</div>
+	<div class="main_content" id="main_content_detail">
+        
+    </div>
+    <div class="main_content" id="main_content_contact" style="text-align: center; display: none; ">
+    	<p>该功能尚未开放。</p>
+    </div>
+
+</body></html>

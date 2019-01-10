@@ -1,0 +1,598 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js" type="text/javascript"></script>
+    <script src="include/js/jquery.banner.js" type="text/javascript"></script>
+    <title>中山醫學大學附設醫院</title>
+    <style type="text/css">
+        .list-btn
+        {
+            font-size: 12px;
+        }
+        tr
+        {
+            font-size: 12px;
+            color: #333;
+        }
+        #abgneBlock
+        {
+            width: 934px;
+            height: 237px;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid #ccc;
+        }
+        #abgneBlock ul.list
+        {
+            padding: 0;
+            margin: 0;
+            list-style: none;
+            position: absolute;
+            width: 9999px;
+            height: 100%;
+        }
+        #abgneBlock ul.list li
+        {
+            float: left;
+            width: 934px;
+            height: 100%;
+        }
+        #abgneBlock .list img
+        {
+            width: 100%;
+            height: 100%;
+            border: 0;
+        }
+        #abgneBlock ul.playerControl
+        {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+            position: absolute;
+            bottom: 5px;
+            right: 5px;
+            height: 14px;
+        }
+        #abgneBlock ul.playerControl li
+        {
+            float: left;
+            width: 23px;
+            height: 14px;
+            cursor: pointer;
+            margin: 0px 2px;
+            background: url(images/rect_ctrl.png) no-repeat 0 0;
+        }
+        #abgneBlock ul.playerControl li.current
+        {
+            background-position: -23px 0;
+        }
+        .news-title
+        {
+            font-size: 18px;
+            font-family: "新細明體";
+        }
+        #header table tr td .data_box
+        {
+            font-size: 16px;
+        }
+    </style>
+    <script type="text/javascript">
+        $(function () {
+            // 先取得必要的元素並用 jQuery 包裝
+            // 再來取得 $block 的高度及設定動畫時間
+            var $block = $('#abgneBlock'),
+		$slides = $('ul.list', $block),
+		_width = $block.width(),
+		$li = $('li', $slides),
+		_animateSpeed = 800,
+            // 加入計時器, 輪播時間及控制開關
+		timer, _showSpeed = 2500, _stop = false;
+
+            // 產生 li 選項
+            var _str = '';
+            for (var i = 0, j = $li.length; i < j; i++) {
+                // 每一個 li 都有自己的 className = playerControl_號碼
+                _str += '<li class="playerControl_' + (i + 1) + '"></li>';
+            }
+
+            // 產生 ul 並把 li 選項加到其中
+            var $playerControl = $('<ul class="playerControl"></ul>').html(_str).appendTo($slides.parent()).css('left', function () {
+                // 把 .playerControl 移到置中的位置
+                return (_width - $(this).width()) / 2;
+            });
+
+            // 幫 li 加上 click 事件
+            var $playerControlLi = $playerControl.find('li').click(function () {
+                var $this = $(this);
+                $this.addClass('current').siblings('.current').removeClass('current');
+
+                clearTimeout(timer);
+                // 移動位置到相對應的號碼
+                $slides.stop().animate({
+                    left: _width * $this.index() * -1
+                }, _animateSpeed, function () {
+                    // 當廣告移動到正確位置後, 依判斷來啟動計時器
+                    if (!_stop) timer = setTimeout(move, _showSpeed);
+                });
+
+                return false;
+            }).eq(0).click().end();
+
+            // 如果滑鼠移入 $block 時
+            $block.hover(function () {
+                // 關閉開關及計時器
+                _stop = true;
+                clearTimeout(timer);
+            }, function () {
+                // 如果滑鼠移出 $block 時
+                // 開啟開關及計時器
+                _stop = false;
+                timer = setTimeout(move, _showSpeed);
+            });
+
+            // 計時器使用
+            function move() {
+                var _index = $('.current').index();
+                $playerControlLi.eq((_index + 1) % $playerControlLi.length).click();
+            }
+        });
+        function MM_swapImgRestore() { //v3.0
+            var i, x, a = document.MM_sr; for (i = 0; a && i < a.length && (x = a[i]) && x.oSrc; i++) x.src = x.oSrc;
+        }
+        function MM_preloadImages() { //v3.0
+            var d = document; if (d.images) {
+                if (!d.MM_p) d.MM_p = new Array();
+                var i, j = d.MM_p.length, a = MM_preloadImages.arguments; for (i = 0; i < a.length; i++)
+                    if (a[i].indexOf("#") != 0) { d.MM_p[j] = new Image; d.MM_p[j++].src = a[i]; }
+            }
+        }
+
+        function MM_findObj(n, d) { //v4.01
+            var p, i, x; if (!d) d = document; if ((p = n.indexOf("?")) > 0 && parent.frames.length) {
+                d = parent.frames[n.substring(p + 1)].document; n = n.substring(0, p);
+            }
+            if (!(x = d[n]) && d.all) x = d.all[n]; for (i = 0; !x && i < d.forms.length; i++) x = d.forms[i][n];
+            for (i = 0; !x && d.layers && i < d.layers.length; i++) x = MM_findObj(n, d.layers[i].document);
+            if (!x && d.getElementById) x = d.getElementById(n); return x;
+        }
+
+        function MM_swapImage() { //v3.0
+            var i, j = 0, x, a = MM_swapImage.arguments; document.MM_sr = new Array; for (i = 0; i < (a.length - 2); i += 3)
+                if ((x = MM_findObj(a[i])) != null) { document.MM_sr[j++] = x; if (!x.oSrc) x.oSrc = x.src; x.src = a[i + 2]; }
+        }
+    </script>
+    <script src="includes/ice/ice.js" type="text/javascript">
+    </script>
+</head>
+<body>
+    <div style="width: 934px; border: #000 solid 0px; margin-left: auto; margin-right: auto">
+        <div id="header" style="width: 934px; height: 940px; border: #000 solid 0px;">
+            <div id="top_bar">
+                <img src="cshwebsite/include/image/top_bar.jpg" /></div>
+            <table width="934" border="0">
+                <tr>
+                    <td rowspan="2">
+                        <div align="center">
+                            <a href="http://www.csh.org.tw" style="text-decoration: none">
+                                <img src="cshwebsite/include/image/csh_mark.png" width="197" height="47" title="中山醫學大學附設醫院"
+                                    border="0" /></a></div>
+                    </td>
+                    <td>
+                        <div align="center">
+                        </div>
+                    </td>
+                    <td>
+                        <div align="center" title="中興院區">
+                            <a href="http://www.csh.org.tw/cs/Default.aspx" style="text-decoration: none">中興分院</a></div>
+                    </td>
+                    <td>
+                        <div align="center" title="文心院區">
+                            <a href="http://web.csh.org.tw/web/cshd/" style="text-decoration: none">文心院區</a></div>
+                    </td>
+                    <td>
+                        <div align="center" title="護理之家">
+                            <a href="http://web.csh.org.tw/web/b3d000/" style="text-decoration: none">護理之家</a></div>
+                    </td>
+                    <td>
+                        <div align="center" title="急診即時資訊">
+                            <a href="http://www.csh.org.tw/ER/index.aspx" style="text-decoration: none">急診即時資訊</a></div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <div align="center" title="關於中山">
+                            <a href="cshwebsite/About/index.html">
+                                <img src="cshwebsite/include/image/btn-top-01.jpg" width="130" height="40" border="0" /></a></div>
+                    </td>
+                    <td>
+                        <div align="center" title="醫療單位">
+                            <a href="cshwebsite/About/depart.html">
+                                <img src="cshwebsite/include/image/btn-top-02.jpg" width="130" height="40" border="0" /></a></div>
+                    </td>
+                    <td>
+                        <div align="center" title="醫事單位">
+                            <a href="cshwebsite/About/depart.html">
+                                <img src="cshwebsite/include/image/btn-top-03.jpg" width="130" height="40" border="0" /></a></div>
+                    </td>
+                    <td>
+                        <div align="center" title="行政單位">
+                            <a href="cshwebsite/About/depart.html">
+                                <img src="cshwebsite/include/image/btn-top-04.jpg" width="130" height="40" border="0" /></a>
+                        </div>
+                    </td>
+                    <td>
+                        <div align="center" title="中山醫學大學">
+                            <a href="http://www.csmu.edu.tw/">
+                                <img src="cshwebsite/include/image/csh_school.png" width="130" height="40" border="0" /></a></div>
+                    </td>
+                </tr>
+            </table>
+            <div id="abgneBlock" align="center">
+                <ul class="list">  
+                     <li>
+                        <div align="center">
+                            <a target="_blank" href="#">
+                                <img src="cshwebsite/images/20161228.png" align="absmiddle"></a></div>
+                    </li>
+                    <li>
+                        <div align="center">
+                            <a target="_blank" href="#">
+                                <img src="cshwebsite/images/20161228-2.png" align="absmiddle"></a></div>
+                    </li>                   
+                  <li>
+                        <div align="center">
+                            <a target="_blank" href="#">
+                                <img src="cshwebsite/images/2016-06-02.png" align="absmiddle"></a></div>
+                    </li>
+                     <li>
+                        <div align="center">
+                            <a target="_blank" href="http://web.csh.org.tw/web/csh/?p=2373">
+                                <img src="cshwebsite/images/2016-10-24.jpg" align="absmiddle"></a></div>
+                    </li>
+                     <li>
+                        <div align="center">
+                            <a target="_blank" href="http://www.mohw.gov.tw/LTC">
+                                <img src="cshwebsite/images/csh-banner-top-20.png" align="absmiddle"></a></div>
+                    </li>
+                     <li>
+                        <div align="center">
+                            <a target="_blank" href="http://www.csh.org.tw/cshwebsite/HumanResource/index.html">
+                                <img src="cshwebsite/images/csh-banner-top-21.png" align="absmiddle"></a></div>
+                    </li>
+                    <li>
+                        <div align="center">
+                            <a target="_blank" href="https://dpws.sfaa.gov.tw">
+                                <img src="cshwebsite/images/2016-08-03.png" align="absmiddle"></a></div>
+                    </li>
+                    <li>
+                        <div align="center">
+                            <a target="_blank" href="http://www.snq.org.tw/chinese/03_service/02_detail.php?pdid=2716">
+                                <img src="cshwebsite/images/2016-03-08_03.jpg" align="absmiddle"></a></div>
+                    </li>
+                    <li>
+                        <div align="center">
+                            <a target="_blank" href="http://www.snq.org.tw/chinese/03_service/02_detail.php?pdid=2747">
+                                <img src="cshwebsite/images/2016-03-08_02.jpg" align="absmiddle"></a></div>
+                    </li>
+                    <li>
+                        <div align="center">
+                            <a target="_blank" href="http://www.snq.org.tw/chinese/03_service/02_detail.php?pdid=2712">
+                                <img src="cshwebsite/images/2016-03-08_01.jpg" align="absmiddle"></a></div>
+                    </li>
+                     <li>
+                        <div align="center">
+                            <a target="_blank" href="http://web.csh.org.tw/web/a2w010/">
+                                <img src="cshwebsite/images/Davinci.jpg" align="absmiddle"></a></div>
+                    </li>
+                    </ul>
+            </div>
+            <table width="934" border="0">
+                <tr>
+                    <td>
+                        <a href="http://www.csh.org.tw/Register/Register.aspx">
+                            <img src="cshwebsite/include/image/btn-01-reg.png" width="100" height="50" title="我要掛號"
+                                border="0" /></a>
+                    </td>
+                    <td>
+                        <a href="http://web.csh.org.tw/web/doctor/">
+                            <img src="cshwebsite/include/image/btn-04-doc.png" width="100" height="50" title="找醫師"
+                                border="0" /></a>
+                    </td>
+                    <td>
+                        <img src="cshwebsite/include/image/middle-banner.png" width="500" height="50" />
+                    </td>
+                    <td>
+                        <img src="cshwebsite/include/image/csh-banner-focus.png" width="220" height="50" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <a href="http://www.csh.org.tw/Register/RegRefill.aspx">
+                            <img src="cshwebsite/include/image/RefPre.png" width="100" height="50" title="慢箋預約"
+                                border="0" /></a>
+                    </td>
+                    <td>
+                        <a href="cshwebsite/Traffic/map.html">
+                            <img src="cshwebsite/include/image/btn-02-tra.png" width="100" height="50" title="到院交通"
+                                border="0" /></a>
+                    </td>
+                    <td rowspan="3">
+                        <div class="data_box">
+                            2017-01-04<a href="http://web.csh.org.tw/web/csh/?p=2959">【公告】【門診時刻表】春節類流感門診公告</a><br />
+                            2016-12-30<a href="http://web.csh.org.tw/web/csh/?p=2935">【公告】2017年1月門診表</a><br />
+                            2016-12-27<a href="http://web.csh.org.tw/web/csh/?p=2792">【公告】106學年度一年期畢業後一般醫學訓練選配</a><br />
+                            2016-12-12<a href="http://web.csh.org.tw/web/csh/?p=2692">【活動】中山乳癌病友會</a><br />
+                            2016-12-02<a href="http://web.csh.org.tw/web/csh/?p=2687">【公告】2016年12月門診表</a><br />
+                            2016-09-21<a href="http://web.csh.org.tw/web/csh/?p=2282">【公告】「藥物食品安全週報」</a><br />
+                            2016-09-01<a href="http://web.csh.org.tw/web/doctor/?page_id=2">【感謝與讚美】感謝本院醫療團隊</a><br />
+                    </div>
+                    </td>
+                    <td rowspan="3">
+                        <a href="http://web.csh.org.tw/web/csh/?cat=4">
+                            <img src="cshwebsite/include/image/16.png" width="210" height="158" title="醫院焦點"
+                                border="0" /></a>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <a href="cshwebsite/Notice/Register.html">
+                            <img src="cshwebsite/include/image/btn-05-med.png" width="100" height="50" title="就醫須知"
+                                border="0" /></a>
+                    </td>
+                    <td>
+                        <a href="cshwebsite/Document/menu-1.html">
+                            <img src="cshwebsite/include/image/btn-06-dout.png" width="100" height="50" title="文件申請"
+                                border="0" /></a>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <a href="cshwebsite/Charge/opd.html">
+                            <img src="cshwebsite/include/image/btn-07-cha.png" width="100" height="50" title="收費標準"
+                                border="0" /></a>
+                    </td>
+                    <td>
+                        <a href="http://www.csh.org.tw/Register/Sympton.aspx">
+                            <img src="cshwebsite/include/image/btn-08-dis.png" width="100" height="50" title="科與疾病"
+                                border="0" /></a>
+                    </td>
+                </tr>
+            </table>
+            <div align="center">
+                <table width="934" border="0" cellpadding="0" cellspacing="0">
+                    <tr>
+                        <td>
+                            <a href="http://web.csh.org.tw/web/emrcsh/">
+                                <div align="center">
+                                    <img src="cshwebsite/include/image/csh-btn-emr.png" width="132" height="50" title="電子病歷"
+                                        border="0" /></div>
+                            </a>
+                        </td>
+                        <td>
+                            <a href="cshwebsite/HosService/index.html">
+                                <div align="center">
+                                    <img src="cshwebsite/include/image/csh-btn-ser.png" width="132" height="50" title="院所服務" border="0" /></div>
+                            </a>
+                        </td>
+                        <td>
+                            <a href="cshwebsite/PhaConsulta/index.html">
+                                <div align="center">
+                                    <img src="cshwebsite/include/image/csh-btn-drg.png" width="132" height="50" title="藥物諮詢"
+                                        border="0" /></div>
+                            </a>
+                        </td>
+                        <td>
+                            <a href="http://www.csh.org.tw/cshwebsite/InterMed/index.html">
+                                <div align="center">
+                                    <img src="cshwebsite/include/image/csh-btn-imsc.png" width="132" height="50" title="國際醫療中心"
+                                        border="0" /></div>
+                            </a>
+                        </td>
+                        <td>
+                            <a href="cshwebsite/Special/index.html">
+                                <div align="center">
+                                    <img src="cshwebsite/include/image/csh-btn-spm.png" width="132" height="50" title="特色醫療" border="0" /></div>
+                            </a>
+                        </td>
+                        <td>
+                            <a href="https://med.nhi.gov.tw/ihke0000/IHKE0100S01.aspx">
+                                <div align="center">
+                                    <img src="cshwebsite/include/image/csh-under-heabank.png" width="132" height="50"
+                                        title="健康存摺" border="0" /></div>
+                            </a>
+                        </td>
+                        <td>
+                            <a href="http://web.csh.org.tw/web/a35000/">
+                                <div align="center">
+                                    <img src="cshwebsite/include/image/csh-btn-hec.png" width="132" height="50" title="健檢中心"
+                                        border="0" /></div>
+                            </a>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div align="center">
+                <table width="934" border="0" cellpadding="0" cellspacing="0">
+                    <tr>
+                        <td>
+                            <a href="http://www.csh.org.tw/IRB/Index.html">
+                                <div align="center">
+                                    <img src="cshwebsite/include/image/IRB.png" width="132" height="50" title="第一暨第二人體試驗委員會" border="0" /></div>
+                            </a>
+                        </td>
+                        <td>
+                            <a href="http://web.csh.org.tw/web/222040/">
+                                <div align="center">
+                                    <img src="cshwebsite/include/image/csh-btn-smo.png" width="132" height="50" title="臨床試驗中心"
+                                        border="0" /></div>
+                            </a>
+                        </td>
+                        <td>
+                            <a href="http://web.csh.org.tw/Web/a2e010/">
+                                <div align="center">
+                                    <img src="cshwebsite/include/image/csh-btn-kil.png" width="132" height="50" title="自殺防治中心"
+                                        border="0" /></div>
+                            </a>
+                        </td>
+                        <td>
+                            <a href="http://web.csh.org.tw/web/212210">
+                                <div align="center">
+                                    <img src="cshwebsite/include/image/csh-btn-prz.png" width="132" height="50" title="病人安全專區" border="0" /></div>
+                            </a>
+                        </td>
+                        <td>
+                            <a href="file/Cancer.pdf">
+                                <div align="center">
+                                    <img src="cshwebsite/include/image/csh-btn-cso.png" width="132" height="50" title="癌症特別門診"
+                                        border="0" /></div>
+                            </a>
+                        </td>
+                        <td>
+                            <a href="http://web.csh.org.tw/web/cancer/">
+                                <div align="center">
+                                    <img src="cshwebsite/include/image/csh-btn-cac.png" width="132" height="50" title="癌症防治中心"
+                                        border="0" /></div>
+                            </a>
+                        </td>
+                        <td>
+                            <a href="https://ms.csh.org.tw">
+                                <div align="center">
+                                    <img src="cshwebsite/include/image/EmpWebMail.png" width="132" height="50" title="員工電子郵件" border="0" /></div>
+                            </a>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div align="center">
+                <table width="934" border="0" cellpadding="0" cellspacing="0">
+                    <tr>
+                        <td>
+                            <a href="http://web.csh.org.tw/web/218040/">
+                                <div align="center">
+                                    <img src="cshwebsite/include/image/csh-btn-swz.png" width="132" height="50" title="社工專區"
+                                        border="0" /></div>
+                            </a>
+                        </td>
+                        <td>
+                            <a href="http://web.csh.org.tw/web/222010/">
+                                <div align="center">
+                                    <img src="cshwebsite/include/image/csh-btn-hep.png" width="132" height="50" title="衛教天地"
+                                        border="0" /></div>
+                            </a>
+                        </td>
+                        <td>
+                            <a href="cshwebsite/E-Journal/index.html">
+                                <div align="center">
+                                    <img src="cshwebsite/include/image/csh-btn-csmi.png" width="132" height="50" title="中山醫訊"
+                                        border="0" /></div>
+                            </a>
+                        </td>
+                        <td>
+                            <a href="cshwebsite/Infos/menu-1.html">
+                                <div align="center">
+                                    <img src="cshwebsite/include/image/csh-btn-pun.png" width="132" height="50" title="採購公告" border="0" /></div>
+                            </a>
+                        </td>
+                        <td>
+                            <a href="http://web.csh.org.tw/web/a31002/">
+                                <div align="center">
+                                    <img src="cshwebsite/include/image/20160803.png" width="132" height="50" title="身心障礙進度查詢"
+                                        border="0" /></div>
+                            </a>
+                        </td>
+                        <td>
+                            <a href="cshwebsite/Satisfaction/SatisSur/index.html" target="_blank">
+                                <div align="center">
+                                    <img src="cshwebsite/include/image/csh-btn-sas.png" width="132" height="50" title="滿意度調查"
+                                        border="0" /></div>
+                            </a>
+                        </td>
+                        <td>
+                            <a href="Mail/Default.aspx">
+                                <div align="center">
+                                    <img src="cshwebsite/include/image/csh-btn-prm.png" width="132" height="50" title="院長信箱"
+                                        border="0" /></div>
+                            </a>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div align="center">
+                <table width="934" border="0" cellpadding="0" cellspacing="0">
+                    <tr>
+                        <td>
+                            <a href="http://web.csh.org.tw/web/a34117/">
+                                <div align="center">
+                                    <img src="cshwebsite/include/image/csh-btn-aca.png" width="132" height="50" title="學術研究"
+                                        border="0" /></div>
+                            </a>
+                        </td>
+                        <td>
+                            <a href="http://web.csh.org.tw/web/221000/">
+                                <div align="center">
+                                    <img src="cshwebsite/include/image/csh-btn-mer.png" width="132" height="50" title="研究成果"
+                                        border="0" /></div>
+                            </a>
+                        </td>
+                        <td>
+                            <a href="cshwebsite/HumanResource/index.html">
+                                <div align="center">
+                                    <img src="cshwebsite/include/image/csh-btn-rer.png" width="132" height="50" title="人才招募"
+                                        border="0" /></div>
+                            </a>
+                        </td>
+                        <td>
+                            <a href="cshwebsite/Link/Admin.html">
+                                <div align="center">
+                                    <img src="cshwebsite/include/image/csh-btn-link.png" width="132" height="50" title="相關連結" border="0" /></div>
+                            </a>
+                        </td>
+                        <td>
+                            <a href="http://www.csh.org.tw/cshwebsite/International/MobileHealthcareList.html">
+                                <div align="center">
+                                    <img src="cshwebsite/include/image/csh-btn-mai.png" width="132" height="50" title="醫療援助"
+                                        border="0" /></div>
+                            </a>
+                        </td>
+                        <td>
+                            <a href="file/CountBed/大慶.pdf">
+                                <div align="center">
+                                    <img src="cshwebsite/include/image/csh-btn-bed.png" width="132" height="50" title="病床設置情形" border="0" /></div>
+                            </a>
+                        </td>
+                        <td>
+                            <a href="http://hca.nat.gov.tw/Default.aspx">
+                                <div align="center">
+                                    <img src="cshwebsite/include/image/csh-btn-hca.png" width="132" height="50" title="病床設置情形"
+                                        border="0" /></div>
+                            </a>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div align="center">
+                <table width="934" align="center">
+                    <tr>
+                        <td align="center" bgcolor="#FFFFFF" background="cshwebsite/include/image/bottom.jpg">
+                            <font color="#FFFFFF">院址：40201台中市南區建國北路一段110號　|　總機：04-2473-9595　|　語音掛號專線：04-2475-0011　(大慶：1 中興：5)<br />
+          適用於IE6以上之瀏覽器　|　最佳解析度：1024*768　|　資訊安全政策　|　網頁目前持續修正及更新中，如造成您的不便！敬請見諒！最後更新日期：2013/07/22<br />
+        版權所有&copy;2012　中山醫學大學附設醫院　Chung Shan Medical University Hospital, All right reserved.　禁止網路服務業者轉錄本院網路資訊內容</font>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+<script>
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-1454093-11', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</html>

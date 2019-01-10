@@ -1,0 +1,117 @@
+<!DOCTYPE html><html><head>
+		<meta charset="utf-8">
+		<script src="http://res.plures.net/lib/json2/json2.min.js"></script>
+	</head>
+	<body>
+    
+		<script>
+
+		  var host = location.hostname.split('.');
+		  var domain = host.pop();
+		  domain = host.pop() + '.' +  domain;
+
+		  try {
+		    document.domain = domain;
+		  } catch (e) { }
+
+		  if (typeof parent.__storage_proxy__ != 'undefined') {
+		    parent.__storage_proxy__();
+		  }
+
+		  (function () {
+		    var ls;
+		    if (window.localStorage) {
+		      ls = {
+		        set: function (key, value) {
+		          if (typeof (value) === 'object') {
+		            try {
+		              value = JSON.stringify(value);
+		            } catch (e) { }
+		          }
+		          return window.localStorage.setItem(key, value);
+		        },
+
+		        get: function (key) {
+		          var value = window.localStorage.getItem(key);
+		          if (value !== undefined) {
+		            if (typeof (value) === 'string') {
+		              var jsonValue;
+		              try {
+		                jsonValue = JSON.parse(value);
+		              } catch (e) { }
+		              if (jsonValue !== undefined) {
+		                return jsonValue;
+		              } else {
+		                return value;
+		              }
+		            }
+		          }
+		        },
+
+		        remove: function (key) {
+		          return localStorage.removeItem(key);
+		        }
+		      }
+		    } else {
+		      var box = document.body || document.getElementsByTagName("head")[0] || document.documentElement,
+					  o, doc, agent;
+		      try {
+		        agent = new ActiveXObject("htmlfile");
+		        agent.open();
+		        agent.write('<s' + 'cript>document.w=window;</s' + 'cript><iframe src="/favicon.ico"></iframe>');
+		        agent.close();
+		        doc = agent.w.frames[0].document;
+		        o = doc.createElement('head');
+		        doc.appendChild(o);
+		      } catch (e) {
+		        o = document.createElement('input');
+			o.style.behavior = "#default#userData";
+		        o.type = "hidden";
+		        box.appendChild(o);
+		      }
+		      ls = {
+		        set: function (key, value) {
+		          try {
+		            if (typeof (value) === 'object') {
+		              try {
+		                value = JSON.stringify(value);
+		              } catch (e) { }
+		            }
+		            if (typeof (key) !== 'string') {
+		              key = String(key);
+		            }
+		            var d = new Date();
+		            d.setDate(d.getDate() + 365);
+		            o.expires = d.toUTCString();
+		            return o.setAttribute(key, value);
+		          } catch (e) { } finally {
+		            o.save("localStorage");
+		          }
+		        },
+		        get: function (key) {
+		          o.load("localStorage");
+		          var value = o.getAttribute(key);
+		          if (value !== undefined) {
+		            try {
+		              var jsonValue = JSON.parse(value);
+		            } catch (e) { }
+		            if (jsonValue !== undefined) {
+		              return jsonValue;
+		            } else {
+		              return value;
+		            }
+		          }
+		          return null;
+		        },
+		        remove: function (key) {
+		          o.load("localStorage");
+		          o.removeAttribute(key);
+		          o.save("localStorage");
+		        }
+		      }
+		    }
+
+		    window.ls = ls;
+		  })();
+		</script><input type="hidden">
+</body></html>

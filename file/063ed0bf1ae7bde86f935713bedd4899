@@ -1,0 +1,559 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head id="Head1"><title>
+	万达集团统一用户登录
+</title><meta http-equiv="Content-Type" content="text/html;charset=utf-8;"><meta http-equiv="SSO-HASH" content="THISISSSOLOGINPAGE"><link href="Styles/SignOn.css" type="text/css" rel="stylesheet">
+    <script src="Scripts/jquery-1.4.1.min.js" type="text/javascript"></script>
+    <script type="text/javascript">var wd_sso_menuInfo = null;</script>
+    <script type="text/javascript">
+        var httpCacheUtil = {
+            createXHR: function () {
+                if (typeof XMLHttpRequest != "undefined") {
+                    return new XMLHttpRequest();
+                }
+                else if (typeof ActiveXObject != "undefined") {
+                    if (typeof arguments.callee.activeXString != "string") {
+                        var versions = ["MSXML2.XMLHttp.6.0", "MSXML2.XMLHttp.3.0", "MSXML2.XMLHttp"];
+                        for (var i = 0, len = versions.length; i < len; ++i) {
+                            try {
+                                var xhr = new ActiveXObject(versions[i]);
+                                arguments.callee.activeXString = versions[i];
+                                return xhr;
+                            }
+                            catch (ex) {
+                                // pass
+                            }
+                        }
+                    }
+                    return new ActiveXObject(arguments.callee.activeXString);
+                }
+                else {
+                    throw new Error("No XHR object available");
+                }
+            },
+            update: function(url){
+                try {
+                    var success = function(responseText) {
+                    
+                    };
+                    var error = function(errorStatus) {
+                    
+                    };
+                    var xhr = httpCacheUtil.createXHR();
+                    if(typeof xhr != "undefined" && xhr != null) {
+                        xhr.onreadystatechange = function (event) {
+                            if (xhr.readyState == 4) {
+                                if ((xhr.status >= 200 && xhr.status < 300) || xhr.status == 304) {
+                                    if (typeof success === "function")
+                                        success(xhr.responseText);
+                                }
+                                else {
+                                    if (typeof error === "function")
+                                        error(xhr.status);
+                                }
+                            }
+                        };
+                        xhr.open("GET", url, false);
+                        xhr.setRequestHeader("If-None-Match","\"22426f327b8cd1:0\"");
+                        xhr.setRequestHeader("If-Modified-Since", "Sat, 31 Dec 2011 02:51:00 GMT");
+                        xhr.send(null);
+                    }
+                }
+                catch(e){
+                    // throw no exception
+                }
+            }
+        };
+
+        var ssoSite = {
+            ssoHostPrefix : 'sso',
+            ssoHostPrefixDev : 'sso4dev',
+            ssoDomainList : [
+                '.wanda.cn',
+                '.wanda.com.cn',
+                '.wandafilm.com',
+                '.dagexing.com',
+                '.wandahotels.com',
+                '.wandaperformance.com',
+                '.wandaresort.com',
+
+                '.wanda-dev.cn',
+                '.wanda-dev.com.cn',
+                '.wandafilm-dev.com',
+                '.dagexing-dev.com',
+                '.wandahotels-dev.com',
+                '.wandaperformance-dev.com',
+                '.wandaresort-dev.com'
+            ],
+            getHost: function () {
+                try
+                {
+                    // only support 2.0
+                    var sso2host = document.getElementById('WD-SSO-LOGIN-SITE-HOST');
+                    if (sso2host) {
+                        return sso2host.getAttribute('value');
+                    }
+                    // fix 1.0
+                    var domain = this.getDomain();
+                    if (domain && domain.length > 0) {
+                        if (domain.indexOf('-dev') == -1) {
+                            return this.ssoHostPrefix + domain;
+                        }
+                        else {
+                            return this.ssoHostPrefixDev + domain;
+                        }
+                    }
+                    return '';
+                }catch(e){
+                    // catch all
+                    return '';
+                }
+            },
+            getDomain: function () {
+                // only support 2.0
+                var sso2domain = document.getElementById('WD-SSO-LOGIN-SITE-DOMAIN');
+                if (sso2domain) {
+                    return sso2domain.getAttribute('value');
+                }
+                // fix 1.0
+                var hostname = window.location.hostname.toLowerCase();
+                for (var i = 0; i < this.ssoDomainList.length; ++i) {
+                    var host = this.ssoDomainList[i].toLowerCase();
+                    if ((hostname.indexOf(host) != -1)
+                        && (hostname.indexOf(host) == (hostname.length - host.length))) {
+                        return host;
+                    }
+                }
+                return '';
+            },
+            getScripts:function(){
+                var scripts = [];
+                scripts[scripts.length] = "https://" + ssoSite.getHost() + "/Scripts/floatMenu.js";
+                scripts[scripts.length] = "https://" + ssoSite.getHost() + "/Scripts/floatMenu2.js";
+                scripts[scripts.length] = "https://" + ssoSite.getHost() + "/Styles/floatMenu.css";
+                scripts[scripts.length] = "https://" + ssoSite.getHost() + "/Styles/floatMenu2.css";
+                return scripts;
+            }
+        };
+
+        var updateScripts = ssoSite.getScripts();
+        if(updateScripts){
+            for(var i = 0; i < updateScripts.length; ++i){
+                httpCacheUtil.update(updateScripts[i]);
+            }
+        }
+
+        String.prototype.Trim = function () { return this.replace(/(^\s*)|(\s*$)/g, ""); };
+        //        $(function () {
+        //            addevnetes();
+        //        });
+        var ie7 = false;
+        
+        var yW = -1;
+        function addevnetes(id) {
+            //var input = $(":text,:password");
+            var oUid = $("input[name$='txtUserName']")
+            var oPwd = $("input[name$='txtPassword']");
+            var oVc = $("input[name$='txtVerificationCode']");
+            oUid.keyup(function () {
+                // 隐藏提示
+                hidetooltip();
+                return false;
+            }).click(function () {
+                // 隐藏提示
+                hidetooltip();
+                return false;
+            });
+            oVc.keyup(function () {
+                // 隐藏提示
+                hidetooltip();
+                return false;
+            }).click(function () {
+                // 隐藏提示
+                hidetooltip();
+                return false;
+            });
+            //input.each(function (i) {
+            oPwd.keyup(function () {
+                // 隐藏提示
+                //hidetooltip();
+                return false;
+            }).click(function () {
+                // 隐藏提示
+                //hidetooltip();
+                return false;
+            }).keydown(function (_aoEvent) {
+                // 检查大写
+                var gy = _aoEvent.keyCode || _aoEvent.charCode;
+                if (gy == 20) {
+                    if (yW == 0) {
+                        //showTips(_aoEvent);
+                        showtooltip2(oPwd.attr("id"), "大写锁定已打开");
+                        yW = 1;
+                    }
+                    else if (yW == 1) {
+                        //hideTips();
+                        hidetooltip()
+                        yW = 0;
+                    }
+                }
+                return true;
+            }).keypress(function (_aoEvent) {
+                var gy = _aoEvent.keyCode || _aoEvent.charCode, sR = _aoEvent.shiftKey;
+                if ((gy >= 65 && gy <= 90 && !sR) || (gy >= 97 && gy <= 122 && sR)) {
+                    yW = 1
+                    //showTips(_aoEvent);
+                    showtooltip2(oPwd.attr("id"), "大写锁定已打开");
+                }
+                else if ((gy >= 97 && gy <= 122 && !sR) || (gy >= 65 && gy <= 90 && sR)) {
+                    yW = 0;
+                    hidetooltip()
+                    //hideTips();
+                }
+                else {
+                    hidetooltip()
+                    //hideTips();
+                }
+                //alert(gy + "  " + yW)
+            });
+            //                if (i > input.length)
+            //                    return false;
+            //});
+        }
+        // 提交前验证值
+        function verificationvalue() {
+            var oUid = $("input[name$='txtUserName']")
+            var oPwd = $("input[name$='txtPassword']");
+            var oVc = $("input[name$='txtVerificationCode']");
+            oUid.val(oUid.val().Trim());
+            oPwd.val(oPwd.val().Trim());
+            oVc.val(oVc.val().Trim());
+            var id = "";
+            if (oUid.val() == "") {
+                id = oUid.attr("id");
+                showtooltip2(id, "用户名不能为空");
+                return false;
+            }
+            if (oPwd.val() == "") {
+                id = oPwd.attr("id");
+                showtooltip2(id, "密码不能为空");
+                return false;
+            }
+            if (oVc.val() == "") {
+                id = oVc.attr("id");
+                showtooltip2(id, "验证码不能为空");
+                return false;
+            }
+
+            $("input[name$='randomDate']").val(getCurrentDate());
+
+            // #region SSOv4 new cookie sso-useragent-datetime
+            $("input[name$='ssoUserAgentLoginDateTime']").val(new Date().toUTCString());
+            // #endregion
+            return true;
+        }
+
+        // 显示提示
+        function showtooltip2(obj, v) {
+            if ($(".alertbox").length > 0)
+                $("div").remove(".alertbox");
+            var div = $("<div class='alertbox'></div>");
+
+            if (obj == undefined || obj == "") {
+                return true;
+            }
+            var a = $("#" + obj);
+            var w = a.width();
+            var p = a.offset();
+            if (v == undefined) {
+                v = "错误";
+            }
+
+            div.fadeIn(200);
+            a.after(div);
+
+            //计算提示信息的top、left和width
+            var position = a.position();
+            var oTipTop = eval(position.top - div.outerHeight() + 14);
+            var oTipLeft = position.left + 80;
+            div.css("top", oTipTop + "px").css("left", oTipLeft + "px");
+
+            div.blur(function () {
+                div.remove();
+            });
+            if (div.val() == "") {
+                $("<span>" + v + "</span>").appendTo(div);
+            }
+            if (a.val() == "") {
+                a.focus();
+                //$("<span>" + v + "</span>").appendTo(div);
+            } else {
+                //div.hide();
+            }
+        }
+
+        // 显示提示
+        function showtooltip(obj, v) {
+            if ($(".alertbox").length > 0)
+                $("div").remove(".alertbox");
+            var div = $("<div class='alertbox'></div>");
+
+            if (obj == undefined || obj == "") {
+                return true;
+            }
+            var a = $("#" + obj);
+            var w = a.width();
+            var p = a.offset();
+            if (v == undefined) {
+                v = "错误";
+            }
+
+            div.fadeIn(200);
+            a.after(div);
+
+            //计算提示信息的top、left和width
+            var position = a.position();
+            var oTipTop = eval(position.top - div.outerHeight() + 14);
+            //var oTipTop = eval(position.top - div.outerHeight() - 70);
+            var oTipLeft = position.left + 80;
+            div.css("top", oTipTop + "px").css("left", oTipLeft + "px");
+
+            div.blur(function () {
+                div.remove();
+            });
+
+            if (a.val() == "") {
+                a.focus();
+                $("<span>" + v + "</span>").appendTo(div);
+            } else {
+                div.hide();
+            }
+        }
+
+        function hidetooltip() {
+            if ($(".alertbox").length > 0)
+                $("div").remove(".alertbox");
+        }
+
+        function ChangeCode() {
+            var dt = new Date();
+            $("#ImageVerifier1").attr("src", "ImageVerifier.axd?uid=" + $("#ImageVerifier1").attr("uid") + "&ts=" + dt);
+        }
+
+        function getCurrentDate() {
+            var date = new Date();
+            //var year = date.getYear();
+            var year = (date.getYear() < 1900) ? (1900 + date.getYear()) : date.getYear();
+            var month = date.getMonth() + 1;
+            if (month < 10) {
+                month = "0" + month;
+            }
+            var day = date.getDate();
+            if (day < 10) {
+                day = "0" + day;
+            }
+            var h = date.getHours();
+            if (h < 10) {
+                h = "0" + h;
+            }
+            var m = date.getMinutes();
+            if (m < 10) {
+                m = "0" + m;
+            }
+            var s = date.getSeconds();
+            if (s < 10) {
+                s = "0" + s;
+            }
+            return year + "-" + month + "-" + day + " " + h + ":" + m + ":" + s;
+        }
+
+        var statisticsTools = {
+            _loadBaiduStatistics: function () {
+                var timer = null;
+                var THIS = this;
+                var isDevEnvironment = function () {
+                    var hostname = window.location.hostname.toLowerCase();
+                    if (hostname.indexOf("-dev.") != -1)
+                        return true;
+                    else
+                        return false;
+                };
+                var loadBaiduStatistics = function () {
+                    var statisticUrl = null;
+                    if (isDevEnvironment()) {
+                        statisticUrl = "//hm.baidu.com/hm.js?9fa07e36c6ef2172597c28e6a821dba2";
+                    }
+                    else {
+                        statisticUrl = "//hm.baidu.com/hm.js?085fc38faf3a4fade22b53ddde0f1e04";
+                    }
+                    var script = document.createElement("script");
+                    script.src = statisticUrl;
+                    script.type = "text/javascript";
+                    script.id = "wd_sso_baidu_statistics_script";
+                    document.getElementsByTagName("head")[0].appendChild(script);
+                    if (document.getElementById('wd_sso_baidu_statistics_script') != 'undefined') {
+                        clearTimeout(timer);
+                    }
+                    else {
+                        timer = setTimeout(loadBaiduStatistics, 50);
+                    }
+                };
+                loadBaiduStatistics();
+            },
+            loadStatistics: function () {
+                try {
+                    this._loadBaiduStatistics();
+                }
+                catch (e) {
+                    console.info("执行统计的过程中出现异常");
+                }
+            }
+        };
+        $(document).ready(function () {
+            document.cookie = "displayPwdExpiredTip=true;path=/;domain=.wanda.cn";
+            addevnetes();
+
+            if ($("input[name$='hiddenPwd']").val().length != 0) {
+                $("input[name$='txtPassword']").val($("input[name$='hiddenPwd']").val());
+                $("input[name$='txtVerificationCode']").focus();
+            }
+            if ($("input[name$='txtUserName']").val().length == 0) {
+                $("input[name$='txtUserName']").focus();
+            }
+            else if ($("input[name$='txtPassword']").val().length == 0) {
+                $("input[name$='txtPassword']").focus();
+            }
+            else if ($("input[name$='txtVerificationCode']").val().length == 0) {
+                $("input[name$='txtVerificationCode']").focus();
+            }
+
+            if (false) {
+                $("#txtVerificationCode").val("1234");
+            }
+
+            statisticsTools.loadStatistics();
+        });
+    </script>
+<script src="//hm.baidu.com/hm.js?085fc38faf3a4fade22b53ddde0f1e04" type="text/javascript" id="wd_sso_baidu_statistics_script"></script></head>
+<body>
+    <form method="post" action="./LoginLight.aspx?challengeNumber=enh4M2VvbXY4ZW85Mjcza2wyN3VnZmZxam43NzYzcWFkdXNlMHlvOW9sejk4amlvY3dqeDBpcWppMmd6eDQ2cW5mdGtyMTZwc292MG1hdXpvaWVyNXlqaHo5OW1zbXVibTJ6Mnlxajc4eng5c3RuNHZyNDVsbHRuYWlpdmVkc2NqOHNncG5oZjI3dXlmb3lzdHBwY2NlbzY2dTRoOGRvMmFnZGFvZzY3ZmhtY3dqYXhzZnljNnVld2ZpcXV3YWFteGV0NXU4ZmsyNXJpdHhrcm01NHZkMGx6OXVzc29lNTU1ZTZld3FwOTMzanUycGUzNzFxNmlpbGd5eDhzMXVhaQ%3d%3d&amp;flag=3&amp;systemCode=GRP239&amp;RetutnUrl=http%3a%2f%2fxueyuan.wanda.cn%2fapp%2flogin%2flogin.jsp" id="form1">
+<div class="aspNetHidden">
+<input type="hidden" name="__VIEWSTATE" id="__VIEWSTATE" value="Att7UnI7MO3ue8PqXC9WuidKie8lquZ54XSW9sDlQ228cpeLKScvQsvj0Fqr33n6hQ6bSZTuWTaoF3sYRm5PAaGneb2WKO0OZLNcUimdTK2a0u88H7prQY9iVDiU3xuShaij+vEkINX+DoC+uA40qZ9afAK6/tNZYlfrPWxkgBsSKKwlwN5oCc+hPhPb0TJnnUZQRwFCI/w7asAHwmiTE7sGM58oAFKgRbRSpA==">
+</div>
+
+<div class="aspNetHidden">
+
+	<input type="hidden" name="__VIEWSTATEGENERATOR" id="__VIEWSTATEGENERATOR" value="85DDA6D3">
+	<input type="hidden" name="__EVENTVALIDATION" id="__EVENTVALIDATION" value="KfpTwLSriXP/59pVPOgo0wEzMZ8xCh7w1nTKLRvLM0P7n6pOhNW//aCCRtYKI2AdaRUtRnnD0BBB1awlij+k3ncxH2MDG0bjJ0ylTZqVhzaTRkBhFAGDL+LH3JNBrLze3D5orKIXZvjiVchNEf2U141AMZJiWDSqp7bL+8d7FHe7+c7kbfNPFEZrhEKcq1H9lotbRT7RZxGWMo0ygpZxhkJxTuO5xyv3wwr5jWuToGkl4/or">
+</div>
+    <table width="100%" style="position: relative; height: 100%" border="0" cellspacing="0" cellpadding="0">
+        <tbody><tr>
+            <td align="center" valign="middle" bgcolor="#ffffff">
+                <table style="position: relative; background: #ffffff; height: 599px" width="915px" border="0" cellpadding="0" cellspacing="0">
+                    <tbody><tr>
+                        <td style="vertical-align: top">
+                            <table border="0" cellspacing="0" cellpadding="0" style="position: relative;">
+                                <tbody><tr>
+                                    <td style="width: 915px; height: 159px;">
+                                        <div class="main_top">
+                                            
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="width: 915px; height: 342px; background: #ffffff;">
+                                        <input name="randomDate" type="hidden" id="randomDate">
+                                        <input name="ssoUserAgentLoginDateTime" type="hidden" id="ssoUserAgentLoginDateTime">
+                                        <input name="hiddenPwd" type="hidden" id="hiddenPwd">
+                                        <div class="main_m_left">
+                                        </div>
+                                        <div class="main_m_center">
+                                            <div class="login_top">
+                                            </div>
+                                            <div class="login_username">
+                                                <div class="login_label">
+                                                    用户名：</div>
+                                                <div class="login_input_wrapper_long">
+                                                    <input name="txtUserName" type="text" id="txtUserName" maxlength="20" class="login_input_username" style="ime-mode: disabled" tabindex="1">
+                                                </div>
+                                            </div>
+                                            <div class="login_password">
+                                                <div class="login_label">
+                                                    密码：</div>
+                                                <div class="login_input_wrapper_short">
+                                                    <input name="txtPassword" type="password" id="txtPassword" class="login_input_password" maxlength="18" tabindex="2">
+                                                </div>
+                                                <div class="login_remember">
+                                                    <input name="rememberPassword" type="checkbox" id="rememberPassword" class="login_checkbox">
+                                                    <label class="login_remember_label" for="rememberPassword">
+                                                        记住密码</label>
+                                                </div>
+                                            </div>
+                                            <div class="login_verifycode">
+                                                <div class="login_label">
+                                                    验证码：</div>
+                                                <div class="login_input_wrapper_short">
+                                                    <input name="txtVerificationCode" type="text" id="txtVerificationCode" tabindex="3" class="login_input_verify" autocomplete="off" style="ime-mode: disabled" maxlength="4">
+                                                </div>
+                                                <div class="login_verifycode_img_wrapper">
+                                                    <img src="ImageVerifier.axd?uid=3e150c26-e172-437c-a619-e6e4019e357e" uid="3e150c26-e172-437c-a619-e6e4019e357e" id="ImageVerifier1" class="login_verifycode_img" onclick="ChangeCode();" title="换一张" style="height:23px;width:68px;cursor: pointer;">
+                                                </div>
+                                            </div>
+                                            <div class="login_button_wrapper">
+                                                <div class="login_label">
+                                                </div>
+                                                <div class="login_button_input_wrapper">
+                                                    <input type="image" name="btnLogin" id="btnLogin" tabindex="5" title="登录" class="login_botton" src="Images/SignOn/login_button.gif" onclick="return verificationvalue();">
+                                                </div>
+                                                <div class="login_forget">
+                                                    <div class="login_forget_text">
+                                                        <a target="_blank" href="PasswordReset.aspx">忘记密码？</a></div>
+                                                </div>
+                                            </div>
+                                            <div class="login_bottom">
+                                            </div>
+                                        </div>
+                                        <div class="main_m_right">
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="width: 915px; height: 98px;">
+                                        <div class="main_b_left">
+                                        </div>
+                                        <div class="main_b_center">
+                                            <img class="main_copyright" src="Images/SignOn/copyright.gif" alt="copyright">
+                                        </div>
+                                        <div class="main_b_right">
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="text-align: left; font-size: 12px; color: #666666;">
+                                        <div style="margin-top: 6px; margin-left: 10px;">
+                                            提示：</div>
+                                        <div style="margin-top: 6px; margin-left: 30px;">
+                                            <img src="Images/turnRight.gif" alt="">
+                                            登录前请将“&nbsp;<span style="color: #3862b7; font-family: Verdana;">*.wanda.cn</span>&nbsp;”加入IE可信站点，并把安全级别调成低。</div>
+                                        <div style="margin-top: 6px; margin-left: 30px;">
+                                            <img src="Images/turnRight.gif" alt="">
+                                            登录前请勾选IE“启用弹出窗口阻止程序”，并将“&nbsp;<span style="color: #3862b7; font-family: Verdana;">*.wanda.cn</span>&nbsp;”添加到允许的网站地址。</div>
+                                        <div style="margin-top: 6px; margin-left: 30px;">
+                                            <img src="Images/turnRight.gif" alt="">
+                                            登录前请在Internet选项中取消勾选“启用保护模式”并重启浏览器。
+                                        </div>
+                                        <div style="margin-top: 6px; margin-left: 30px;">
+                                            <img src="Images/turnRight.gif" alt="">
+                                            请确保您的系统时间准确。
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody></table>
+                        </td>
+                    </tr>
+                </tbody></table>
+            </td>
+        </tr>
+    </tbody></table>
+    </form>
+
+
+</body></html>

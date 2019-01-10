@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+
+<html lang="zh-cn"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="robots" content="all">
+<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7">
+<title>遂溪县政府网</title>
+<meta name="keywords" content="遂溪县政府网">
+<meta name="description" content="遂溪县政府网">
+<link rel="icon" href="favicon.ico" type="image/icon">
+<link href="/Skin/SX_GOV/2015style.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="HTTP://WWW.SUIXI.GOV.CN/js/common.js"></script>
+<script type="text/javascript" src="HTTP://WWW.SUIXI.GOV.CN/Skin/SX_GOV/2015/jquery.min.v1.10.1.js"></script>
+<script type="text/javascript" src="HTTP://WWW.SUIXI.GOV.CN/Skin/SX_GOV/2015/jquery.idialog.js" ></script>
+<script type="text/javascript" src="HTTP://WWW.SUIXI.GOV.CN/Skin/SX_GOV/2015/jquery.flexslider.js"></script>
+<script type="text/javascript" src="HTTP://WWW.SUIXI.GOV.CN/Skin/SX_GOV/2015/superslide.2.1.js"></script>
+<script type="text/javascript" src="HTTP://WWW.SUIXI.GOV.CN/Skin/SX_GOV/2015/jcom.js"></script>
+
+<script  type="text/javascript" src='/IAA/201108/5.js'></script>
+</head>
+
+
+<body style=""><base href="." target="_blank">
+
+<div class="header">
+<div class="t">
+	<div class="l">　
+
+  <span id="LoginFrom" style="display: none" class="Login_ajax" onkeypress="javascript:return DefaultButton(event, 'BtnLogOn')">
+  <script type="text/javascript" language="JavaScript">
+  function RefreshValdisplayDateCodeImage(ValdisplayDateCodeImageControl){
+      ValdisplayDateCodeImageControl.src = ValdisplayDateCodeImageControl.src + '?code=' + RandomNum(10);
+  }
+
+  function RandomNum(n){
+      var rnd = '';
+      for (var i = 0; i < n; i++) 
+          rnd += Math.floor(Math.random() * 10);
+      return rnd;
+  }
+
+  function DefaultButton(event, linkOpenType){
+      if (event.keyCode == 13 && !(event.srcElement && (event.srcElement.tagName.toLowerCase() == "textarea"))) {
+          var defaultButton = $(linkOpenType);
+          if (defaultButton && typeof(defaultButton.click) != "undefined") {
+              defaultButton.click();
+              event.cancelBubble = true;
+              if (event.stopPropagation) 
+                  event.stopPropagation();
+              return false;
+          }
+      }
+      return true;
+  }
+  </script>
+  <label><strong>用户名：</strong><input name="topTxtUserName" type="text" id="topTxtUserName" class="tx_input" /></label>
+  <label><strong>密  码：</strong><input name="TxtPassword" type="password" id="TxtPassword" class="tx_input" /></label>
+  <label id="checkcode" style="display: none"><strong>验证码：</strong><input name="TxtValdisplayDateCode" type="text" value="no" id="TxtValdisplayDateCode" class="tx_input" onfocus="this.select();" /><img id="VcodeLogOn" title="看不清楚，换一个" onclick="RefreshValdisplayDateCodeImage(this);" src="/Controls/ValidateCodeImage.aspx" class="Vcode" /></label>
+  <label id="cookie_select"><strong>Cookie：</strong>        <select name="DropExpiration" id="DropExpiration">
+          <option value="None">不保存</option>
+          <option value="Day">保存一天</option>
+          <option value="Month">保存一月</option>
+          <option value="Year">保存一年</option>
+        </select></label>
+  <span class="return"><input type="submit" name="BtnLogOn" value="登录" id="BtnLogOn" onclick="Login();" class="bt" />　<a href="/User/Register.aspx" linkOpenType="_top">注册</a></span>
+</span>
+<span id="PnlLogOnStatus" class="Login_ajax">
+</span>
+<script language="javascript" type="text/javascript">
+CheckIsLogin();
+
+function Loginin(LoginString){
+    document.getElementById("LoginFrom").innerHTML = document.getElementById("LoginFrom").innerHTML + LoginString;
+}
+
+function CheckIsLogin(){
+    document.getElementById("PnlLogOnStatus").innerHTML = "<img src=\"/Skin/Gov/Images/loading.gif\" alt=\"\"/>";
+    var x = new AjaxRequest('XML', 'status');
+    x.para = [];
+    x.post('logincheck', '/ajax.aspx', function(s){
+        var xml = x.createXmlDom(s);
+        var status = xml.getElementsByTagName("status")[0].firstChild.data;
+        
+        if (status == 'ok') {
+            document.getElementById("PnlLogOnStatus").style.display = "";
+            document.getElementById("LoginFrom").style.display = "none";
+            document.getElementById("PnlLogOnStatus").innerHTML = GetUserInfo(xml);
+        }
+        else {
+            document.getElementById("PnlLogOnStatus").style.display = "none";
+            document.getElementById("LoginFrom").style.display = "";
+            CheckEnableValidCode();
+        }
+    });
+}
+
+function loginout(){
+    var x = new AjaxRequest('XML','');
+    x.post('userlogout', '/ajax.aspx', function(s) {
+    var xml = x.createXmlDom(s);
+        var status = xml.getElementsByTagName("status")[0].firstChild.data;
+        if (status == "ok") {
+                if (xml.getElementsByTagName("API_Enable")[0].firstChild.data == "1") {
+                    var LogOutString = xml.getElementsByTagName("LogOutString")[0].firstChild.data;
+                    Loginin(LogOutString);
+                }
+         }
+        document.getElementById("topTxtUserName").value = '';
+        document.getElementById("TxtPassword").value = '';
+        CheckEnableValidCode();
+        var VcodeLogOn = document.getElementById("VcodeLogOn");
+        if(VcodeLogOn  != null)
+        {
+	RefreshValdisplayDateCodeImage(VcodeLogOn);
+        }
+        document.getElementById("DropExpiration").value = 'None';
+        document.getElementById("PnlLogOnStatus").style.display = "none";
+        document.getElementById("LoginFrom").style.display = "";
+    });
+}
+
+function GetUserInfo(xml){
+    var userInfo = "<span class=\"u_login\">" + xml.getElementsByTagName("username")[0].firstChild.data + "，您好！您有：";
+    userInfo = userInfo + "待阅短信" + xml.getElementsByTagName("msg")[0].firstChild.data + " 条，";
+    userInfo = userInfo + "待签文章：" + xml.getElementsByTagName("signincontent")[0].firstChild.data + " 篇。";
+    userInfo = userInfo + "<span style=\"text-align: center\"><a href=\"/User/Default.aspx\" linkOpenType=\"_top\">进入会员中心</a>&nbsp;&nbsp;|&nbsp;&nbsp;";
+    userInfo = userInfo + "<a href=\"#\"  onclick=\"loginout()\" linkOpenType=\"_top\">退出登录</a></span>";
+    userInfo = userInfo + "</span>";
+    return userInfo;
+}
+
+function CheckEnableValidCode(){
+    var x = new AjaxRequest('XML', 'status');
+    x.para = [];
+    x.post('EnableValidCode', '/ajax.aspx', function(s){
+        var xml = x.createXmlDom(s);
+        var status = xml.getElementsByTagName("status")[0].firstChild.data;
+        if (status == "yes") {
+            document.getElementById("checkcode").style.display = '';
+            document.getElementById("TxtValdisplayDateCode").value = '';
+        }
+    });
+}
+
+function Login(){
+    if (document.getElementById("topTxtUserName").value == '') {
+        alert("请填写用户名！");
+        document.getElementById("topTxtUserName").focus();
+        return;
+    }
+    if (document.getElementById("TxtPassword").value == '') {
+        alert("请填写密码！");
+        document.getElementById("TxtPasssword").focus();
+        return;
+    }
+    if(document.getElementById("checkcode").style.display=="")
+    {
+      if (document.getElementById("TxtValdisplayDateCode").value == '') {
+          alert("请填写验证码！");
+          document.getElementById("TxtValdisplayDateCode").focus();
+          return;
+      }
+    }
+    var x = new AjaxRequest('XML', 'status');
+    x.para = ['username=' + document.getElementById("topTxtUserName").value, 'password=' + document.getElementById("TxtPassword").value, 'checkcode=' + document.getElementById("TxtValdisplayDateCode").value, 'expiration=' + document.getElementById("DropExpiration").value];
+    x.post('userlogin', '/ajax.aspx', function(s){
+        var xml = x.createXmlDom(s);
+        var status = xml.getElementsByTagName("status")[0].firstChild.data;
+        switch (status) {
+            case "ok":
+                if (xml.getElementsByTagName("API_Enable")[0].firstChild.data == "1") {
+                    var LoginString = xml.getElementsByTagName("LoginString")[0].firstChild.data;
+                    Loginin(LoginString);
+                }
+                CheckIsLogin();
+                break;
+            case "err":
+                var errorMessage = xml.getElementsByTagName("body")[0].firstChild.data;
+                alert(errorMessage);
+                break;
+        }
+        
+    });
+}
+</script>
+</div>
+    <div class="r">
+    	<a class="home" href="HTTP://WWW.SUIXI.GOV.CN"></a><a class="qq DialogBtn" href="javascript:;" target="_self"></a>
+       <form class="tsearch" target="_blank" name="myform" method="get" action="http://www.suixi.gov.cn/search.aspx?searchtype=0&Keyword=">
+            <input type="text" name="keyword" id="keyword" value="点这里为您搜索…" class="text">
+            <input type="submit" value="" title="搜索" class="button">
+           
+        </form>
+    </div>
+<!--/header & c-->
+</div>
+</div>
+
+<div class="logoer"><img id="imgs" src="HTTP://WWW.SUIXI.GOV.CN/Skin/SX_GOV/2015/hd_bg1.jpg" width="100%" height="300" style="width: 1600px; height: 300px; margin-left: -800px;"></div>
+<script language="javascript"> 
+setInterval(test,5000); 
+var array=new Array(); 
+var index=0; 
+var array= new Array("HTTP://WWW.SUIXI.GOV.CN/Skin/SX_GOV/2015/hd_bg1.jpg","HTTP://WWW.SUIXI.GOV.CN/Skin/SX_GOV/2015/hd_bg2.jpg"); 
+function test() 
+{ var myimg=document.getElementById("imgs"); 
+if(index==array.length-1) 
+{ index=0; }else{ index++; } 
+myimg.src=array[index]; 
+} 
+</script> 
+
+
+<div class="menuer">
+<div class="c">
+ <div class="nav">
+            <div class="navbg"></div>
+            <div class="navlist">
+             <div class="nl0" style="overflow: hidden; height: 46px; width:70px;">
+                   <p><a href="http://www.suixi.gov.cn/" title="首页"><b></b><span >首<br>页</span></a></p>
+                  
+                </div>
+             <div class="nl1" style="overflow: hidden; height: 46px;"> <div style="float:left; width:88px;"> <p><a href="http://www.suixi.gov.cn/Category_4/Index.aspx" title="遂溪要闻"><b></b><span>遂溪<br>要闻</span></a></p></div>
+                     <div class="navlist_2" style="float:left; width:114px;"><span><a href="http://www.suixi.gov.cn/Category_35/Index.aspx" title="政务要闻">政务要闻</a>│<a href="http://www.suixi.gov.cn/Category_141/Index.aspx" title="视频新闻">视频新闻</a><br><a href="http://www.suixi.gov.cn/Category_18/Index.aspx" title="通知公告">通知公告</a>│<a href="http://www.suixi.gov.cn/Category_158/Index.aspx" title="基层动态">基层动态</a></span></div>
+                </div>
+                <div class="nl2" style="height: 46px; overflow: hidden; width:264px;"> <div style="float:left; width:88px;">  <p><a href="http://www.suixi.gov.cn/Category_1/Index.aspx" title="公开"><b></b><span>政务<br>公开</span></a></p></div>
+<div class="navlist_2" style="float:left; width:176px;"><span><a href="http://www.suixi.gov.cn/Category_7/Index.aspx" title="领导之窗">领导之窗</a>│<a href="http://www.suixi.gov.cn/Category_8/Index.aspx" title="政府机构">政府机构</a>│<a href="http://www.suixi.gov.cn/Category_92/Index.aspx" title="政府公报">政府公报</a><br><a href="http://www.suixi.gov.cn/Category_12/Index.aspx" title="发展规划">发展规划</a>│<a href="http://www.suixi.gov.cn/Category_10/Index.aspx" title="财政信息">财政信息</a>│<a href="http://www.suixi.gov.cn/Category_151/Index.aspx" title="公告公示">公告公示</a></span></div>
+                </div>
+                <div class="nl3" style="height: 46px; overflow: hidden;"> <div style="float:left; width:88px;">  <p><a href="http://sxbs.zjwsbs.gov.cn/portal/view/wsbs/index.jsp?topfun=wsbs" title="办事" target="_blank"><b></b><span>网上<br>办事</span></a></p></div>
+<div class="navlist_2" style="float:left; width:114px;"><span><a href="http://sxbs.zjwsbs.gov.cn/portal/view/wsbs/index.jsp?topfun=wsbs" title="个人办事" target="_blank">个人办事</a>│<a href="http://sxbs.zjwsbs.gov.cn/portal/view/wsbs/index.jsp?topfun=wsbs" title="企业办事" target="_blank">企业办事</a><br><a href="http://sxbs.zjwsbs.gov.cn/portal/view/wsbs/bmfw/deptHandle.jsp" title="部门服务" target="_blank">部门服务</a>│<a href="http://sxbs.zjwsbs.gov.cn/portal/view/qxzj/map/in/440823.jsp?ide=towns" title="镇街服务" target="_blank">镇街服务</a>
+
+               </span></div>
+                </div>
+                <div class="nl4" style="overflow: hidden; height: 46px;"> <div style="float:left; width:88px;"> <p><a href="http://www.suixi.gov.cn/Category_33/Index.aspx" title="互动"><b></b><span>政民<br>互动</span></a></p></div>
+<div class="navlist_2" style="float:left; width:114px;"><span><a href="http://www.suixi.gov.cn/Category_34/Index.aspx" title="行风热线">行风热线</a>│<a href="http://www.suixi.gov.cn/Category_33/Index.aspx" title="投票调查">投票调查</a><br><a href="http://www.suixi.gov.cn/Government/Letter/Index.aspx" title="投诉建议">投诉建议</a>│<a href="http://www.suixi.gov.cn/Category_101/Index.aspx" title="回音选登">回音选登</a></span></div>
+                </div>
+                <div class="nl5" style="height: 46px; overflow: hidden;"> <div style="float:left; width:88px;">   <p><a href="http://www.suixi.gov.cn/Category_51/Index.aspx" title="遂溪"><b></b><span>走进<br>遂溪</span></a></p></div>
+<div class="navlist_2" style="float:left; width:114px;"><span>
+<a href="http://www.suixily.com" title="旅游观光" target="_blank">旅游观光</a>│<a href="http://www.suixi.gov.cn/Category_146/Index.aspx" title="图看遂溪">图看遂溪</a><br><a href="http://www.suixi.gov.cn/Category_152/Index.aspx" title="视频专题">视频专题</a> </span></div>
+                </div>
+
+
+       </div>
+   </div>
+
+<!--nav & c-->
+     </div>
+   </div>
+<!--menu & c-->
+
+
+
+
+<div class="mainer" style="padding-top:10px;">
+
+ 
+
+<div class="c">
+<div class="banner1"><a ><img src="HTTP://WWW.SUIXI.GOV.CN/Skin/SX_GOV/banner/hxjz.jpg" width="584" height="80" alt="社会主义核心价值观"></a>
+ <div style="display:block;float:right; ">
+<iframe allowtransparency="true" frameborder="0" width="584" height="80" scrolling="no" src="http://tianqi.2345.com/plugin/widget/index.htm?s=1&z=1&t=0&v=0&d=5&bd=0&k=&f=&q=1&e=0&a=1&c=71160&w=584&h=80&align=center"></iframe>
+
+</div>
+
+</div>
+   <div class="h10" >
+</div>
+	<div class="news_area">
+        <div class="yaowen">
+            <div class="TabInfo" id="nTab1_TopA"><a href="http://www.suixi.gov.cn/Category_35/Index.aspx">遂溪新闻</a></div>
+            <div class="TabTop">
+                <ul class="cTabNavUl" id="nTab1">
+                    <li class="active" onMouseOver="nTab(this,0);"><a href="http://www.suixi.gov.cn/Category_35/Index.aspx">政务要闻</a></li>
+               <li class="normal" onMouseOver="nTab(this,1);"><a href="http://www.suixi.gov.cn/Category_158/Index.aspx">基层动态</a></li>
+               
+                  <li class="normal" onMouseOver="nTab(this,2);"><a href="http://www.suixi.gov.cn/Category_141/Index.aspx">视频新闻</a></li>
+                  <li class="normal" onMouseOver="nTab(this,3);"><a href="http://www.gd.gov.cn/ywdt/szfdt/">政声传递</a></li>
+                </ul>
+            </div>
+            <div class="cTabConDiv">
+                <div class="cTanConLD" id="nTab1_Content0">
+                 <div class="topnews" >
+  
+            <li><a href="/Item/8609.aspx" target="_blank">鱼龙共舞闹元宵</a></li>
+          
+                  </div>
+
+                <ul class="f14 l28">
+    
+            <li><a href="/Item/8609.aspx" target="_blank">鱼龙共舞闹元宵</a><span class="time">[02-14]</span></li><li><a href="/Item/8607.aspx" target="_blank">团遂溪县委开展“共青团与人大代表、政协委员面…</a><span class="time">[02-13]</span></li><li><a href="/Item/8594.aspx" target="_blank">专家学者为我县鱼龙民俗文化发展“支招”</a><span class="time">[02-12]</span></li><li><a href="/Item/8606.aspx" target="_blank">鱼龙灯巡游闹元宵</a><span class="time">[02-12]</span></li><li><a href="/Item/8564.aspx" target="_blank">孔子文化城邀你“闹元宵”</a><span class="time">[02-06]</span></li><li><a href="/Item/8563.aspx" target="_blank">南粤春暖招聘会：为求职者提供3000多个工作岗位</a><span class="time">[02-06]</span></li><li><a href="/Item/8558.aspx" target="_blank">遂溪县举行迎春大型广场群众文艺演出</a><span class="time">[01-28]</span></li><li><a href="/Item/8546.aspx" target="_blank">鍾力率队慰问春节期间坚守岗位的工作人员</a><span class="time">[01-26]</span></li>
+          
+  
+                </ul>
+                </div>
+                   <div class="cTanConLD" id="nTab1_Content1">
+                 <div class="topnews" >
+  
+            <li><a href="/Item/8614.aspx" target="_blank">国家工商总局刘宏伟副司长一行莅临遂溪调研</a></li>
+          
+                  </div>
+
+                <ul class="f14 l28">
+    
+            <li><a href="/Item/8614.aspx" target="_blank">国家工商总局刘宏伟副司长一行莅临遂溪调研</a><span class="time">[02-16]</span></li><li><a href="/Item/8611.aspx" target="_blank">遂城三小陈虹吁同学喜获“宋庆龄奖学金”奖</a><span class="time">[02-15]</span></li><li><a href="/Item/8605.aspx" target="_blank">遂溪县食品药品监督管理局开展农村春节食品安全…</a><span class="time">[02-13]</span></li><li><a href="/Item/8604.aspx" target="_blank">遂溪县老干部举行“贺新春，闹元宵”活动</a><span class="time">[02-13]</span></li><li><a href="/Item/8561.aspx" target="_blank">草潭姓蔡村新春表彰优秀学子</a><span class="time">[02-06]</span></li><li><a href="/Item/8559.aspx" target="_blank">遂溪小子演唱本土原创歌曲将亮相广东新闻频道</a><span class="time">[01-30]</span></li><li><a href="/Item/8557.aspx" target="_blank">遂溪联社普惠金融服务工作取得成效</a><span class="time">[01-23]</span></li><li><a href="/Item/8516.aspx" target="_blank">遂溪县市场监管局“五项举措”全力为榨季工作“…</a><span class="time">[01-13]</span></li>
+          
+  
+                </ul>
+                </div>
+               
+         <div class="cTanConLD none" id="nTab1_Content2">
+                <div class="topnews" >
+  
+            <li><a href="/Item/8617.aspx" target="_blank">2017年2月17日</a></li>
+          
+                  </div>
+
+                <ul class="f14 l28">
+    
+            <li><a href="/Item/8617.aspx" target="_blank">2017年2月17日</a><span class="time">[02-17]</span></li><li><a href="/Item/8616.aspx" target="_blank">2017年2月16日</a><span class="time">[02-16]</span></li><li><a href="/Item/8613.aspx" target="_blank">2017年2月15日</a><span class="time">[02-15]</span></li><li><a href="/Item/8610.aspx" target="_blank">2017年2月14日</a><span class="time">[02-14]</span></li><li><a href="/Item/8608.aspx" target="_blank">2017年2月13日</a><span class="time">[02-13]</span></li><li><a href="/Item/8593.aspx" target="_blank">2017年2月11日</a><span class="time">[02-11]</span></li><li><a href="/Item/8591.aspx" target="_blank">2017年2月10日</a><span class="time">[02-10]</span></li><li><a href="/Item/8577.aspx" target="_blank">2017年2月9日</a><span class="time">[02-09]</span></li>
+          
+  
+                </ul>
+                </div>
+                
+                  <div class="cTanConLD none" id="nTab1_Content3">
+             <div style="height:60px; width:100%;">
+               </div>
+                <ul class="f14 l28">
+                 <iframe frameborder=0 width=400 height=240 marginheight=0 marginwidth=0 scrolling=no src="http://app.gd.gov.cn/xxts/pushinfo_html.php?s=14&d=1"></iframe>
+                </ul>
+                </div>
+               
+          </div>
+        <!--/yaowen-->
+        </div>
+        <div class="flex_focus"> 
+            <script type="text/javascript" src="/Skin/SX_GOV/pe/myfocus/myfocus-1.1.0.full.js"></script><script type="text/javascript" src="/Skin/SX_GOV/pe/myfocus/pattern/mF_classicHC.js"></script><link rel="stylesheet" type="text/css" href="/Skin/SX_GOV/pe/myfocus/pattern/mF_classicHC.css">
+<div id="mF_classicHC">
+  <div class="loading"><span>请稍候...</span></div>
+  <ul class="pic">
+    <li><a href="/Item/8609.aspx"><img src="/UploadFiles/sxxw/2017/2/201702141703457822.JPG" width="430" height="320" alt="鱼龙共舞闹元宵" text="…" border="0"></a></li>
+    <li><a href="/Item/8607.aspx"><img src="/UploadFiles/sxxw/2017/2/201702131731354875.JPG" width="430" height="320" alt="团遂溪县委开展“共青团与人大代表、政协委员面对面”活动" text="…" border="0"></a></li>
+    <li><a href="/Item/8606.aspx"><img src="/UploadFiles/sxxw/2017/2/201702131533341415.jpg" width="430" height="320" alt="鱼龙灯巡游闹元宵" text="…" border="0"></a></li>
+    <li><a href="/Item/8594.aspx"><img src="/UploadFiles/sxxw/2017/2/201702122124520495.JPG" width="430" height="320" alt="专家学者为我县鱼龙民俗文化发展“支招”" text="…" border="0"></a></li>
+    <li><a href="/Item/8564.aspx"><img src="/UploadFiles/sxxw/2017/2/201702061715468374.JPG" width="430" height="320" alt="孔子文化城邀你“闹元宵”" text="…" border="0"></a></li>
+    <li><a href="/Item/8563.aspx"><img src="/UploadFiles/sxxw/2017/2/201702061641209194.JPG" width="430" height="320" alt="南粤春暖招聘会：为求职者提供3000多个工作岗位" text="…" border="0"></a></li>
+  </ul>
+</div><script type="text/javascript">
+myFocus.set({
+    id:'mF_classicHC',//焦点图盒子ID
+    pattern:'mF_classicHC',//风格应用的名称
+    time:3,//切换时间间隔(秒)，省略设置即不自动切换
+    trigger:'click',//触发切换模式:'click'(点击)/'mouseover'(悬停)，默认'click'
+    width:430,//设置宽度(主图区)
+    height:320,//设置高度(主图区)
+    txtHeight:'default'//文字层高度设置,'default'为默认高度，0为隐藏，默认'default'
+	},true);
+</script>
+          
+          <!--/flex_focus-->
+        </div>
+        <div class="iwenjian">
+      <div class="TabInfo" id="nTab3_TopA"><a href="http://www.suixi.gov.cn/Category_18/Index.aspx">通知公告</a></div>
+         
+            <div class="cTabConDiv">
+                <div class="cTanConLD" id="nTab3_Content0">
+                <div class="topnews" >
+  
+            <li><a href="/Item/8567.aspx" target="_blank">环境空气质量周报（2017.2.6）</a></li>
+          
+                  </div>
+
+                <ul class="list f12 l28">
+
+  
+            <li><a href="/Item/8567.aspx" target="_blank">环境空气质量周报（2017.2.6）</a><span class="time">[02-07]</span></li><li><a href="/Item/8566.aspx" target="_blank">遂溪县领导干部定期接访活动安排…</a><span class="time">[02-07]</span></li><li><a href="/Item/8508.aspx" target="_blank">县城环境空气质量、雷州青年运河…</a><span class="time">[01-10]</span></li><li><a href="/Item/8501.aspx" target="_blank">遂溪县领导干部定期接访活动安排…</a><span class="time">[01-09]</span></li><li><a href="/Item/8489.aspx" target="_blank">广东省发展改革委关于公布省直部…</a><span class="time">[01-04]</span></li><li><a href="/Item/8487.aspx" target="_blank">关于举办2017“就业援助”户外现…</a><span class="time">[01-03]</span></li><li><a href="/Item/8460.aspx" target="_blank">2017年元旦放假安排通知</a><span class="time">[12-27]</span></li><li><a href="/Item/8431.aspx" target="_blank">关于对2016年全县打假工作情况考…</a><span class="time">[12-20]</span></li>
+          
+  
+
+                </ul>
+                </div>
+       
+            </div>
+        <!--/iwenjian-->
+        </div>
+    <!--/news_area-->
+    </div>
+    <div style="line-height: 0px;clear: both;"></div>
+    <div class="h20"></div>
+    
+    <div class="ispecial">
+    	<a class="prev"></a>
+        <div class="bd">
+            <div class="tempWrap" style="overflow:hidden; position:relative; width:1140px">
+            <ul style="width: 3420px; position: relative; overflow: hidden; padding: 0px; margin: 0px; left: -1140px;">
+
+  <li ><a href="http://www.gd.gov.cn/gdgk/gdyw/" title="政声传递"><img src="HTTP://WWW.SUIXI.GOV.CN/Skin/SX_GOV/2015/banner/zscd.jpg" alt="政声传递" width="360" height="120"></a></li>
+     
+   <li ><a href="http://www.suixi.gov.cn/Category_161/Index.aspx" title="巡察工作"><img src="HTTP://WWW.SUIXI.GOV.CN/Skin/SX_GOV/sss/images/xcgz3.jpg" alt="巡察工作" width="360" height="120"></a></li>
+           
+            <li ><a href="http://www.suixi.gov.cn/UploadFiles/2015/tbhhr.jpg" title="阿里巴巴农村淘宝招聘合伙人"><img src="HTTP://WWW.SUIXI.GOV.CN/Skin/SX_GOV/2015/img/albb1.gif" alt="阿里巴巴农村淘宝招聘合伙人" width="360" height="120"></a></li>
+            <li ><a href="http://www.suixi.gov.cn/Item/6652.aspx" title="三证合一"><img src="HTTP://WWW.SUIXI.GOV.CN/Skin/SX_GOV/2015/img/szh1.jpg" alt="三证合一" width="360" height="120"></a></li>
+      
+            <li><a href="http://zz.suixi.gov.cn/Category_66/index.aspx" title="党的群众路线教育实践活动"><img src="HTTP://WWW.SUIXI.GOV.CN/Skin/SX_GOV/2015/20140730040859569.jpg" alt="党的群众路线教育实践活动" width="360" height="120"></a></li>
+
+            <li ><a href="http://www.suixi.gov.cn/Category_34/Index.aspx" title="遂溪县行风热线活动"><img src="HTTP://WWW.SUIXI.GOV.CN/Skin/SX_GOV/2015/20140730040823608.jpg" alt="遂溪县行风热线活动" width="360" height="120"></a></li>
+            <li><a href="http://www.suixi.gov.cn/Category_121/Index.aspx" title="重点领域信息公开"><img src="HTTP://WWW.SUIXI.GOV.CN/Skin/SX_GOV/2015/img/xxgkzl.jpg" alt="重点领域信息公开" width="360" height="120"></a></li>
+            <li><a href="http://ddb.suixi.gov.cn" title="党代表工作室"><img src="HTTP://WWW.SUIXI.GOV.CN/Skin/SX_GOV/2015/img/ddbgzs.jpg" alt="党代表工作室" width="360" height="120"></a></li>
+            
+            </ul></div>
+        </div>
+        <a class="next"></a>
+    <!--/ispecial-->
+    </div>
+    <script type="text/javascript">
+	jQuery(".ispecial").slide({mainCell:".bd ul",autoPage:true,effect:"leftLoop",autoPlay:true,vis:3,mouseOverStop:false,delayTime:800,interTime:7000});
+	</script>
+    
+    <div class="h20"></div>
+    
+    <div class="ibanshi bor">
+    	<div class="itop">
+        	<a class="itla" href='http://www.suixi.gov.cn/Government/Guide.aspx'>信息公开</a>
+        	
+        </div>
+        <div class="ibsTabBox" style="margin:20px 0 0 0 ; height:280px;">
+        
+         <div class="aboutButLIst">
+<a class="butA butA1" href='http://zwgk.zhanjiang.gov.cn/GKZN.aspx'><i><em></em></i><b>信息公开指南</b></a>
+<a class="butA butA2" href='http://zwgk.zhanjiang.gov.cn/'><i><em></em></i><b>信息公开目录</b></a>
+<a class="butA butA3" href='http://www.suixi.gov.cn/Category_63/Index.aspx'><i><em></em></i><b>信息公开年报</b></a>
+<a class="butA butA4" href='http://ysq.zhanjiang.gov.cn/'><i><em></em></i><b>依申请公开</b></a>
+<a class="butA butA5" href='http://www.suixi.gov.cn/Category_121/Index.aspx'><i><em></em></i><b>重点领域公开</b></a>
+<a class="butA butA6" href='http://gc.zhanjiang.gov.cn/Sites/Pages/Default.aspx'><i><em></em></i><b>工程领域公开</b></a>     
+          </div>
+
+        
+        
+    
+            <div class="igh_bs">
+<li><a href="/Category_7/Index.aspx">领导之窗</a></li>
+<li><a href="/Category_8/Index.aspx">政府机构</a></li>
+<li><a href="/Category_92/Index.aspx">政府公报</a></li>
+
+<li><a href="/Category_63/Index.aspx">信息年报</a></li>
+
+<li><a href="/Category_10/Index.aspx">财政信息</a></li>
+<li><a href="/Category_12/Index.aspx">发展规划</a></li>
+
+<li><a href="/Category_13/Index.aspx">人事任免</a></li>
+
+<li><a href="/Category_14/Index.aspx">规范文件</a></li>
+<li><a href="/Category_156/Index.aspx">议案提案</a></li>
+<li><a href="/Category_16/Index.aspx">招标投标</a></li>
+<li><a href="http://www.gd.gov.cn/gzhd/zcjd/wjjd/">政策解读</a></li>
+<li><a href="/Category_9/Index.aspx">统计信息</a></li>
+
+        </div> 
+            
+            
+            
+        <!--/ibsTabBox-->
+        </div>
+      
+    <!--/ibanshi-->
+    </div>
+    <div class="infoline"></div>
+    
+    <div class="igongkai bor">
+    	<div class="itop">
+        	<a class="itla" href="http://www.suixi.gov.cn/Category_151/Index.aspx" >公告公示</a>
+        
+        </div>
+        <div class="igkTabBox iTabBox TabBox">
+        	<div class="hd">
+                <ul>
+                    <li class="on"><a href="http://www.suixi.gov.cn/Category_16/Index.aspx">公告公示</a></li>
+                    <li><a href="http://www.suixi.gov.cn/Category_145/Index.aspx">人事招聘</a></li>
+                    <li><a href="http://www.suixi.gov.cn/Category_62/Index.aspx">房屋土地</a></li>
+                    <li><a href="http://www.suixi.gov.cn/Category_124/Index.aspx">部门预算决算公开</a></li> 
+                   <li><a href="http://www.suixi.gov.cn/Category_159/Index.aspx">环保公示</a></li>
+                </ul>
+            </div>
+            <div class="bd">
+            	<ul class="list f12 l28">
+ 
+            <li><a href="/Item/8612.aspx" target="_blank">关于发放黄标车淘汰补助资金名单公示（第五批车辆）</a><span class="time">[02-15]</span></li><li><a href="/Item/8603.aspx" target="_blank">遂溪县中医院迁建项目环境影响评价公众参与第二次网上公示</a><span class="time">[02-13]</span></li><li><a href="/Item/8602.aspx" target="_blank">遂溪县人民医院扩建项目环境影响评价公众参与第二次网上公示</a><span class="time">[02-13]</span></li><li><a href="/Item/8601.aspx" target="_blank">遂溪县妇幼保健院迁建项目环境影响评价公众参与第二次网上公示</a><span class="time">[02-13]</span></li><li><a href="/Item/8600.aspx" target="_blank">遂溪汉平中医院建设项目环境影响评价公众参与第二次网上公示</a><span class="time">[02-13]</span></li><li><a href="/Item/8599.aspx" target="_blank">遂溪县丰成畜牧养殖有限公司年出栏量1万头生猪养殖场项目环境影…</a><span class="time">[02-13]</span></li><li><a href="/Item/8598.aspx" target="_blank">广东湛江养老休闲产业基地（湛江幸福家园·玥珑湖）医院工程项目…</a><span class="time">[02-13]</span></li><li><a href="/Item/8597.aspx" target="_blank">遂溪方济医院建设项目环境影响报告书审批前公示</a><span class="time">[02-13]</span></li>
+          
+  
+
+      </ul>
+               	<ul class="list f12 l28">
+ 
+            <li><a href="/Item/8547.aspx" target="_blank">关于领取广东省2016年集中时间组织事业单位公开招聘遂溪考区聘用…</a><span class="time">[01-26]</span></li><li><a href="/Item/8543.aspx" target="_blank">遂溪县2016年公开招聘教育系统高中专业技术人员（教师）拟聘用人…</a><span class="time">[01-25]</span></li><li><a href="/Item/8514.aspx" target="_blank">广东省2016年集中时间组织事业单位公开招聘湛江考区遂溪考点王德…</a><span class="time">[01-12]</span></li><li><a href="/Item/8511.aspx" target="_blank">遂溪县镇（广前公司和雷州林业局）2017年拟录用残疾人专职委员公示</a><span class="time">[01-12]</span></li><li><a href="/Item/8486.aspx" target="_blank">关于举办2017“就业援助”户外现场招聘会的通知</a><span class="time">[01-03]</span></li><li><a href="/Item/8462.aspx" target="_blank">遂溪县镇（广前公司和雷州林业局）残疾人专职委员面试成绩和确定…</a><span class="time">[12-28]</span></li><li><a href="/Item/8434.aspx" target="_blank">2016年遂溪县镇级（广前公司、雷州林业局）残疾人专职委员确定面…</a><span class="time">[12-21]</span></li><li><a href="/Item/8406.aspx" target="_blank">关于招聘镇（广前公司和雷州林业局）残疾人专职委员公告</a><span class="time">[12-05]</span></li>
+          
+  
+
+      </ul>
+                <ul class="list f12 l28" style="display: none;">
+ 
+            <li><a href="/Item/8022.aspx" target="_self">遂溪县2016北门小区公共租赁住房19号楼摇号结果公示</a><span class="time">[08-26]</span></li><li><a href="/Item/7157.aspx" target="_self">2015年遂溪县环境保护局建设项目环境违法行为查处情况明细表</a><span class="time">[12-28]</span></li><li><a href="/Item/6705.aspx" target="_self">玥珑湖生态城首批已出让居住用地地块调整分析专题报告公示</a><span class="time">[09-15]</span></li><li><a href="/Item/6689.aspx" target="_self">遂溪县城站南路东北侧片区控制性详细规划方案公示</a><span class="time">[09-11]</span></li><li><a href="/Item/6575.aspx" target="_self">2014年遂溪监测年报</a><span class="time">[08-14]</span></li><li><a href="/Item/6574.aspx" target="_self">二〇一三年遂溪县环境监测年报</a><span class="time">[08-14]</span></li><li><a href="/Item/6261.aspx" target="_self">广东省广前糖业发展有限公司2014年现代农业生产发展资金项目-甘…</a><span class="time">[05-20]</span></li><li><a href="/Item/6194.aspx" target="_self">广东省广前糖业发展有限公司2014年现代农业生产发展资金项目-甘…</a><span class="time">[04-24]</span></li>
+          
+  
+
+              </ul>
+ <ul class="list f12 l28" style="display: none;">
+ 
+            <li><a href="/Item/8340.aspx" target="_blank">遂溪农场2015年决算及“三公经费”支出基本情况</a><span class="time">[11-14]</span></li><li><a href="/Item/8339.aspx" target="_blank">遂溪县文化馆２０１６年财政预算“三公”经费增减变化原因等说明</a><span class="time">[11-14]</span></li><li><a href="/Item/8338.aspx" target="_blank">文广新局2016年收支预算总表</a><span class="time">[11-14]</span></li><li><a href="/Item/8334.aspx" target="_blank">广东省遂溪县外贸总公司2015年部门决算公开说明</a><span class="time">[10-10]</span></li><li><a href="/Item/8228.aspx" target="_blank">遂溪县地方税务局2015年决算公开说明</a><span class="time">[10-10]</span></li><li><a href="/Item/8188.aspx" target="_blank">遂溪县财政局2015决算批复公开资料</a><span class="time">[09-22]</span></li><li><a href="/Item/8167.aspx" target="_blank">教育局2015年决算</a><span class="time">[09-09]</span></li><li><a href="/Item/8161.aspx" target="_blank">遂溪县林业试验场2015部门决算</a><span class="time">[09-09]</span></li>
+          
+  
+
+              </ul>
+<ul class="list f12 l28" style="display: none;">
+ 
+            <li><a href="/Item/8615.aspx" target="_blank">环境大气质量周报（2017.2.15）</a><span class="time">[02-16]</span></li><li><a href="/Item/8590.aspx" target="_blank">遂溪县环境质量报告书(二○一一年～二○一五年)第三部分总结</a><span class="time">[02-09]</span></li><li><a href="/Item/8589.aspx" target="_blank">遂溪县环境质量报告书(二○一一年～二○一五年)第二部分 (7) 辐射</a><span class="time">[02-09]</span></li><li><a href="/Item/8588.aspx" target="_blank">遂溪县环境质量报告书(二○一一年～二○一五年)第二部分（6）生…</a><span class="time">[02-09]</span></li><li><a href="/Item/8587.aspx" target="_blank">遂溪县环境质量报告书(二○一一年～二○一五年)第二部分（5）固…</a><span class="time">[02-09]</span></li><li><a href="/Item/8586.aspx" target="_blank">遂溪县环境质量报告书(二○一一年～二○一五年)第二部分（4）噪声</a><span class="time">[02-09]</span></li><li><a href="/Item/8585.aspx" target="_blank">遂溪县环境质量报告书(二○一一年～二○一五年)第二部分（3）水…</a><span class="time">[02-09]</span></li><li><a href="/Item/8584.aspx" target="_blank">遂溪县环境质量报告书(二○一一年～二○一五年)第二部分(2)大气</a><span class="time">[02-09]</span></li>
+          
+  
+
+              </ul>
+            </div>
+        <!--/igkTabBox-->
+        </div>
+    <!--/igongkai-->
+    </div>
+    
+   
+    <div class="ifagui bor TabBox">
+    	<div class="hd">
+			<ul>
+            <li class="hda1 on"><a href=""><b>电子政务</b><em></em></a></li>
+            <li class="hda2"><a href=""><b>系统导航</b><em></em></a></li>
+            </ul>
+		</div>
+		<div class="bd">
+        	<ul class="list">
+
+
+
+
+<div class="xtdh_1"><a href="http://portal.zjportal.net" target="_blank" ><img src="http://www.suixi.gov.cn/skin/SX_GOV/2015/img/gwjh.jpg" alt="新版公文交换系统" border="0" height="54px" width="240px""></a></div>
+
+<div class="xtdh_1"><a href="http://www.suixi.gov.cn/UploadFiles/yunOA412.apk" target="_blank" ><img src="http://www.suixi.gov.cn/skin/SX_GOV/2015/img/OA-android-412.jpg" alt="办文系统手机安卓版4.12下载" border="0" height="54px" width="240px""></a></div>
+
+<div class="xtdh_1"> <a  href="http://sxxw.zjportal.net" title="中共遂溪县委办公室云OA办文系统" target="_blank"><img src="HTTP://WWW.SUIXI.GOV.CN/Skin/SX_GOV/2015/img/xwbw2.jpg" width="240" height="54" alt="中共遂溪县委办公室云OA办文系统"></a></div>
+<div class="xtdh_1"> <a  href="http://sxxf.zjportal.net" title="遂溪县人民政府办公室云OA办文系统" target="_blank"><img src="HTTP://WWW.SUIXI.GOV.CN/Skin/SX_GOV/2015/img/zfbw2.jpg" width="240" height="54" alt="遂溪县人民政府办公室云OA办文系统"></a></div>
+ 
+            </ul>
+            <ul class="list" style="display: none;">
+<div class="xtdh_1"><a href="http://www.suixi.gov.cn/Category_121/Index.aspx"><img src="http://www.suixi.gov.cn/skin/SX_GOV/pic/zdlyxxgk.jpg" alt="重点领域信息公开" border="0" height="54px" width="240px"></a></div>
+<div class="xtdh_1"><a href="http://ddb.suixi.gov.cn"><img src="http://www.suixi.gov.cn/skin/SX_GOV/images/ddb1.jpg" alt="党代表网上工作室" border="0" height="54px" width="240px"></a></div>
+         <div class="xtdh_1"><a href="http://www.suixi.gov.cn/Government/Guide.aspx"><img src="http://www.suixi.gov.cn/skin/SX_GOV/pic/xxgk_a.gif" alt="信息公开专栏" border="0" height="54px" width="240px"></a></div>
+ 
+         <div class="xtdh_1"><a href="http://gc.zhanjiang.gov.cn/Sites/Pages/Default.aspx" target="_blank" ><img src="http://www.suixi.gov.cn/skin/SX_GOV/pic/gcly_a.gif" alt="遂溪县工程领域信息公开平台" border="0" height="54px" width="240px"></a></div>
+       <div class="xtdh_1"><a href="http://wyzj.gdzxb.gov.cn" target="_blank" ><img src="http://www.suixi.gov.cn/skin/SX_GOV/2015/img/wyzj.gif" alt="遂溪县政协委员之家" border="0" height="54px" width="240px"></a></div>
+       
+            </ul>
+		</div>
+    <!--/ifagui-->
+    </div>
+<div style="line-height: 0px;clear: both;"></div>    
+    <div class="h20"></div>
+    
+    <div class="icehui bor">
+    	<div class="itop">
+        	<a class="itla" >公众互动</a>
+         <div class="itr"><a class="ihdTA1" href="http://www.suixi.gov.cn/Category_160/Index.aspx" target="_blank">书记信箱</a></div>
+      <div class="itr"><a class="ihdTA1" href="http://www.suixi.gov.cn/Category_160/Index.aspx" target="_blank">县长信箱</a></div>
+         </div>
+
+        <div class="idhTabBox TabBox">
+        	<div class="hd">
+            	<ul>
+                <li class="idhTa1"><a href="http://www.suixi.gov.cn/Category_33/Index.aspx"><em></em><b>民意调查</b></a></li> 
+                 <li class="idhTa2"><a href="http://www.suixi.gov.cn/Category_101/Index.aspx"><em></em><b>热线回音</b></a></li>
+                 
+                </ul>
+            </div>
+            <div class="bd">
+       
+          	  <ul class="list f12 l28" style="display: none;">
+   <li><a href="/Vote/Vote.aspx?Id=2" title="对县城污水处理收费标准调整的意见">对县城污水处理收费标准调整的意见</a><span style="color:red; float:right;">2016-12-17</span></li>
+<li><a href="/Vote/Vote.aspx?Id=1" title="网站改版情况调查">网站改版情况调查</a><span style="color:red; float:right;">2016-04-05</span></li>
+              </ul>
+                <ul class="list f12 l28" style="display: none;">
+  
+            <li><a href="/Item/6815.aspx" target="_blank">请问开办卫生站，需要办理什么手续？</a><span class="time">[10-16]</span></li><li><a href="/Item/6814.aspx" target="_blank">小孩已几岁，请问怎样补办出生证？</a><span class="time">[10-16]</span></li><li><a href="/Item/6285.aspx" target="_blank">在买房或者房屋交易的时候，有些人的契税…</a><span class="time">[05-28]</span></li><li><a href="/Item/6284.aspx" target="_blank">核定征收企业所得税的企业，可不可享受小…</a><span class="time">[05-28]</span></li><li><a href="/Item/3883.aspx" target="_blank">户口在农村的学生到异地学校就读，是否可…</a><span class="time">[06-22]</span></li><li><a href="/Item/3882.aspx" target="_blank">承包土地160亩种植水稻，问种粮直补和农…</a><span class="time">[06-22]</span></li><li><a href="/Item/3881.aspx" target="_blank">是否父母赠送的住房也要缴税？</a><span class="time">[06-22]</span></li>
+          
+
+              </ul>  
+     
+            </div>
+        </div>
+    <!--/icehui-->
+    </div>
+
+    <div class="iguihua bor">
+    
+       
+            <div class="TabTop" style="border-top:1px solid #cee6ff;">
+ <div class="TabInfo" id="nTab2_TopA"><a href="http://sxbs.zjwsbs.gov.cn/portal/view/wsbs/index.jsp?topfun=wsbs">网上办事</a></div>
+                <ul class="cTabNavUl" id="nTab2">
+                    <li class="active" onMouseOver="nTab(this,0);"><a href="http://sxbs.zjwsbs.gov.cn/portal/view/wsbs/index.jsp?topfun=wsbs">个人办事</a></li>
+                    <li class="normal" onMouseOver="nTab(this,1);"><a href="http://sxbs.zjwsbs.gov.cn/portal/view/wsbs/index.jsp?topfun=wsbs">企业办事</a></li>
+                    <li class="normal" onMouseOver="nTab(this,2);"><a href="http://sxbs.zjwsbs.gov.cn/portal/view/wsbs/index.jsp?topfun=wsbs">部门办事</a></li>
+                   
+                </ul>
+            </div>
+            <div class="cTabConDiv">
+                <div class="cTanConLD" id="nTab2_Content0">
+               
+                <ul class="wsbs_1">
+  <li><a onFocus="this.blur()" target="_blank" href="http://sxbs.zjwsbs.gov.cn/portal/ServiceItemInfoAction.action?onelev=wsbs&amp;seclev=grbs&amp;workmark=bsgr&amp;org_Region=440823&amp;serviceType=ztfl&amp;code=root_gr_ztfl_sysy&amp;title=55Sf6IKy5pS25YW7"><img src="http://www.zjwsbs.gov.cn/images/6bc6f311-27df-4038-b2bc-4f6ac7c6d2fd.png" width="60" height="60" />生育收养</a></li>
+  <li><a onFocus="this.blur()" target="_blank" href="http://sxbs.zjwsbs.gov.cn/portal/ServiceItemInfoAction.action?onelev=wsbs&amp;seclev=grbs&amp;workmark=bsgr&amp;org_Region=440823&amp;serviceType=ztfl&amp;code=root_gr_ztfl_hj&amp;title=5oi357GN"><img src="http://www.zjwsbs.gov.cn/images/7010fe97-799c-4b50-8c1c-3cb720a53fba.png" width="60" height="60" />户籍</a></li>
+  <li><a onFocus="this.blur()" target="_blank" href="http://sxbs.zjwsbs.gov.cn/portal/ServiceItemInfoAction.action?onelev=wsbs&amp;seclev=grbs&amp;workmark=bsgr&amp;org_Region=440823&amp;serviceType=ztfl&amp;code=root_gr_ztfl_jiaoyu&amp;title=5pWZ6IKy"><img src="http://www.zjwsbs.gov.cn/images/66bfe2b2-4d9b-4d92-aab1-6ea82bd70e82.png" width="60" height="60" />教育</a></li>
+  <li><a onFocus="this.blur()" target="_blank" href="http://sxbs.zjwsbs.gov.cn/portal/ServiceItemInfoAction.action?onelev=wsbs&amp;seclev=grbs&amp;workmark=bsgr&amp;org_Region=440823&amp;serviceType=ztfl&amp;code=root_gr_ztfl_by&amp;title=5YW15b25"><img src="http://www.zjwsbs.gov.cn/images/6addac2d-d0cd-4ab5-adb4-bc995833fc98.png" width="60" height="60" />兵役</a></li>
+  <li><a onFocus="this.blur()" target="_blank" href="http://sxbs.zjwsbs.gov.cn/portal/ServiceItemInfoAction.action?onelev=wsbs&amp;seclev=grbs&amp;workmark=bsgr&amp;org_Region=440823&amp;serviceType=ztfl&amp;code=root_gr_ztfl_juye&amp;title=5bCx5Lia"><img src="http://www.zjwsbs.gov.cn/images/a1c86eb3-b726-4677-a55a-6aff96b207ed.png" width="60" height="60" />就业</a></li>
+  <li><a onFocus="this.blur()" target="_blank" href="http://sxbs.zjwsbs.gov.cn/portal/ServiceItemInfoAction.action?onelev=wsbs&amp;seclev=grbs&amp;workmark=bsgr&amp;org_Region=440823&amp;serviceType=ztfl&amp;code=root_gr_ztfl_ns&amp;title=57qz56iO"><img src="http://www.zjwsbs.gov.cn/images/af1b5b91-2735-40ca-ab81-f6a3791f9857.png" width="60" height="60" />纳税</a></li>
+  <li><a onFocus="this.blur()" target="_blank" href="http://sxbs.zjwsbs.gov.cn/portal/ServiceItemInfoAction.action?onelev=wsbs&amp;seclev=grbs&amp;workmark=bsgr&amp;org_Region=440823&amp;serviceType=ztfl&amp;code=root_gr_ztfl_sb&amp;title=56S+5L+d"><img src="http://www.zjwsbs.gov.cn/images/052da8cc-c717-40df-bd21-4976748d960e.png" width="60" height="60" />社保</a></li>
+  <li><a onFocus="this.blur()" target="_blank" href="http://sxbs.zjwsbs.gov.cn/portal/ServiceItemInfoAction.action?onelev=wsbs&amp;seclev=grbs&amp;workmark=bsgr&amp;org_Region=440823&amp;serviceType=ztfl&amp;code=root_gr_ztfl_hy&amp;title=5ama5ae7"><img src="http://www.zjwsbs.gov.cn/images/ec64b66e-9805-4ba4-ab09-471020fe9eb5.png" width="60" height="60" />婚姻</a></li>
+
+
+  <li><a onFocus="this.blur()" target="_blank" href="http://sxbs.zjwsbs.gov.cn/portal/ServiceItemInfoAction.action?onelev=wsbs&amp;seclev=grbs&amp;workmark=bsgr&amp;org_Region=440823&amp;serviceType=ztfl&amp;code=root_gr_ztfl_yl&amp;title=5Yy755aX"><img src="http://www.zjwsbs.gov.cn/images/b6de1151-ac0b-4373-a06d-1bbd9e0ae9ae.png" width="60" height="60" />医疗</a></li>
+  <li><a onFocus="this.blur()" target="_blank" href="http://sxbs.zjwsbs.gov.cn/portal/ServiceItemInfoAction.action?onelev=wsbs&amp;seclev=grbs&amp;workmark=bsgr&amp;org_Region=440823&amp;serviceType=ztfl&amp;code=root_gr_ztfl_crj&amp;title=5Ye65YWl5aKD"><img src="http://www.zjwsbs.gov.cn/images/fc36272b-bd7c-4721-b653-db2a38ac4eb1.png" width="60" height="60" />出入境</a></li>
+  <li><a onFocus="this.blur()" target="_blank" href="http://sxbs.zjwsbs.gov.cn/portal/ServiceItemInfoAction.action?onelev=wsbs&amp;seclev=grbs&amp;workmark=bsgr&amp;org_Region=440823&amp;serviceType=ztfl&amp;code=root_gr_ztfl_shjz&amp;title=56S+5Lya5pWR5Yqp"><img src="http://www.zjwsbs.gov.cn/images/96a9dae5-1dc0-4394-96d6-a44eeeae826a.png" width="60" height="60" />社会救助</a></li>
+  <li><a onFocus="this.blur()" target="_blank" href="http://sxbs.zjwsbs.gov.cn/portal/ServiceItemInfoAction.action?onelev=wsbs&amp;seclev=grbs&amp;workmark=bsgr&amp;org_Region=440823&amp;serviceType=ztfl&amp;code=root_gr_ztfl_zf&amp;title=5L2P5oi/"><img src="http://www.zjwsbs.gov.cn/images/6ef17d3a-6795-48ad-ad28-d5b02e609dc9.png" width="60" height="60" />住房</a></li>
+  <li><a onFocus="this.blur()" target="_blank" href="http://sxbs.zjwsbs.gov.cn/portal/ServiceItemInfoAction.action?onelev=wsbs&amp;seclev=grbs&amp;workmark=bsgr&amp;org_Region=440823&amp;serviceType=ztfl&amp;code=root_gr_ztfl_sfgz&amp;title=5Y+45rOV5YWs5q2j"><img src="http://www.zjwsbs.gov.cn/images/27335aa3-3c39-4217-b0e9-f598368d7e75.png" width="60" height="60" />司法公正</a></li>
+  <li><a onFocus="this.blur()" target="_blank" href="http://sxbs.zjwsbs.gov.cn/portal/ServiceItemInfoAction.action?onelev=wsbs&amp;seclev=grbs&amp;workmark=bsgr&amp;org_Region=440823&amp;serviceType=ztfl&amp;code=root_gr_ztfl_zyzg&amp;title=6IGM5Lia6LWE5qC8"><img src="http://www.zjwsbs.gov.cn/images/be0ef3ff-7e51-45a8-900e-22022bafb984.png" width="60" height="60" />职业资格</a></li>
+  <li><a onFocus="this.blur()" target="_blank" href="http://sxbs.zjwsbs.gov.cn/portal/ServiceItemInfoAction.action?onelev=wsbs&amp;seclev=grbs&amp;workmark=bsgr&amp;org_Region=440823&amp;serviceType=ztfl&amp;code=root_gr_ztfl_xfwq&amp;title=5raI6LS557u05p2D"><img src="http://www.zjwsbs.gov.cn/images/4ed99d9f-5ca5-454d-9946-e6221dcfa06b.png" width="60" height="60" />消费维权</a></li>
+  <li><a onFocus="this.blur()" target="_blank" href="http://sxbs.zjwsbs.gov.cn/portal/ServiceItemInfoAction.action?onelev=wsbs&amp;seclev=grbs&amp;workmark=bsgr&amp;org_Region=440823&amp;serviceType=ztfl&amp;code=root_gr_ztfl_jt&amp;title=5Lqk6YCa"><img src="http://www.zjwsbs.gov.cn/images/deac3b93-82a6-4c63-b62e-3c296e36b519.png" width="60" height="60" />交通</a></li>
+  <li><a onFocus="this.blur()" target="_blank" href="http://sxbs.zjwsbs.gov.cn/portal/ServiceItemInfoAction.action?onelev=wsbs&amp;seclev=grbs&amp;workmark=bsgr&amp;org_Region=440823&amp;serviceType=ztfl&amp;code=root_gr_ztfl_whty&amp;title=5paH5YyW5L2T6IKy"><img src="http://www.zjwsbs.gov.cn/images/bf1fe711-e12c-4652-8b2c-29639e206c91.png" width="60" height="60" />文化体育</a></li>
+  <li><a onFocus="this.blur()" target="_blank" href="http://sxbs.zjwsbs.gov.cn/portal/ServiceItemInfoAction.action?onelev=wsbs&amp;seclev=grbs&amp;workmark=bsgr&amp;org_Region=440823&amp;serviceType=ztfl&amp;code=root_gr_ztfl_zscq&amp;title=55+l6K+G5Lqn5p2D"><img src="http://www.zjwsbs.gov.cn/images/4e8b5f4b-bfe9-4299-b5a6-ff59347e8d86.png" width="60" height="60" />知识产权</a></li>
+
+
+                </ul>
+                </div>
+                <div class="cTanConLD none" id="nTab2_Content1">
+               
+                <ul class="wsbs_1">
+
+  <li><a target="_blank" href="http://sxbs.zjwsbs.gov.cn/portal/ServiceItemInfoAction.action?onelev=wsbs&amp;seclev=qybs&amp;workmark=bsgr&amp;org_Region=440823&amp;serviceType=ztfl&amp;code=root_qy_ztfl_slbg&amp;title=6K6+56uL5Y+Y5pu0"><img src="http://www.zjwsbs.gov.cn/images/3025006f-097e-433f-bd7b-e8215ff5b5e0.png" width="60" height="60" />设立变更</a></li>
+  <li><a target="_blank" href="http://sxbs.zjwsbs.gov.cn/portal/ServiceItemInfoAction.action?onelev=wsbs&amp;seclev=qybs&amp;workmark=bsgr&amp;org_Region=440823&amp;serviceType=ztfl&amp;code=root_qy_ztfl_njns&amp;title=5bm05qOA5bm05a6h"><img src="http://www.zjwsbs.gov.cn/images/0eafd26c-e15f-4d85-8b2e-4dd1555ea391.png" width="60" height="60" />年检年审</a></li>
+  <li><a target="_blank" href="http://sxbs.zjwsbs.gov.cn/portal/ServiceItemInfoAction.action?onelev=wsbs&amp;seclev=qybs&amp;workmark=bsgr&amp;org_Region=440823&amp;serviceType=ztfl&amp;code=root_qy_ztfl_cwsw&amp;title=6LSi5Yqh56iO5Yqh"><img src="http://www.zjwsbs.gov.cn/images/1c48c514-3370-4669-bf89-34d4cdbfcbcb.png" width="60" height="60" />财务税务</a></li>
+  <li><a target="_blank" href="http://sxbs.zjwsbs.gov.cn/portal/ServiceItemInfoAction.action?onelev=wsbs&amp;seclev=qybs&amp;workmark=bsgr&amp;org_Region=440823&amp;serviceType=ztfl&amp;code=root_qy_ztfl_zyzb&amp;title=5YeG6JCl5YeG5Yqe"><img src="http://www.zjwsbs.gov.cn/images/24f23ab8-557d-43aa-b99b-a29e3717b31f.png" width="60" height="60" />准营准办</a></li>
+  <li><a target="_blank" href="http://sxbs.zjwsbs.gov.cn/portal/ServiceItemInfoAction.action?onelev=wsbs&amp;seclev=qybs&amp;workmark=bsgr&amp;org_Region=440823&amp;serviceType=ztfl&amp;code=root_qy_ztfl_lxsp&amp;title=56uL6aG55a6h5om5"><img src="http://www.zjwsbs.gov.cn/images/3a108549-2e59-4d33-9ba8-391200bf4aa3.png" width="60" height="60" />立项审批</a></li>
+  <li><a target="_blank" href="http://sxbs.zjwsbs.gov.cn/portal/ServiceItemInfoAction.action?onelev=wsbs&amp;seclev=qybs&amp;workmark=bsgr&amp;org_Region=440823&amp;serviceType=ztfl&amp;code=root_qy_ztfl_zzrz&amp;title=6LWE6LSo6K6k6K+B"><img src="http://www.zjwsbs.gov.cn/images/40f50bbb-3158-44be-823c-96c21277c230.png" width="60" height="60" />资质认证</a></li>
+
+
+
+  <li><a target="_blank" href="http://sxbs.zjwsbs.gov.cn/portal/ServiceItemInfoAction.action?onelev=wsbs&amp;seclev=qybs&amp;workmark=bsgr&amp;org_Region=440823&amp;serviceType=ztfl&amp;code=root_qy_ztfl_jsgl&amp;title=5bu66K6+566h55CG"><img src="http://www.zjwsbs.gov.cn/images/d71ce60a-45f0-4477-b01e-593604d57e2c.png" width="60" height="60" />建设管理</a></li>
+  <li><a target="_blank" href="http://sxbs.zjwsbs.gov.cn/portal/ServiceItemInfoAction.action?onelev=wsbs&amp;seclev=qybs&amp;workmark=bsgr&amp;org_Region=440823&amp;serviceType=ztfl&amp;code=root_qy_ztfl_ldbz&amp;title=5Yqz5Yqo5L+d6Zqc"><img src="http://www.zjwsbs.gov.cn/images/28e17449-6a61-46cf-a1d4-d7dc306e6556.png" width="60" height="60" />劳动保障</a></li>
+  <li><a target="_blank" href="http://sxbs.zjwsbs.gov.cn/portal/ServiceItemInfoAction.action?onelev=wsbs&amp;seclev=qybs&amp;workmark=bsgr&amp;org_Region=440823&amp;serviceType=ztfl&amp;code=root_qy_ztfl_rlzy&amp;title=5Lq65Yqb6LWE5rqQ"><img src="http://www.zjwsbs.gov.cn/images/39860abe-2d62-4a4a-a496-d76f901c0865.png" width="60" height="60" />人力资源</a></li>
+  <li><a target="_blank" href="http://sxbs.zjwsbs.gov.cn/portal/ServiceItemInfoAction.action?onelev=wsbs&amp;seclev=qybs&amp;workmark=bsgr&amp;org_Region=440823&amp;serviceType=ztfl&amp;code=root_qy_ztfl_zljc&amp;title=6LSo6YeP5qOA5p+l"><img src="http://www.zjwsbs.gov.cn/images/af6887c5-5b03-4e2b-9927-642e88369b0a.png" width="60" height="60" />质量检查</a></li>
+  <li><a target="_blank" href="http://sxbs.zjwsbs.gov.cn/portal/ServiceItemInfoAction.action?onelev=wsbs&amp;seclev=qybs&amp;workmark=bsgr&amp;org_Region=440823&amp;serviceType=ztfl&amp;code=root_qy_ztfl_aqfh&amp;title=5a6J5YWo6Ziy5oqk"><img src="http://www.zjwsbs.gov.cn/images/ea7190d7-6a44-4a4b-99cb-2261f5cdc84a.png" width="60" height="60" />安全防护</a></li>
+  <li><a target="_blank" href="http://sxbs.zjwsbs.gov.cn/portal/ServiceItemInfoAction.action?onelev=wsbs&amp;seclev=qybs&amp;workmark=bsgr&amp;org_Region=440823&amp;serviceType=ztfl&amp;code=root_qy_ztfl_hblh&amp;title=546v5L+d57u/5YyW"><img src="http://www.zjwsbs.gov.cn/images/07773b4d-cb57-405a-9ef2-12b1a5268f34.png" width="60" height="60" />环保绿化</a></li>
+  <li><a target="_blank" href="http://sxbs.zjwsbs.gov.cn/portal/ServiceItemInfoAction.action?onelev=wsbs&amp;seclev=qybs&amp;workmark=bsgr&amp;org_Region=440823&amp;serviceType=ztfl&amp;code=root_qy_ztfl_tdfc&amp;title=5Zyf5Zyw5oi/5Lqn"><img src="http://www.zjwsbs.gov.cn/images/9ba9d2e7-1c15-4c9b-a966-40d9bd1ae398.png" width="60" height="60" />土地房产</a></li>
+
+  <li><a target="_blank" href="http://sxbs.zjwsbs.gov.cn/portal/ServiceItemInfoAction.action?onelev=wsbs&amp;seclev=qybs&amp;workmark=bsgr&amp;org_Region=440823&amp;serviceType=ztfl&amp;code=root_qy_ztfl_jtys&amp;title=5Lqk6YCa6L+Q6L6T"><img src="http://www.zjwsbs.gov.cn/images/88d2eebe-6c9c-45de-9f45-0c914c61d4be.png" width="60" height="60" />交通运输</a></li>
+  <li><a target="_blank" href="http://sxbs.zjwsbs.gov.cn/portal/ServiceItemInfoAction.action?onelev=wsbs&amp;seclev=qybs&amp;workmark=bsgr&amp;org_Region=440823&amp;serviceType=ztfl&amp;code=root_qy_ztfl_nlmy&amp;title=5Yac5p6X54mn5riU"><img src="http://www.zjwsbs.gov.cn/images/05b484f8-cb95-4f4f-8c3a-8cd021115c7e.png" width="60" height="60" />农林牧渔</a></li>
+  <li><a target="_blank" href="http://sxbs.zjwsbs.gov.cn/portal/ServiceItemInfoAction.action?onelev=wsbs&amp;seclev=qybs&amp;workmark=bsgr&amp;org_Region=440823&amp;serviceType=ztfl&amp;code=root_qy_ztfl_slsw&amp;title=5rC05Yip5rC05Yqh"><img src="http://www.zjwsbs.gov.cn/images/bfacc21a-bdf9-4baa-8cd6-0845bbf5974b.png" width="60" height="60" />水利水务</a></li>
+  <li><a target="_blank" href="http://sxbs.zjwsbs.gov.cn/portal/ServiceItemInfoAction.action?onelev=wsbs&amp;seclev=qybs&amp;workmark=bsgr&amp;org_Region=440823&amp;serviceType=ztfl&amp;code=root_qy_ztfl_ylws&amp;title=5Yy755aX5Y2r55Sf"><img src="http://www.zjwsbs.gov.cn/images/dc15b5ac-7ad8-49ad-b669-f59ce960de72.png" width="60" height="60" />医疗卫生</a></li>
+
+  <li><a target="_blank" href="http://sxbs.zjwsbs.gov.cn/portal/ServiceItemInfoAction.action?onelev=wsbs&amp;seclev=qybs&amp;workmark=bsgr&amp;org_Region=440823&amp;serviceType=ztfl&amp;code=root_qy_ztfl_pczx&amp;title=56C05Lqn5rOo6ZSA"><img src="http://www.zjwsbs.gov.cn/images/04c5c395-ee00-4424-a73a-b0599b88e022.png" width="60" height="60" />破产注销</a></li>
+
+
+
+                </ul>
+                </div>
+                <div class="cTanConLD none" id="nTab2_Content2">
+                
+
+                <ul class="wsbs_2">
+
+<li><a title="机构编制委员会办公室" target="_blank" href="http://sxbs.zjwsbs.gov.cn/portal/ServiceItemInfoAction.action?identity=fwzd&amp;onelev=wsbs&amp;seclev=bmfw&amp;org_Region=440823&amp;orgCode=759211030">编委办</a></li>
+<li><a title="发展和改革局" target="_blank" href="http://sxbs.zjwsbs.gov.cn/portal/ServiceItemInfoAction.action?identity=fwzd&amp;onelev=wsbs&amp;seclev=bmfw&amp;org_Region=440823&amp;orgCode=007111600">发展和改革局</a></li>
+<li><a title="经济和信息化局" target="_blank" href="http://sxbs.zjwsbs.gov.cn/portal/ServiceItemInfoAction.action?identity=fwzd&amp;onelev=wsbs&amp;seclev=bmfw&amp;org_Region=440823&amp;orgCode=737576119">经济和信息化局</a></li>
+<li><a title="教育局" target="_blank" href="http://sxbs.zjwsbs.gov.cn/portal/ServiceItemInfoAction.action?identity=fwzd&amp;onelev=wsbs&amp;seclev=bmfw&amp;org_Region=440823&amp;orgCode=00711190X">教育局</a></li>
+<li><a title="科技文化广电新闻出版局" target="_blank" href="http://sxbs.zjwsbs.gov.cn/portal/ServiceItemInfoAction.action?identity=fwzd&amp;onelev=wsbs&amp;seclev=bmfw&amp;org_Region=440823&amp;orgCode=572414022">科文广新局</a></li>
+<li><a title="民族宗教事务局" target="_blank" href="http://sxbs.zjwsbs.gov.cn/portal/ServiceItemInfoAction.action?identity=fwzd&amp;onelev=wsbs&amp;seclev=bmfw&amp;org_Region=440823&amp;orgCode=748003113">民族宗教事务局</a></li>
+<li><a title="公安局" target="_blank" href="http://sxbs.zjwsbs.gov.cn/portal/ServiceItemInfoAction.action?identity=fwzd&amp;onelev=wsbs&amp;seclev=bmfw&amp;org_Region=440823&amp;orgCode=007111686">公安局</a></li>
+<li><a title="公安消防大队" target="_blank" href="http://sxbs.zjwsbs.gov.cn/portal/ServiceItemInfoAction.action?identity=fwzd&amp;onelev=wsbs&amp;seclev=bmfw&amp;org_Region=440823&amp;orgCode=712345314">公安消防大队</a></li>
+<li><a title="民政局" target="_blank" href="http://sxbs.zjwsbs.gov.cn/portal/ServiceItemInfoAction.action?identity=fwzd&amp;onelev=wsbs&amp;seclev=bmfw&amp;org_Region=440823&amp;orgCode=007111707">民政局</a></li>
+<li><a title="司法局" target="_blank" href="http://sxbs.zjwsbs.gov.cn/portal/ServiceItemInfoAction.action?identity=fwzd&amp;onelev=wsbs&amp;seclev=bmfw&amp;org_Region=440823&amp;orgCode=007111694">司法局</a></li>
+<li><a title="财政局" target="_blank" href="http://sxbs.zjwsbs.gov.cn/portal/ServiceItemInfoAction.action?identity=fwzd&amp;onelev=wsbs&amp;seclev=bmfw&amp;org_Region=440823&amp;orgCode=007111643">财政局</a></li>
+<li><a title="人力资源和社会保障局" target="_blank" href="http://sxbs.zjwsbs.gov.cn/portal/ServiceItemInfoAction.action?identity=fwzd&amp;onelev=wsbs&amp;seclev=bmfw&amp;org_Region=440823&amp;orgCode=564567109">人社局</a></li>
+<li><a title="社会保险基金管理局" target="_blank" href="http://sxbs.zjwsbs.gov.cn/portal/ServiceItemInfoAction.action?identity=fwzd&amp;onelev=wsbs&amp;seclev=bmfw&amp;org_Region=440823&amp;orgCode=456285665">社保局</a></li>
+<li><a title="国土资源局" target="_blank" href="http://sxbs.zjwsbs.gov.cn/portal/ServiceItemInfoAction.action?identity=fwzd&amp;onelev=wsbs&amp;seclev=bmfw&amp;org_Region=440823&amp;orgCode=007111758">国土资源局</a></li>
+<li><a title="环境保护局" target="_blank" href="http://sxbs.zjwsbs.gov.cn/portal/ServiceItemInfoAction.action?identity=fwzd&amp;onelev=wsbs&amp;seclev=bmfw&amp;org_Region=440823&amp;orgCode=007111977">环境保护局</a></li>
+<li><a title="住房和城乡规划建设局" target="_blank" href="http://sxbs.zjwsbs.gov.cn/portal/ServiceItemInfoAction.action?identity=fwzd&amp;onelev=wsbs&amp;seclev=bmfw&amp;org_Region=440823&amp;orgCode=007111678">规划建设局</a></li>
+<li><a title="公用事业管理局" target="_blank" href="http://sxbs.zjwsbs.gov.cn/portal/ServiceItemInfoAction.action?identity=fwzd&amp;onelev=wsbs&amp;seclev=bmfw&amp;org_Region=440823&amp;orgCode=007112195">公用事业管理局</a></li>
+<li><a title="交通运输局" target="_blank" href="http://sxbs.zjwsbs.gov.cn/portal/ServiceItemInfoAction.action?identity=fwzd&amp;onelev=wsbs&amp;seclev=bmfw&amp;org_Region=440823&amp;orgCode=007111774">交通运输局</a></li>
+<li><a title="水务局" target="_blank" href="http://sxbs.zjwsbs.gov.cn/portal/ServiceItemInfoAction.action?identity=fwzd&amp;onelev=wsbs&amp;seclev=bmfw&amp;org_Region=440823&amp;orgCode=007111854">水务局</a></li>
+<li><a title="农业局" target="_blank" href="http://sxbs.zjwsbs.gov.cn/portal/ServiceItemInfoAction.action?identity=fwzd&amp;onelev=wsbs&amp;seclev=bmfw&amp;org_Region=440823&amp;orgCode=007111862">农业局</a></li>
+<li><a title="卫生和计划生育局" target="_blank" href="http://sxbs.zjwsbs.gov.cn/portal/ServiceItemInfoAction.action?identity=fwzd&amp;onelev=wsbs&amp;seclev=bmfw&amp;org_Region=440823&amp;orgCode=398171781">卫计局</a></li>
+<li><a title="统计局" target="_blank" href="http://sxbs.zjwsbs.gov.cn/portal/ServiceItemInfoAction.action?identity=fwzd&amp;onelev=wsbs&amp;seclev=bmfw&amp;org_Region=440823&amp;orgCode=007111766">统计局</a></li>
+<li><a title="体育局" target="_blank" href="http://sxbs.zjwsbs.gov.cn/portal/ServiceItemInfoAction.action?identity=fwzd&amp;onelev=wsbs&amp;seclev=bmfw&amp;org_Region=440823&amp;orgCode=007111934">体育局</a></li>
+<li><a title="物价局" target="_blank" href="http://sxbs.zjwsbs.gov.cn/portal/ServiceItemInfoAction.action?identity=fwzd&amp;onelev=wsbs&amp;seclev=bmfw&amp;org_Region=440823&amp;orgCode=007111731">物价局</a></li>
+<li><a title="林业局" target="_blank" href="http://sxbs.zjwsbs.gov.cn/portal/ServiceItemInfoAction.action?identity=fwzd&amp;onelev=wsbs&amp;seclev=bmfw&amp;org_Region=440823&amp;orgCode=007111846">林业局</a></li>
+<li><a title="海洋与渔业局" target="_blank" href="http://sxbs.zjwsbs.gov.cn/portal/ServiceItemInfoAction.action?identity=fwzd&amp;onelev=wsbs&amp;seclev=bmfw&amp;org_Region=440823&amp;orgCode=007111870">海洋与渔业局</a></li>
+<li><a title="安全生产监督管理局" target="_blank" href="http://sxbs.zjwsbs.gov.cn/portal/ServiceItemInfoAction.action?identity=fwzd&amp;onelev=wsbs&amp;seclev=bmfw&amp;org_Region=440823&amp;orgCode=78796956X">安监局</a></li>
+<li><a title="旅游局" target="_blank" href="http://sxbs.zjwsbs.gov.cn/portal/ServiceItemInfoAction.action?identity=fwzd&amp;onelev=wsbs&amp;seclev=bmfw&amp;org_Region=440823&amp;orgCode=789405004">旅游局</a></li>
+<li><a title="法制局" target="_blank" href="http://sxbs.zjwsbs.gov.cn/portal/ServiceItemInfoAction.action?identity=fwzd&amp;onelev=wsbs&amp;seclev=bmfw&amp;org_Region=440823&amp;orgCode=007111942">法制局</a></li>
+<li><a title="食品药品监督管理局" target="_blank" href="http://sxbs.zjwsbs.gov.cn/portal/ServiceItemInfoAction.action?identity=fwzd&amp;onelev=wsbs&amp;seclev=bmfw&amp;org_Region=440823&amp;orgCode=007112187">食品药品监督局</a></li>
+<li><a title="粮食局" target="_blank" href="http://sxbs.zjwsbs.gov.cn/portal/ServiceItemInfoAction.action?identity=fwzd&amp;onelev=wsbs&amp;seclev=bmfw&amp;org_Region=440823&amp;orgCode=007111811">粮食局</a></li>
+<li><a title="地震局" target="_blank" href="http://sxbs.zjwsbs.gov.cn/portal/ServiceItemInfoAction.action?identity=fwzd&amp;onelev=wsbs&amp;seclev=bmfw&amp;org_Region=440823&amp;orgCode=576417511">地震局</a></li>
+<li><a title="残疾人联合会" target="_blank" href="http://sxbs.zjwsbs.gov.cn/portal/ServiceItemInfoAction.action?identity=fwzd&amp;onelev=wsbs&amp;seclev=bmfw&amp;org_Region=440823&amp;orgCode=007112670">残疾人联合会</a></li>
+<li><a title="工商行政管理局" target="_blank" href="http://sxbs.zjwsbs.gov.cn/portal/ServiceItemInfoAction.action?identity=fwzd&amp;onelev=wsbs&amp;seclev=bmfw&amp;org_Region=440823&amp;orgCode=007111803">工商行政管理局</a></li>
+<li><a title="国家税务局" target="_blank" href="http://sxbs.zjwsbs.gov.cn/portal/ServiceItemInfoAction.action?identity=fwzd&amp;onelev=wsbs&amp;seclev=bmfw&amp;org_Region=440823&amp;orgCode=007112443">国家税务局</a></li>
+<li><a title="地方税务局" target="_blank" href="http://sxbs.zjwsbs.gov.cn/portal/ServiceItemInfoAction.action?identity=fwzd&amp;onelev=wsbs&amp;seclev=bmfw&amp;org_Region=440823&amp;orgCode=007112275">地方税务局</a></li>
+<li><a title="质量技术监督局" target="_blank" href="http://sxbs.zjwsbs.gov.cn/portal/ServiceItemInfoAction.action?identity=fwzd&amp;onelev=wsbs&amp;seclev=bmfw&amp;org_Region=440823&amp;orgCode=007111969">质量技术监督局</a></li>
+<li><a title="气象局" target="_blank" href="http://sxbs.zjwsbs.gov.cn/portal/ServiceItemInfoAction.action?identity=fwzd&amp;onelev=wsbs&amp;seclev=bmfw&amp;org_Region=440823&amp;orgCode=456284654">气象局</a></li>
+<li><a title="房产管理局" target="_blank" href="http://sxbs.zjwsbs.gov.cn/portal/ServiceItemInfoAction.action?identity=fwzd&amp;onelev=wsbs&amp;seclev=bmfw&amp;org_Region=440823&amp;orgCode=456285518">房产管理局</a></li>
+<li><a title="公路管理局遂溪分局" target="_blank" href="http://sxbs.zjwsbs.gov.cn/portal/ServiceItemInfoAction.action?identity=fwzd&amp;onelev=wsbs&amp;seclev=bmfw&amp;org_Region=440823&amp;orgCode=007112101">公路管理局</a></li>
+<li><a title="人民防空办公室" target="_blank" href="http://sxbs.zjwsbs.gov.cn/portal/ServiceItemInfoAction.action?identity=fwzd&amp;onelev=wsbs&amp;seclev=bmfw&amp;org_Region=440823&amp;orgCode=775082208">人民防空办公室</a></li>
+<li><a title="农业机械局" target="_blank" href="http://sxbs.zjwsbs.gov.cn/portal/ServiceItemInfoAction.action?identity=fwzd&amp;onelev=wsbs&amp;seclev=bmfw&amp;org_Region=440823&amp;orgCode=007112398">农业机械局</a></li>
+<li><a title="畜牧兽医局" target="_blank" href="http://sxbs.zjwsbs.gov.cn/portal/ServiceItemInfoAction.action?identity=fwzd&amp;onelev=wsbs&amp;seclev=bmfw&amp;org_Region=440823&amp;orgCode=007112048">畜牧兽医局</a></li>
+<li><a title="金融服务办公室" target="_blank" href="http://sxbs.zjwsbs.gov.cn/portal/ServiceItemInfoAction.action?identity=fwzd&amp;onelev=wsbs&amp;seclev=bmfw&amp;org_Region=440823&amp;orgCode=764909855">金融服务办公室</a></li>
+<li><a title="疾病预防控制中心" target="_blank" href="http://sxbs.zjwsbs.gov.cn/portal/ServiceItemInfoAction.action?identity=fwzd&amp;onelev=wsbs&amp;seclev=bmfw&amp;org_Region=440823&amp;orgCode=456284291">疾控中心</a></li>
+<li><a title="遂溪县档案局" target="_blank" href="http://sxbs.zjwsbs.gov.cn/portal/ServiceItemInfoAction.action?identity=fwzd&amp;onelev=wsbs&amp;seclev=bmfw&amp;org_Region=440823&amp;orgCode=007112099">档案局</a></li>
+<li><a title="遂溪县自来水公司" target="_blank" href="http://sxbs.zjwsbs.gov.cn/portal/ServiceItemInfoAction.action?identity=fwzd&amp;onelev=wsbs&amp;seclev=bmfw&amp;org_Region=440823&amp;orgCode=194770475">自来水公司</a></li>
+<li><a title="广东电网遂溪公司" target="_blank" href="http://sxbs.zjwsbs.gov.cn/portal/ServiceItemInfoAction.action?identity=fwzd&amp;onelev=wsbs&amp;seclev=bmfw&amp;org_Region=440823&amp;orgCode=19477023X">广电遂溪公司</a></li>
+<li><a title="遂溪县烟草专卖局" target="_blank" href="http://sxbs.zjwsbs.gov.cn/portal/ServiceItemInfoAction.action?identity=fwzd&amp;onelev=wsbs&amp;seclev=bmfw&amp;org_Region=440823&amp;orgCode=735000319">烟草专卖局</a></li>
+<li><a title="遂溪县银视数字电视有限公司" target="_blank" href="http://sxbs.zjwsbs.gov.cn/portal/ServiceItemInfoAction.action?identity=fwzd&amp;onelev=wsbs&amp;seclev=bmfw&amp;org_Region=440823&amp;orgCode=682443457">银视公司</a></li>
+
+
+                </ul>
+                </div>
+                
+            </div>
+        <!--/bs-->
+    	
+    <!--/iguihua-->
+    </div>
+  
+  
+   
+    <div class="ihudong bor">
+    	<div class="itop">
+        	<a class="itla" >信访热线</a>
+        
+        </div>
+        <div class="idhTabBox TabBox">
+ 
+            <div class="bd">
+        <ul class="list">    	
+      <div class="xtdh_1"><a href="http://www.zhanjiang.gov.cn/_layouts/ApplicationPages/Modules/Rx12345/Index.aspx" target="_blank" ><img src="http://www.suixi.gov.cn/skin/SX_GOV/2015/img/12345.jpg" alt="12345市民热线" border="0" ></a></div>          
+        <div class="xtdh_1"><a href="http://www.suixi.gov.cn/Category_160/Index.aspx" target="_blank" ><img src="http://www.suixi.gov.cn/skin/SX_GOV/2015/img/wsxf1.jpg" alt="网上信访系统" border="0" ></a></div>          
+                
+                    
+           </ul>     
+            </div>
+        </div>
+    <!--/ihudong-->
+  
+  
+  
+    </div>
+  <div style="line-height: 0px;clear: both;"></div>  
+    <div class="h20"></div>
+    <div class="iphotos bor"> <a class="icon" href="/Category_152/Index.aspx"></a>
+      <div class="ip_top"> <a href="/Category_152/Index.aspx" title="在线视听">在线视听</a> <a href="/Category_149/Index.aspx" title="遂溪风光">遂溪风光</a> <a href="/Category_147/Index.aspx" title="城市建设">城市建设</a> </div>
+    
+     
+            <a class="ptop" href="/Item/6639.aspx" target="_blank"><img src="/UploadFiles/tksx/2015/9/201509011021421566_S.jpg" alt="遂溪孔圣山旅游区总体规划第三稿（终稿）" width="374" height="234" border="0"><em></em><b href="/Item/6639.aspx" target="_blank">遂溪孔圣山旅游区总体规划第三稿（终稿）</b></a>
+          
+           
+    <script type="text/javascript" src="HTTP://WWW.SUIXI.GOV.CN/Skin/SX_GOV/2015/zoomimgrollover.js"></script>
+      <script type="text/javascript">$(".iphotos .ptop img").zoomImgRollover();</script>
+      <script type="text/javascript">
+	$(function(){
+		$(".boxgrid").hover(function(){
+			$(".cover", this).stop().animate({top:'80px'},{queue:false,duration:300});
+		}, function() {
+			$(".cover", this).stop().animate({top:'112px'},{queue:false,duration:300});
+		});
+		$(".boxgrid img").zoomImgRollover();
+	});
+      </script>
+      <div class="phover">
+       
+            <div class="boxgrid captionfull"><a href="/Item/7175.aspx" target="_blank"><img src="/UploadFiles/zxsp/2015/12/201512311636017359.JPG" alt="2015年三评三讲《奋进遂溪》第五版" width="206" height="128" border="0"></a><div class="cover boxcaption"><a href="/Item/7175.aspx" target="_blank">2015年三评三讲《奋进遂溪》…</a></div>
+</div>
+<div class="boxgrid captionfull"><a href="/Item/7076.aspx" target="_blank"><img src="/UploadFiles/zxsp/2015/11/201511270853141154.JPG" alt="孔圣山建设情况20151121" width="206" height="128" border="0"></a><div class="cover boxcaption"><a href="/Item/7076.aspx" target="_blank">孔圣山建设情况20151121</a></div>
+</div>
+<div class="boxgrid captionfull"><a href="/Item/6639.aspx" target="_blank"><img src="/UploadFiles/tksx/2015/9/201509011021421566_S.jpg" alt="遂溪孔圣山旅游区总体规划第三稿（终稿）" width="206" height="128" border="0"></a><div class="cover boxcaption"><a href="/Item/6639.aspx" target="_blank">遂溪孔圣山旅游区总体规划第…</a></div>
+</div>
+<div class="boxgrid captionfull"><a href="/Item/6599.aspx" target="_blank"><img src="/UploadFiles/tksx/2015/8/201508211211148175_S.jpg" alt="孔圣山旅游设计方案第二稿" width="206" height="128" border="0"></a><div class="cover boxcaption"><a href="/Item/6599.aspx" target="_blank">孔圣山旅游设计方案第二稿</a></div>
+</div>
+<div class="boxgrid captionfull"><a href="/Item/6570.aspx" target="_blank"><img src="/UploadFiles/tksx/2015/8/201508141352413507_S.jpg" alt="运河育明珠，遂城夜璀璨" width="206" height="128" border="0"></a><div class="cover boxcaption"><a href="/Item/6570.aspx" target="_blank">运河育明珠，遂城夜璀璨</a></div>
+</div>
+<div class="boxgrid captionfull"><a href="/Item/6569.aspx" target="_blank"><img src="/UploadFiles/tksx/2015/8/201508141352323474.jpg" alt="江洪龙舟赛" width="206" height="128" border="0"></a><div class="cover boxcaption"><a href="/Item/6569.aspx" target="_blank">江洪龙舟赛</a></div>
+</div>
+<div class="boxgrid captionfull"><a href="/Item/6568.aspx" target="_blank"><img src="/UploadFiles/tksx/2015/8/201508141352203935_S.jpg" alt="吉祥年" width="206" height="128" border="0"></a><div class="cover boxcaption"><a href="/Item/6568.aspx" target="_blank">吉祥年</a></div>
+</div>
+<div class="boxgrid captionfull"><a href="/Item/6567.aspx" target="_blank"><img src="/UploadFiles/tksx/2015/8/201508141351560110.jpg" alt="采摘火龙果" width="206" height="128" border="0"></a><div class="cover boxcaption"><a href="/Item/6567.aspx" target="_blank">采摘火龙果</a></div>
+</div>
+          
+           
+      <!--/iphotos-->
+    </div>
+    <!--mainer & c-->
+</div>
+
+</div>
+</div>
+
+
+<div style="line-height: 0px;clear: both;"></div>
+<div class="footer">
+<div class="f">
+    <div class="FootCopy">
+ <div class="FootCopy_l">
+      <img id="imgConac" vspace="0" hspace="0" border="0" src="http://www.suixi.gov.cn/skin/sx_gov/2015/img/red.png" data-bd-imgshare-binded="1">
+  </div>
+  <div class="FootCopy_m">
+  <font style="font-size:14px;font-weight:700;">主办单位┃遂溪县人民政府办公室</font><br>
+    CopyRight © 2015  www.suixi.gov.cn All Right Reserved.│<a href="http://www.miitbeian.gov.cn/" target="_blank">粤ICP备05030073号</a><br>
+    通信地址┃遂溪县中山路133号遂溪县人民政府办公室〔524300〕 网站电话┃0759-<font style="font-size:16px;font-weight:bold;">7740141 7749600</font>&nbsp;<br>
+    技术支持&nbsp;<a class="btm_day" href="#" title="遂溪县信息管理办公室" target="_blank">遂溪县信息管理办公室</a>　LOGO背图摄影│<br>
+
+    
+    </div>
+       <div class="FootCopy_r">
+           <SCRIPT id=_jiucuo_ src="http://pucha.kaipuyun.cn/exposure/jiucuo.js" sitecode="4408230001"></SCRIPT>
+        </div>
+   
+
+<!--footer & c-->
+</div>
+</div>
+</div>
+<div id="GoToBox">
+	<a id="GoTo_Gbook" href="http://www.suixi.gov.cn/Government/Letter/Index.aspx" target="_blank"></a>
+	<a id="GoTo_Search" class="DialogBtn" href="javascript:;" target="_self"></a>
+	<a id="GoTo_Top" href="javascript:;" target="_self"></a>
+</div>
+        <script type="text/javascript">
+jQuery(".TabBox").slide({effect:"fade",triggerTime:"0",delayTime:"0"});
+</script>
+</body></html>

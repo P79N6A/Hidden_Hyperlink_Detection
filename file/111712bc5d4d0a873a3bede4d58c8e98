@@ -1,0 +1,3005 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="zh-TW" lang="zh-TW" xmlns:hyweb="urn:gip-hyweb-com" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta charset="utf-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta name="google-site-verification" content="_CbKdovbon9Y9bxpdEfA6AT-gNfj3IoG4cahiEHcFiI"/>
+<link type="image/ico" rel="icon" href="GIPDSD/xslGip/xslExport/1/1/images/basic/favicon.png">
+</link>
+<title>國立臺灣圖書館</title>
+<link rel="stylesheet" href="GIPDSD/xslGip/xslExport/1/1/css/theme.css">
+</link>
+<script type="text/javascript" src="GIPDSD/xslGip/xslExport/1/1/js/fancyBox/jquery.fancybox.js?v=2.1.5">
+</script>
+<link rel="stylesheet" type="text/css" media="screen" href="GIPDSD/xslGip/xslExport/1/1/js/fancyBox/jquery.fancybox.css?v=2.1.5">
+</link>
+<link rel="stylesheet" href="GIPDSD/xslGip/xslExport/1/1/assets/module/slick/slick.css">
+</link>
+<link rel="stylesheet" href="GIPDSD/xslGip/xslExport/1/1/assets/module/slick/slick-theme.css">
+</link>
+<link rel="stylesheet" href="GIPDSD/xslGip/xslExport/1/1/assets/module/fontello/css/fontello.css">
+</link>
+<link rel="stylesheet" href="GIPDSD/xslGip/xslExport/1/1/assets/module/fontello/css/animation.css">
+</link>
+<link rel="stylesheet" href="GIPDSD/xslGip/xslExport/1/1/css/layout.css">
+</link>
+</head>
+<body>
+<script language=VBS>
+function blen(xs)              '檢測中英文夾雜字串實際長度
+  xl = len(xs)
+  for i=1 to len(xs)
+	if asc(mid(xs,i,1))<0 then xl = xl + 1
+  next
+  blen = xl
+end function
+
+function xStdTime(dt)  '轉成民國年及時間  999/99/99 10:00 給資料型態為DateTime 使用
+   if Len(dt)=0 or isnull(dt) then
+   	xStdTime=""
+   else
+   	xyear = right("000"+ cstr((year(dt)-1911)),3)     '補零
+        xmonth = right("00"+ cstr(month(dt)),2)
+        xday = right("00"+ cstr(day(dt)),2)
+        xhour = right("00" + cstr(hour(dt)),2)
+        xminute = right("00" + cstr(minute(dt)),2)
+        xStdTime = xyear & "/" & xmonth & "/" & xday & " " & xhour & ":" & xminute
+   end if
+end function
+
+function d7date(dt)     '轉成民國年  999/99/99 給資料型態為SmallDateTime 使用
+	if Len(dt)=0 or isnull(dt) then
+		d7date=""
+	else
+           xy=right("000"+ cstr((year(dt)-1911)),3)     '補零
+           xm=right("00"+ cstr(month(dt)),2)
+           xd=right("00"+ cstr(day(dt)),2)
+           d7date=xy & "/" & xm & "/" & xd
+           d7date=dt
+        end if
+end function
+
+ function ChkIDX(SID)      '-----身份證字號檢驗
+
+   SID = UCase(SID)
+   X1 = InStr("ABCDEFGHJKLMNPQRSTUVWXYZIO", Left(SID, 1)) + 9
+
+   ' 初步檢查 ID 的合法性
+   If X1 < 10 Then Chk_ID = False: Exit Function
+   If Not IsNumeric(Mid(SID, 2)) Then Chk_ID = False: Exit Function
+   If Len(SID) <> 10 Then Chk_ID = False: Exit Function
+
+   ' 檢查編號之正確性
+   SID = Cstr(X1) + Mid(SID, 2)
+
+   nCheckSum = Cint(Mid(SID, 1, 1))
+   For I = 2 To Len(SID) - 1
+        nCheckSum = nCheckSum + Cint(Mid(SID, I, 1)) * (11 - I)
+   Next
+   nCheckSum = nCheckSum + Cint(Mid(SID, 11, 1))
+
+   ChkID = (nCheckSum Mod 10 = 0)
+end Function
+
+function ChkID(idno)	'-----身份證字號檢驗(新)
+  if len(trim(idno))=0 then exit function
+
+  alpha=UCase(left(idno,1))
+  d1=mid(idno,2,1)
+  d2=mid(idno,3,1)
+  d3=mid(idno,4,1)
+  d4=mid(idno,5,1)
+  d5=mid(idno,6,1)
+  d6=mid(idno,7,1)
+  d7=mid(idno,8,1)
+  d8=mid(idno,9,1)
+  d9=mid(idno,10,1)
+  select case alpha
+    case "A" : acc=1
+    case "B" : acc=10
+    case "C" : acc=19
+    case "D" : acc=28
+    case "E" : acc=37
+    case "F" : acc=46
+    case "G" : acc=55
+    case "H" : acc=64
+    case "I" : acc=39
+    case "J" : acc=73
+    case "K" : acc=82
+    case "L" : acc=2
+    case "M" : acc=11
+    case "N" : acc=20
+    case "O" : acc=48
+    case "P" : acc=29
+    case "Q" : acc=38
+    case "R" : acc=47
+    case "S" : acc=56
+    case "T" : acc=65
+    case "U" : acc=74
+    case "V" : acc=83
+    case "W" : acc=21
+    case "X" : acc=3
+    case "Y" : acc=12
+    case "Z" : acc=30
+  end select
+  on error resume next
+  checksum = acc+8*d1+7*d2+6*d3+5*d4+4*d5+3*d6+2*d7+1*d8+1*d9
+  check1 = Int(checksum/10)
+  check2 = checksum/10
+  check3 = (check2-check1)*10
+  if len(idno)>10 then
+    ChkID=false
+  elseif err.number<>0 then
+    ChkID=false
+  elseif checksum=check1*10 then
+    ChkID=true
+  elseif d9=(10-check3) then
+    ChkID=true
+  else
+    ChkID=false
+  end if
+end function
+function ftpDo(FTPIP,FTPPort,FTPID,FTPPWD,fileAction,FTPfilePath,fileDir,fileTarget,fileSource)	'----FTP機制  2004/7/7
+response.end
+	Set oFtp = CreateObject("FtpCom.FTP")
+	oFtp.Connect FTPIP,FTPPort,FTPID,FTPPWD
+	
+	if left(oFtp.GetMsg,1) = "2" then 
+		if FTPfilePath <> "" then oFtp.Execute("CWD " + FTPfilePath)
+		if fileAction="CreateDir" then oFtp.CreateDir(fileDir)
+		if fileAction="DeleteDir" then oFtp.DeleteDir(fileDir)
+		if fileAction="MoveFile" then oFtp.MoveFile fileTarget,fileSource,1,0
+		if fileAction="DELE" then oFtp.Execute("DELE " + fileTarget)
+		if left(oFtp.GetMsg,1) <> "2" then FTPErrorMSG="  FTP機制出現錯誤,FTP未成功!"
+		oFtp.LogOffServer 
+		set oFtp = nothing
+	else
+		FTPErrorMSG="  FTP機制出現錯誤,FTP未成功!"
+		oFtp.LogOffServer 
+		set oFtp = nothing
+	end if	
+end function
+
+</script>
+
+<section id="Header">
+  <nav class="navbar set-relative" role="navigation">
+    <div class="accesskey hidden-xs"><a href="#" title="header" id="accesskeyU" accesskey="U">:::</a></div>
+    <div class="container">
+      <div class="row">
+        <!--手機收合選單-->
+        <div class="navbar-header set-relative">
+          <button type="button" class="navbar-toggle pull-left" data-toggle="collapse" data-target="#offcanvas-left">
+            <span class="sr-only">Toggle navigation</span><i class="icon-menu"></i>
+          </button>
+          <a class="Logo" href="mp.asp?mp=1" title="國立臺灣圖書館"><img src="GIPDSD/xslGip/xslExport/1/1/images/basic/logo.png" alt="國立臺灣圖書館Logo" title="國立臺灣圖書館Logo" class="img-responsive"></a>
+          <button type="button" class="navbar-toggle pull-right" data-toggle="collapse" data-target="#offcanvas-right">
+            <span class="sr-only">Toggle navigation</span><i class="icon-down-open"></i>
+          </button> 
+        </div>
+
+        <!--其他選單 收合右側-->
+        <div class="collapse navbar-collapse set-relative" id="offcanvas-right" role="navigation">
+          <!--靠右連結-->
+          <div class="pull-sm-right pull-md-right pull-lg-right">
+            <div class="Links-Right">
+              <!--Links-->
+              <div class="Normal-Links">
+                <ul class="nav navbar-nav White">
+                  <li class="active"><a href="sp.asp?xdurl=CuratorMail_RWD/CuratorMail_agree.asp&mp=1&ctNode=1798" title="民意信箱"><i class="icon-mail-alt"></i>民意信箱</a></li>
+                  <li><a href="lp.asp?ctNode=1830&CtUnit=221&BaseDSD=7&mp=1" title="下載專區"><i class="icon-download"></i>下載專區</a></li>  
+                  <li><a href="sitemap.asp?mp=1" title="網站導覽"><i class="icon-sitemap"></i>網站導覽</a></li>
+                  <li><a href="mp.asp?mp=1" title="回首頁"><i class="icon-home"></i>回首頁</a></li>
+                </ul> 
+              </div>
+              <!--language-->
+              <div class="Language">
+                <ul class="nav navbar-nav">
+                  <li class="active"><a href="mp.asp?mp=3" title="日本語">日本語</a></li>
+                  <li><a href="mp.asp?mp=2" title="ENGLISH">ENGLISH</a></li>
+                </ul> 
+              </div>
+              <!--search-->
+
+<script language="JavaScript">
+<!--
+function Checkgoogle()
+{
+	if ((document.search_google.q.value.replace(/(^\s*)|(\s*$)/g, "") == "") || (document.search_google.q.value.replace(/(^\s*)|(\s*$)/g, "") == "站內搜尋")) {
+		alert("請輸入查詢詞!");
+		document.search_google.q.focus();
+		return false;
+	}
+	document.search_google.send.disabled=true;
+	//return confirm('確定查詢嗎?');
+}
+//-->
+</script>
+              <div class="Search pull-sm-right pull-md-right pull-lg-right">
+                <div class="accesskey  hidden-xs"><!--<a href="#" accesskey="S" title="站內搜尋">:::</a>--></div>
+				<form class="navbar-form hidden-xs" role="search" name="search_google" method="post" action="sp.asp?xdurl=MP1AP_RWD/searchList.asp" onSubmit="return Checkgoogle();">
+				  <input type="hidden" name="mp" value="1">
+                  <div class="input-group">
+					<input type="text" class="form-control" accesskey="S" placeholder="站內搜尋" name="q" title="站內搜尋" onfocus="javascript: if(this.value=='站內搜尋') this.value='';" onBlur="javascript: if(this.value=='') this.value='站內搜尋';" value="站內搜尋" />
+                    <span class="input-group-btn">
+                      <button type="submit" class="btn" title="搜尋">
+                        <span class="glyphicon glyphicon-search"></span>
+                      </button>
+                    </span>            
+                  </div>  
+                  <button type="button" class="btn" onclick="window.open('https://www.google.com.tw/advanced_search?hl=zh-TW&as_q=&num=100&as_sitesearch=www.ntl.edu.tw&cof=FORID%3A10&ie=UTF-8&sa=%E6%90%9C%E5%B0%8B&siteurl=www','_blank')" onkeypress="window.open('https://www.google.com.tw/advanced_search?hl=zh-TW&as_q=&num=100&as_sitesearch=www.ntl.edu.tw&cof=FORID%3A10&ie=UTF-8&sa=%E6%90%9C%E5%B0%8B&siteurl=www','_blank')" title="進階搜尋">進階搜尋</button>
+                </form>
+              </div>
+            </div>
+          </div>
+          <!--靠左連結-->
+          <div class="pull-sm-left pull-md-left pull-lg-left">
+            <div class="Links-Left">
+              <!--圖書館營運相關-->
+              <ul class="nav navbar-nav White">
+                <li class="active"><a href="ct.asp?xItem=58536&CtNode=1711&mp=1" title="開館時間"><i class="icon-clock"></i>開館時間</a></li>  
+                <li><a href="ct.asp?xItem=12776&CtNode=1710&mp=1" title="如何到圖書館"><i class="icon-cab"></i>如何到圖書館</a></li>
+              </ul> 
+              <!--字級-->
+              <div class="Word-Class hidden-xs">
+                <span>字級：</span>
+                <a href="#" class="FontLarge" title="大">大</a> 
+                <a href="#" class="FontMidium" title="中">中</a>
+                <a href="#" class="FontSmall" title="小">小</a>
+				<noscript>
+					您的瀏覽器不支援JavaScript功能，若網頁功能無法正常使用時，請開啟瀏覽器JavaScript狀態。
+				</noscript>
+              </div> 
+            </div>
+          </div>
+        </div>
+
+        <!--主選單  收合左側-->
+        <div class="collapse navbar-collapse" id="offcanvas-left" role="navigation">
+          <div class="MainMenu">
+            <ul class="nav navbar-nav">
+
+	<li  class="dropdown">
+
+		<a data-hover="dropdown" data-toggle="dropdown" class="active dropdown-toggle" href="np.asp?ctNode=1651&mp=1" title="認識本館">認識本館<b class="caret"></b></a>
+
+		<ul class="dropdown-menu">
+
+
+				<li>
+
+			<a href="np.asp?ctNode=1659&mp=1" title="本館介紹">本館介紹</a>
+
+				</li>
+
+				<li>
+
+			<a href="np.asp?ctNode=1660&mp=1" title="本館出版品">本館出版品</a>
+
+				</li>
+
+				<li>
+
+			<a href="np.asp?ctNode=1661&CtUnit=247&BaseDSD=7&mp=1" title="創意商品">創意商品</a>
+
+				</li>
+
+				<li>
+
+			<a href="np.asp?ctNode=1663&mp=1" title="志工園地">志工園地</a>
+
+				</li>
+
+				<li>
+
+			<a href="http://www.ntl.edu.tw/mp.asp?mp=5" target="_blank" title="臺灣學研究中心">臺灣學研究中心</a>
+
+				</li>
+
+				<li>
+
+			<a href="http://www.ntl.edu.tw/mp.asp?mp=4" target="_blank" title="親子資料中心">親子資料中心</a>
+
+				</li>
+
+				<li>
+
+			<a href="http://viis.ntl.edu.tw/mp.asp?mp=1" target="_blank" title="視障資料中心">視障資料中心</a>
+
+				</li>
+
+				<li>
+
+			<a href="http://chungshanhall.ntl.edu.tw" target="_blank" title="陽明山中山樓">陽明山中山樓</a>
+
+				</li>
+
+				<li>
+
+			<a href="np.asp?ctNode=1662&mp=1" title="臺灣圖書醫院">臺灣圖書醫院</a>
+
+				</li>
+
+		
+		</ul>
+	</li>
+
+	<li  class="dropdown">
+
+		<a data-hover="dropdown" data-toggle="dropdown" class="active dropdown-toggle" href="np.asp?ctNode=1652&mp=1" title="公布欄">公布欄<b class="caret"></b></a>
+
+		<ul class="dropdown-menu">
+
+
+				<li>
+
+			<a href="np.asp?ctNode=1664&CtUnit=99&BaseDSD=7&mp=1" title="最新消息">最新消息</a>
+
+				</li>
+
+				<li>
+
+			<a href="np.asp?ctNode=1667&CtUnit=104&BaseDSD=7&mp=1" title="新聞稿">新聞稿</a>
+
+				</li>
+
+				<li>
+
+			<a href="np.asp?ctNode=1882&CtUnit=909&BaseDSD=7&mp=1" title="圖書捐贈">圖書捐贈</a>
+
+				</li>
+
+				<li>
+
+			<a href="np.asp?ctNode=1665&CtUnit=102&BaseDSD=7&mp=1" title="徵稿啟事">徵稿啟事</a>
+
+				</li>
+
+				<li>
+
+			<a href="np.asp?ctNode=1668&CtUnit=105&BaseDSD=7&mp=1" title="藝文資訊">藝文資訊</a>
+
+				</li>
+
+				<li>
+
+			<a href="sp.asp?xdurl=Form_RWD/epaper.asp&mp=1&ctNode=1669" title="訂閱電子報">訂閱電子報</a>
+
+				</li>
+
+				<li>
+
+			<a href="np.asp?ctNode=1666&CtUnit=103&BaseDSD=7&mp=1" title="答客問Q&A">答客問Q&A</a>
+
+				</li>
+
+				<li>
+
+			<a href="np.asp?ctNode=2169&CtUnit=932&BaseDSD=58&mp=1" title="遺失物專區">遺失物專區</a>
+
+				</li>
+
+				<li>
+
+			<a href="http://www.ntl.edu.tw/mp.asp?mp=14" target="_blank" title="教育部閱讀推廣與館藏充實實施計畫">教育部閱讀推廣與館藏充實實施計畫</a>
+
+				</li>
+
+		
+		</ul>
+	</li>
+
+	<li  class="dropdown">
+
+		<a data-hover="dropdown" data-toggle="dropdown" class="active dropdown-toggle" href="np.asp?ctNode=1653&mp=1" title="活動訊息">活動訊息<b class="caret"></b></a>
+
+		<ul class="dropdown-menu">
+
+
+				<li>
+
+			<a href="sp.asp?xdurl=MP1AP_RWD/month_action.asp&mp=1&ctNode=1891" title="本月活動一覽表">本月活動一覽表</a>
+
+				</li>
+
+				<li>
+
+			<a href="np.asp?ctNode=1672&CtUnit=109&BaseDSD=57&mp=1" title="展覽">展覽</a>
+
+				</li>
+
+				<li>
+
+			<a href="np.asp?ctNode=1673&CtUnit=110&BaseDSD=59&mp=1" title="講座">講座</a>
+
+				</li>
+
+				<li>
+
+			<a href="np.asp?ctNode=1674&CtUnit=482&BaseDSD=59&mp=1" title="與作家有約">與作家有約</a>
+
+				</li>
+
+				<li>
+
+			<a href="np.asp?ctNode=1676&CtUnit=114&BaseDSD=57&mp=1" title="主題書展">主題書展</a>
+
+				</li>
+
+				<li>
+
+			<a href="np.asp?ctNode=1677&CtUnit=115&BaseDSD=57&mp=1" title="影片欣賞">影片欣賞</a>
+
+				</li>
+
+				<li>
+
+			<a href="np.asp?ctNode=1678&mp=1" title="研習班">研習班</a>
+
+				</li>
+
+				<li>
+
+			<a href="np.asp?ctNode=1861&CtUnit=881&BaseDSD=57&mp=1" title="其他">其他</a>
+
+				</li>
+
+		
+		</ul>
+	</li>
+
+	<li  class="dropdown">
+
+		<a data-hover="dropdown" data-toggle="dropdown" class="active dropdown-toggle" href="np.asp?ctNode=1654&mp=1" title="資源探索">資源探索<b class="caret"></b></a>
+
+		<ul class="dropdown-menu">
+
+
+				<li>
+
+			<a href="np.asp?ctNode=1685&mp=1" title="館藏資源">館藏資源</a>
+
+				</li>
+
+				<li>
+
+			<a href="np.asp?ctNode=1686&mp=1" title="數位資源">數位資源</a>
+
+				</li>
+
+		
+		</ul>
+	</li>
+
+	<li  class="dropdown">
+
+		<a data-hover="dropdown" data-toggle="dropdown" class="active dropdown-toggle" href="np.asp?ctNode=1655&mp=1" title="讀者服務">讀者服務<b class="caret"></b></a>
+
+		<ul class="dropdown-menu">
+
+
+				<li>
+
+			<a href="np.asp?ctNode=1909&mp=1" title="館藏查詢">館藏查詢</a>
+
+				</li>
+
+				<li>
+
+			<a href="np.asp?ctNode=1738&CtUnit=126&BaseDSD=7&mp=1" title="借閱證申請">借閱證申請</a>
+
+				</li>
+
+				<li>
+
+			<a href="np.asp?ctNode=1746&CtUnit=134&BaseDSD=7&mp=1" title="自修排隊及使用須知">自修排隊及使用須知</a>
+
+				</li>
+
+				<li>
+
+			<a href="np.asp?ctNode=1739&mp=1" title="館藏借閱">館藏借閱</a>
+
+				</li>
+
+				<li>
+
+			<a href="np.asp?ctNode=1740&mp=1" title="參考諮詢">參考諮詢</a>
+
+				</li>
+
+				<li>
+
+			<a href="np.asp?ctNode=1741&mp=1" title="網路資源">網路資源</a>
+
+				</li>
+
+				<li>
+
+			<a href="np.asp?ctNode=1742&CtUnit=544&BaseDSD=7&mp=1" title="館際合作(文獻傳遞)">館際合作(文獻傳遞)</a>
+
+				</li>
+
+				<li>
+
+			<a href="np.asp?ctNode=1743&mp=1" title="檔案應用專區">檔案應用專區</a>
+
+				</li>
+
+				<li>
+
+			<a href="np.asp?ctNode=1744&CtUnit=130&BaseDSD=7&mp=1" title="圖書賠償">圖書賠償</a>
+
+				</li>
+
+				<li>
+
+			<a href="https://goo.gl/VoTyqr" target="_blank" title="圖書推薦">圖書推薦</a>
+
+				</li>
+
+				<li>
+
+			<a href="np.asp?ctNode=1747&mp=1" title="無障礙服務專區">無障礙服務專區</a>
+
+				</li>
+
+		
+		</ul>
+	</li>
+
+	<li  class="dropdown">
+
+		<a data-hover="dropdown" data-toggle="dropdown" class="active dropdown-toggle" href="np.asp?ctNode=1656&mp=1" title="我想要…">我想要…<b class="caret"></b></a>
+
+		<ul class="dropdown-menu">
+
+
+				<li>
+
+			<a href="np.asp?ctNode=1896&mp=1" title="申請展覽.攝影.公共服務等">申請展覽.攝影.公共服務等</a>
+
+				</li>
+
+				<li>
+
+			<a href="np.asp?ctNode=1897&CtUnit=906&BaseDSD=7&mp=1" title="尋找遺失物">尋找遺失物</a>
+
+				</li>
+
+				<li>
+
+			<a href="np.asp?ctNode=1899&CtUnit=909&BaseDSD=7&mp=1" title="捐贈圖書">捐贈圖書</a>
+
+				</li>
+
+				<li>
+
+			<a href="http://www.ntl.edu.tw/ct.asp?xItem=7930&ctNode=1783&mp=1" title="使用無線網路">使用無線網路</a>
+
+				</li>
+
+				<li>
+
+			<a href="sp.asp?xdurl=Form_RWD/epaper.asp&mp=1&ctNode=1669" title="訂閱電子報">訂閱電子報</a>
+
+				</li>
+
+				<li>
+
+			<a href="np.asp?ctNode=1902&CtUnit=922&BaseDSD=7&mp=1" title="購買影印卡">購買影印卡</a>
+
+				</li>
+
+				<li>
+
+			<a href="http://www.ntl.edu.tw/ct.asp?xItem=8031&CtNode=1143&mp=4" title="使用哺乳室">使用哺乳室</a>
+
+				</li>
+
+				<li>
+
+			<a href="np.asp?ctNode=1696&CtUnit=635&BaseDSD=7&mp=1" title="使用輕食區">使用輕食區</a>
+
+				</li>
+
+		
+		</ul>
+	</li>
+
+	<li  class="dropdown">
+
+		<a data-hover="dropdown" data-toggle="dropdown" class="active dropdown-toggle" href="np.asp?ctNode=1657&mp=1" title="分齡分眾">分齡分眾<b class="caret"></b></a>
+
+		<ul class="dropdown-menu">
+
+
+				<li>
+
+			<a href="http://www.ntl.edu.tw/mp.asp?mp=4" target="_blank" title="親子服務">親子服務</a>
+
+				</li>
+
+				<li>
+
+			<a href="np.asp?ctNode=1697&CtUnit=249&BaseDSD=7&mp=1" title="樂齡服務">樂齡服務</a>
+
+				</li>
+
+				<li>
+
+			<a href="np.asp?ctNode=1699&CtUnit=698&BaseDSD=7&mp=1" title="青少年服務">青少年服務</a>
+
+				</li>
+
+				<li>
+
+			<a href="http://viis.ntl.edu.tw/mp.asp?mp=1" target="_blank" title="視障服務">視障服務</a>
+
+				</li>
+
+				<li>
+
+			<a href="np.asp?ctNode=1698&CtUnit=618&BaseDSD=7&mp=1" title="新住民服務">新住民服務</a>
+
+				</li>
+
+				<li>
+
+			<a href="http://www.ntl.edu.tw/mp.asp?mp=5" target="_blank" title="臺灣學服務">臺灣學服務</a>
+
+				</li>
+
+		
+		</ul>
+	</li>
+
+	<li  class="dropdown">
+
+		<a data-hover="dropdown" data-toggle="dropdown" class="active dropdown-toggle" href="np.asp?ctNode=1658&mp=1" title="政府公開資訊">政府公開資訊<b class="caret"></b></a>
+
+		<ul class="dropdown-menu">
+
+
+				<li>
+
+			<a href="np.asp?ctNode=1783&CtUnit=125&BaseDSD=7&mp=1" title="法令規章">法令規章</a>
+
+				</li>
+
+				<li>
+
+			<a href="np.asp?ctNode=1784&mp=1" title="認識本館">認識本館</a>
+
+				</li>
+
+				<li>
+
+			<a href="np.asp?ctNode=1785&CtUnit=177&BaseDSD=7&mp=1" title="服務品質計畫">服務品質計畫</a>
+
+				</li>
+
+				<li>
+
+			<a href="np.asp?ctNode=1786&mp=1" title="業務統計">業務統計</a>
+
+				</li>
+
+				<li>
+
+			<a href="np.asp?ctNode=1787&CtUnit=179&BaseDSD=7&mp=1" title="研究報告">研究報告</a>
+
+				</li>
+
+				<li>
+
+			<a href="np.asp?ctNode=1788&mp=1" title="預算、決算書及會計月報">預算、決算書及會計月報</a>
+
+				</li>
+
+				<li>
+
+			<a href="np.asp?ctNode=1789&CtUnit=181&BaseDSD=7&mp=1" title="請願及訴願">請願及訴願</a>
+
+				</li>
+
+				<li>
+
+			<a href="np.asp?ctNode=1790&CtUnit=182&BaseDSD=7&mp=1" title="書面之公共工程及採購契約">書面之公共工程及採購契約</a>
+
+				</li>
+
+				<li>
+
+			<a href="np.asp?ctNode=1791&CtUnit=269&BaseDSD=7&mp=1" title="支付或接受之補助">支付或接受之補助</a>
+
+				</li>
+
+				<li>
+
+			<a href="np.asp?ctNode=1792&mp=1" title="政策宣導相關廣告執行情形">政策宣導相關廣告執行情形</a>
+
+				</li>
+
+				<li>
+
+			<a href="np.asp?ctNode=1793&CtUnit=688&BaseDSD=7&mp=1" title="保有及管理個人資料項目">保有及管理個人資料項目</a>
+
+				</li>
+
+				<li>
+
+			<a href="np.asp?ctNode=2171&mp=1" title="因公出國">因公出國</a>
+
+				</li>
+
+				<li>
+
+			<a href="np.asp?ctNode=2172&mp=1" title="內部控制及內部稽核">內部控制及內部稽核</a>
+
+				</li>
+
+				<li>
+
+			<a href="np.asp?ctNode=2252&CtUnit=964&BaseDSD=7&mp=1" title="讀者滿意度調查報告">讀者滿意度調查報告</a>
+
+				</li>
+
+		
+		</ul>
+	</li>
+ 
+            </ul>
+          </div>              
+        </div>  
+      </div> 
+
+    </div>
+  </nav> 
+</section>
+
+<script language=VBS>
+function blen(xs)              '檢測中英文夾雜字串實際長度
+  xl = len(xs)
+  for i=1 to len(xs)
+	if asc(mid(xs,i,1))<0 then xl = xl + 1
+  next
+  blen = xl
+end function
+
+function xStdTime(dt)  '轉成民國年及時間  999/99/99 10:00 給資料型態為DateTime 使用
+   if Len(dt)=0 or isnull(dt) then
+   	xStdTime=""
+   else
+   	xyear = right("000"+ cstr((year(dt)-1911)),3)     '補零
+        xmonth = right("00"+ cstr(month(dt)),2)
+        xday = right("00"+ cstr(day(dt)),2)
+        xhour = right("00" + cstr(hour(dt)),2)
+        xminute = right("00" + cstr(minute(dt)),2)
+        xStdTime = xyear & "/" & xmonth & "/" & xday & " " & xhour & ":" & xminute
+   end if
+end function
+
+function d7date(dt)     '轉成民國年  999/99/99 給資料型態為SmallDateTime 使用
+	if Len(dt)=0 or isnull(dt) then
+		d7date=""
+	else
+           xy=right("000"+ cstr((year(dt)-1911)),3)     '補零
+           xm=right("00"+ cstr(month(dt)),2)
+           xd=right("00"+ cstr(day(dt)),2)
+           d7date=xy & "/" & xm & "/" & xd
+           d7date=dt
+        end if
+end function
+
+ function ChkIDX(SID)      '-----身份證字號檢驗
+
+   SID = UCase(SID)
+   X1 = InStr("ABCDEFGHJKLMNPQRSTUVWXYZIO", Left(SID, 1)) + 9
+
+   ' 初步檢查 ID 的合法性
+   If X1 < 10 Then Chk_ID = False: Exit Function
+   If Not IsNumeric(Mid(SID, 2)) Then Chk_ID = False: Exit Function
+   If Len(SID) <> 10 Then Chk_ID = False: Exit Function
+
+   ' 檢查編號之正確性
+   SID = Cstr(X1) + Mid(SID, 2)
+
+   nCheckSum = Cint(Mid(SID, 1, 1))
+   For I = 2 To Len(SID) - 1
+        nCheckSum = nCheckSum + Cint(Mid(SID, I, 1)) * (11 - I)
+   Next
+   nCheckSum = nCheckSum + Cint(Mid(SID, 11, 1))
+
+   ChkID = (nCheckSum Mod 10 = 0)
+end Function
+
+function ChkID(idno)	'-----身份證字號檢驗(新)
+  if len(trim(idno))=0 then exit function
+
+  alpha=UCase(left(idno,1))
+  d1=mid(idno,2,1)
+  d2=mid(idno,3,1)
+  d3=mid(idno,4,1)
+  d4=mid(idno,5,1)
+  d5=mid(idno,6,1)
+  d6=mid(idno,7,1)
+  d7=mid(idno,8,1)
+  d8=mid(idno,9,1)
+  d9=mid(idno,10,1)
+  select case alpha
+    case "A" : acc=1
+    case "B" : acc=10
+    case "C" : acc=19
+    case "D" : acc=28
+    case "E" : acc=37
+    case "F" : acc=46
+    case "G" : acc=55
+    case "H" : acc=64
+    case "I" : acc=39
+    case "J" : acc=73
+    case "K" : acc=82
+    case "L" : acc=2
+    case "M" : acc=11
+    case "N" : acc=20
+    case "O" : acc=48
+    case "P" : acc=29
+    case "Q" : acc=38
+    case "R" : acc=47
+    case "S" : acc=56
+    case "T" : acc=65
+    case "U" : acc=74
+    case "V" : acc=83
+    case "W" : acc=21
+    case "X" : acc=3
+    case "Y" : acc=12
+    case "Z" : acc=30
+  end select
+  on error resume next
+  checksum = acc+8*d1+7*d2+6*d3+5*d4+4*d5+3*d6+2*d7+1*d8+1*d9
+  check1 = Int(checksum/10)
+  check2 = checksum/10
+  check3 = (check2-check1)*10
+  if len(idno)>10 then
+    ChkID=false
+  elseif err.number<>0 then
+    ChkID=false
+  elseif checksum=check1*10 then
+    ChkID=true
+  elseif d9=(10-check3) then
+    ChkID=true
+  else
+    ChkID=false
+  end if
+end function
+function ftpDo(FTPIP,FTPPort,FTPID,FTPPWD,fileAction,FTPfilePath,fileDir,fileTarget,fileSource)	'----FTP機制  2004/7/7
+response.end
+	Set oFtp = CreateObject("FtpCom.FTP")
+	oFtp.Connect FTPIP,FTPPort,FTPID,FTPPWD
+	
+	if left(oFtp.GetMsg,1) = "2" then 
+		if FTPfilePath <> "" then oFtp.Execute("CWD " + FTPfilePath)
+		if fileAction="CreateDir" then oFtp.CreateDir(fileDir)
+		if fileAction="DeleteDir" then oFtp.DeleteDir(fileDir)
+		if fileAction="MoveFile" then oFtp.MoveFile fileTarget,fileSource,1,0
+		if fileAction="DELE" then oFtp.Execute("DELE " + fileTarget)
+		if left(oFtp.GetMsg,1) <> "2" then FTPErrorMSG="  FTP機制出現錯誤,FTP未成功!"
+		oFtp.LogOffServer 
+		set oFtp = nothing
+	else
+		FTPErrorMSG="  FTP機制出現錯誤,FTP未成功!"
+		oFtp.LogOffServer 
+		set oFtp = nothing
+	end if	
+end function
+
+</script>
+
+<div>
+	<noscript>
+		<style>
+			.sliderSingleHidden{display: none;} 
+			noscript a{ color:blue; text-decoration: underline; }
+			noscript a:hover,noscript a:focus{ color:red; text-decoration: none; }
+			noscript p{ text-align: center; }
+		</style>
+		<p>若您的瀏覽器無法支援請點選此<a href="np.asp?ctNode=1828&mp=1" title="輪播圖" alt="輪播圖">輪播圖</a></p>
+	</noscript>
+	
+<section class="IndexSlide">
+
+	<div class="pic"><a href="http://www.ntl.edu.tw/"  title="106年金雞報喜1" ><img src="public/data/712614445171.jpg"  alt="106年金雞報喜1"  class="img-responsive"></a></div>
+
+	<div class="sliderSingleHidden pic"><a href="ct.asp?xItem=61120&ctNode=1828&mp=1"  title="106年金雞報喜2" ><img src="public/data/712615224771.jpg"  alt="106年金雞報喜2"  class="img-responsive"></a></div>
+
+	<div class="sliderSingleHidden pic"><a href="http://www.ntl.edu.tw/ct.asp?xItem=61089&ctNode=1664&mp=1"  title="國立社教館所106年度寒假活動" ><img src="public/data/712417245071.jpg"  alt="國立社教館所106年度寒假活動"  class="img-responsive"></a></div>
+
+	<div class="sliderSingleHidden pic"><a href="https://goo.gl/CrTCEf" target="_blank" title="第七屆國際華文暨教育盃電子書創作大賽(另開視窗)" ><img src="public/data/61181504571.jpg" alt="第七屆國際華文暨教育盃電子書創作大賽(另開視窗)"  class="img-responsive"></a></div>
+
+	<div class="sliderSingleHidden pic"><a href="http://familyreading.ntl.edu.tw/FamilyHappiness/" target="_blank" title="幸福家庭樂書香(另開視窗)" ><img src="public/data/65201482871.jpg" alt="幸福家庭樂書香(另開視窗)"  class="img-responsive"></a></div>
+
+	<div class="sliderSingleHidden pic"><a href="http://ntlstory.ntl.edu.tw/" target="_blank" title="臺灣圖書館的故事(另開視窗)" ><img src="public/data/6341782671.jpg" alt="臺灣圖書館的故事(另開視窗)"  class="img-responsive"></a></div>
+
+	<div class="sliderSingleHidden pic"><a href="http://www.ntl.edu.tw/mp.asp?mp=14" target="_blank" title="閱讀推廣與館藏充實計畫(另開視窗)" ><img src="public/data/62181040571.jpg" alt="閱讀推廣與館藏充實計畫(另開視窗)"  class="img-responsive"></a></div>
+
+</section>
+</div><section id="MainContent" class="Index">
+<script language=VBS>
+function blen(xs)              '檢測中英文夾雜字串實際長度
+  xl = len(xs)
+  for i=1 to len(xs)
+	if asc(mid(xs,i,1))<0 then xl = xl + 1
+  next
+  blen = xl
+end function
+
+function xStdTime(dt)  '轉成民國年及時間  999/99/99 10:00 給資料型態為DateTime 使用
+   if Len(dt)=0 or isnull(dt) then
+   	xStdTime=""
+   else
+   	xyear = right("000"+ cstr((year(dt)-1911)),3)     '補零
+        xmonth = right("00"+ cstr(month(dt)),2)
+        xday = right("00"+ cstr(day(dt)),2)
+        xhour = right("00" + cstr(hour(dt)),2)
+        xminute = right("00" + cstr(minute(dt)),2)
+        xStdTime = xyear & "/" & xmonth & "/" & xday & " " & xhour & ":" & xminute
+   end if
+end function
+
+function d7date(dt)     '轉成民國年  999/99/99 給資料型態為SmallDateTime 使用
+	if Len(dt)=0 or isnull(dt) then
+		d7date=""
+	else
+           xy=right("000"+ cstr((year(dt)-1911)),3)     '補零
+           xm=right("00"+ cstr(month(dt)),2)
+           xd=right("00"+ cstr(day(dt)),2)
+           d7date=xy & "/" & xm & "/" & xd
+           d7date=dt
+        end if
+end function
+
+ function ChkIDX(SID)      '-----身份證字號檢驗
+
+   SID = UCase(SID)
+   X1 = InStr("ABCDEFGHJKLMNPQRSTUVWXYZIO", Left(SID, 1)) + 9
+
+   ' 初步檢查 ID 的合法性
+   If X1 < 10 Then Chk_ID = False: Exit Function
+   If Not IsNumeric(Mid(SID, 2)) Then Chk_ID = False: Exit Function
+   If Len(SID) <> 10 Then Chk_ID = False: Exit Function
+
+   ' 檢查編號之正確性
+   SID = Cstr(X1) + Mid(SID, 2)
+
+   nCheckSum = Cint(Mid(SID, 1, 1))
+   For I = 2 To Len(SID) - 1
+        nCheckSum = nCheckSum + Cint(Mid(SID, I, 1)) * (11 - I)
+   Next
+   nCheckSum = nCheckSum + Cint(Mid(SID, 11, 1))
+
+   ChkID = (nCheckSum Mod 10 = 0)
+end Function
+
+function ChkID(idno)	'-----身份證字號檢驗(新)
+  if len(trim(idno))=0 then exit function
+
+  alpha=UCase(left(idno,1))
+  d1=mid(idno,2,1)
+  d2=mid(idno,3,1)
+  d3=mid(idno,4,1)
+  d4=mid(idno,5,1)
+  d5=mid(idno,6,1)
+  d6=mid(idno,7,1)
+  d7=mid(idno,8,1)
+  d8=mid(idno,9,1)
+  d9=mid(idno,10,1)
+  select case alpha
+    case "A" : acc=1
+    case "B" : acc=10
+    case "C" : acc=19
+    case "D" : acc=28
+    case "E" : acc=37
+    case "F" : acc=46
+    case "G" : acc=55
+    case "H" : acc=64
+    case "I" : acc=39
+    case "J" : acc=73
+    case "K" : acc=82
+    case "L" : acc=2
+    case "M" : acc=11
+    case "N" : acc=20
+    case "O" : acc=48
+    case "P" : acc=29
+    case "Q" : acc=38
+    case "R" : acc=47
+    case "S" : acc=56
+    case "T" : acc=65
+    case "U" : acc=74
+    case "V" : acc=83
+    case "W" : acc=21
+    case "X" : acc=3
+    case "Y" : acc=12
+    case "Z" : acc=30
+  end select
+  on error resume next
+  checksum = acc+8*d1+7*d2+6*d3+5*d4+4*d5+3*d6+2*d7+1*d8+1*d9
+  check1 = Int(checksum/10)
+  check2 = checksum/10
+  check3 = (check2-check1)*10
+  if len(idno)>10 then
+    ChkID=false
+  elseif err.number<>0 then
+    ChkID=false
+  elseif checksum=check1*10 then
+    ChkID=true
+  elseif d9=(10-check3) then
+    ChkID=true
+  else
+    ChkID=false
+  end if
+end function
+function ftpDo(FTPIP,FTPPort,FTPID,FTPPWD,fileAction,FTPfilePath,fileDir,fileTarget,fileSource)	'----FTP機制  2004/7/7
+response.end
+	Set oFtp = CreateObject("FtpCom.FTP")
+	oFtp.Connect FTPIP,FTPPort,FTPID,FTPPWD
+	
+	if left(oFtp.GetMsg,1) = "2" then 
+		if FTPfilePath <> "" then oFtp.Execute("CWD " + FTPfilePath)
+		if fileAction="CreateDir" then oFtp.CreateDir(fileDir)
+		if fileAction="DeleteDir" then oFtp.DeleteDir(fileDir)
+		if fileAction="MoveFile" then oFtp.MoveFile fileTarget,fileSource,1,0
+		if fileAction="DELE" then oFtp.Execute("DELE " + fileTarget)
+		if left(oFtp.GetMsg,1) <> "2" then FTPErrorMSG="  FTP機制出現錯誤,FTP未成功!"
+		oFtp.LogOffServer 
+		set oFtp = nothing
+	else
+		FTPErrorMSG="  FTP機制出現錯誤,FTP未成功!"
+		oFtp.LogOffServer 
+		set oFtp = nothing
+	end if	
+end function
+
+</script>
+
+		<div class="Block0">
+			<div class="container">
+				<div class="row">
+					<div class="col-sm-12 col-md-12 col-lg-8 col-md-offset-2">
+						<div class="MainLink">
+							<ul>
+								<li><a href="http://cis.ntl.edu.tw/" target="_blank" title="館藏查詢(另開新視窗)">館藏查詢<b class="caret"></b></a></li>
+								<li><a href="ct.asp?xItem=1501&CtNode=1738&mp=1" title="借閱證申請">借閱證申請<b class="caret"></b></a></li>
+								<li><a href="http://cis.ntl.edu.tw/F?func=file&file_name=net-bor-new" target="_blank" title="網路辦證(另開新視窗)">網路辦證<b class="caret"></b></a></li>
+								<li><a href="http://cis.ntl.edu.tw/F/?func=file&file_name=login-session" target="_blank" title="個人借閱(另開新視窗)">個人借閱<b class="caret"></b></a></li>
+							</ul>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+<script language=VBS>
+function blen(xs)              '檢測中英文夾雜字串實際長度
+  xl = len(xs)
+  for i=1 to len(xs)
+	if asc(mid(xs,i,1))<0 then xl = xl + 1
+  next
+  blen = xl
+end function
+
+function xStdTime(dt)  '轉成民國年及時間  999/99/99 10:00 給資料型態為DateTime 使用
+   if Len(dt)=0 or isnull(dt) then
+   	xStdTime=""
+   else
+   	xyear = right("000"+ cstr((year(dt)-1911)),3)     '補零
+        xmonth = right("00"+ cstr(month(dt)),2)
+        xday = right("00"+ cstr(day(dt)),2)
+        xhour = right("00" + cstr(hour(dt)),2)
+        xminute = right("00" + cstr(minute(dt)),2)
+        xStdTime = xyear & "/" & xmonth & "/" & xday & " " & xhour & ":" & xminute
+   end if
+end function
+
+function d7date(dt)     '轉成民國年  999/99/99 給資料型態為SmallDateTime 使用
+	if Len(dt)=0 or isnull(dt) then
+		d7date=""
+	else
+           xy=right("000"+ cstr((year(dt)-1911)),3)     '補零
+           xm=right("00"+ cstr(month(dt)),2)
+           xd=right("00"+ cstr(day(dt)),2)
+           d7date=xy & "/" & xm & "/" & xd
+           d7date=dt
+        end if
+end function
+
+ function ChkIDX(SID)      '-----身份證字號檢驗
+
+   SID = UCase(SID)
+   X1 = InStr("ABCDEFGHJKLMNPQRSTUVWXYZIO", Left(SID, 1)) + 9
+
+   ' 初步檢查 ID 的合法性
+   If X1 < 10 Then Chk_ID = False: Exit Function
+   If Not IsNumeric(Mid(SID, 2)) Then Chk_ID = False: Exit Function
+   If Len(SID) <> 10 Then Chk_ID = False: Exit Function
+
+   ' 檢查編號之正確性
+   SID = Cstr(X1) + Mid(SID, 2)
+
+   nCheckSum = Cint(Mid(SID, 1, 1))
+   For I = 2 To Len(SID) - 1
+        nCheckSum = nCheckSum + Cint(Mid(SID, I, 1)) * (11 - I)
+   Next
+   nCheckSum = nCheckSum + Cint(Mid(SID, 11, 1))
+
+   ChkID = (nCheckSum Mod 10 = 0)
+end Function
+
+function ChkID(idno)	'-----身份證字號檢驗(新)
+  if len(trim(idno))=0 then exit function
+
+  alpha=UCase(left(idno,1))
+  d1=mid(idno,2,1)
+  d2=mid(idno,3,1)
+  d3=mid(idno,4,1)
+  d4=mid(idno,5,1)
+  d5=mid(idno,6,1)
+  d6=mid(idno,7,1)
+  d7=mid(idno,8,1)
+  d8=mid(idno,9,1)
+  d9=mid(idno,10,1)
+  select case alpha
+    case "A" : acc=1
+    case "B" : acc=10
+    case "C" : acc=19
+    case "D" : acc=28
+    case "E" : acc=37
+    case "F" : acc=46
+    case "G" : acc=55
+    case "H" : acc=64
+    case "I" : acc=39
+    case "J" : acc=73
+    case "K" : acc=82
+    case "L" : acc=2
+    case "M" : acc=11
+    case "N" : acc=20
+    case "O" : acc=48
+    case "P" : acc=29
+    case "Q" : acc=38
+    case "R" : acc=47
+    case "S" : acc=56
+    case "T" : acc=65
+    case "U" : acc=74
+    case "V" : acc=83
+    case "W" : acc=21
+    case "X" : acc=3
+    case "Y" : acc=12
+    case "Z" : acc=30
+  end select
+  on error resume next
+  checksum = acc+8*d1+7*d2+6*d3+5*d4+4*d5+3*d6+2*d7+1*d8+1*d9
+  check1 = Int(checksum/10)
+  check2 = checksum/10
+  check3 = (check2-check1)*10
+  if len(idno)>10 then
+    ChkID=false
+  elseif err.number<>0 then
+    ChkID=false
+  elseif checksum=check1*10 then
+    ChkID=true
+  elseif d9=(10-check3) then
+    ChkID=true
+  else
+    ChkID=false
+  end if
+end function
+function ftpDo(FTPIP,FTPPort,FTPID,FTPPWD,fileAction,FTPfilePath,fileDir,fileTarget,fileSource)	'----FTP機制  2004/7/7
+response.end
+	Set oFtp = CreateObject("FtpCom.FTP")
+	oFtp.Connect FTPIP,FTPPort,FTPID,FTPPWD
+	
+	if left(oFtp.GetMsg,1) = "2" then 
+		if FTPfilePath <> "" then oFtp.Execute("CWD " + FTPfilePath)
+		if fileAction="CreateDir" then oFtp.CreateDir(fileDir)
+		if fileAction="DeleteDir" then oFtp.DeleteDir(fileDir)
+		if fileAction="MoveFile" then oFtp.MoveFile fileTarget,fileSource,1,0
+		if fileAction="DELE" then oFtp.Execute("DELE " + fileTarget)
+		if left(oFtp.GetMsg,1) <> "2" then FTPErrorMSG="  FTP機制出現錯誤,FTP未成功!"
+		oFtp.LogOffServer 
+		set oFtp = nothing
+	else
+		FTPErrorMSG="  FTP機制出現錯誤,FTP未成功!"
+		oFtp.LogOffServer 
+		set oFtp = nothing
+	end if	
+end function
+
+</script>
+
+		<div class="Block1">
+			<div class="container">
+				<div class="row">
+					<div class="accesskey hidden-xs"><a href="#" accesskey="C" title="中央內容區塊">:::</a></div>
+					<div class="col-sm-6 col-md-3 col-lg-3">
+						<!-- NEWS -->
+						<h2 class="Contenttitle">最新消息</h2>
+						<div class="NewsList">
+					        <ul>
+
+								<li>
+									<h5 class="MetaTime">2017/2/17</h5>
+									<a href="ct.asp?xItem=60728&ctNode=1664&mp=1"  title="【徵才】本館參考組甄選編輯(薦任第7職等)1名" >【徵才】本館參考組甄選編輯(薦任第7職等)1名</a>
+								</li>
+
+								<li>
+									<h5 class="MetaTime">2017/2/17</h5>
+									<a href="ct.asp?xItem=61228&ctNode=1664&mp=1"  title="公告本館停車場106年度汽車月租停車位抽籤日期及作業辦法" >公告本館停車場106年度汽車月租停車位抽籤日期及作業辦法</a>
+								</li>
+
+								<li>
+									<h5 class="MetaTime">2017/2/9</h5>
+									<a href="ct.asp?xItem=61160&ctNode=1664&mp=1"  title="2017花漫中山樓 歡迎大家蒞臨！" >2017花漫中山樓 歡迎大家蒞臨！</a>
+								</li>
+
+								<li>
+									<h5 class="MetaTime">2017/2/8</h5>
+									<a href="ct.asp?xItem=61155&ctNode=1664&mp=1"  title="預告修正「國立臺灣圖書館陽明山中山樓參觀門票收費標  準」第二條、第三條、第四條草案" >預告修正「國立臺灣圖書館陽明山中山樓參觀門票收費標  準」第二條、第三條、第四條草案</a>
+								</li>
+
+								<li>
+									<h5 class="MetaTime">2017/1/25</h5>
+									<a href="ct.asp?xItem=61115&ctNode=1664&mp=1"  title="天天看好書- -105年度讀者外借圖書獎勵名單出爐！" >天天看好書- -105年度讀者外借圖書獎勵名單出爐！</a>
+								</li>
+
+
+							</ul>
+							<div class="More"><a href="sp.asp?xdurl=MP1AP_RWD/newslist.asp&mp=1&ctNode=1664" title="更多最新消息">更多最新消息</a></div>
+						</div>
+					</div>
+					<div class="col-sm-6 col-md-3 col-lg-3">
+						<!-- action -->
+						<h2 class="Contenttitle">活動訊息</h2>
+						<div class="NewsList">
+					        <ul>
+
+								<li>
+									<h5 class="MetaTime">2017/2/25~2017/2/25</h5>
+									<a href="ct.asp?xItem=61014&ctNode=1677&mp=1"  title="106年2月電影聽賞「我的家庭樂章」" >106年2月電影聽賞「我的家庭樂章」</a>
+								</li>
+
+								<li>
+									<h5 class="MetaTime">2017/2/18~2017/2/18</h5>
+									<a href="ct.asp?xItem=60725&ctNode=1674&mp=1"  title="與作家有約02月份《波赫士的魔幻圖書館》" >與作家有約02月份《波赫士的魔幻圖書館》</a>
+								</li>
+
+								<li>
+									<h5 class="MetaTime">2017/2/24~2017/2/24</h5>
+									<a href="ct.asp?xItem=60726&ctNode=1674&mp=1"  title="與作家有約02月份《人間現場:八0年代紀實攝影》" >與作家有約02月份《人間現場:八0年代紀實攝影》</a>
+								</li>
+
+								<li>
+									<h5 class="MetaTime">2017/2/2~2017/3/5</h5>
+									<a href="ct.asp?xItem=61123&ctNode=1676&mp=1"  title="「愛的三重奏」主題書展" >「愛的三重奏」主題書展</a>
+								</li>
+
+								<li>
+									<h5 class="MetaTime">2017/2/2~2017/3/5</h5>
+									<a href="ct.asp?xItem=61124&ctNode=1676&mp=1"  title="「一起去遠方」青少年主題書展" >「一起去遠方」青少年主題書展</a>
+								</li>
+
+							</ul>
+							<div class="More"><a href="np.asp?ctNode=1653&mp=1" title="更多活動訊息">更多活動訊息</a></div>
+						</div>
+					</div>
+					<div class="col-sm-12 col-md-6 col-lg-6">
+						<!-- Hot service -->
+						<h2 class="Contenttitle">熱門服務</h2>
+						<div class="Hot-Service">
+							<ul>
+								<li><a href="http://ireserve.ntl.edu.tw/" target="_blank" title="自修室線上預約(另開新視窗)"><i class="icon-book-2"></i>自修室線上預約</a></li>
+								<li><a href="sp.asp?xdurl=onlinesign_RWD/onlinesign.asp&mp=1" title="活動報名"><i class="icon-pencil"></i>活動報名</a></li>
+								<li><a href="np.asp?ctNode=1686&mp=1" title="數位資源"><i class="icon-globe"></i>數位資源</a></li>
+								<li><a href="http://venues.ntl.edu.tw/" target="_blank" title="場地使用申請"><i class="icon-opentable"></i>場地使用申請</a></li>
+								<li><a href="mp.asp?mp=8" target="_blank" title="線上演講廳(另開新視窗)"><i class="icon-mic"></i>線上演講廳</a></li>
+								<li><a href="sp.asp?xdurl=Form_RWD/Form.asp&xItem=2995&ctNode=1853&mp=1" title="參考諮詢"><i class="icon-info"></i>參考諮詢</a></li>
+								<li><a href="lp.asp?ctNode=1688&CtUnit=236&BaseDSD=58&mp=1" title="新書介紹"><i class="icon-book"></i>新書介紹</a></li>
+								<li><a href="lp.asp?ctNode=1661&CtUnit=247&BaseDSD=7&mp=1" title="創意商品"><i class="icon-gift"></i>創意商品</a></li>
+								<li><a href="np.asp?ctNode=1660&mp=1" title="本館出版品"><i class="icon-book-open"></i>本館出版品</a></li>
+								<li><a href="sp.asp?xdurl=Form_RWD/Form.asp&xItem=7454&ctNode=1693&mp=1" title="參觀圖書館"><i class="icon-glasses"></i>參觀圖書館</a></li>
+								<li><a href="http://chungshanhall.ntl.edu.tw/cht/index.php?code=list&ids=7" target="_blank" title="參觀中山樓(另開新視窗)"><i class="icon-camera"></i>參觀中山樓</a></li>
+								<li><a href="lp.asp?ctNode=1666&CtUnit=103&BaseDSD=7&mp=1" title="答客問Q&A"><i class="icon-question"></i>答客問Q&A</a></li>
+								<!--
+								<li><a href="sp.asp?xdurl=Form_RWD/epaper.asp&mp=1&ctNode=1669" title="電子報訂閱/取消"><i class="icon-doc-text-inv"></i>電子報訂閱/取消</a></li>
+								<li><a href="np.asp?ctNode=1743&mp=1" title="檔案應用專區"><i class="icon-folder-open-empty"></i>檔案應用專區</a></li>
+								<li><a href="http://hyerm.ntl.edu.tw/ntlerm/index.jsp" target="_blank" title="電子資源(另開新視窗)"><i class="icon-globe"></i>電子資源</a></li>
+								<li><a href="http://1pc216.ntl.edu.tw/ntlhyint/index.jsp" target="_blank" title="臺灣學電子資源(另開新視窗)"><i class="icon-graduation-cap"></i>臺灣學電子資源</a></li>
+								-->
+							</ul>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+<script language=VBS>
+function blen(xs)              '檢測中英文夾雜字串實際長度
+  xl = len(xs)
+  for i=1 to len(xs)
+	if asc(mid(xs,i,1))<0 then xl = xl + 1
+  next
+  blen = xl
+end function
+
+function xStdTime(dt)  '轉成民國年及時間  999/99/99 10:00 給資料型態為DateTime 使用
+   if Len(dt)=0 or isnull(dt) then
+   	xStdTime=""
+   else
+   	xyear = right("000"+ cstr((year(dt)-1911)),3)     '補零
+        xmonth = right("00"+ cstr(month(dt)),2)
+        xday = right("00"+ cstr(day(dt)),2)
+        xhour = right("00" + cstr(hour(dt)),2)
+        xminute = right("00" + cstr(minute(dt)),2)
+        xStdTime = xyear & "/" & xmonth & "/" & xday & " " & xhour & ":" & xminute
+   end if
+end function
+
+function d7date(dt)     '轉成民國年  999/99/99 給資料型態為SmallDateTime 使用
+	if Len(dt)=0 or isnull(dt) then
+		d7date=""
+	else
+           xy=right("000"+ cstr((year(dt)-1911)),3)     '補零
+           xm=right("00"+ cstr(month(dt)),2)
+           xd=right("00"+ cstr(day(dt)),2)
+           d7date=xy & "/" & xm & "/" & xd
+           d7date=dt
+        end if
+end function
+
+ function ChkIDX(SID)      '-----身份證字號檢驗
+
+   SID = UCase(SID)
+   X1 = InStr("ABCDEFGHJKLMNPQRSTUVWXYZIO", Left(SID, 1)) + 9
+
+   ' 初步檢查 ID 的合法性
+   If X1 < 10 Then Chk_ID = False: Exit Function
+   If Not IsNumeric(Mid(SID, 2)) Then Chk_ID = False: Exit Function
+   If Len(SID) <> 10 Then Chk_ID = False: Exit Function
+
+   ' 檢查編號之正確性
+   SID = Cstr(X1) + Mid(SID, 2)
+
+   nCheckSum = Cint(Mid(SID, 1, 1))
+   For I = 2 To Len(SID) - 1
+        nCheckSum = nCheckSum + Cint(Mid(SID, I, 1)) * (11 - I)
+   Next
+   nCheckSum = nCheckSum + Cint(Mid(SID, 11, 1))
+
+   ChkID = (nCheckSum Mod 10 = 0)
+end Function
+
+function ChkID(idno)	'-----身份證字號檢驗(新)
+  if len(trim(idno))=0 then exit function
+
+  alpha=UCase(left(idno,1))
+  d1=mid(idno,2,1)
+  d2=mid(idno,3,1)
+  d3=mid(idno,4,1)
+  d4=mid(idno,5,1)
+  d5=mid(idno,6,1)
+  d6=mid(idno,7,1)
+  d7=mid(idno,8,1)
+  d8=mid(idno,9,1)
+  d9=mid(idno,10,1)
+  select case alpha
+    case "A" : acc=1
+    case "B" : acc=10
+    case "C" : acc=19
+    case "D" : acc=28
+    case "E" : acc=37
+    case "F" : acc=46
+    case "G" : acc=55
+    case "H" : acc=64
+    case "I" : acc=39
+    case "J" : acc=73
+    case "K" : acc=82
+    case "L" : acc=2
+    case "M" : acc=11
+    case "N" : acc=20
+    case "O" : acc=48
+    case "P" : acc=29
+    case "Q" : acc=38
+    case "R" : acc=47
+    case "S" : acc=56
+    case "T" : acc=65
+    case "U" : acc=74
+    case "V" : acc=83
+    case "W" : acc=21
+    case "X" : acc=3
+    case "Y" : acc=12
+    case "Z" : acc=30
+  end select
+  on error resume next
+  checksum = acc+8*d1+7*d2+6*d3+5*d4+4*d5+3*d6+2*d7+1*d8+1*d9
+  check1 = Int(checksum/10)
+  check2 = checksum/10
+  check3 = (check2-check1)*10
+  if len(idno)>10 then
+    ChkID=false
+  elseif err.number<>0 then
+    ChkID=false
+  elseif checksum=check1*10 then
+    ChkID=true
+  elseif d9=(10-check3) then
+    ChkID=true
+  else
+    ChkID=false
+  end if
+end function
+function ftpDo(FTPIP,FTPPort,FTPID,FTPPWD,fileAction,FTPfilePath,fileDir,fileTarget,fileSource)	'----FTP機制  2004/7/7
+response.end
+	Set oFtp = CreateObject("FtpCom.FTP")
+	oFtp.Connect FTPIP,FTPPort,FTPID,FTPPWD
+	
+	if left(oFtp.GetMsg,1) = "2" then 
+		if FTPfilePath <> "" then oFtp.Execute("CWD " + FTPfilePath)
+		if fileAction="CreateDir" then oFtp.CreateDir(fileDir)
+		if fileAction="DeleteDir" then oFtp.DeleteDir(fileDir)
+		if fileAction="MoveFile" then oFtp.MoveFile fileTarget,fileSource,1,0
+		if fileAction="DELE" then oFtp.Execute("DELE " + fileTarget)
+		if left(oFtp.GetMsg,1) <> "2" then FTPErrorMSG="  FTP機制出現錯誤,FTP未成功!"
+		oFtp.LogOffServer 
+		set oFtp = nothing
+	else
+		FTPErrorMSG="  FTP機制出現錯誤,FTP未成功!"
+		oFtp.LogOffServer 
+		set oFtp = nothing
+	end if	
+end function
+
+</script>
+
+		<div class="Block2">
+			<div class="container">
+				<div class="row">
+					<h2 class="Contenttitle">社群互動</h2>
+					<div class="col-sm-12 col-md-12 col-lg-10 col-md-offset-1">
+						<div class="Social">
+							<div class="Items Blue col-sm-2 col-md-2 col-lg-2">
+								<a href="https://www.facebook.com/pages/%E5%9C%8B%E7%AB%8B%E8%87%BA%E7%81%A3%E5%9C%96%E6%9B%B8%E9%A4%A8/873109812704792" target="_blank" title="臺圖(另開新視窗)"><span class="FB"></span><p>臺圖</p></a>
+							</div>
+							<div class="Items Blue col-sm-2 col-md-2 col-lg-2">
+								<a href="https://www.facebook.com/陽明山中山樓-170430539771710/" target="_blank" title="中山樓(另開新視窗)"><span class="FB-ZongShang"></span><p>中山樓</p></a>
+							</div>
+							<div class="Items Red col-sm-2 col-md-2 col-lg-2">
+								<a href="lp.asp?CtNode=1858&CtUnit=874&BaseDSD=7&mp=1" title="Youtube"><span class="Youtube"></span><p>Youtube</p></a>
+							</div>
+							<div class="Items LightBlue col-sm-2 col-md-2 col-lg-2">
+								<a href="lp.asp?CtNode=1859&CtUnit=871&BaseDSD=7&mp=1" title="APP"><span class="APP"></span><p>APP</p></a>
+							</div>
+							<div class="Items Orange col-sm-2 col-md-2 col-lg-2">
+								<a href="lp.asp?ctNode=1667&CtUnit=104&BaseDSD=7&mp=1" title="新聞稿"><span class="Papers"></span><p>新聞稿</p></a>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+<script language=VBS>
+function blen(xs)              '檢測中英文夾雜字串實際長度
+  xl = len(xs)
+  for i=1 to len(xs)
+	if asc(mid(xs,i,1))<0 then xl = xl + 1
+  next
+  blen = xl
+end function
+
+function xStdTime(dt)  '轉成民國年及時間  999/99/99 10:00 給資料型態為DateTime 使用
+   if Len(dt)=0 or isnull(dt) then
+   	xStdTime=""
+   else
+   	xyear = right("000"+ cstr((year(dt)-1911)),3)     '補零
+        xmonth = right("00"+ cstr(month(dt)),2)
+        xday = right("00"+ cstr(day(dt)),2)
+        xhour = right("00" + cstr(hour(dt)),2)
+        xminute = right("00" + cstr(minute(dt)),2)
+        xStdTime = xyear & "/" & xmonth & "/" & xday & " " & xhour & ":" & xminute
+   end if
+end function
+
+function d7date(dt)     '轉成民國年  999/99/99 給資料型態為SmallDateTime 使用
+	if Len(dt)=0 or isnull(dt) then
+		d7date=""
+	else
+           xy=right("000"+ cstr((year(dt)-1911)),3)     '補零
+           xm=right("00"+ cstr(month(dt)),2)
+           xd=right("00"+ cstr(day(dt)),2)
+           d7date=xy & "/" & xm & "/" & xd
+           d7date=dt
+        end if
+end function
+
+ function ChkIDX(SID)      '-----身份證字號檢驗
+
+   SID = UCase(SID)
+   X1 = InStr("ABCDEFGHJKLMNPQRSTUVWXYZIO", Left(SID, 1)) + 9
+
+   ' 初步檢查 ID 的合法性
+   If X1 < 10 Then Chk_ID = False: Exit Function
+   If Not IsNumeric(Mid(SID, 2)) Then Chk_ID = False: Exit Function
+   If Len(SID) <> 10 Then Chk_ID = False: Exit Function
+
+   ' 檢查編號之正確性
+   SID = Cstr(X1) + Mid(SID, 2)
+
+   nCheckSum = Cint(Mid(SID, 1, 1))
+   For I = 2 To Len(SID) - 1
+        nCheckSum = nCheckSum + Cint(Mid(SID, I, 1)) * (11 - I)
+   Next
+   nCheckSum = nCheckSum + Cint(Mid(SID, 11, 1))
+
+   ChkID = (nCheckSum Mod 10 = 0)
+end Function
+
+function ChkID(idno)	'-----身份證字號檢驗(新)
+  if len(trim(idno))=0 then exit function
+
+  alpha=UCase(left(idno,1))
+  d1=mid(idno,2,1)
+  d2=mid(idno,3,1)
+  d3=mid(idno,4,1)
+  d4=mid(idno,5,1)
+  d5=mid(idno,6,1)
+  d6=mid(idno,7,1)
+  d7=mid(idno,8,1)
+  d8=mid(idno,9,1)
+  d9=mid(idno,10,1)
+  select case alpha
+    case "A" : acc=1
+    case "B" : acc=10
+    case "C" : acc=19
+    case "D" : acc=28
+    case "E" : acc=37
+    case "F" : acc=46
+    case "G" : acc=55
+    case "H" : acc=64
+    case "I" : acc=39
+    case "J" : acc=73
+    case "K" : acc=82
+    case "L" : acc=2
+    case "M" : acc=11
+    case "N" : acc=20
+    case "O" : acc=48
+    case "P" : acc=29
+    case "Q" : acc=38
+    case "R" : acc=47
+    case "S" : acc=56
+    case "T" : acc=65
+    case "U" : acc=74
+    case "V" : acc=83
+    case "W" : acc=21
+    case "X" : acc=3
+    case "Y" : acc=12
+    case "Z" : acc=30
+  end select
+  on error resume next
+  checksum = acc+8*d1+7*d2+6*d3+5*d4+4*d5+3*d6+2*d7+1*d8+1*d9
+  check1 = Int(checksum/10)
+  check2 = checksum/10
+  check3 = (check2-check1)*10
+  if len(idno)>10 then
+    ChkID=false
+  elseif err.number<>0 then
+    ChkID=false
+  elseif checksum=check1*10 then
+    ChkID=true
+  elseif d9=(10-check3) then
+    ChkID=true
+  else
+    ChkID=false
+  end if
+end function
+function ftpDo(FTPIP,FTPPort,FTPID,FTPPWD,fileAction,FTPfilePath,fileDir,fileTarget,fileSource)	'----FTP機制  2004/7/7
+response.end
+	Set oFtp = CreateObject("FtpCom.FTP")
+	oFtp.Connect FTPIP,FTPPort,FTPID,FTPPWD
+	
+	if left(oFtp.GetMsg,1) = "2" then 
+		if FTPfilePath <> "" then oFtp.Execute("CWD " + FTPfilePath)
+		if fileAction="CreateDir" then oFtp.CreateDir(fileDir)
+		if fileAction="DeleteDir" then oFtp.DeleteDir(fileDir)
+		if fileAction="MoveFile" then oFtp.MoveFile fileTarget,fileSource,1,0
+		if fileAction="DELE" then oFtp.Execute("DELE " + fileTarget)
+		if left(oFtp.GetMsg,1) <> "2" then FTPErrorMSG="  FTP機制出現錯誤,FTP未成功!"
+		oFtp.LogOffServer 
+		set oFtp = nothing
+	else
+		FTPErrorMSG="  FTP機制出現錯誤,FTP未成功!"
+		oFtp.LogOffServer 
+		set oFtp = nothing
+	end if	
+end function
+
+</script>
+
+		<div class="Block3">
+			<div class="container">
+				<div class="row">
+					<div class="Links">
+						<div class="col-xs-12 col-sm-6 col-md-4 col-lg-4 Center-BG01">
+							<div class="Center-Name">
+								<a href="mp.asp?mp=5" target="_blank" title="臺灣學研究中心(另開新視窗)">臺灣學研究中心</a>
+							</div>
+						</div>
+						<div class="col-xs-12 col-sm-6 col-md-4 col-lg-4 Center-BG02">
+							<div class="Center-Name">
+								<a href="mp.asp?mp=4" target="_blank" title="親子資料中心(另開新視窗)">親子資料中心</a>
+							</div>
+						</div>
+						<div class="col-xs-12 col-sm-6 col-md-4 col-lg-4 Center-BG03">
+							<div class="Center-Name">
+								<a href="http://chungshanhall.ntl.edu.tw" target="_blank" title="陽明山中山樓(另開新視窗)">陽明山中山樓</a>
+							</div>
+						</div>
+						<div class="col-xs-12 col-sm-6 col-md-4 col-lg-4 Center-BG04">
+							<div class="Center-Name">
+								<a href="http://viis.ntl.edu.tw/mp.asp?mp=1" target="_blank" title="視障資料中心(另開新視窗)">視障資料中心</a>
+							</div>
+						</div>
+						<div class="col-xs-12 col-sm-6 col-md-4 col-lg-4 Center-BG05">
+							<div class="Center-Name">
+								<a href="np.asp?ctNode=1662&mp=1" title="臺灣圖書醫院">臺灣圖書醫院</a>
+							</div>
+						</div>
+						<div class="col-xs-12 col-sm-6 col-md-4 col-lg-4">
+							<div class="Center-Name">
+								<div id="fb-root"></div>
+								<script>(function(d, s, id) {
+									var js, fjs = d.getElementsByTagName(s)[0];
+									if (d.getElementById(id)) return;
+									js = d.createElement(s); js.id = id;
+									js.src = "//connect.facebook.net/zh_TW/sdk.js#xfbml=1&version=v2.5";
+									fjs.parentNode.insertBefore(js, fjs);
+								}(document, 'script', 'facebook-jssdk'));
+								</script>
+								<div class="fb-page" data-href="https://www.facebook.com/&#x570b;&#x7acb;&#x81fa;&#x7063;&#x5716;&#x66f8;&#x9928;-873109812704792/" data-tabs="timeline" data-width="325" data-height="230" data-small-header="true" data-adapt-container-width="true" data-hide-cover="false" data-show-facepile="false"></div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+<script language=VBS>
+function blen(xs)              '檢測中英文夾雜字串實際長度
+  xl = len(xs)
+  for i=1 to len(xs)
+	if asc(mid(xs,i,1))<0 then xl = xl + 1
+  next
+  blen = xl
+end function
+
+function xStdTime(dt)  '轉成民國年及時間  999/99/99 10:00 給資料型態為DateTime 使用
+   if Len(dt)=0 or isnull(dt) then
+   	xStdTime=""
+   else
+   	xyear = right("000"+ cstr((year(dt)-1911)),3)     '補零
+        xmonth = right("00"+ cstr(month(dt)),2)
+        xday = right("00"+ cstr(day(dt)),2)
+        xhour = right("00" + cstr(hour(dt)),2)
+        xminute = right("00" + cstr(minute(dt)),2)
+        xStdTime = xyear & "/" & xmonth & "/" & xday & " " & xhour & ":" & xminute
+   end if
+end function
+
+function d7date(dt)     '轉成民國年  999/99/99 給資料型態為SmallDateTime 使用
+	if Len(dt)=0 or isnull(dt) then
+		d7date=""
+	else
+           xy=right("000"+ cstr((year(dt)-1911)),3)     '補零
+           xm=right("00"+ cstr(month(dt)),2)
+           xd=right("00"+ cstr(day(dt)),2)
+           d7date=xy & "/" & xm & "/" & xd
+           d7date=dt
+        end if
+end function
+
+ function ChkIDX(SID)      '-----身份證字號檢驗
+
+   SID = UCase(SID)
+   X1 = InStr("ABCDEFGHJKLMNPQRSTUVWXYZIO", Left(SID, 1)) + 9
+
+   ' 初步檢查 ID 的合法性
+   If X1 < 10 Then Chk_ID = False: Exit Function
+   If Not IsNumeric(Mid(SID, 2)) Then Chk_ID = False: Exit Function
+   If Len(SID) <> 10 Then Chk_ID = False: Exit Function
+
+   ' 檢查編號之正確性
+   SID = Cstr(X1) + Mid(SID, 2)
+
+   nCheckSum = Cint(Mid(SID, 1, 1))
+   For I = 2 To Len(SID) - 1
+        nCheckSum = nCheckSum + Cint(Mid(SID, I, 1)) * (11 - I)
+   Next
+   nCheckSum = nCheckSum + Cint(Mid(SID, 11, 1))
+
+   ChkID = (nCheckSum Mod 10 = 0)
+end Function
+
+function ChkID(idno)	'-----身份證字號檢驗(新)
+  if len(trim(idno))=0 then exit function
+
+  alpha=UCase(left(idno,1))
+  d1=mid(idno,2,1)
+  d2=mid(idno,3,1)
+  d3=mid(idno,4,1)
+  d4=mid(idno,5,1)
+  d5=mid(idno,6,1)
+  d6=mid(idno,7,1)
+  d7=mid(idno,8,1)
+  d8=mid(idno,9,1)
+  d9=mid(idno,10,1)
+  select case alpha
+    case "A" : acc=1
+    case "B" : acc=10
+    case "C" : acc=19
+    case "D" : acc=28
+    case "E" : acc=37
+    case "F" : acc=46
+    case "G" : acc=55
+    case "H" : acc=64
+    case "I" : acc=39
+    case "J" : acc=73
+    case "K" : acc=82
+    case "L" : acc=2
+    case "M" : acc=11
+    case "N" : acc=20
+    case "O" : acc=48
+    case "P" : acc=29
+    case "Q" : acc=38
+    case "R" : acc=47
+    case "S" : acc=56
+    case "T" : acc=65
+    case "U" : acc=74
+    case "V" : acc=83
+    case "W" : acc=21
+    case "X" : acc=3
+    case "Y" : acc=12
+    case "Z" : acc=30
+  end select
+  on error resume next
+  checksum = acc+8*d1+7*d2+6*d3+5*d4+4*d5+3*d6+2*d7+1*d8+1*d9
+  check1 = Int(checksum/10)
+  check2 = checksum/10
+  check3 = (check2-check1)*10
+  if len(idno)>10 then
+    ChkID=false
+  elseif err.number<>0 then
+    ChkID=false
+  elseif checksum=check1*10 then
+    ChkID=true
+  elseif d9=(10-check3) then
+    ChkID=true
+  else
+    ChkID=false
+  end if
+end function
+function ftpDo(FTPIP,FTPPort,FTPID,FTPPWD,fileAction,FTPfilePath,fileDir,fileTarget,fileSource)	'----FTP機制  2004/7/7
+response.end
+	Set oFtp = CreateObject("FtpCom.FTP")
+	oFtp.Connect FTPIP,FTPPort,FTPID,FTPPWD
+	
+	if left(oFtp.GetMsg,1) = "2" then 
+		if FTPfilePath <> "" then oFtp.Execute("CWD " + FTPfilePath)
+		if fileAction="CreateDir" then oFtp.CreateDir(fileDir)
+		if fileAction="DeleteDir" then oFtp.DeleteDir(fileDir)
+		if fileAction="MoveFile" then oFtp.MoveFile fileTarget,fileSource,1,0
+		if fileAction="DELE" then oFtp.Execute("DELE " + fileTarget)
+		if left(oFtp.GetMsg,1) <> "2" then FTPErrorMSG="  FTP機制出現錯誤,FTP未成功!"
+		oFtp.LogOffServer 
+		set oFtp = nothing
+	else
+		FTPErrorMSG="  FTP機制出現錯誤,FTP未成功!"
+		oFtp.LogOffServer 
+		set oFtp = nothing
+	end if	
+end function
+
+</script>
+
+		<div class="Block4">
+			<div class="container">
+				<div class="row">
+					<h2 class="Contenttitle">相關連結</h2>
+						<noscript>
+							若您的瀏覽器無法支援請點選此超連結 <a href="np.asp?ctNode=430&mp=1" title="相關連結">相關連結</a>
+						</noscript>
+					<div class="BannerSlide col-lg-12">
+
+						<div class="Banner"><a href="http://www.edu.tw/" target="_blank" title="教育部全球資訊網(另開視窗)" ><img src="public/MMO/GIP2/link02.jpg" alt="教育部全球資訊網(另開視窗)" /></a></div>
+
+						<div class="Banner"><a href="http://www.ntlcp.com.tw" target="_blank" title="緻圓股份有限公司(另開視窗)" ><img src="public/MMO/GIP2/四號公園文創-icon (2).jpg" alt="緻圓股份有限公司(另開視窗)" /></a></div>
+
+						<div class="Banner"><a href="http://www.pcc.gov.tw/pccap2/TMPLfronted/ChtIndex.do?site=002" target="_blank" title="行政院公共工程委員會(另開視窗)" ><img src="public/MMO/GIP2/01/2221795371.jpg" alt="行政院公共工程委員會(另開視窗)" /></a></div>
+
+						<div class="Banner"><a href="http://www.gov.tw/" target="_blank" title="我的E政府(另開視窗)" ><img src="public/MMO/GIP2/index_logo220666.gif" alt="我的E政府(另開視窗)" /></a></div>
+
+						<div class="Banner"><a href="http://learning.moc.gov.tw/" target="_blank" title="藝學網(另開視窗)" ><img src="public/MMO/GIP2/藝學網.png" alt="藝學網(另開視窗)" /></a></div>
+
+						<div class="Banner"><a href="http://www.humanrights.moj.gov.tw/np.asp?ctNode=32777&mp=200" target="_blank" title="法務部-兩公約宣導專區(另開視窗)" ><img src="public/MMO/GIP2/462617494453.JPG" alt="法務部-兩公約宣導專區(另開視窗)" /></a></div>
+
+					</div>		
+				</div>
+			</div>
+		</div>
+</section>
+<script language=VBS>
+function blen(xs)              '檢測中英文夾雜字串實際長度
+  xl = len(xs)
+  for i=1 to len(xs)
+	if asc(mid(xs,i,1))<0 then xl = xl + 1
+  next
+  blen = xl
+end function
+
+function xStdTime(dt)  '轉成民國年及時間  999/99/99 10:00 給資料型態為DateTime 使用
+   if Len(dt)=0 or isnull(dt) then
+   	xStdTime=""
+   else
+   	xyear = right("000"+ cstr((year(dt)-1911)),3)     '補零
+        xmonth = right("00"+ cstr(month(dt)),2)
+        xday = right("00"+ cstr(day(dt)),2)
+        xhour = right("00" + cstr(hour(dt)),2)
+        xminute = right("00" + cstr(minute(dt)),2)
+        xStdTime = xyear & "/" & xmonth & "/" & xday & " " & xhour & ":" & xminute
+   end if
+end function
+
+function d7date(dt)     '轉成民國年  999/99/99 給資料型態為SmallDateTime 使用
+	if Len(dt)=0 or isnull(dt) then
+		d7date=""
+	else
+           xy=right("000"+ cstr((year(dt)-1911)),3)     '補零
+           xm=right("00"+ cstr(month(dt)),2)
+           xd=right("00"+ cstr(day(dt)),2)
+           d7date=xy & "/" & xm & "/" & xd
+           d7date=dt
+        end if
+end function
+
+ function ChkIDX(SID)      '-----身份證字號檢驗
+
+   SID = UCase(SID)
+   X1 = InStr("ABCDEFGHJKLMNPQRSTUVWXYZIO", Left(SID, 1)) + 9
+
+   ' 初步檢查 ID 的合法性
+   If X1 < 10 Then Chk_ID = False: Exit Function
+   If Not IsNumeric(Mid(SID, 2)) Then Chk_ID = False: Exit Function
+   If Len(SID) <> 10 Then Chk_ID = False: Exit Function
+
+   ' 檢查編號之正確性
+   SID = Cstr(X1) + Mid(SID, 2)
+
+   nCheckSum = Cint(Mid(SID, 1, 1))
+   For I = 2 To Len(SID) - 1
+        nCheckSum = nCheckSum + Cint(Mid(SID, I, 1)) * (11 - I)
+   Next
+   nCheckSum = nCheckSum + Cint(Mid(SID, 11, 1))
+
+   ChkID = (nCheckSum Mod 10 = 0)
+end Function
+
+function ChkID(idno)	'-----身份證字號檢驗(新)
+  if len(trim(idno))=0 then exit function
+
+  alpha=UCase(left(idno,1))
+  d1=mid(idno,2,1)
+  d2=mid(idno,3,1)
+  d3=mid(idno,4,1)
+  d4=mid(idno,5,1)
+  d5=mid(idno,6,1)
+  d6=mid(idno,7,1)
+  d7=mid(idno,8,1)
+  d8=mid(idno,9,1)
+  d9=mid(idno,10,1)
+  select case alpha
+    case "A" : acc=1
+    case "B" : acc=10
+    case "C" : acc=19
+    case "D" : acc=28
+    case "E" : acc=37
+    case "F" : acc=46
+    case "G" : acc=55
+    case "H" : acc=64
+    case "I" : acc=39
+    case "J" : acc=73
+    case "K" : acc=82
+    case "L" : acc=2
+    case "M" : acc=11
+    case "N" : acc=20
+    case "O" : acc=48
+    case "P" : acc=29
+    case "Q" : acc=38
+    case "R" : acc=47
+    case "S" : acc=56
+    case "T" : acc=65
+    case "U" : acc=74
+    case "V" : acc=83
+    case "W" : acc=21
+    case "X" : acc=3
+    case "Y" : acc=12
+    case "Z" : acc=30
+  end select
+  on error resume next
+  checksum = acc+8*d1+7*d2+6*d3+5*d4+4*d5+3*d6+2*d7+1*d8+1*d9
+  check1 = Int(checksum/10)
+  check2 = checksum/10
+  check3 = (check2-check1)*10
+  if len(idno)>10 then
+    ChkID=false
+  elseif err.number<>0 then
+    ChkID=false
+  elseif checksum=check1*10 then
+    ChkID=true
+  elseif d9=(10-check3) then
+    ChkID=true
+  else
+    ChkID=false
+  end if
+end function
+function ftpDo(FTPIP,FTPPort,FTPID,FTPPWD,fileAction,FTPfilePath,fileDir,fileTarget,fileSource)	'----FTP機制  2004/7/7
+response.end
+	Set oFtp = CreateObject("FtpCom.FTP")
+	oFtp.Connect FTPIP,FTPPort,FTPID,FTPPWD
+	
+	if left(oFtp.GetMsg,1) = "2" then 
+		if FTPfilePath <> "" then oFtp.Execute("CWD " + FTPfilePath)
+		if fileAction="CreateDir" then oFtp.CreateDir(fileDir)
+		if fileAction="DeleteDir" then oFtp.DeleteDir(fileDir)
+		if fileAction="MoveFile" then oFtp.MoveFile fileTarget,fileSource,1,0
+		if fileAction="DELE" then oFtp.Execute("DELE " + fileTarget)
+		if left(oFtp.GetMsg,1) <> "2" then FTPErrorMSG="  FTP機制出現錯誤,FTP未成功!"
+		oFtp.LogOffServer 
+		set oFtp = nothing
+	else
+		FTPErrorMSG="  FTP機制出現錯誤,FTP未成功!"
+		oFtp.LogOffServer 
+		set oFtp = nothing
+	end if	
+end function
+
+</script>
+
+<section id="FatFooter" class="FatFooter"> 
+	<div class="container">  
+		<div class="row">
+			<div class="col-lg-12">
+				<div class="OpenBTN-box">
+					<span>網站導覽選單</span>
+					<button type="button" id="OpenBTN" class="btn btn-brown btn-lg">展　開</button>
+				</div>
+				<div id="HideArea">
+					<div class="FieldArea">
+
+	<div class="Field">
+
+		<h3><a href="np.asp?ctNode=1651&mp=1" title="認識本館">認識本館</a></h3>
+
+		<ul>
+
+
+				<li>
+
+			<a href="np.asp?ctNode=1659&mp=1" title="本館介紹">本館介紹</a>
+
+				</li>
+
+				<li>
+
+			<a href="np.asp?ctNode=1660&mp=1" title="本館出版品">本館出版品</a>
+
+				</li>
+
+				<li>
+
+			<a href="np.asp?ctNode=1661&CtUnit=247&BaseDSD=7&mp=1" title="創意商品">創意商品</a>
+
+				</li>
+
+				<li>
+
+			<a href="np.asp?ctNode=1663&mp=1" title="志工園地">志工園地</a>
+
+				</li>
+
+				<li>
+
+			<a href="http://www.ntl.edu.tw/mp.asp?mp=5" target="_blank" title="臺灣學研究中心">臺灣學研究中心</a>
+
+				</li>
+
+				<li>
+
+			<a href="http://www.ntl.edu.tw/mp.asp?mp=4" target="_blank" title="親子資料中心">親子資料中心</a>
+
+				</li>
+
+				<li>
+
+			<a href="http://viis.ntl.edu.tw/mp.asp?mp=1" target="_blank" title="視障資料中心">視障資料中心</a>
+
+				</li>
+
+				<li>
+
+			<a href="http://chungshanhall.ntl.edu.tw" target="_blank" title="陽明山中山樓">陽明山中山樓</a>
+
+				</li>
+
+				<li>
+
+			<a href="np.asp?ctNode=1662&mp=1" title="臺灣圖書醫院">臺灣圖書醫院</a>
+
+				</li>
+
+		
+		</ul>
+	</div>
+
+	<div class="Field">
+
+		<h3><a href="np.asp?ctNode=1652&mp=1" title="公布欄">公布欄</a></h3>
+
+		<ul>
+
+
+				<li>
+
+			<a href="np.asp?ctNode=1664&CtUnit=99&BaseDSD=7&mp=1" title="最新消息">最新消息</a>
+
+				</li>
+
+				<li>
+
+			<a href="np.asp?ctNode=1667&CtUnit=104&BaseDSD=7&mp=1" title="新聞稿">新聞稿</a>
+
+				</li>
+
+				<li>
+
+			<a href="np.asp?ctNode=1882&CtUnit=909&BaseDSD=7&mp=1" title="圖書捐贈">圖書捐贈</a>
+
+				</li>
+
+				<li>
+
+			<a href="np.asp?ctNode=1665&CtUnit=102&BaseDSD=7&mp=1" title="徵稿啟事">徵稿啟事</a>
+
+				</li>
+
+				<li>
+
+			<a href="np.asp?ctNode=1668&CtUnit=105&BaseDSD=7&mp=1" title="藝文資訊">藝文資訊</a>
+
+				</li>
+
+				<li>
+
+			<a href="sp.asp?xdurl=Form_RWD/epaper.asp&mp=1&ctNode=1669" title="訂閱電子報">訂閱電子報</a>
+
+				</li>
+
+				<li>
+
+			<a href="np.asp?ctNode=1666&CtUnit=103&BaseDSD=7&mp=1" title="答客問Q&A">答客問Q&A</a>
+
+				</li>
+
+				<li>
+
+			<a href="np.asp?ctNode=2169&CtUnit=932&BaseDSD=58&mp=1" title="遺失物專區">遺失物專區</a>
+
+				</li>
+
+				<li>
+
+			<a href="http://www.ntl.edu.tw/mp.asp?mp=14" target="_blank" title="教育部閱讀推廣與館藏充實實施計畫">教育部閱讀推廣與館藏充實實施計畫</a>
+
+				</li>
+
+		
+		</ul>
+	</div>
+
+	<div class="Field">
+
+		<h3><a href="np.asp?ctNode=1653&mp=1" title="活動訊息">活動訊息</a></h3>
+
+		<ul>
+
+
+				<li>
+
+			<a href="sp.asp?xdurl=MP1AP_RWD/month_action.asp&mp=1&ctNode=1891" title="本月活動一覽表">本月活動一覽表</a>
+
+				</li>
+
+				<li>
+
+			<a href="np.asp?ctNode=1672&CtUnit=109&BaseDSD=57&mp=1" title="展覽">展覽</a>
+
+				</li>
+
+				<li>
+
+			<a href="np.asp?ctNode=1673&CtUnit=110&BaseDSD=59&mp=1" title="講座">講座</a>
+
+				</li>
+
+				<li>
+
+			<a href="np.asp?ctNode=1674&CtUnit=482&BaseDSD=59&mp=1" title="與作家有約">與作家有約</a>
+
+				</li>
+
+				<li>
+
+			<a href="np.asp?ctNode=1676&CtUnit=114&BaseDSD=57&mp=1" title="主題書展">主題書展</a>
+
+				</li>
+
+				<li>
+
+			<a href="np.asp?ctNode=1677&CtUnit=115&BaseDSD=57&mp=1" title="影片欣賞">影片欣賞</a>
+
+				</li>
+
+				<li>
+
+			<a href="np.asp?ctNode=1678&mp=1" title="研習班">研習班</a>
+
+				</li>
+
+				<li>
+
+			<a href="np.asp?ctNode=1861&CtUnit=881&BaseDSD=57&mp=1" title="其他">其他</a>
+
+				</li>
+
+		
+		</ul>
+	</div>
+
+	<div class="Field">
+
+		<h3><a href="np.asp?ctNode=1654&mp=1" title="資源探索">資源探索</a></h3>
+
+		<ul>
+
+
+				<li>
+
+			<a href="np.asp?ctNode=1685&mp=1" title="館藏資源">館藏資源</a>
+
+				</li>
+
+				<li>
+
+			<a href="np.asp?ctNode=1686&mp=1" title="數位資源">數位資源</a>
+
+				</li>
+
+		
+		</ul>
+	</div>
+
+	<div class="Field">
+
+		<h3><a href="np.asp?ctNode=1655&mp=1" title="讀者服務">讀者服務</a></h3>
+
+		<ul>
+
+
+				<li>
+
+			<a href="np.asp?ctNode=1909&mp=1" title="館藏查詢">館藏查詢</a>
+
+				</li>
+
+				<li>
+
+			<a href="np.asp?ctNode=1738&CtUnit=126&BaseDSD=7&mp=1" title="借閱證申請">借閱證申請</a>
+
+				</li>
+
+				<li>
+
+			<a href="np.asp?ctNode=1746&CtUnit=134&BaseDSD=7&mp=1" title="自修排隊及使用須知">自修排隊及使用須知</a>
+
+				</li>
+
+				<li>
+
+			<a href="np.asp?ctNode=1739&mp=1" title="館藏借閱">館藏借閱</a>
+
+				</li>
+
+				<li>
+
+			<a href="np.asp?ctNode=1740&mp=1" title="參考諮詢">參考諮詢</a>
+
+				</li>
+
+				<li>
+
+			<a href="np.asp?ctNode=1741&mp=1" title="網路資源">網路資源</a>
+
+				</li>
+
+				<li>
+
+			<a href="np.asp?ctNode=1742&CtUnit=544&BaseDSD=7&mp=1" title="館際合作(文獻傳遞)">館際合作(文獻傳遞)</a>
+
+				</li>
+
+				<li>
+
+			<a href="np.asp?ctNode=1743&mp=1" title="檔案應用專區">檔案應用專區</a>
+
+				</li>
+
+				<li>
+
+			<a href="np.asp?ctNode=1744&CtUnit=130&BaseDSD=7&mp=1" title="圖書賠償">圖書賠償</a>
+
+				</li>
+
+				<li>
+
+			<a href="https://goo.gl/VoTyqr" target="_blank" title="圖書推薦">圖書推薦</a>
+
+				</li>
+
+				<li>
+
+			<a href="np.asp?ctNode=1747&mp=1" title="無障礙服務專區">無障礙服務專區</a>
+
+				</li>
+
+		
+		</ul>
+	</div>
+
+	<div class="Field">
+
+		<h3><a href="np.asp?ctNode=1656&mp=1" title="我想要…">我想要…</a></h3>
+
+		<ul>
+
+
+				<li>
+
+			<a href="np.asp?ctNode=1896&mp=1" title="申請展覽.攝影.公共服務等">申請展覽.攝影.公共服務等</a>
+
+				</li>
+
+				<li>
+
+			<a href="np.asp?ctNode=1897&CtUnit=906&BaseDSD=7&mp=1" title="尋找遺失物">尋找遺失物</a>
+
+				</li>
+
+				<li>
+
+			<a href="np.asp?ctNode=1899&CtUnit=909&BaseDSD=7&mp=1" title="捐贈圖書">捐贈圖書</a>
+
+				</li>
+
+				<li>
+
+			<a href="http://www.ntl.edu.tw/ct.asp?xItem=7930&ctNode=1783&mp=1" title="使用無線網路">使用無線網路</a>
+
+				</li>
+
+				<li>
+
+			<a href="sp.asp?xdurl=Form_RWD/epaper.asp&mp=1&ctNode=1669" title="訂閱電子報">訂閱電子報</a>
+
+				</li>
+
+				<li>
+
+			<a href="np.asp?ctNode=1902&CtUnit=922&BaseDSD=7&mp=1" title="購買影印卡">購買影印卡</a>
+
+				</li>
+
+				<li>
+
+			<a href="http://www.ntl.edu.tw/ct.asp?xItem=8031&CtNode=1143&mp=4" title="使用哺乳室">使用哺乳室</a>
+
+				</li>
+
+				<li>
+
+			<a href="np.asp?ctNode=1696&CtUnit=635&BaseDSD=7&mp=1" title="使用輕食區">使用輕食區</a>
+
+				</li>
+
+		
+		</ul>
+	</div>
+
+	<div class="Field">
+
+		<h3><a href="np.asp?ctNode=1657&mp=1" title="分齡分眾">分齡分眾</a></h3>
+
+		<ul>
+
+
+				<li>
+
+			<a href="http://www.ntl.edu.tw/mp.asp?mp=4" target="_blank" title="親子服務">親子服務</a>
+
+				</li>
+
+				<li>
+
+			<a href="np.asp?ctNode=1697&CtUnit=249&BaseDSD=7&mp=1" title="樂齡服務">樂齡服務</a>
+
+				</li>
+
+				<li>
+
+			<a href="np.asp?ctNode=1699&CtUnit=698&BaseDSD=7&mp=1" title="青少年服務">青少年服務</a>
+
+				</li>
+
+				<li>
+
+			<a href="http://viis.ntl.edu.tw/mp.asp?mp=1" target="_blank" title="視障服務">視障服務</a>
+
+				</li>
+
+				<li>
+
+			<a href="np.asp?ctNode=1698&CtUnit=618&BaseDSD=7&mp=1" title="新住民服務">新住民服務</a>
+
+				</li>
+
+				<li>
+
+			<a href="http://www.ntl.edu.tw/mp.asp?mp=5" target="_blank" title="臺灣學服務">臺灣學服務</a>
+
+				</li>
+
+		
+		</ul>
+	</div>
+
+	<div class="Field">
+
+		<h3><a href="np.asp?ctNode=1658&mp=1" title="政府公開資訊">政府公開資訊</a></h3>
+
+		<ul>
+
+
+				<li>
+
+			<a href="np.asp?ctNode=1783&CtUnit=125&BaseDSD=7&mp=1" title="法令規章">法令規章</a>
+
+				</li>
+
+				<li>
+
+			<a href="np.asp?ctNode=1784&mp=1" title="認識本館">認識本館</a>
+
+				</li>
+
+				<li>
+
+			<a href="np.asp?ctNode=1785&CtUnit=177&BaseDSD=7&mp=1" title="服務品質計畫">服務品質計畫</a>
+
+				</li>
+
+				<li>
+
+			<a href="np.asp?ctNode=1786&mp=1" title="業務統計">業務統計</a>
+
+				</li>
+
+				<li>
+
+			<a href="np.asp?ctNode=1787&CtUnit=179&BaseDSD=7&mp=1" title="研究報告">研究報告</a>
+
+				</li>
+
+				<li>
+
+			<a href="np.asp?ctNode=1788&mp=1" title="預算、決算書及會計月報">預算、決算書及會計月報</a>
+
+				</li>
+
+				<li>
+
+			<a href="np.asp?ctNode=1789&CtUnit=181&BaseDSD=7&mp=1" title="請願及訴願">請願及訴願</a>
+
+				</li>
+
+				<li>
+
+			<a href="np.asp?ctNode=1790&CtUnit=182&BaseDSD=7&mp=1" title="書面之公共工程及採購契約">書面之公共工程及採購契約</a>
+
+				</li>
+
+				<li>
+
+			<a href="np.asp?ctNode=1791&CtUnit=269&BaseDSD=7&mp=1" title="支付或接受之補助">支付或接受之補助</a>
+
+				</li>
+
+				<li>
+
+			<a href="np.asp?ctNode=1792&mp=1" title="政策宣導相關廣告執行情形">政策宣導相關廣告執行情形</a>
+
+				</li>
+
+				<li>
+
+			<a href="np.asp?ctNode=1793&CtUnit=688&BaseDSD=7&mp=1" title="保有及管理個人資料項目">保有及管理個人資料項目</a>
+
+				</li>
+
+				<li>
+
+			<a href="np.asp?ctNode=2171&mp=1" title="因公出國">因公出國</a>
+
+				</li>
+
+				<li>
+
+			<a href="np.asp?ctNode=2172&mp=1" title="內部控制及內部稽核">內部控制及內部稽核</a>
+
+				</li>
+
+				<li>
+
+			<a href="np.asp?ctNode=2252&CtUnit=964&BaseDSD=7&mp=1" title="讀者滿意度調查報告">讀者滿意度調查報告</a>
+
+				</li>
+
+		
+		</ul>
+	</div>
+
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+
+<script language=VBS>
+function blen(xs)              '檢測中英文夾雜字串實際長度
+  xl = len(xs)
+  for i=1 to len(xs)
+	if asc(mid(xs,i,1))<0 then xl = xl + 1
+  next
+  blen = xl
+end function
+
+function xStdTime(dt)  '轉成民國年及時間  999/99/99 10:00 給資料型態為DateTime 使用
+   if Len(dt)=0 or isnull(dt) then
+   	xStdTime=""
+   else
+   	xyear = right("000"+ cstr((year(dt)-1911)),3)     '補零
+        xmonth = right("00"+ cstr(month(dt)),2)
+        xday = right("00"+ cstr(day(dt)),2)
+        xhour = right("00" + cstr(hour(dt)),2)
+        xminute = right("00" + cstr(minute(dt)),2)
+        xStdTime = xyear & "/" & xmonth & "/" & xday & " " & xhour & ":" & xminute
+   end if
+end function
+
+function d7date(dt)     '轉成民國年  999/99/99 給資料型態為SmallDateTime 使用
+	if Len(dt)=0 or isnull(dt) then
+		d7date=""
+	else
+           xy=right("000"+ cstr((year(dt)-1911)),3)     '補零
+           xm=right("00"+ cstr(month(dt)),2)
+           xd=right("00"+ cstr(day(dt)),2)
+           d7date=xy & "/" & xm & "/" & xd
+           d7date=dt
+        end if
+end function
+
+ function ChkIDX(SID)      '-----身份證字號檢驗
+
+   SID = UCase(SID)
+   X1 = InStr("ABCDEFGHJKLMNPQRSTUVWXYZIO", Left(SID, 1)) + 9
+
+   ' 初步檢查 ID 的合法性
+   If X1 < 10 Then Chk_ID = False: Exit Function
+   If Not IsNumeric(Mid(SID, 2)) Then Chk_ID = False: Exit Function
+   If Len(SID) <> 10 Then Chk_ID = False: Exit Function
+
+   ' 檢查編號之正確性
+   SID = Cstr(X1) + Mid(SID, 2)
+
+   nCheckSum = Cint(Mid(SID, 1, 1))
+   For I = 2 To Len(SID) - 1
+        nCheckSum = nCheckSum + Cint(Mid(SID, I, 1)) * (11 - I)
+   Next
+   nCheckSum = nCheckSum + Cint(Mid(SID, 11, 1))
+
+   ChkID = (nCheckSum Mod 10 = 0)
+end Function
+
+function ChkID(idno)	'-----身份證字號檢驗(新)
+  if len(trim(idno))=0 then exit function
+
+  alpha=UCase(left(idno,1))
+  d1=mid(idno,2,1)
+  d2=mid(idno,3,1)
+  d3=mid(idno,4,1)
+  d4=mid(idno,5,1)
+  d5=mid(idno,6,1)
+  d6=mid(idno,7,1)
+  d7=mid(idno,8,1)
+  d8=mid(idno,9,1)
+  d9=mid(idno,10,1)
+  select case alpha
+    case "A" : acc=1
+    case "B" : acc=10
+    case "C" : acc=19
+    case "D" : acc=28
+    case "E" : acc=37
+    case "F" : acc=46
+    case "G" : acc=55
+    case "H" : acc=64
+    case "I" : acc=39
+    case "J" : acc=73
+    case "K" : acc=82
+    case "L" : acc=2
+    case "M" : acc=11
+    case "N" : acc=20
+    case "O" : acc=48
+    case "P" : acc=29
+    case "Q" : acc=38
+    case "R" : acc=47
+    case "S" : acc=56
+    case "T" : acc=65
+    case "U" : acc=74
+    case "V" : acc=83
+    case "W" : acc=21
+    case "X" : acc=3
+    case "Y" : acc=12
+    case "Z" : acc=30
+  end select
+  on error resume next
+  checksum = acc+8*d1+7*d2+6*d3+5*d4+4*d5+3*d6+2*d7+1*d8+1*d9
+  check1 = Int(checksum/10)
+  check2 = checksum/10
+  check3 = (check2-check1)*10
+  if len(idno)>10 then
+    ChkID=false
+  elseif err.number<>0 then
+    ChkID=false
+  elseif checksum=check1*10 then
+    ChkID=true
+  elseif d9=(10-check3) then
+    ChkID=true
+  else
+    ChkID=false
+  end if
+end function
+function ftpDo(FTPIP,FTPPort,FTPID,FTPPWD,fileAction,FTPfilePath,fileDir,fileTarget,fileSource)	'----FTP機制  2004/7/7
+response.end
+	Set oFtp = CreateObject("FtpCom.FTP")
+	oFtp.Connect FTPIP,FTPPort,FTPID,FTPPWD
+	
+	if left(oFtp.GetMsg,1) = "2" then 
+		if FTPfilePath <> "" then oFtp.Execute("CWD " + FTPfilePath)
+		if fileAction="CreateDir" then oFtp.CreateDir(fileDir)
+		if fileAction="DeleteDir" then oFtp.DeleteDir(fileDir)
+		if fileAction="MoveFile" then oFtp.MoveFile fileTarget,fileSource,1,0
+		if fileAction="DELE" then oFtp.Execute("DELE " + fileTarget)
+		if left(oFtp.GetMsg,1) <> "2" then FTPErrorMSG="  FTP機制出現錯誤,FTP未成功!"
+		oFtp.LogOffServer 
+		set oFtp = nothing
+	else
+		FTPErrorMSG="  FTP機制出現錯誤,FTP未成功!"
+		oFtp.LogOffServer 
+		set oFtp = nothing
+	end if	
+end function
+
+</script>
+
+<section id="Footer">
+	<div class="container">
+		<div class="row">
+			<div class="col-md-9">
+				<div class="Footer_link">
+					<a href="lp.asp?CtNode=1868&CtUnit=232&BaseDSD=7&mp=1" title="翻譯詞彙對照表">翻譯詞彙對照表</a>
+					<a href="ct.asp?xItem=1102&ctNode=1869&mp=1" title="隱私權保護政策">隱私權保護政策</a>
+					<a href="ct.asp?xItem=1103&ctNode=1870&mp=1" title="網站安全政策">網站安全政策</a>
+					<a href="ct.asp?xItem=59993&ctNode=1783&mp=1" title="資訊安全政策">資訊安全政策</a>
+					<a href="ct.asp?xItem=14624&ctNode=1871&mp=1" title="無障礙說明">無障礙說明</a>
+				</div>
+				<div class="Footer_info">
+					<div class="Address">館址：23574 新北市中和區中安街八十五號
+					<a href="https://maps.google.com.tw/maps?q=%E5%9C%8B%E7%AB%8B%E5%8F%B0%E7%81%A3%E5%9C%96%E6%9B%B8%E9%A4%A8&hl=zh-TW&ie=UTF8&ll=25.003367,121.512222&spn=0.008187,0.015278&cid=854761177722451895&gl=TW&t=m&z=16&iwloc=A&brcurrent=3,0x3442a9c2a0f41215:0xb2aee41d223e5dca,0,0x345d5538b0b6645f:0x5aa90dfa6620edc0&output=classic&dg=brw" class="Map_link" title="Google Map(另開新視窗)" target="_blank"><img src="GIPDSD/xslGip/xslExport/1/1/images/basic/Google-Maps-icon.png" alt="Google Map(另開新視窗)"></a>
+					　  電話：（02）2926-6888</div>
+					<div class="Address">No.85 Zhong-an St., Zhonghe District, New Taipei City 23574, Taiwan (R.O.C)<br>
+					TEL：（+886）2-2926-6888</div>
+				</div>
+				<div class="Copyright">Copyrights reserved by National Taiwan Library, 2016<br>Microsoft Internet Explorer 9.0 Above</div>
+			</div>
+
+			<div class="col-md-3">
+				<div class="Footer_icon">
+					<a class="Accessible_icon" href="http://www.handicap-free.nat.gov.tw/Applications/Detail?category=20160719110614" title="通過A+等級無障礙網頁檢測(另開新視窗)" target="_blank"><img src="GIPDSD/xslGip/xslExport/1/1/images/basic/aplus.png" alt="通過A+等級無障礙網頁檢測(另開新視窗)"></a>
+				</div>
+				<div class="Counter">瀏覽人次：<a href="sp.asp?xdurl=superxd_RWD/click.asp&mp=1" title="瀏覽人次:47490068">47490068</a></div>
+			</div>
+		</div>
+	</div>
+</section>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-68540961-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+
+<script language=VBS>
+function blen(xs)              '檢測中英文夾雜字串實際長度
+  xl = len(xs)
+  for i=1 to len(xs)
+	if asc(mid(xs,i,1))<0 then xl = xl + 1
+  next
+  blen = xl
+end function
+
+function xStdTime(dt)  '轉成民國年及時間  999/99/99 10:00 給資料型態為DateTime 使用
+   if Len(dt)=0 or isnull(dt) then
+   	xStdTime=""
+   else
+   	xyear = right("000"+ cstr((year(dt)-1911)),3)     '補零
+        xmonth = right("00"+ cstr(month(dt)),2)
+        xday = right("00"+ cstr(day(dt)),2)
+        xhour = right("00" + cstr(hour(dt)),2)
+        xminute = right("00" + cstr(minute(dt)),2)
+        xStdTime = xyear & "/" & xmonth & "/" & xday & " " & xhour & ":" & xminute
+   end if
+end function
+
+function d7date(dt)     '轉成民國年  999/99/99 給資料型態為SmallDateTime 使用
+	if Len(dt)=0 or isnull(dt) then
+		d7date=""
+	else
+           xy=right("000"+ cstr((year(dt)-1911)),3)     '補零
+           xm=right("00"+ cstr(month(dt)),2)
+           xd=right("00"+ cstr(day(dt)),2)
+           d7date=xy & "/" & xm & "/" & xd
+           d7date=dt
+        end if
+end function
+
+ function ChkIDX(SID)      '-----身份證字號檢驗
+
+   SID = UCase(SID)
+   X1 = InStr("ABCDEFGHJKLMNPQRSTUVWXYZIO", Left(SID, 1)) + 9
+
+   ' 初步檢查 ID 的合法性
+   If X1 < 10 Then Chk_ID = False: Exit Function
+   If Not IsNumeric(Mid(SID, 2)) Then Chk_ID = False: Exit Function
+   If Len(SID) <> 10 Then Chk_ID = False: Exit Function
+
+   ' 檢查編號之正確性
+   SID = Cstr(X1) + Mid(SID, 2)
+
+   nCheckSum = Cint(Mid(SID, 1, 1))
+   For I = 2 To Len(SID) - 1
+        nCheckSum = nCheckSum + Cint(Mid(SID, I, 1)) * (11 - I)
+   Next
+   nCheckSum = nCheckSum + Cint(Mid(SID, 11, 1))
+
+   ChkID = (nCheckSum Mod 10 = 0)
+end Function
+
+function ChkID(idno)	'-----身份證字號檢驗(新)
+  if len(trim(idno))=0 then exit function
+
+  alpha=UCase(left(idno,1))
+  d1=mid(idno,2,1)
+  d2=mid(idno,3,1)
+  d3=mid(idno,4,1)
+  d4=mid(idno,5,1)
+  d5=mid(idno,6,1)
+  d6=mid(idno,7,1)
+  d7=mid(idno,8,1)
+  d8=mid(idno,9,1)
+  d9=mid(idno,10,1)
+  select case alpha
+    case "A" : acc=1
+    case "B" : acc=10
+    case "C" : acc=19
+    case "D" : acc=28
+    case "E" : acc=37
+    case "F" : acc=46
+    case "G" : acc=55
+    case "H" : acc=64
+    case "I" : acc=39
+    case "J" : acc=73
+    case "K" : acc=82
+    case "L" : acc=2
+    case "M" : acc=11
+    case "N" : acc=20
+    case "O" : acc=48
+    case "P" : acc=29
+    case "Q" : acc=38
+    case "R" : acc=47
+    case "S" : acc=56
+    case "T" : acc=65
+    case "U" : acc=74
+    case "V" : acc=83
+    case "W" : acc=21
+    case "X" : acc=3
+    case "Y" : acc=12
+    case "Z" : acc=30
+  end select
+  on error resume next
+  checksum = acc+8*d1+7*d2+6*d3+5*d4+4*d5+3*d6+2*d7+1*d8+1*d9
+  check1 = Int(checksum/10)
+  check2 = checksum/10
+  check3 = (check2-check1)*10
+  if len(idno)>10 then
+    ChkID=false
+  elseif err.number<>0 then
+    ChkID=false
+  elseif checksum=check1*10 then
+    ChkID=true
+  elseif d9=(10-check3) then
+    ChkID=true
+  else
+    ChkID=false
+  end if
+end function
+function ftpDo(FTPIP,FTPPort,FTPID,FTPPWD,fileAction,FTPfilePath,fileDir,fileTarget,fileSource)	'----FTP機制  2004/7/7
+response.end
+	Set oFtp = CreateObject("FtpCom.FTP")
+	oFtp.Connect FTPIP,FTPPort,FTPID,FTPPWD
+	
+	if left(oFtp.GetMsg,1) = "2" then 
+		if FTPfilePath <> "" then oFtp.Execute("CWD " + FTPfilePath)
+		if fileAction="CreateDir" then oFtp.CreateDir(fileDir)
+		if fileAction="DeleteDir" then oFtp.DeleteDir(fileDir)
+		if fileAction="MoveFile" then oFtp.MoveFile fileTarget,fileSource,1,0
+		if fileAction="DELE" then oFtp.Execute("DELE " + fileTarget)
+		if left(oFtp.GetMsg,1) <> "2" then FTPErrorMSG="  FTP機制出現錯誤,FTP未成功!"
+		oFtp.LogOffServer 
+		set oFtp = nothing
+	else
+		FTPErrorMSG="  FTP機制出現錯誤,FTP未成功!"
+		oFtp.LogOffServer 
+		set oFtp = nothing
+	end if	
+end function
+
+</script>
+
+<script  src="GIPDSD/xslGip/xslExport/1/1/assets/js/jquery-1.11.2.js"></script>
+<!-- Bootstrap JavaScript -->
+<script src="GIPDSD/xslGip/xslExport/1/1/assets/module/bootstrap-3.3.2/js/bootstrap.min.js"></script>
+<script src="GIPDSD/xslGip/xslExport/1/1/assets/js/jquery.lazyload.min.js"></script>
+<script src="GIPDSD/xslGip/xslExport/1/1/assets/js/BS3JS.min.js"></script> 
+
+<!-- slick  -->
+<script src="GIPDSD/xslGip/xslExport/1/1/assets/module/slick/slick.js"></script>
+<!-- slick 自訂 -->
+<script src="GIPDSD/xslGip/xslExport/1/1/js/slick-addscripts.js"></script> 
+<!-- header offcanvas -->	
+<script src="GIPDSD/xslGip/xslExport/1/1/assets/js/bootstrap.offcanvas.js"></script>  
+
+<!-- 送select選單內容至select框內 -->	
+<script type="text/javascript">
+	$(document).ready(function(e){
+		$('.search-panel .dropdown-menu').find('a').click(function(e) {
+			e.preventDefault();
+			var param = $(this).attr("href").replace("#","");
+			var concept = $(this).text();
+			$('.search-panel span#search_concept').text(concept);
+			$('.input-group #search_param').val(param);
+		});
+	});
+</script>  
+
+<!-- Open Fatfooter-->
+<script type="text/javascript">
+	$(function(){
+		$("#OpenBTN").click(function(){
+			$("#HideArea").slideToggle(600);
+		})
+	})
+</script>
+
+
+<!-- Tab-->
+<script type="text/javascript">
+	$(function () {
+          // 預設顯示第一個 Tab
+          var _showTab = 0;
+          var $defaultDiv = $('div.tabs').eq(_showTab).addClass('active');
+          $($defaultDiv.find('a').attr('href')).siblings('div.tab_container').hide();
+
+          // 當 li 頁籤被點擊時...
+          // 若要改成滑鼠移到 li 頁籤就切換時, 把 click 改成 mouseover
+          $('div.tabs').click(function () {
+              // 找出 li 中的超連結 href(#id)
+              var $this = $(this),
+              _clickTab = $this.find('a').attr('href');
+              // 把目前點擊到的 li 頁籤加上 .active
+              // 並把兄弟元素中有 .active 的都移除 class
+              $this.addClass('active').siblings('.active').removeClass('active');
+              // 淡入相對應的內容並隱藏兄弟元素
+              $(_clickTab).stop(false, true).fadeIn().siblings('div.tab_container').hide();
+
+              return false;
+          })
+          $("#font_l").trigger('click');
+      });
+</script>
+<!-- Tab 自訂-->
+<script type="text/javascript">
+	function Focus(id) {
+		$("#" + id).trigger('click');
+		document.getElementById(id).focus();
+	}
+</script>  
+<!-- scrollUp-->
+<script type="text/javascript" src="GIPDSD/xslGip/xslExport/1/1/assets/js/jquery.scrollUp.js"></script> 
+<!-- scrollUp 自訂-->     
+<script type="text/javascript">
+	$(function () {
+		$.scrollUp({
+		    scrollName: 'scrollUp', // Element ID
+		    topDistance: '300', // Distance from top before showing element (px)
+		    topSpeed: 300, // Speed back to top (ms)
+		    animation: 'fade', // Fade, slide, none
+		    animationInSpeed: 200, // Animation in speed (ms)
+		    animationOutSpeed: 200, // Animation out speed (ms)
+		    scrollText: 'Scroll to top', // Text for element
+		    activeOverlay: false, // Set CSS color to display scrollUp active point, e.g '#00FFFF'
+		});
+	});
+</script>
+<script type="text/javascript">
+	$(function(){
+		$(".FontSmall").click(
+			function(){
+				$(".ContentPage").css({fontSize:"90%"});
+				$("h1").css({fontSize:"30px"});
+				$("h2").css({fontSize:"26px"});
+				$("h3").css({fontSize:"20px"});
+				$("h4").css({fontSize:"16px"});
+				$("h5").css({fontSize:"11px"});
+				$("h6").css({fontSize:"11px"});
+				$(".Block0 .MainLink ul li a").css({fontSize:"1em"});
+				$("#Header .navbar #offcanvas-right ul.nav.White > li a").css({fontSize:"0.9em"});
+				return false;
+				}
+		)
+		$(".FontMidium").click(
+			function(){
+				$(".ContentPage").css({fontSize:"100%"});
+				$("h1").css({fontSize:"32px"});
+				$("h2").css({fontSize:"1.8em"});
+				$("h3").css({fontSize:"24px"});
+				$("h4").css({fontSize:"20px"});
+				$("h5").css({fontSize:"0.813em"});
+				$("h6").css({fontSize:"0.813em"});
+				$(".Block0 .MainLink ul li a").css({fontSize:"1.2em"});
+				$("#Header .navbar #offcanvas-right ul.nav.White > li a").css({fontSize:"1em"});
+				return false;
+				}
+		)
+		$(".FontLarge").click(
+			function(){
+				$(".ContentPage").css({fontSize:"110%"});
+				$("h1").css({fontSize:"43px"});
+				$("h2").css({fontSize:"36px"});
+				$("h3").css({fontSize:"30px"});
+				$("h4").css({fontSize:"23px"});
+				$("h5").css({fontSize:"19px"});
+				$("h6").css({fontSize:"17px"});
+				$(".Block0 .MainLink ul li a").css({fontSize:"1.4em"});
+				$("#Header .navbar #offcanvas-right ul.nav.White > li a").css({fontSize:"1.2em"});
+				return false;	
+				}
+		)
+	})
+</script>
+<!-- dropdownHover-->
+<script src="GIPDSD/xslGip/xslExport/1/1/js/bootstrap-hover-dropdown.js"></script>
+<script type="text/javascript">
+	$(document).ready(function() {
+      $('.js-activated').dropdownHover().dropdown();
+    });
+</script>
+<script type="text/javascript">
+	$(function () {
+
+		$('ul.nav').children('li.dropdown').keyup(
+			function(){
+				$(this).children().show();
+				$(this).siblings().focus(function(){
+					$(this).hide()
+				});
+			});
+		$('ul.nav').children('li.dropdown').keyup(	
+			function(){
+				$(this).siblings().children('ul').hide();
+			});
+		$('ul.nav li.dropdown li:last>a').focusout(
+		function(){
+			$('ul.nav li.dropdown ul').hide();
+		})
+	});
+</script>
+<script type="text/javascript">
+	$(function () {
+		$('.FAQ dd').hide();
+    	$('.FAQ dd:first-of-type').show();
+    	$('.FAQ dt:first-of-type').addClass("Answerclose");
+
+		$('.FAQ dt').click(function() {
+			$('.FAQ dd').slideUp();
+			$('.FAQ dt').removeClass("Answerclose");
+
+			$(this).next().slideDown();
+			$(this).addClass("Answerclose");
+			return false;
+		});
+	});
+</script>
+
+<!--fancy box-->
+<script type="text/javascript" src="GIPDSD/xslGip/xslExport/1/1/js/fancyBox/jquery.fancybox.js?v=2.1.5"></script>
+<script type="text/javascript">
+	$(function(){
+	    /* Button helper. Disable animations, hide close button, change title type and content */
+	    $('.fancybox-buttons').fancybox({
+	        openEffect  : 'none',
+	        closeEffect : 'none',
+
+	        prevEffect : 'none',
+	        nextEffect : 'none',
+
+	        closeBtn  : false,
+
+	        helpers : {
+	            title : {
+	                type : 'inside'
+	            },
+	            buttons : {}
+	        },
+
+	        afterLoad : function() {
+	            this.title = 'Image ' + (this.index + 1) + ' of ' + this.group.length + (this.title ? ' - ' + this.title : '');
+	        }
+	    });
+	})
+</script>
+</body>
+</html>
+
+	     <script language=vbs>
+			window.top.name = "w3FP"
+	     </script>

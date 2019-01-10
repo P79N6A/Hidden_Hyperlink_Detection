@@ -1,0 +1,529 @@
+<!DOCTYPE html><!-- <%@include file="../include/init.zhtml"%> --><html lang="zh-CN" class="ww-lt768"><head>
+	<meta charset="UTF-8">
+	<title>人卫图书增值服务激活平台</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0,user-scalable=no">
+	<meta name="keywords" content="">
+	<meta name="description" content="">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	<link rel="stylesheet" href="css/bootstrap.css">
+	<link rel="stylesheet" href="css/lib.css">
+    <link rel="stylesheet" href="css/style.css">
+	<link rel="stylesheet" href="css/style-rel.css">
+	<link rel="stylesheet" href="css/book_style.css">
+	<script src="../framework/main.js"></script><link rel="stylesheet" type="text/css" href="/ysym/framework/zcms_components.css"><script type="text/javascript" src="/ysym/framework/jquery.min.js"></script><script type="text/javascript" src="/ysym/framework/core.min.js"></script><style type="text/css" id="style1491045963998">body,input,textarea,select,button { font-family:Helvetica, Arial, sans-serif; }h1,h2,h3,h4,h5,h6{font-family:'Lucida Grande', 'Lucida Sans Unicode', Helvetica, Arial, sans-serif;}.navigation a ,.sideNavigation a{font-family:'Lucida Grande', 'Lucida Sans Unicode', Helvetica, Arial, sans-serif;}#loginBtnWrap a{ letter-spacing:1px; }</style><script type="text/javascript" src="/ysym/framework/components.min.js"></script><link rel="stylesheet" type="text/css" href="/ysym/framework/resources/combox.css"><link rel="stylesheet" type="text/css" href="/ysym/framework/resources/scrollbar.css"><link rel="stylesheet" type="text/css" href="/ysym/framework/resources/numberfield.css"><script type="text/javascript" src="/ysym/framework/zui.min.js"></script><script type="text/javascript" src="/ysym/framework/../application.js"></script>
+	 <!--[if lt IE 9]>
+			<style type="text/css">
+				.loginModal{top:30%;margin-left:-160px;}
+				#screen{ filter:alpha(opacity=50);-moz-opacity:0.5;}
+			</style>
+		  <script src="//cdn.bootcss.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+		  <script src="//cdn.bootcss.com/respond.js/1.4.2/respond.min.js"></script>
+	<![endif]-->
+	<script type="text/javascript">
+	
+	
+	
+	 var jihuo = true;
+function activate(){
+	if(!jihuo){
+		return;
+	}
+	jihuo = false;
+	$("#acti").css("background-color","#d8d8d8");
+	Server.sendRequest("Member/isLogin", null, function(response) {
+		if (response.Status == 0) {
+			$("#loginModal").toggleClass("show");
+			$('#screen').show();
+			jihuo = true;
+			$("#acti").css("background-color","#2a68bc");
+			return;
+		}
+		$('#screen').hide();
+		var card = getCardNo();
+		if(card==""){
+			Dialog.alert("请输入激活码");
+			jihuo = true;
+			$("#acti").css("background-color","#2a68bc");
+			return;
+		}
+		
+		//if($("#SerialNum").prop("type")=="text"||$("#SerialNum1").prop("type")=="text"){
+		//	if( $V("SerialNum")=="" && $V("SerialNum1")==""){
+		//		Dialog.alert("请输入序列号");
+		//		jihuo = true;
+		//		$("#acti").css("background-color","#2a68bc");
+		//		return;
+		//	}
+		//}
+		//var serialNum = getSerialNum();
+		var dc = {
+				card : card
+				//SerialNum:serialNum
+			};
+		var h = $(document).height();
+		$('#screen').show();
+		$('#simage').show();
+			Server.sendRequest("ActivationOption.activate", dc, function(response) {
+				if (response.Status == 1) {
+					//window.location.href = "../activationStep2?pasteCardID="+response.pasteCardID+"&cardNo="+response.cardNo;
+					//新增加的
+					var dc = {
+							card : getCardNo()
+						};
+					isan = false;
+					$("#screen").css("height", document.body.clientHeight);
+					$('#screen').show();
+					Server.sendRequest("ActivationOption.confirmActivate", dc, function(response) {
+						isan = true;
+						if (response.Status == 1) {
+							var pcid = response.PasteCardID;
+							window.location.href = "activate3.zhtml?pasteCardID="+pcid;
+							return;
+						} else if(response.Status == 2){
+							window.location.href=window.location.href;
+							return;
+						} else {
+							jihuo = true;
+							$("#acti").css("background-color","#2a68bc");
+							$('#screen').hide();
+							Dialog.alert(response.Message);
+						}
+					});
+				} else if(response.Status == 3) {
+					var dc = {
+							card : getCardNo()
+						};
+					isan = false;
+					$("#screen").css("height", document.body.clientHeight);
+					$('#screen').show();
+					Server.sendRequest("ActivationOption.ZzfwconfirmActivate", dc, function(response) {
+						isan = true;
+						if (response.Status == 1) {
+							var ISBN = response.ISBN;
+							var CardNo = response.CardNo;
+							window.location.href = "ZzActivate.zhtml?ISBN="+ISBN;
+							return;
+						}  else if(response.Status == 4){
+							var CardNo = response.CardNo;
+							window.location.href = "initActivateBookList.zhtml?CardNo="+CardNo;
+							return;
+						}else if(response.Status == 2){
+							window.location.href=window.location.href;
+							return;
+						} else {
+							jihuo = true;
+							$("#acti").css("background-color","#2a68bc");
+							$('#screen').hide();
+							Dialog.alert(response.Message);
+						}
+					});
+					/* window.location.href = "http://zengzhi.ipmph.com/searchmain_list.html"; */
+				}else if(response.Status == 4) {
+					window.location.href = "initActivateBookList.zhtml?CardNo="+getCardNo();
+					return;
+					/* window.location.href = "http://zengzhi.ipmph.com/searchmain_list.html"; */
+				}else{
+					jihuo = true;
+					$("#acti").css("background-color","#2a68bc");
+					$('#screen').hide();
+					Dialog.alert(response.Message);
+					if(response.NeedSerialNum==true){
+						//$("#SerialNum").prop("type","text");
+						//$("#SerialNum1").prop("type","text");
+					}
+				}
+			});
+	});
+}
+
+function getCardNo(){
+	var card = $V("Card");
+	if(card==""){
+		//card = $V("Card1");
+	}
+	card = card.replace(new RegExp(" ", 'g'),"");
+	return card;
+}
+
+function getSerialNum(){
+	//var serialNum = $V("SerialNum");
+	if(serialNum==""){
+		//serialNum = $V("SerialNum1");
+	}
+	return serialNum;
+}
+
+$(function(){
+	
+	function is_weixin() {
+	    var ua = navigator.userAgent.toLowerCase();
+	    if (ua.match(/MicroMessenger/i) == "micromessenger") {
+	        return true;
+	    } else {
+	        return false;
+	    }
+	}
+	var isWeixin = is_weixin();
+	var winHeight = typeof window.innerHeight != 'undefined' ? window.innerHeight : document.documentElement.clientHeight;
+	console.log(winHeight);
+	function loadHtml(){
+		var div = document.createElement('div');
+		div.id = 'weixin-tip';
+		div.innerHTML = '<p><img src="images/live_weixin.png" alt="微信打开" style="width:100%;"/></p>';
+		document.body.appendChild(div);
+	}
+	
+	function loadStyleText(cssText) {
+        var style = document.createElement('style');
+        style.rel = 'stylesheet';
+        style.type = 'text/css';
+        try {
+            style.appendChild(document.createTextNode(cssText));
+        } catch (e) {
+            style.styleSheet.cssText = cssText; //ie9以下
+        }
+        var head=document.getElementsByTagName("head")[0]; //head标签之间加上style样式
+        head.appendChild(style); 
+    }
+    var cssText = "#weixin-tip{position: fixed; left:0; top:0; background: rgba(0,0,0,0.8); filter:alpha(opacity=80); width: 100%; height:100%; z-index: 100;} #weixin-tip p{text-align: center; margin-top: 10%; padding:0 5%;}";
+	if(isWeixin){
+		loadHtml();
+		loadStyleText(cssText);
+	}else{
+		Server.sendRequest("Member/isLogin", null, function(response) {
+			if (response.Status == 0) {
+				$("#loginModal").toggleClass("show");
+				$('#screen').show();
+				return;
+			}
+		});
+	}
+
+	var un = getCookie("username");
+	var pw = getCookie("password");
+	if(un){
+		$S("username",un);
+	}
+	if(pw){
+		$S("password",pw);
+	}
+});
+
+
+	function getCookie(c_name) {
+		if (document.cookie.length > 0) {
+			c_start = document.cookie.indexOf(c_name + "=")
+			if (c_start != -1) {
+				c_start = c_start + c_name.length + 1
+				c_end = document.cookie.indexOf(";", c_start)
+				if (c_end == -1)
+					c_end = document.cookie.length
+				return unescape(document.cookie.substring(c_start, c_end))
+			}
+		}
+		return ""
+	}
+	function setCookie(c_name, value, expiredays) {
+		var exdate = new Date()
+		exdate.setDate(exdate.getDate() + expiredays)
+		document.cookie = c_name
+				+ "="
+				+ escape(value)
+				+ ((expiredays == null) ? "" : ";expires="
+						+ exdate.toGMTString())
+	}
+	
+	function logout(){
+		Dialog.confirm("您确定退出登录吗？",function(){
+			window.location.href="http://sso.ipmph.com/Logout.jsp?Referer=http://jh.ipmph.com/ysym/";
+		});
+	}
+	
+	Page.onReady(function(){
+		//timeoutID = setTimeout(initMgeCount, 1000*3);
+		lastWinWidth=$(window).width();
+		
+	});
+	 $(function(){
+         $('.userName font').click(function(){	
+				$(this).toggleClass("open");
+             $('.userName .messageList').toggleClass("hide");
+         })
+        
+        
+		
+		$('.userProfile').click(function(){	
+			$("#loginModal").toggleClass("show");
+			$('#screen').show();
+			jihuo = true;
+			$("#acti").css("background-color","#2a68bc");
+        })
+		
+     });
+</script>
+</head>
+<body style="background-color:#efefef;">
+    <!-- 头部 -->
+    <div id="header">
+    <div id="top" style="height:32px;overflow: inherit;">
+            <div class="container" style="height:32px;">
+                <script ignoreapd="1" charset="UTF-8" src="http://sso.ipmph.com/SSORegister/codeheader.jsp?ServiceID=ysym" type="text/javascript"></script><form method="post" accept-charset="UTF-8" action="http://sso.ipmph.com/doLogin?ServiceID=ysym&amp;Referer=http%3A%2F%2Fjh.ipmph.com%2Fysym%2Fcode%2Findex.zhtml" id="headLoginform" onsubmit="return login()">                                            <div class="login"><ul class="g-ul"><li><em>用户名：</em><input type="text" class="top-inp1" name="UserName" id="HeadUserName"></li><li><em>密码：</em><input type="password" class="top-inp1" name="Password" id="HeadPassword"></li><li class="li1"><a href="#;" onclick="login()">登录</a> <a href="http://sso.ipmph.com/SSORegister/register.jsp?ServiceID=ysym&amp;Referer=http://jh.ipmph.com/ysym/memberlogin.zaction" target="_blank">注册</a> </li> </ul> </div> <div class="nv"> <ul class="g-ul"> <li><a href="http://jh.ipmph.com/">首页</a>|</li> <li><a href="http://exam.ipmph.com">考试</a>|</li> <li><a href="http://medbooks.ipmph.com">数据库</a>|</li> <li><a href="http://www.ipmph.com/edu">教育</a>|</li> <li><a href="http://health.ipmph.com">健康</a>|</li> <li><a href="http://booksupdate.ipmph.com">在线参考书</a></li> </ul> </div></form><style>          .isPhone #effectToggle{display:none}#effectToggle{position:relative;width:115px;display:inline-block;cursor:pointer;font-size:12px;}#effectToggle ul{position: absolute;height: 100px;padding:5px 1px;border:1px solid #cbdbe8;z-index:999;display:none;line-height:23px;border-top:none;background:#fff;}#effectToggle.over ul{display:block;}#effectToggle.over ul li{*margin-top:8px;text-align:left;}#effectToggle.over ul li a img{opacity:.6;filter:alpha(opacity=60);}#effectToggle.over ul li a:hover img, #effectToggle.over ul li a.current img{opacity:1;filter:alpha(opacity=100);}.login .li1 .effectToggle a:hover {background-color: white;}</style>          
+            </div>
+        </div>
+    </div>
+    <!-- 头部 end -->
+
+    <!-- 手机头部 -->
+    <div id="hd">
+        <div class="" style="line-height: 60px;height:60px;">
+        	<a href="http://jh.ipmph.com/" class="home"></a>
+        	
+        	
+        		<a href="javascript:void(0);" class="pull-right userProfile" style="margin-right:15px;font-size: 16px;color: #2a68bc;"><img class="img-circle" src="images/user.png"><!-- <i>&middot;</i> --></a>
+        	
+        </div>
+        <ul class="messageList hide">
+            <li><a href="mydis.zhtml">我的优惠</a></li>
+            <li><a href="myMsg.zhtml">我的消息<em></em></a></li>
+            <li><a href="activateBookList.zhtml">我的图书<em></em></a></li>
+            <li><a href="feedbackFront.zhtml">意见反馈<em></em></a></li>
+        </ul>
+        <div class=" text-center signOut hide"><a href="http://sso.ipmph.com/Logout.jsp?ServiceID=ysym&amp;Referer=http%3A%2F%2Fjh.ipmph.com%2Fysym%2Fcode%2Findex.zhtml" target="_top">退出</a></div>
+    </div>
+    <!-- 手机头部 end -->
+
+    <div id="bd">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-8 col-md-offset-2">
+                    <!-- 内容 -->
+                    <div class="logo"><a href="http://jh.ipmph.com/ysym/"><img src="images/logo.png" alt=""></a></div>
+                    <div class="con-sear">
+                        <input type="text" class="inp" id="Card" name="Card" placeholder="请输入激活码，字母不区分大小写。">
+                        <button class="btn" onclick="activate();" id="acti">激活</button>
+                        <div class="c"></div>
+                       <!-- <span>温馨提示：激活码不包含空格，不区分大小写。</span> -->
+                    </div>
+                     <div class="h20"></div>
+                    <!-- 我激活的图书列表 -->
+                    
+                    
+                     <!-- 优惠购买 -->
+                        
+                    
+                    <div class="imgbox1">
+                        <a class="img1"><img data-original="images/pic1.jpg" alt="" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsQAAA7EAZUrDhsAAAANSURBVBhXYzh8+PB/AAffA0nNPuCLAAAAAElFTkSuQmCC"></a>
+                        <a class="img2"><img data-original="images/pic1-m.jpg" alt="" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsQAAA7EAZUrDhsAAAANSURBVBhXYzh8+PB/AAffA0nNPuCLAAAAAElFTkSuQmCC"></a>
+                    </div>
+                    <!-- 内容 emd -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 底部 -->
+    <div id="fd">
+        <div class="box">
+            <div class="container">
+                <div class="txt">
+                    <p>服务邮箱：<a href="" class="mel">zengzhi@pmph.com</a>&nbsp;&nbsp;<a href="helpList.zhtml" class="help">使用帮助</a>&nbsp;&nbsp;<b>客服热线：4006-300-567(服务时间：8:00-21:30)</b></p><p></p> 
+                    <p><b>人民卫生出版社主办</b> <b>京ICP备：05067392号-2</b> <b><a target="_blank" href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=11010502031110">京公网安备 11010502031110号</a></b></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- 底部 end -->
+
+    <!-- 手机端-登录弹窗 -->
+    <div id="loginModal" class="loginBox modal show">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <span><a href="javascript:void(0);" class="close">x</a></span>
+                	<!-- <button type="button" class="close">x</button> -->
+                	<h3 class="text-center ">登录</h3>
+                </div>
+                <div class="modal-body clearfix">
+                	<form action="" class="form col-md-12 center-block">
+                        <div class="form-group accountNumber">
+                            <input type="text" class="form-control input-lg" id="username" name="username" placeholder="人卫账号/手机号">
+                        </div>
+                        <div class="form-group password">
+                            <input type="password" class="form-control input-lg" placeholder="密码" id="password" name="password">
+                        </div>
+                        <div class="form-group ">
+                            <input type="button" value="登录" class="btn btn-primary btn-lg btn-block" id="loginBtn">
+                            <div class="text-center m-b-sm">
+                            	<span class="registerAccount m-r-sm hidden-xs hidden-sm hidden-md"><a href="#" id="registerBtn">注册账号</a></span> 
+                            	<span class="registerAccount m-r-sm hidden-lg"><a href="#" id="registerBtn2">注册账号</a></span>|
+                            	<span class="m-l-sm"><a href="http://sso.ipmph.com/tofindbyemailpage">忘记密码</a></span>
+                            </div>
+                        </div>
+                        <!--  
+                        <div class="otherLogin m-t-sm">
+                        	<h4>
+                            	<span>其他登录：</span>
+                                <z:list method="socialList">
+                                ${(URL)}
+                                </z:list>
+                            </h4>
+                        </div>
+                        -->
+                	</form>
+                </div>
+                <div class="modal-footer">
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- 手机端-登录弹窗 end -->
+<!-- 遮罩层 -->
+<div id="screen" class="container-fluid" style="width: 100%; height: 100%; position: absolute; top: 0px; left: 0px; z-index: 19; background-color: rgb(102, 102, 102); opacity: 0.5; ">
+<img id="simage" src="images/1.gif" style="left:50%;margin-left:-64px;position: fixed;top: 35%;display:none;">
+</div>
+<img id="simage2" src="images/2.gif" style="left:50%;margin-left:-127px;position: fixed;top: 40%;display:none;z-index: 100;">
+
+	<script src="js/jquery.js"></script>
+	<script src="js/lib.js"></script>
+	<link rel="stylesheet" href="css/slick.css">
+	<script src="js/slick.min.js"></script>
+	
+
+<script src="js/jquery.lazyload.js"></script>
+<script>
+
+if (typeof(branch)!="undefined"){
+	window.location.href="http://sso.ipmph.com/doLogin?ServiceID=ysym&Referer="+encodeURIComponent(window.location.href);
+}
+
+$(".book-tab .tit").click(function(){
+	if($(this).parent().attr('class')=='on'){
+		 $(this).parent().removeClass('on');
+		 $(this).parent().find(".con").slideUp();
+	}else{
+    	$(this).parent().addClass("on").siblings('li').removeClass('on');
+    	$(this).parent().find(".con").slideDown().parents("li").siblings('li').find(".con").slideUp();
+	}
+});
+$('a[name="14352_ebooks"]').each(function(){
+	if($(this).attr('title')=='iphone'){
+		$(this).attr('href','https://itunes.apple.com/hk/app/jiang-yue-kao-bo-ying-yu-for/id1197355845?mt=8');
+	}else if($(this).attr('title')=='ipad'){
+		$(this).attr('href','https://itunes.apple.com/hk/app/jiang-yue-kao-bo-ying-yu/id1197355585?mt=8');
+	}else{
+		$(this).attr('href','http://books.ipmph.com/books/AppdownloadJT.zaction?type=ANDROID&SiteID=34&APPtype=jiangyue');
+	}
+});
+$('a[name="14353_ebooks"]').each(function(){
+	if($(this).attr('title')=='iphone'){
+		$(this).attr('href','https://itunes.apple.com/hk/app/jiang-yue-kao-bo-ying-yu-for/id1197355845?mt=8');
+	}else if($(this).attr('title')=='ipad'){
+		$(this).attr('href','https://itunes.apple.com/hk/app/jiang-yue-kao-bo-ying-yu/id1197355585?mt=8');
+	}else{
+		$(this).attr('href','http://books.ipmph.com/books/AppdownloadJT.zaction?type=ANDROID&SiteID=34&APPtype=jiangyue');
+	}
+});
+$('p[name="14352_ebooks"]').each(function(){
+	$(this).html('您已获得本书增值服务阅读权限，请下载并登录蒋跃考博英语APP获取相关服务（如已下载请直接登录）。');
+});
+$('p[name="14353_ebooks"]').each(function(){
+	$(this).html('您已获得本书增值服务阅读权限，请下载并登录蒋跃考博英语APP获取相关服务（如已下载请直接登录）。');
+});
+	function formatname(){
+		$("#username").val($("#username").val().replace(/[^a-zA-Z0-9\_\@]/g,''));
+	}
+
+	$(".wxl_headerBtn").mouseover(function(){
+		$("#posiRight").show();						  
+	})
+	$("#posiRight").mouseleave(function(){
+		$(this).hide();						  
+	})
+	
+	$('.wxl_ulList li').click(function(){ 
+		$(this).find(".addClick").toggle();
+		$(this).find("span").toggle();
+	}); 
+	
+	function just(url){ 
+		window.location.href=url;
+	}
+	var isneng = true;
+	$(document).ready(function(){
+		
+		$("#loginBtn").click(function(){
+		    var temp = document.createElement("form");        
+		    temp.action = "http://sso.ipmph.com/doLogin?ServiceID=ysym&Referer="+encodeURIComponent(window.location.href);        
+		    temp.method = "post"; 
+		    temp.style.display = "none";
+	        var un = document.createElement("input");        
+	        un.name = "UserName";
+	        un.id = "UserName";
+	        un.value = $("#username").val();
+	        var ps = document.createElement("input");
+	        ps.name = "Password";
+	        ps.id = "Password";
+	        ps.value = $("#password").val();
+	        temp.appendChild(un);
+	        temp.appendChild(ps);
+	  	    document.body.appendChild(temp);
+	  	  	setCookie('username',$("#username").val(),30);
+	  	  	setCookie('password',$("#password").val(),30);
+		    temp.submit();
+		});
+		$("#registerBtn").click(function(){
+			window.location.href = "http://sso.ipmph.com/SSORegister/register.jsp?Referer=http://jh.ipmph.com/ysym/memberlogin.zaction";
+		});
+		$("#registerBtn2").click(function(){
+			window.location.href = "http://sso.ipmph.com/SSORegister/m_register_ysym.jsp?Referer=http://jh.ipmph.com/ysym/memberlogin.zaction";
+		});
+		  //jquery图片延迟加载  <img data-original="延迟src" />
+        if($("img")){
+		      $("img").lazyload({effect: "fadeIn"});
+		}
+		
+	});
+
+	jQuery.fn.center = function(loaded) {
+		var obj = this;
+		body_width = parseInt($(window).width());
+		body_height = parseInt($(window).height());
+		block_width = parseInt(obj.width());
+		block_height = parseInt(obj.height());
+		
+		top_position = parseInt((body_height/2) - (block_height/2) + $(window).scrollTop());
+		if (body_height<block_height) { top_position = 0 + $(window).scrollTop(); };
+		
+		if(!loaded) {
+			
+			obj.css({'position': 'absolute'});
+			obj.css({ 'top': top_position});
+			$(window).bind('resize', function() { 
+				obj.center(!loaded);
+			});
+			$(window).bind('scroll', function() { 
+				obj.center(!loaded);
+			});
+			
+		} else {
+			obj.stop();
+			obj.css({'position': 'absolute'});
+			obj.animate({ 'top': top_position }, 200, 'linear');
+		}
+		
+	}
+	$(function(){
+		$('.close').click(function(){	
+			$('#loginModal').toggleClass("show");
+			$('#screen').hide();
+		})
+	});
+	 /* $(function(){
+		 var h =($("#loginModal").height()-$('.modal-content').height())/2;
+		 $('.modal-dialog').css('margin',h+'px auto')
+	 }) */
+</script>
+
+
+
+</body></html>

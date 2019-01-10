@@ -1,0 +1,77 @@
+<html><head></head><body><pre style="word-wrap: break-word; white-space: pre-wrap;">define(['zepto'], function ($) {
+        'use strict';
+        //初始化组件类，参数为组件配置，如果组件第一次创建，将传递空配置，如果组件为已经创建到视图窗口，重新加载，将传递已保存的配置
+        return {
+            //输出到发布页面，当用户正式发布后，调用此函数创建视图。
+            onAfterRender: function () {
+                var answer_qq = $(".mod.mod-qq-cs-plugin").data("answer_qq");
+                var ua = navigator.userAgent.toLowerCase();
+                var url_android ="mqqwpa://im/chat?chat_type=wpa&amp;uin=" + answer_qq;
+                var url_ios = "mqq://im/chat?chat_type=wpa&amp;uin=" + answer_qq + "&amp;version=1&amp;src_type=web";
+                if(ua.indexOf("micromessenger") == -1) {
+                    if(-1 &lt; ua.indexOf("iphone") || -1 &lt; ua.indexOf("ipod") || -1 &lt; ua.indexOf("ipad")){
+                        $(".menu-item").find("a").attr("href", url_ios);
+                    }
+                    else if (-1 &lt; ua.indexOf("android")) {
+                        $(".menu-item").find("a").attr("href", url_android);
+                    }
+                }
+
+                var move = false;//移动标记
+                var _x,_y;//鼠标离控件左上角的相对位置
+                var obj = $(".menu-item.btn-qq-right");
+                if(obj.length == 0){
+                    obj = $(".menu-item.btn-qq-left");
+                }
+                obj.mousedown(function(e){
+                    move = true;
+                    $("body").attr("onselectstart", "return false");
+                    _x = e.pageX - this.offsetLeft;
+                    _y = e.pageY - this.offsetTop;
+                });
+                $(document).mousemove(function(e){
+                    if(move){
+                        var x = e.pageX - _x;//移动时根据鼠标位置计算控件左上角的绝对位置
+                        var y = e.pageY - _y;
+                        if(y &gt; document.documentElement.clientHeight - 60){y = document.documentElement.clientHeight - 60;}
+                        if(y &lt; 0){y = 0;}
+                        if(x &gt; document.documentElement.clientWidth - 60){x = document.documentElement.clientWidth - 60;}
+                        if(x &lt; 0){x = 0;}
+                        obj.css({top:y,left:x});//控件新位置
+                    }
+                }).mouseup(function(){
+                    move=false;
+                    $("body").attr("onselectstart", "return true");
+                });
+
+                //移动端触屏事件
+                obj[0].addEventListener("touchstart", function(event) {
+                    // 保存touchstart初始位置
+                    var touch = event.targetTouches[0];
+                    _x = touch.clientX ;
+                    _y = touch.clientY ;
+                }, false);
+                obj[0].addEventListener("touchmove", function(event){
+                    var touch = event.targetTouches[0];
+                    // 重新计算位置坐标
+                    var offset = obj.offset();
+                    var diffX = touch.clientX - _x + offset.left;
+                    var diffY = touch.clientY - _y + offset.top - document.body.scrollTop;
+                    _x = touch.clientX ;
+                    _y = touch.clientY ;
+                    if(diffY &gt; document.documentElement.clientHeight - 60){diffY = document.documentElement.clientHeight - 60;}
+                    if(diffY &lt; 0){diffY = 0;}
+                    if(diffX &gt; document.documentElement.clientWidth - 60){diffX = document.documentElement.clientWidth - 60;}
+                    if(diffX &lt; 0){diffX = 0;}
+                    obj.css({top:diffY, left:diffX});
+                    // 阻止滚动
+                    event.preventDefault();
+                    // 阻止冒泡事件
+                    event.stopPropagation();
+                }, false);
+                obj[0].addEventListener("touchend", function(event){
+                }, false);
+            }
+        }
+    }
+);</pre></body></html>

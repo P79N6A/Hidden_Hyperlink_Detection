@@ -1,0 +1,862 @@
+<!DOCTYPE html><html><head>
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+    <meta http-equiv="Access-Control-Allow-Origin" content="*">
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8;">
+    <meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible">
+    <title>测速</title>
+    <link href="/woapp/css/css.css" rel="stylesheet" type="text/css">
+    <link href="/woapp/css/speedtest.css" rel="stylesheet" type="text/css">
+    <style type="text/css">
+
+    </style>
+<link rel="stylesheet" type="text/css" href="http://f1.webshare.mob.com/code/mob-share.css"></head>
+
+<body bgcolor="#eeeeee" style="overflow-x: hidden;">
+<div style="margin: 0 auto; width: 99%; height: 40rem;">
+    <div id="main" style="margin: 0px auto; width: 99%; height: 18px; -webkit-tap-highlight-color: transparent; -webkit-user-select: none; background-color: transparent; " _echarts_instance_="ec_1491044884321"><div style="position: relative; overflow: hidden; width: 99px; height: 18px; "><canvas style="position: absolute; left: 0px; top: 0px; width: 99px; height: 18px; -webkit-user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); " width="99" height="18" data-zr-dom-id="zr_0"></canvas></div></div>
+    <div class="tc_tj lf" id="starTest" onclick="starTest();">开始测试</div>
+    <table id="progress-table" style="width: 96%;margin: 15px;display: none;">
+        <tbody><tr>
+            <td style="width: 50px;height: 30px"><img id="serverimg" src="/woapp/images/img/blue-server.png"></td>
+            <td>
+                <div class="progress" id="up-progress" style="display:none;">
+                    <div class="progress-bar" style="margin-left:100%;width: 0%;"></div>
+                </div>
+                <div class="progress" id="down-progress" style="display:none;">
+                    <div class="progress-bar" style="width:0%;"></div>
+                </div>
+            </td>
+            <td style="width: 50px;height: 30px"><img id="clientimg" src="/woapp/images/img/blue-client.png"></td>
+        </tr>
+    </tbody></table>
+</div>
+
+<!-- 测速记录标题-->
+<div style="margin-top: 2%;" class="video_lmlist lf">
+    <img src="/woapp/images/img/Triangle.png" style="" class="lf video_icon">
+    <span style="" class="lf video_txt">历史测速记录</span>
+</div>
+<!-- max-height:21rem; -->
+<div style="overflow: hidden;" class="video_list">
+    <table border="0" cellspacing="0" cellpadding="0" class="video_listbox"><tbody><tr><td>无测试记录</td></tr></tbody></table>
+</div>
+<!-- 自定义画布 -->
+<div style="display: none;">
+    <canvas id="myCanvas" width="" height="30000px;" style="border:1px solid #c3c3c3;">
+        Your browser does not support the canvas element.
+    </canvas>
+</div>
+
+<div id="shareSpeed" class="-mob-share-open"></div>
+<!--MOB SHARE BEGIN 分享-->
+<!-- <div class="-mob-share-ui-button -mob-share-open">分享</div> -->
+<div class="-mob-share-ui -mob-share-initialized -mob-share-ui-theme" style="display: block; visibility: hidden; left: 0px; top: 0px; ">
+    <ul class="-mob-share-list">
+        
+        <!-- <li class="-mob-share-tencentweibo"><p>腾讯微博</p></li> -->
+        <!-- <li class="-mob-share-qzone"><p>QQ空间</p></li> -->
+        <!-- <li class="-mob-share-qq"><p>QQ好友</p></li> -->
+        <!-- <li class="-mob-share-weixin"><p>微信</p></li> -->
+        <li class="-mob-share-weixin -mob-share-initialized" onclick="onMenuShareTimeline();" style="margin: 0px; top: -17.5px; left: -30px; position: absolute; " data-mob-share-center-top="-17.5px" data-mob-share-center-left="-30px">
+            <p>
+                微信
+            </p>
+        </li>
+        <!-- <li class="-mob-share-douban"><p>豆瓣</p></li> -->
+        <!-- <li class="-mob-share-renren"><p>人人网</p></li> -->
+        <!-- <li class="-mob-share-kaixin"><p>开心网</p></li> -->
+        <!-- <li class="-mob-share-facebook"><p>Facebook</p></li> -->
+        <!-- <li class="-mob-share-twitter"><p>Twitter</p></li> -->
+    </ul>
+    <div class="-mob-share-close">
+        取消
+    </div>
+</div>
+<div class="-mob-share-ui-bg" style="display: none; "></div>
+<script id="-mob-share" src="http://f1.webshare.mob.com/code/mob-share.js?appkey=7be6bb2428c2">
+</script>
+<!--MOB SHARE END-->
+<script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&amp;ak=rRdRwvMVvndy5bl3bmZA8ogB"></script><script type="text/javascript" src="http://api.map.baidu.com/getscript?v=2.0&amp;ak=rRdRwvMVvndy5bl3bmZA8ogB&amp;services=&amp;t=20170324173232"></script>
+<script type="text/javascript" src="/woapp/js/jquery-1.9.1.min.js"></script>
+<script type="text/javascript" src="/woapp/js/echarts.min.js"></script>
+<script type="text/javascript" src="http://api.map.baidu.com/library/GeoUtils/1.2/src/GeoUtils_min.js"></script>
+<script type="text/javascript" src="/woapp/js/jweixin-1.0.0.js"></script>
+<script type="text/javascript" src="/woapp/js/public.js?time=1491043805290"></script>
+<script type="text/javascript" src="/woapp/js/wotiyan/speed.js?time=1491043805290"></script>
+
+<!-- 自定义弹窗 -->
+
+
+
+
+	<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+	<meta http-equiv="Content-Type" content="text/html;charset=utf-8;">
+	<meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible">
+	<title>登录</title>
+	<link href="/woapp/css/css.css" rel="stylesheet" type="text/css">
+	<script type="application/javascript" src="/woapp/js/jqueryCookie.js"></script>
+	<script type="text/javascript">
+		var telNumTmp = "";
+		function login() {
+			var telNum = $("#telNum").val();
+			var verCode = $("#verCode").val();
+			var PATTERN_CHINAUNICOM = /^1(3[0-2]|5[56]|8[56]|4[5]|7[056])\d{8}$/;
+			if (!PATTERN_CHINAUNICOM.test(telNum)) {
+				myAlert('请输入正确的电话号码,本服务只支持联通号');
+				return;
+			}
+			if (verCode == '') {
+				myAlert('请输入验证码');
+				return;
+			}
+			telNumTmp = telNum;
+			$("#loginDetermine").attr("href","javascript:void(0);");
+			showLoading();
+			$.get('/woapp/common/wotucao/loginCheck.do?telNum=' + telNum
+			+ '&verCode=' + verCode + '&sourceChannel=' + $('#sourceChannel').val(), function (data) {
+				hideLoading();
+				if (data.res.body.flag) {
+					//alert(telNumTmp+""+telNum);
+					//存cookies
+					$.cookie("user_id", telNum, {path: "/", expires: 7});
+					$.cookie("code_", data.res.body.encrytorStr, {path: "/", expires: 7});
+					//存入html5的localStorage对象中
+					localStorage.userId = telNum;
+					localStorage.code_ = data.res.body.encrytorStr;
+					myAlert('登录成功', '', 'colseLoginDiv();');
+				} else {
+					$("#loginDetermine").attr("href", "javascript:login();");
+					myAlert(data.res.body.message);
+				}
+			});
+		}
+
+		function showLoading() {
+			$("body").append("<div id='loading_bg' style='z-index:99998;position:fixed;top: 0;left: 0;width: 100%;height: 100%;background-color: #eeeeee;filter:alpha(opacity=20);-moz-opacity:0.2;opacity:0.2;'>");
+			$("body").append("<img id='loading_img' style='z-index:99999;position: fixed;margin:auto;left:0; right:0; top:0; bottom:0;max-height: 80%;max-width: 80%;' src='/woapp/images/img/loading-gif.gif'/>");
+		}
+		function hideLoading() {
+			$("#loading_bg").remove();
+			$("#loading_img").remove();
+		}
+		function getVerCode() {
+			var telNum = $("#telNum").val();
+			var PATTERN_CHINAUNICOM = /^1(3[0-2]|5[56]|8[56]|4[5]|7[056])\d{8}$/;
+			if (!PATTERN_CHINAUNICOM.test(telNum)) {
+				myAlert('请输入正确的电话号码,本服务只支持联通号');
+				return;
+			}
+			showLoading();
+			$.get('/woapp/common/wotucao/getVerCode.do?telNum=' + telNum, function (data) {
+				hideLoading();
+				if (data.res.body.flag) {
+					$('#btn_getVerCode').attr('disabled', true);
+					$('#btn_getVerCode').removeAttr("style");
+					timer = setInterval("CountDown()", 1000);
+				}
+				myAlert(data.res.body.message);
+			});
+		}
+		var maxtime = 120;
+		var timer;
+		function CountDown() {
+			if (maxtime > 0) {
+				$('#btn_getVerCode').val(maxtime + '秒后可重新获取');
+				maxtime--;
+			} else {
+				clearInterval(timer);
+				$('#btn_getVerCode').attr('disabled', false);
+				$('#btn_getVerCode').attr("style", "background-color:#ff8000;");
+				$('#btn_getVerCode').val('    获取验证码');
+				maxtime = 120;
+			}
+		}
+
+		//显示登录框   设置确定/取消  的事件
+		function showLoginDiv(determineStr, cancelStr) {
+			//当进来需要登录的时候
+
+			if ($.cookie('user_id') != null && $.cookie('user_id') != "" &&
+					$.cookie('code_') != null && $.cookie('code_') != "") {
+				$.get('/woapp/common/wotucao/loginCheck2.do?telNum=' + $.cookie('user_id')
+						+ '&encrytorStr=' + $.cookie('code_') + '&sourceChannel=' + $('#sourceChannel').val()
+						+ '&encrytorStr2=' + localStorage.code_,
+						function (data) {
+							if (data.res.body.flag) {
+								//成功就说明session已经设置进去
+								//存cookies  再次登录，重新设置7天缓存
+								$.cookie("user_id", $.cookie('user_id'), {path: "/", expires: 7});
+								$.cookie("code_", data.res.body.encrytorStr, {path: "/", expires: 7});
+								//存入html5的localStorage对象中
+								localStorage.userId = $.cookie('user_id');
+								localStorage.code_ = data.res.body.encrytorStr;
+
+								if (determineStr != "" && determineStr != null) {
+									$("#loginDetermine").attr("href", "javascript: " + determineStr);
+									$("#loginDetermine").trigger("click");
+								}
+							} else {
+								//不成功就弹窗 ，要求登录
+								$("#telNum").val($("#phone_input").val());//默认填写吐槽联系电话
+								$("#loginDiv").css("display", "block");
+								if (determineStr != null && determineStr != "") {
+									$("#loginDetermine").attr("href", "javascript:login(); " + determineStr);
+								}
+								if (cancelStr != null && cancelStr != "") {
+									$("#loginCancel").attr("href", "javascript:colseLoginDiv(); " + cancelStr);
+								}
+							}
+						});
+			} else {
+				$("#telNum").val($("#phone_input").val());//默认填写吐槽联系电话
+				$("#loginDiv").css("display", "block");
+				if (determineStr != null && determineStr != "") {
+					$("#loginDetermine").attr("href", "javascript:login(); " + determineStr);
+				}
+				if (cancelStr != null && cancelStr != "") {
+					$("#loginCancel").attr("href", "javascript:colseLoginDiv(); " + cancelStr);
+				}
+			}
+		}
+
+		//关闭登录框
+		function colseLoginDiv() {
+			$("#loginDiv").css("display", "none");
+		}
+	</script>
+
+
+<div class="tckbg" id="loginDiv" style="display: none;">
+	<div class="login">
+		<div class="login-title">登 录</div>
+		<div class="login-body">
+			<div class="login-phone">
+				<input id="telNum" type="tel" placeholder="手机号码">
+				<span class="border-left"></span>
+				<span class="border-right"></span>
+				<a href="javascript:;"><i class="icon-drop"></i></a>
+			</div>
+			<div class="login-captcha">
+				<input type="tel" placeholder="验证码" id="verCode">
+				<span class="border-left"></span>
+				<span class="border-right"></span>
+				<input id="btn_getVerCode" class="captcha-btn" style="background-color: #ff8000;" type="button" onclick="getVerCode();" value="   获取验证码">
+			</div>
+			<div class="login-btns">
+				<a href="javascript:colseLoginDiv();" id="loginCancel" style="text-decoration: none;">取消</a>
+				<a href="javascript:login();" id="loginDetermine" style="text-decoration: none;">确定</a>
+			</div>
+		</div>
+	</div>
+</div>
+<!-- 自定义弹窗 -->
+
+
+
+
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8;">
+<meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible">
+<title>提示框</title>
+<style type="text/css">
+html{ font-size: 62.5%; }
+body{font-size: 1.4rem; width:100%;font-family:'\5fae\8f6f\96c5\9ed1'; color:#848484;}
+*{ margin:0px; padding:0px;}
+img { border:0; vertical-align:middle; }
+.lf{float:left;}
+.rf{float:right;}
+
+.Alertbg{position: fixed; top: 0; left: 0; width: 100%; z-index: 160; background-color:rgba(0,0,0,0.3); height:100%}
+
+.Alert{ margin: 0 auto; width: 90%; position: fixed; top: 60%; left: 5%; margin-top: -13rem; }
+.Alert-title{ height: 6rem; line-height: 6rem; background: #ffffff; color: #000000; text-align: center; border: 1px solid #ffffff; border-radius: 1rem 1rem 0 0; font-size: 1.8rem; }
+.Alert-body{ background: #fff; border-radius: 0 0 1rem 1rem; border: 1px solid #fff;  padding: 1.5rem; }
+.Alert-body input{ height: 3rem; line-height: 3rem; display: block; border: none; border-bottom: 1px solid #c5c5c5; font-size: 1.3rem; width: 100%; outline: none; color: #848484; }
+.Alert-body .border-left, .Alert-body .border-right{ position: absolute; bottom: 0; height: .5rem; width: 1px; background-color: #c5c5c5; }
+.Alert-body .border-left{ left: 0; }
+.Alert-body .border-right{ right: 0; }
+.Alert-body input:focus ~ .border-left, .Alert-body input:focus ~ .border-right{ background-color: #ff8000; }
+.Alert-body input:focus{ border-bottom: 1px solid #ff8000; }
+.Alert-text, .Alert-captcha{ position: relative; }
+.Alert-text > a{ position: absolute; top: 0; right: 1rem; }
+.Alert-captcha > a, .Alert-captcha .captcha-btn{ position: absolute; right: .2rem; bottom: .7rem; display: inline-block; height: 4rem; line-height: 4rem; background-color: #c5c5c5; color: #fff; font-size: 1.2rem; padding: 0 1rem; width: auto; text-indent: 0; }
+.Alert-btns{ text-align: center; margin-top: 2rem; }
+.Alert-btns a{ font-size: 1.6rem; height: 3.6rem; line-height: 3.6rem; width: 45%; text-align: center; color: #fff; background-color: #ff8000; display: inline-block; }
+
+</style>
+<script type="text/javascript">
+    
+	/**
+	 * 自定义弹出框  需要jquery的支持
+	 * @param content	内容
+	 * @param title 标题
+	 * @param determineStr	确定需要做的事
+	 * @param cancelStr		取消需要做的事
+	 * @returns
+	 */
+	function myAlert(content,title,determineStr,cancelStr){
+		$(".Alert-text").html(content);
+		$(".Alert-title").show();
+		$(".Alert-body").css("border-radius", "0 0 1rem 1rem ");
+		if(title!=null && title!=""){
+			$(".Alert-title").html(title);
+		}else{
+			$(".Alert-body").css("border-radius", "1rem 1rem 1rem 1rem");
+			$(".Alert-title").hide();
+		}
+		showAlertDiv(determineStr,cancelStr);
+	}
+	
+	//弹窗方法2，用于没有确定按钮的。需要调用 colseAlertDiv()进行关闭 
+	function myAlert2(content,title){
+		$(".Alert-text").html(content);
+		$(".Alert-title").show();
+		$(".Alert-body").css("border-radius", "0 0 1rem 1rem");
+		if(title!=null && title!=""){
+			$(".Alert-title").html(title);
+		}else{
+			$(".Alert-body").css("border-radius", "1rem 1rem 1rem 1rem");
+			$(".Alert-title").hide();
+		}
+		$("#AlertDiv").css("display", "block");
+		$("#AlertDetermine").hide();
+		$("#AlertCancel").hide();
+	}
+	
+	//显示  设置确定/取消  的事件 
+	function showAlertDiv(determineStr,cancelStr){
+		//当进来需要登录的时候
+  		$("#AlertDetermine").show();
+      	$("#AlertCancel").show();
+		$("#AlertDiv").css("display", "block");
+		if(determineStr!=null && determineStr!=""){
+			$("#AlertDetermine").attr("href","javascript:colseAlertDiv();"+determineStr);
+		}
+		if(cancelStr!=null && cancelStr!=""){
+			$("#AlertCancel").attr("href","javascript:colseAlertDiv();"+cancelStr);
+		}else if(cancelStr==null){
+			$("#AlertCancel").hide();
+		}
+		
+	}
+	
+	//关闭
+	function colseAlertDiv(){
+		$("#AlertDiv").css("display", "none");
+	}
+
+</script>
+
+
+<input type="hidden" id="sourceChannel" value="">
+<div class="Alertbg" id="AlertDiv" style="display: none;">
+	<div class="Alert">
+		<div class="Alert-title">title</div>
+		<div class="Alert-body" style="display: block;">
+			
+			<div class="Alert-text">
+				content<br><br><br>
+			</div>
+			
+			<div class="Alert-btns">
+				<a href="javascript:colseAlertDiv();" id="AlertCancel" style="text-decoration: none;">取消</a> 
+				<a href="javascript:colseAlertDiv();" id="AlertDetermine" style="text-decoration: none;">确定</a>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+
+
+<script type="text/javascript">
+	$(function () {
+		//alert(localStorage.code_);
+		if ($.cookie('user_id') != null && $.cookie('user_id') != "") {
+			$("#telNum").val($.cookie('user_id'));
+		}
+	});
+</script>
+
+
+
+
+
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8;">
+    <meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible">
+    <title>视频测试表单</title>
+    <style type="text/css">
+        .videoheader {
+            height: 3rem;
+            line-height: 3rem;
+            text-align: left;
+            color: #fff;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 100;
+            position: absolute;
+            background: url(/woapp/images/img/bg.png) repeat-x center;
+            font-size: 1.6rem;
+        }
+
+        .videobg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 150;
+            background-color: rgba(0, 0, 0, 0.3);
+            height: 100%
+        }
+
+        .videotest {
+            margin: 0 auto;
+            width: 90%;
+            position: absolute;
+            top: 25%;
+            left: 5%;
+            margin-top: -13rem;
+            background-color: rgba(244, 244, 244, 1);
+        }
+
+        .feedbackInput {
+            border-right-width: 0px;
+            width: 95%;
+            float: right;
+            border-top-width: 0px;
+            border-bottom-width: 0px;
+            color: #848484;
+            vertical-align: middle;
+            border-left-width: 0px;
+            height: 3rem;
+            line-height: 3rem;
+            font-size: 1.3rem;
+            font-family: '\5fae\8f6f\96c5\9ed1';
+        }
+
+        .icon-close {
+            background: url(/woapp/images/img/close.png) no-repeat center;
+            height: 3rem;
+            width: 1.6rem;
+            margin-right: 0.5rem;
+        }
+
+        /*视频测速*/
+        .gun_con {
+            width: 95%;
+            margin-left: 2.5%;
+            margin-top: 1rem;
+            line-height: 5rem;
+            display: block;
+            float: left;
+            color: #454545;
+        }
+
+        .gun_icon {
+            width: 2.7rem;
+            margin-left: 1rem;
+            margin-right: 1rem;
+        }
+
+        .gun_title {
+            margin: .5rem 0rem .5rem 0rem;
+            line-height: 2.5rem;
+            color: #454545;
+            font-size: 1.5rem;
+            width: 100%;
+            padding-left: 1rem;
+            display: block;
+        }
+
+        .gun_bg {
+            background-color: #FFF;
+            border-bottom: 2px solid #e9e9e9;
+            padding-bottom: .5rem;
+            width: 100%;
+        }
+
+        .gun_w94 {
+            border-bottom: 1px solid #e9e9e9;
+            width: 94%;
+            margin-left: 3%;
+            float: left;
+            color: #454545;
+            padding-top: .5rem;
+            padding-bottom: .5rem
+        }
+
+        .gun_txt {
+            line-height: 3.2rem;
+            text-align: left;
+            float: left
+        }
+
+        .gun_txtright {
+            line-height: 3.2rem;
+            text-align: right;
+            float: right;
+            margin-right: .3rem;
+        }
+
+        .gun_w {
+            width: 94%;
+            margin-left: 3%;
+            float: left;
+            color: #454545;
+            padding-top: .5rem;
+            padding-bottom: .5rem
+        }
+
+        .gun_w100 {
+            width: 100%;
+        }
+
+        .gun_bqbtn {
+            width: 94%;
+            margin-top: 1.2rem;
+            margin-bottom: .7rem;
+            float: left;
+            margin-left: 3%
+        }
+
+        .gun_bq {
+            width: 94%;
+            margin-top: 1.2rem;
+            margin-bottom: .7rem;
+            float: left;
+            margin-left: 3%
+        }
+
+        .gun_bqbtn li {
+            width: 44%;
+            float: left;
+            text-decoration: none;
+            list-style-type: none;
+            text-align: left;
+            font-size: 1.5rem;
+            height: 6rem;
+            line-height: 4rem;
+            text-align: center;
+            margin-left: 6%
+        }
+
+        .gun_bq li {
+            width: 22%;
+            float: left;
+            text-decoration: none;
+            list-style-type: none;
+            text-align: left;
+            font-size: 1.5rem;
+            height: 6rem;
+            line-height: 4rem;
+            text-align: center;
+            margin-left: 3%
+        }
+
+        .gun_bq li a {
+            text-decoration: none;
+            color: #454545;
+        }
+
+        .gun_bq li a:hover {
+            text-decoration: none;
+            color: #ff8000;
+            display: block;
+        }
+
+        .gun_bq li a.syi {
+            display: block;
+            background: url(/woapp/images/img/icon_bpj.png) no-repeat center top;
+            text-decoration: none;
+        }
+
+        .gun_bq li a.syi_hover {
+            display: block;
+            background: url(/woapp/images/img/icon_bpj1.png) no-repeat center top;
+            text-decoration: none;
+        }
+
+        .gun_bq li a.sych {
+            display: block;
+            background: url(/woapp/images/img/icon_ch.png) no-repeat center top;
+            text-decoration: none;;
+        }
+
+        .gun_bq li a.sych_hover {
+            display: block;
+            background: url(/woapp/images/img/icon_ch1.png) no-repeat center top;
+            text-decoration: none;
+        }
+
+        .gun_bq li a.syjm {
+            display: block;
+            background: url(/woapp/images/img/icon_jm1.png) no-repeat center top;
+            text-decoration: none;
+        }
+
+        .gun_bq li a.syjm_hover {
+            display: block;
+            background: url(/woapp/images/img/icon_jm.png) no-repeat center top;
+            text-decoration: none;
+        }
+
+        .gun_bq li a.synz {
+            display: block;
+            background: url(/woapp/images/img/icon_nz.png) no-repeat center top;
+            text-decoration: none;
+        }
+
+        .gun_bq li a.synz_hover {
+            display: block;
+            background: url(/woapp/images/img/icon_nz1.png) no-repeat center top;
+            text-decoration: none;
+        }
+
+        .gun_p3 {
+            padding-top: 2.5rem;
+            display: block;
+        }
+
+        .span_hover {
+            color: #ff8000;
+        }
+    </style>
+
+
+<div class="videobg" id="speed_test_id" style="display: none">
+    <div class="videotest">
+        <div class="videoheader">
+            &nbsp;&nbsp;&nbsp;报告
+            <a href="javascript:colseSpeedTestDiv();" class="rf icon-close"></a>
+        </div>
+        <!--header-->
+        <div>
+            <div style="margin-top: 3rem" class="lf gun_title">
+                体验报告
+            </div>
+            <div style="" class="lf gun_bg">
+                <div style="" class="gun_w">
+                    <!-- //根据需求不要平均速度和最小速度  2015年7月20日 10:53:06 lrw -->
+                    <!-- <div class=" gun_w100 lf" >
+                     <span style="" class="gun_txt">播放平均速率</span>
+                     <span style="" class="gun_txtright" id="avg_speed">--Mbps</span>
+                   </div> -->
+                    <div class=" gun_w100 lf">
+                        <span style="" class="gun_txt">上传速率</span>
+                        <span style="" class="gun_txtright" id="form_up_speed">--Mbps</span>
+                    </div>
+                    <div class=" gun_w100 lf">
+                        <span style="" class="gun_txt">下载速率</span>
+                        <span style="" class="gun_txtright" id="form_down_speed">--Mbps</span>
+                    </div>
+                    <!-- //根据需求不要平均速度和最小速度  2015年7月20日 10:53:06 lrw -->
+                    <!-- <div class=" gun_w100 lf" >
+                      <span style="" class="gun_txt">播放最低速率</span>
+                      <span style="" class="gun_txtright" id="min_speed">--Mbps</span>
+                    </div> -->
+                </div>
+            </div>
+            <!--gun_bg-->
+            <div class="lf gun_title">
+                测速结果排名
+            </div>
+            <div style="" class="lf gun_bg">
+                <div class="gun_w94">
+                    <span id="ranking" class="gun_txt">123123123</span>
+                </div>
+            </div>
+            <div class="lf gun_title">
+                建议
+            </div>
+            <div style="" class="lf gun_bg">
+                <div class="gun_w94">
+                    <span id="jianyi" class="gun_txt">123131</span>
+                </div>
+            </div>
+            <div style="" class="lf gun_title">
+                体验心得
+            </div>
+            <div style="" class="lf gun_bg">
+                <ul class="gun_bq">
+                    <li style="margin-left:.2%"><a href="javascript:clickTips(1);" class="synz"><span class="gun_p3">怒赞</span></a></li>
+                    <li><a href="javascript:clickTips(2);" class="sych"><span class="gun_p3">凑合</span></a></li>
+                    <li><a href="javascript:clickTips(3);" class="syjm"><span class="gun_p3">巨慢</span></a></li>
+                    <li><a href="javascript:clickTips(4);" class="syi"><span class="gun_p3">不评价</span></a></li>
+                </ul>
+			  <textarea rows="" cols="" id="contentText" name="contentText" class="feedbackInput" onkeydown="if (event.keyCode==13) {}" onblur="if(this.value=='')value='写点体会或建议吧，亲~';" onfocus="if(this.value=='写点体会或建议吧，亲~')value='';">写点体会或建议吧，亲~</textarea>
+            </div>
+            <!--gun_bg-->
+            <ul class="gun_bqbtn">
+                <li>
+                    <div style="margin:0.5rem 0rem;" class="tc_tj lf" onclick="submitForm()">提交</div>
+                </li>
+                <li>
+                    <div style="margin:0.5rem 0rem;margin-left:2.5%;" class="tc_tj lf" onclick="submitForm('others')" id="btn">提交</div>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+
+    //选择体验心得
+    var Tips = -1;  //1:怒赞  2：凑合 3：巨慢 4：不评价  -1:未填
+    function clickTips(t) {
+        //初始化选择
+        $(".synz").removeClass("synz_hover");
+        $(".synz span.gun_p3").removeClass("span_hover");
+        $(".sych").removeClass("sych_hover");
+        $(".sych span.gun_p3").removeClass("span_hover");
+        $(".syjm").removeClass("syjm_hover");
+        $(".syjm span.gun_p3").removeClass("span_hover");
+        $(".syi").removeClass("syi_hover");
+        $(".syi span.gun_p3").removeClass("span_hover");
+        if (t == 1) {
+            $(".synz").addClass("synz_hover");
+            $(".synz span.gun_p3").addClass("span_hover");
+        } else if (t == 2) {
+            $(".sych").addClass("sych_hover");
+            $(".sych span.gun_p3").addClass("span_hover");
+        } else if (t == 3) {
+            $(".syjm").addClass("syjm_hover");
+            $(".syjm span.gun_p3").addClass("span_hover");
+        } else if (t == 4) {
+            $(".syi").addClass("syi_hover");
+            $(".syi span.gun_p3").addClass("span_hover");
+        }
+        if (t != null) {
+            Tips = t;
+        }
+    }
+
+    //显示
+    function showSpeedTestDiv() {
+        $("#speed_test_id").css("display", "block");
+    }
+    //关闭
+    function colseSpeedTestDiv() {
+        $("#speed_test_id").css("display", "none");
+    }
+
+    //赋值
+    function setSpeedTestValue(total_time, form_up_speed, form_down_speed) {
+        $("#total_time").html(total_time);
+        $("#form_up_speed").html(form_up_speed);
+        $("#form_down_speed").html(form_down_speed);
+        //根据需求不要平均速度和最小速度  2015年7月20日 10:53:06 lrw
+        //$("#avg_speed").html(avg_speed);
+        //$("#min_speed").html(min_speed);
+    }
+    var speedFlag = 0;
+    function setPlayRanking(result, isquick) {
+        $("#ranking").html(result);
+        if (isquick == "快") {
+            $("#jianyi").html("无");
+            $("#btn").html("提交并分享");
+            speedFlag = 1;
+        } else if (isquick == "慢") {
+            $("#jianyi").html("后台将分析本次体验不佳的原因,并以短信方式反馈给您,请留意");
+            $("#btn").html("提交并吐槽");
+            speedFlag = 2;
+        } else {
+            $("#jianyi").html("无");
+            $("#btn").hide();
+            speedFlag = 0;
+        }
+    }
+
+    function formatNum(Source, Length) {
+        var strTemp = "";
+        for (var i = 1; i <= Length - Source.length; i++) {
+            strTemp += "0";
+        }
+        return strTemp + Source;
+    }
+
+    function getRunningTime(runningTime) {
+        return formatNum(parseInt(runningTime / 60) + '', 2) + ":" + formatNum(parseInt(runningTime % 60) + '', 2);
+    }
+
+    //提交数据
+    function submitForm(fromBtn) {
+        contentText = $("#contentText").val();
+        if (contentText == "写点体会或建议吧，亲~") {
+            contentText = "";
+        }
+        /*
+         total_time  				观看时间:-分-秒
+         allTime						观看时间(s)
+         buffer_count				卡顿次数
+         avg_speed					缓冲平均速度(k/s)	(avg_speed*8/1024).toFixed(1) Mbps
+         max_speed					缓冲最大速度(k/s)   	(max_speed*8/1024).toFixed(1) Mbps
+         min_speed					缓冲最小速度(k/s)	(min_speed*8/1024).toFixed(1) Mbps
+         vsize 						视频大小(k)
+         nowUrl   					当前视频路径
+         videoTime  					视频的时间
+         waitTime					从点击开始看到视频的第一个画面出来的等待时间
+         Tips						心得体会  1:怒赞  2：凑合 3：巨慢 4：不评价  -1:未填
+         contentText				  	体会或建议
+         */
+        /* console.log(total_time+"    "+allTime+"    "+buffer_count+"    "+avg_speed+"    "+max_speed+"    "
+         +min_speed+"    "+vsize+"    "+nowUrl +"    "+videoTime +"     "+waitTime +"      "+Tips+"    "
+         +contentText); */
+
+        myAlert2('<img style="width:100%;" alt="" src="/woapp/images/img/loading.gif">', '数据提交中···');
+        $.post("/woapp/common/wotiyan/addSpeedInfo.do", {
+            videoPlayWaitTime: "0", // 等待时间
+            videoBufferCount : "0", // 卡顿次数
+            fileUpSpeed      : final_uploadspeed, // 缓冲平均速度(k/s)
+            fileDownSpeed    : final_downspeed, // 缓冲最大速度(k/s)
+            tips             : Tips, // 心得体会 1：怒赞 2：凑合 3：巨慢 4：不评价 -1：未填
+            advice           : contentText, // 体会或建议
+            curUseTime       : allTime, // 测速耗时
+            lng              : submitLng, // 经度
+            lat              : submitLat, // 纬度
+            videoSize        : "0", //视频大小
+            runningTime      : getRunningTime(allTime), //视频时间
+            shareText        : nearbyPlace, //分享文本
+            speedFlag        : speedFlag,
+            netType          : currNetType //预留
+        }, function (data) {
+            colseAlertDiv();
+            if (data.res.info.code == '40000201') {
+                showLoginDiv();
+                return;
+            }
+            if (data.res.info.code == '00000000') {
+                var playid = data.res.body.rs;
+                colseSpeedTestDiv();
+                if (fromBtn === 'others') {
+                    if (speedFlag == 1) {
+                        currPlayID = playid;
+                        //recordShareResult(playid , "分享", "weibo", "success")
+                        shareCurrentSpeed4Test();
+                    } else if (speedFlag == 2) {
+                        //recordShareResult(playid , "吐槽", "weibo", "success")
+                        gototocao(playid);
+                    }
+                } else {
+                    location.reload();
+                }
+            } else {
+                myAlert("数据提交失败，请稍后再试！");
+            }
+        });
+    }
+
+    function gototocao(playid) {
+        self.location = "/woapp/common/wotucao/wotucao.do?type=reback&fromPage=video&playid=" + playid + "&activityType=" + activityType;
+    }
+</script>
+
+
+
+
+
+
+
+<script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&amp;ak=rRdRwvMVvndy5bl3bmZA8ogB&amp;callback=initScript"></script><script src="http://api.map.baidu.com/getscript?v=2.0&amp;ak=rRdRwvMVvndy5bl3bmZA8ogB&amp;services=&amp;t=20170324173232"></script></body></html>

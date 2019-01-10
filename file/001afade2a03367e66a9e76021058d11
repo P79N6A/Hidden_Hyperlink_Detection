@@ -1,0 +1,674 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html><head> 
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8;">
+<title>用户登录－钱宝网</title> 
+<link rel="shortcut icon" href="/favicon4Qianbao.ico" type="image/x-icon">
+
+<link rel="stylesheet" type="text/css" href="//scdn.qbcdn.com/web/css/reset.min.css">
+<link rel="stylesheet" type="text/css" href="//scdn.qbcdn.com/web/site/site_frame/site_frame.css">
+<link rel="stylesheet" type="text/css" href="//scdn.qbcdn.com/web/site/site_cmtop/site_cmtop.css">
+<link rel="stylesheet" type="text/css" href="//scdn.qbcdn.com/web/site/site_nhead/site_nhead.css">
+<link rel="stylesheet" type="text/css" href="//scdn.qbcdn.com/web/site/site_foot/site_foot.css">
+
+<script type="text/javascript" src="//scdn.qbcdn.com/web/lib/jquery/1.12.0/jquery.min.js"></script>
+<script type="text/javascript" src="//scdn.qbcdn.com/web/site/site_frame/siteFrame.js"></script>
+<script type="text/javascript" src="//scdn.qbcdn.com/web/site/site_cmtop/siteCmtop.js"></script>
+<script type="text/javascript" src="//scdn.qbcdn.com/web/site/site_nhead/siteNhead.js"></script>
+<script type="text/javascript" src="//scdn.qbcdn.com/web/site/site_foot/siteFoot.js"></script>
+
+
+<script type="text/javascript" src="/js/common.js"></script>
+<script type="text/javascript" src="/js/loading-overlay.min.js"></script>
+<script type="text/javascript" src="/js/jquery-1.7.2.min.js"></script>
+<script type="text/javascript" src="/js/jquery.keyboard.js"></script>
+<script type="text/javascript" src="/js/qrcode.js?v=1483009260983"></script>
+
+
+<link href="/css/new_table.css" rel="stylesheet" type="text/css"> 
+<link href="/css/base.css" rel="stylesheet" type="text/css"> 
+<link href="/css/usercenter.css" rel="stylesheet" type="text/css"> 
+<link href="/css/keyboard.css" rel="stylesheet" type="text/css">
+<link href="/css/qrcode.css?v=1483009260983" rel="stylesheet" type="text/css">
+
+<style type="text/css">
+	.hyip-failed,.hyip-success{border:1px solid #FF8080;border-radius:5px;background-color:#FFF2F2;padding:10px 15px;margin:10px 0;font-size:14px;font-weight:bold;text-align:center}
+</style>
+
+<script type="text/javascript" src="/js/jquery-ui-1.8.13/development-bundle/ui/minified/jquery.ui.position.min.js"></script>
+<script type="text/javascript" src="/js/jquery-ui-1.8.13/development-bundle/ui/minified/jquery.effects.core.min.js"></script>
+<script type="text/javascript" src="/js/jquery-ui-1.8.13/development-bundle/ui/minified/jquery.effects.blind.min.js"></script>
+<script type="text/javascript" src="/js/jquery-ui-1.8.13/development-bundle/ui/minified/jquery.effects.scale.min.js"></script>
+<script type="text/javascript" src="/js/sideroad-jquery.floatingmessage/src/jquery.floatingmessage.js"></script>
+
+<script type="text/javascript">
+var lateInfoFlag = false;
+var nickName = '';
+	$(document).ready(function() {
+		if(nickName != '' && nickName != 'anonymousUser'){
+			// 如果用户已经登录，修改抢红包链接
+ 			$("#qhb").attr("href","//qhb.qbao.com/home.html");
+			var date = new Date();
+			date.setTime(date.getTime() + (24 * 60 * 60 * 60 * 1000 ));
+			$.cookie('userName', nickName, { expires: date });
+			
+			nickName = html_decode(nickName);
+			if(nickName.length>=6){
+				nickName=nickName.substring(0,3)+"******"+nickName.substring(nickName.length-2,nickName.length);
+			}
+			$('#headUserName').text(nickName);
+			$('#islogin').show();
+			$('#nologin').remove();
+			$('#headUserNameDiv').mouseover(function(){
+				if(!lateInfoFlag){
+					lateInfoFlag = true;
+					$.ajax({
+						type : 'post',
+						async:false,
+						url : '//www.qbao.com/account/latestInfo.html',
+						dataType : 'jsonp',
+						jsonp: "jsonpCallback",
+						jsonpCallback:'success_jsonpCallback',
+						success : function(record){
+							$('#user_info_money').html(num_split(record.balance));
+							$('#user_task_in_process').html(record.taskNumInProcess);
+							$('#user_task_failed').html(record.taskNumFailed);
+						},
+						error : function(data){
+							var responseTextJson = JSON.parse(data.responseText);
+							if(responseTextJson.returnCode == -1){
+								window.location.href=location.protocol+"//"+location.host+"/account/loginSession.html?url="+location.href;
+								return;
+							}
+						} 
+					});
+				}
+			});
+		}else{
+			$('#nologin').show();
+			$('#islogin').remove();
+		}
+		$('#headerTop').show();
+	});
+	function num_split(number){
+		var reg = /(\d{1,3})(?=(\d{3})+(?:$|\.))/g; 
+		return String(number).replace(reg,"$1,");
+	}
+	function showMoney(t){
+		$(t).hide().siblings().show();
+	}
+	function html_decode(str)  
+	{  
+	    var div = document.createElement("div");
+	    div.innerHTML = str;
+	    return div.innerHTML;
+	}
+	/* 动态logo */
+	$.ajax({
+		type : 'post',
+		async:false,
+		url : 'https://www.qbao.com/account/logoUrl.html',
+		dataType : 'jsonp',
+		jsonp: "jsonpCallback",
+		jsonpCallback:'success_jsonpCallback',
+		success : function(record){
+			if(record != null){
+				$('#headerLogo').css('background','url("//www.qbao.com/bannerManager1/loadBannerPic1.html?bannerId='+record.id+'") no-repeat 0 0');
+			}
+		},
+		error : function(data){
+		}
+	});
+</script><script type="text/javascript"> 
+	var nickName = ''; 
+	</script><style type="text/css">
+    .login-wrap { position:relative; height:408px; padding:27px 0 35px; font-family:"微软雅黑"; font-size:12px; overflow:hidden; }
+    .login-wrap .login-box { position:relative; width:1000px; margin:0 auto; background:transparent; }
+    .login-model { position:absolute; top: -8px; right:0; width:315px; padding:25px 20px 30px; background:#fff; }
+    .login-title { padding:20px 10px 20px; height:30px; line-height:30px; }
+    .login-title > a { float:right; text-decoration:none; color:#e77d00; }
+    .login-title > h2 { overflow:hidden; font-weight:normal; }
+    .login-content fieldset { border:0; padding-top:4px; }
+    .login-content legend { display:none; }
+    .login-content { padding:16px 30px 0; border-top:1px dashed #e4dcd0; }
+    .login-content ul > li { position:relative; width:100%; padding:10px 0; float:left; }
+    .login-content ul input[type="text"],.login-content ul input[type="password"] { position:relative; width:235px; height:14px; line-height:14px; padding:12px 9px; border:1px solid #dedede; background:transparent; }
+    .login-content ul input.short { float:left; width:168px; }
+    .login-content ul b { float:right; font-weight:normal; }
+    .login-content .tip { position:absolute; left:10px; top:24px; color:#888; }
+    .loginKeybord { position: absolute; top:20px; right:116px; width:25px; height:20px; background:url(../images/user/uc_icon_key.png) no-repeat 0 0; }
+    .loginKeybord:hover { background-position:0 -22px; }
+
+    .banner { position:absolute; top:0; left:0; width:100%; overflow:hidden; height:470px; }
+    .banner > dl { position:absolute; left:40%; bottom:70px; display:inline-block; font-size:0; z-index:1000; }
+    .banner > dl > dd { cursor:pointer; display:inline-block; width:10px; height:10px; margin:0 3px; border:1px solid #fff; border-radius:5px;-webkit-border-radius:5px;-moz-border-radius:5px;-ms-border-radius:5px; filter:alpha(opacity=37); opacity:0.37; *zoom:1; *display:inline; background:url(images/op.png) no-repeat; }
+    .banner > dl > .hover { background:#fff;  }
+    .banner > div > a { display:block; width:100%; height:470px; background-position:center center; background-repeat:no-repeat; }
+
+    .login-sns { height:20px; line-height:20px; margin-top:6px; overflow:hidden; vertical-align:middle; }
+    .login-sns img { vertical-align:middle; margin-right:5px; }
+    .login-sns a { float:left; padding-right:10px; text-decoration:none; color:#888; }
+    .forgetPassword { float:left; font-size:12px; margin-left:10px; padding-top:14px; text-decoration:underline; color:#bbb; }
+    .forgetPassword:hover { color:#e77d00; text-decoration:underline; }
+    /* btn */
+    .md_basic_btn { display: inline-block; width:100%; margin: 0 auto;  height: 40px; line-height: 40px; color: #fff; font-size: 15px; background: #d03a24; border:0; cursor:pointer; font-family:"微软雅黑"; }
+    .md_basic_btn:hover { color: #fff; background: #af1f0a;}
+    .error-information { display:; min-height:16px; line-height:16px; }
+	.error-information span { background: url("../../images/user/icon.png") no-repeat 0 0;display: inline-block; height: 16px;vertical-align: middle;width: 16px; }
+</style><script type="text/javascript" src="/js/jquery.plugins.banner.js"></script><script type="text/javascript" async="" src="//lbs.qbao.com/userLocation/ip2City.html?callback=locationHandler"></script></head> 
+
+
+	
+	
+	 
+    
+
+
+
+
+
+
+
+
+<!-- site_frame start -->
+<body><div class="site_frame">
+
+    <!-- site_frame_top start -->
+    <div class="site_frame_top"><div class="site_cmtop">  <div class="site_cmtop_wrap">    <div class="site_cmtop_left"><div class="site_cmtop_entry">  <a class="site_cmtop_entry_menu" href="https://passport.qbao.com/cas/qianbaoLogin?service=https%3A%2F%2Fenterprise.qbao.com%2Fj_spring_cas_security_check">    <span class="site_cmtop_entry_txt">登录</span>  </a>  <span class="site_cmtop_entry_line">-</span>  <a class="site_cmtop_entry_menu" href="https://user.qbao.com/usercenter/regist/toRegist.html">    <span class="site_cmtop_entry_txt">注册</span>  </a></div><div class="site_cmtop_status" style="display: block; ">  <ul class="site_cmtop_nav"><li class="site_cmtop_nav_menu site_cmtop_status_msg">  <div class="site_cmtop_nav_item">    <a class="site_cmtop_nav_link" href="http://www.qianwang365.com/u/news.html" target="_blank"><i class="site_cmtop_nav_icon"></i>      <span class="site_cmtop_nav_txt">钱宝新闻</span>    </a>  </div></li></ul></div></div>    <div class="site_cmtop_right">      <div class="site_cmtop_quick"><ul class="site_cmtop_nav"><li class="site_cmtop_nav_menu site_cmtop_quick_qbao">  <div class="site_cmtop_nav_item">    <a class="site_cmtop_nav_link" href="https://www.qbao.com" target="_blank">      <span class="site_cmtop_nav_txt">钱宝网首页</span>    </a>  </div></li><li class="site_cmtop_nav_menu ">  <div class="site_cmtop_nav_item">    <a class="site_cmtop_nav_link" href="https://user.qbao.com/usercenter/ucIndex.html" target="_blank">      <span class="site_cmtop_nav_txt">我的钱宝</span>    </a>  </div></li><li class="site_cmtop_nav_select site_cmtop_quick_empty">  <div class="site_cmtop_nav_item">    <a class="site_cmtop_nav_link" href="https://csc.qbao.com/web/buycar.htm" target="_blank"><i class="site_cmtop_nav_icon"></i>      <span class="site_cmtop_nav_txt">购物车</span><span class="site_cmtop_nav_num">0</span><i class="site_cmtop_nav_arrow"></i>    </a>  </div><div class="site_cmtop_nav_pop"><div class="site_cmtop_quick_empty_frame">  <div class="site_cmtop_quick_empty_tips">    <i class="site_cmtop_quick_empty_icon"><!----></i>  </div>  <div class="site_cmtop_quick_empty_txt">    <em class="site_cmtop_quick_empty_word">购物车是空的， 赶紧去选购吧~</em>  </div></div></div></li><li class="site_cmtop_nav_select site_cmtop_quick_cart">  <div class="site_cmtop_nav_item">    <a class="site_cmtop_nav_link" href="https://csc.qbao.com/web/buycar.htm" target="_blank"><i class="site_cmtop_nav_icon"></i>      <span class="site_cmtop_nav_txt">购物车</span><span class="site_cmtop_nav_num">0</span><i class="site_cmtop_nav_arrow"></i>    </a>  </div><div class="site_cmtop_nav_pop"></div></li><li class="site_cmtop_nav_menu ">  <div class="site_cmtop_nav_item">    <a class="site_cmtop_nav_link" href="https://enterprise.qbao.com/seller/page/home.html" target="_blank">      <span class="site_cmtop_nav_txt">商家平台</span>    </a>  </div></li><li class="site_cmtop_nav_select site_cmtop_quick_phone">  <div class="site_cmtop_nav_item">    <a class="site_cmtop_nav_link" href="http://www.qbao.com/appdownload.html" target="_blank"><i class="site_cmtop_nav_icon"></i>      <span class="site_cmtop_nav_txt">手机玩钱宝</span><i class="site_cmtop_nav_arrow"></i>    </a>  </div><div class="site_cmtop_nav_pop"><div class="site_cmtop_quick_phone_frame">  <div class="site_cmtop_quick_phone_code">    <img class="site_cmtop_quick_phone_img" data-src="//scdn.qbcdn.com/common/img/cm_client_code_198X198.png">  </div>  <div class="site_cmtop_quick_phone_tips">    <em class="site_cmtop_quick_phone_txt">手机扫一扫</em>    <em class="site_cmtop_quick_phone_txt">下载钱宝客户端</em>  </div></div></div></li><li class="site_cmtop_nav_menu ">  <div class="site_cmtop_nav_item">    <a class="site_cmtop_nav_link" href="http://help.qbao.com" target="_blank">      <span class="site_cmtop_nav_txt">帮助中心</span>    </a>  </div></li><li class="site_cmtop_nav_menu ">  <div class="site_cmtop_nav_item">    <a class="site_cmtop_nav_link" href="http://www.qbao.com/en" target="_blank">      <span class="site_cmtop_nav_txt">English</span>    </a>  </div></li><li class="site_cmtop_nav_select site_cmtop_quick_nav">  <div class="site_cmtop_nav_item">    <a class="site_cmtop_nav_link" href=" " target="_blank">      <span class="site_cmtop_nav_txt">网址导航</span><i class="site_cmtop_nav_arrow"></i>    </a>  </div><div class="site_cmtop_nav_pop"><div class="site_cmtop_quick_nav_frame">  <div class="site_cmtop_quick_nav_item">    <div class="site_cmtop_quick_nav_title">      <em class="site_cmtop_quick_nav_title_txt">主题频道</em>    </div>  <div class="site_cmtop_quick_nav_mtwo">    <span class="site_cmtop_quick_nav_mtwo_txt">      <a class="site_cmtop_quick_nav_mtwo_link" href="https://bc.qbao.com/" target="_blank">宝购</a>    </span>    <span class="site_cmtop_quick_nav_mtwo_txt">      <a class="site_cmtop_quick_nav_mtwo_link" href="https://paipai.qbao.com/home.html" target="_blank">雷拍</a>    </span>    <span class="site_cmtop_quick_nav_mtwo_txt">      <a class="site_cmtop_quick_nav_mtwo_link" href="https://qhb.qbao.com/index.html" target="_blank">抢红包</a>    </span>    <span class="site_cmtop_quick_nav_mtwo_txt">      <a class="site_cmtop_quick_nav_mtwo_link" href="http://newwebgame.qbao.com" target="_blank">宝玩</a>    </span>    <span class="site_cmtop_quick_nav_mtwo_txt">      <a class="site_cmtop_quick_nav_mtwo_link" href="https://www.qbao.com/promote/index.html" target="_blank">推广</a>    </span></div><div class="site_cmtop_quick_nav_mtwo">    <span class="site_cmtop_quick_nav_mtwo_txt">      <a class="site_cmtop_quick_nav_mtwo_link" href="http://events.qbao.com/index.html" target="_blank">活动</a>    </span>    <span class="site_cmtop_quick_nav_mtwo_txt">      <a class="site_cmtop_quick_nav_mtwo_link" href="http://www.dlingspace.com/" target="_blank">叮铃社区</a>    </span>    <span class="site_cmtop_quick_nav_mtwo_txt">      <a class="site_cmtop_quick_nav_mtwo_link" href="https://agent.qbao.com/agent/home" target="_blank">分销大厅</a>    </span>    <span class="site_cmtop_quick_nav_mtwo_txt">      <a class="site_cmtop_quick_nav_mtwo_link" href="https://promotion.qbao.com/activity/chaoshi1.html" target="_blank">钱宝超市</a>    </span></div></div>  <div class="site_cmtop_quick_nav_item">    <div class="site_cmtop_quick_nav_title">      <em class="site_cmtop_quick_nav_title_txt">生活服务</em>    </div>  <div class="site_cmtop_quick_nav_mtwo">    <span class="site_cmtop_quick_nav_mtwo_txt">      <a class="site_cmtop_quick_nav_mtwo_link" href="https://vc.qbao.com/web/card-index.htm" target="_blank">加油卡</a>    </span>    <span class="site_cmtop_quick_nav_mtwo_txt">      <a class="site_cmtop_quick_nav_mtwo_link" href="https://vc.qbao.com/web/phone-recharge.htm" target="_blank">话费</a>    </span>    <span class="site_cmtop_quick_nav_mtwo_txt">      <a class="site_cmtop_quick_nav_mtwo_link" href="https://vc.qbao.com/web/water.htm?step=1&amp;type=0" target="_blank">水费</a>    </span>    <span class="site_cmtop_quick_nav_mtwo_txt">      <a class="site_cmtop_quick_nav_mtwo_link" href="https://vc.qbao.com/web/water.htm?step=1&amp;type=1" target="_blank">电费</a>    </span>    <span class="site_cmtop_quick_nav_mtwo_txt">      <a class="site_cmtop_quick_nav_mtwo_link" href="https://vc.qbao.com/web/water.htm?step=1&amp;type=2" target="_blank">煤气费</a>    </span></div><div class="site_cmtop_quick_nav_mtwo">    <span class="site_cmtop_quick_nav_mtwo_txt">      <a class="site_cmtop_quick_nav_mtwo_link" href="https://enterprise.qbao.com/merchant/shop/qry/toWebShopHome.html?shopUserId=40515514" target="_blank">礼品卡</a>    </span>    <span class="site_cmtop_quick_nav_mtwo_txt">      <a class="site_cmtop_quick_nav_mtwo_link" href="https://enterprise.qbao.com/merchant/shop/qry/toWebShopHome.html?interceptType=1&amp;shopUserId=101969180" target="_blank">教育在线</a>    </span>    <span class="site_cmtop_quick_nav_mtwo_txt">      <a class="site_cmtop_quick_nav_mtwo_link" href="https://enterprise.qbao.com/merchant/shop/qry/toWebShopHome.html?shopUserId=111445488" target="_blank">健康在线</a>    </span>    <span class="site_cmtop_quick_nav_mtwo_txt">      <a class="site_cmtop_quick_nav_mtwo_link" href="https://enterprise.qbao.com/merchant/shop/qry/toWebShopHome.html?shopUserId=115107111" target="_blank">旅游在线</a>    </span></div>  <div class="site_cmtop_quick_nav_line"><!-- line --></div></div>  <div class="site_cmtop_quick_nav_item">    <div class="site_cmtop_quick_nav_title">      <em class="site_cmtop_quick_nav_title_txt">钱宝应用</em>    </div>  <div class="site_cmtop_quick_nav_mtwo">    <span class="site_cmtop_quick_nav_mtwo_txt">      <a class="site_cmtop_quick_nav_mtwo_link" href="http://www.qbao.com/home/app-download.htm" target="_blank">钱宝</a>    </span>    <span class="site_cmtop_quick_nav_mtwo_txt">      <a class="site_cmtop_quick_nav_mtwo_link" href="https://www.youpiaole.com" target="_blank">钱宝有票</a>    </span>    <span class="site_cmtop_quick_nav_mtwo_txt">      <a class="site_cmtop_quick_nav_mtwo_link" href="http://www.qbao.com/home/app-download.htm" target="_blank">宝令</a>    </span>    <span class="site_cmtop_quick_nav_mtwo_txt">      <a class="site_cmtop_quick_nav_mtwo_link" href="http://mzxy.qbao.com/mz/football-home.htm" target="_blank">魔足学院</a>    </span>    <span class="site_cmtop_quick_nav_mtwo_txt">      <a class="site_cmtop_quick_nav_mtwo_link" href="http://tldk.qbao.com/" target="_blank">贪婪洞窟</a>    </span></div>  <div class="site_cmtop_quick_nav_line"><!-- line --></div></div>  <div class="site_cmtop_quick_nav_item">    <div class="site_cmtop_quick_nav_title">      <em class="site_cmtop_quick_nav_title_txt">服务指南</em>    </div>  <div class="site_cmtop_quick_nav_mtwo">    <span class="site_cmtop_quick_nav_mtwo_txt">      <a class="site_cmtop_quick_nav_mtwo_link" href="https://enterprise.qbao.com/seller/page/home.html" target="_blank">商户入驻</a>    </span>    <span class="site_cmtop_quick_nav_mtwo_txt">      <a class="site_cmtop_quick_nav_mtwo_link" href="http://help.qbao.com/hc/index.html" target="_blank">帮助中心</a>    </span>    <span class="site_cmtop_quick_nav_mtwo_txt">      <a class="site_cmtop_quick_nav_mtwo_link" href="https://user.qbao.com/usercenter/securityCenter.html" target="_blank">安全中心</a>    </span>    <span class="site_cmtop_quick_nav_mtwo_txt">      <a class="site_cmtop_quick_nav_mtwo_link" href="http://events.qbao.com/zt_DaPromoteAactive/index.htm" target="_blank">品质保障</a>    </span></div>  <div class="site_cmtop_quick_nav_line"><!-- line --></div></div></div></div></li></ul></div>    </div>  <div></div></div></div>
+    </div>
+    <!-- site_frame_top end -->
+
+    <!-- site_frame_head start -->
+    <div class="site_frame_head"><div class="site_nhead">  <div class="site_nhead_wrap">    <div class="site_nhead_sign"><a class="site_nhead_sign_link" target="_blank" href="https://www.qbao.com/">  <img class="site_nhead_sign_img" src="https://qn-cms.qbcdn.com/FvzWYkvrduJQThBQgVsZ8r7x-KSD"></a></div>    <div class="site_nhead_nav_area">      <div class="site_nhead_nav_load" style="display: none; ">        <img src="//scdn.qbcdn.com/common/img/abs_load_33X33.gif">      </div>      <ul class="site_nhead_nav_list" style="display: block; "><li class="site_nhead_nav_list_item">  <a class="site_nhead_nav_list_link" href="https://bc.qbao.com/" target="_blank">    宝购  </a></li><li class="site_nhead_nav_list_item">  <a class="site_nhead_nav_list_link" href="https://paipai.qbao.com/home.html" target="_blank">    雷拍  </a></li><li class="site_nhead_nav_list_item">  <a class="site_nhead_nav_list_link" href="https://qhb.qbao.com/index.html" target="_blank">    抢红包  </a></li><li class="site_nhead_nav_list_item">  <a class="site_nhead_nav_list_link" href="http://store.qbao.com/market-web/market-web-game.html# " target="_blank">    宝玩  </a></li><li class="site_nhead_nav_list_item">  <a class="site_nhead_nav_list_link" href="https://agent.qbao.com/agent/home" target="_blank">    分销  </a><i class="site_nhead_nav_list_icon"></i></li><li class="site_nhead_nav_list_item">  <a class="site_nhead_nav_list_link" href="https://www.qbao.com/promote/index.html" target="_blank">    推广  </a></li><li class="site_nhead_nav_list_item">  <a class="site_nhead_nav_list_link" href="https://events.qbao.com/index.html" target="_blank">    活动  </a></li><li class="site_nhead_nav_list_item">  <a class="site_nhead_nav_list_link" href="https://www.dlingspace.com/" target="_blank">    社区  </a></li><li class="site_nhead_nav_list_item">  <a class="site_nhead_nav_list_link" href="//vc.qbao.com/cooya.htm" target="_blank">    生活服务  </a></li></ul>    </div>    <div class="site_nhead_jmp"><a target="_blank" href="http://www.qbao.com/announcement/announce-detail.htm?id=102303" class="site_nhead_jmp_link"><img class="site_nhead_jmp_link_img" src="//scdn.qbcdn.com/web/img/site_nhead_jump_img.png"></a></div>  </div></div>
+    </div>
+    <!-- site_frame_head end -->
+
+    <!-- site_frame_main start -->
+    <div class="site_frame_main">
+        <!-- 新版登录注册，动态banner 2014-11-5 -->
+        <div class="login-wrap">
+            <div class="banner">
+                <div id="images-list">
+                    
+                        
+                        
+                            <a href="https://www.qbao.com/redirect.html?targetUrl=https://user.qbao.com/userRegister/regIndex.htm?accessReqMark=3&amp;qianwangWebMonitor=24fe6bcd-eb2a-4d04-a466-960ccff12fd1" title="注册送15元" target="_blank" style="background-image: url(https://www.qbao.com/img/loadBannerPic1.html?bannerId=102453); display: block; ">
+                            </a>
+                        
+                    
+                    <!-- 默认的图片 -->
+                    
+                </div>
+            </div>
+            <div class="login-box">
+
+                <div class="login_change">
+                    <div class="text">
+                        <span>手机扫一扫<i></i></span>
+                    </div>
+                    <sapn class="QRCode"></sapn>
+                    <sapn class="routine"></sapn>
+                </div>
+
+                <div class="login-model">
+                    <div class="login-title">
+
+                        <h2><img src="/images/login.png"></h2>
+                        <div class="login_link" style="">
+                            <a class="personal" id="regLinkBtn" href="http://user.qbao.com/usercenter/regist/toRegist.html">个人注册</a>
+                            <a class="business" id="bizLinkBtn" href="http://enterprise.qbao.com/merchant/register/registerOptions.html">商家注册</a>
+                        </div>
+                    </div>
+                    <div class="login-content">
+                        <p class="error-information" id="common_errors"></p>
+                        <fieldset>
+                            <legend>登录信息</legend>
+                            <form id="loginFormEle" class="fm-v clearfix loginCForm" action="/cas/qianbaoLogin;jsessionid=ABC502C03153CAE4DCEA087892279609.m618mc7k?service=https%3A%2F%2Fenterprise.qbao.com%2Fj_spring_cas_security_check" method="post" onsubmit="return validateData();">
+                                <div style="display:none;">
+                                    <p id="errorCodeMsg" class="err"></p>
+                                    <p id="errtip" class="err"></p>
+                                </div>
+                                <ul id="unamePwdCaptcha" style="">
+                                    <li id="login-name">
+                                        <span class="tip" id="usernameTipsLab">手机号/邮箱/用户名</span>
+                                        
+                                        
+                                            <label class="tip">
+                                                
+                                            </label>
+                                            <input id="username" name="username" class="input_text w270 fl" tabindex="1" onblur="trimTextValue('username');" accesskey="n" type="text" value="" size="25" autocomplete="false">
+                                        
+                                    </li>
+                                    <li id="login-pass">
+                                        <span class="tip" id="passwordTip">请输入密码</span>
+                                        
+                                        <input id="password" name="password" class="input_text short errorTips fl ui-keyboard-input" tabindex="2" accesskey="p" type="password" value="" size="25" autocomplete="off" aria-haspopup="true" role="textbox">
+                                        <a id="loginKey" class="loginKeybord" href="#"></a>
+                                        <a class="forgetPassword" href="//user.qbao.com/retrieve/toRetrievePassword.html">忘记密码？</a>
+                                    </li>
+                                    <li id="login-code">
+                                        
+                                            <span id="captchaTip" class="tip">请输入验证码</span>
+                                            <input id="captcha" onblur="trimTextValue('captcha');" class="short" type="text" name="j_captcha_response" maxlength="4">
+                                            <b id="otherRegist">
+                                                <img id="identifyImage" style="text-align:right;cursor:pointer;width:100px;height: 40px;" src="https://captcha.qbao.com/captcha/create/img/static?sessionId=ABC502C03153CAE4DCEA087892279609.m618mc7k" onerror="javascript:$('#common_errors').html('&lt;span&gt;&lt;/span&gt;请求太频繁，请稍后再试')" onclick="updateImage()">
+                                            </b>
+                                        
+                                    </li>
+                                    <li>
+                                        <input id="submitForm" type="submit" class="md_basic_btn" value="登录">
+                                        <input type="hidden" name="lt" value="_cCE68DC26-AEA0-BFF6-CD9D-9B3A43EEFB38_k67BABDE5-2539-823B-28C5-C24E34BB9AC9">
+                                        <input type="hidden" name="_eventId" value="submit">
+                                    </li>
+                                </ul>
+                                <ul id="mibaoCheck" style="display: none; ">
+                                	<li style="font-size:18px; color:#4a4a4a;margin-top:-10px;margin-bottom:0px;">
+                                		安全提醒
+                                	</li>
+                                	<li style="font-size: 14px; color:#686868;">
+                                		系统检测到您正在一个陌生的设备上登录钱宝网，为了您的账户安全需要，您完成密保校验后才能登录
+                                	</li>
+                                	<li style="font-size: 14px; color:#4a4a4a;">
+                                		<span></span>  
+                                		
+                                	</li>
+                                	<li style="margin-top:-5px;margin-bottom:-5px;overflow:hidden;">
+                                		<input id="mibaoText" style="width:160px;float:left;display:inline-block;" onblur="trimTextValue('mibaoText');" type="text" name="mibao">
+                                		<a style="color:#4a90e2;font-size:14px;display:inline-block;height:41px;line-height:41px;float:right;" href="//user.qbao.com/retrieve/toRetrievePassword.html" title="请在找回密码第二步进行密保申诉">忘记密保</a>
+                                		<p style="clear:both; margin-top:3px;" class="error-information" id="mibao_errors"></p>
+                                	</li>
+                                	<li style="margin-top:-5px;margin-bottom:0px;">
+                                        <input id="submitForm2" type="submit" class="md_basic_btn" value="校验并登录">
+                                    </li>
+                                </ul>
+                            </form>
+                        </fieldset>
+
+                        <div class="login-sns" id="thirdLoginBtn" style="">
+                            
+                                <a href="//user.qbao.com/qqLogin/loginQq.html">
+                                    <img src="/images/snsQQ.png" alt="">QQ登录
+                                </a>
+                                <a href="//user.qbao.com/sinaLogin/loginSinaWeibo.html">
+                                    <img src="/images/snsweibo.png" alt="">微博登录
+                                </a>
+                            
+                            
+                        </div>
+                    </div>
+                	<!--login-content end-->
+
+                    <!--QRCode_login begin-->
+                    <div class="QRCode_login">
+                        <h2>钱宝扫一扫<br>二维码登录</h2>
+
+                        <div class="code_image">
+                            <img src="//scdn.qbcdn.com/common/img/abs_load_33X33.gif" class="loading_img_qrcode">
+                            <img class="code_imageImg" src="" alt="二维码">
+
+                            <div class="layer">
+                                <p>二维码超时</p>
+                                <span class="over_loading">
+			                        刷新
+		                        </span>
+                            </div>
+                        </div>
+
+                        <div class="profile">
+                            <ul>
+                                <li>1，打开钱宝app</li>
+                                <li>2，点击搜索框中的“扫一扫”<i class="scan_img"></i></li>
+                                <li>3，扫码登录钱宝网网页版</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <!--QRCode_login end-->
+
+                    <!--login-content end-->
+                    <div class="login_succ">
+                        <h2>钱宝扫一扫二维码登录</h2>
+                        <img src="img/loginSucc.jpg" alt="">
+
+                        <p>扫描成功<br>请在手机上确认登录</p>
+                    </div>
+                    <!--login-content end-->
+
+                </div>
+            </div>
+        </div>
+        <!-- end 新版登录注册，动态banner 2014-11-5 -->
+    </div>
+    <!-- site_frame_main end -->
+
+    <!-- site_frame_foot start -->
+    <div class="site_frame_foot"><div class="site_foot">  <div class="site_foot_list">    <div class="site_foot_wrap">      <div class="site_foot_sign">        <i class="site_foot_sign_icon"> <!-- icon --></i>      </div>      <div class="site_foot_abouts">        <div class="site_foot_menus"><div class="site_foot_menus_item">  <div class="site_foot_menus_title">    <em class="site_foot_menus_title_txt">用户帮助</em>  </div>  <div class="site_foot_menus_area">  <div class="site_foot_menus_list">  <a class="site_foot_menus_list_link" href="http://help.qbao.com/hc/content/46.html" target="_blank">  用户指南  </a>  <a class="site_foot_menus_list_link" href="http://help.qbao.com/hc/list.html" target="_blank">  用户帮助  </a>  <a class="site_foot_menus_list_link" href="http://help.qbao.com/hc/self-service.html" target="_blank">  自助服务  </a>  </div>  </div>  <div class="site_foot_menus_line"><!-- line --></div></div><div class="site_foot_menus_item">  <div class="site_foot_menus_title">    <em class="site_foot_menus_title_txt">全部频道</em>  </div>  <div class="site_foot_menus_area">  <div class="site_foot_menus_list">  <a class="site_foot_menus_list_link" href="https://sign.qbao.com/compass/index.html" target="_blank">  签到  </a>  <a class="site_foot_menus_list_link" href="https://www.qbao.com/promote/index.html" target="_blank">  推广  </a>  <a class="site_foot_menus_list_link" href="http://www.qbao.com/house/home.html" target="_blank">  房产  </a>  </div>  <div class="site_foot_menus_list">  <a class="site_foot_menus_list_link" href="http://paipai.qbao.com/home.html" target="_blank">  雷拍  </a>  <a class="site_foot_menus_list_link" href="http://bc.qbao.com/" target="_blank">  宝购  </a>  <a class="site_foot_menus_list_link" href="http://www.qbao.com/announcement/announce-detail.htm?id=101574" target="_blank">  O2O  </a>  </div>  <div class="site_foot_menus_list">  <a class="site_foot_menus_list_link" href="https://qhb.qbao.com/index.html" target="_blank">  抢红包  </a>  <a class="site_foot_menus_list_link" href="https://agent.qbao.com/agent/home" target="_blank">  分销大厅  </a>  <a class="site_foot_menus_list_link" href="http://newwebgame.qbao.com" target="_blank">  宝玩  </a>  </div>  </div>  <div class="site_foot_menus_line"><!-- line --></div></div><div class="site_foot_menus_item">  <div class="site_foot_menus_title">    <em class="site_foot_menus_title_txt">关于钱宝网</em>  </div>  <div class="site_foot_menus_area">  <div class="site_foot_menus_list">  <a class="site_foot_menus_list_link" href="http://help.qbao.com/hc/content/1.html" target="_blank">  关于钱宝网  </a>  <a class="site_foot_menus_list_link" href="http://www.qianwang365.com/u/news.html" target="_blank">  钱宝新闻  </a>  <a class="site_foot_menus_list_link" href="http://help.qbao.com/hc/customer-service.html" target="_blank">  联系我们  </a>  <a class="site_foot_menus_list_link" href="http://www.qianwang365.com/ " target="_blank">  钱旺集团  </a>  </div>  </div>  <div class="site_foot_menus_line"><!-- line --></div></div></div>        <div class="site_foot_ways">          <div class="site_foot_focus"><div class="site_foot_focus_title">  <em class="site_foot_focus_title_txt">关注我们</em></div><div class="site_foot_focus_list"><div class="site_foot_focus_item">   <a class="site_foot_focus_item_link" href="http://www.dlingspace.com/" target="_blank">叮铃社区</a></div><div class="site_foot_focus_item"><span class="site_foot_focus_item_txt">  <em class="site_foot_focus_item_pop">    <img class="site_foot_focus_item_img" data-src="//scdn.qbcdn.com/common/img/cm_qb_code_90X90.png">    <span class="site_foot_focus_item_word">钱宝微信</span>  </em>  <i class="site_foot_focus_item_point"></i></span>   <a class="site_foot_focus_item_link" href="javascript:;" target="_blank">钱宝微信</a></div><div class="site_foot_focus_item">   <a class="site_foot_focus_item_link" href="http://weibo.com/p/1006063039961617/home?from=page_100606&amp;mod=TAB&amp;is_all=1#place" target="_blank">钱宝微博</a></div><div class="site_foot_focus_item"><span class="site_foot_focus_item_txt">  <em class="site_foot_focus_item_pop">    <img class="site_foot_focus_item_img" data-src="//scdn.qbcdn.com/common/img/cm_fly_code_90X90.png">    <span class="site_foot_focus_item_word">钱宝family</span>  </em>  <i class="site_foot_focus_item_point"></i></span>   <a class="site_foot_focus_item_link" href="javascript:;" target="_blank">钱宝family</a></div><div class="site_foot_focus_item">   <a class="site_foot_focus_item_link" href="http://weibo.com/u/5756118685?topnav=1&amp;wvr=6&amp;topsug=1&amp;is_all=1" target="_blank">钱悦体育微博</a></div><div class="site_foot_focus_item"><span class="site_foot_focus_item_txt">  <em class="site_foot_focus_item_pop">    <img class="site_foot_focus_item_img" data-src="//scdn.qbcdn.com/common/img/cm_ls_code_90X90.png">    <span class="site_foot_focus_item_word">雷声</span>  </em>  <i class="site_foot_focus_item_point"></i></span>   <a class="site_foot_focus_item_link" href="javascript:;" target="_blank">雷声</a></div></div></div>          <div class="site_foot_call">            <strong class="site_foot_call_num">400-155-8899</strong>            <em class="site_foot_call_tips">( 7x24小时 金牌服务 )</em>            <em class="site_foot_call_mail">客服邮箱  kefu@qbao.com</em>          </div>          <div class="site_foot_qrcode">            <div class="site_foot_qrcode_title"><em class="site_foot_qrcode_title_word">扫码下载</em></div>            <div class="site_foot_qrcode_item">              <img class="site_foot_qrcode_img" src="//scdn.qbcdn.com/common/img/cm_youpiao_code_80X80.png">              <em class="site_foot_qrcode_txt">钱宝有票客户端</em>            </div>            <div class="site_foot_qrcode_item">              <img class="site_foot_qrcode_img" src="//scdn.qbcdn.com/common/img/cm_qrcode_code_80X80.png">              <em class="site_foot_qrcode_txt">钱宝客户端</em>            </div>          </div>        </div>      </div>    </div>  </div>  <div class="site_foot_atta">    <div class="site_foot_wrap">      <div class="site_foot_frie"><a class="site_foot_frie_link" href="http://www.qianwang365.com/portal/aboutQianWang.html" target="_blank">钱旺集团</a><span class="site_foot_frie_line"><!--line--></span><a class="site_foot_frie_link" href="https://www.qbao.com/" target="_blank">钱宝网</a><span class="site_foot_frie_line"><!--line--></span><a class="site_foot_frie_link" href="http://store.qbao.com/market-web/market-detail.html?id=15&amp;pid=1&amp;type=0" target="_blank">魔足学院</a><span class="site_foot_frie_line"><!--line--></span><a class="site_foot_frie_link" href="https://t.qianbao666.com/" target="_blank">钱宝有票</a><span class="site_foot_frie_line"><!--line--></span><a class="site_foot_frie_link" href="http://www.365bugu.com/" target="_blank">布谷</a><span class="site_foot_frie_line"><!--line--></span><a class="site_foot_frie_link" href="http://www.pangaoshoujk.com/" target="_blank">潘高寿</a><span class="site_foot_frie_line"><!--line--></span><a class="site_foot_frie_link" href="http://www.qbao.com/en/home.html" target="_blank">English Site</a></div>      <div class="site_foot_copr">        <strong class="site_foot_copr_txt">          <a class="site_foot_copr_txt_link" href="http://www.miitbeian.gov.cn/state/outPortal/loginPortal.action" target="_blank">沪ICP备16009889号 增值电信业务经营许可证 沪B2-20150022</a>          <span class="site_foot_copr_txt_line">|</span>          <a class="site_foot_copr_txt_link" href="//scdn.qbcdn.com/common/img/cm_copyright.jpg" target="_blank">网络文化经营许可证  沪网文[2014]0722-152号</a>        </strong>        <strong class="site_foot_copr_txt">Copyright  2012-2016 上海洋井网络科技有限公司 版权所有 </strong>      </div>      <div class="site_foot_report"><a class="site_foot_report_link site_foot_report_2" href="http://net.china.com.cn/index.htm" target="_blank">不良信息举报中心</a><a class="site_foot_report_link site_foot_report_3" href="http://www.miibeian.gov.cn" target="_blank">经营性网站备案信息</a><a class="site_foot_report_link site_foot_report_4" href="http://www.bj.cyberpolice.cn/index.jsp" target="_blank">网络110报警服务</a></div>    </div>  </div></div>
+    </div>
+    <!-- site_frame_foot end -->
+
+</div>
+<!-- site_frame end -->
+
+
+  <!-- <div style="text-align:center">
+  	  广告位：钱宝登录底部横幅
+		<script type="text/javascript" >BAIDU_CLB_SLOT_ID = "886241";</script>
+		<script type="text/javascript" src="http://cbjs.baidu.com/js/o.js"></script>
+  </div> -->
+
+
+<script type="text/javascript">
+var requiredCaptcha = 'true' || false;
+var mibaoQues = '' || '';
+if (mibaoQues != '') {
+	requiredCaptcha = false;
+} else {
+	requiredCaptcha = true;
+}
+
+function updateImage() {
+    $('#otherRegist').html('<img  id="identifyImage" style="text-align:right;cursor:pointer;width:100px;height: 40px;" onclick="updateImage()"/>');
+    var appname = navigator.appName.toLowerCase();
+    if (appname.indexOf("netscape") != -1)
+    {
+        $('#identifyImage')[0].onload = function () {
+            if ($('#identifyImage')[0].complete == true)
+            {
+                $('#identifyImage').show();
+            }
+        }
+    }
+    $('#identifyImage').attr("src","https://captcha.qbao.com/captcha/create/img/static?sessionId=ABC502C03153CAE4DCEA087892279609.m618mc7k&time="+Math.random());
+
+}
+
+//$(document).ready(function() {
+	/*文本框提示判断，无内容时显示，记住密码后有内容的情况下yin'ca*/
+	/* $(window).bind("load",function(){
+		if( $("#username").val().length<=0 ){
+			 $("#username").parent().find(".tip").show();
+			 $("#password").parent().find(".tip").show();
+		}
+	}); */
+
+if ($("#errorCodeMsg").html()) {
+    $("#usernameTipsLab").hide();
+    $("#common_errors").html("<span></span>验证码不正确，请重新输入");
+}
+
+if (mibaoQues != '') {
+	$("#unamePwdCaptcha").hide();
+	$("#mibaoCheck").show();
+	$("#password").val('');
+	$("#thirdLoginBtn").hide();
+	if ('' != "") {
+		$("#mibao_errors").html("<span></span>密保答案不正确");
+	}
+} else {
+	$("#unamePwdCaptcha").show();
+	$("#mibaoCheck").hide();
+	$("#thirdLoginBtn").show();
+	if ($("#errtip").html()) {
+	    $("#usernameTipsLab").hide();
+	    $("#common_errors").html("<span></span>"+$("#errtip").html());
+	}else {
+	    if ($('#status').html() && $('#status').html().length > 0) {
+	        $("#usernameTipsLab").hide();
+	        var errorMsgs = $('#status').html().split(/<br\/?>/i);
+	        $("#common_errors").html("<span></span>会员账号或密码错误，请重新输入");
+	        if (errorMsgs.length == 2) {
+	            $("#common_errors").html("<span></span>会员账号或密码错误，请重新输入");
+	        }
+	    }
+	}
+}
+	$("#password").keyboard({
+	    openOn : null,
+	    stayOpen : true,
+	    layout : 'qwerty',
+	    display:{'lock':'Caps'}
+	});
+	$("#loginKey").bind("click",function(){
+	    var _this = $(this);
+	    if($(".ui-keyboard").length){
+	      return false;
+	    }
+	    $("#password").getkeyboard().reveal();
+	    setKeyPos(_this);
+	    $(window).resize(function(){
+	        setKeyPos(_this);
+	    })
+	});
+//});
+
+function setKeyPos(o){
+    $(".ui-keyboard").css({
+        "left":o.offset().left-269.5
+    })
+}
+/**
+ * 控制输入框中的文字显示与隐藏
+ */
+function validateData(){
+	$("#usernameTipsLab").html('');
+	$("#usernameTipsLab").hide();
+	if(isBlank($('#username').val())){
+		$("#usernameTipsLab").html("<span></span>请输入手机号/邮箱/用户名");
+		$("#usernameTipsLab").show();
+		$("#common_errors").html("<span></span>会员账号不能为空");
+		return false;
+	}
+	$("#passwordTip").html('');
+	$("#passwordTip").hide();
+	if(isBlank($('#password').val())){
+		$("#passwordTip").html("<span></span>请输入密码");
+		$("#passwordTip").show();
+		$("#common_errors").html("<span></span>密码不能为空");
+		return false;
+	}
+
+	$("#captchaTip").html('');
+	$("#captchaTip").hide();
+	if(requiredCaptcha && isBlank($('#captcha').val())){
+		$("#captchaTip").html("<span></span>请输入验证码");
+		$("#captchaTip").show();
+		$("#common_errors").html("<span></span>验证码不能为空");
+		return false;
+	} 
+	if (!requiredCaptcha) {
+		if ($("#mibaoText").val() == "") {
+			$("#mibao_errors").html("<span></span>请输入密保答案");
+			return false;
+		}
+		$("#mibaoText").val(encodeURIComponent($("#mibaoText").val()));
+	}
+	$('#loginFormEle').append("<input type='hidden' name='cas_signed' value='8d8e1417-afbc-42db-b70f-83dbcc8b8b3b' />");
+	$('#submitForm').attr("disabled", true).css('background',"#ccc").val('提交中');
+	$('#submitForm2').attr("disabled", true).css('background',"#ccc").val('提交中');
+}
+
+function isBlank(text){
+	return /^\s*$/.test(text);
+}
+
+function trimTextValue(id) {
+	  $("#" + id).val($.trim($("#" + id).val()));
+}
+
+$(function(){
+	$("input").bind({
+	focus:function(){ $(this).siblings(".defaultTips").hide(); },
+	blur:function(){
+		if($(this).val() == "")
+		$(this).siblings(".defaultTips").show();
+	}
+	});
+	$(".defaultTips").click(function(){ $(this).hide();$(this).siblings("input").focus();});
+	var locationAddr = window.location.href;
+	if (locationAddr.indexOf("/aucLoginEntry/toAuctioninfoByNum.html") != -1) {
+		locationAddr = locationAddr.substring(locationAddr.indexOf("?service=") + 9);
+		var regLink = $("#regLinkBtn").attr("href");
+		var channelId =  locationAddr.substring(locationAddr.indexOf(",") + 1);
+		if (channelId != "") {
+			regLink += "?channelId=" + channelId + "&backUrl=" + locationAddr;
+		} else {
+			regLink += "?backUrl=" + locationAddr;
+		}
+		$("#regLinkBtn").attr("href", regLink);
+		$("#regHeaderBtn").attr("href", regLink);
+	}
+})
+</script>
+
+
+<!-- 新版登录注册，动态banner 2014-11-5 -->
+<script type="text/javascript">
+    String.prototype.trim = function(){
+        this.replace(/(^\s+)|(\s+$)/g,"");
+        return this;
+    }
+
+    function inputInformation(o){
+
+        if(!o || o.length==0) return false;
+
+        var len = o.length;
+
+        var c = document.getElementById( o[1] ).getElementsByTagName("input")[0];
+        c.oninput = function(i){
+            if( this.value != "" ){
+                document.getElementById( o[1] ).getElementsByTagName("span")[0].style.display="none";
+            }
+        }
+
+        c.onpropertychange = function(i){
+            if( this.value != "" ){
+                document.getElementById( o[1] ).getElementsByTagName("span")[0].style.display="none";
+            }
+
+        }
+
+        document.getElementById( o[1] ).getElementsByTagName("input")[0].oninput();
+        document.getElementById( o[1] ).getElementsByTagName("input")[0].onpropertychange();
+
+
+        for( var i=0;i<len;i++ ){
+
+            var obj = document.getElementById( o[i] );
+            obj.getElementsByTagName("input")[0].onfocus = (function(i){
+                return function(){
+                    var c = document.getElementById( o[i] );
+                    c.getElementsByTagName("span")[0].style.display="none";
+                }
+            })(i);
+
+            obj.getElementsByTagName("span")[0].onmousedown = (function(i){
+                return function(){
+                    var c = document.getElementById( o[i] );
+                    c.getElementsByTagName("input")[0].focus();
+                }
+            })(i);
+
+            obj.getElementsByTagName("input")[0].onblur = (function(i){
+                return function(){
+                    var c = document.getElementById( o[i] );
+                    if( this.value.trim().length==0 ){
+                        c.getElementsByTagName("span")[0].style.display="inline";
+                    }
+                }
+
+            })(i);
+
+        }
+    }
+
+    // keyboard
+    (function($){
+      function setKeyPos(o){
+          $(".ui-keyboard").css({
+              "left":o.offset().left-285,
+              "top":o.offset().top+24
+          })
+      }
+      $("#password").keyboard({
+          openOn : null,
+          stayOpen : true,
+          layout : 'qwerty',
+          display:{'lock':'Caps'}
+      })
+
+      $("#loginKey").bind("click",function(){
+          var _this = $(this);
+          if($(".ui-keyboard").length){
+            return false;
+          }
+          $("#password").getkeyboard().reveal();
+          setKeyPos(_this);
+          $(window).resize(function(){
+              setKeyPos(_this);
+          })
+      })
+    })(jQuery);
+
+    inputInformation(["login-name","login-pass","login-code"]);
+
+//============= banner切换 ===============
+
+    function addCircle(){
+        var len = $("#images-list a").length,
+        	circle = new Array();
+	    if( len>1 ){
+	        circle.push("<dl id='check-list'>");
+	        for( var i=0;i<len;i++ ){
+	           if( i==0 ){
+	                circle.push("<dd class='hover'></dd>");
+	           }else{
+	                circle.push("<dd></dd>")
+	           }
+	        }
+	        circle.push("</dl>");
+	    }
+	    return circle.join("");
+	}
+
+    $(".banner").append( addCircle() );
+    $("#images-list a").banner_thaw({
+        thumbObj:"#check-list dd"
+    });
+</script>
+<!-- end 新版登录注册，动态banner 2014-11-5 -->
+
+<script type="text/javascript">
+    $(function(){
+        function maidian(data){
+            if ('http:' === document.location.protocol) {
+                // setTimeout((function(data) {
+                var _uid = data.id || '',
+                        _uname = data.username || '';
+                window.QBAO_UT_GV = window.QBAO_UT_GV || {};
+                window.QBAO_UT_GV['_uid'] = _uid;
+                window.QBAO_UT_GV['_uname'] = _uname;
+                var s = document.createElement('script'),
+                        e = document.body.getElementsByTagName('script')[0];
+                s.type = 'text/javascript';
+                s.async = true;
+                s.charset = 'utf-8';
+                e.parentNode.insertBefore(s, e);
+                s.src = 'http://dig.qbao.com/qb-site/js/user_tracker_dig.js';
+            }
+        }
+//        var  siteFrame = window.siteFrame;
+//        siteFrame.userCenterFilter(function(resp) {
+//            if (resp) {
+//                maidian(resp);
+//            } else {
+//                maidian({'id': '', 'username': ''});
+//            }
+//        })
+        maidian({'id': '', 'username': ''});
+    })
+</script>
+<noscript>&lt;img src="//dig.qbao.com/qb-site/images/event.jpg?event=load" style="display:none;"/&gt;</noscript>
+
+
+
+
+
+<script charset="utf-8" type="text/javascript" src="//scdn.qbcdn.com/web/js/stats.data.min.js"></script><script charset="utf-8" type="text/javascript" src="//scdn.qbcdn.com/web/js/safe.data.min.js"></script></body></html>

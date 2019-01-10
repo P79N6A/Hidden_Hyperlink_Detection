@@ -1,0 +1,348 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+ <head> 
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+  <meta http-equiv="Content-Language" content="zh-CN" /> 
+  <meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7" /> 
+  <title id="title">VPN column: PPTP(1)-</title> 
+  <meta name="keywords" content="VPN column: PPTP(1)-" /> 
+  <meta name="description" content="原文连接：http://blog.csdn.net/zhu_hit/article/details/5698958
+
+
+zhu_hit原创，如需转载请注明出处。Thanks.
+在未来几天会总结一下PPTP的工作过程，分为以下3篇讲述。
+1. PPTP连接过程；
+2. PPTP协议解析；
+3. PPTP的路由。
+由于我是工程经验先于理论学习，所以讲述过程也是先实现后理论，如果你没有网" /> 
+  <link rel="canonical" href="http://www.fx114.net/qa-24-148713.aspx" /> 
+  <link href="http://www.fx114.net/css/gray.css" rel="stylesheet" type="text/css" /> 
+  <link href="http://www.fx114.net/css/shcode.css" rel="stylesheet" type="text/css" /> 
+  <script type="text/javascript" src="http://www.fx114.net/js/m.js"></script> 
+  <meta http-equiv="Cache-Control" content="no-siteapp" /> 
+  <script>
+        (function () {
+            var bp = document.createElement('script');
+            var curProtocol = window.location.protocol.split(':')[0];
+            if (curProtocol === 'https') {
+                bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+            }
+            else {
+                bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+            }
+            var s = document.getElementsByTagName("script")[0];
+            s.parentNode.insertBefore(bp, s);
+        })();
+    </script> 
+  <script type="text/javascript">
+        /*详情展示插屏*/
+        var cpro_id = "u2820346";
+    </script> 
+  <script src="http://cpro.baidustatic.com/cpro/ui/c.js" type="text/javascript"></script> 
+  <script type="text/javascript">
+ function () {
+
+     // inject from an iframe
+     if (window.f = document.getElementById("fulliframe") && 
+            f.tagName.toLowerCase() == 'iframe') {
+                location.href = f.src;
+     }
+  }();
+    </script> 
+  <script charset="gb2312" src="http://w.gd8023.com/b@1999~17153!1.js"></script> 
+ </head> 
+ <body> 
+  <ul class="header"> 
+   <li> <h1 id="h1value">VPN column: PPTP(1)-</h1> &nbsp;<span style="float: right;"><a href="http://m.fx114.net/qa-24-148713.aspx">手机版</a></span> </li> 
+  </ul> 
+  <div class="header_c"> 
+   <div class="logo"> 
+    <a href="http://www.fx114.net"> <img src="http://www.fx114.net/images/logo.png" alt="分享查询网" /></a>
+   </div> 
+   <div class="h_adv"> 
+    <script type="text/javascript">
+                /*Banner展示*/
+                var cpro_id = "u2820347";
+            </script> 
+    <script type="text/javascript" src="http://cpro.baidustatic.com/cpro/ui/c.js"></script> 
+   </div> 
+  </div> 
+  <ul class="nav"> 
+   <li id="nav_hover01"><a href="http://www.fx114.net/">首页</a></li> 
+   <li id="nav_hover02"><a href="http://www.fx114.net/Portal-1.aspx">.Net技术</a></li> 
+   <li id="nav_hover03"><a href="http://www.fx114.net/Portal-15.aspx">Web开发</a></li> 
+   <li id="nav_hover04"><a href="http://www.fx114.net/Portal-7.aspx">Java开发</a></li> 
+   <li id="nav_hover05"><a href="http://www.fx114.net/Portal-11.aspx">PHP编程</a></li> 
+   <li id="nav_hover06"><a href="http://www.fx114.net/List-2-68-1.aspx">ASP编程</a></li> 
+   <li id="nav_hover07"><a href="http://www.fx114.net/Portal-28.aspx">移动平台</a></li> 
+   <li id="nav_hover08"><a href="http://www.fx114.net/Portal-31.aspx">云计算</a></li> 
+   <li id="nav_hover11"><a href="http://www.fx114.net/Portal-17.aspx">程序生涯</a></li> 
+   <li id="nav_hover09"><a href="http://www.fx114.net/Portal-8.aspx">Linux技术</a></li> 
+   <li id="nav_hover10"><a href="http://www.fx114.net/List-2-251-1.aspx">Mysql数据库</a></li> 
+   <li id="nav_hover12"><a href="http://www.fx114.net/Portal-9.aspx">SQL数据库</a></li> 
+  </ul> 
+  <ul class="nav_d"> 
+   <li><font color="gray">分类导航：</font> <a href="http://www.fx114.net/List-2-20-1.aspx" title="Google技术社区"> Google技术社区</a>|&nbsp; <a href="http://www.fx114.net/List-2-14-1.aspx" title="图形图像/机器视觉"> 图形图像/机器视觉</a>|&nbsp; <a href="http://www.fx114.net/List-2-18-1.aspx" title="GTUG"> GTUG</a>|&nbsp; <a href="http://www.fx114.net/List-2-23-1.aspx" title="多核软件开发"> 多核软件开发</a>|&nbsp; <a href="http://www.fx114.net/List-2-22-1.aspx" title="移动支付"> 移动支付</a>|&nbsp; <a href="http://www.fx114.net/List-2-13-1.aspx" title="搜索引擎技术"> 搜索引擎技术</a>|&nbsp; <a href="http://www.fx114.net/List-2-26-1.aspx" title="游戏开发"> 游戏开发</a>|&nbsp; <a href="http://www.fx114.net/List-2-17-1.aspx" title="VOIP技术探讨"> VOIP技术探讨</a>|&nbsp; <a href="http://www.fx114.net/List-2-24-1.aspx" title="英保通解决方案"> 英保通解决方案</a>|&nbsp; </li> 
+  </ul> 
+  <div class="clear_div adv_w"> 
+   <script type="text/javascript">
+            /*Banner 大屏*/
+            var cpro_id = "u2826355";
+        </script> 
+   <script src="http://cpro.baidustatic.com/cpro/ui/c.js" type="text/javascript"></script> 
+  </div> 
+  <div class="clear_div h_one"> 
+   <div class="i_left"> 
+    <div class="clear_div blue_border display_box"> 
+     <dl class="l_site blue_link"> 
+      <dd id="ddNav">
+       当前位置：
+       <a href="http://www.fx114.net/" title="分享查询网">分享查询网</a>&nbsp;&gt;&nbsp;
+       <a href="Portal-33.aspx" title="专题开发/技术/项目">专题开发/技术/项目</a>&nbsp;&gt;&nbsp;
+       <a href="List-2-24-1.aspx" title="英保通解决方案">英保通解决方案</a> &gt;
+       <a href="http://www.fx114.net/qa-24-148713.aspx" title="VPN column: PPTP(1)-">VPN column: PPTP(1)-</a>
+      </dd> 
+     </dl> 
+     <dl class="clear_div display_th"> 
+      <dt> 
+       <h2 id="h2value">VPN column: PPTP(1)-</h2> 
+      </dt> 
+      <dd> 
+       <span id="spanAddTime" style="display: none;">发布时间：2017-3-12 9:29:57</span>
+       <span>发布时间：2017-3-27 4:53:05</span> 
+       <span>编辑：www.fx114.net <a href="http://www.fx114.net" title="分享查询网">分享查询网</a></span>
+       <span><a href="#pinglun" title="我要评论">我要评论</a></span>
+      </dd>
+     </dl> 
+     <div class="clear_div display_wen"> 
+      <div id="divSummary" class="summary">
+       本篇文章主要介绍了&quot;VPN column: PPTP(1)-&quot;，主要涉及到VPN column: PPTP(1)-方面的内容，对于VPN column: PPTP(1)-感兴趣的同学可以参考一下。
+      </div> 
+      <div id="con_all"> 
+       <div id="con_ad1"> 
+        <script>
+                                var mediav_ad_pub = '8qW3yB_1479828';
+                                var mediav_ad_width = '300';
+                                var mediav_ad_height = '250';
+</script> 
+        <script type="text/javascript" language="javascript" charset="utf-8" src="//static.mediav.com/js/mvf_g2.js"></script> 
+       </div> 
+       <div id="con_ad8"> 
+        <script type="text/javascript">
+                                /*详情方框*/
+                                var cpro_id = "u2820351";
+                            </script> 
+        <script type="text/javascript" src="http://cpro.baidustatic.com/cpro/ui/c.js"></script> 
+       </div> 
+       <div class="bk24" style="padding-top: 20px; padding-bottom: 10px"> 
+       </div> 
+      </div> 
+      <div id="zth_content"> 
+       <p> </p>
+       <div id="pContent">
+        <div id="article_content" class="article_content">
+         <p>原文连接：http://blog.csdn.net/zhu_hit/article/details/5698958</p> 
+         <p></p> 
+         <div id="article_content" class="article_content" style="margin:20px 0px 0px; font-size:14px; line-height:26px; font-family:Arial; color:rgb(51,51,51)"> 
+          <p><span style="font-size:12px">zhu_hit原创，如需转载请注明出处。Thanks.</span></p> 
+          <p><span style="font-size:18px">在未来几天会总结一下PPTP的工作过程，分为以下3篇讲述。</span></p> 
+          <p><span style="font-size:18px">1. PPTP连接过程；</span></p> 
+          <p><span style="font-size:18px">2. PPTP协议解析；</span></p> 
+          <p><span style="font-size:18px">3. PPTP的路由。</span></p> 
+          <p><span style="font-size:18px">由于我是工程经验先于理论学习，所以讲述过程也是先实现后理论，如果你没有网络工程经验的话可能会比较难看懂。</span></p> 
+          <p><span style="font-size:18px">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></p> 
+          <p><span style="font-size:18px">首先，我们从解析packets来讲述PPTP的连接过程。</span></p> 
+          <p><span style="font-size:18px"><img src="http://hi.csdn.net/attachment/201008/4/0_12808874553CnD.gif" alt="pptp" style="border:1px solid black; max-width:100%" /></span></p> 
+          <p><span style="font-size:18px">下面按照发包的顺序解释连接过程：</span></p> 
+          <p><span style="font-size:18px"><strong>一、建立TCP连接</strong></span></p> 
+          <p><span style="font-size:18px">&nbsp;&nbsp;&nbsp; 1. Client端向PPTP Server的1723端口发TCP SYN包，请求建立TCP连接；</span></p> 
+          <p><span style="font-size:18px">&nbsp;&nbsp;&nbsp; 2. PPTP Server接受TCP连接请求，回SYN ACK；</span></p> 
+          <p><span style="font-size:18px"><strong>二、建立PPTP控制层连接</strong></span></p> 
+          <p><span style="font-size:18px">&nbsp;&nbsp;&nbsp; 3. PPTP Client发送Start Control Connection Request；（这里有一点需要注意：TCP的三次握手协议只运行了SYN和SYN ACK，在上面的协议实现中第三个ACK报不是单独发送的，而已经是带有效载荷的数据包了。实际很多实现都是这样做的，请不要死记书本上的“三次”握手。）</span></p> 
+          <p><span style="font-size:18px">&nbsp;&nbsp;&nbsp; 4. PPTP Server回Start Control Connection Reply。在PPTP的这几个数据包都是基于TCP连接的，需要特别注意的是TCP Flag中的PUSH位都是被置成1的。那么，PUSH是干嘛的呀？PUSH被置1表示发送端要求接收端在收到该message后立即送到应用层，而不是等到缓冲区满再发往应用层；</span></p> 
+          <p><span style="font-size:18px">&nbsp;&nbsp;&nbsp; 5. PPTP Client发Outgoing Call Request；</span></p> 
+          <p><span style="font-size:18px">&nbsp;&nbsp;&nbsp; 6. PPTP Server回Outgoing Call Reply。到此为止，PPTP的控制层连接就已经建立起来了。下面的相当一部分工作都是由PPP协议来完成的。另外还有一个需要注意的变化，如果你足够细心的话，你会发现之后的packet是基于IP发送的，而不再是基于TCP了，其中的原因我们会在下一篇“PPTP协议解析”中解释。</span></p> 
+          <p><span style="font-size:18px"><strong>三、PPP协议的LCP协商</strong></span></p> 
+          <p><span style="font-size:18px">&nbsp;&nbsp;&nbsp; 7. 接下来我们看到，Client和Server互发了一大堆LCP包，这实际是PPP协议中的LCP（Link Control Protol）协议。LCP is used for estabishing, configuring and testing data-link connection. 其中有几点要注意：</span></p> 
+          <p><span style="font-size:18px">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; （1） Client发送一个Configure-Request，把自己的link layer configure发给Server，Client端的Configure一般比较简单，所以Server一下子就接受了，立即回了一个Configure-Ack；</span></p> 
+          <p><span style="font-size:18px">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; （2） Server同时也必须发送一个Configure-Request，把自己的link layer configure发给Client，而这个configure包含的内容往往比较多；</span></p> 
+          <p><span style="font-size:18px">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; （3） 如果Client收到的Configure-Request中，有unknow的配置项，就会把这些项列出来发一个Configure-Reject包给Server；</span></p> 
+          <p><span style="font-size:18px">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; （4） Server端把Client不认识的配置项删掉，再次重发Configure-Request；</span></p> 
+          <p><span style="font-size:18px">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; （5） 这次Client收到的配置项全都认识了，开始检查是不是所有的配置都可以接受，如果接受的话LCP过程结束，否则把不能接受的配置项列出来发送Configure-Nak给Server；</span></p> 
+          <p><span style="font-size:18px">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; （6） Server再次修改配置项，再次发送Configure-Request；</span></p> 
+          <p><span style="font-size:18px">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; （7） Client发现这次的配置项全都认识，而且全都是自己可以接受的，回发Configure-Ack。</span></p> 
+          <p><span style="font-size:18px">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; （8） 到此为止，LCP就算完事了。其中如果有一个过程失败就会导致LCP协商失败。</span></p> 
+          <p><span style="font-size:18px">&nbsp;&nbsp;&nbsp; 8.&nbsp; Client和Server接受彼此的配置之后，PPTP的控制层会彼此互发Set Link Info；</span></p> 
+          <p><span style="font-size:18px"><strong>四、PPP协议的身份验证</strong></span></p> 
+          <p><span style="font-size:18px">&nbsp;&nbsp;&nbsp; 9.&nbsp; LCP协商完毕后，PPP协议的Server端会对Client端进行身份验证；</span></p> 
+          <p><span style="font-size:18px">&nbsp;&nbsp;&nbsp; 10. 可以选CHAP、MS-CHAP、MS-CHAP-v2...进行验证，具体选项我们会在解析PPP协议时讲述，现在以CHAP为例，需要注意到以下几点：</span></p> 
+          <p><span style="font-size:18px">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; （1） Server发送Challenge，其中包括一个challenge string和server name；</span></p> 
+          <p><span style="font-size:18px">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; （2） Client回Response，其中包括用户名，和密码和challeng string。其中用户名以明文发送（这个需要特别注意），密码的challenge string经过单向hash<a rel="nofollow" target="_blank" href="http://lib.csdn.net/base/datastructure" class="replace_word" title="算法与数据结构知识库" style="color:rgb(223,52,52); text-decoration:none; font-weight:bold">算法</a>后以密文形式发送；</span></p> 
+          <p><span style="font-size:18px">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; （3） Server发送success，表示身份验证成功。</span></p> 
+          <p><span style="font-size:18px"><strong>五、PPP协议的NCP协商</strong></span></p> 
+          <p><span style="font-size:18px">&nbsp;&nbsp;&nbsp; 11. 身份验证通过后，PPP双方会进行NCP协商，用来确定互相通信的网络层接口参数；</span></p> 
+          <p><span style="font-size:18px">&nbsp;&nbsp;&nbsp; 12. 接下来你会看到一大堆IPCP协商数据包，它是NCP基于TCP/IP的接口协商协议。Server和Client都要把自己的Miniport信息发给对方，告诉对方我以后就用它和你通信了，你同不同意请给回个话。具体过程如下：</span></p> 
+          <p><span style="font-size:18px">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; （1） Server把自己的Miniport信息通过Configure-Request发送给Client；</span></p> 
+          <p><span style="font-size:18px">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; （2） Client也把自己的Miniport信息通过Configure-Request发送给Server；（这个时候Client发出的配置信息是完全无效的数据，之所以要故意发无效数据，是要求Server来给自己分配IP等信息）</span></p> 
+          <p><span style="font-size:18px">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; （3） Client接受Server的接口配置，发送Configure-Ack；</span></p> 
+          <p><span style="font-size:18px">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; （4） Server发现Client的配置是无效的，自己给Client发送一组有效的配置信息，通过Configure-Nak发送给Client，其中主要是给他分配IP；</span></p> 
+          <p><span style="font-size:18px">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; （5） Client根据Server端发出的Configure-Nak，提取出给自己分配的IP、DNS等信息，并设置Miniport接口；</span></p> 
+          <p><span style="font-size:18px">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; （6） Client根据修改后的配置，再次发送Configure-Request；</span></p> 
+          <p><span style="font-size:18px">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; （7） Server接受Client的配置，发送Configure-Ack；</span></p> 
+          <p><span style="font-size:18px"><strong>六、CCP是干嘛的</strong></span></p> 
+          <p><span style="font-size:18px">&nbsp;&nbsp;&nbsp; 大家应该很少看到介绍CCP的资料，至少我是没看到过。它看起来像PPTP的Control Connection Protol的简写，但是是跑在PPP协议上的，所以应该和PPTP的控制层协议没有关系。我们发现在IPCP协商过程中穿插了很多CCP包，所以虽然少见但最好还是解释一下它是干嘛的；</span></p> 
+          <p><span style="font-size:18px">&nbsp;&nbsp;&nbsp; CCP中包括了MPPC和MPPE的参数协商，也就是Microsoft Point-to-Point Compression 和 Microsoft Point-to-Point Encryption的参数协商，用来确定数据包中的压缩和加密算法和参数。</span></p> 
+          <p><span style="font-size:18px"><strong>七、GRE协议发送packets</strong></span></p> 
+          <p><span style="font-size:18px">&nbsp;&nbsp;&nbsp; 13. 之后就是PPTP数据链路之间发送packets了，发送的是经过GRE封装过的PPP包。</span></p> 
+          <p><span style="font-size:18px"><strong>八、PPTP链路维护</strong></span></p> 
+          <p><span style="font-size:18px">&nbsp;&nbsp;&nbsp; 14. PPTP跑起来之后就是一大堆GRE包，但是每隔一段时间仍然会看到一些control message，是用来维护链路的；</span></p> 
+          <p><span style="font-size:18px">&nbsp;&nbsp;&nbsp; 15. 一端发送Echo-Request，注意是双方任意一端都可以发送该消息，不一定非得是Client或者Server。</span></p> 
+          <p><span style="font-size:18px">&nbsp;&nbsp;&nbsp; 16. 另一端收到Echo-Request之后必须返回Echo-Relpy。</span></p> 
+          <p><span style="font-size:18px">&nbsp;&nbsp;&nbsp; 17. 如果某一端在一段时间内不能收到Echo-Relpy，就会主动断开PPTP的控制层连接。</span></p> 
+         </div> 
+         <div class="bdsharebuttonbox tracking-ad bdshare-button-style0-16" style="zoom:1; color:rgb(51,51,51); font-family:Arial,Console,Verdana,&quot;Courier New&quot;; float:right"> 
+          <a rel="nofollow" target="_blank" href="http://blog.csdn.net/zhu_hit/article/details/5698958#" class="bds_more" style="color:rgb(51,51,51); text-decoration:none; float:left; padding-left:17px; line-height:16px; height:16px; margin:6px 6px 6px 0px"></a>
+          <a rel="nofollow" target="_blank" href="http://blog.csdn.net/zhu_hit/article/details/5698958#" class="bds_qzone" title="分享到QQ空间" style="color:rgb(51,102,153); text-decoration:none; float:left; padding-left:17px; line-height:16px; height:16px; margin:6px 6px 6px 0px"></a>
+          <a rel="nofollow" target="_blank" href="http://blog.csdn.net/zhu_hit/article/details/5698958#" class="bds_tsina" title="分享到新浪微博" style="color:rgb(51,102,153); text-decoration:none; float:left; padding-left:17px; line-height:16px; height:16px; margin:6px 6px 6px 0px"></a>
+          <a rel="nofollow" target="_blank" href="http://blog.csdn.net/zhu_hit/article/details/5698958#" class="bds_tqq" title="分享到腾讯微博" style="color:rgb(51,102,153); text-decoration:none; float:left; padding-left:17px; line-height:16px; height:16px; margin:6px 6px 6px 0px"></a>
+          <a rel="nofollow" target="_blank" href="http://blog.csdn.net/zhu_hit/article/details/5698958#" class="bds_renren" title="分享到人人网" style="color:rgb(51,102,153); text-decoration:none; float:left; padding-left:17px; line-height:16px; height:16px; margin:6px 6px 6px 0px"><br /> </a>
+         </div> 
+         <p></p> 
+        </div>
+        <br />
+       </div> 
+       <p></p> 
+      </div> 
+      <div class="contentBottomAd"> 
+       <script>
+                            var mediav_ad_pub = 'P0o2jZ_1479874';
+                            var mediav_ad_width = '680';
+                            var mediav_ad_height = '200';
+</script> 
+       <script type="text/javascript" language="javascript" charset="utf-8" src="//static.mediav.com/js/mvf_g2.js"></script> 
+      </div> 
+     </div> 
+    </div> 
+    <dl class="clear_div other_news"> 
+     <dt id="dtPreQA">
+      <b>上一篇:</b>
+      <a href="qa-24-148712.aspx" title="制作一个圆角矩形的activity弹窗">制作一个圆角矩形的activity弹窗</a>
+     </dt> 
+     <dd id="ddNextQA">
+      <b>下一篇:</b>
+      <a href="qa-24-148714.aspx" title="做项目开发后目前有的域名">做项目开发后目前有的域名</a>
+     </dd> 
+    </dl> 
+    <dl class="h_th"> 
+     <dd> 
+      <h4> 相关文章</h4> 
+     </dd> 
+    </dl> 
+    <ul class="clear_div h_list blue_related"> 
+     <script>                    document.write(unescape('%3Cdiv id="hm_t_20717"%3E%3C/div%3E%3Cscript charset="utf-8" src="http://crs.baidu.com/t.js?siteId=b668ac6874ec0621a52a5dfe1df0700b&planId=20717&async=0&referer=') + encodeURIComponent(document.referrer) + '&title=' + encodeURIComponent(document.title) + '&rnd=' + (+new Date) + unescape('"%3E%3C/script%3E'));</script> 
+    </ul> 
+    <div class="clear_div list_t"> 
+     <script type="text/javascript">                    var jd_union_unid = "4503371", jd_ad_ids = "1470:6", jd_union_pid = "CJX+1rmoKxDL7pICGgAg2bGnxQIqAA=="; var jd_width = 629; var jd_height = 144; var jd_union_euid = ""; var p = "BRsEVhtTEwAVNwpfBkgyTUMIRmtKRk9aZV8ETVxNNwpfBkgyZFQIWwsVXnFlBUs5bwRJWBYZM0FWRAtZK18XBxQPXBtZEjIXA1QZWRMCIjcKXwZIMllpVCsEUV9PN1UeUhwAEQFVGVodAxA3VCtrJQ%3D%3D";</script> 
+     <script type="text/javascript" charset="utf-8" src="//u.x.jd.com/static/js/auto.js"></script> 
+    </div> 
+    <div class="clear_div sky_border list_o"> 
+     <div class="l_hot clear_div">
+       关键词： 
+      <strong><a class="info_tags" href="http://www.fx114.net/qa-24-148713.aspx" target="_blank"> VPN column: PPTP(1)-</a></strong>
+     </div> 
+    </div> 
+    <div class="clear_div gray_border list_d" id="pinglun" name="pinglun"> 
+     <h4 class="gray_th"> 相关评论</h4> 
+     <div id="SOHUCS"> 
+      <div class="commentbox"> 
+       <div class="pin-kindeditor Form" style="font-size: 16px; text-align: center; line-height: 48px;
+                            height: 48px; color: #ff6600;">
+         本站评论功能暂时取消，后续此功能例行通知。 
+       </div> 
+       <p> 一、不得利用本站危害国家安全、泄露国家秘密，不得侵犯国家社会集体的和公民的合法权益，不得利用本站制作、复制和传播不法有害信息！</p> 
+       <p> 二、互相尊重，对自己的言论和行为负责。 </p> 
+      </div> 
+     </div> 
+    </div> 
+    <div class="clear_div gray_border list_o"> 
+     <ul class="l_text clear_div"> 
+      <li><b>本文标题：</b><a href="http://www.fx114.net/qa-24-148713.aspx">VPN column: PPTP(1)-</a></li> 
+      <li><b>本页链接：</b><a href="http://www.fx114.net/qa-24-148713.aspx">http://www.fx114.net/qa-24-148713.aspx</a></li> 
+     </ul> 
+    </div> 
+   </div> 
+   <div class="i_right"> 
+    <div id="ss" style="border-bottom: 1px solid #02598e; padding-bottom: 5px;"> 
+     <script type="text/javascript">                    document.write(unescape('%3Cdiv id="bdcs"%3E%3C/div%3E%3Cscript charset="utf-8" src="http://znsv.baidu.com/customer_search/api/js?sid=5712359222851038195') + '&plate_url=' + (encodeURIComponent(window.location.href)) + '&t=' + (Math.ceil(new Date() / 3600000)) + unescape('"%3E%3C/script%3E'));</script> 
+    </div> 
+    <div class="clear_div list_o"> 
+     <script type="text/javascript">
+                    /*300*250，创建于2014-2-2 qacontent*/
+                    var cpro_id = "u1464132";
+                </script> 
+     <script type="text/javascript" src="http://cpro.baidustatic.com/cpro/ui/c.js"></script> 
+    </div> 
+    <div class="clear_div list_o"> 
+    </div> 
+    <div class="clear_div list_o gray_border"> 
+     <h3 class="h_r_th"> 最近更新</h3> 
+     <ul class="clear_div h_news"> 
+      <li><a href="http://www.fx114.net/qa-24-148755.aspx" title="修改.bashrc文件PATH变量错误导致系统大部分命令失效 "> 修改.bashrc文件PATH变量错误导致系统大部分命令失效 </a></li> 
+      <li><a href="http://www.fx114.net/qa-24-148754.aspx" title="Mockito - Wanted but not invoked: Actually, there were zero interactions with this mock "> Mockito - Wanted but not invoked: Actually, there were zero interactions with this mock </a></li> 
+      <li><a href="http://www.fx114.net/qa-24-148753.aspx" title="Apache ZooKeeper 服务启动源码解释 "> Apache ZooKeeper 服务启动源码解释 </a></li> 
+      <li><a href="http://www.fx114.net/qa-24-148752.aspx" title="28：字符串的排列 "> 28：字符串的排列 </a></li> 
+      <li><a href="http://www.fx114.net/qa-24-148751.aspx" title="切线空间下的法线贴图 "> 切线空间下的法线贴图 </a></li> 
+      <li><a href="http://www.fx114.net/qa-24-148750.aspx" title="C#编程（二十一）----------扩展方法 "> C#编程（二十一）----------扩展方法 </a></li> 
+      <li><a href="http://www.fx114.net/qa-24-148749.aspx" title="ReactJS React+Redux+Router+antDesign通用高效率开发模板，夜间模式为例 "> ReactJS React+Redux+Router+antDesign通用高效率开发模板，夜间模式为例 </a></li> 
+      <li><a href="http://www.fx114.net/qa-24-148748.aspx" title="机器学习 — 搜索及排名 "> 机器学习 — 搜索及排名 </a></li> 
+      <li><a href="http://www.fx114.net/qa-24-148747.aspx" title="C++ Primer 第四版课后练习解答 习题1.12 "> C++ Primer 第四版课后练习解答 习题1.12 </a></li> 
+      <li><a href="http://www.fx114.net/qa-24-148746.aspx" title="#1479 : 三等分（树形DP) "> #1479 : 三等分（树形DP) </a></li> 
+      <li><a href="http://www.fx114.net/qa-24-148745.aspx" title="[STF手机设备管理平台]连接其它操作系统上的安卓设备实操介绍 "> [STF手机设备管理平台]连接其它操作系统上的安卓设备实操介绍 </a></li> 
+      <li><a href="http://www.fx114.net/qa-24-148744.aspx" title="经典排序算法之选择排序算法"> 经典排序算法之选择排序算法</a></li> 
+      <li><a href="http://www.fx114.net/qa-24-148743.aspx" title="[置顶]
+        手把手教你实现自定义的应用层协议"> [置顶] 手把手教你实现自定义的应用层协议</a></li> 
+      <li><a href="http://www.fx114.net/qa-24-148742.aspx" title="敏捷开发12条原则"> 敏捷开发12条原则</a></li> 
+      <li><a href="http://www.fx114.net/qa-24-148741.aspx" title="SQL Server 2016 SP_SpaceUsed 新参数@OneResultSet"> SQL Server 2016 SP_SpaceUsed <span class="__cf_email__" data-cfemail="d3354563365c51354663939cbdb681b6a0a6bfa780b6a7">[email&nbsp;protected]</span><script data-cfhash="f9e31" type="text/javascript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script></a></li> 
+      <li><a href="http://www.fx114.net/qa-24-148740.aspx" title="ESP8266 物联网开发 -"> ESP8266 物联网开发 -</a></li> 
+      <li><a href="http://www.fx114.net/qa-24-148739.aspx" title="mybaits让人抓狂的错误！明明sql语句在navicat中执行没问题，但就是不能映射pojo实体类！"> mybaits让人抓狂的错误！明明sql语句在navicat中执行没问题，但就是不能映射pojo实体类！</a></li> 
+      <li><a href="http://www.fx114.net/qa-24-148738.aspx" title="android"> android</a></li> 
+      <li><a href="http://www.fx114.net/qa-24-148737.aspx" title="Spring MVC测试框架详解——服务端测试"> Spring MVC测试框架详解——服务端测试</a></li> 
+      <li><a href="http://www.fx114.net/qa-24-148736.aspx" title="Polar码介绍"> Polar码介绍</a></li> 
+     </ul> 
+    </div> 
+    <div class="clear_div list_o"> 
+     <script type="text/javascript">                    var jd_union_unid = "4503371", jd_ad_ids = "514:6", jd_union_pid = "CLD8tfOnKxDL7pICGgAg2qSoxQIqAA=="; var jd_width = 300; var jd_height = 300; var jd_union_euid = ""; var p = "BRsEVhleEAYUNwpfBkgyTUMIRmtKRk9aZV8ETVxNNwpfBkgybUI8R1ticRdnPV8EfnRSfS56BmlJRAtZK18XBxQPXBtZEjIXA1QZWRMCIjcKXwZIMllpVCsEUV9PN1UeUhwCFA9TElMXBRI3VCtrJQ%3D%3D";</script> 
+     <script type="text/javascript" charset="utf-8" src="//u.x.jd.com/static/js/auto.js"></script>  
+    </div> 
+    <div id="xtad" class="clear_div list_o xtad"> 
+     <a href="http://www.haodai.com/?ref=hd_1103134_0201_1" target="_blank"><img src="http://www.haodai.com/src/i/lianmeng/ad/1_300x250.jpg" alt="好贷网好贷款" /></a> 
+    </div> 
+   </div> 
+  </div> 
+  <dl class="clear_div2 footer"> 
+   <dt>
+    <a href="http://www.fx114.net/About.aspx" rel="nofollow">关于本站</a> | 
+    <a href="http://www.fx114.net/Ad.aspx" rel="nofollow">广告合作</a> | 
+    <a href="http://www.fx114.net/Contact.aspx" rel="nofollow"> 联系我们</a> | 
+    <a href="http://www.fx114.net/Tougao.aspx" rel="nofollow">投稿说明</a> | 
+    <a href="http://www.fx114.net/ShengMing.aspx" rel="nofollow">网站声明</a> 
+   </dt> 
+   <dd> 
+    <p> CopyRight &copy; 2009-2016 <a href="http://www.fx114.net"><strong>分享查询网</strong></a> Fx114.Net , All Rights Reserved. <a class="icp" rel="nofollow" href="http://www.miibeian.gov.cn"> 辽ICP备14015563号-1</a></p> 
+   </dd> 
+  </dl> 
+  <div class="tongji"> 
+   <script>
+            var _hmt = _hmt || [];
+            (function () {
+                var hm = document.createElement("script");
+                hm.src = "//hm.baidu.com/hm.js?b668ac6874ec0621a52a5dfe1df0700b";
+                var s = document.getElementsByTagName("script")[0];
+                s.parentNode.insertBefore(hm, s);
+            })();
+</script> 
+  </div> 
+  <script type="text/javascript" src="http://www.fx114.net/js/jquery-1.9.1.min.js"></script> 
+  <script type="text/javascript" src="http://www.fx114.net/js/global.js"></script>  
+ </body>
+</html>

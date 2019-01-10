@@ -1,0 +1,1133 @@
+<!DOCTYPE html>
+<html lang="ru"><head>
+<title>Vape Craft - Мастерская пара.</title>
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+<meta charset="utf-8"/>
+<meta property = "og:title" content = "Vape Craft" />
+<meta property = "og:image" content="http://www.vapecraft.ru/vapecraft_logo_100px.jpg" />
+<meta property = "og:description" content = "Калькулятор, база ароматизаторов и рецептов vape жидкостей для электронных сигарет" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="author" content="www.vapecraft.ru - мастерская пара"/>
+<meta name="description" content="Рецепты жидкостей &quot;самозамеса&quot; для электронных &quot;сигарет&quot;, калькулятор, общая и персональная база данных ароматизаторов и готовых жидкостей, обзоры, рейтинги, отзывы."/>
+<meta name="keywords" content="Рецепты,электронная,сигарета жидкость,самозамес,калькулятор,обзор,отзывы,жижа,e-liquid,e-juice,e-cigarette,vape,DIY liquid"/>
+<meta name="copyright" content="(c) 2015-2016 www.vapecraft.ru"/>
+<meta name="google-site-verification" content="GagkbUgyz9KLaN1VJurtLwqUEinTH7JEyFknZ6dG1EU" />
+<link rel="icon" href="http://www.vapecraft.ru/assets/ico/favicon.ico" rel="shortcut icon" type="image/x-icon" />
+<link rel="shortcut icon" href="http://www.vapecraft.ru/assets/ico/favicon.ico">
+<link media="all" type="text/css" rel="stylesheet" href="http://www.vapecraft.ru/assets/css/bootstrap.min.css">
+<link media="all" type="text/css" rel="stylesheet" href="http://www.vapecraft.ru/assets/css/view.css?201610151120">
+<link media="print" type="text/css" rel="stylesheet" href="http://www.vapecraft.ru/assets/css/print.css">
+<link media="all" type="text/css" rel="stylesheet" href="http://www.vapecraft.ru/assets/css/jquery.css">
+<link media="all" type="text/css" rel="stylesheet" href="http://www.vapecraft.ru/assets/css/jquery-ui.min.css"> 
+<script src="http://www.vapecraft.ru/assets/js/jquery.min.js"></script>
+<script src="http://www.vapecraft.ru/assets/js/jquery-ui.min.js"></script>
+<script src="http://www.vapecraft.ru/assets/js/bootstrap.min.js"></script>
+<script src="http://www.vapecraft.ru/assets/js/jquery-ui.js"></script>
+<script>
+  $(document).ready(function(){
+  var cM = 0;
+    $('#sign-in').click(function(){
+    $.ajax({
+      type:"POST",
+      url: "http://www.vapecraft.ru/main/login_in_ajax",
+      data: { 
+        username: $('input[name=username]').val(),
+        password: $('input[name=password]').val()
+      },
+      dataType: "html", 
+      success: function(data_status){
+        var obj_status = jQuery.parseJSON(data_status);
+        if(obj_status.warning.length){
+          showAlert('#sign-inDrop', obj_status.warning, true);
+        }else if(obj_status.success.length){
+          showAlert('#sign-inDrop', obj_status.success, false, true);
+          setTimeout(function() { location.reload(0); }, 800);
+        } else{
+          showAlert('#sign-inDrop', "Ошибка обмена, повторите попытку", true);
+        }   
+      }
+    }); 
+        return false;
+    });
+$('input[name=password]').keypress(function (e) {
+  if (e.which == 13) {
+  $('#sign-in').click();
+  }
+});
+
+function showAlert(parent, message, warning, success){
+    var cs = 'alert-info';
+    if(parent==undefined){
+        return;
+    }
+    $(parent+' .alert').attr({
+        'class':'alert hidden',
+        'style':''
+    });
+    if(message == undefined){
+        return;
+    }
+    if(warning!=undefined && warning){
+        cs = 'alert-warning navi-alert';
+    }
+    if(success!=undefined && success){
+        cs = 'alert-success navi-alert';
+    }    
+    $(parent+' .alert').attr('class','alert hidden '+cs);
+    $(parent+' .alert .text').html(''+message+'');
+    //$(parent+' .alert').show();
+    $(parent+' .alert').removeClass('hidden');
+    clearInterval(cM);
+    cM = setInterval(function (){
+        $(parent+' .alert').hide('fast', function (){
+            $(parent+' .alert').attr({
+                'class':'alert hidden',
+                'style':''
+            });
+        });
+        clearInterval(cM);
+    }, 10000);
+}   
+    $('#save_profile_button').click(function(e){
+        var form = $('#save_profile');
+        $.post('/main/save_profile/', form.serialize(), function (data){
+            if(data.error.length){
+                showAlert('#save_profile', data.error, true);
+            }else if(data.success.length){
+                showAlert('#save_profile', data.success, false);
+                setInterval(function (){
+                    window.location.href="?";
+                }, 3000);
+            } else{
+                showMessage("Ошибка обмена, повторите попытку", true, false);
+            }
+        }, 'json');
+        e.preventDefault();
+        return false;
+    }); 
+});
+</script>
+<script type="text/javascript">
+$(document).ready(function(){
+    if(!$('ul.pagination').html()) {
+        $("div.pagination-bar").hide();
+        $("div.social-btn-bar").attr("style", "margin-top:22px;");
+    }
+});
+</script>
+<body>
+<!-- Google Analytics counter -->
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-72326355-2', 'auto');
+  ga('send', 'pageview');
+</script>
+<!-- //Google Analytics counter -->
+<!-- Rating@Mail.ru counter -->
+<script type="text/javascript">
+var _tmr = _tmr || [];
+_tmr.push({id: "2627104", type: "pageView", start: (new Date()).getTime()});
+(function (d, w) {
+   var ts = d.createElement("script"); ts.type = "text/javascript"; ts.async = true;
+   ts.src = (d.location.protocol == "https:" ? "https:" : "http:") + "//top-fwz1.mail.ru/js/code.js";
+   var f = function () {var s = d.getElementsByTagName("script")[0]; s.parentNode.insertBefore(ts, s);};
+   if (w.opera == "[object Opera]") { d.addEventListener("DOMContentLoaded", f, false); } else { f(); }
+})(document, window);
+</script><noscript><div style="position:absolute;left:-10000px;">
+<img src="//top-fwz1.mail.ru/counter?id=2627104;js=na" style="border:0;" height="1" width="1" alt="Рейтинг@Mail.ru" />
+</div></noscript>
+<!-- //Rating@Mail.ru counter -->
+<div class="navbar navbar-inverse navbar-fixed-top" role="navigation">  
+  <div class="container"><!--.container -->
+    <div class="navbar-header">
+			<div class="head-logo">
+				<a href="http://www.vapecraft.ru/main/index"><img src="http://www.vapecraft.ru/assets/img/vapecraft-logo.svg"></a>
+			</div>
+      <div class="head-brand-name">
+        <a class="head-brand" href="http://www.vapecraft.ru/main/index"><h1>VAPE CRAFT</h1></a>
+      </div>
+      <div class="compact-menu-button">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+      </div>
+    </div>
+    <!--/.nav-collapse -->
+    <div class="collapse navbar-collapse">
+			<ul class="nav navbar-nav navbar-right">
+        <li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-th-list"></span> Рецепты<b class="caret"></b></a>
+					<ul class="dropdown-menu">
+            <li><a href="http://www.vapecraft.ru/main/create_recept"><span class="glyphicon glyphicon-pencil"></span> Новый рецепт</a></li>
+            <li><a href="http://www.vapecraft.ru/main/index"><span class="glyphicon glyphicon-list"></span> Все рецепты</a></li>
+            <li><a href="http://www.vapecraft.ru/main/flavors"><span class="glyphicon glyphicon-leaf"></span> Ароматизаторы</a></li>
+          </ul>
+        </li>
+        <li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-info-sign"></span> Информация<b class="caret"></b></a>                 
+          <ul class="dropdown-menu">
+            <li><a href="http://www.vapecraft.ru/main/about"><span class="glyphicon glyphicon-home"></span> О проекте</a></li>
+            <li><a href="http://www.vapecraft.ru/main/friends"><span class="glyphicon glyphicon-thumbs-up"></span> Друзья и партнеры</a></li>
+            <li><a href="http://www.vapecraft.ru/main/disclamer"><span class="glyphicon glyphicon-file"></span> Соглашение</a></li>
+            <li><a href="http://www.vapecraft.ru/main/promo"><span class="glyphicon glyphicon-blackboard"></span> Рекламодателям</a></li>
+          </ul>
+        </li>
+        <li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-user"></span> Ваш профиль<b class="caret"></b></a>
+          <ul class="dropdown-menu profile">
+            <li></li>
+                        <form method="post" action="login" accept-charset="UTF-8" id="sign-inForm">
+              <li>
+                <div id="sign-inDrop">
+                  <div class="alert hidden alert-warning navi-alert">
+                    <span class="text"></span>
+                  </div>
+                </div>
+              </li>
+<!--noindex-->
+              <li><input class="form-control login-form" placeholder="ваш@email.com" id="username" name="username" type="text"></li>
+              <li><input class="form-control login-form" placeholder="Пароль" id="password" name="password" type="password"></li>
+              <li><a class="btn btn-success btn-block btn-xs login-form" data-loading-text="Авторизуемся" id="sign-in" rel="nofollow">
+                <span class="glyphicon glyphicon-log-in"></span>
+               Авторизироваться</a></li>
+              <li>                
+                <a href="http://www.vapecraft.ru/register/index" class="btn btn-primary btn-block btn-xs login-form" rel="nofollow" id="reg-on">
+                <span class="glyphicon glyphicon-record"></span> Зарегистрироваться</a><br/>
+              </li>
+              <li>
+                <span class="forgot">             
+                  <span class="glyphicon glyphicon-option-horizontal"></span>
+                  <a href="http://www.vapecraft.ru/register/remind_pass" rel="nofollow">Забыли пароль?</a>
+                </span>
+              </li>
+<!--/noindex-->
+                
+            </form>
+          </ul>
+        </li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div>
+<script src="http://www.vapecraft.ru/assets/js/login-form.js"></script><script src="http://www.vapecraft.ru/assets/js/calc.js?201610151120" type="text/javascript"></script>
+<script src="http://www.vapecraft.ru/assets/js/view-service.js?201610151120"></script>
+<!-- Тултипы -->
+<div id="real-hint-1" class="real-hint">
+  <div class="prm-cross"><span class="glyphicon glyphicon-remove"></span></div>
+  <div class="hint-caption"></div>
+</div>
+<!--// Тултипы -->
+<!-- Content START -->
+    <div class="container">
+      <div class="info-line">
+      </div>
+      <div class="panel panel-default">
+  <!-- Default panel contents -->
+      <div class="panel-heading"><h1><span class="glyphicon glyphicon-list"></span> Все рецепты</h1><br>
+           <noindex>
+<span class="at-link"><span class="glyphicon glyphicon-piggy-bank"></span>
+  Экономь, получая кэшбэк в магазинах <a href="https://homyanus.com/g/7khfs3jtus58edbc9bc98753afd1f1/?ulp=https%3A%2F%2Fletyshops.ru%2Fshops%2Ffasttech" target="_blank" rel="nofollow">FastTech</a> (2.5%), <a href="https://homyanus.com/g/7khfs3jtus58edbc9bc98753afd1f1/?ulp=https%3A%2F%2Fletyshops.ru%2Fshops%2Fgearbest" target="_blank" rel="nofollow">GearBest</a> (3%), <a href="https://homyanus.com/g/7khfs3jtus58edbc9bc98753afd1f1/?ulp=https%3A%2F%2Fletyshops.ru%2Fshops%2Faliexpress" target="_blank" rel="nofollow">AliExpress</a> (5%) 
+  и многих других, используя сервис <a href="https://katuhus.com/g/7khfs3jtus58edbc9bc98753afd1f1/" target="_blank" rel="nofollow">Lety Shops</a>! 
+  <span class="glyphicon glyphicon-piggy-bank"></span>
+</span>
+</noindex>
+      </div>
+      <div class="panel-heading">
+      <noindex>
+          <!-- Nolix Bar-->
+<div id=nlxbar></div>      </noindex>
+      </div>
+</div>
+        <div class="row">
+          <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+            <table width="100%" border="0">
+              <tbody>
+              <tr>
+                <td></td>
+                <td align="center">
+                  <!-- AdButton -->
+                  <script type="text/javascript">
+                    var sn = window.location.hostname.substring(0, 1) + (((new Date().getTime()) / (1000 * 60 * 15)) | 0).toString();
+                    document.write('<div class="' + sn + '" data-unit-id="118" style="display: none;"></div>');
+
+                    (function (w, d, t, u, r) {
+                      w[r] = w[r] || function (k, v) { (w[r].q = w[r].q || {})[k] = v; }
+                      a = d.createElement(t); a.src = u; a.async = 1;
+                      m = d.getElementsByTagName(t)[0]; m.parentNode.insertBefore(a, m);
+                    })(window, document, 'script', '//sl.adbutton.net/' + sn + '.js', 'abn');
+
+                    abn('Language', 'ru');
+                    abn('Button', 'false');
+                  </script>
+                  <!-- <div class="adb-welcome"><noindex><a href="javascript:ABN.ButtonClick();" rel="nofollow"><span class="glyphicon glyphicon-blackboard"></span> Разместить рекламу на VapeСraft</a></noindex></div> -->
+                  <!--// AdButton -->
+                </td>
+                <td></td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+<div class="panel panel-default">
+  <div class="panel-body">
+    <form name="fl-sel-form" method="GET" action="http://www.vapecraft.ru/main/index" class="form-search">
+      <div class="row">
+        <div class="col-lg-6 col-md-6 search-select">
+          <span class="label label-info">Название рецепта:</span>
+          <input class="form-control index-input" placeholder="Укажите название рецепта" name="name" type="text" value="" disabled title='Доступно только зарегистрированным пользователям'>
+          <span class="label label-info">Вкусы в рецепте:</span>
+          <select class="form-control index-input" name="tastes" disabled title='Доступно только зарегистрированным пользователям'>
+            <option class="tastes-choose" value="">Укажите вкус</option>
+            <option value="1">#Алкогольный напиток</option><option value="5">#Выпечка</option><option value="11">#Кислый</option><option value="2">#Конфетный</option><option value="14">#Кофейный</option><option value="8">#Ментоловый</option><option value="4">#Молочный</option><option value="7">#Мятный</option><option value="16">#Ореховый</option><option value="9">#Пряный</option><option value="10">#Сладкий</option><option value="3">#Сливочный</option><option value="12">#Табачный</option><option value="6">#Фруктовый</option><option value="13">#Цветочный</option><option value="15">#Чайный</option>          </select>
+          <span class="label label-info">Количество ароматизаторов в рецепте:</span>
+          <div class="input-group search-box-2">
+            <span class="input-group-addon fl-ttl-addon" title="Минимальное количество ароматизаторов в рецепте">Мин. аром.</span>
+            <input class="form-control fl-ttl-input" id="ttlNumMin" placeholder="0" name="fl_ttl_min" type="text" maxlength="2" pattern="[0-9]{1,2}" value="" onchange="flNumCheck();" disabled title='Доступно только зарегистрированным пользователям'>
+            <span class="input-group-addon fl-ttl-addon" title="Максимальное количество ароматизаторов в рецепте">Макс. аром.</span>
+            <input class="form-control fl-ttl-input" id="ttlNumMax" placeholder="0" name="fl_ttl_max" type="text" maxlength="2" pattern="[0-9]{1,2}" value="" onchange="flNumCheck();" disabled title='Доступно только зарегистрированным пользователям'>
+          </div>
+          <span class="label label-info">Процент ароматизаторов в рецепте:</span>
+          <div class="input-group search-box-2">
+            <span class="input-group-addon fl-ttl-addon" title="Минимальный % ароматизаторов в рецепте">Мин. % аром.</span>
+            <input class="form-control fl-tll-input" placeholder="0" id="ttlPercMin" name="fl_perc_min" type="text" maxlength="2" value="" onchange="flTtlCheck();" pattern="[0-9]{1,2}" disabled title='Доступно только зарегистрированным пользователям'>
+            <span class="input-group-addon fl-ttl-addon" title="Максимальное количество ароматизаторов в рецепте">Макс. % аром.</span>
+            <input class="form-control fl-tll-input" placeholder="0" id="ttlPercMax" name="fl_perc_max" type="text" maxlength="2" value="" onchange="flTtlCheck();" pattern="[0-9]{1,2}" disabled title='Доступно только зарегистрированным пользователям'>
+          </div>
+        </div>
+        <div class="fl-select col-lg-6 col-md-6">
+          <div class="add-my-flavor-index wcim-index">
+            <div class="add-my-flavor-name-input-index">
+              <span class="label label-info">Название ароматизатора:</span> <span id="approved-marker" class="glyphicon glyphicon-question-sign" title="Индикатор одобренности ароматизатора."></span>
+              <input class="form-control ui-autocomplete-input index-input" type="text" placeholder="Укажите название ароматизатора" name="" maxlength="128" id="flavor-name" onfocus="typeFlavor()" onchange="chVal()" oninput="checkEmpty();" disabled title='Доступно только зарегистрированным пользователям'>
+            </div>
+            <div class="add-my-flavor-make-input-index">
+              <span class="label label-info">Производитель ароматизатора:</span>
+              <input class="form-control ui-autocomplete-input index-input" type="text" disabled="disabled" name="flavor-make" id="flavor-make" maxlength="128" onchange="chVal()" oninput="checkEmpty();">
+            </div>
+            <div class="search-check-div">
+              <span class="label label-info">Отображать тюнингованые:</span>
+              <label><input class="tune-check" type="checkbox" name="tune_check" id="tune_check"  value="1" disabled title='Доступно только зарегистрированным пользователям'></label>
+            </div>
+            <div class="form-actions add-my-flavor-btn">
+              <input type="hidden" name="" id="id_flv" value="" />
+              <button type="button" id="savebtn" class="btn btn-primary" onclick="wcimFlList();"><span class="glyphicon glyphicon-plus" disabled title='Доступно только зарегистрированным пользователям'></span> Добавить</button>
+              <button type="submit" id="search" class="btn btn-success" disabled title='Доступно только зарегистрированным пользователям'><span class="glyphicon glyphicon-search"></span> Искать</button>
+              <button type="button" id="mrpropper" class="btn btn-warning" onclick="wipeForm();"><span class="glyphicon glyphicon-refresh"></span> Очистить поля</button>
+            </div>
+            
+            <div class='alert alert-warning'>Чтобы воспользоваться функциями поиска и сортировки, а также другими интересными функциям системы, пожалуйста <a href='http://www.vapecraft.ru/register/index' rel='nofollow' id='reg-on'>зарегистрируйтесь</a>.</div>            <div class="mistake-msg label label-danger" style="visibility:hidden;"></div>
+            <script>
+              $(document).ready ( function(){
+                checkEmpty();
+                $('#flavor-name').data("wcim", '1');
+                chValid();
+                $('.fl-tll-input').keypress(function(key) {
+                  if(key.charCode < 48 || key.charCode > 57) return false;
+                });
+              });
+            </script>
+          </div>
+        </div>
+      </div>
+        <hr>
+        <span class="label label-info">Выбранные обязательные ароматизаторы:</span>
+        <div class="input-group sel-flavors">
+        </div>
+    </form>
+    <hr>
+      <div class="table-stat">
+        <span class="glyphicon glyphicon-hdd"></span>  Всего рецептов в базе: <span class="badge">19119</span>&nbsp;/&nbsp;<span class="glyphicon glyphicon-eye-close"></span> Скрытых: <span class="badge">11556</span>&nbsp;/&nbsp;<span class="glyphicon glyphicon-eye-open"></span> Публичных: <span class="badge">7563</span>&nbsp;/&nbsp;<span class="glyphicon glyphicon-user"></span> Пользователей: <span class="badge">33530</span>
+                <div class="sort_block" style="display:none;">
+
+      <span class="glyphicon glyphicon-sort"></span> Сортировка: 
+
+      <a href="http://www.vapecraft.ru/main/index?name=&selFlId=&tastes=&fl_ttl_min=&fl_ttl_max=&fl_perc_min=&fl_perc_max=&tune_check=&ord=nazva_desc&per_page=" rel="nofollow">
+      <button type="button" class="btn btn-primary btn-xs">название <span class="glyphicon glyphicon-pause"></span></button></a>
+
+      <a href="http://www.vapecraft.ru/main/index?name=&selFlId=&tastes=&fl_ttl_min=&fl_ttl_max=&fl_perc_min=&fl_perc_max=&tune_check=&ord=author_desc&per_page=" rel="nofollow">
+      <button type="button" class="btn btn-primary btn-xs">автор <span class="glyphicon glyphicon-pause"></span></button></a>
+
+      <a href="http://www.vapecraft.ru/main/index?name=&selFlId=&tastes=&fl_ttl_min=&fl_ttl_max=&fl_perc_min=&fl_perc_max=&tune_check=&ord=date_create_desc&per_page=" rel="nofollow">
+      <button type="button" class="btn btn-primary btn-xs">дата <span class="glyphicon glyphicon-chevron-down"></span></button></a>
+
+      <a href="http://www.vapecraft.ru/main/index?name=&selFlId=&tastes=&fl_ttl_min=&fl_ttl_max=&fl_perc_min=&fl_perc_max=&tune_check=&ord=fl_ttl_desc&per_page=" rel="nofollow">
+      <button type="button" class="btn btn-default btn-xs">число ароматизаторов <span class="glyphicon glyphicon-pause"></span></button></a>
+
+      <a href="http://www.vapecraft.ru/main/index?name=&selFlId=&tastes=&fl_ttl_min=&fl_ttl_max=&fl_perc_min=&fl_perc_max=&tune_check=&ord=sum_perc_desc&per_page=" rel="nofollow">
+      <button type="button" class="btn btn-default btn-xs">процент ароматизатора <span class="glyphicon glyphicon-pause"></span></button></a>
+
+      <a href="http://www.vapecraft.ru/main/index?name=&selFlId=&tastes=&fl_ttl_min=&fl_ttl_max=&fl_perc_min=&fl_perc_max=&tune_check=&ord=infav_desc&per_page=" rel="nofollow">
+      <button type="button" class="btn btn-default btn-xs">в избранном <span class="glyphicon glyphicon-pause"></span></button></a>
+
+      <a href="http://www.vapecraft.ru/main/index?name=&selFlId=&tastes=&fl_ttl_min=&fl_ttl_max=&fl_perc_min=&fl_perc_max=&tune_check=&ord=com_desc&per_page=" rel="nofollow">
+      <button type="button" class="btn btn-default btn-xs">количество комментариев <span class="glyphicon glyphicon-pause"></span></button></a>
+
+      <a href="http://www.vapecraft.ru/main/index?name=&selFlId=&tastes=&fl_ttl_min=&fl_ttl_max=&fl_perc_min=&fl_perc_max=&tune_check=&ord=rating&per_page=" rel="nofollow">
+      <button type="button" class="btn btn-default btn-xs">оценка <span class="glyphicon glyphicon-pause"></span></button></a>
+      </div>
+        <div class="input-group pagers" style="display:none;">
+          <span class="input-group-addon">на стр.</span>
+          <select class="selectpicker form-control" name="u_page" onchange="top.location=this.value">
+            <option value="http://www.vapecraft.ru/main/index?name=&selFlId=&tastes=&fl_ttl_min=&fl_ttl_max=&fl_perc_min=&fl_perc_max=&tune_check=&u_page=30&ord=" >30</option>
+            <option value="http://www.vapecraft.ru/main/index?name=&selFlId=&tastes=&fl_ttl_min=&fl_ttl_max=&fl_perc_min=&fl_perc_max=&tune_check=&u_page=25&ord=" >25</option>
+            <option value="http://www.vapecraft.ru/main/index?name=&selFlId=&tastes=&fl_ttl_min=&fl_ttl_max=&fl_perc_min=&fl_perc_max=&tune_check=&u_page=20&ord=" >20</option>
+            <option value="http://www.vapecraft.ru/main/index?name=&selFlId=&tastes=&fl_ttl_min=&fl_ttl_max=&fl_perc_min=&fl_perc_max=&tune_check=&u_page=15&ord=" >15</option>
+            <option value="http://www.vapecraft.ru/main/index?name=&selFlId=&tastes=&fl_ttl_min=&fl_ttl_max=&fl_perc_min=&fl_perc_max=&tune_check=&u_page=10&ord=" >10</option>
+            <option value="http://www.vapecraft.ru/main/index?name=&selFlId=&tastes=&fl_ttl_min=&fl_ttl_max=&fl_perc_min=&fl_perc_max=&tune_check=&u_page=5&ord=" >5</option>
+          </select>
+        </div>
+    </div>
+  </div>
+</div>
+<div class="row cpa-row">
+    <div id="carousel-example-generic" class="carousel slide" data-ride="carousel" data-interval="5000">
+        <!-- Indicators -->
+        <!--    <ol class="carousel-indicators indicator-option">
+              <li data-target="#carousel-example-generic" data-slide-to="0" class="active"></li>
+              <li data-target="#carousel-example-generic" data-slide-to="1"></li>
+              <li data-target="#carousel-example-generic" data-slide-to="2"></li>
+            </ol>-->
+
+        <!-- Wrapper for slides -->
+        <div class="carousel-inner">
+            <div class="item active">
+                <table width="100%" border="0">
+                    <tbody>
+                    <tr>
+                        <td></td>
+                        <td align="center">
+                            <!-- admitad.banner: b611e78a2158edbc9bc916525dc3e8 Aliexpress INT -->
+                            <a target="_blank" rel="nofollow" href="https://alitems.com/g/b611e78a2158edbc9bc916525dc3e8/?i=4"><img width="728" height="90" class="car-item" border="0" src="https://alitems.com/b/b611e78a2158edbc9bc916525dc3e8/" alt="Aliexpress INT"/></a>
+                            <!-- /admitad.banner -->
+                        </td>
+                        <td></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="item">
+                <table width="100%" border="0">
+                    <tbody>
+                    <tr>
+                        <td></td>
+                        <td align="center">
+                            <!-- admitad.banner: 5jjmbremlo58edbc9bc922af2ed61b GearBest.com INT -->
+                            <a target="_blank" rel="nofollow" href="https://lenkmio.com/g/5jjmbremlo58edbc9bc922af2ed61b/?i=4"><img width="728" height="90" class="car-item" border="0" src="https://ad.admitad.com/b/5jjmbremlo58edbc9bc922af2ed61b/" alt="GearBest.com INT"/></a>
+                            <!-- /admitad.banner -->
+                        </td>
+                        <td></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="item">
+                <table width="100%" border="0">
+                    <tbody>
+                    <tr>
+                        <td></td>
+                        <td align="center">
+                            <!-- admitad.banner: lmaa2yp3ur58edbc9bc98753afd1f1 Letyshops -->
+                            <a target="_blank" rel="nofollow" href="https://homyanus.com/g/lmaa2yp3ur58edbc9bc98753afd1f1/?i=4"><img width="728" height="90" border="0" src="https://ad.admitad.com/b/lmaa2yp3ur58edbc9bc98753afd1f1/" alt="Letyshops"/></a>
+                            <!-- /admitad.banner -->
+                        </td>
+                        <td></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Controls -->
+        <a class="left carousel-control" href="#carousel-example-generic" role="button" data-slide="prev">
+            <span class="glyphicon glyphicon-chevron-left"></span>
+        </a>
+        <a class="right carousel-control" href="#carousel-example-generic" role="button" data-slide="next">
+            <span class="glyphicon glyphicon-chevron-right"></span>
+        </a>
+    </div> <!-- Carousel -->
+</div>     <!-- New View -->
+      
+        <div class="tbl_grid">
+          <div class="row r1">
+            <div class="r_name col-lg-6 col-md-6 col-sm-6 col-xs-12"><span class="label label-primary tbl_grid_label">Рецепт:</span> <a href="http://www.vapecraft.ru/main/recept/26945">ADIRONDACK Miracle On Ice (Клон)</a></div>
+            <div class="r_author col-lg-3 col-md-3 col-sm-3 col-xs-12">
+              <div class="r_author_avtr"><span class="label label-primary tbl_grid_label">Автор:</span> <img class="" src="http://www.vapecraft.ru/images/uploads/no_avatar.png" height="22px">
+              </div>
+              <div class="r_author_name"><a href="http://www.vapecraft.ru/main/user_recept/32753">ystus12 </a>
+              </div>
+            </div>
+            <div class="r_date col-lg-3 col-md-3 col-sm-3 col-xs-12"><span class="label label-primary tbl_grid_label">Дата:</span> 22.12.2016</div>
+          </div>
+          <div class="row r2">
+            <div class="r_fl_num col-sm-3 col-xs-12" ><span class="tbl_grid_titles">Аром.:</span> <span class="badge">4шт.</span> / <span class="badge">15%</span></div>
+            <div class="r_fl_perc col-sm-3 col-xs-12"><span class="tbl_grid_titles">В избранном.:</span> <span class="badge">2</span></div>
+            <div class="r_cmnt col-sm-3 col-sm-3 col-xs-12"><span class="tbl_grid_titles">Комментарии:</span> <span class="badge" onclick="flavGet(26945);">0</span></div>
+            <div class="r_fl_rate col-sm-3 col-xs-12"><span class="tbl_grid_titles">Оценка:</span> <a title="Понравилось" class="like" id_recept="26945"><span class="badge b_like"><span class="glyphicon glyphicon-thumbs-up"></span> </span></a> / 
+          <a title="Не понравилось" class="dislike" id_recept="26945"><span class="badge b_dislike"><span class="glyphicon glyphicon-thumbs-down"></span> </span></a></div>
+          </div>
+        </div>
+        <div class="tbl_grid">
+          <div class="row r1">
+            <div class="r_name col-lg-6 col-md-6 col-sm-6 col-xs-12"><span class="label label-primary tbl_grid_label">Рецепт:</span> <a href="http://www.vapecraft.ru/main/recept/26929">Beard Vape Co. 32</a></div>
+            <div class="r_author col-lg-3 col-md-3 col-sm-3 col-xs-12">
+              <div class="r_author_avtr"><span class="label label-primary tbl_grid_label">Автор:</span> <img class="" src="http://www.vapecraft.ru/images/uploads/no_avatar.png" height="22px">
+              </div>
+              <div class="r_author_name"><a href="http://www.vapecraft.ru/main/user_recept/11770">D_V </a>
+              </div>
+            </div>
+            <div class="r_date col-lg-3 col-md-3 col-sm-3 col-xs-12"><span class="label label-primary tbl_grid_label">Дата:</span> 22.12.2016</div>
+          </div>
+          <div class="row r2">
+            <div class="r_fl_num col-sm-3 col-xs-12" ><span class="tbl_grid_titles">Аром.:</span> <span class="badge">5шт.</span> / <span class="badge">20%</span></div>
+            <div class="r_fl_perc col-sm-3 col-xs-12"><span class="tbl_grid_titles">В избранном.:</span> <span class="badge">1</span></div>
+            <div class="r_cmnt col-sm-3 col-sm-3 col-xs-12"><span class="tbl_grid_titles">Комментарии:</span> <span class="badge" onclick="flavGet(26929);">0</span></div>
+            <div class="r_fl_rate col-sm-3 col-xs-12"><span class="tbl_grid_titles">Оценка:</span> <a title="Понравилось" class="like" id_recept="26929"><span class="badge b_like"><span class="glyphicon glyphicon-thumbs-up"></span> </span></a> / 
+          <a title="Не понравилось" class="dislike" id_recept="26929"><span class="badge b_dislike"><span class="glyphicon glyphicon-thumbs-down"></span> </span></a></div>
+          </div>
+        </div>
+        <div class="tbl_grid">
+          <div class="row r1">
+            <div class="r_name col-lg-6 col-md-6 col-sm-6 col-xs-12"><span class="label label-primary tbl_grid_label">Рецепт:</span> <a href="http://www.vapecraft.ru/main/recept/26948">BAD DRIP Bad Blood (клон)</a></div>
+            <div class="r_author col-lg-3 col-md-3 col-sm-3 col-xs-12">
+              <div class="r_author_avtr"><span class="label label-primary tbl_grid_label">Автор:</span> <img class="" src="http://www.vapecraft.ru/images/uploads/no_avatar.png" height="22px">
+              </div>
+              <div class="r_author_name"><a href="http://www.vapecraft.ru/main/user_recept/32753">ystus12 </a>
+              </div>
+            </div>
+            <div class="r_date col-lg-3 col-md-3 col-sm-3 col-xs-12"><span class="label label-primary tbl_grid_label">Дата:</span> 22.12.2016</div>
+          </div>
+          <div class="row r2">
+            <div class="r_fl_num col-sm-3 col-xs-12" ><span class="tbl_grid_titles">Аром.:</span> <span class="badge">3шт.</span> / <span class="badge">16%</span></div>
+            <div class="r_fl_perc col-sm-3 col-xs-12"><span class="tbl_grid_titles">В избранном.:</span> <span class="badge">1</span></div>
+            <div class="r_cmnt col-sm-3 col-sm-3 col-xs-12"><span class="tbl_grid_titles">Комментарии:</span> <span class="badge" onclick="flavGet(26948);">0</span></div>
+            <div class="r_fl_rate col-sm-3 col-xs-12"><span class="tbl_grid_titles">Оценка:</span> <a title="Понравилось" class="like" id_recept="26948"><span class="badge b_like"><span class="glyphicon glyphicon-thumbs-up"></span> </span></a> / 
+          <a title="Не понравилось" class="dislike" id_recept="26948"><span class="badge b_dislike"><span class="glyphicon glyphicon-thumbs-down"></span> </span></a></div>
+          </div>
+        </div>
+        <div class="tbl_grid">
+          <div class="row r1">
+            <div class="r_name col-lg-6 col-md-6 col-sm-6 col-xs-12"><span class="label label-primary tbl_grid_label">Рецепт:</span> <a href="http://www.vapecraft.ru/main/recept/26944">VAPETRIK Bubbletronic (Клон)</a></div>
+            <div class="r_author col-lg-3 col-md-3 col-sm-3 col-xs-12">
+              <div class="r_author_avtr"><span class="label label-primary tbl_grid_label">Автор:</span> <img class="" src="http://www.vapecraft.ru/images/uploads/no_avatar.png" height="22px">
+              </div>
+              <div class="r_author_name"><a href="http://www.vapecraft.ru/main/user_recept/32753">ystus12 </a>
+              </div>
+            </div>
+            <div class="r_date col-lg-3 col-md-3 col-sm-3 col-xs-12"><span class="label label-primary tbl_grid_label">Дата:</span> 22.12.2016</div>
+          </div>
+          <div class="row r2">
+            <div class="r_fl_num col-sm-3 col-xs-12" ><span class="tbl_grid_titles">Аром.:</span> <span class="badge">2шт.</span> / <span class="badge">12%</span></div>
+            <div class="r_fl_perc col-sm-3 col-xs-12"><span class="tbl_grid_titles">В избранном.:</span> <span class="badge">1</span></div>
+            <div class="r_cmnt col-sm-3 col-sm-3 col-xs-12"><span class="tbl_grid_titles">Комментарии:</span> <span class="badge" onclick="flavGet(26944);">0</span></div>
+            <div class="r_fl_rate col-sm-3 col-xs-12"><span class="tbl_grid_titles">Оценка:</span> <a title="Понравилось" class="like" id_recept="26944"><span class="badge b_like"><span class="glyphicon glyphicon-thumbs-up"></span> </span></a> / 
+          <a title="Не понравилось" class="dislike" id_recept="26944"><span class="badge b_dislike"><span class="glyphicon glyphicon-thumbs-down"></span> </span></a></div>
+          </div>
+        </div>
+        <div class="tbl_grid">
+          <div class="row r1">
+            <div class="r_name col-lg-6 col-md-6 col-sm-6 col-xs-12"><span class="label label-primary tbl_grid_label">Рецепт:</span> <a href="http://www.vapecraft.ru/main/recept/26946">HUMBLE Donkey Kahn (клон)</a></div>
+            <div class="r_author col-lg-3 col-md-3 col-sm-3 col-xs-12">
+              <div class="r_author_avtr"><span class="label label-primary tbl_grid_label">Автор:</span> <img class="" src="http://www.vapecraft.ru/images/uploads/no_avatar.png" height="22px">
+              </div>
+              <div class="r_author_name"><a href="http://www.vapecraft.ru/main/user_recept/32753">ystus12 </a>
+              </div>
+            </div>
+            <div class="r_date col-lg-3 col-md-3 col-sm-3 col-xs-12"><span class="label label-primary tbl_grid_label">Дата:</span> 22.12.2016</div>
+          </div>
+          <div class="row r2">
+            <div class="r_fl_num col-sm-3 col-xs-12" ><span class="tbl_grid_titles">Аром.:</span> <span class="badge">3шт.</span> / <span class="badge">21%</span></div>
+            <div class="r_fl_perc col-sm-3 col-xs-12"><span class="tbl_grid_titles">В избранном.:</span> <span class="badge">0</span></div>
+            <div class="r_cmnt col-sm-3 col-sm-3 col-xs-12"><span class="tbl_grid_titles">Комментарии:</span> <span class="badge" onclick="flavGet(26946);">0</span></div>
+            <div class="r_fl_rate col-sm-3 col-xs-12"><span class="tbl_grid_titles">Оценка:</span> <a title="Понравилось" class="like" id_recept="26946"><span class="badge b_like"><span class="glyphicon glyphicon-thumbs-up"></span> </span></a> / 
+          <a title="Не понравилось" class="dislike" id_recept="26946"><span class="badge b_dislike"><span class="glyphicon glyphicon-thumbs-down"></span> </span></a></div>
+          </div>
+        </div>
+        <div class="tbl_grid">
+          <div class="row r1">
+            <div class="r_name col-lg-6 col-md-6 col-sm-6 col-xs-12"><span class="label label-primary tbl_grid_label">Рецепт:</span> <a href="http://www.vapecraft.ru/main/recept/26943">SPACE JAM Starship</a></div>
+            <div class="r_author col-lg-3 col-md-3 col-sm-3 col-xs-12">
+              <div class="r_author_avtr"><span class="label label-primary tbl_grid_label">Автор:</span> <img class="" src="http://www.vapecraft.ru/images/uploads/no_avatar.png" height="22px">
+              </div>
+              <div class="r_author_name"><a href="http://www.vapecraft.ru/main/user_recept/32753">ystus12 </a>
+              </div>
+            </div>
+            <div class="r_date col-lg-3 col-md-3 col-sm-3 col-xs-12"><span class="label label-primary tbl_grid_label">Дата:</span> 22.12.2016</div>
+          </div>
+          <div class="row r2">
+            <div class="r_fl_num col-sm-3 col-xs-12" ><span class="tbl_grid_titles">Аром.:</span> <span class="badge">2шт.</span> / <span class="badge">17%</span></div>
+            <div class="r_fl_perc col-sm-3 col-xs-12"><span class="tbl_grid_titles">В избранном.:</span> <span class="badge">1</span></div>
+            <div class="r_cmnt col-sm-3 col-sm-3 col-xs-12"><span class="tbl_grid_titles">Комментарии:</span> <span class="badge" onclick="flavGet(26943);">0</span></div>
+            <div class="r_fl_rate col-sm-3 col-xs-12"><span class="tbl_grid_titles">Оценка:</span> <a title="Понравилось" class="like" id_recept="26943"><span class="badge b_like"><span class="glyphicon glyphicon-thumbs-up"></span> </span></a> / 
+          <a title="Не понравилось" class="dislike" id_recept="26943"><span class="badge b_dislike"><span class="glyphicon glyphicon-thumbs-down"></span> </span></a></div>
+          </div>
+        </div>
+        <div class="tbl_grid">
+          <div class="row r1">
+            <div class="r_name col-lg-6 col-md-6 col-sm-6 col-xs-12"><span class="label label-primary tbl_grid_label">Рецепт:</span> <a href="http://www.vapecraft.ru/main/recept/26965">малиновый лед</a></div>
+            <div class="r_author col-lg-3 col-md-3 col-sm-3 col-xs-12">
+              <div class="r_author_avtr"><span class="label label-primary tbl_grid_label">Автор:</span> <img class="" src="http://www.vapecraft.ru/images/uploads/no_avatar.png" height="22px">
+              </div>
+              <div class="r_author_name"><a href="http://www.vapecraft.ru/main/user_recept/28955">Kuram4ik </a>
+              </div>
+            </div>
+            <div class="r_date col-lg-3 col-md-3 col-sm-3 col-xs-12"><span class="label label-primary tbl_grid_label">Дата:</span> 22.12.2016</div>
+          </div>
+          <div class="row r2">
+            <div class="r_fl_num col-sm-3 col-xs-12" ><span class="tbl_grid_titles">Аром.:</span> <span class="badge">2шт.</span> / <span class="badge">11%</span></div>
+            <div class="r_fl_perc col-sm-3 col-xs-12"><span class="tbl_grid_titles">В избранном.:</span> <span class="badge">0</span></div>
+            <div class="r_cmnt col-sm-3 col-sm-3 col-xs-12"><span class="tbl_grid_titles">Комментарии:</span> <span class="badge" onclick="flavGet(26965);">0</span></div>
+            <div class="r_fl_rate col-sm-3 col-xs-12"><span class="tbl_grid_titles">Оценка:</span> <a title="Понравилось" class="like" id_recept="26965"><span class="badge b_like"><span class="glyphicon glyphicon-thumbs-up"></span> </span></a> / 
+          <a title="Не понравилось" class="dislike" id_recept="26965"><span class="badge b_dislike"><span class="glyphicon glyphicon-thumbs-down"></span> </span></a></div>
+          </div>
+        </div>
+        <div class="tbl_grid">
+          <div class="row r1">
+            <div class="r_name col-lg-6 col-md-6 col-sm-6 col-xs-12"><span class="label label-primary tbl_grid_label">Рецепт:</span> <a href="http://www.vapecraft.ru/main/recept/26907">"EL DORADO" JAMAICA by D.V.</a></div>
+            <div class="r_author col-lg-3 col-md-3 col-sm-3 col-xs-12">
+              <div class="r_author_avtr"><span class="label label-primary tbl_grid_label">Автор:</span> <img class="" src="http://www.vapecraft.ru/images/uploads/e922444ace260bbd6bbfad9d9be200fc_thumb.png" height="22px">
+              </div>
+              <div class="r_author_name"><a href="http://www.vapecraft.ru/main/user_recept/7545">D.V. </a>
+              </div>
+            </div>
+            <div class="r_date col-lg-3 col-md-3 col-sm-3 col-xs-12"><span class="label label-primary tbl_grid_label">Дата:</span> 21.12.2016</div>
+          </div>
+          <div class="row r2">
+            <div class="r_fl_num col-sm-3 col-xs-12" ><span class="tbl_grid_titles">Аром.:</span> <span class="badge">5шт.</span> / <span class="badge">4%</span></div>
+            <div class="r_fl_perc col-sm-3 col-xs-12"><span class="tbl_grid_titles">В избранном.:</span> <span class="badge">0</span></div>
+            <div class="r_cmnt col-sm-3 col-sm-3 col-xs-12"><span class="tbl_grid_titles">Комментарии:</span> <span class="badge" onclick="flavGet(26907);">0</span></div>
+            <div class="r_fl_rate col-sm-3 col-xs-12"><span class="tbl_grid_titles">Оценка:</span> <a title="Понравилось" class="like" id_recept="26907"><span class="badge b_like"><span class="glyphicon glyphicon-thumbs-up"></span> </span></a> / 
+          <a title="Не понравилось" class="dislike" id_recept="26907"><span class="badge b_dislike"><span class="glyphicon glyphicon-thumbs-down"></span> </span></a></div>
+          </div>
+        </div>
+        <div class="tbl_grid">
+          <div class="row r1">
+            <div class="r_name col-lg-6 col-md-6 col-sm-6 col-xs-12"><span class="label label-primary tbl_grid_label">Рецепт:</span> <a href="http://www.vapecraft.ru/main/recept/26890">BANANA SHAKE by D.V.</a></div>
+            <div class="r_author col-lg-3 col-md-3 col-sm-3 col-xs-12">
+              <div class="r_author_avtr"><span class="label label-primary tbl_grid_label">Автор:</span> <img class="" src="http://www.vapecraft.ru/images/uploads/e922444ace260bbd6bbfad9d9be200fc_thumb.png" height="22px">
+              </div>
+              <div class="r_author_name"><a href="http://www.vapecraft.ru/main/user_recept/7545">D.V. </a>
+              </div>
+            </div>
+            <div class="r_date col-lg-3 col-md-3 col-sm-3 col-xs-12"><span class="label label-primary tbl_grid_label">Дата:</span> 21.12.2016</div>
+          </div>
+          <div class="row r2">
+            <div class="r_fl_num col-sm-3 col-xs-12" ><span class="tbl_grid_titles">Аром.:</span> <span class="badge">3шт.</span> / <span class="badge">5%</span></div>
+            <div class="r_fl_perc col-sm-3 col-xs-12"><span class="tbl_grid_titles">В избранном.:</span> <span class="badge">3</span></div>
+            <div class="r_cmnt col-sm-3 col-sm-3 col-xs-12"><span class="tbl_grid_titles">Комментарии:</span> <span class="badge" onclick="flavGet(26890);">0</span></div>
+            <div class="r_fl_rate col-sm-3 col-xs-12"><span class="tbl_grid_titles">Оценка:</span> <a title="Понравилось" class="like" id_recept="26890"><span class="badge b_like"><span class="glyphicon glyphicon-thumbs-up"></span> </span></a> / 
+          <a title="Не понравилось" class="dislike" id_recept="26890"><span class="badge b_dislike"><span class="glyphicon glyphicon-thumbs-down"></span> </span></a></div>
+          </div>
+        </div>
+        <div class="tbl_grid">
+          <div class="row r1">
+            <div class="r_name col-lg-6 col-md-6 col-sm-6 col-xs-12"><span class="label label-primary tbl_grid_label">Рецепт:</span> <a href="http://www.vapecraft.ru/main/recept/26873">Мятный юко</a></div>
+            <div class="r_author col-lg-3 col-md-3 col-sm-3 col-xs-12">
+              <div class="r_author_avtr"><span class="label label-primary tbl_grid_label">Автор:</span> <img class="" src="http://www.vapecraft.ru/images/uploads/no_avatar.png" height="22px">
+              </div>
+              <div class="r_author_name"><a href="http://www.vapecraft.ru/main/user_recept/24445">Demruno </a>
+              </div>
+            </div>
+            <div class="r_date col-lg-3 col-md-3 col-sm-3 col-xs-12"><span class="label label-primary tbl_grid_label">Дата:</span> 21.12.2016</div>
+          </div>
+          <div class="row r2">
+            <div class="r_fl_num col-sm-3 col-xs-12" ><span class="tbl_grid_titles">Аром.:</span> <span class="badge">2шт.</span> / <span class="badge">3%</span></div>
+            <div class="r_fl_perc col-sm-3 col-xs-12"><span class="tbl_grid_titles">В избранном.:</span> <span class="badge">0</span></div>
+            <div class="r_cmnt col-sm-3 col-sm-3 col-xs-12"><span class="tbl_grid_titles">Комментарии:</span> <span class="badge" onclick="flavGet(26873);">0</span></div>
+            <div class="r_fl_rate col-sm-3 col-xs-12"><span class="tbl_grid_titles">Оценка:</span> <a title="Понравилось" class="like" id_recept="26873"><span class="badge b_like"><span class="glyphicon glyphicon-thumbs-up"></span> </span></a> / 
+          <a title="Не понравилось" class="dislike" id_recept="26873"><span class="badge b_dislike"><span class="glyphicon glyphicon-thumbs-down"></span> </span></a></div>
+          </div>
+        </div><div style="max-height:300px !important; max-width:100% !important; margin-top:5px !important; margin-bottom:5px !important;"><script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- VAPECRAFT ADAPT-2 -->
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-1217015471218733"
+     data-ad-slot="9738222808"
+     data-ad-format="auto"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div>
+        <div class="tbl_grid">
+          <div class="row r1">
+            <div class="r_name col-lg-6 col-md-6 col-sm-6 col-xs-12"><span class="label label-primary tbl_grid_label">Рецепт:</span> <a href="http://www.vapecraft.ru/main/recept/26869">dg Terrorbord (Птичка)</a></div>
+            <div class="r_author col-lg-3 col-md-3 col-sm-3 col-xs-12">
+              <div class="r_author_avtr"><span class="label label-primary tbl_grid_label">Автор:</span> <img class="" src="http://www.vapecraft.ru/images/uploads/no_avatar.png" height="22px">
+              </div>
+              <div class="r_author_name"><a href="http://www.vapecraft.ru/main/user_recept/32753">ystus12 </a>
+              </div>
+            </div>
+            <div class="r_date col-lg-3 col-md-3 col-sm-3 col-xs-12"><span class="label label-primary tbl_grid_label">Дата:</span> 21.12.2016</div>
+          </div>
+          <div class="row r2">
+            <div class="r_fl_num col-sm-3 col-xs-12" ><span class="tbl_grid_titles">Аром.:</span> <span class="badge">3шт.</span> / <span class="badge">14%</span></div>
+            <div class="r_fl_perc col-sm-3 col-xs-12"><span class="tbl_grid_titles">В избранном.:</span> <span class="badge">1</span></div>
+            <div class="r_cmnt col-sm-3 col-sm-3 col-xs-12"><span class="tbl_grid_titles">Комментарии:</span> <span class="badge" onclick="flavGet(26869);">0</span></div>
+            <div class="r_fl_rate col-sm-3 col-xs-12"><span class="tbl_grid_titles">Оценка:</span> <a title="Понравилось" class="like" id_recept="26869"><span class="badge b_like"><span class="glyphicon glyphicon-thumbs-up"></span> </span></a> / 
+          <a title="Не понравилось" class="dislike" id_recept="26869"><span class="badge b_dislike"><span class="glyphicon glyphicon-thumbs-down"></span> </span></a></div>
+          </div>
+        </div>
+        <div class="tbl_grid">
+          <div class="row r1">
+            <div class="r_name col-lg-6 col-md-6 col-sm-6 col-xs-12"><span class="label label-primary tbl_grid_label">Рецепт:</span> <a href="http://www.vapecraft.ru/main/recept/26854">U</a></div>
+            <div class="r_author col-lg-3 col-md-3 col-sm-3 col-xs-12">
+              <div class="r_author_avtr"><span class="label label-primary tbl_grid_label">Автор:</span> <img class="" src="http://www.vapecraft.ru/images/uploads/no_avatar.png" height="22px">
+              </div>
+              <div class="r_author_name"><a href="http://www.vapecraft.ru/main/user_recept/11886">Darkwest </a>
+              </div>
+            </div>
+            <div class="r_date col-lg-3 col-md-3 col-sm-3 col-xs-12"><span class="label label-primary tbl_grid_label">Дата:</span> 21.12.2016</div>
+          </div>
+          <div class="row r2">
+            <div class="r_fl_num col-sm-3 col-xs-12" ><span class="tbl_grid_titles">Аром.:</span> <span class="badge">2шт.</span> / <span class="badge">12%</span></div>
+            <div class="r_fl_perc col-sm-3 col-xs-12"><span class="tbl_grid_titles">В избранном.:</span> <span class="badge">1</span></div>
+            <div class="r_cmnt col-sm-3 col-sm-3 col-xs-12"><span class="tbl_grid_titles">Комментарии:</span> <span class="badge" onclick="flavGet(26854);">0</span></div>
+            <div class="r_fl_rate col-sm-3 col-xs-12"><span class="tbl_grid_titles">Оценка:</span> <a title="Понравилось" class="like" id_recept="26854"><span class="badge b_like"><span class="glyphicon glyphicon-thumbs-up"></span> </span></a> / 
+          <a title="Не понравилось" class="dislike" id_recept="26854"><span class="badge b_dislike"><span class="glyphicon glyphicon-thumbs-down"></span> </span></a></div>
+          </div>
+        </div>
+        <div class="tbl_grid">
+          <div class="row r1">
+            <div class="r_name col-lg-6 col-md-6 col-sm-6 col-xs-12"><span class="label label-primary tbl_grid_label">Рецепт:</span> <a href="http://www.vapecraft.ru/main/recept/26912">черника с молоком</a></div>
+            <div class="r_author col-lg-3 col-md-3 col-sm-3 col-xs-12">
+              <div class="r_author_avtr"><span class="label label-primary tbl_grid_label">Автор:</span> <img class="" src="http://www.vapecraft.ru/images/uploads/no_avatar.png" height="22px">
+              </div>
+              <div class="r_author_name"><a href="http://www.vapecraft.ru/main/user_recept/11673">Clancys </a>
+              </div>
+            </div>
+            <div class="r_date col-lg-3 col-md-3 col-sm-3 col-xs-12"><span class="label label-primary tbl_grid_label">Дата:</span> 21.12.2016</div>
+          </div>
+          <div class="row r2">
+            <div class="r_fl_num col-sm-3 col-xs-12" ><span class="tbl_grid_titles">Аром.:</span> <span class="badge">2шт.</span> / <span class="badge">12%</span></div>
+            <div class="r_fl_perc col-sm-3 col-xs-12"><span class="tbl_grid_titles">В избранном.:</span> <span class="badge">0</span></div>
+            <div class="r_cmnt col-sm-3 col-sm-3 col-xs-12"><span class="tbl_grid_titles">Комментарии:</span> <span class="badge" onclick="flavGet(26912);">0</span></div>
+            <div class="r_fl_rate col-sm-3 col-xs-12"><span class="tbl_grid_titles">Оценка:</span> <a title="Понравилось" class="like" id_recept="26912"><span class="badge b_like"><span class="glyphicon glyphicon-thumbs-up"></span> </span></a> / 
+          <a title="Не понравилось" class="dislike" id_recept="26912"><span class="badge b_dislike"><span class="glyphicon glyphicon-thumbs-down"></span> </span></a></div>
+          </div>
+        </div>
+        <div class="tbl_grid">
+          <div class="row r1">
+            <div class="r_name col-lg-6 col-md-6 col-sm-6 col-xs-12"><span class="label label-primary tbl_grid_label">Рецепт:</span> <a href="http://www.vapecraft.ru/main/recept/26899">Приятное мороженко.</a></div>
+            <div class="r_author col-lg-3 col-md-3 col-sm-3 col-xs-12">
+              <div class="r_author_avtr"><span class="label label-primary tbl_grid_label">Автор:</span> <img class="" src="http://www.vapecraft.ru/images/uploads/no_avatar.png" height="22px">
+              </div>
+              <div class="r_author_name"><a href="http://www.vapecraft.ru/main/user_recept/5007">Odissey </a>
+              </div>
+            </div>
+            <div class="r_date col-lg-3 col-md-3 col-sm-3 col-xs-12"><span class="label label-primary tbl_grid_label">Дата:</span> 21.12.2016</div>
+          </div>
+          <div class="row r2">
+            <div class="r_fl_num col-sm-3 col-xs-12" ><span class="tbl_grid_titles">Аром.:</span> <span class="badge">6шт.</span> / <span class="badge">14%</span></div>
+            <div class="r_fl_perc col-sm-3 col-xs-12"><span class="tbl_grid_titles">В избранном.:</span> <span class="badge">0</span></div>
+            <div class="r_cmnt col-sm-3 col-sm-3 col-xs-12"><span class="tbl_grid_titles">Комментарии:</span> <span class="badge" onclick="flavGet(26899);">0</span></div>
+            <div class="r_fl_rate col-sm-3 col-xs-12"><span class="tbl_grid_titles">Оценка:</span> <a title="Понравилось" class="like" id_recept="26899"><span class="badge b_like"><span class="glyphicon glyphicon-thumbs-up"></span> </span></a> / 
+          <a title="Не понравилось" class="dislike" id_recept="26899"><span class="badge b_dislike"><span class="glyphicon glyphicon-thumbs-down"></span> </span></a></div>
+          </div>
+        </div>
+        <div class="tbl_grid">
+          <div class="row r1">
+            <div class="r_name col-lg-6 col-md-6 col-sm-6 col-xs-12"><span class="label label-primary tbl_grid_label">Рецепт:</span> <a href="http://www.vapecraft.ru/main/recept/26884">53 Big Bottle Jelly Donut clon</a></div>
+            <div class="r_author col-lg-3 col-md-3 col-sm-3 col-xs-12">
+              <div class="r_author_avtr"><span class="label label-primary tbl_grid_label">Автор:</span> <img class="" src="http://www.vapecraft.ru/images/uploads/aacd03e9352b0c6d08159a7904d1a75f_thumb.jpg" height="22px">
+              </div>
+              <div class="r_author_name"><a href="http://www.vapecraft.ru/main/user_recept/10226">SvEgiiVEteR </a>
+              </div>
+            </div>
+            <div class="r_date col-lg-3 col-md-3 col-sm-3 col-xs-12"><span class="label label-primary tbl_grid_label">Дата:</span> 21.12.2016</div>
+          </div>
+          <div class="row r2">
+            <div class="r_fl_num col-sm-3 col-xs-12" ><span class="tbl_grid_titles">Аром.:</span> <span class="badge">7шт.</span> / <span class="badge">21%</span></div>
+            <div class="r_fl_perc col-sm-3 col-xs-12"><span class="tbl_grid_titles">В избранном.:</span> <span class="badge">1</span></div>
+            <div class="r_cmnt col-sm-3 col-sm-3 col-xs-12"><span class="tbl_grid_titles">Комментарии:</span> <span class="badge" onclick="flavGet(26884);">0</span></div>
+            <div class="r_fl_rate col-sm-3 col-xs-12"><span class="tbl_grid_titles">Оценка:</span> <a title="Понравилось" class="like" id_recept="26884"><span class="badge b_like"><span class="glyphicon glyphicon-thumbs-up"></span> </span></a> / 
+          <a title="Не понравилось" class="dislike" id_recept="26884"><span class="badge b_dislike"><span class="glyphicon glyphicon-thumbs-down"></span> </span></a></div>
+          </div>
+        </div>
+        <div class="tbl_grid">
+          <div class="row r1">
+            <div class="r_name col-lg-6 col-md-6 col-sm-6 col-xs-12"><span class="label label-primary tbl_grid_label">Рецепт:</span> <a href="http://www.vapecraft.ru/main/recept/26872">Капитан Апельсин</a></div>
+            <div class="r_author col-lg-3 col-md-3 col-sm-3 col-xs-12">
+              <div class="r_author_avtr"><span class="label label-primary tbl_grid_label">Автор:</span> <img class="" src="http://www.vapecraft.ru/images/uploads/no_avatar.png" height="22px">
+              </div>
+              <div class="r_author_name"><a href="http://www.vapecraft.ru/main/user_recept/24445">Demruno </a>
+              </div>
+            </div>
+            <div class="r_date col-lg-3 col-md-3 col-sm-3 col-xs-12"><span class="label label-primary tbl_grid_label">Дата:</span> 21.12.2016</div>
+          </div>
+          <div class="row r2">
+            <div class="r_fl_num col-sm-3 col-xs-12" ><span class="tbl_grid_titles">Аром.:</span> <span class="badge">3шт.</span> / <span class="badge">7%</span></div>
+            <div class="r_fl_perc col-sm-3 col-xs-12"><span class="tbl_grid_titles">В избранном.:</span> <span class="badge">0</span></div>
+            <div class="r_cmnt col-sm-3 col-sm-3 col-xs-12"><span class="tbl_grid_titles">Комментарии:</span> <span class="badge" onclick="flavGet(26872);">0</span></div>
+            <div class="r_fl_rate col-sm-3 col-xs-12"><span class="tbl_grid_titles">Оценка:</span> <a title="Понравилось" class="like" id_recept="26872"><span class="badge b_like"><span class="glyphicon glyphicon-thumbs-up"></span> </span></a> / 
+          <a title="Не понравилось" class="dislike" id_recept="26872"><span class="badge b_dislike"><span class="glyphicon glyphicon-thumbs-down"></span> </span></a></div>
+          </div>
+        </div>
+        <div class="tbl_grid">
+          <div class="row r1">
+            <div class="r_name col-lg-6 col-md-6 col-sm-6 col-xs-12"><span class="label label-primary tbl_grid_label">Рецепт:</span> <a href="http://www.vapecraft.ru/main/recept/26868">Cosmic Fog Shocker (дольки лемона в клубничном сиропе)</a></div>
+            <div class="r_author col-lg-3 col-md-3 col-sm-3 col-xs-12">
+              <div class="r_author_avtr"><span class="label label-primary tbl_grid_label">Автор:</span> <img class="" src="http://www.vapecraft.ru/images/uploads/no_avatar.png" height="22px">
+              </div>
+              <div class="r_author_name"><a href="http://www.vapecraft.ru/main/user_recept/32753">ystus12 </a>
+              </div>
+            </div>
+            <div class="r_date col-lg-3 col-md-3 col-sm-3 col-xs-12"><span class="label label-primary tbl_grid_label">Дата:</span> 21.12.2016</div>
+          </div>
+          <div class="row r2">
+            <div class="r_fl_num col-sm-3 col-xs-12" ><span class="tbl_grid_titles">Аром.:</span> <span class="badge">2шт.</span> / <span class="badge">12%</span></div>
+            <div class="r_fl_perc col-sm-3 col-xs-12"><span class="tbl_grid_titles">В избранном.:</span> <span class="badge">0</span></div>
+            <div class="r_cmnt col-sm-3 col-sm-3 col-xs-12"><span class="tbl_grid_titles">Комментарии:</span> <span class="badge" onclick="flavGet(26868);">0</span></div>
+            <div class="r_fl_rate col-sm-3 col-xs-12"><span class="tbl_grid_titles">Оценка:</span> <a title="Понравилось" class="like" id_recept="26868"><span class="badge b_like"><span class="glyphicon glyphicon-thumbs-up"></span> </span></a> / 
+          <a title="Не понравилось" class="dislike" id_recept="26868"><span class="badge b_dislike"><span class="glyphicon glyphicon-thumbs-down"></span> </span></a></div>
+          </div>
+        </div>
+        <div class="tbl_grid">
+          <div class="row r1">
+            <div class="r_name col-lg-6 col-md-6 col-sm-6 col-xs-12"><span class="label label-primary tbl_grid_label">Рецепт:</span> <a href="http://www.vapecraft.ru/main/recept/26838">Presidio</a></div>
+            <div class="r_author col-lg-3 col-md-3 col-sm-3 col-xs-12">
+              <div class="r_author_avtr"><span class="label label-primary tbl_grid_label">Автор:</span> <img class="" src="http://www.vapecraft.ru/images/uploads/no_avatar.png" height="22px">
+              </div>
+              <div class="r_author_name"><a href="http://www.vapecraft.ru/main/user_recept/5381">BladeBY </a>
+              </div>
+            </div>
+            <div class="r_date col-lg-3 col-md-3 col-sm-3 col-xs-12"><span class="label label-primary tbl_grid_label">Дата:</span> 21.12.2016</div>
+          </div>
+          <div class="row r2">
+            <div class="r_fl_num col-sm-3 col-xs-12" ><span class="tbl_grid_titles">Аром.:</span> <span class="badge">4шт.</span> / <span class="badge">18%</span></div>
+            <div class="r_fl_perc col-sm-3 col-xs-12"><span class="tbl_grid_titles">В избранном.:</span> <span class="badge">3</span></div>
+            <div class="r_cmnt col-sm-3 col-sm-3 col-xs-12"><span class="tbl_grid_titles">Комментарии:</span> <span class="badge" onclick="flavGet(26838);">1</span></div>
+            <div class="r_fl_rate col-sm-3 col-xs-12"><span class="tbl_grid_titles">Оценка:</span> <a title="Понравилось" class="like" id_recept="26838"><span class="badge b_like"><span class="glyphicon glyphicon-thumbs-up"></span> </span></a> / 
+          <a title="Не понравилось" class="dislike" id_recept="26838"><span class="badge b_dislike"><span class="glyphicon glyphicon-thumbs-down"></span> </span></a></div>
+          </div>
+        </div>
+        <div class="tbl_grid">
+          <div class="row r1">
+            <div class="r_name col-lg-6 col-md-6 col-sm-6 col-xs-12"><span class="label label-primary tbl_grid_label">Рецепт:</span> <a href="http://www.vapecraft.ru/main/recept/26917">Black Afrik </a></div>
+            <div class="r_author col-lg-3 col-md-3 col-sm-3 col-xs-12">
+              <div class="r_author_avtr"><span class="label label-primary tbl_grid_label">Автор:</span> <img class="" src="http://www.vapecraft.ru/images/uploads/no_avatar.png" height="22px">
+              </div>
+              <div class="r_author_name"><a href="http://www.vapecraft.ru/main/user_recept/32753">ystus12 </a>
+              </div>
+            </div>
+            <div class="r_date col-lg-3 col-md-3 col-sm-3 col-xs-12"><span class="label label-primary tbl_grid_label">Дата:</span> 21.12.2016</div>
+          </div>
+          <div class="row r2">
+            <div class="r_fl_num col-sm-3 col-xs-12" ><span class="tbl_grid_titles">Аром.:</span> <span class="badge">4шт.</span> / <span class="badge">10%</span></div>
+            <div class="r_fl_perc col-sm-3 col-xs-12"><span class="tbl_grid_titles">В избранном.:</span> <span class="badge">0</span></div>
+            <div class="r_cmnt col-sm-3 col-sm-3 col-xs-12"><span class="tbl_grid_titles">Комментарии:</span> <span class="badge" onclick="flavGet(26917);">0</span></div>
+            <div class="r_fl_rate col-sm-3 col-xs-12"><span class="tbl_grid_titles">Оценка:</span> <a title="Понравилось" class="like" id_recept="26917"><span class="badge b_like"><span class="glyphicon glyphicon-thumbs-up"></span> </span></a> / 
+          <a title="Не понравилось" class="dislike" id_recept="26917"><span class="badge b_dislike"><span class="glyphicon glyphicon-thumbs-down"></span> </span></a></div>
+          </div>
+        </div>
+        <div class="tbl_grid">
+          <div class="row r1">
+            <div class="r_name col-lg-6 col-md-6 col-sm-6 col-xs-12"><span class="label label-primary tbl_grid_label">Рецепт:</span> <a href="http://www.vapecraft.ru/main/recept/26910">Цитрусовый крем</a></div>
+            <div class="r_author col-lg-3 col-md-3 col-sm-3 col-xs-12">
+              <div class="r_author_avtr"><span class="label label-primary tbl_grid_label">Автор:</span> <img class="" src="http://www.vapecraft.ru/images/uploads/no_avatar.png" height="22px">
+              </div>
+              <div class="r_author_name"><a href="http://www.vapecraft.ru/main/user_recept/32753">ystus12 </a>
+              </div>
+            </div>
+            <div class="r_date col-lg-3 col-md-3 col-sm-3 col-xs-12"><span class="label label-primary tbl_grid_label">Дата:</span> 21.12.2016</div>
+          </div>
+          <div class="row r2">
+            <div class="r_fl_num col-sm-3 col-xs-12" ><span class="tbl_grid_titles">Аром.:</span> <span class="badge">3шт.</span> / <span class="badge">10%</span></div>
+            <div class="r_fl_perc col-sm-3 col-xs-12"><span class="tbl_grid_titles">В избранном.:</span> <span class="badge">0</span></div>
+            <div class="r_cmnt col-sm-3 col-sm-3 col-xs-12"><span class="tbl_grid_titles">Комментарии:</span> <span class="badge" onclick="flavGet(26910);">0</span></div>
+            <div class="r_fl_rate col-sm-3 col-xs-12"><span class="tbl_grid_titles">Оценка:</span> <a title="Понравилось" class="like" id_recept="26910"><span class="badge b_like"><span class="glyphicon glyphicon-thumbs-up"></span> </span></a> / 
+          <a title="Не понравилось" class="dislike" id_recept="26910"><span class="badge b_dislike"><span class="glyphicon glyphicon-thumbs-down"></span> </span></a></div>
+          </div>
+        </div><div style="max-height:300px !important; max-width:100% !important; margin-top:5px !important; margin-bottom:5px !important;"><script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- ADAPT 3 -->
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-1217015471218733"
+     data-ad-slot="1295979207"
+     data-ad-format="auto"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div>
+        <div class="tbl_grid">
+          <div class="row r1">
+            <div class="r_name col-lg-6 col-md-6 col-sm-6 col-xs-12"><span class="label label-primary tbl_grid_label">Рецепт:</span> <a href="http://www.vapecraft.ru/main/recept/26893">BOMBIE'S NANA CREAM by D.V.</a></div>
+            <div class="r_author col-lg-3 col-md-3 col-sm-3 col-xs-12">
+              <div class="r_author_avtr"><span class="label label-primary tbl_grid_label">Автор:</span> <img class="" src="http://www.vapecraft.ru/images/uploads/e922444ace260bbd6bbfad9d9be200fc_thumb.png" height="22px">
+              </div>
+              <div class="r_author_name"><a href="http://www.vapecraft.ru/main/user_recept/7545">D.V. </a>
+              </div>
+            </div>
+            <div class="r_date col-lg-3 col-md-3 col-sm-3 col-xs-12"><span class="label label-primary tbl_grid_label">Дата:</span> 21.12.2016</div>
+          </div>
+          <div class="row r2">
+            <div class="r_fl_num col-sm-3 col-xs-12" ><span class="tbl_grid_titles">Аром.:</span> <span class="badge">3шт.</span> / <span class="badge">4%</span></div>
+            <div class="r_fl_perc col-sm-3 col-xs-12"><span class="tbl_grid_titles">В избранном.:</span> <span class="badge">1</span></div>
+            <div class="r_cmnt col-sm-3 col-sm-3 col-xs-12"><span class="tbl_grid_titles">Комментарии:</span> <span class="badge" onclick="flavGet(26893);">0</span></div>
+            <div class="r_fl_rate col-sm-3 col-xs-12"><span class="tbl_grid_titles">Оценка:</span> <a title="Понравилось" class="like" id_recept="26893"><span class="badge b_like"><span class="glyphicon glyphicon-thumbs-up"></span> </span></a> / 
+          <a title="Не понравилось" class="dislike" id_recept="26893"><span class="badge b_dislike"><span class="glyphicon glyphicon-thumbs-down"></span> </span></a></div>
+          </div>
+        </div>
+        <div class="tbl_grid">
+          <div class="row r1">
+            <div class="r_name col-lg-6 col-md-6 col-sm-6 col-xs-12"><span class="label label-primary tbl_grid_label">Рецепт:</span> <a href="http://www.vapecraft.ru/main/recept/26878">Elysian E-lixirs Skadi(фрукт колечки,дайри милк свеет креам)</a></div>
+            <div class="r_author col-lg-3 col-md-3 col-sm-3 col-xs-12">
+              <div class="r_author_avtr"><span class="label label-primary tbl_grid_label">Автор:</span> <img class="" src="http://www.vapecraft.ru/images/uploads/no_avatar.png" height="22px">
+              </div>
+              <div class="r_author_name"><a href="http://www.vapecraft.ru/main/user_recept/32753">ystus12 </a>
+              </div>
+            </div>
+            <div class="r_date col-lg-3 col-md-3 col-sm-3 col-xs-12"><span class="label label-primary tbl_grid_label">Дата:</span> 21.12.2016</div>
+          </div>
+          <div class="row r2">
+            <div class="r_fl_num col-sm-3 col-xs-12" ><span class="tbl_grid_titles">Аром.:</span> <span class="badge">3шт.</span> / <span class="badge">16%</span></div>
+            <div class="r_fl_perc col-sm-3 col-xs-12"><span class="tbl_grid_titles">В избранном.:</span> <span class="badge">0</span></div>
+            <div class="r_cmnt col-sm-3 col-sm-3 col-xs-12"><span class="tbl_grid_titles">Комментарии:</span> <span class="badge" onclick="flavGet(26878);">0</span></div>
+            <div class="r_fl_rate col-sm-3 col-xs-12"><span class="tbl_grid_titles">Оценка:</span> <a title="Понравилось" class="like" id_recept="26878"><span class="badge b_like"><span class="glyphicon glyphicon-thumbs-up"></span> </span></a> / 
+          <a title="Не понравилось" class="dislike" id_recept="26878"><span class="badge b_dislike"><span class="glyphicon glyphicon-thumbs-down"></span> </span></a></div>
+          </div>
+        </div>
+        <div class="tbl_grid">
+          <div class="row r1">
+            <div class="r_name col-lg-6 col-md-6 col-sm-6 col-xs-12"><span class="label label-primary tbl_grid_label">Рецепт:</span> <a href="http://www.vapecraft.ru/main/recept/26871">Bombies Nana Cream</a></div>
+            <div class="r_author col-lg-3 col-md-3 col-sm-3 col-xs-12">
+              <div class="r_author_avtr"><span class="label label-primary tbl_grid_label">Автор:</span> <img class="" src="http://www.vapecraft.ru/images/uploads/no_avatar.png" height="22px">
+              </div>
+              <div class="r_author_name"><a href="http://www.vapecraft.ru/main/user_recept/32753">ystus12 </a>
+              </div>
+            </div>
+            <div class="r_date col-lg-3 col-md-3 col-sm-3 col-xs-12"><span class="label label-primary tbl_grid_label">Дата:</span> 21.12.2016</div>
+          </div>
+          <div class="row r2">
+            <div class="r_fl_num col-sm-3 col-xs-12" ><span class="tbl_grid_titles">Аром.:</span> <span class="badge">3шт.</span> / <span class="badge">15%</span></div>
+            <div class="r_fl_perc col-sm-3 col-xs-12"><span class="tbl_grid_titles">В избранном.:</span> <span class="badge">3</span></div>
+            <div class="r_cmnt col-sm-3 col-sm-3 col-xs-12"><span class="tbl_grid_titles">Комментарии:</span> <span class="badge" onclick="flavGet(26871);">0</span></div>
+            <div class="r_fl_rate col-sm-3 col-xs-12"><span class="tbl_grid_titles">Оценка:</span> <a title="Понравилось" class="like" id_recept="26871"><span class="badge b_like"><span class="glyphicon glyphicon-thumbs-up"></span> </span></a> / 
+          <a title="Не понравилось" class="dislike" id_recept="26871"><span class="badge b_dislike"><span class="glyphicon glyphicon-thumbs-down"></span> </span></a></div>
+          </div>
+        </div>
+        <div class="tbl_grid">
+          <div class="row r1">
+            <div class="r_name col-lg-6 col-md-6 col-sm-6 col-xs-12"><span class="label label-primary tbl_grid_label">Рецепт:</span> <a href="http://www.vapecraft.ru/main/recept/26867">Busstedd</a></div>
+            <div class="r_author col-lg-3 col-md-3 col-sm-3 col-xs-12">
+              <div class="r_author_avtr"><span class="label label-primary tbl_grid_label">Автор:</span> <img class="" src="http://www.vapecraft.ru/images/uploads/no_avatar.png" height="22px">
+              </div>
+              <div class="r_author_name"><a href="http://www.vapecraft.ru/main/user_recept/32753">ystus12 </a>
+              </div>
+            </div>
+            <div class="r_date col-lg-3 col-md-3 col-sm-3 col-xs-12"><span class="label label-primary tbl_grid_label">Дата:</span> 21.12.2016</div>
+          </div>
+          <div class="row r2">
+            <div class="r_fl_num col-sm-3 col-xs-12" ><span class="tbl_grid_titles">Аром.:</span> <span class="badge">3шт.</span> / <span class="badge">16%</span></div>
+            <div class="r_fl_perc col-sm-3 col-xs-12"><span class="tbl_grid_titles">В избранном.:</span> <span class="badge">2</span></div>
+            <div class="r_cmnt col-sm-3 col-sm-3 col-xs-12"><span class="tbl_grid_titles">Комментарии:</span> <span class="badge" onclick="flavGet(26867);">0</span></div>
+            <div class="r_fl_rate col-sm-3 col-xs-12"><span class="tbl_grid_titles">Оценка:</span> <a title="Понравилось" class="like" id_recept="26867"><span class="badge b_like"><span class="glyphicon glyphicon-thumbs-up"></span> 1</span></a> / 
+          <a title="Не понравилось" class="dislike" id_recept="26867"><span class="badge b_dislike"><span class="glyphicon glyphicon-thumbs-down"></span> </span></a></div>
+          </div>
+        </div>
+        <div class="tbl_grid">
+          <div class="row r1">
+            <div class="r_name col-lg-6 col-md-6 col-sm-6 col-xs-12"><span class="label label-primary tbl_grid_label">Рецепт:</span> <a href="http://www.vapecraft.ru/main/recept/26913">Cold Orange Candy (COC)</a></div>
+            <div class="r_author col-lg-3 col-md-3 col-sm-3 col-xs-12">
+              <div class="r_author_avtr"><span class="label label-primary tbl_grid_label">Автор:</span> <img class="" src="http://www.vapecraft.ru/images/uploads/709b280d6994794dc6eb1c02a018d561_thumb.jpg" height="22px">
+              </div>
+              <div class="r_author_name"><a href="http://www.vapecraft.ru/main/user_recept/28688">pepsi </a>
+              </div>
+            </div>
+            <div class="r_date col-lg-3 col-md-3 col-sm-3 col-xs-12"><span class="label label-primary tbl_grid_label">Дата:</span> 21.12.2016</div>
+          </div>
+          <div class="row r2">
+            <div class="r_fl_num col-sm-3 col-xs-12" ><span class="tbl_grid_titles">Аром.:</span> <span class="badge">3шт.</span> / <span class="badge">15%</span></div>
+            <div class="r_fl_perc col-sm-3 col-xs-12"><span class="tbl_grid_titles">В избранном.:</span> <span class="badge">3</span></div>
+            <div class="r_cmnt col-sm-3 col-sm-3 col-xs-12"><span class="tbl_grid_titles">Комментарии:</span> <span class="badge" onclick="flavGet(26913);">0</span></div>
+            <div class="r_fl_rate col-sm-3 col-xs-12"><span class="tbl_grid_titles">Оценка:</span> <a title="Понравилось" class="like" id_recept="26913"><span class="badge b_like"><span class="glyphicon glyphicon-thumbs-up"></span> 1</span></a> / 
+          <a title="Не понравилось" class="dislike" id_recept="26913"><span class="badge b_dislike"><span class="glyphicon glyphicon-thumbs-down"></span> </span></a></div>
+          </div>
+        </div>
+        <div class="tbl_grid">
+          <div class="row r1">
+            <div class="r_name col-lg-6 col-md-6 col-sm-6 col-xs-12"><span class="label label-primary tbl_grid_label">Рецепт:</span> <a href="http://www.vapecraft.ru/main/recept/26770">Травы карамель лайм</a></div>
+            <div class="r_author col-lg-3 col-md-3 col-sm-3 col-xs-12">
+              <div class="r_author_avtr"><span class="label label-primary tbl_grid_label">Автор:</span> <img class="" src="http://www.vapecraft.ru/images/uploads/no_avatar.png" height="22px">
+              </div>
+              <div class="r_author_name"><a href="http://www.vapecraft.ru/main/user_recept/28586">RamaNagibala </a>
+              </div>
+            </div>
+            <div class="r_date col-lg-3 col-md-3 col-sm-3 col-xs-12"><span class="label label-primary tbl_grid_label">Дата:</span> 20.12.2016</div>
+          </div>
+          <div class="row r2">
+            <div class="r_fl_num col-sm-3 col-xs-12" ><span class="tbl_grid_titles">Аром.:</span> <span class="badge">3шт.</span> / <span class="badge">8%</span></div>
+            <div class="r_fl_perc col-sm-3 col-xs-12"><span class="tbl_grid_titles">В избранном.:</span> <span class="badge">0</span></div>
+            <div class="r_cmnt col-sm-3 col-sm-3 col-xs-12"><span class="tbl_grid_titles">Комментарии:</span> <span class="badge" onclick="flavGet(26770);">0</span></div>
+            <div class="r_fl_rate col-sm-3 col-xs-12"><span class="tbl_grid_titles">Оценка:</span> <a title="Понравилось" class="like" id_recept="26770"><span class="badge b_like"><span class="glyphicon glyphicon-thumbs-up"></span> </span></a> / 
+          <a title="Не понравилось" class="dislike" id_recept="26770"><span class="badge b_dislike"><span class="glyphicon glyphicon-thumbs-down"></span> </span></a></div>
+          </div>
+        </div>
+        <div class="tbl_grid">
+          <div class="row r1">
+            <div class="r_name col-lg-6 col-md-6 col-sm-6 col-xs-12"><span class="label label-primary tbl_grid_label">Рецепт:</span> <a href="http://www.vapecraft.ru/main/recept/26747">Strawberry ice cream.</a></div>
+            <div class="r_author col-lg-3 col-md-3 col-sm-3 col-xs-12">
+              <div class="r_author_avtr"><span class="label label-primary tbl_grid_label">Автор:</span> <img class="" src="http://www.vapecraft.ru/images/uploads/no_avatar.png" height="22px">
+              </div>
+              <div class="r_author_name"><a href="http://www.vapecraft.ru/main/user_recept/10694">smmvs </a>
+              </div>
+            </div>
+            <div class="r_date col-lg-3 col-md-3 col-sm-3 col-xs-12"><span class="label label-primary tbl_grid_label">Дата:</span> 20.12.2016</div>
+          </div>
+          <div class="row r2">
+            <div class="r_fl_num col-sm-3 col-xs-12" ><span class="tbl_grid_titles">Аром.:</span> <span class="badge">3шт.</span> / <span class="badge">16%</span></div>
+            <div class="r_fl_perc col-sm-3 col-xs-12"><span class="tbl_grid_titles">В избранном.:</span> <span class="badge">5</span></div>
+            <div class="r_cmnt col-sm-3 col-sm-3 col-xs-12"><span class="tbl_grid_titles">Комментарии:</span> <span class="badge" onclick="flavGet(26747);">0</span></div>
+            <div class="r_fl_rate col-sm-3 col-xs-12"><span class="tbl_grid_titles">Оценка:</span> <a title="Понравилось" class="like" id_recept="26747"><span class="badge b_like"><span class="glyphicon glyphicon-thumbs-up"></span> </span></a> / 
+          <a title="Не понравилось" class="dislike" id_recept="26747"><span class="badge b_dislike"><span class="glyphicon glyphicon-thumbs-down"></span> </span></a></div>
+          </div>
+        </div>
+        <div class="tbl_grid">
+          <div class="row r1">
+            <div class="r_name col-lg-6 col-md-6 col-sm-6 col-xs-12"><span class="label label-primary tbl_grid_label">Рецепт:</span> <a href="http://www.vapecraft.ru/main/recept/26742">Coconut Gum</a></div>
+            <div class="r_author col-lg-3 col-md-3 col-sm-3 col-xs-12">
+              <div class="r_author_avtr"><span class="label label-primary tbl_grid_label">Автор:</span> <img class="" src="http://www.vapecraft.ru/images/uploads/no_avatar.png" height="22px">
+              </div>
+              <div class="r_author_name"><a href="http://www.vapecraft.ru/main/user_recept/33238">pwnzSly </a>
+              </div>
+            </div>
+            <div class="r_date col-lg-3 col-md-3 col-sm-3 col-xs-12"><span class="label label-primary tbl_grid_label">Дата:</span> 20.12.2016</div>
+          </div>
+          <div class="row r2">
+            <div class="r_fl_num col-sm-3 col-xs-12" ><span class="tbl_grid_titles">Аром.:</span> <span class="badge">3шт.</span> / <span class="badge">4%</span></div>
+            <div class="r_fl_perc col-sm-3 col-xs-12"><span class="tbl_grid_titles">В избранном.:</span> <span class="badge">1</span></div>
+            <div class="r_cmnt col-sm-3 col-sm-3 col-xs-12"><span class="tbl_grid_titles">Комментарии:</span> <span class="badge" onclick="flavGet(26742);">0</span></div>
+            <div class="r_fl_rate col-sm-3 col-xs-12"><span class="tbl_grid_titles">Оценка:</span> <a title="Понравилось" class="like" id_recept="26742"><span class="badge b_like"><span class="glyphicon glyphicon-thumbs-up"></span> </span></a> / 
+          <a title="Не понравилось" class="dislike" id_recept="26742"><span class="badge b_dislike"><span class="glyphicon glyphicon-thumbs-down"></span> </span></a></div>
+          </div>
+        </div>
+        <div class="tbl_grid">
+          <div class="row r1">
+            <div class="r_name col-lg-6 col-md-6 col-sm-6 col-xs-12"><span class="label label-primary tbl_grid_label">Рецепт:</span> <a href="http://www.vapecraft.ru/main/recept/26827">campare</a></div>
+            <div class="r_author col-lg-3 col-md-3 col-sm-3 col-xs-12">
+              <div class="r_author_avtr"><span class="label label-primary tbl_grid_label">Автор:</span> <img class="" src="http://www.vapecraft.ru/images/uploads/2c12498b5be70004bc437fa879be1f46_thumb.png" height="22px">
+              </div>
+              <div class="r_author_name"><a href="http://www.vapecraft.ru/main/user_recept/9615">knazGarik </a>
+              </div>
+            </div>
+            <div class="r_date col-lg-3 col-md-3 col-sm-3 col-xs-12"><span class="label label-primary tbl_grid_label">Дата:</span> 20.12.2016</div>
+          </div>
+          <div class="row r2">
+            <div class="r_fl_num col-sm-3 col-xs-12" ><span class="tbl_grid_titles">Аром.:</span> <span class="badge">3шт.</span> / <span class="badge">20%</span></div>
+            <div class="r_fl_perc col-sm-3 col-xs-12"><span class="tbl_grid_titles">В избранном.:</span> <span class="badge">0</span></div>
+            <div class="r_cmnt col-sm-3 col-sm-3 col-xs-12"><span class="tbl_grid_titles">Комментарии:</span> <span class="badge" onclick="flavGet(26827);">0</span></div>
+            <div class="r_fl_rate col-sm-3 col-xs-12"><span class="tbl_grid_titles">Оценка:</span> <a title="Понравилось" class="like" id_recept="26827"><span class="badge b_like"><span class="glyphicon glyphicon-thumbs-up"></span> </span></a> / 
+          <a title="Не понравилось" class="dislike" id_recept="26827"><span class="badge b_dislike"><span class="glyphicon glyphicon-thumbs-down"></span> </span></a></div>
+          </div>
+        </div>
+        <div class="tbl_grid">
+          <div class="row r1">
+            <div class="r_name col-lg-6 col-md-6 col-sm-6 col-xs-12"><span class="label label-primary tbl_grid_label">Рецепт:</span> <a href="http://www.vapecraft.ru/main/recept/26814">One Hit Wonder Rocket Man</a></div>
+            <div class="r_author col-lg-3 col-md-3 col-sm-3 col-xs-12">
+              <div class="r_author_avtr"><span class="label label-primary tbl_grid_label">Автор:</span> <img class="" src="http://www.vapecraft.ru/images/uploads/06e25b4b21e63b6dc1af9dd99c184c50_thumb.jpg" height="22px">
+              </div>
+              <div class="r_author_name"><a href="http://www.vapecraft.ru/main/user_recept/30722">Andrex </a>
+              </div>
+            </div>
+            <div class="r_date col-lg-3 col-md-3 col-sm-3 col-xs-12"><span class="label label-primary tbl_grid_label">Дата:</span> 20.12.2016</div>
+          </div>
+          <div class="row r2">
+            <div class="r_fl_num col-sm-3 col-xs-12" ><span class="tbl_grid_titles">Аром.:</span> <span class="badge">5шт.</span> / <span class="badge">23%</span></div>
+            <div class="r_fl_perc col-sm-3 col-xs-12"><span class="tbl_grid_titles">В избранном.:</span> <span class="badge">1</span></div>
+            <div class="r_cmnt col-sm-3 col-sm-3 col-xs-12"><span class="tbl_grid_titles">Комментарии:</span> <span class="badge" onclick="flavGet(26814);">0</span></div>
+            <div class="r_fl_rate col-sm-3 col-xs-12"><span class="tbl_grid_titles">Оценка:</span> <a title="Понравилось" class="like" id_recept="26814"><span class="badge b_like"><span class="glyphicon glyphicon-thumbs-up"></span> </span></a> / 
+          <a title="Не понравилось" class="dislike" id_recept="26814"><span class="badge b_dislike"><span class="glyphicon glyphicon-thumbs-down"></span> </span></a></div>
+          </div>
+        </div>      <!--// New View -->
+      <div class="row">
+        <div class="pagination-social col-lg-6 col-md-6 col-sm-12 col-xs-12">
+          <div class="pagination-bar">
+            <ul class="pagination"><li class="active"><a href="#">1</a></li><li><a href="http://www.vapecraft.ru/main/index?name=&tastes=&fl_ttl_min=&fl_ttl_max=&fl_perc_min=&fl_perc_max=&tune_check=&u_page=&ord=&amp;per_page=30">2</a></li><li><a href="http://www.vapecraft.ru/main/index?name=&tastes=&fl_ttl_min=&fl_ttl_max=&fl_perc_min=&fl_perc_max=&tune_check=&u_page=&ord=&amp;per_page=60">3</a></li><li><a href="http://www.vapecraft.ru/main/index?name=&tastes=&fl_ttl_min=&fl_ttl_max=&fl_perc_min=&fl_perc_max=&tune_check=&u_page=&ord=&amp;per_page=90">4</a></li><li><a href="http://www.vapecraft.ru/main/index?name=&tastes=&fl_ttl_min=&fl_ttl_max=&fl_perc_min=&fl_perc_max=&tune_check=&u_page=&ord=&amp;per_page=120">5</a></li><li><a href="http://www.vapecraft.ru/main/index?name=&tastes=&fl_ttl_min=&fl_ttl_max=&fl_perc_min=&fl_perc_max=&tune_check=&u_page=&ord=&amp;per_page=150">6</a></li><li><a href="http://www.vapecraft.ru/main/index?name=&tastes=&fl_ttl_min=&fl_ttl_max=&fl_perc_min=&fl_perc_max=&tune_check=&u_page=&ord=&amp;per_page=30">>></a></li><li><a href="http://www.vapecraft.ru/main/index?name=&tastes=&fl_ttl_min=&fl_ttl_max=&fl_perc_min=&fl_perc_max=&tune_check=&u_page=&ord=&amp;per_page=4350">В конец</a></li></ul>
+          </div>
+          <div class="social-btn-bar">
+          <span class="label label-info like-me">Понравился VAPE CRAFT? Поделись с друзьями!</span>
+            <script type="text/javascript" src="//yastatic.net/es5-shims/0.0.2/es5-shims.min.js" charset="utf-8"></script>
+            <script type="text/javascript" src="//yastatic.net/share2/share.js" charset="utf-8"></script>
+            <div class="ya-share2" data-services="vkontakte,facebook,odnoklassniki,moimir,gplus,pinterest,twitter,blogger,lj,viber,whatsapp" data-image="http://www.vapecraft.ru/application/views/img/vapecraft-logo.svg" data-counter=""></div> 
+          </div>       
+        </div>
+        <div class="vk-box col-lg-4 col-lg-offset-2 col-md-5 col-md-offset-1 col-sm-12 col-xs-12">
+          <script type="text/javascript" src="//vk.com/js/api/openapi.js?121"></script> 
+          <div id="vk_groups"></div>
+          <script type="text/javascript">VK.Widgets.Group("vk_groups", {mode: 0, width: "260", height: "200", color1: 'FFFFFF', color2: '2B587A', color3: '5B7FA6'}, 88466863);
+          </script>
+        </div> 
+      </div> 
+    </div><!-- /.container -->
+        <!-- код Nolix Bar --> <div id=nlxcode><script type="text/javascript" SRC="http://a.contextbar.ru/bar.php?url=3729"></script></div>
+<script type="text/javascript">document.getElementById('nlxbar').appendChild(document.getElementById('nlxcode'));</script><!-- конец кода Nolix Bar -->
+
+          <div class="container-fluid">
+           <div class="row footer">
+            <div class="footer-brand-box col-lg-3 col-md-3 col-sm-4 col-xs-8">
+              <div class="footer-logo">
+              <img src="http://www.vapecraft.ru/assets/img/vapecraft-logo.svg">
+              </div>
+              <div class="footer-brand-name"><span><a class="footer-brand" href="http://www.vapecraft.ru/main/index">VAPE&nbsp;CRAFT</a></span></div>
+            </div>
+            <div class="counters col-lg-6 col-md-6 col-sm-6 hidden-xs">
+                <!-- Yandex.Metrika informer -->
+                    <a href="https://metrika.yandex.ru/stat/?id=28862150&amp;from=informer"
+                    target="_blank" rel="nofollow"><img src="//bs.yandex.ru/informer/28862150/3_0_5386B9FF_336699FF_1_pageviews"
+                    style="width:88px; height:31px; border:0;" alt="Яндекс.Метрика" title="Яндекс.Метрика: данные за сегодня (просмотры, визиты и уникальные посетители)" onclick="try{Ya.Metrika.informer({i:this,id:28862150,lang:'ru'});return false}catch(e){}"/></a>
+                <!-- /Yandex.Metrika informer -->
+                <!-- Yandex.Metrika counter -->
+                    <script type="text/javascript">
+                    (function (d, w, c) {
+                        (w[c] = w[c] || []).push(function() {
+                            try {
+                                w.yaCounter28862150 = new Ya.Metrika({id:28862150,
+                                        webvisor:true,
+                                        clickmap:true,
+                                        trackLinks:true,
+                                        accurateTrackBounce:true,
+                                        ut:"noindex"});
+                            } catch(e) { }
+                        });
+                        var n = d.getElementsByTagName("script")[0],
+                            s = d.createElement("script"),
+                            f = function () { n.parentNode.insertBefore(s, n); };
+                        s.type = "text/javascript";
+                        s.async = true;
+                        s.src = (d.location.protocol == "https:" ? "https:" : "http:") + "//mc.yandex.ru/metrika/watch.js";
+
+                        if (w.opera == "[object Opera]") {
+                            d.addEventListener("DOMContentLoaded", f, false);
+                        } else { f(); }
+                    })(document, window, "yandex_metrika_callbacks");
+                    </script>
+                    <noscript><div><img src="//mc.yandex.ru/watch/28862150?ut=noindex" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+                <!-- /Yandex.Metrika counter -->
+                <!-- LiveInternet counter -->
+                    <script type="text/javascript">
+                    document.write("<a href='//www.liveinternet.ru/click' "+
+                    "target=_blank><img src='//counter.yadro.ru/hit?t14.6;r"+
+                    escape(document.referrer)+((typeof(screen)=="undefined")?"":
+                    ";s"+screen.width+"*"+screen.height+"*"+(screen.colorDepth?
+                    screen.colorDepth:screen.pixelDepth))+";u"+escape(document.URL)+
+                    ";"+Math.random()+
+                    "' alt='' title='LiveInternet: показано число просмотров за 24"+
+                    " часа, посетителей за 24 часа и за сегодня' "+
+                    "border='0' width='88' height='31'><\/a>")
+                    </script>&nbsp;
+                <!-- /LiveInternet counter -->
+                <!-- Rating@Mail.ru logo -->
+                    <a href="http://top.mail.ru/jump?from=2627104">
+                    <img src="//top-fwz1.mail.ru/counter?id=2627104;t=295;l=1" 
+                    style="border:0;" height="31" width="38" alt="Рейтинг@Mail.ru" /></a>
+                <!-- //Rating@Mail.ru logo -->
+            </div>
+            <div class="footer-links-box col-lg-3 col-md-3 col-sm-2 col-xs-4">
+            <span class="footer-copyright">&copy; 2015-2016<br>www.vapecraft.ru </span>
+            </div>
+         </div>
+        </div>        
+<script src="http://www.vapecraft.ru/assets/js/rating.js"></script>
+  </body>
+</html>

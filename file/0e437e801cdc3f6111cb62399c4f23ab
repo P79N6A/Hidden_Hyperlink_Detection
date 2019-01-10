@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html>
+ <head> 
+  <meta charset="UTF-8" /> 
+  <meta http-equiv="X-UA-Compatible" content="IE=11,IE=10,IE=9,IE=8" /> 
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimum-scale=1.0, maximum-scale=1.0" /> 
+  <meta http-equiv="Cache-Control" content="no-siteapp" /> 
+  <title>svn repo 迁移到git(gitlab)-ganlei的个人博客</title> 
+  <meta property="og:type" content="article" /> 
+  <meta property="og:url" content="http://www.iganlei.cn/environment-configuration/927.html" /> 
+  <meta property="og:title" content="svn repo 迁移到git(gitlab)" /> 
+  <meta property="og:description" content="平时弄一些东西方便管理版本，本地用VirtualSVN server搭了一个svn server" /> 
+  <meta property="og:image" content="http://assets.iganlei.cn/wp-content/uploads/2016/03/svn-git20160308212151.jpg" />
+  <link rel="dns-prefetch" href="//s.w.org" /> 
+  <link rel="stylesheet" id="colorbox-theme9-css" href="http://assets.iganlei.cn/wp-content/plugins/jquery-colorbox/themes/theme9/colorbox.css?ver=4.6.2" type="text/css" media="screen" /> 
+  <link rel="stylesheet" id="colorbox-css-css" href="http://assets.iganlei.cn/wp-content/plugins/jquery-colorbox/css/jquery-colorbox-zoom.css?ver=1.4.33" type="text/css" media="all" /> 
+  <link rel="stylesheet" id="wp-syntax-css-css" href="http://assets.iganlei.cn/wp-content/plugins/wp-syntax/css/wp-syntax.css?ver=1.1" type="text/css" media="all" /> 
+  <link rel="stylesheet" id="main-css" href="http://assets.iganlei.cn/wp-content/themes/xiu/style.css?ver=4.0" type="text/css" media="all" /> 
+  <script type="text/javascript">
+var duoshuoQuery = {"short_name":"austgl","sso":{"login":"http:\/\/www.iganlei.cn\/wp-login.php?action=duoshuo_login","logout":"http:\/\/www.iganlei.cn\/wp-login.php?action=logout&_wpnonce=0936e2aea5"},"theme":"default","stylePatch":"wordpress\/xiu"};
+duoshuoQuery.sso.login += '&redirect_to=' + encodeURIComponent(window.location.href);
+duoshuoQuery.sso.logout += '&redirect_to=' + encodeURIComponent(window.location.href);
+</script> 
+  <script type="text/javascript" src="http://static.duoshuo.com/embed.js" charset="UTF-8" async="async"></script> 
+  <script type="text/javascript" src="http://assets.iganlei.cn/wp-content/themes/xiu/js/jquery.js?ver=4.0"></script> 
+  <link rel="canonical" href="http://www.iganlei.cn/environment-configuration/927.html" /> 
+  <style>a:hover, a:focus,.post-like.actived,.excerpt h2 a:hover,.user-welcome strong,.article-title a:hover,#comments b,.text-muted a:hover,.relates a:hover,.archives .item:hover h3,.linkcat h2,.sticky a:hover,.article-content a:hover,.nav li.current-menu-item > a, .nav li.current-menu-parent > a, .nav li.current_page_item > a, .nav li.current-posa,.article-meta a:hover{color:#16C0F8;}.logo a,.article-tags a,.search-form .btn,#bdcs .bdcs-search-form-submit,.widget_tags_inner a:hover:hover,.focusmo a:hover h4,.tagslist .tagname:hover,.pagination ul > li.next-page > a{background-color:#16C0F8;}.label-important,.badge-important{background-color:#16C0F8;}.label-important .label-arrow,.badge-important .label-arrow{border-left-color:#16C0F8;}.title strong{border-bottom-color:#16C0F8;}#submit{background: #16C0F8;border-right: 2px solid #16C0F8;border-bottom: 2px solid #16C0F8;}</style>
+  <meta name="keywords" content="git, git svn clone, gitlab, svn, 环境配置, " /> 
+  <meta name="description" content="平时弄一些东西方便管理版本，本地用VirtualSVN server搭了一个svn server    硬盘满了，想格式化整个硬盘；想想这样很多东西都没了；决定" /> 
+  <link rel="shortcut icon" href="http://www.iganlei.cn/favicon.ico" /> 
+  <!--[if lt IE 9]><script src="http://assets.iganlei.cn/wp-content/themes/xiu/js/html5.js"></script><![endif]--> 
+ </head> 
+ <body class="post-template-default single single-post postid-927 single-format-standard ui-navtop"> 
+  <header class="header"> 
+   <div class="container"> 
+    <div class="logo">
+     <a href="http://www.iganlei.cn" title="ganlei的个人博客-搭上末班车-iganlei.cn">ganlei的个人博客</a>
+    </div> 
+    <ul class="nav">
+     <li id="menu-item-28" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-28"><a href="http://www.iganlei.cn"><span class="glyphicon glyphicon-home"></span>首页</a></li> 
+     <li id="menu-item-21" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-has-children menu-item-21"><a href="http://www.iganlei.cn/category/web"><span class="glyphicon glyphicon-globe"></span>Web开发</a> 
+      <ul class="sub-menu"> 
+       <li id="menu-item-20" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-20"><a href="http://www.iganlei.cn/category/web/js">JavaScript</a></li> 
+       <li id="menu-item-19" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-19"><a href="http://www.iganlei.cn/category/web/html5-css3">html/css</a></li> 
+       <li id="menu-item-552" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-552"><a href="http://www.iganlei.cn/category/web/python">Python</a></li> 
+       <li id="menu-item-27" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-27"><a href="http://www.iganlei.cn/category/web/php">PHP</a></li> 
+      </ul> </li> 
+     <li id="menu-item-29" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-has-children menu-item-29"><a href="http://www.iganlei.cn/category/codeing"><span class="glyphicon glyphicon-th-list"></span>Application</a> 
+      <ul class="sub-menu"> 
+       <li id="menu-item-465" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-465"><a href="http://www.iganlei.cn/category/codeing/ios">IOS</a></li> 
+       <li id="menu-item-995" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-995"><a href="http://www.iganlei.cn/category/codeing/react">React Natvie</a></li> 
+       <li id="menu-item-32" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-32"><a href="http://www.iganlei.cn/category/codeing/java">Android/JAVA</a></li> 
+       <li id="menu-item-30" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-30"><a href="http://www.iganlei.cn/category/codeing/cnet">C#.net</a></li> 
+       <li id="menu-item-31" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-31"><a href="http://www.iganlei.cn/category/codeing/c-cplus">C/C++</a></li> 
+       <li id="menu-item-306" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-306"><a title="linux/windows" href="http://www.iganlei.cn/category/embed">EmbedLinux</a></li> 
+      </ul> </li> 
+     <li id="menu-item-122" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-has-children menu-item-122"><a href="http://www.iganlei.cn/tools"><span class="glyphicon glyphicon-wrench"></span>在线工具</a> 
+      <ul class="sub-menu"> 
+       <li id="menu-item-752" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-752"><a href="http://www.iganlei.cn/tool/mahua/">在线MarkDown</a></li> 
+       <li id="menu-item-473" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-473"><a href="http://www.iganlei.cn/tool/videourlparser/">视频解析</a></li> 
+       <li id="menu-item-316" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-316"><a href="http://www.iganlei.cn/tool/get/MusicLink/index.html">网盘外链</a></li> 
+       <li id="menu-item-321" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-321"><a href="http://www.iganlei.cn/tool/get/coderender/index.html">代码高亮</a></li> 
+       <li id="menu-item-123" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-123"><a title="html转义" href="http://www.iganlei.cn/tool/get/Transfrom.htm">参数转义</a></li> 
+       <li id="menu-item-301" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-301"><a href="http://www.iganlei.cn/tool/shorturl.php">短网址</a></li> 
+       <li id="menu-item-147" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-147"><a href="http://www.iganlei.cn/tool/handin.php">搜索引擎</a></li> 
+       <li id="menu-item-151" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-151"><a href="http://www.iganlei.cn/tool/seotool/">seo外链</a></li> 
+      </ul> </li> 
+    </ul> 
+    <form method="get" class="search-form" action="http://www.iganlei.cn/">
+     <input class="form-control" name="s" type="text" placeholder="输入关键字" value="" />
+     <input class="btn" type="submit" value="搜索" />
+    </form> 
+    <div class="feeds"> 
+     <a class="feed feed-weixin" rel="external nofollow" href="javascript:;" title="关注”MarkTips“" data-content="&lt;img src='http://assets.iganlei.cn/wp-content/uploads/2015/09/qrcode_for_gh_45b288e4829c_258.jpg'&gt;"><i></i>微信0</a> 
+     <a class="feed feed-weibo" rel="external nofollow" href="http://weibo.com/austgl" target="_blank"><i></i>微博</a> 
+     <a class="feed feed-rss" rel="external nofollow" href="http://www.iganlei.cn/feed" target="_blank"><i></i>RSS订阅</a> 
+     <a class="feed feed-weixin" rel="external nofollow" href="javascript:;" title="关注”Baiducha“" data-content="&lt;img src='http://assets.iganlei.cn/wp-content/uploads/2015/07/qrcode_for_gh_db06bf811cf9_258.jpg'&gt;"><i></i>微信1</a> 
+    </div> 
+    <div class="slinks"> 
+    </div> 
+    <div class="user-signin"> 
+     <a target="_blank" href="http://www.iganlei.cn/wp-login.php">登陆</a>
+     <br /> 
+     <a target="_blank" href="http://www.iganlei.cn/wp-login.php?action=register">注册</a> 
+    </div> 
+   </div> 
+  </header> 
+  <section class="container"> 
+   <div class="content-wrap"> 
+    <div class="content"> 
+     <header class="article-header"> 
+      <h1 class="article-title"><a href="http://www.iganlei.cn/environment-configuration/927.html">svn repo 迁移到git(gitlab)</a></h1> 
+      <ul class="article-meta"> 
+       <li>austgl 发布于 1年前 (2016-03-08)</li> 
+       <li>分类：<a href="http://www.iganlei.cn/category/environment-configuration" rel="category tag">环境配置</a></li> 
+       <li><span class="post-views">阅读(1361)</span></li> 
+       <li>评论(0)</li> 
+       <li></li> 
+      </ul> 
+     </header> 
+     <article class="article-content"> 
+      <p>平时弄一些东西方便管理版本，本地用VirtualSVN server搭了一个svn server</p> 
+      <p><a href="http://assets.iganlei.cn/wp-content/uploads/2016/03/svn-git20160308212151.jpg" rel="attachment wp-att-928"><img class="aligncenter size-full wp-image-928 colorbox-927" srcset="http://assets.iganlei.cn/wp-content/uploads/2016/03/svn-git20160308212151.jpg?watermark/1/image/aHR0cDovL3d3dy5pZ2FubGVpLmNuL3dwLWNvbnRlbnQvdXBsb2Fkcy8yMDE1LzA5L3dhdGVybWFyazEucG5n/dissolve/100/gravity/SouthEast/dx/12/dy/12 2x" src="http://assets.iganlei.cn/wp-content/uploads/2016/03/svn-git20160308212151.jpg?watermark/1/image/aHR0cDovL3d3dy5pZ2FubGVpLmNuL3dwLWNvbnRlbnQvdXBsb2Fkcy8yMDE1LzA5L3dhdGVybWFyazEucG5n/dissolve/100/gravity/SouthEast/dx/12/dy/12" alt="svn-git20160308212151" width="535" height="651" /></a></p> 
+      <p>硬盘满了，想格式化整个硬盘；想想这样很多东西都没了；决定本地装个虚拟机做server，以后重装系统，格硬盘，虚拟机保留一份就省去不少时间。</p> 
+      <p>前段时间接触到gitlab，决定后面就用它了；下载最新版下了半天，s3太慢了，传到百度网盘了</p> 
+      <p><em class="select-text">gitlab-ce_8.5.4-ce.0_amd64.deb：</em>链接: http://pan.baidu.com/s/1skxYjnB 密码: wq5v</p> 
+      <p>下载 Tortoisegit , 这个工具提供了良好的GIT操作界面,这里用右键Git Clone功能就行了</p> 
+      <p><a href="http://assets.iganlei.cn/wp-content/uploads/2016/03/svn-git20160308213930.jpg" rel="attachment wp-att-930"><img class="aligncenter size-full wp-image-930 colorbox-927" srcset="http://assets.iganlei.cn/wp-content/uploads/2016/03/svn-git20160308213930.jpg?watermark/1/image/aHR0cDovL3d3dy5pZ2FubGVpLmNuL3dwLWNvbnRlbnQvdXBsb2Fkcy8yMDE1LzA5L3dhdGVybWFyazEucG5n/dissolve/100/gravity/SouthEast/dx/12/dy/12 2x" src="http://assets.iganlei.cn/wp-content/uploads/2016/03/svn-git20160308213930.jpg?watermark/1/image/aHR0cDovL3d3dy5pZ2FubGVpLmNuL3dwLWNvbnRlbnQvdXBsb2Fkcy8yMDE1LzA5L3dhdGVybWFyazEucG5n/dissolve/100/gravity/SouthEast/dx/12/dy/12" alt="svn-git20160308213930" width="723" height="591" /></a> <a href="http://assets.iganlei.cn/wp-content/uploads/2016/03/svn-git20160308214049.jpg" rel="attachment wp-att-931"><img class="aligncenter size-full wp-image-931 colorbox-927" srcset="http://assets.iganlei.cn/wp-content/uploads/2016/03/svn-git20160308214049.jpg?watermark/1/image/aHR0cDovL3d3dy5pZ2FubGVpLmNuL3dwLWNvbnRlbnQvdXBsb2Fkcy8yMDE1LzA5L3dhdGVybWFyazEucG5n/dissolve/100/gravity/SouthEast/dx/12/dy/12 2x" src="http://assets.iganlei.cn/wp-content/uploads/2016/03/svn-git20160308214049.jpg?watermark/1/image/aHR0cDovL3d3dy5pZ2FubGVpLmNuL3dwLWNvbnRlbnQvdXBsb2Fkcy8yMDE1LzA5L3dhdGVybWFyazEucG5n/dissolve/100/gravity/SouthEast/dx/12/dy/12" alt="svn-git20160308214049" width="501" height="342" /></a><br /> 用命令效果一样：</p> 
+      <pre>git.exe svn clone &quot;http://ganlei:81/svn/plugin/&quot; &quot;E:\git_tmp\trunk&quot; -T trunk -b branches -t tags -r 0:HEAD --username ganl
+</pre> 
+      <p>中间遇到svn密码错误，平时commit密码都是保存的，实在想不起来；折腾了好久，找到Repositories目录，里面有个htpasswd文件，加密的，用apache自带的htpasswd生成一个同名的文件覆盖一下即可，保险起见旧文件还是改下名备份一下。<br /> <code>htpasswd.exe -bc htpasswd ganl 123456</code><br /> gitlab上新建一个git仓库：http://192.168.188.128/ganlei/plugin.git<br /> 进到本地目录，添加远程git服务器地址</p> 
+      <pre>git remote add origin http://192.168.188.128/ganlei/plugin.git
+git add .
+git commit
+git push -u origin master
+</pre> 
+      <p><a href="http://assets.iganlei.cn/wp-content/uploads/2016/03/svn-git20160308211552.jpg" rel="attachment wp-att-929"><img class="aligncenter size-full wp-image-929 colorbox-927" srcset="http://assets.iganlei.cn/wp-content/uploads/2016/03/svn-git20160308211552.jpg?watermark/1/image/aHR0cDovL3d3dy5pZ2FubGVpLmNuL3dwLWNvbnRlbnQvdXBsb2Fkcy8yMDE1LzA5L3dhdGVybWFyazEucG5n/dissolve/100/gravity/SouthEast/dx/12/dy/12 2x" src="http://assets.iganlei.cn/wp-content/uploads/2016/03/svn-git20160308211552.jpg?watermark/1/image/aHR0cDovL3d3dy5pZ2FubGVpLmNuL3dwLWNvbnRlbnQvdXBsb2Fkcy8yMDE1LzA5L3dhdGVybWFyazEucG5n/dissolve/100/gravity/SouthEast/dx/12/dy/12" alt="svn-git20160308211552" width="799" height="404" /></a></p> 
+      <p>再去gitlab刷新页面，算是转移到git了<br /> http://192.168.188.128/ganlei/plugin/commits/master<a href="http://assets.iganlei.cn/wp-content/uploads/2016/03/svn-git20160308215303.jpg" rel="attachment wp-att-932"><img class="aligncenter wp-image-932 size-large colorbox-927" srcset="http://assets.iganlei.cn/wp-content/uploads/2016/03/svn-git20160308215303-1024x494.jpg?watermark/1/image/aHR0cDovL3d3dy5pZ2FubGVpLmNuL3dwLWNvbnRlbnQvdXBsb2Fkcy8yMDE1LzA5L3dhdGVybWFyazEucG5n/dissolve/100/gravity/SouthEast/dx/12/dy/12 2x" src="http://assets.iganlei.cn/wp-content/uploads/2016/03/svn-git20160308215303-1024x494.jpg?watermark/1/image/aHR0cDovL3d3dy5pZ2FubGVpLmNuL3dwLWNvbnRlbnQvdXBsb2Fkcy8yMDE1LzA5L3dhdGVybWFyazEucG5n/dissolve/100/gravity/SouthEast/dx/12/dy/12" alt="svn-git20160308215303" width="1024" height="494" /></a></p> 
+      <p>工作中用的是svn，除了上github用过一点git，平时都没用过；刚好迁移到git上学习学习使用方法。</p> 
+      <p class="post-copyright">未经允许不得转载：<a href="http://www.iganlei.cn">ganlei的个人博客</a> &raquo; <a href="http://www.iganlei.cn/environment-configuration/927.html">svn repo 迁移到git(gitlab)</a></p> 
+     </article> 
+     <div class="article-social"> 
+      <a href="javascript:;" class="action action-like" data-pid="927" data-event="like"><i class="glyphicon glyphicon-thumbs-up"></i>赞 (<span>1</span>)</a> 
+     </div> 
+     <div class="action-share bdsharebuttonbox">
+       分享到：
+      <a class="bds_qzone" data-cmd="qzone"></a>
+      <a class="bds_tsina" data-cmd="tsina"></a>
+      <a class="bds_weixin" data-cmd="weixin"></a>
+      <a class="bds_tqq" data-cmd="tqq"></a>
+      <a class="bds_sqq" data-cmd="sqq"></a>
+      <a class="bds_bdhome" data-cmd="bdhome"></a>
+      <a class="bds_tqf" data-cmd="tqf"></a>
+      <a class="bds_renren" data-cmd="renren"></a>
+      <a class="bds_diandian" data-cmd="diandian"></a>
+      <a class="bds_youdao" data-cmd="youdao"></a>
+      <a class="bds_ty" data-cmd="ty"></a>
+      <a class="bds_kaixin001" data-cmd="kaixin001"></a>
+      <a class="bds_taobao" data-cmd="taobao"></a>
+      <a class="bds_douban" data-cmd="douban"></a>
+      <a class="bds_fbook" data-cmd="fbook"></a>
+      <a class="bds_twi" data-cmd="twi"></a>
+      <a class="bds_mail" data-cmd="mail"></a>
+      <a class="bds_copy" data-cmd="copy"></a>
+      <a class="bds_more" data-cmd="more">更多</a> (
+      <a class="bds_count" data-cmd="count"></a>) 
+     </div> 
+     <div class="article-tags">
+       标签：
+      <a href="http://www.iganlei.cn/tag/git" rel="tag">git</a>
+      <a href="http://www.iganlei.cn/tag/git-svn-clone" rel="tag">git svn clone</a>
+      <a href="http://www.iganlei.cn/tag/gitlab" rel="tag">gitlab</a>
+      <a href="http://www.iganlei.cn/tag/svn" rel="tag">svn</a> 
+     </div> 
+     <nav class="article-nav"> 
+      <span class="article-nav-prev">上一篇<br /><a href="http://www.iganlei.cn/codeing/901.html" rel="prev">科学上网利器（三）SoftEther VPN ,阿 *里*云，ali*yun ecs CentOS6.5 搭建VPN</a></span> 
+      <span class="article-nav-next">下一篇<br /><a href="http://www.iganlei.cn/web/php/936.html" rel="next">\u5 ENQ 询问字符,json decode failed (控制字符)</a></span> 
+     </nav> 
+     <div class="relates">
+      <h3 class="title"><strong>相关推荐</strong></h3>
+      <ul>
+       <li><a target="_blank" href="http://www.iganlei.cn/environment-configuration/977.html"><img data-original="http://assets.iganlei.cn/wp-content/uploads/2016/08/Ubuntu16.04-2016-08-21-10-17-27-150x150.png" class="thumb" />Ubuntu 16.04.1 安装gitlab 8.10.7-ce.0</a></li>
+       <li><a target="_blank" href="http://www.iganlei.cn/environment-configuration/838.html"><img data-original="http://assets.iganlei.cn/wp-content/uploads/2015/11/11-150x150.jpg" class="thumb" />Ubuntu12.04安装gitlab社区版(Install a GitLab CE Omnibus package on ubuntu12.04)</a></li>
+       <li><a target="_blank" href="http://www.iganlei.cn/environment-configuration/999.html"><img data-original="http://assets.iganlei.cn/wp-content/uploads/2016/12/20161223150356-150x150.png" class="thumb" />StartSSL 切换到 Let’s Encrypt</a></li>
+       <li><a target="_blank" href="http://www.iganlei.cn/environment-configuration/941.html"><img data-original="http://assets.iganlei.cn/wp-content/uploads/2016/06/2016-06-23-22.06.39-150x150.png" class="thumb" />coding.net制作CocoaPods国内镜像源</a></li>
+       <li><a target="_blank" href="http://www.iganlei.cn/codeing/901.html"><img data-original="http://assets.iganlei.cn/wp-content/uploads/2016/02/softenerorg20160205173228-150x150.png" class="thumb" />科学上网利器（三）SoftEther VPN ,阿 *里*云，ali*yun ecs CentOS6.5 搭建VPN</a></li>
+       <li><a target="_blank" href="http://www.iganlei.cn/environment-configuration/893.html"><img data-original="http://assets.iganlei.cn/wp-content/uploads/2016/02/modprobe20160204152807-150x127.jpg" class="thumb" />科学上网利器（二）CentOS安装PPTP VPN、IPSec/L2TP VPN</a></li>
+       <li><a target="_blank" href="http://www.iganlei.cn/environment-configuration/879.html"><img data-original="http://assets.iganlei.cn/wp-content/uploads/2016/01/ssl20160106224619-150x150.jpg" class="thumb" />wordpress后台 插件开启强制ssl登录，由于混合内容无法登录的解决方法</a></li>
+       <li><a target="_blank" href="http://www.iganlei.cn/environment-configuration/871.html"><img data-original="http://assets.iganlei.cn/wp-content/uploads/2016/01/500proxy20160106142058-1-150x150.png" class="thumb" />shadowsocks, 500 internal privoxy error</a></li>
+      </ul>
+     </div> 
+     <a name="comments"></a> 
+     <div class="ds-thread" data-thread-key="927" data-author-key="1" data-title="svn repo 迁移到git(gitlab)" data-url="http://www.iganlei.cn/environment-configuration/927.html"></div> 
+     <script type="text/javascript">
+	if (typeof DUOSHUO !== 'undefined')
+		DUOSHUO.EmbedThread('.ds-thread');
+</script> 
+     <div id="ds-ssr"> 
+      <ol id="commentlist"> 
+      </ol> 
+     </div> 
+    </div> 
+   </div> 
+   <aside class="sidebar"> 
+    <div class="widget ds-widget-top-threads">
+     <h3 class="title"><strong>热评文章</strong></h3>
+     <ul class="ds-top-threads" data-num-items="5" data-range="monthly"></ul>
+    </div>
+    <script>
+if (typeof DUOSHUO !== 'undefined')
+	DUOSHUO.TopThreads && DUOSHUO.TopThreads('.ds-top-threads');
+</script>
+    <div class="widget widget_ads">
+     <div class="widget_ads_inner">
+      <a href="http://s.click.taobao.com/t?e=m%3D2%26s%3DpWuRNub0T0ccQipKwQzePCperVdZeJviEViQ0P1Vf2kguMN8XjClAsU9s8B4cwYInV6RiqnL4lrMG0xb5SD7sF4jOOMU34aUdmVVGKslJ3mdfoIHZ6mfFOdn1BbglxZYxUhy8exlzcq9AmARIwX9K%2BnbtOD3UdznPV1H2z0iQv9NkKVMHClW0QbMqOpFMIvnvjQXzzpXdTHGJe8N%2FwNpGw%3D%3D"><img src="http://assets.iganlei.cn/wp-content/uploads/2015/08/336-280.gif" /></a>
+     </div>
+    </div>
+    <div class="widget widget_tag_cloud">
+     <h3 class="title"><strong>标签</strong></h3>
+     <div class="tagcloud">
+      <a href="http://www.iganlei.cn/tag/aliyun" class="tag-link-106 tag-link-position-1" title="2个话题" style="font-size: 13.25pt;">aliyun</a> 
+      <a href="http://www.iganlei.cn/tag/android" class="tag-link-87 tag-link-position-2" title="2个话题" style="font-size: 13.25pt;">android</a> 
+      <a href="http://www.iganlei.cn/tag/apache" class="tag-link-80 tag-link-position-3" title="3个话题" style="font-size: 16.75pt;">apache</a> 
+      <a href="http://www.iganlei.cn/tag/boot2docker" class="tag-link-144 tag-link-position-4" title="2个话题" style="font-size: 13.25pt;">Boot2Docker</a> 
+      <a href="http://www.iganlei.cn/tag/cgi" class="tag-link-38 tag-link-position-5" title="1个话题" style="font-size: 8pt;">CGI</a> 
+      <a href="http://www.iganlei.cn/tag/ck" class="tag-link-35 tag-link-position-6" title="1个话题" style="font-size: 8pt;">ck</a> 
+      <a href="http://www.iganlei.cn/tag/cmp" class="tag-link-36 tag-link-position-7" title="1个话题" style="font-size: 8pt;">cmp</a> 
+      <a href="http://www.iganlei.cn/tag/docker" class="tag-link-143 tag-link-position-8" title="2个话题" style="font-size: 13.25pt;">Docker</a> 
+      <a href="http://www.iganlei.cn/tag/eclipse" class="tag-link-25 tag-link-position-9" title="1个话题" style="font-size: 8pt;">eclipse</a> 
+      <a href="http://www.iganlei.cn/tag/gitlab" class="tag-link-147 tag-link-position-10" title="3个话题" style="font-size: 16.75pt;">gitlab</a> 
+      <a href="http://www.iganlei.cn/tag/https" class="tag-link-167 tag-link-position-11" title="2个话题" style="font-size: 13.25pt;">https</a> 
+      <a href="http://www.iganlei.cn/tag/ibeacons" class="tag-link-48 tag-link-position-12" title="1个话题" style="font-size: 8pt;">iBeacons</a> 
+      <a href="http://www.iganlei.cn/tag/ios-2" class="tag-link-57 tag-link-position-13" title="3个话题" style="font-size: 16.75pt;">ios</a> 
+      <a href="http://www.iganlei.cn/tag/java-2" class="tag-link-75 tag-link-position-14" title="2个话题" style="font-size: 13.25pt;">Java</a> 
+      <a href="http://www.iganlei.cn/tag/js-2" class="tag-link-74 tag-link-position-15" title="3个话题" style="font-size: 16.75pt;">JS</a> 
+      <a href="http://www.iganlei.cn/tag/light" class="tag-link-27 tag-link-position-16" title="1个话题" style="font-size: 8pt;">light</a> 
+      <a href="http://www.iganlei.cn/tag/linux" class="tag-link-70 tag-link-position-17" title="4个话题" style="font-size: 19.666666666667pt;">linux</a> 
+      <a href="http://www.iganlei.cn/tag/mail" class="tag-link-45 tag-link-position-18" title="1个话题" style="font-size: 8pt;">mail</a> 
+      <a href="http://www.iganlei.cn/tag/nginx" class="tag-link-60 tag-link-position-19" title="2个话题" style="font-size: 13.25pt;">nginx</a> 
+      <a href="http://www.iganlei.cn/tag/php-2" class="tag-link-24 tag-link-position-20" title="5个话题" style="font-size: 22pt;">php</a> 
+      <a href="http://www.iganlei.cn/tag/phpmailer" class="tag-link-44 tag-link-position-21" title="1个话题" style="font-size: 8pt;">phpmailer</a> 
+      <a href="http://www.iganlei.cn/tag/python" class="tag-link-103 tag-link-position-22" title="2个话题" style="font-size: 13.25pt;">python</a> 
+      <a href="http://www.iganlei.cn/tag/rom" class="tag-link-32 tag-link-position-23" title="2个话题" style="font-size: 13.25pt;">ROM</a> 
+      <a href="http://www.iganlei.cn/tag/shadowsocks" class="tag-link-126 tag-link-position-24" title="2个话题" style="font-size: 13.25pt;">Shadowsocks</a> 
+      <a href="http://www.iganlei.cn/tag/sqlite" class="tag-link-39 tag-link-position-25" title="1个话题" style="font-size: 8pt;">sqlite</a> 
+      <a href="http://www.iganlei.cn/tag/top" class="tag-link-69 tag-link-position-26" title="2个话题" style="font-size: 13.25pt;">top</a> 
+      <a href="http://www.iganlei.cn/tag/url" class="tag-link-20 tag-link-position-27" title="1个话题" style="font-size: 8pt;">url</a> 
+      <a href="http://www.iganlei.cn/tag/v967s" class="tag-link-33 tag-link-position-28" title="1个话题" style="font-size: 8pt;">V967s</a> 
+      <a href="http://www.iganlei.cn/tag/video" class="tag-link-41 tag-link-position-29" title="1个话题" style="font-size: 8pt;">video</a> 
+      <a href="http://www.iganlei.cn/tag/vmware" class="tag-link-136 tag-link-position-30" title="2个话题" style="font-size: 13.25pt;">VMware</a> 
+      <a href="http://www.iganlei.cn/tag/xcode6" class="tag-link-59 tag-link-position-31" title="2个话题" style="font-size: 13.25pt;">xcode6</a> 
+      <a href="http://www.iganlei.cn/tag/xdebug" class="tag-link-26 tag-link-position-32" title="2个话题" style="font-size: 13.25pt;">xdebug</a> 
+      <a href="http://www.iganlei.cn/tag/youku" class="tag-link-40 tag-link-position-33" title="1个话题" style="font-size: 8pt;">youku</a> 
+      <a href="http://www.iganlei.cn/tag/%e4%ba%92%e8%81%94%e7%bd%91%e6%8e%a5%e5%85%a5" class="tag-link-51 tag-link-position-34" title="1个话题" style="font-size: 8pt;">互联网接入</a> 
+      <a href="http://www.iganlei.cn/tag/%e5%9c%b0%e5%9d%80" class="tag-link-42 tag-link-position-35" title="1个话题" style="font-size: 8pt;">地址</a> 
+      <a href="http://www.iganlei.cn/tag/%e5%be%ae%e8%a7%86" class="tag-link-50 tag-link-position-36" title="1个话题" style="font-size: 8pt;">微视</a> 
+      <a href="http://www.iganlei.cn/tag/%e6%8e%a5%e5%8f%a3" class="tag-link-23 tag-link-position-37" title="1个话题" style="font-size: 8pt;">接口</a> 
+      <a href="http://www.iganlei.cn/tag/%e6%92%ad%e6%94%be%e5%99%a8" class="tag-link-37 tag-link-position-38" title="1个话题" style="font-size: 8pt;">播放器</a> 
+      <a href="http://www.iganlei.cn/tag/%e6%99%ba%e8%83%bd%e6%89%8b%e8%a1%a8" class="tag-link-52 tag-link-position-39" title="1个话题" style="font-size: 8pt;">智能手表</a> 
+      <a href="http://www.iganlei.cn/tag/%e7%99%be%e5%ba%a6" class="tag-link-21 tag-link-position-40" title="1个话题" style="font-size: 8pt;">百度</a> 
+      <a href="http://www.iganlei.cn/tag/%e7%ba%bf%e5%88%b7" class="tag-link-53 tag-link-position-41" title="1个话题" style="font-size: 8pt;">线刷</a> 
+      <a href="http://www.iganlei.cn/tag/%e8%a7%86%e9%a2%91" class="tag-link-43 tag-link-position-42" title="1个话题" style="font-size: 8pt;">视频</a> 
+      <a href="http://www.iganlei.cn/tag/%e8%b0%b7%e6%ad%8c" class="tag-link-49 tag-link-position-43" title="1个话题" style="font-size: 8pt;">谷歌</a> 
+      <a href="http://www.iganlei.cn/tag/%e9%98%bf%e9%87%8c%e4%ba%91" class="tag-link-107 tag-link-position-44" title="2个话题" style="font-size: 13.25pt;">阿里云</a> 
+      <a href="http://www.iganlei.cn/tag/%e9%99%84%e4%bb%b6" class="tag-link-46 tag-link-position-45" title="1个话题" style="font-size: 8pt;">附件</a>
+     </div> 
+    </div>
+    <div class="widget widget_ads">
+     <div class="widget_ads_inner">
+      <script type="text/javascript">
+    /*360*120 创建于 2015-07-10*/
+    var cpro_id = "u2199962";
+</script> 
+      <script src="http://cpro.baidustatic.com/cpro/ui/c.js" type="text/javascript"></script> 
+     </div>
+    </div>
+    <div class="widget widget_nav_menu">
+     <div class="menu-%e9%a1%b5%e8%84%9a-container">
+      <ul id="menu-%e9%a1%b5%e8%84%9a" class="menu">
+       <li id="menu-item-302" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-302"><a href="http://www.iganlei.cn/up">Mark&amp;Tips</a></li> 
+       <li id="menu-item-26" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-26"><a href="http://www.iganlei.cn/topic/demo">Ugly Demo</a></li> 
+       <li id="menu-item-303" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-303"><a href="http://www.iganlei.cn/leave_a_message">留言板|话帖墙</a></li> 
+       <li id="menu-item-22" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-22"><a href="http://www.austgl.com">编力地带</a></li> 
+      </ul>
+     </div>
+    </div>
+    <div class="widget widget_postlist">
+     <h3 class="title"><strong>随机文章</strong></h3>
+     <ul class="items-03"> 
+      <li><a target="_blank" href="http://www.iganlei.cn/web/61.html"><span class="text">地址参数的编码和解码</span><span class="text-muted post-views">阅读(1242)</span></a></li> 
+      <li><a target="_blank" href="http://www.iganlei.cn/environment-configuration/838.html"><span class="text">Ubuntu12.04安装gitlab社区版(Install a GitLab CE Omnibus package on ubuntu12.04)</span><span class="text-muted post-views">阅读(2627)</span></a></li> 
+      <li><a target="_blank" href="http://www.iganlei.cn/codeing/901.html"><span class="text">科学上网利器（三）SoftEther VPN ,阿 *里*云，ali*yun ecs CentOS6.5 搭建VPN</span><span class="text-muted post-views">阅读(1767)</span></a></li> 
+      <li><a target="_blank" href="http://www.iganlei.cn/web/451.html"><span class="text">fiddler无法抓取chrome，IE正常抓取，解决方法</span><span class="text-muted post-views">阅读(5610)</span></a></li> 
+      <li><a target="_blank" href="http://www.iganlei.cn/environment-configuration/999.html"><span class="text">StartSSL 切换到 Let’s Encrypt</span><span class="text-muted post-views">阅读(328)</span></a></li> 
+      <li><a target="_blank" href="http://www.iganlei.cn/web/html5-css3/613.html"><span class="text">css 渐变兼容写法 ie chrome firefox</span><span class="text-muted post-views">阅读(689)</span></a></li> 
+      <li><a target="_blank" href="http://www.iganlei.cn/web/538.html"><span class="text">wordpress“建立数据库连接时出错”解决方案</span><span class="text-muted post-views">阅读(692)</span></a></li> 
+      <li><a target="_blank" href="http://www.iganlei.cn/web/php/323.html"><span class="text">QQ导航上的天气接口hao.qq.com get_weather.php</span><span class="text-muted post-views">阅读(1247)</span></a></li> 
+     </ul>
+    </div>
+   </aside> 
+  </section> 
+  <footer class="footer">
+    &copy; 2017 
+   <a href="http://www.iganlei.cn">ganlei的个人博客</a> &nbsp; 
+   <a href="http://www.iganlei.cn/sitemap.xml">网站地图</a> 
+   <div style="width:300px;margin:0 auto; padding:20px 0;"> 
+    <a target="_blank" href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=34072202000175" style="display:inline-block;text-decoration:none;height:20px;line-height:20px;"><img src="" style="float:left;" /><p style="float:left;height:20px;line-height:20px;margin: 0px 0px 0px 5px; color:#939393;">皖公网安备 34072202000175号</p></a> 
+   </div> &nbsp; 
+   <!-- 87 queries in 1.153 seconds, using 68.52MB memory --> 
+  </footer> 
+  <script>
+window.jui = {
+	uri: 'http://www.iganlei.cn/wp-content/themes/xiu',
+	roll: ["1","2"],
+	ajaxpager: '2'
+}
+</script> 
+  <script type="text/javascript">
+/* <![CDATA[ */
+var jQueryColorboxSettingsArray = {"jQueryColorboxVersion":"4.6.2","colorboxInline":"false","colorboxIframe":"false","colorboxGroupId":"","colorboxTitle":"","colorboxWidth":"false","colorboxHeight":"false","colorboxMaxWidth":"false","colorboxMaxHeight":"false","colorboxSlideshow":"true","colorboxSlideshowAuto":"false","colorboxScalePhotos":"false","colorboxPreloading":"true","colorboxOverlayClose":"false","colorboxLoop":"true","colorboxEscKey":"true","colorboxArrowKey":"true","colorboxScrolling":"true","colorboxOpacity":"0.7","colorboxTransition":"fade","colorboxSpeed":"350","colorboxSlideshowSpeed":"2500","colorboxClose":"\u5173\u95ed","colorboxNext":"\u4e0b\u4e00\u5f20","colorboxPrevious":"\u4e0a\u4e00\u5f20","colorboxSlideshowStart":"\u5f00\u59cb\u5e7b\u706f\u7247\u653e\u6620","colorboxSlideshowStop":"\u505c\u6b62\u5e7b\u706f\u7247\u653e\u6620","colorboxCurrent":"{total}\u5f20\u56fe\u50cf\u4e2d\u7684\u7b2c{current}\u5f20","colorboxXhrError":"This content failed to load.","colorboxImgError":"This image failed to load.","colorboxImageMaxWidth":"90%","colorboxImageMaxHeight":"90%","colorboxImageHeight":"false","colorboxImageWidth":"false","colorboxLinkHeight":"false","colorboxLinkWidth":"false","colorboxInitialHeight":"100","colorboxInitialWidth":"300","autoColorboxJavaScript":"true","autoHideFlash":"","autoColorbox":"true","autoColorboxGalleries":"","addZoomOverlay":"true","useGoogleJQuery":"true","colorboxAddClassToLinks":""};
+/* ]]> */
+</script> 
+  <script type="text/javascript" src="http://assets.iganlei.cn/wp-content/plugins/jquery-colorbox/js/jquery.colorbox-min.js?ver=1.4.33"></script> 
+  <script type="text/javascript" src="http://assets.iganlei.cn/wp-content/plugins/jquery-colorbox/js/jquery-colorbox-wrapper-min.js?ver=4.6.2"></script> 
+  <script type="text/javascript" src="http://assets.iganlei.cn/wp-content/plugins/wp-syntax/js/wp-syntax.js?ver=1.1"></script> 
+  <script type="text/javascript" src="http://assets.iganlei.cn/wp-content/themes/xiu/js/bootstrap.js?ver=4.0"></script> 
+  <script type="text/javascript" src="http://assets.iganlei.cn/wp-content/themes/xiu/js/custom.js?ver=4.0"></script>   
+ </body>
+</html>

@@ -1,0 +1,410 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<meta http-equiv=content-type content="text/html; charset=utf-8">
+<!--<link href='image/index.ico' rel='icon' type='image/x-icon'/>-->
+<title>Search My Safes Cloud</title>
+<script type="text/javascript" src="ajax/tw_sack2.js"></script>
+<script>
+function $(i){return document.getElementById(i)}
+function $IE$(){return document.all?1:0}
+function falsefunc() { return false; }
+Object.prototype.$=function (index) {
+	var i=0;
+	for (var k in this) {
+		if (typeof(this[k]) != 'function') {
+			if (index == i) return this[k];
+			else i++;
+		}
+	}
+	return null;
+}
+Object.prototype.index=function (index) {
+	var i=0;
+	for (var k in this) {
+		if (typeof(this[k]) != 'function') {
+			if (index == i) return k;
+			else i++;
+		}
+	}
+	return null;
+}
+Object.prototype.type=function (index) {
+	var i=0;
+	for (var k in this) {
+		if (typeof(this[k]) != 'function') {
+			if (index == i) return typeof(this[k]);
+			else i++;
+		}
+	}
+	return null;
+}
+Object.prototype.size=function () {
+	var len = 0;
+	for (var k in this) {
+		if (typeof(this[k]) != 'function') len++;
+	}
+	return len;
+}
+</script>
+<script>
+function getOriginalWidthOfImg(img_element) {
+	var t = new Image();
+	t.src = (img_element.getAttribute ? img_element.getAttribute("src") : false) || img_element.src;
+	return t.width;
+}
+
+function getOriginalHeightOfImg(img_element) {
+	var t = new Image();
+	t.src = (img_element.getAttribute ? img_element.getAttribute("src") : false) || img_element.src;
+	return t.height;
+}
+</script>
+<style>
+body {
+	font-family:Verdana, Geneva, sans-serif;
+	background-color:black;
+	text-align:center;
+}
+table ,td{
+	border:1px solid silver;
+	border-collapse:separate;
+	border-spacing:2px;
+	text-align: left;
+}
+.form {
+	font-family:courier new;
+	font-size:15px;
+	color:white;
+	text-align:center;
+	padding-top: 20px;
+}
+input.underline {
+	font-family:courier new;
+	font-size:15px;
+	color:gold;
+	background-color:transparent;
+	border-top:0px solid;
+   border-left:0px solid;
+   border-right:0px solid;
+	border-bottom:1px solid white;
+	text-align:center;
+}
+.button {
+	background:black;
+	border:1px solid gray;
+	color:white;
+	text-align:center;
+	vertical-align:middle;
+	cursor:pointer;
+}
+.button_hover {
+	background:#FF9933;
+	border:1px solid #999966;
+	color:#330000;
+	text-align:center;
+	vertical-align:middle;
+	cursor:pointer;
+}
+.query_result {
+	font-family:courier new;
+	font-size:15px;
+	color:white;
+	margin-right:auto;
+	margin-left:auto;
+	text-align:center;
+}
+a {
+	color: white;
+	text-decoration: none;
+}
+a:hover {
+	text-decoration: underline;
+	color: #7FC9FF;
+	cursor: pointer;
+}
+</style>
+
+<script>
+function launch() {
+	new WiAddress.func.main('func',{});
+}
+</script>
+
+<script>
+var link_flag = false;
+WiAddress={};
+WiAddress.func=function(){
+	function main(n,obj){
+		this.n=n;
+		this.obj=obj;
+		window[n]=this;
+		this.logo();
+		this.form();
+	};
+
+	main.prototype.logo=function(){
+		var logo=document.createElement('img');
+
+		$('body').appendChild(logo);
+		logo.id='logo';
+		logo.src='image/logo.png';
+		logo.className='logo';
+	}
+
+	main.prototype.form=function(){
+		var form=document.createElement('div');
+		var br=document.createElement('div');
+		var sp=document.createElement('span');
+		var input=document.createElement('input');
+		var send=document.createElement('input');
+		var query_result=document.createElement('div');
+		var TEXTBOX_VALUE="My Safes Cloud";
+		
+		send.type='submit';
+		form.className='form';
+		input.className='underline';
+		send.className='button';
+		query_result.className='query_result';
+
+		input.id='input';
+		input.name='input';
+		input.value=TEXTBOX_VALUE;
+		input.onclick=function(){
+			if(input.value == TEXTBOX_VALUE)
+				input.value='';
+		}
+		br.innerHTML='<br>';
+		sp.innerHTML='&nbsp;';
+		send.id='send';
+		send.value='Call';
+		query_result.id='query_result';
+
+		send.onclick= new Function(this.n+".query()");
+		send.onmouseover= new Function(this.n+".hover(this, 'button_hover')");
+		send.onmouseout= new Function(this.n+".hover(this, 'button')");
+
+		form.appendChild(input);
+		form.appendChild(sp);
+		form.appendChild(send);
+		form.appendChild(br);
+		form.appendChild(query_result);
+		$('body').appendChild(form);
+
+		setTimeout(function(){ 
+			input.focus();
+			input.select();
+		}, 0); 
+	}
+
+	main.prototype.query=function(){
+		$('query_result').innerHTML='';
+
+		var ajax=new sack();
+		ajax.setVar('cloudname', $('input').value);
+		ajax.requestFile='db.php';
+		ajax.method='POST';
+		ajax.runAJAX();
+		ajax.onCompletion=function() {
+			$('query_result').innerHTML='';
+			var JSON=new Function('return ' + ajax.response);
+			var WiDRIVEs=JSON();
+			var i;
+
+			if (WiDRIVEs.$(0).size() == 1) {
+				$('query_result').innerHTML='can not find...';
+				return; 
+			}
+			
+			for (i=0; i<WiDRIVEs.$(0).size()-1; i++) {
+				var div = document.createElement('div');
+				var hide_info = document.createElement('div');
+				
+				hide_info.style.display = 'none';
+				$('query_result').style.width = '550px';
+				$('query_result').appendChild(div);
+				$('query_result').appendChild(hide_info);
+												
+				var obj = {
+					mac			:	WiDRIVEs.$(0).index(i),
+					upload_time	:	WiDRIVEs.$(0).$(i).$(4),
+					ra0_ip		:	WiDRIVEs.$(0).$(i).$(0),
+					eth2_ip		:	WiDRIVEs.$(0).$(i).$(1),
+					public_ip	: 	WiDRIVEs.$(0).$(i).$(2),
+					ddns		:	WiDRIVEs.$(0).$(i).$(3),
+					register	:	WiDRIVEs.$(0).$(i).$(5)
+				};
+				
+				hide_info.innerHTML = 'MAC:' + obj.mac + '<br>' +
+									'upload time:' + obj.upload_time + '<br>' +
+									'ra0 ip:' + obj.ra0_ip + '<br>' +
+									'eth2 ip:' + obj.eth2_ip + '<br>' +
+									'public ip:' + obj.public_ip + '<br>' +
+									'ddns:' + obj.ddns + '<br>' +
+									'register status:' + obj.register;
+				
+				
+				div.innerHTML='<font color=white>waiting...</font>';
+				link_flag = false;
+				trylink(div, 3, obj);
+				
+			}
+		};
+	}
+
+	main.prototype.hover=function(ob, css){
+		ob.className=css;
+	}
+	return{main:main}
+}();
+
+function include(obj, file) {
+        if (document.createElement && document.getElementsByTagName) {
+                var script=document.createElement('script');
+                script.setAttribute('type', 'text/javascript');
+                script.setAttribute('src', file);
+                obj.appendChild(script);
+        } else{
+			
+		}
+}
+
+function trylink(div, run , obj) {
+	for(var i = 0; i < run; i++){		
+		setTimeout(function(){
+			if(link_flag == false){
+				try { 
+					callfred_eth2(obj.eth2_ip); 
+				}
+				catch(err) {
+					
+				}
+			}
+				
+			if(link_flag == false){
+				try { 
+					callfred_ra0(obj.ra0_ip); 
+				}
+				catch(err) {
+					
+				}
+			}
+		
+		}, 500*i);			
+	}
+	
+	setTimeout(function(){
+		if(link_flag == false){
+			try_public_ip(obj.public_ip, obj.ddns);
+		}
+	},2500);
+
+	setTimeout(function(){
+		if(link_flag == false){
+			div.innerHTML='<font color=gray>offline</font>';
+		}
+	}, 10000);
+}
+
+function try_public_ip(public_ip, port) {
+        var ajax=new sack();
+        ajax.setVar('ip', public_ip);
+        ajax.setVar('port', port);
+        ajax.requestFile='trylink.php';
+        ajax.method='POST';
+        ajax.runAJAX();
+        ajax.onCompletion=function() {
+			if (ajax.response == 10) {
+				link_flag = true;
+				window.location='http://'+ public_ip;
+			} else if (ajax.response == 1 || ajax.response == 11) {
+				link_flag = true;
+				window.location='http://'+ public_ip + ":" + port;
+			}
+        }
+}
+
+
+function callfred_eth2(eth2_ip) {
+	var eth2_back;
+	
+	include($('js_v'), "http://"+ eth2_ip +"/js/trying_eth2.js?random=" + parseInt(Math.random()*10000000));	
+	eth2_back = eth2_str();
+	if(eth2_back == "8la888eth2"){
+		link_flag = true;
+		window.location='http://'+ eth2_ip;
+	}
+}
+function callfred_ra0(ra0_ip) {
+	var ra0_back;
+	
+	include($('js_v'), "http://"+ ra0_ip +"/js/trying_ra0.js?random=" + parseInt(Math.random()*10000000));	
+	ra0_back = ra0_str();
+	if(ra0_back == "8la888_ra0"){
+		link_flag = true;
+		window.location='http://'+ ra0_ip;
+	}
+}
+
+</script>
+</head>
+<body id='body'>
+	<div id="js_v" style="display:none;"></div>
+</body>
+
+<script>
+var mousex, mousey;
+function getMouseXY(e) {
+        if (!e) e = window.event;
+
+        if (e) {
+                if (e.pageX || e.pageY) {
+                        mousex=e.pageX;
+                        mousey=e.pageY;
+                } else if (e.clientX || e.clientY) {
+                        mousex=e.clientX;
+                        mousey=e.clientY;
+                }
+        }
+
+        if ($IE$()) {
+                mousex+=document.documentElement.scrollLeft;
+                mousey+=document.documentElement.scrollTop;
+        }
+}
+document.onmousemove=getMouseXY;
+getMouseXY();
+</script>
+<script>
+var win_x, win_y;
+function getWindowXY(e) {
+        if (typeof window.innerWidth != 'undefined')  {
+                win_x=window.innerWidth;
+                win_y=window.innerHeight;
+        } else if (typeof document.documentElement != 'undefined' &&
+                   typeof document.documentElement.clientWidth != 'undefined' &&
+                   document.documentElement.clientWidth != 0) {
+                win_x=document.documentElement.clientWidth;
+                win_y=document.documentElement.clientHeight;
+        } else {
+                win_x=document.getElementsByTagName('body')[0].clientWidth;
+                win_y=document.getElementsByTagName('body')[0].clientHeight;
+        }
+}
+
+getWindowXY();
+</script>
+
+<script> launch(); </script>
+
+<script>
+if ($IE$()) {	document.attachEvent('onkeypress', detectkey);
+} else {	addEventListener('keypress', detectkey, false); }
+
+function detectkey(e) {
+	if (e.keyCode == 13) $('send').click();
+}
+</script>
+	<p><img border="0" src="image/test.png" width="571" height="377"></p>
+
+</html>

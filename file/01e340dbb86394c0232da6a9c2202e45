@@ -1,0 +1,930 @@
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1251">
+<title>Ãîìåîïàòè÷åñêèé èíòåðíåò-êàáèíåò äîêòîðà Ëåîíèäà Êîñìîäåìüÿíñêîãî. Êîíñóëüòàöèè, ëå÷åíèå è ïðîôèëàêòèêà ðàçëè÷íûõ çàáîëåâàíèé ãîìåîïàòè÷åñêèìè ïðåïàðàòàìè</title>
+<META NAME="Description" CONTENT="Êîíñóëüòàöèè, ëå÷åíèå è ïðîôèëàêòèêà ðàçëè÷íûõ çàáîëåâàíèé ãîìåîïàòè÷åñêèìè ïðåïàðàòàìè. Ïîìîùü áîëüíûì ÷åðåç èíòåðíåò, ñîâåòû äîêòîðà, çàïèñü íà ïðèåì. Îïèñàíèå ãîìåîïàòè÷åñêèõ ñðåäñòâ, çàêàç è äîñòàâêà ãîìåîïàòè÷åñêèõ ëåêàðñòâ íà äîì">
+<META NAME="Keywords" CONTENT="ãîìåîïàòèÿ, äîêòîð, Êîñìîäåìüÿíñêèé, ãîìåîïàòè÷åñêèå, ãîìåîïàòè÷åñêîå, ïðåïàðàò, ëåêàðñòâî, ñðåäñòâî, êîíñóëüòàöèÿ, ïîìîùü, ãîìåîïàò, ïðàêòèêà, àïòåêà, àïòå÷êà, ëå÷åíèå, ñîâåòû, òåðàïåâò, áîëåçíü, áîëåçíè">
+<LINK href="/css/styles.css" rel=stylesheet type=text/css>
+<LINK href="/css/menu2.css" rel=stylesheet type=text/css>
+<LINK href="/css/catalogmenu2.css" rel=stylesheet type=text/css>
+<LINK href="/css/catalog.css" rel=stylesheet type=text/css>
+<script>    
+// CREDITS:
+// Snowmaker Copyright (c) 2003 Peter Gehrig. All rights reserved.
+// Modified (c) 2005, Igor Svetlov, Nickname: 12345c
+// Location: http://example.javascript.aho.ru/xmp002/falling-snow.htm
+// Distributed by http://www.softtime.ru/forum/; 
+// Permission given to use the script provided that this notice remains as is.
+var snowmax=25  // Set the number of snowflakes (more than 30 - 40 not recommended)
+var snowcolor=["#c4bbcc","#ccddFF","#ccd6DD"]
+    // Set the colors for the snow. Add as many colors as you like
+var snowtype=["Arial Black","Arial Narrow","Times","Comic Sans MS"]
+    // Set the fonts, that create the snowflakes. Add as many fonts as you like
+var snowletter=["<img src=/snow.gif>","<img src=/snow21.gif>"];
+    // Set the letter that creates your snowflake (recommended:*) "*","$","_","&#8356;"
+var sinkspeed=0.6   // Set the speed of sinking (recommended values range from 0.3 to 2)
+var snowmaxsize=45  // Set the maximal-size of your snowflaxes
+var snowminsize=18  // Set the minimal-size of your snowflaxes
+    var snowsizerange=snowmaxsize-snowminsize
+    // Set the snowing-zone
+    // Set 1 for all-over-snowing, set 2 for left-side-snowing 
+    // Set 3 for center-snowing, set 4 for right-side-snowing
+var snowingleft=0 //ëåâàÿ ãðàíèöà ïðèñóòñòâèÿ ñíåãà
+var snowingwidth=1    //øèðèíà ïðèñóòñòâèÿ ñíåãà â îêíå
+var opac=1       //íåïðîçðà÷íîñòü ñíåãà (0.0-1.0), ïðè 1.0 â 2 ðàçà áûñòðåå ðàáîòàåò.
+var stepTime=120    //øàã ïîêàäðîâîé àíèìàöèè (ìñåê). Ïðè ìåíåå 100 ñèëüíî íàãðóæàåò ïðîöåññîð
+var snow=new Array()
+var marginbottom
+var marginright
+var timer
+var x_mv=new Array();   var crds=new Array();   var lftrght=new Array();
+var browserinfos=navigator.userAgent 
+d=document
+var isOpera=self.opera  
+var ie5=d.all&&d.getElementById&&!isOpera
+var ns6=d.getElementById&&!d.all
+var browserok=ie5||ns6||isOpera
+
+function randommaker(range){return Math.floor(range*Math.random())}
+
+function botRight()
+{
+    if(ie5||isOpera)
+    {
+      marginbottom=d.body.clientHeight;  
+      marginright=d.body.clientWidth;
+    }
+    else
+      if(ns6)
+      {
+        marginbottom=innerHeight; marginright=innerWidth;
+      }
+}
+
+function checkPgDn()
+{
+ scrltop=ns6?pageYOffset:document.body.scrollTop;
+}
+
+function initsnow() 
+{
+  checkPgDn();if(ns6)setInterval("checkPgDn()",999);
+  botRight();
+  for (i=0;i<=snowmax;i++)
+  {
+    crds[i] = 0;                      
+    lftrght[i] = Math.random()*20;         
+    x_mv[i] = 0.03 + Math.random()/10;
+    snow[i]=d.getElementById("s"+i)
+    snow[i].style.fontFamily=snowtype[randommaker(snowtype.length)]
+    snow[i].style.fontSize=snow[i].size=randommaker(snowsizerange)+snowminsize
+    snow[i].style.color=snowcolor[randommaker(snowcolor.length)]
+    snow[i].sink=sinkspeed*snow[i].size/5
+    newPosSnow(randommaker(marginbottom-3*snow[i].size));
+  }
+  movesnow();
+}
+
+function newPosSnow(y)
+{
+  var o;
+  snow[i].posx=randommaker(marginright*snowingwidth-2*snow[i].size)+marginright*snowingleft
+  snow[i].posy=y+(ns6?pageYOffset:d.body.scrollTop);
+  snow[i].size=randommaker(snowsizerange)+snowminsize;
+  if(snow[i].hasChildNodes()&&(o=snow[i].childNodes[0]).tagName=='IMG') o.width=o.height=randommaker(snowsizerange/1.6)+snowminsize;
+}
+
+function movesnow() 
+{
+  for (i=0;i<=snowmax;i++) 
+  {
+    snow[i].style.top=snow[i].posy+=snow[i].sink+lftrght[i]*Math.sin(crds[i])/3;
+    crds[i] += x_mv[i];
+    snow[i].style.left=snow[i].posx+lftrght[i]*Math.sin(crds[i]);
+    if(snow[i].posy>=marginbottom-3*snow[i].size+scrltop || parseInt(snow[i].style.left)>(marginright-3*lftrght[i]))newPosSnow(0);
+  }
+  var timer=setTimeout("movesnow()",stepTime)
+}
+
+for (i=0;i<=snowmax;i++)
+{
+  d.write("<span id='s"+i+"' style='position:absolute;"+(opac<1?"-moz-opacity:"+opac+";filter:alpha(opacity="+(opac*100)+")":"")+";top:-"+snowmaxsize+"'>"
+    +snowletter[Math.floor(snowletter.length*Math.random())]+"</span>")
+}           //-moz-opacity:0.5;filter:alpha(opacity=50);
+
+//onload=function()
+//{
+  if(browserok)setTimeout("initsnow()",9);
+//}
+
+
+onmousewheel = onscroll = function(){checkPgDn()}
+onresize = function(){botRight();}
+</script><script language="JavaScript" type="text/javascript">
+<!--
+// PHP Layers Menu 3.2.0-rc (C) 2001-2004 Marco Pratesi - http://www.marcopratesi.it/
+
+DOM = (document.getElementById) ? 1 : 0;
+NS4 = (document.layers) ? 1 : 0;
+// We need to explicitly detect Konqueror
+// because Konqueror 3 sets IE = 1 ... AAAAAAAAAARGHHH!!!
+Konqueror = (navigator.userAgent.indexOf('Konqueror') > -1) ? 1 : 0;
+// We need to detect Konqueror 2.2 as it does not handle the window.onresize event
+Konqueror22 = (navigator.userAgent.indexOf('Konqueror 2.2') > -1 || navigator.userAgent.indexOf('Konqueror/2.2') > -1) ? 1 : 0;
+Konqueror30 =
+	(
+		navigator.userAgent.indexOf('Konqueror 3.0') > -1
+		|| navigator.userAgent.indexOf('Konqueror/3.0') > -1
+		|| navigator.userAgent.indexOf('Konqueror 3;') > -1
+		|| navigator.userAgent.indexOf('Konqueror/3;') > -1
+		|| navigator.userAgent.indexOf('Konqueror 3)') > -1
+		|| navigator.userAgent.indexOf('Konqueror/3)') > -1
+	)
+	? 1 : 0;
+Konqueror31 = (navigator.userAgent.indexOf('Konqueror 3.1') > -1 || navigator.userAgent.indexOf('Konqueror/3.1') > -1) ? 1 : 0;
+// We need to detect Konqueror 3.2 and 3.3 as they are affected by the see-through effect only for 2 form elements
+Konqueror32 = (navigator.userAgent.indexOf('Konqueror 3.2') > -1 || navigator.userAgent.indexOf('Konqueror/3.2') > -1) ? 1 : 0;
+Konqueror33 = (navigator.userAgent.indexOf('Konqueror 3.3') > -1 || navigator.userAgent.indexOf('Konqueror/3.3') > -1) ? 1 : 0;
+Opera = (navigator.userAgent.indexOf('Opera') > -1) ? 1 : 0;
+Opera5 = (navigator.userAgent.indexOf('Opera 5') > -1 || navigator.userAgent.indexOf('Opera/5') > -1) ? 1 : 0;
+Opera6 = (navigator.userAgent.indexOf('Opera 6') > -1 || navigator.userAgent.indexOf('Opera/6') > -1) ? 1 : 0;
+Opera56 = Opera5 || Opera6;
+IE = (navigator.userAgent.indexOf('MSIE') > -1) ? 1 : 0;
+IE = IE && !Opera;
+IE5 = IE && DOM;
+IE4 = (document.all) ? 1 : 0;
+IE4 = IE4 && IE && !DOM;
+
+// -->
+</script>
+<script language="JavaScript" type="text/javascript" src="/_DHTML/libjs/layersmenu-library.js"></script>
+<script language="JavaScript" type="text/javascript" src="/_DHTML/libjs/layersmenu.js"></script>
+<script language="JavaScript" type="text/javascript" src="/_DHTML/libjs/layerstreemenu-cookies.js"></script>
+<!-- beginning of menu header - PHP Layers Menu 3.2.0-rc (C) 2001-2004 Marco Pratesi - http://www.marcopratesi.it/ -->
+
+<script language="JavaScript" type="text/javascript">
+<!--
+
+menuTopShift = 6;
+menuRightShift = 7;
+menuLeftShift = 2;
+
+var thresholdY = 5;
+var abscissaStep = 140;
+
+toBeHidden = new Array();
+toBeHiddenLeft = new Array();
+toBeHiddenTop = new Array();
+
+listl = [];
+var numl = listl.length;
+
+father = new Array();
+for (i=1; i<=4; i++) {
+	father['L' + i] = '';
+}
+father_keys = [];
+father_vals = [];
+for (i=0; i<father_keys.length; i++) {
+	father[father_keys[i]] = father_vals[i];
+}
+
+lwidth = new Array();
+var lwidthDetected = 0;
+
+function moveLayers()
+{
+	if (!lwidthDetected) {
+		for (i=0; i<numl; i++) {
+			lwidth[listl[i]] = getOffsetWidth(listl[i]);
+		}
+		lwidthDetected = 1;
+	}
+	if (IE4) {
+		for (i=0; i<numl; i++) {
+			setWidth(listl[i], abscissaStep);
+		}
+	}
+	var hormenu1TOP = getOffsetTop('hormenu1L1');
+	var hormenu1HEIGHT = getOffsetHeight('hormenu1L1');
+
+}
+
+back = new Array();
+for (i=1; i<=4; i++) {
+	back['L' + i] = 0;
+}
+
+// -->
+</script>
+
+<!-- end of menu header - PHP Layers Menu 3.2.0-rc (C) 2001-2004 Marco Pratesi - http://www.marcopratesi.it/ -->
+</HEAD>
+<BODY topmargin=0 leftmargin=0 marginwidth=0 marginheight=0>
+<a name=top></a>
+<table cellpadding="0" cellspacing="0" border="0" width="100%" align="center"><tr>	
+<td>
+<table width="100%"  border="0" align=center cellpadding="0" cellspacing="0" bgcolor="#FFF500"   background="/imgs/topfon.jpg">
+<tr>
+<TD>
+<table cellpadding=0 cellspacing=0 border=0 width=100% bgcolor="#006600">
+<tr><td>
+
+<table cellpadding=0 cellspacing=0 border=0 width=100% bgcolor="#006600">
+<tr>
+  <td  class=topline align=center height=16>ÃÎÌÅÎÏÀÒÈ×ÅÑÊÈÉ ÈÍÒÅÐÍÅÒ-ÊÀÁÈÍÅÒ ÏÐÎÔÅÑÑÎÐÀ ËÅÎÍÈÄÀ ÊÎÑÌÎÄÅÌÜßÍÑÊÎÃÎ</td></tr>
+<tr><td bgcolor=#000000><IMG SRC="/imgs/pix.gif" WIDTH="1" HEIGHT="1" BORDER=0 ALT=""></td></tr>
+<tr><td bgcolor=#D9EAD9 background="/imgs/topfon.jpg">
+
+<table cellpadding=0 cellspacing=0 border=0 width=100%>
+<tr><td width=139 align=left nowrap><a href=/><IMG SRC="/imgs/professor_LK.png" WIDTH="138" HEIGHT="79" BORDER=0 ALT="Ëåîíèä Êîñìîäåìüÿíñêèé"></td>
+<td width=90% align=center nowrap><a href=/><IMG SRC="/imgs/title_prof.png" HEIGHT="79" BORDER=0 ALT="Âàø äîêòîð Ëåîíèä Êîñìîäåìüÿíñêèé"></a></td>
+<td width=99% align=center><img src=/imgs/newyeartop.png></td>
+<td align=right width=150><a href=/><IMG SRC="/imgs/flover2.gif" WIDTH="150" HEIGHT="79" BORDER=0 ALT=""></a></td>
+</tr></table>
+
+
+</td></tr>
+</table></TD>
+</tr>
+</table>
+<table width="100%"  border="0" align=center cellpadding="0" cellspacing="0">
+<tr><td bgcolor=#006600><IMG SRC="/imgs/pix.gif" WIDTH="1" HEIGHT="1" BORDER=0 ALT=""></td></tr><tr><td bgcolor="#C8E1C8"  ><TABLE cellSpacing=0 cellPadding=0 width="100%" border=0>
+<TR>
+<TD width=20><IMG height=4 src="/imgs/pix.gif" width=20></TD>
+<TD align=left nowrap="nowrap">	
+<TABLE cellSpacing=0 cellPadding=0 border=0>
+<TR>
+<td nowrap class=tpphone></td>
+</TR></table></TD>
+<TD width="90%" align=left>
+<!-- beginning of horizontal menu bar -->
+
+<table border="0" cellspacing="0" cellpadding="0">
+<tr>
+<td>
+<div class="horbar">
+<table border="0" cellspacing="0" cellpadding="0">
+<tr>
+
+<td>
+
+<div id="hormenu1L1" class="horbaritem" onmouseover="clearLMTO();" onmouseout="setLMTO();">
+<a href="http://www.homeomed.ru/login.htm" onmouseover="shutdown();" title="Ëè÷íûé êàáèíåò"><img
+align="top" src="/imgs/pix.gif" width="1" height="16" border="0"
+alt="" />Ëè÷íûé êàáèíåò</a>
+</div>
+</td><TD><IMG height=21 src="/imgs/menupip.gif" width=22 border=0></TD>
+<td>
+
+<div id="hormenu1L2" class="horbaritem" onmouseover="clearLMTO();" onmouseout="setLMTO();">
+<a href="http://www.homeomed.ru/registration.htm" onmouseover="shutdown();" title="Ðåãèñòðàöèÿ"><img
+align="top" src="/imgs/pix.gif" width="1" height="16" border="0"
+alt="" />Ðåãèñòðàöèÿ</a>
+</div>
+</td><TD><IMG height=21 src="/imgs/menupip.gif" width=22 border=0></TD>
+<td>
+
+<div id="hormenu1L3" class="horbaritem" onmouseover="clearLMTO();" onmouseout="setLMTO();">
+<a href="http://www.homeomed.ru/uslugi.htm" onmouseover="shutdown();" title="ÇÀÏÈÑÜ íà ÊÎÍÑÓËÜÒÀÖÈÞ"><img
+align="top" src="/imgs/pix.gif" width="1" height="16" border="0"
+alt="" />ÇÀÏÈÑÜ íà ÊÎÍÑÓËÜÒÀÖÈÞ</a>
+</div>
+</td><TD><IMG height=21 src="/imgs/menupip.gif" width=22 border=0></TD>
+<td>
+
+<div id="hormenu1L4" class="horbaritem" onmouseover="clearLMTO();" onmouseout="setLMTO();">
+<a href="http://www.homeomed.ru/education.htm" onmouseover="shutdown();" title="ÎÁÓ×ÅÍÈÅ ïî ÃÎÌÅÎÏÀÒÈÈ"><img
+align="top" src="/imgs/pix.gif" width="1" height="16" border="0"
+alt="" />ÎÁÓ×ÅÍÈÅ ïî ÃÎÌÅÎÏÀÒÈÈ</a>
+</div>
+</td><TD><IMG height=21 src="/imgs/menupip.gif" width=22 border=0></TD>
+</tr>
+</table>
+</div>
+</td>
+</tr>
+</table>
+
+<!-- end of horizontal menu bar --></TD>
+</TR></TABLE>
+</td></tr>
+</table>
+
+<table cellpadding="0" cellspacing="0" border="0" width="100%" align="center"><tr>	
+<td  bgcolor="#ACD2AC" width="" valign="top" >
+<table width="100%"  border="0" cellspacing="0" cellpadding="0">
+<tr>
+<td>
+<table cellpadding=0 cellspacing=0 border=0 width=100%>
+<tr><td bgcolor=#006600><IMG SRC="/imgs/pix.gif" WIDTH="1" HEIGHT="16" BORDER=0 ALT=""></td></tr>
+</table>
+
+<TABLE BORDER="0" CELLSPACING="0" CELLPADDING="0" WIDTH="100%" align=center><TR>
+<TD><!-- MENU BOX -->
+<table cellpadding=0 cellspacing=0 border=0 width=100% align=center>
+<tr><td>
+<table width=100% border=0 cellpadding=0 cellspacing=0><tr><td bgcolor=#ffffff><IMG SRC="/imgs/pix.gif" WIDTH="1" HEIGHT="1" BORDER=0 ALT=""></td></tr></table>
+
+<!-- menu cell -->
+<TABLE CELLPADDING=0 CELLSPACING=0 BORDER=0 WIDTH=100%><tr><td bgcolor=#FFFFFF>
+<TABLE CELLPADDING=0 CELLSPACING=0 BORDER=0 WIDTH=100%><tr><td bgcolor=#FFFFFF class=catmenuactive OnMouseOver="this.className='catmenuactivea'; link1.className='menulinkactivea'" OnMouseOut="this.className='catmenuactive'; link1.className='menulinkactive'" 
+onclick="window.open ('/index.htm','_self'); return false;"><table cellpadding=0 cellspacing=0 border=0 WIDTH=100%><tr><td valign=top align=right><IMG SRC="/imgs/pix.gif" WIDTH="8" HEIGHT="13" BORDER=0 ALT=""></td><td valign=top align=right><img src=/imgs/pipkal1.gif width=12 height=18></td><td width=100% > <a id="link1" href="/index.htm"  class=menulinkactive><b>Ãëàâíàÿ</b></a></td><td></td></tr></table></td></tr></table>
+</td></tr></table>
+<!-- /////// menu cell -->
+<table width=100% border=0 cellpadding=0 cellspacing=0><tr><td bgcolor=#ffffff><IMG SRC="/imgs/pix.gif" WIDTH="1" HEIGHT="1" BORDER=0 ALT=""></td></tr></table>
+<!-- menu cell -->
+<TABLE CELLPADDING=0 CELLSPACING=0 BORDER=0 WIDTH=100%><tr><td bgcolor=#FFFFFF>
+<TABLE CELLPADDING=0 CELLSPACING=0 BORDER=0 WIDTH=100%><tr><td bgcolor=#FFFFFF class=catmenu OnMouseOver="this.className='catmenua'; link2.className='menulinka'" OnMouseOut="this.className='catmenu'; link2.className='menulink'" 
+onclick="window.open ('/aboutme.htm','_self'); return false;"><table cellpadding=0 cellspacing=0 border=0 WIDTH=100%><tr><td valign=top align=right><IMG SRC="/imgs/pix.gif" WIDTH="8" HEIGHT="13" BORDER=0 ALT=""></td><td valign=top align=right><img src=/imgs/pipkal1.gif width=12 height=18></td><td width=100% > <a id="link2" href="/aboutme.htm"  class=menulink>Î ñåáå</a></td><td></td></tr></table></td></tr></table>
+</td></tr></table>
+<!-- /////// menu cell -->
+<table width=100% border=0 cellpadding=0 cellspacing=0><tr><td bgcolor=#ffffff><IMG SRC="/imgs/pix.gif" WIDTH="1" HEIGHT="1" BORDER=0 ALT=""></td></tr></table>
+<!-- menu cell -->
+<TABLE CELLPADDING=0 CELLSPACING=0 BORDER=0 WIDTH=100%><tr><td bgcolor=#FFFFFF>
+<TABLE CELLPADDING=0 CELLSPACING=0 BORDER=0 WIDTH=100%><tr><td bgcolor=#FFFFFF class=catmenu OnMouseOver="this.className='catmenua'; link3.className='menulinka'" OnMouseOut="this.className='catmenu'; link3.className='menulink'" 
+onclick="window.open ('/homoeopathy.htm','_self'); return false;"><table cellpadding=0 cellspacing=0 border=0 WIDTH=100%><tr><td valign=top align=right><IMG SRC="/imgs/pix.gif" WIDTH="8" HEIGHT="13" BORDER=0 ALT=""></td><td valign=top align=right><img src=/imgs/pipkal1.gif width=12 height=18></td><td width=100% > <a id="link3" href="/homoeopathy.htm"  class=menulink>Î ãîìåîïàòèè</a></td><td></td></tr></table></td></tr></table>
+</td></tr></table>
+<!-- /////// menu cell -->
+<table width=100% border=0 cellpadding=0 cellspacing=0><tr><td bgcolor=#ffffff><IMG SRC="/imgs/pix.gif" WIDTH="1" HEIGHT="1" BORDER=0 ALT=""></td></tr></table>
+<!-- menu cell -->
+<TABLE CELLPADDING=0 CELLSPACING=0 BORDER=0 WIDTH=100%><tr><td bgcolor=#FFFFFF>
+<TABLE CELLPADDING=0 CELLSPACING=0 BORDER=0 WIDTH=100%><tr><td bgcolor=#FFFFFF class=catmenu OnMouseOver="this.className='catmenua'; link4.className='menulinka'" OnMouseOut="this.className='catmenu'; link4.className='menulink'" 
+onclick="window.open ('/praktika.htm','_self'); return false;"><table cellpadding=0 cellspacing=0 border=0 WIDTH=100%><tr><td valign=top align=right><IMG SRC="/imgs/pix.gif" WIDTH="8" HEIGHT="13" BORDER=0 ALT=""></td><td valign=top align=right><img src=/imgs/pipkal1.gif width=12 height=18></td><td width=100% > <a id="link4" href="/praktika.htm"  class=menulink>Âðà÷åáíàÿ ïðàêòèêà</a></td><td></td></tr></table></td></tr></table>
+</td></tr></table>
+<!-- /////// menu cell -->
+<table width=100% border=0 cellpadding=0 cellspacing=0><tr><td bgcolor=#ffffff><IMG SRC="/imgs/pix.gif" WIDTH="1" HEIGHT="1" BORDER=0 ALT=""></td></tr></table>
+<!-- menu cell -->
+<TABLE CELLPADDING=0 CELLSPACING=0 BORDER=0 WIDTH=100%><tr><td bgcolor=#FFFFFF>
+<TABLE CELLPADDING=0 CELLSPACING=0 BORDER=0 WIDTH=100%><tr><td bgcolor=#FFFFFF class=catmenu OnMouseOver="this.className='catmenua'; link5.className='menulinka'" OnMouseOut="this.className='catmenu'; link5.className='menulink'" 
+onclick="window.open ('/uslugi.htm','_self'); return false;"><table cellpadding=0 cellspacing=0 border=0 WIDTH=100%><tr><td valign=top align=right><IMG SRC="/imgs/pix.gif" WIDTH="8" HEIGHT="13" BORDER=0 ALT=""></td><td valign=top align=right><img src=/imgs/pipkal1.gif width=12 height=18></td><td width=100% > <a id="link5" href="/uslugi.htm"  class=menulink>Çàïèñü íà ïðèåì</a></td><td></td></tr></table></td></tr></table>
+</td></tr></table>
+<!-- /////// menu cell -->
+<table width=100% border=0 cellpadding=0 cellspacing=0><tr><td bgcolor=#ffffff><IMG SRC="/imgs/pix.gif" WIDTH="1" HEIGHT="1" BORDER=0 ALT=""></td></tr></table>
+<!-- menu cell -->
+<TABLE CELLPADDING=0 CELLSPACING=0 BORDER=0 WIDTH=100%><tr><td bgcolor=#FFFFFF>
+<TABLE CELLPADDING=0 CELLSPACING=0 BORDER=0 WIDTH=100%><tr><td bgcolor=#FFFFFF class=catmenu OnMouseOver="this.className='catmenua'; link6.className='menulinka'" OnMouseOut="this.className='catmenu'; link6.className='menulink'" 
+onclick="window.open ('/assistents.htm','_self'); return false;"><table cellpadding=0 cellspacing=0 border=0 WIDTH=100%><tr><td valign=top align=right><IMG SRC="/imgs/pix.gif" WIDTH="8" HEIGHT="13" BORDER=0 ALT=""></td><td valign=top align=right><img src=/imgs/pipkal1.gif width=12 height=18></td><td width=100% > <a id="link6" href="/assistents.htm"  class=menulink>Àññèñòåíòû</a></td><td></td></tr></table></td></tr></table>
+</td></tr></table>
+<!-- /////// menu cell -->
+<table width=100% border=0 cellpadding=0 cellspacing=0><tr><td bgcolor=#ffffff><IMG SRC="/imgs/pix.gif" WIDTH="1" HEIGHT="1" BORDER=0 ALT=""></td></tr></table>
+<!-- menu cell -->
+<TABLE CELLPADDING=0 CELLSPACING=0 BORDER=0 WIDTH=100%><tr><td bgcolor=#FFFFFF>
+<TABLE CELLPADDING=0 CELLSPACING=0 BORDER=0 WIDTH=100%><tr><td bgcolor=#FFFFFF class=catmenu OnMouseOver="this.className='catmenua'; link7.className='menulinka'" OnMouseOut="this.className='catmenu'; link7.className='menulink'" 
+onclick="window.open ('/soveti.htm','_self'); return false;"><table cellpadding=0 cellspacing=0 border=0 WIDTH=100%><tr><td valign=top align=right><IMG SRC="/imgs/pix.gif" WIDTH="8" HEIGHT="13" BORDER=0 ALT=""></td><td valign=top align=right><img src=/imgs/pipkal1.gif width=12 height=18></td><td width=100% > <a id="link7" href="/soveti.htm"  class=menulink>Ñîâåòû äîêòîðà</a></td><td></td></tr></table></td></tr></table>
+</td></tr></table>
+<!-- /////// menu cell -->
+<table width=100% border=0 cellpadding=0 cellspacing=0><tr><td bgcolor=#ffffff><IMG SRC="/imgs/pix.gif" WIDTH="1" HEIGHT="1" BORDER=0 ALT=""></td></tr></table>
+<!-- menu cell -->
+<TABLE CELLPADDING=0 CELLSPACING=0 BORDER=0 WIDTH=100%><tr><td bgcolor=#FFFFFF>
+<TABLE CELLPADDING=0 CELLSPACING=0 BORDER=0 WIDTH=100%><tr><td bgcolor=#FFFFFF class=catnamemenu OnMouseOver="this.className='catnamemenua'; link8.className='catnamelinka'" OnMouseOut="this.className='catnamemenu'; link8.className='catnamelink'"  
+onclick="location.href='/catalog.php?catalog_id=1'"><table cellpadding=0 cellspacing=0 border=0 WIDTH=100%><tr><td valign=top align=right><IMG SRC="/imgs/pix.gif" WIDTH="8" HEIGHT="13" BORDER=0 ALT=""></td><td valign=top align=right></td><td width=100% > <a id="link8" href="/catalog.php?catalog_id=1" class=catnamelink>Îôîðìèòü çàêàç</a></td><td><img src="/imgs/pipkaw.gif" width="17" height="9" border=0></td></tr></table></td></tr></table>
+</td></tr></table>
+<!-- /////// menu cell -->
+<table width=100% border=0 cellpadding=0 cellspacing=0><tr><td bgcolor=#ffffff><IMG SRC="/imgs/pix.gif" WIDTH="1" HEIGHT="1" BORDER=0 ALT=""></td></tr></table>
+<!-- menu cell -->
+<TABLE CELLPADDING=0 CELLSPACING=0 BORDER=0 WIDTH=100%><tr><td bgcolor=#FFFFFF>
+<TABLE CELLPADDING=0 CELLSPACING=0 BORDER=0 WIDTH=100%><tr><td bgcolor=#FFFFFF class=catalogmenu OnMouseOver="this.className='catalogmenua'; link9.className='cataloglinka'" OnMouseOut="this.className='catalogmenu'; link9.className='cataloglink'"  
+onclick="location.href='/catalog.php?category_id=10'"><table cellpadding=0 cellspacing=0 border=0 WIDTH=100%><tr><td valign=top align=right><IMG SRC="/imgs/pix.gif" WIDTH="8" HEIGHT="13" BORDER=0 ALT=""></td><td valign=top align=right>&nbsp;&nbsp;<img src=/imgs/pipkal2.gif width=12 height=18></td><td width=100% > <a id="link9" href="/catalog.php?category_id=10" class=cataloglink>ÎÎÎ ÏÔÊ «ÔÈÒÀÑÈÍÒÅÊÑ» (Ðîññèÿ)</a></td><td></td></tr></table></td></tr></table>
+</td></tr></table>
+<!-- /////// menu cell -->
+<table width=100% border=0 cellpadding=0 cellspacing=0><tr><td bgcolor=#ffffff><IMG SRC="/imgs/pix.gif" WIDTH="1" HEIGHT="1" BORDER=0 ALT=""></td></tr></table>
+<!-- menu cell -->
+<TABLE CELLPADDING=0 CELLSPACING=0 BORDER=0 WIDTH=100%><tr><td bgcolor=#FFFFFF>
+<TABLE CELLPADDING=0 CELLSPACING=0 BORDER=0 WIDTH=100%><tr><td bgcolor=#FFFFFF class=catalogmenu OnMouseOver="this.className='catalogmenua'; link10.className='cataloglinka'" OnMouseOut="this.className='catalogmenu'; link10.className='cataloglink'"  
+onclick="location.href='/catalog.php?category_id=1'"><table cellpadding=0 cellspacing=0 border=0 WIDTH=100%><tr><td valign=top align=right><IMG SRC="/imgs/pix.gif" WIDTH="8" HEIGHT="13" BORDER=0 ALT=""></td><td valign=top align=right>&nbsp;&nbsp;<img src=/imgs/pipkal2.gif width=12 height=18></td><td width=100% > <a id="link10" href="/catalog.php?category_id=1" class=cataloglink>ÎÎÎ "ÄÎÊÒÎÐ Í" (Ðîññèÿ)</a></td><td></td></tr></table></td></tr></table>
+</td></tr></table>
+<!-- /////// menu cell -->
+<table width=100% border=0 cellpadding=0 cellspacing=0><tr><td bgcolor=#ffffff><IMG SRC="/imgs/pix.gif" WIDTH="1" HEIGHT="1" BORDER=0 ALT=""></td></tr></table>
+<!-- menu cell -->
+<TABLE CELLPADDING=0 CELLSPACING=0 BORDER=0 WIDTH=100%><tr><td bgcolor=#FFFFFF>
+<TABLE CELLPADDING=0 CELLSPACING=0 BORDER=0 WIDTH=100%><tr><td bgcolor=#FFFFFF class=catalogmenu OnMouseOver="this.className='catalogmenua'; link11.className='cataloglinka'" OnMouseOut="this.className='catalogmenu'; link11.className='cataloglink'"  
+onclick="location.href='/catalog.php?category_id=13'"><table cellpadding=0 cellspacing=0 border=0 WIDTH=100%><tr><td valign=top align=right><IMG SRC="/imgs/pix.gif" WIDTH="8" HEIGHT="13" BORDER=0 ALT=""></td><td valign=top align=right>&nbsp;&nbsp;<img src=/imgs/pipkal2.gif width=12 height=18></td><td width=100% > <a id="link11" href="/catalog.php?category_id=13" class=cataloglink>Àïòåêà Apotheke zur Kaiserkrone (Àâñòðèÿ)</a></td><td></td></tr></table></td></tr></table>
+</td></tr></table>
+<!-- /////// menu cell -->
+<table width=100% border=0 cellpadding=0 cellspacing=0><tr><td bgcolor=#ffffff><IMG SRC="/imgs/pix.gif" WIDTH="1" HEIGHT="1" BORDER=0 ALT=""></td></tr></table>
+<!-- menu cell -->
+<TABLE CELLPADDING=0 CELLSPACING=0 BORDER=0 WIDTH=100%><tr><td bgcolor=#FFFFFF>
+<TABLE CELLPADDING=0 CELLSPACING=0 BORDER=0 WIDTH=100%><tr><td bgcolor=#FFFFFF class=catnamemenu OnMouseOver="this.className='catnamemenua'; link12.className='catnamelinka'" OnMouseOut="this.className='catnamemenu'; link12.className='catnamelink'"  
+onclick="location.href='/catalog.php?catalog_id=3'"><table cellpadding=0 cellspacing=0 border=0 WIDTH=100%><tr><td valign=top align=right><IMG SRC="/imgs/pix.gif" WIDTH="8" HEIGHT="13" BORDER=0 ALT=""></td><td valign=top align=right></td><td width=100% > <a id="link12" href="/catalog.php?catalog_id=3" class=catnamelink>Òîâàðû äëÿ çäîðîâüÿ</a></td><td><img src="/imgs/pipkaw.gif" width="17" height="9" border=0></td></tr></table></td></tr></table>
+</td></tr></table>
+<!-- /////// menu cell -->
+<table width=100% border=0 cellpadding=0 cellspacing=0><tr><td bgcolor=#ffffff><IMG SRC="/imgs/pix.gif" WIDTH="1" HEIGHT="1" BORDER=0 ALT=""></td></tr></table>
+<!-- menu cell -->
+<TABLE CELLPADDING=0 CELLSPACING=0 BORDER=0 WIDTH=100%><tr><td bgcolor=#FFFFFF>
+<TABLE CELLPADDING=0 CELLSPACING=0 BORDER=0 WIDTH=100%><tr><td bgcolor=#FFFFFF class=catalogmenu OnMouseOver="this.className='catalogmenua'; link13.className='cataloglinka'" OnMouseOut="this.className='catalogmenu'; link13.className='cataloglink'"  
+onclick="location.href='/catalog.php?category_id=11'"><table cellpadding=0 cellspacing=0 border=0 WIDTH=100%><tr><td valign=top align=right><IMG SRC="/imgs/pix.gif" WIDTH="8" HEIGHT="13" BORDER=0 ALT=""></td><td valign=top align=right>&nbsp;&nbsp;<img src=/imgs/pipkal2.gif width=12 height=18></td><td width=100% > <a id="link13" href="/catalog.php?category_id=11" class=cataloglink>Øàãîìåðû</a></td><td></td></tr></table></td></tr></table>
+</td></tr></table>
+<!-- /////// menu cell -->
+<table width=100% border=0 cellpadding=0 cellspacing=0><tr><td bgcolor=#ffffff><IMG SRC="/imgs/pix.gif" WIDTH="1" HEIGHT="1" BORDER=0 ALT=""></td></tr></table>
+<!-- menu cell -->
+<TABLE CELLPADDING=0 CELLSPACING=0 BORDER=0 WIDTH=100%><tr><td bgcolor=#FFFFFF>
+<TABLE CELLPADDING=0 CELLSPACING=0 BORDER=0 WIDTH=100%><tr><td bgcolor=#FFFFFF class=catalogmenu OnMouseOver="this.className='catalogmenua'; link14.className='cataloglinka'" OnMouseOut="this.className='catalogmenu'; link14.className='cataloglink'"  
+onclick="location.href='/catalog.php?category_id=12'"><table cellpadding=0 cellspacing=0 border=0 WIDTH=100%><tr><td valign=top align=right><IMG SRC="/imgs/pix.gif" WIDTH="8" HEIGHT="13" BORDER=0 ALT=""></td><td valign=top align=right>&nbsp;&nbsp;<img src=/imgs/pipkal2.gif width=12 height=18></td><td width=100% > <a id="link14" href="/catalog.php?category_id=12" class=cataloglink>Òèáåòñêèé ìîëî÷íûé ãðèá</a></td><td></td></tr></table></td></tr></table>
+</td></tr></table>
+<!-- /////// menu cell -->
+<table width=100% border=0 cellpadding=0 cellspacing=0><tr><td bgcolor=#ffffff><IMG SRC="/imgs/pix.gif" WIDTH="1" HEIGHT="1" BORDER=0 ALT=""></td></tr></table>
+<!-- menu cell -->
+<TABLE CELLPADDING=0 CELLSPACING=0 BORDER=0 WIDTH=100%><tr><td bgcolor=#FFFFFF>
+<TABLE CELLPADDING=0 CELLSPACING=0 BORDER=0 WIDTH=100%><tr><td bgcolor=#FFFFFF class=catalogmenu OnMouseOver="this.className='catalogmenua'; link15.className='cataloglinka'" OnMouseOut="this.className='catalogmenu'; link15.className='cataloglink'"  
+onclick="location.href='/catalog.php?category_id=4'"><table cellpadding=0 cellspacing=0 border=0 WIDTH=100%><tr><td valign=top align=right><IMG SRC="/imgs/pix.gif" WIDTH="8" HEIGHT="13" BORDER=0 ALT=""></td><td valign=top align=right>&nbsp;&nbsp;<img src=/imgs/pipkal2.gif width=12 height=18></td><td width=100% > <a id="link15" href="/catalog.php?category_id=4" class=cataloglink>Ãîìåîïàòè÷åñêèå ïðîãðàììû (Ñîôò)&nbsp;&raquo;</a></td><td></td></tr></table></td></tr></table>
+</td></tr></table>
+<!-- /////// menu cell -->
+<table width=100% border=0 cellpadding=0 cellspacing=0><tr><td bgcolor=#ffffff><IMG SRC="/imgs/pix.gif" WIDTH="1" HEIGHT="1" BORDER=0 ALT=""></td></tr></table>
+<!-- menu cell -->
+<TABLE CELLPADDING=0 CELLSPACING=0 BORDER=0 WIDTH=100%><tr><td bgcolor=#FFFFFF>
+<TABLE CELLPADDING=0 CELLSPACING=0 BORDER=0 WIDTH=100%><tr><td bgcolor=#FFFFFF class=catmenu OnMouseOver="this.className='catmenua'; link16.className='menulinka'" OnMouseOut="this.className='catmenu'; link16.className='menulink'" 
+onclick="window.open ('/dostavka.htm','_self'); return false;"><table cellpadding=0 cellspacing=0 border=0 WIDTH=100%><tr><td valign=top align=right><IMG SRC="/imgs/pix.gif" WIDTH="8" HEIGHT="13" BORDER=0 ALT=""></td><td valign=top align=right><img src=/imgs/pipkal1.gif width=12 height=18></td><td width=100% > <a id="link16" href="/dostavka.htm"  class=menulink>Äîñòàâêà ëåêàðñòâ íà äîì</a></td><td></td></tr></table></td></tr></table>
+</td></tr></table>
+<!-- /////// menu cell -->
+<table width=100% border=0 cellpadding=0 cellspacing=0><tr><td bgcolor=#ffffff><IMG SRC="/imgs/pix.gif" WIDTH="1" HEIGHT="1" BORDER=0 ALT=""></td></tr></table>
+<!-- menu cell -->
+<TABLE CELLPADDING=0 CELLSPACING=0 BORDER=0 WIDTH=100%><tr><td bgcolor=#FFFFFF>
+<TABLE CELLPADDING=0 CELLSPACING=0 BORDER=0 WIDTH=100%><tr><td bgcolor=#FFFFFF class=catmenu OnMouseOver="this.className='catmenua'; link17.className='menulinka'" OnMouseOut="this.className='catmenu'; link17.className='menulink'" 
+onclick="window.open ('/advice_on_line.htm','_self'); return false;"><table cellpadding=0 cellspacing=0 border=0 WIDTH=100%><tr><td valign=top align=right><IMG SRC="/imgs/pix.gif" WIDTH="8" HEIGHT="13" BORDER=0 ALT=""></td><td valign=top align=right><img src=/imgs/pipkal1.gif width=12 height=18></td><td width=100% > <a id="link17" href="/advice_on_line.htm"  class=menulink>Êîíñóëüòàöèÿ on-line</a></td><td></td></tr></table></td></tr></table>
+</td></tr></table>
+<!-- /////// menu cell -->
+<table width=100% border=0 cellpadding=0 cellspacing=0><tr><td bgcolor=#ffffff><IMG SRC="/imgs/pix.gif" WIDTH="1" HEIGHT="1" BORDER=0 ALT=""></td></tr></table>
+<!-- menu cell -->
+<TABLE CELLPADDING=0 CELLSPACING=0 BORDER=0 WIDTH=100%><tr><td bgcolor=#FFFFFF>
+<TABLE CELLPADDING=0 CELLSPACING=0 BORDER=0 WIDTH=100%><tr><td bgcolor=#FFFFFF class=catmenu OnMouseOver="this.className='catmenua'; link18.className='menulinka'" OnMouseOut="this.className='catmenu'; link18.className='menulink'" 
+onclick="window.open ('/publication.htm','_self'); return false;"><table cellpadding=0 cellspacing=0 border=0 WIDTH=100%><tr><td valign=top align=right><IMG SRC="/imgs/pix.gif" WIDTH="8" HEIGHT="13" BORDER=0 ALT=""></td><td valign=top align=right><img src=/imgs/pipkal1.gif width=12 height=18></td><td width=100% > <a id="link18" href="/publication.htm"  class=menulink>Ìîè ïóáëèêàöèè</a></td><td></td></tr></table></td></tr></table>
+</td></tr></table>
+<!-- /////// menu cell -->
+<table width=100% border=0 cellpadding=0 cellspacing=0><tr><td bgcolor=#ffffff><IMG SRC="/imgs/pix.gif" WIDTH="1" HEIGHT="1" BORDER=0 ALT=""></td></tr></table>
+<!-- menu cell -->
+<TABLE CELLPADDING=0 CELLSPACING=0 BORDER=0 WIDTH=100%><tr><td bgcolor=#FFFFFF>
+<TABLE CELLPADDING=0 CELLSPACING=0 BORDER=0 WIDTH=100%><tr><td bgcolor=#FFFFFF class=catmenu OnMouseOver="this.className='catmenua'; link19.className='menulinka'" OnMouseOut="this.className='catmenu'; link19.className='menulink'" 
+onclick="window.open ('http://www.homeomed.ru/http%3Amhc-r.ruvacancy.htm','http://www.homeomed.ru/http%3Amh'); return false;"><table cellpadding=0 cellspacing=0 border=0 WIDTH=100%><tr><td valign=top align=right><IMG SRC="/imgs/pix.gif" WIDTH="8" HEIGHT="13" BORDER=0 ALT=""></td><td valign=top align=right><img src=/imgs/pipkal1.gif width=12 height=18></td><td width=100% > <a id="link19" href="http://www.homeomed.ru/http%3Amhc-r.ruvacancy.htm"  target="http://www.homeomed.ru/http%3Amh" class=menulink>Âàêàíñèè</a></td><td></td></tr></table></td></tr></table>
+</td></tr></table>
+<!-- /////// menu cell -->
+<table width=100% border=0 cellpadding=0 cellspacing=0><tr><td bgcolor=#ffffff><IMG SRC="/imgs/pix.gif" WIDTH="1" HEIGHT="1" BORDER=0 ALT=""></td></tr></table>
+<!-- menu cell -->
+<TABLE CELLPADDING=0 CELLSPACING=0 BORDER=0 WIDTH=100%><tr><td bgcolor=#FFFFFF>
+<TABLE CELLPADDING=0 CELLSPACING=0 BORDER=0 WIDTH=100%><tr><td bgcolor=#FFFFFF class=catmenu OnMouseOver="this.className='catmenua'; link20.className='menulinka'" OnMouseOut="this.className='catmenu'; link20.className='menulink'" 
+onclick="window.open ('/gb/index.php','_self'); return false;"><table cellpadding=0 cellspacing=0 border=0 WIDTH=100%><tr><td valign=top align=right><IMG SRC="/imgs/pix.gif" WIDTH="8" HEIGHT="13" BORDER=0 ALT=""></td><td valign=top align=right><img src=/imgs/pipkal1.gif width=12 height=18></td><td width=100% > <a id="link20" href="/gb/index.php"  target="http://www.homeomed.ru/http%3Amh" class=menulink>Âîïðîñû è Îòâåòû</a></td><td></td></tr></table></td></tr></table>
+</td></tr></table>
+<!-- /////// menu cell -->
+<table width=100% border=0 cellpadding=0 cellspacing=0><tr><td bgcolor=#ffffff><IMG SRC="/imgs/pix.gif" WIDTH="1" HEIGHT="1" BORDER=0 ALT=""></td></tr></table>
+<!-- menu cell -->
+<TABLE CELLPADDING=0 CELLSPACING=0 BORDER=0 WIDTH=100%><tr><td bgcolor=#FFFFFF>
+<TABLE CELLPADDING=0 CELLSPACING=0 BORDER=0 WIDTH=100%><tr><td bgcolor=#FFFFFF class=catmenu OnMouseOver="this.className='catmenua'; link21.className='menulinka'" OnMouseOut="this.className='catmenu'; link21.className='menulink'" 
+onclick="window.open ('/contacts.htm','_self'); return false;"><table cellpadding=0 cellspacing=0 border=0 WIDTH=100%><tr><td valign=top align=right><IMG SRC="/imgs/pix.gif" WIDTH="8" HEIGHT="13" BORDER=0 ALT=""></td><td valign=top align=right><img src=/imgs/pipkal1.gif width=12 height=18></td><td width=100% > <a id="link21" href="/contacts.htm"  target="http://www.homeomed.ru/http%3Amh" class=menulink>Êîíòàêòû</a></td><td></td></tr></table></td></tr></table>
+</td></tr></table>
+<!-- /////// menu cell -->
+<table width=100% border=0 cellpadding=0 cellspacing=0><tr><td bgcolor=#ffffff><IMG SRC="/imgs/pix.gif" WIDTH="1" HEIGHT="1" BORDER=0 ALT=""></td></tr></table>
+<!-- menu cell -->
+<TABLE CELLPADDING=0 CELLSPACING=0 BORDER=0 WIDTH=100%><tr><td bgcolor=#FFFFFF>
+<TABLE CELLPADDING=0 CELLSPACING=0 BORDER=0 WIDTH=100%><tr><td bgcolor=#FFFFFF class=catmenu OnMouseOver="this.className='catmenua'; link22.className='menulinka'" OnMouseOut="this.className='catmenu'; link22.className='menulink'" 
+onclick="window.open ('/links.htm','_self'); return false;"><table cellpadding=0 cellspacing=0 border=0 WIDTH=100%><tr><td valign=top align=right><IMG SRC="/imgs/pix.gif" WIDTH="8" HEIGHT="13" BORDER=0 ALT=""></td><td valign=top align=right><img src=/imgs/pipkal1.gif width=12 height=18></td><td width=100% > <a id="link22" href="/links.htm"  target="http://www.homeomed.ru/http%3Amh" class=menulink>Ññûëêè</a></td><td></td></tr></table></td></tr></table>
+</td></tr></table>
+<!-- /////// menu cell -->
+</td></tr>
+</table>
+<!-- //MENU BOX -->
+<table cellpadding=0 cellspacing=0 border=0 bgcolor="#ffffff" width=100%>
+<tr><td align=center ><img src=/imgs/pix.gif width=1 height=1></td></tr></table></td></tr></table>
+<img src="/imgs/pix.gif" width="1" height="4"><BR>
+<BR>
+<table border="0" cellspacing="0" cellpadding="0" width="1"><tr><td><img src="/imgs/pix.gif" width="1" height="4"></td></tr></table>
+<table cellpadding=0 cellspacing=0 border=0  width=150 align=center class=box>
+<tr><td class=razdhad>&nbsp;Ïîèñê ïî ñàéòó:</td></tr>
+<tr><td  class=paneltext>
+<!-- SEARCH BOX -->
+<table width="60%" border="0" cellpadding="1" cellspacing="0" align="center">
+<tr><td align=center>
+
+<table cellpadding=1 cellspacing=0 border=0 width=100% class=noborder><form name=searchform action=/search.php method=GET>
+<tr>
+<td><input type=text name=query size=8 maxlength=50 class=searchform value='ïîèñê ïî êàòàëîãó' onfocus="this.value=''"></td>
+<td><input type=image src="/imgs/gosearch_white.gif" width="17" height="15"  class="noborder" BORDER="0" ALT="OK"></td>
+</tr>
+</FORM></table>
+</td>
+</tr>
+</table>
+<!--// SEARCH BOX -->
+<table border="0" cellspacing="0" cellpadding="0" width="1"><tr><td><img src="/imgs/pix.gif" width="1" height="4"></td></tr></table>
+<!-- SEARCH BOX -->
+<table width="60%" border="0" cellpadding="1" cellspacing="0" align="center">
+<tr><td align=center>
+
+<table cellpadding=1 cellspacing=0 border=0 width=100% class=noborder><form name=searchform action=/search/search.php method=GET>
+<tr>
+<td><input type=text name=q size=8 maxlength=50 class=searchform value='ïîèñê ïî ñàéòó' onfocus="this.value=''"></td>
+<td><input type=image src="/imgs/gosearch_white.gif" width="17" height="15"  class="noborder" BORDER="0" ALT="OK"></td>
+</tr>
+</FORM></table>
+</td>
+</tr>
+</table>
+<!--// SEARCH BOX -->
+</td>
+</tr>
+</table>
+<BR>
+<noindex>
+<div align="center">
+<!-- Èíôîðìåð RedDay.RU (Ìîñêâà)-->
+<a href="http://redday.ru/moon/" target="_new"><img src="http://redday.ru/informer/i_moon/225/bl.png" width="150" height="190" border="0" alt="Ôàçû Ëóíû íà RedDay.ru (Ìîñêâà)" /></a>
+<!-- / Èíôîðìåð RedDay.RU-->
+<p><a href="/moon.htm">Ôàçû Ëóíû <br>
+        </a><BR>
+    </p>
+</div>
+</noindex>
+<center>
+<noindex>
+<table cellpadding=0 cellspacing=0 border=0>
+<tr><td align=center>
+<script language="JavaScript" src="/orphus/orphus.js"></script>
+<a href="http://orphus.ru" id="orphus" target="_blank"><img alt="Ñèñòåìà Orphus" src="/orphus/orphus.gif" border="0" width="125" height="115" /></a>
+<BR>
+
+<!--begin of Rambler's Top100 code --><a href="http://top100.rambler.ru/top100/"><img src="http://counter.rambler.ru/top100.cnt?604224" alt="" width=1 height=1 border=0></a><!--end of Top100 code--><br><!--begin of Top100 logo--><a href="http://top100.rambler.ru/top100/"><img src="http://top100-images.rambler.ru/top100/banner-88x31-rambler-green2.gif" alt="Rambler's Top100" width=88 height=31 border=0></a><!--end of Top100 logo -->
+</td></tr>
+<tr><td align=center>
+<!--Rating@Mail.ru COUNTEr--><script language="JavaScript" type="text/javascript"><!--
+d=document;var a='';a+=';r='+escape(d.referrer)
+js=10//--></script><script language="JavaScript1.1" type="text/javascript"><!--
+a+=';j='+navigator.javaEnabled()
+js=11//--></script><script language="JavaScript1.2" type="text/javascript"><!--
+s=screen;a+=';s='+s.width+'*'+s.height
+a+=';d='+(s.colorDepth?s.colorDepth:s.pixelDepth)
+js=12//--></script><script language="JavaScript1.3" type="text/javascript"><!--
+js=13//--></script><script language="JavaScript" type="text/javascript"><!--
+d.write('<a href="http://top.mail.ru/jump?from=1078504"'+
+' target=_top><img src="http://d4.c7.b0.a1.top.list.ru/counter'+
+'?id=1078504;t=53;js='+js+a+';rand='+Math.random()+
+'" alt="Ðåéòèíã@Mail.ru"'+' border=0 height=31 width=88/><\/a>')
+if(11<js)d.write('<'+'!-- ')//--></script><noscript><a
+target=_top href="http://top.mail.ru/jump?from=1078504"><img
+src="http://d4.c7.b0.a1.top.list.ru/counter?js=na;id=1078504;t=53"
+border=0 height=31 width=88
+alt="Ðåéòèíã@Mail.ru"/></a></noscript><script language="JavaScript" type="text/javascript"><!--
+if(11<js)d.write('--'+'>')//--></script><!--/COUNTER-->
+
+</td></tr>
+<tr><td align=center>
+<!-- ñ÷åò÷èê îò ÊóïèÏðîäàé.Ðó --> <script language="javascript"><!-- Mc=0;Md=document;Md.cookie="b=b";if(Md.cookie)Mc=1;Mt=(new Date()).getTimezoneOffset();Mnv=navigator;Mn=(Mnv.appName.substring(0,2)=="Mi")?0:1;if(self!=top){Mfr=1;}else{Mfr=0;}Msl="1.0";Mz="no=11573&co="+Mc+"&tz="+Mt; //--></script> <script language="javascript1.1"><!-- Msl="1.1";Mj = (Mnv.javaEnabled()?"Y":"N");Mz+='&j='+Mj; //--></script> <script language="javascript1.2"><!-- Msl="1.2";Ms=screen;Mpx=(Mn==0)?Ms.colorDepth:Ms.pixelDepth;Mz+="&wh="+Ms.width+'x'+Ms.height+"&px="+Mpx; //--></script> <script language="javascript1.3"><!-- Msl="1.3"; //--></script> <script language="javascript"><!-- My="<a href='http://top.kupiproday.ru/?no=11573' target='_blank'><img src='http://count.kupiproday.ru/?"+Mz+"&sl="+Msl+"&r="+escape(Md.referrer)+"&fr="+Mfr+"&pg="+escape(window.location.href); My+="' border=0 width=87 height=31 alt='ïîñåòèòåëåé çà ìåñÿö, ïðîñìîòðîâ ñåãîäíÿ è ïîñåòèòåëåé ñåãîäíÿ'></a>";Md.write(My); //--></script> <noscript><a href='http://top.kupiproday.ru/?no=11573' target='_blank'><img src="http://count.kupiproday.ru/?no=11573" alt='ïîñåòèòåëåé çà ìåñÿö, ïðîñìîòðîâ ñåãîäíÿ è ïîñåòèòåëåé ñåãîäíÿ' border='0' width=87 height=31></a></noscript> <!-- ñ÷åò÷èê îò ÊóïèÏðîäàé.Ðó --> 
+</td></tr>
+<tr><td align=center>
+
+<a href="http://www.ramdex.ru/toplist.asp?url=http://www.homeomed.ru/&name=Ãîìåîïàòè÷åñêèé èíòåðíåò-êàáèíåò äîêòîðà Ëåîíèäà Êîñìîäåìüÿíñêîãî. Ëå÷åíèå ãîìåîïàòè÷åñêèìè ïðåïàðàòàìè. Ãîìåîïàòè÷åñêàÿ àïòåêà.&image=>
+<img src=http://www.ramdex.ru/images/ramdex.gif border=0"></a>
+</td></tr>
+<tr><td align=center>
+<!--RAX counter--><script language="JavaScript"><!--
+document.write('<a href="http://www.rax.ru/click" '+
+'target=_blank><img src="http://counter.yadro.ru/hit?t11.13;r'+
+escape(document.referrer)+((typeof(screen)=='undefined')?'':
+';s'+screen.width+'*'+screen.height+'*'+(screen.colorDepth?
+screen.colorDepth:screen.pixelDepth))+';'+Math.random()+
+'" alt="rax.ru: ïîêàçàíî ÷èñëî õèòîâ çà 24 ÷àñà, ïîñåòèòåëåé çà 24 ÷àñà è çà ñåãîäí\ÿ" '+
+'border=0 width=88 height=31></a>')//--></script><!--/RAX-->
+
+</td></tr>
+<tr><td align=center>
+<a href="http://www.zdorovie.ru/" target=_blank><img src="http://www.zdorovie.ru/img/banners/banner88x31_w.gif" widht="88" height="31" border="0" alt="ÇÄÎÐÎÂÜÅ.RU"></a> 
+</td></tr>
+
+</table>
+</noindex></center>
+<BR>
+  
+</td>
+</tr>
+</table><div class="polezno"><script type="text/javascript">
+<!--
+var _acic={dataProvider:10};(function(){var e=document.createElement("script");e.type="text/javascript";e.async=true;e.src="//www.acint.net/aci.js";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)})()
+//-->
+</script> <a href="http://excimerclinic.ru/cataract/femtocataract/" target="_blank" class="polezno">Ëàçåðíîå ëå÷åíèå êàòàðàêòû â êëèíèêå Ýêñèìåð</a> <br /> <a href="http://www.onecollagen.com" target="_blank" class="polezno">neocell</a> <br /> Â ñåòè ïîëèêëèíèê <a href="https://www.fdoctor.ru/" target="_blank" class="polezno">ñåìåéíûé äîêòîð</a> âñå óñëóãè ïî äîñòóïíûì öåíàì </a><br><IMG SRC="/imgs/pix.gif" WIDTH="160" HEIGHT="1" BORDER=0 ALT="">
+</td>
+<td width=1 bgcolor="#006600"><IMG SRC="/imgs/pix.gif" WIDTH="1" HEIGHT="1" BORDER=0 ALT=""></td>
+<td bgcolor="#FFFFFF"  width=3000 valign=top class=centpanel >
+<table cellpadding=0 cellspacing=0 border=0 width=100%>
+<tr><td valign=top width=100%><table cellpadding=0 cellspacing=0 border=0 width=100%>
+<tr><td bgcolor=#006600><IMG SRC="/imgs/pix.gif" WIDTH="1" HEIGHT="1" BORDER=0 ALT=""></td></tr>
+</table></td>
+<td valign=top width=8 valign=top><IMG SRC="/imgs/ugol.gif" WIDTH="8" HEIGHT="9" BORDER=0 ALT=""></td></tr></table>
+<div align="center">
+<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- homeomed-top2 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:728px;height:90px"
+     data-ad-client="ca-pub-5240331779932495"
+     data-ad-slot="6140544566"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</div><table width="100%" border=0 cellpadding=10 cellspacing=0>
+<tr> 
+<td start_info><h3 align="center" class="MsoNormal" style="margin: 0cm 0cm 0pt;"><strong><em>Äîáðî ïîæàëîâàòü íà ìîé ñàéò, ïîñâÿùåííûé ãîìåîïàòèè!</em></strong></h3>
+
+<table cellpadding="2" cellspacing="0" width="100%">
+	<tbody>
+		<tr>
+			<td valign="top">
+			<p><font size="3"><em><font face="Comic Sans MS"><strong>Ãîìåîïàòèÿ</strong> &ndash; ×ÒÎ ÝÒÎ?! </font></em></font></p>
+
+			<p><font face="Comic Sans MS" size="3"><em>Ãëàâíûé ïðèíöèï <strong>ãîìåîïàòèè</strong> ñôîðìóëèðîâàë åùå ðåôîðìàòîð àíòè÷íîé ìåäèöèíû äðåâíåãðå÷åñêèé âðà÷ Ãèïïîêðàò. Àôîðèñòè÷åñêè âûðàæåííûé, ýòîò ïðèíöèï áûë ïåðåâåäåí íà ëàòèíñêèé ÿçûê êàê &quot;Similia similibus curantur&quot;, òî åñòü &quot;Ïîäîáíîå ëå÷èò ïîäîáíîå&quot;. </em></font><a href="/homoeopathy.htm"><font face="Comic Sans MS" size="3"><em>Ïîäðîáíåå ...&gt;&gt;&gt;</em></font></a></p>
+
+			<p><font face="Comic Sans MS" size="3"><strong>Íåìíîãî î ñåáå: âðà÷-êîíñóëüòàíò <noindex></noindex>Ìîñêîâñêîãî ãîìåîïàòè÷åñêîãî öåíòðà, ïðîôåññîð <a href="http://fpkmr.rudn.ru/department/the-department-of-homeopathy/">Êàôåäðû ãîìåîïàòèè Ðîññèéñêîãî óíèâåðñèòåòà äðóæáû íàðîäîâ</a>, ïðîôåññîð Ìîñêîâñêîãî èíñòèòóòà ãîìåîïàòèè, ÷ëåí <noindex></noindex>Ïðåçèäèóìà Ðîññèéñêîãî ãîìåîïàòè÷åñêîãî îáùåñòâà,&nbsp;êîíñóëüòàíò ñåòè øâåéöàðñêèõ, íåìåöêèõ è ôðàíöóçñêèõ ÷àñòíûõ êëèíèê. </strong></font><a href="http://www.homeomed.ru/aboutme.htm"><font face="Comic Sans MS" size="3">Ïîäðîáíåå ...&gt;&gt;&gt;</font></a></p>
+
+			<p><font face="Comic Sans MS" size="3"><strong>Ïðîâîæó âûåçäíûå è íà áàçå </strong></font><font face="Comic Sans MS" size="3"><a href="http://www.mhc-r.ru/">Ìîñêîâñêîãî ãîìåîïàòè÷åñêîãî öåíòðà</a></font><font face="Comic Sans MS" size="3"><strong><noindex></noindex>&nbsp;êîíñóëüòàöèè, àâòîðñêèå ñåìèíàðû, ñòàæèðîâêó íà ðàáî÷åì ìåñòå. </strong></font></p>
+
+			<p><font face="Comic Sans MS" size="3"><strong>Â ñâîåé ðàáîòå ïðèìåíÿþ&nbsp;ñïåöèàëèçèðîâàííóþ êîìïüþòåðíóþ ïðîãðàììó, ïîçâîëÿþùóþ&nbsp;áûñòðî è òî÷íî ïðîâîäèòü ýêñïåðòíóþ îöåíêó ñëó÷àÿ. </strong></font><a href="http://www.darsoft.ru"><font face="Comic Sans MS" size="3">Ïîäðîáíåå ...&gt;&gt;&gt;</font></a></p>
+
+			<p><font face="Comic Sans MS" size="3"><strong>Âû âñåãäà ìîæåòå ñâÿçàòüñÿ ñî ìíîé ïî âîïðîñàì êîíñóëüòàöèè èëè çàêàçà ãîìåîïàòè÷åñêèõ ñðåäñòâ èçãîòîâëåííûõ ïî ìîèì ðåöåïòàì. </strong></font><a href="/contacts.htm"><font face="Comic Sans MS" size="3">Ïîäðîáíåå ...&gt;&gt;&gt;</font></a></p>
+
+			<p align="justify"><strong><font face="Comic Sans MS" size="3">&nbsp;</font></strong></p>
+
+			<p align="justify"><a href="/praktika.htm"><font face="Comic Sans MS" size="3"><img alt="" border="0" src="/ban-268x60-hm-15let.gif" /></font></a></p>
+
+			<p align="justify"><strong><font face="Comic Sans MS" size="3">Âû æåëàåòå ïîëó÷èòü <font color="#ff0000">êîíñóëüòàöèþ on-line</font>, </font></strong><a href="http://www.homeomed.ru/advice_on_line.htm"><font face="Comic Sans MS" size="3">óçíàéòå ïîäðîáíîñòè...</font></a></p>
+
+			<p align="justify"><strong><a href="/moon.htm">Âëèÿíèå Ëóíû íà Âàøå ñîñòîÿíèå</a></strong></p>
+
+			<p align="right"><strong><em>Âàø âðà÷ Ëåîíèä Âëàäèìèðîâè÷ Êîñìîäåìüÿíñêèé</em></strong>&nbsp;</p>
+
+			<p class="MsoNormal" style="margin: 0cm 0cm 0pt;"><br />
+			<span style="line-height: 1.6;">Óíèêàëüíûå ñîñòàâû, ðàçðàáîòàííûå Ä-ðîì Ëåîíèäîì Êîñìîäåìüÿíñêèì â Öåíòðàëüíîé ãîìåîïàòè÷åñêîé àïòåêå ã. Ìîñêâû.</span></p>
+
+			<p class="MsoNormal" style="margin: 0cm 0cm 0pt;"><o:p></o:p></p>
+
+			<p class="MsoNormal" style="margin: 0cm 0cm 0pt;"><o:p>&nbsp;<a href="http://www.homeomed.ru/Doctor-n.htm">Ïîäðîáíåå...&gt;&gt;&gt;</a></o:p></p>
+
+			<p class="MsoNormal" style="margin: 0cm 0cm 0pt;">Íàèáîëåå ÷àñòî ïðèìåíÿåìûå ñëîæíûå ãîìåîïàòè÷åñêèå ñìåñè äëÿ ëå÷åíèÿ îñòðûõ ðåñïèðàòîðíûõ çàáîëåâàíèé è òèïè÷íûõ îñëîæíåíèé Âû âñåãäà ìîæåòå ïðèîáðåñòè â àïòåêàõ <o:p><a href="http://www.homeomed.ru/ORD_NET.htm">Ïîäðîáíåå...&gt;&gt;&gt;</a>&nbsp;</o:p></p>
+
+			<p class="MsoNormal" style="margin: 0cm 0cm 0pt;"><o:p>Èëè çàêàçàòü ñ äîñòàâêîé íà äîì </o:p><o:p><a href="http://cdlapteka.ru/Aptechka_domashnyaya_gomeopaticheskaya_19">Ïîäðîáíåå...&gt;&gt;&gt;</a></o:p></p>
+
+			<p class="MsoNormal" style="margin: 0cm 0cm 0pt;"><o:p></o:p></p>
+
+			<p class="MsoNormal" style="margin: 0cm 0cm 0pt;"><o:p><a href="http://www.medinhom.ru/video1.htm">ÈÍÒÅÐÂÜÞ ...&gt;&gt;&gt;</a></o:p></p>
+
+			<p class="MsoNormal" style="margin: 0cm 0cm 0pt;"><o:p></o:p></p>
+
+			<p class="MsoNormal" style="margin: 0cm 0cm 0pt;"><o:p></o:p></p>
+			<st1:metricconverter productid="115563, ã" w:st="on">
+			<p align="center" class="MsoNormal" style="margin: 0cm 0cm 0pt;">&nbsp;<a href="http://www.medinhom.ru/calendar2010-11.htm"><img alt="ïðîôèëàêòèêà ïðîñòóäû, ãðèïïà, ñåçîííûõ îáîñòðåíèé õðîíè÷åñêèõ çàáîëåâàíèé" border="0" height="60" src="http://www.medinhom.ru/images/re-calendar-10.gif" width="468" /></a></p>
+
+			<p class="MsoNormal" style="margin: 0cm 0cm 0pt;">&nbsp;</p>
+
+			<p><strong>ÍÎÂÛÅ ÑÒÐÀÍÈÖÛ: </strong></p>
+
+			<p><strong><a href="http://www.homeomed.ru/consultation_1.htm">ÏÎÄÃÎÒÎÂÊÀ Ê ÊÎÍÑÓËÜÒÀÖÈÈ</a></strong></p>
+
+			<p><strong><a href="http://www.homeomed.ru/advice_on_line.htm">ÊÎÍÑÓËÜÒÀÖÈß ON LINE</a></strong></p>
+
+			<p><strong><a href="http://www.homeomed.ru/software.htm">ÊÎÌÏÜÞÒÅÐÍÛÅ ÏÐÎÃÐÀÌÌÛ ÏÎ ÃÎÌÅÎÏÀÒÈÈ</a>&nbsp;</strong></p>
+
+			<p><strong><a href="http://www.homeomed.ru/book000.htm">ÂÂÅÄÅÍÈÅ Â ÃÎÌÅÎÏÀÒÈÞ - ýëåêòðîííàÿ âåðñèÿ (èñïðàâëåííàÿ è äîïîëíåííàÿ)</a></strong></p>
+			<nobr>
+			<p align="center"><font color="#ff0000"><em>Çäåñü ìîæåò ðàçìåùàòüñÿ Âàøà ðåêëàìà!</em></font></p>
+			</nobr><nobr></nobr></st1:metricconverter>
+
+			<p><script><br />
+			  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){<br />
+			  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),<br />
+			  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)<br />
+			  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');</p>
+
+			<p>  ga('create', 'UA-57037402-1', 'auto');<br />
+			  ga('send', 'pageview');</p>
+
+			<p></script></p>
+			</td>
+			<td valign="top">
+			<p>&nbsp;</p>
+			</td>
+		</tr>
+	</tbody>
+</table>
+</td end_info>
+</tr>
+<tr><td>
+</td></tr>
+<tr><td>
+
+</td></tr>
+</table>
+<div align="center"><script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- homeomed-bottom -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:728px;height:90px"
+     data-ad-client="ca-pub-5240331779932495"
+     data-ad-slot="8668535367"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</div></td>
+<td width=1 bgcolor="#006600" valign=top><IMG SRC="/imgs/lt.gif" WIDTH="1" HEIGHT="9" BORDER=0 ALT=""></td>
+<td  height=100% bgcolor="#ACD2AC" width="" valign="top" >
+<table width="100%"  border="0" cellspacing="0" cellpadding="0">
+<tr>
+<td>
+<table cellpadding=0 cellspacing=0 border=0 width=100%>
+<tr><td bgcolor=#C8E1C8 align=center>
+<table cellpadding=3 cellspacing=0 border=0>
+<tr>
+<td valign=top align=center><A HREF="/"><IMG SRC="/imgs/phome.gif" WIDTH="18" HEIGHT="18" BORDER=0 ALT="Íà ãëàâíóþ"></A></td><td>&nbsp;</td>
+<td valign=top align=center><A HREF="mailto:Dr.LK@homeomed.ru"><IMG SRC="/imgs/pletter.gif" WIDTH="18" HEIGHT="18" BORDER=0 ALT="Íàïèñàòü ïèñüìî"></A></td><td>&nbsp;</td>
+<td valign=top align=center><A HREF="/sitemap.htm"><IMG SRC="/imgs/psitemap.gif" WIDTH="18" HEIGHT="18" BORDER=0 ALT="Êàðòà ñàéòà"></A></td><td>&nbsp;</td>
+<td valign=top align=center><A HREF="/search/"><IMG SRC="/imgs/psearch.gif" WIDTH="18" HEIGHT="18" BORDER=0 ALT="Ïîèñê ïî  ñàéòó"></A></td>
+</tr></table>
+</td></tr>
+</table>
+<noindex>
+<script type="text/javascript" src="//yastatic.net/es5-shims/0.0.2/es5-shims.min.js" charset="utf-8"></script>
+<script type="text/javascript" src="//yastatic.net/share2/share.js" charset="utf-8"></script>
+<div class="ya-share2" style="margin:5 10;" data-services="vkontakte,facebook,odnoklassniki,moimir"></div>
+<table cellpadding=2 cellspacing=0 border=0 bgcolor="000099" width=100%>
+<tr><td align=center  class=razdhad>Äëÿ ïîëüçîâàòåëåé</td></tr></table>
+<table cellpadding=3 cellspacing=0 border=0 width=100%>
+<tr><form name=login action="http://www.homeomed.ru/login.htm"  method=POST>
+<td valign="baseline" class=paneltext> 
+
+
+
+<TABLE cellpadding=2 cellspacing=0 border=0 width=100%>
+<TR>
+	<TD width=25%><small>E-mail</small></TD>
+	<TD width=75%><input name="email" type=text id="email" value="" size=10 class=inform></TD>
+</TR>
+<TR>
+	<TD><small>Íîìåð</small></TD>
+	<TD><input name="code" type=text id="code" value="" size=10  class=inform></TD>
+
+</TR>
+<TR align="center">
+<TD colspan=2>
+<TABLE cellpadding=2 cellspacing=0 border=0 width=100%>
+	<TD><a href="http://www.homeomed.ru/registration.htm"><small>ðåãèñòðàöèÿ</small></a></TD>
+    <TD><input type=submit size=10 name="vhod" value="Âîéòè" class=submit2></TD></TR>
+</TABLE>
+<a href=http://www.homeomed.ru/lostpass.htm><small>Çàáûëè íîìåð?</small></a>
+</TD>
+</TR>
+</TABLE>
+
+</td></form>
+</tr></table><table border="0" cellspacing="0" cellpadding="0" width="100%">
+<tr><form method="post" action="http://www.homeomed.ru/poll/dovote.php">
+<td width="100%">
+<table cellspacing="0" cellpadding="1" width="100%" style="border: 0 px solid white; " bgcolor="#006600">
+<tr><td width="100%" align="center" valign="middle">
+<font color="white" size="1" face="Verdana">
+<b>Ñ÷èòàåòå ëè Âû, ÷òî ãîìåîïàòèÿ ïîìîãëà âàì èëè âàøèì áëèçêèì âûëå÷èòü ñâîþ áîëåçíü?<br /></b></font>
+</td></tr></table>
+</td></tr><tr><td width="100%">
+<table cellspacing="0" cellpadding="1" width="100%" style="border: 0 px solid white; " bgcolor="#ADD6AD">
+<tr><td width="10" valign="top" align="left">
+<input type="radio" name="cid" value="1" /></td>
+<td width="100%" valign="middle" align="left">
+<font color="black" face="Verdana" size="1">
+Äà</font></td></tr>
+
+<tr><td width="10" valign="top" align="left">
+<input type="radio" name="cid" value="2" /></td>
+<td width="100%" valign="middle" align="left">
+<font color="black" face="Verdana" size="1">
+Íåò</font></td></tr>
+
+<tr><td width="10" valign="top" align="left">
+<input type="radio" name="cid" value="3" /></td>
+<td width="100%" valign="middle" align="left">
+<font color="black" face="Verdana" size="1">
+Íå ïðèìåíÿëè</font></td></tr>
+
+<tr><td width="100%" colspan="2">
+<font color="#000000" size="1" face="Verdana">&nbsp;
+<input type="submit" name="s_boom" value="Âûáîð" style="font-size: 10px" />
+</font>
+<font size ="1" face="Verdana">
+&nbsp;&nbsp;&nbsp;<a href="http://www.homeomed.ru/?vo=1" target="_self">Ðåçóëüòàòû</a></font>
+</td></tr></table>
+</td></tr></table>
+<input type="hidden" name="pid" value="1" />
+<input type="hidden" name="ref" value="http://www.homeomed.ru/?vo=1" />
+</form>
+<table cellpadding=0 cellspacing=0 border=0  width=100% align=center class=box>
+<tr><td class=razdhad>&nbsp;<a href=/news.php class=paneltitlelink>Íàøè íîâîñòè</a>&nbsp;&nbsp;</td></tr>
+<tr>
+<td align="center" class=paneltext>
+<table border="0" cellspacing="0" cellpadding="1" width=100%><tr><td><table border="0" cellspacing="0" cellpadding="4" width=100%>	
+<tr valign="top">
+	<TD>&nbsp;</TD>	
+<td width=99%><table border="0" cellspacing="0" cellpadding="0"><tr><td width=100% valign=top>
+<a href="/news.php?newsid=123" class=newstitle0 ><span class=newstitle0>Ïîâûøåíèå êâàëèôèêàöèè ïî ãîìåîïàòèè</span><BR></a><a href=/news.php?newsid=123 class=podrobnews><nobr>Ïîäðîáíåå &raquo;</nobr></a>	<BR></td>		
+</tr></table>
+			
+</td>
+</tr><tr valign="top">
+	<TD>&nbsp;</TD>	
+<td width=99%><table border="0" cellspacing="0" cellpadding="0"><tr><td width=100% valign=top>
+<a href="/news.php?newsid=122" class=newstitle0 ><span class=newstitle0>72-é Êîíãðåññ Ìåæäóíàðîäíîé ìåäèöèíñêîé ãîìåîïàòè÷åñêîé Ëèãè</span><BR></a><TABLE cellpadding=0 cellspacing=0 border=0 width=100%><TR><TD class=newsanons><p>14 &ndash; 17 èþíÿ 2017 ãîäà,&nbsp;Ëåéïöèã (Ãåðìàíèÿ)</p> </TD></TR></TABLE><a href=/news.php?newsid=122 class=podrobnews><nobr>Ïîäðîáíåå &raquo;</nobr></a>	<BR></td>		
+</tr></table>
+			
+</td>
+</tr><tr valign="top">
+	<TD>&nbsp;</TD>	
+<td width=99%><table border="0" cellspacing="0" cellpadding="0"><tr><td width=100% valign=top>
+<a href="/news.php?newsid=115" class=newstitle0 ><span class=newstitle0>âîçîáíîâëÿåò ïðèåì âðà÷ ýíäîêðèíîëîã-ãîìåîïàò Ìèùåíêî Âåðà Âëàäèìèðîâíà.</span><BR></a><a href=/news.php?newsid=115 class=podrobnews><nobr>Ïîäðîáíåå &raquo;</nobr></a>	<BR></td>		
+</tr></table>
+			
+</td>
+</tr><tr valign="top">
+	<TD>&nbsp;</TD>	
+<td width=99%><table border="0" cellspacing="0" cellpadding="0"><tr><td width=100% valign=top>
+<a href="/news.php?newsid=121" class=newstitle0 ><span class=newstitle0>XXVII Ìîñêîâñêàÿ ìåæäóíàðîäíàÿ ãîìåîïàòè÷åñêàÿ êîíôåðåíöèÿ</span><BR></a><TABLE cellpadding=0 cellspacing=0 border=0 width=100%><TR><TD class=newsanons><p><span style="color: rgb(0, 0, 0); font-family: arial; font-size: 13.3333px;">ñîñòîèòñÿ 27- 28 ÿíâàðÿ 2017 ãîäà â Öåíòðàëüíîì Äîìå ó÷åíûõ ÐÀÍ. (Ìîñêâà, ÐÔ)</span></p> </TD></TR></TABLE><a href=/news.php?newsid=121 class=podrobnews><nobr>Ïîäðîáíåå &raquo;</nobr></a>	<BR></td>		
+</tr></table>
+			
+</td>
+</tr><tr valign="top">
+	<TD>&nbsp;</TD>	
+<td width=99%><table border="0" cellspacing="0" cellpadding="0"><tr><td width=100% valign=top>
+<a href="/news.php?newsid=110" class=newstitle0 ><span class=newstitle0>îïóáëèêîâàíà ñòàòüÿ Àëåêñàíäðà Ñåðãååâè÷à Ìèõàéëîâà "Óñèëåíèå âîçìîæíîñòåé ðàçóìà  èçîáðåòåíèÿ Ñ.Í. Êîðñàêîâà".</span><BR></a><a href=/news.php?newsid=110 class=podrobnews><nobr>Ïîäðîáíåå &raquo;</nobr></a>	<BR></td>		
+</tr></table>
+			
+</td>
+</tr><tr valign="top">
+	<TD>&nbsp;</TD>	
+<td width=99%><table border="0" cellspacing="0" cellpadding="0"><tr><td width=100% valign=top>
+<a href="/news.php?newsid=78" class=newstitle0 ><span class=newstitle0>Îñòîðîæíî, ãîìåîïàòèÿ!</span><BR></a><TABLE cellpadding=0 cellspacing=0 border=0 width=100%><TR><TD class=newsanons>ÍÒÂ - Èòîãè - Ñåãîäíÿ </TD></TR></TABLE><a href=/news.php?newsid=78 class=podrobnews><nobr>Ïîäðîáíåå &raquo;</nobr></a>	<BR></td>		
+</tr></table>
+			
+</td>
+</tr></table></td>
+  </tr>
+</table>
+<div align=center><a href=/news.php class=podrobnews>Âñå íîâîñòè</a> | <a href=/news.php?show=archive class=podrobnews>Àðõèâ</a></div></td>
+</tr></table><table cellpadding=2 cellspacing=0 border=0 bgcolor="000099" width=100%>
+<tr><td align=center  class=razdhad>Ïîäïèñêà íà íîâîñòè</td></tr></table>
+<table cellpadding=3 cellspacing=0 border=0 width=100%>
+<tr>
+<td class=paneltext> 
+<table border=0 cellpadding=0 cellspacing=0><form name=subscribe action=http://www.homeomed.ru/subscribe.htm method=post><tr><td><font face=verdana size=2><input type=text name=subscribe_email value="Ââåäèòå Âàø E-mail" class=subemail size=8  onfocus="this.value=''"></font></td><td>&nbsp;</td><td><input type=image src="http://www.homeomed.ru/imgs/gok.gif" WIDTH="25" HEIGHT="15" class=noborder BORDER=0 ALT="ÎÊ"></td></tr>
+<tr><td colspan=3>
+<table cellpadding=0 cellspacing=0 border=0>
+<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;</td><td><input type="radio" name="action" value="sub" class=noborder checked ></td><td class=subsradio>Ïîäïèñàòüñÿ</td></tr>
+<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;</td><td><input type="radio" name="action" value="unsub" class=noborder ></td><td class=subsradio>Îòïèñàòüñÿ
+</td></tr></table>
+</td>
+</tr></form></table>
+</td>
+</tr></table></noindex>
+<table cellpadding=0 cellspacing=0 border=0  width=100% align=center class=box>
+<tr><td class=razdhad>&nbsp;<a href=/catalog.php?tovgrup_id=1 class=cartboxheadlink>Äîìàøíÿÿ àïòå÷êà</a>:</td>
+</tr>
+<tr>
+<td bgcolor=#ffffff style="padding-bottom:10px">
+<table width=100% cellpadding=1 cellspacing=0 border=0 !class=tovarlisttable><TR>
+<td align=center valign=top width="100%"><a href=/catalog.php?tovar_id=1></a><BR><B><a class=tovarnamelink href=/catalog.php?tovar_id=1>Rp.¹1À - Ñðåäñòâî ïðè Ïðîñòóäå, Ãðèïïå Ñîñòàâ...</a></B><BR><small>Àðòèêóë: 1A</small>
+<br>273.00&nbsp;ðóá.<BR>&nbsp;
+
+</td>
+</tr><tr>
+<td align=center valign=top width="100%"><a href=/catalog.php?tovar_id=3></a><BR><B><a class=tovarnamelink href=/catalog.php?tovar_id=3>Rp.¹1B  Ñðåäñòâî ïðè Íàñìîðêå</a></B><BR><small>Àðòèêóë: 1B</small>
+<br>273.00&nbsp;ðóá.<BR>&nbsp;
+
+</td>
+</tr></table></td>
+</tr></table>
+
+
+</td>
+</tr>
+</table><br><IMG SRC="/imgs/pix.gif" WIDTH="160" HEIGHT="1" BORDER=0 ALT="">
+</td>
+</tr>
+<tr><td  colspan="5"><table width="100%"  border="0" cellpadding="0" cellspacing="0"><tr><td bgcolor=#ffffff valign=top>
+<table width="100%"  border="0" cellpadding="0" cellspacing="0" background="/imgs/bot.gif" bgcolor="#CCCCCC"><tr><td><img src="/imgs/bot.gif"></td></tr></table>
+
+<TABLE width="100%"  border="0" cellpadding="5" cellspacing="0">
+<TR>
+<TD class=copy>&nbsp;&copy;&nbsp;<strong>Copyright 1998 - 2016 Ðîññèéñêèé ãîìåîïàòè÷åñêèé ñåðâåð</strong></TD>
+<TD align=right class=develop><a class=develop href=http://www.goodweb.ru target=_blank>Web-äèçàéí, ñîçäàíèå ñàéòà: GoodWeb</a><BR><a  class=develop href=http://www.goodsite.ru target=_blank>Ñèñòåìà óïðàâëåíèÿ ñàéòîì: GoodSite</a></TD>
+</TR>
+</TABLE>
+</td></tr>
+</table>
+</td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+<!-- beginning of menu footer - PHP Layers Menu 3.2.0-rc (C) 2001-2004 Marco Pratesi - http://www.marcopratesi.it/ -->
+
+
+
+<script language="JavaScript" type="text/javascript">
+<!--
+loaded = 1;
+// -->
+</script>
+
+<!-- end of menu footer - PHP Layers Menu 3.2.0-rc (C) 2001-2004 Marco Pratesi - http://www.marcopratesi.it/ -->
+</BODY>
+</HTML>
+

@@ -1,0 +1,288 @@
+<html><head></head><body><pre style="word-wrap: break-word; white-space: pre-wrap;">/*
+ * MiuiMarket
+ * Copyright xiaomi.com
+ * path: RankStar.js
+ * author: jiaguang
+ * version: 1.1.0
+ * date: 2012/11/16
+ */
+/**
+ * 主题市场评论加星
+ * @param {String} wrap 容器
+ * @param {String} cont 星星数量
+ * @param {String} url  处理地址
+ */
+var RankStar = function(wrap,cont,url,listurl,id,version,serviceToken,userId,isBuy,isDesigner){
+  this.userId = userId;
+	this.isBuy = isBuy;
+  this.serviceToken = serviceToken;
+  this.themeId =id;
+  this.version = version;
+  this.wrap = wrap;
+  this.cont = cont;
+  this.url = url;
+  this.myRank = '';
+  this.rankValue = '';
+  this.pageSize = 20;
+  this.commentCount = '';
+  this.pageIndex = 0;
+  this.listurl = listurl;
+	this.commentTxtSize = 140;
+	this.isAllowSend =true;
+	this.isDesigner = isDesigner;
+  this.init();
+}
+RankStar.prototype = {
+  init:function(){
+    var me = this;
+    for(var i=0;i&lt;this.cont;i++) {
+      var div = document.createElement('div');
+      div.id = this.wrap+'rankStar'+i;
+      div.className = 'rank-star';
+			div.title = i-0+1;
+      $('#'+this.wrap).append(div);
+    }
+		this.addStarEvent();
+  },
+	addStarEvent:function(){
+		var me = this;
+		$('.rank-star').bind('click',function(event){
+			me.setRankStyle(event.target.title);
+			me.rankValue = event.target.title;
+		});
+		$('#commentBodyTxt').bind('input',function(){
+		  var obj = $(this);
+			var num = me.commentTxtSize - me.strlen(obj.val().trim());
+			if(num &lt;0 ) {
+				$('.commtxt-num').html('已经超过&lt;span style="color:#E44443"&gt;'+Math.abs(num)+'&lt;/span&gt;字');
+				me.isAllowSend = false;
+				$('#btnCommSend').removeClass('comm-sumbit').addClass('btn-comm-cancel');
+			} else {
+			  $('.commtxt-num').html('还可以输入&lt;span&gt;'+num+'&lt;/span&gt;字');
+				me.isAllowSend = true;
+				$('#btnCommSend').removeClass('btn-comm-cancel').addClass('comm-sumbit');
+			}
+		});
+		$('.comment-bug').bind('click',function(){
+			me.getCommentList(0,6);
+			me.changeNavStyle(this,'bug');
+		  return false;	
+		});
+		$('.comments-all').bind('click',function(){
+			me.getCommentList(0,3);
+			me.changeNavStyle(this,'all');
+		  return false;	
+		});
+	},
+	changeNavStyle:function(obj,type){
+		$('.commentNav a').removeClass('csel');
+		if(type == 'bug'){
+			$('.bug-tips').show();
+		} else {
+			$('.bug-tips').hide();
+		}
+		$(obj).addClass('csel');
+	},
+	strlen:function(str){
+		var s=0;
+		var bs = 0;
+		for(var i =0; i&lt;str.length;i++) {
+			if(str.charAt(i).match(/[^\x00-\xff]/)) {
+				s++;
+				s += bs/2+.5 &gt;&gt;0;
+				bs = 0;
+			} else {
+				bs++;
+			}
+		}
+		if(bs) {
+			s += bs/2+.5 &gt;&gt;0;
+		}
+		return s;
+	},
+	clearBindEvent:function(){
+		$('.rank-star').unbind();
+	},
+  checkComment:function(){
+    var txt = $('#commentBodyTxt').val().trim();
+    if($('#randomCode').val()==''){
+      $('.rank-succ-info').html('验证码不能为空！');
+      setTimeout(function(){$('.rank-succ-info').html('');},1000);
+      return false;
+    } else if(!this.rankValue) {
+			$('.rank-succ-info').html('请评个分数！');
+			setTimeout(function(){$('.rank-succ-info').html('');},1000);
+      return false;
+    } else if(!this.isAllowSend) {
+			$('.rank-succ-info').html('评论字数不能大于140字！');
+			setTimeout(function(){$('.rank-succ-info').html('');},1000);
+			$('#commentBodyTxt').css('background','#FE907E');
+			setTimeout(function(){$('#commentBodyTxt').css('background','');},500);
+      return false;
+    }
+    return true;
+  },
+  sendComment:function(){
+    var me = this;
+    if(!me.isAllowSend) return false;
+    var txt = $('#commentBodyTxt').val().trim();
+    if(this.checkComment()) {
+      var data = {
+      point:this.rankValue,
+      themeId:this.themeId,
+      version:this.version,
+      serviceToken:this.serviceToken,
+      inAjax:1,
+      comment:txt,
+      userId:this.userId,
+      randomCode:$('#randomCode').val().toUpperCase()
+    };
+		$('.rank-succ-info').html('正在发送评论评分，请稍等...');
+    $('#commentBodyTxt').attr('disabled',true);
+    me.isAllowSend = false;
+		$('#btnCommSend').removeClass('comm-sumbit').addClass('btn-comm-cancel');
+    $.ajax({
+      url:this.url,
+      type:'POST',
+      dataType:'json',
+      data:data,
+			statusCode : {
+				401 : function() {
+					$("#J-login-comm").attr("href", loginRootUrl);
+					$("#dialog-login-comment").modal({
+						hasClose : false
+					});
+					$('.rank-succ-info').html('');
+				}
+			},
+      success: function(r) {
+        if(r['code']==1) {
+          $('.rank-succ-info').html('成功提交！稍后审核通过就会展示出来');
+          me.setRankStyle(0);
+				  me.rankValue = 0;
+          me.hideCommentTextarea();
+          $('#commentBodyTxt').val('');
+          $('#randomCodeImg').attr('src','/ImageRandom?'+Math.random());
+          $('#randomCode').val('');
+          setTimeout(function(){$('.rank-succ-info').html(''); },1000);
+        } else {
+          $('.rank-succ-info').html(r['message']);
+          me.isAllowSend = true;
+          setTimeout(function(){$('.rank-succ-info').html('');},1000);
+        }
+        $('#commentBodyTxt').removeAttr('disabled');
+        $('#btnCommSend').removeClass('btn-comm-cancel').addClass('comm-sumbit');
+      }
+     });
+    }
+  },
+  insertCommDom:function(txt){
+    var obj = {
+      commentStatus:this.rankValue,
+      updateTime:new Date().getTime(),
+      commentValue:txt
+      
+    }
+		if($('.comment-list li').length == 0){
+			$('.comment-list').html('');
+		}
+    $('.comment-list').prepend(this.getCommentHtmTmp(obj));
+  },
+  getCommentList:function(page,status){
+		$('.comment-list').html('正在加载评论，请稍等...');
+    var me = this;
+     $.ajax({
+      url:this.listurl+'?page='+page+'&amp;t='+new Date().getTime()+'&amp;status='+status,
+      dataType:'json',
+      success: function(r) {
+        me.pageSize = r['pageSize'];
+        me.commentCount = r['commentCount'];
+				$('#commTurnPage').html('');
+				$('#commentRankPoint').addClass('r'+r['score']*2);
+        if(r['commentCount']&gt;0) {
+          var html = [''];
+          for(var i=0;i&lt;r['comments'].length;i++) {
+            html.push(me.getCommentHtmTmp(r['comments'][i]));
+          }
+          $('.comment-list').html(html.join(''));
+          me.createTurnPage(r['commentCount'],r['pageSize'],r['pageCount'],r['pageIndex'],status);
+        } else {
+					if(status==3) {
+            $('.comment-list').html('还没有评论啊，快评论一下吧！');
+					} else if (status==6) {
+						$('.comment-list').html('暂时还没有此类评论！');
+						$('.bug-tips').hide();
+					}
+        }
+      }
+     });
+  },
+  createTurnPage:function(commentCount,pageSize,pageCount,pageIndex,status){
+    var html = [];
+    if(pageIndex!=0) {
+      html.push('&lt;a href="#" onclick="rankAndComment.getCommentList(0,'+status+');return false;"&gt;首页&lt;/a&gt;');
+      html.push('&lt;a href="#" onclick="rankAndComment.getCommentList('+(pageIndex-1)+','+status+');return false;"&gt;上一页&lt;/a&gt;');
+    } else {
+			 html.push('&lt;span class="dis"&gt;首页&lt;/span&gt;');
+			 html.push('&lt;span class="dis"&gt;上一页&lt;/span&gt;');
+		}
+    if(pageCount&gt;1) {
+      html.push('&lt;span&gt;'+(pageIndex+1)+'&lt;/span&gt;');
+    }
+    if(pageIndex!=pageCount-1) {
+      html.push('&lt;a href="#" onclick="rankAndComment.getCommentList('+(pageIndex-0+1)+','+status+');return false;"&gt;下一页&lt;/a&gt;');
+      html.push('&lt;a href="#" onclick="rankAndComment.getCommentList('+(pageCount-1)+','+status+');return false;"&gt;末页&lt;/a&gt;');
+    } else {
+			 html.push('&lt;span class="dis"&gt;下一页&lt;/span&gt;');
+			 html.push('&lt;span class="dis"&gt;末页&lt;/span&gt;');
+		}
+		html.push('&lt;span&gt;共'+(pageCount)+'页&lt;/span&gt;');
+    $('#commTurnPage').html(html.join(''))
+  },
+  formatDate:function(t){
+    var tmp = new Date(t);
+    return tmp.getFullYear() +'年'+ (tmp.getMonth()+1) + '月' + tmp.getDate()+'日';
+  },
+  encodeHTML:function (source) {
+    return String(source)
+      .replace(/&amp;/g,'&amp;amp;')
+      .replace(/&lt;/g,'&amp;lt;')
+      .replace(/&gt;/g,'&amp;gt;')
+      .replace(/"/g, "&amp;quot;");
+  },
+  getCommentHtmTmp:function(data){
+    var html = [];
+    html.push('&lt;li&gt;&lt;div class="comment-tit"&gt;&lt;div class="rank-small r'+data['pointValue']+'"&gt;&lt;/div&gt;&lt;div class="comment-date"&gt;'+this.formatDate(data['updateTime'])+'&lt;/div&gt;');
+		if(this.isDesigner){
+			html.push('&lt;span style="float:left;margin-left:10px;"&gt;'+(data['device']? ('机型：'+data['device']):('暂无机型信息'))+'&lt;/span&gt;');
+			html.push('&lt;span style="float:left;margin-left:10px;"&gt;'+(data['version']? ('版本：'+data['version']):('暂无版本信息'))+'&lt;/span&gt;');
+		}
+		html.push('&lt;/div&gt;');
+    html.push('&lt;div class="comment-body"&gt;&lt;b&gt;'+(this.encodeHTML(data['nickname'])||'无名氏')+'：&lt;/b&gt;'+this.encodeHTML(data['commentValue'])+'&lt;/div&gt;&lt;/li&gt;');
+    return html.join('');
+  },
+  setRankStyle:function(count){
+    $('#'+this.wrap+' .rank-star').removeClass('light');
+    for(var i=0;i&lt;(count);i++) {
+      $('#'+this.wrap+'rankStar'+i).addClass('light');
+    }
+  },
+	showCommentTextarea:function(){
+		if(!this.userId) {
+			$("#J-login-comm").attr("href", loginRootUrl);
+			$("#dialog-login-comment").modal({
+				hasClose : false
+			});
+		} else if (this.isBuy == 'false' &amp;&amp; isJustBuy == 'false') {
+			 $('.rank-succ-info').html('您还没有购买过该主题！');
+		   setTimeout(function(){$('.rank-succ-info').html('');},1000);
+		} else {
+		  $('.btn-writebg').hide();
+		  $('.commentEdit').show();
+		}
+	},
+	hideCommentTextarea:function(){
+		$('.btn-writebg').show();
+		$('.commentEdit').hide();
+	}
+}</pre></body></html>
